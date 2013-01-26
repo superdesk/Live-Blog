@@ -11,12 +11,12 @@ API specifications for URL info service.
 
 from ally.api.config import service, call
 from ally.api.type import Reference, List
-from superdesk.api.domain_superdesk import model
 from datetime import datetime
+from superdesk.api.domain_superdesk import modelTool
 
 # --------------------------------------------------------------------
 
-@model(id='URL')
+@modelTool(id='URL')
 class URLInfo:
     '''
     Provides the URL info model.

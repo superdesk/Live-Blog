@@ -9,11 +9,11 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from ..superdesk.db_superdesk import alchemySessionCreator, createTables
+from ..superdesk.db_superdesk import alchemySessionCreator
 from ally.api.extension import IterPart
-from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
+from distribution.container import app
 from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
@@ -26,7 +26,6 @@ from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.language.api.language import ILanguageService, LanguageEntity
-from superdesk.person.api.person import QPerson
 from superdesk.post.api.post import Post
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -179,14 +178,14 @@ def getUsersIds():
     if not _cache_users:
         users = _cache_users
         for name in USERS:
-            usrs = userService.getAll(adminId=None, q=QUser(name=name))
+            usrs = userService.getAll(q=QUser(name=name))
             if usrs: users[name] = next(iter(usrs)).Id
             else:
                 usr = User()
                 usr.Name = name
                 usr.Password = hashlib.sha512(b'a').hexdigest()
                 usr.FirstName, usr.LastName, usr.EMail = USERS[name]
-                users[name] = userService.insert(adminId=None, user=usr)
+                users[name] = userService.insert(user=usr)
     return _cache_users
 
 
@@ -321,7 +320,7 @@ def createBlogPosts():
 
 # --------------------------------------------------------------------
 
-@ioc.after(createTables)
+@app.populate
 def populate():
     getSourcesIds()
     createPostType('normal')

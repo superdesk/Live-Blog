@@ -32,7 +32,7 @@ from superdesk.media_archive.meta.video_data import META_TYPE_KEY,\
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, 'videoDataHandler')
+@setup(IMetaDataHandler, name='videoDataHandler')
 class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the video persistence @see: IVideoPersistanceService.

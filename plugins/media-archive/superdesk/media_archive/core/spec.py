@@ -51,13 +51,6 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractclassmethod
-    def deploy(self):
-        '''
-        Deploy the handler, at this moment the handler should create the required meta types and thumbnail specifications.
-        '''
-
-
-    @abc.abstractclassmethod
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method

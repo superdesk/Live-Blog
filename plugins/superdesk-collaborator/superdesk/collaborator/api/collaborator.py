@@ -12,14 +12,14 @@ API specifications for collaborators.
 from ally.api.config import service, call, LIMIT_DEFAULT
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityGetCRUDService
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelData
 from superdesk.source.api.source import Source, QSource
 from superdesk.user.api.user import User, QUser
 from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelData
 class Collaborator(Entity):
     '''
     Provides the collaborator model.

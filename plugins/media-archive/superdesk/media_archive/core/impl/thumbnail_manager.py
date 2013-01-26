@@ -44,7 +44,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     a value a tuple with the width/height of the thumbnail, example: {'small': [100, 100]}.
     ''')
     thumbnailProcessor = IThumbnailProcessor; wire.entity('thumbnailProcessor')
-    cdm = ICDM
+    cdmThumbnail = ICDM; wire.entity('cdmThumbnail')
     # the content delivery manager where to publish thumbnails
 
     def __init__(self):
@@ -52,7 +52,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         assert isinstance(self.thumbnail_sizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnail_sizes
         assert isinstance(self.thumbnailProcessor, IThumbnailProcessor), \
         'Invalid thumbnail processor %s' % self.thumbnailProcessor
-        assert isinstance(self.cdm, ICDM), 'Invalid thumbnail CDM %s' % self.cdm
+        assert isinstance(self.cdmThumbnail, ICDM), 'Invalid thumbnail CDM %s' % self.cdmThumbnail
 
         # We order the thumbnail sizes in descending order
         thumbnailSizes = [(key, sizes) for key, sizes in self.thumbnail_sizes.items()]
@@ -68,7 +68,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         assert isinstance(imagePath, str), 'Invalid file path %s' % imagePath
 
         thumbPath = self.thumbnailPath(thumbnailFormatId, metaData)
-        try: thumbTimestamp = self.cdm.getTimestamp(thumbPath)
+        try: thumbTimestamp = self.cdmThumbnail.getTimestamp(thumbPath)
         except PathNotFound: thumbTimestamp = None
 
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
@@ -76,10 +76,10 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             thumbName, thumbExt = splitext(thumbPath)
             if imageExt != thumbExt: thumbPath = thumbName + imageExt
 
-            self.cdm.publishFromFile(thumbPath, imagePath)
+            self.cdmThumbnail.publishFromFile(thumbPath, imagePath)
 
             if thumbPath != thumbProcPath:
-                thumbPath, thumbProcPath = self.cdm.getURI(thumbPath, 'file'), self.cdm.getURI(thumbProcPath, 'file')
+                thumbPath, thumbProcPath = self.cdmThumbnail.getURI(thumbPath, 'file'), self.cdmThumbnail.getURI(thumbProcPath, 'file')
                 self.thumbnailProcessor.processThumbnail(thumbPath, thumbProcPath)
 
     def populate(self, metaData, scheme, size=None):
@@ -92,15 +92,15 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         if not metaData.thumbnailFormatId: return metaData
 
         thumbPath = self.thumbnailPath(metaData.thumbnailFormatId, metaData, size)
-        try: self.cdm.getTimestamp(thumbPath)
+        try: self.cdmThumbnail.getTimestamp(thumbPath)
         except PathNotFound:
             original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)
-            original = self.cdm.getURI(original, 'file')
+            original = self.cdmThumbnail.getURI(original, 'file')
 
             width, height = self.thumbnailSizes[size]
-            self.thumbnailProcessor.processThumbnail(original, self.cdm.getURI(thumbPath, 'file'), width, height)
+            self.thumbnailProcessor.processThumbnail(original, self.cdmThumbnail.getURI(thumbPath, 'file'), width, height)
 
-        metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
+        metaData.Thumbnail = self.cdmThumbnail.getURI(thumbPath, scheme)
         return metaData
 
     # ----------------------------------------------------------------

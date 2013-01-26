@@ -16,23 +16,24 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
+from distribution.support import IPopulator
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler,\
+from superdesk.media_archive.core.spec import IMetaDataHandler, \
     IThumbnailManager
-import re
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
-from superdesk.media_archive.meta.image_data import META_TYPE_KEY,\
+from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
     ImageDataEntry
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+import re
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, 'imageDataHandler')
-class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
+@setup(IMetaDataHandler, IPopulator, name='imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
     '''
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
@@ -59,19 +60,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
-
-    def deploy(self):
-        '''
-        @see: IMetaDataHandler.deploy
-        '''
-
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'image.jpg')))
-
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
-        self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
-
-# --------------------------------------------------------------------
+        self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -126,11 +115,11 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
         metaDataMapped.content = path
-        metaDataMapped.typeId = self._metaTypeId
-        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 
-        self.thumbnailManager.putThumbnail(self._thumbnailFormat.id, contentPath, metaDataMapped)
+        self.thumbnailManager.putThumbnail(self.thumbnailFormatId(), contentPath, metaDataMapped)
 
         try: self.session().add(imageDataEntry)
         except SQLAlchemyError as e:
@@ -140,7 +129,38 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return True
 
     # ----------------------------------------------------------------
+    
+    def doPopulate(self):
+        '''
+        @see: IPopulator.doPopulate
+        '''
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
+                                           abspath(join(pythonPath(), 'resources', 'image.jpg')))
+        
+    # ----------------------------------------------------------------
 
+    def metaTypeId(self):
+        '''
+        Provides the meta type id.
+        '''
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        return self._metaTypeId
+    
+    def defaultThumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._defaultThumbnailFormatId:
+            self._defaultThumbnailFormatId = thumbnailFormatFor(self.session(), self.default_format_thumbnail).id
+        return self._defaultThumbnailFormatId
+    
+    def thumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
+        return self._thumbnailFormatId
+    
     def extractProperty(self, line):
         return line.partition(':')[0].strip()
 

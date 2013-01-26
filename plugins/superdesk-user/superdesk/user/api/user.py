@@ -9,18 +9,16 @@ Created on Mar 6, 2012
 The API specifications for the user.
 '''
 
-from ally.api.config import service, query, UPDATE, call, LIMIT_DEFAULT
+from ally.api.config import service, query, UPDATE, call, model
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike
-from ally.support.api.entity import Entity, IEntityService, QEntity
-from superdesk.api.domain_superdesk import modelSuperDesk
-from superdesk.person.api.person import Person, QPerson
+from ally.support.api.entity import IEntityService, QEntity, Entity
 from datetime import datetime
-from ally.api.authentication import auth
-from ally.api.type import Iter
+from superdesk.api.domain_superdesk import modelHR
+from superdesk.person.api.person import Person, QPerson
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@model
 class User(Person):
     '''    
     Provides the user model.
@@ -30,12 +28,13 @@ class User(Person):
     DeletedOn = datetime
     Password = str
 
-@modelSuperDesk(name=User)
-class UserPassword(Entity):
+@modelHR
+class Password:
     '''
-    Separate model for password actions, just in case
+    Separate model for changing password actions.
     '''
-    Password = str
+    OldPassword = str
+    NewPassword = str
 
 # --------------------------------------------------------------------
 
@@ -56,34 +55,8 @@ class IUserService(IEntityService):
     User model service interface
     '''
     
-    @call
-    def getById(self, adminId:auth(User.Id), id:User.Id) -> User:
+    @call(method=UPDATE)
+    def changePassword(self, id:User.Id, password:Password):
         '''
-        '''       
-        
-    @call
-    def getAll(self, adminId:auth(User.Id), offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QUser=None) -> Iter(User):
-        '''
-        '''
-    
-    @call
-    def insert(self, adminId:auth(User.Id), user:User) -> User.Id:
-        '''
-        '''
-        
-    @call
-    def delete(self, adminId:auth(User.Id), user:User) -> bool:
-        '''
-        '''
-        
-    @call
-    def update(self, adminId:auth(User.Id), user:User) -> bool:
-        '''
-        '''
-        
-    
-    @call(method=UPDATE, webName='ChangePassword')
-    def changePassword(self, adminId:auth(User.Id), user:UserPassword):
-        '''
-        Changes user password by user id
+        Changes user password
         '''
