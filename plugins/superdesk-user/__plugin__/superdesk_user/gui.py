@@ -1,28 +1,27 @@
 '''
 Created on Feb 2, 2012
 
-@package ally core request
-@copyright 2011 Sourcefabric o.p.s.
+@package: superdesk user
+@copyright: 2011 Sourcefabric o.p.s.
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Contains the GUI configuration setup for the node presenter plugin.
 '''
 
+from ..gui_action.defaults import menuAction
+from ..gui_core.gui_core import publishGui, publishedURI
 from ally.container import ioc
-from .actions import menuAction
-from ..gui_core.gui_core import publishGui, getPublishedGui
-
+from distribution.container import app
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def publishJS():
     publishGui('superdesk/user')
     
-@ioc.start    
+@ioc.before(menuAction)
 def setActionScripts():
-    a = menuAction()
-    a.ScriptPath = getPublishedGui('superdesk/user/scripts/js/menu.js')
+    menuAction().Script = publishedURI('superdesk/user/scripts/js/menu.js')
     
     

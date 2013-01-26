@@ -10,7 +10,6 @@ The implementation for the query criteria API.
 '''
 
 from ally.container.ioc import injected
-from ally.container.support import setup
 from ally.support.api.util_service import processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
@@ -21,7 +20,6 @@ from superdesk.media_archive.api.query_criteria import QueryCriteria
 # --------------------------------------------------------------------
 
 @injected
-@setup(IQueryCriteriaService)
 class QueryCriteriaService(IQueryCriteriaService):
     '''
     Implementation for @see: IQueryCriteriaService to get the list of multi-plugin query criteria and

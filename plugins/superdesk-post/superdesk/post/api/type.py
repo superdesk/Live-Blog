@@ -11,11 +11,11 @@ API specifications for post types.
 
 from ally.api.config import service
 from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelData
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelData
 class PostType(Entity):
     '''
     Provides the post type model.

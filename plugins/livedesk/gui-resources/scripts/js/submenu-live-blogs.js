@@ -15,7 +15,6 @@ define
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
         b = Gizmo.Auth(new Blogs());
-    //b.href.decorate('%s/Administered');
     
     var SubmenuView = Gizmo.View.extend
     ({
@@ -39,9 +38,9 @@ define
                 {
                     var callback = function()
                     { 
-                        require([superdesk.apiUrl+action.ScriptPath], function(app){ new app(); });
+                        require([action.Script.href], function(app){ new app(); });
                     };
-                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 }); 
                 event.preventDefault();
             });
@@ -52,8 +51,8 @@ define
                 superdesk.getAction('modules.livedesk.add')
                 .done(function(action)
                 {
-                    action.ScriptPath &&
-                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
+                    action.Script &&
+                        require([action.Script.href], function(AddApp){ addApp = new AddApp(); });
                 }); 
                 event.preventDefault();
             });
@@ -64,11 +63,12 @@ define
                 superdesk.getAction('modules.livedesk.edit')
                 .done(function(action)
                 {
+                    if(!action) return;
                     var callback = function()
                     { 
-                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                        require([action.Script.href], function(EditApp){ EditApp(theBlog); }); 
                     };
-                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 });
                 event.preventDefault();
             });
@@ -83,7 +83,7 @@ define
                 {
                     if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname())
                     {
-                        superdesk.navigation.consumeStartPathname()
+                        superdesk.navigation.consumeStartPathname();
                         $(this).trigger('click');
                     }
                 });

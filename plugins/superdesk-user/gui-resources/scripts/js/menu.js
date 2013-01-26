@@ -9,8 +9,8 @@ function($, superdesk)
         superdesk.getAction('modules.user.list')
         .done(function(action)
         {
-            if(action.Path == 'modules.user.list' && action.ScriptPath)
-                require([superdesk.apiUrl+action.ScriptPath], function(app){ app(); });
+            if(action.Path == 'modules.user.list' && action.Script)
+                require([action.Script.href], function(app){ app(); });
         });
     }};
 });

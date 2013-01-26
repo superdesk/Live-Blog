@@ -79,11 +79,8 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         @see: IBlogService.putLive
         '''
-        sql = self._buildQuery(adminId=adminId)
-        sql = sql.filter(BlogMapped.Id == blogId)
-        
-        try: blog = sql.one()
-        except NoResultFound: raise InputError(_('Invalid blog or credentials')) 
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog or credentials')) 
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         return self.session().merge(blog)
@@ -107,7 +104,8 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         userFilter = None
         if adminId:
-            userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) & (AdminEntry.Blog == BlogMapped.Id))
+            userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) &
+                                                                          (AdminEntry.Blog == BlogMapped.Id))
         if collaboratorId:
             userFilter |= exists().where((CollaboratorMapped.User == collaboratorId) \
                                          & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \

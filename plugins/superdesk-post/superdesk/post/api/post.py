@@ -9,27 +9,26 @@ Created on May 2, 2012
 API specifications for posts.
 '''
 
-from ally.api.authentication import auth
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityGetCRUDService
 from ally.support.api.keyed import QEntity
 from datetime import datetime
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelData
 from superdesk.collaborator.api.collaborator import Collaborator
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelData
 class Post(Entity):
     '''
     Provides the post message model.
     '''
     Type = PostType
-    Creator = auth(User)
+    Creator = User
     Author = Collaborator
     IsModified = bool
     IsPublished = bool

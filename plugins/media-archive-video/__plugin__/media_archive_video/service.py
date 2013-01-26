@@ -19,7 +19,7 @@ from superdesk.media_archive.api.video_data import IVideoDataService
 
 # --------------------------------------------------------------------
 
-videoDataHandler = ioc.getEntity('videoDataHandler', service)
+videoDataHandler = ioc.entityOf('videoDataHandler', service)
 
 @ioc.entity
 def cdmArchive() -> ICDM:
@@ -28,7 +28,7 @@ def cdmArchive() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
 
-@ioc.replace(ioc.getEntity(IVideoDataService, service))
+@ioc.replace(ioc.entityOf(IVideoDataService, service))
 def videoData() -> IVideoDataService:
     b = VideoDataServiceAlchemy()
     b.cdmArchive = cdmArchive()

@@ -16,16 +16,16 @@ from ally.container import wire
 from superdesk.media_archive.api.image_info import IImageInfoService, QImageInfo
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from superdesk.media_archive.api.image_data import QImageData
-from superdesk.media_archive.meta.image_data import ImageDataMapped,\
+from superdesk.media_archive.meta.image_data import ImageDataMapped, \
     ImageDataEntry, META_TYPE_KEY
-from superdesk.media_archive.meta.image_info import ImageInfoMapped,\
+from superdesk.media_archive.meta.image_info import ImageInfoMapped, \
     ImageInfoEntry
 
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IImageInfoService)
+@setup(IImageInfoService, name='imageInfoService')
 class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
     @see: IImageInfoService
@@ -34,5 +34,7 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     queryIndexer = QueryIndexer; wire.entity('queryIndexer')
 
     def __init__(self):
+        assert isinstance(self.queryIndexer, QueryIndexer), 'Invalid query indexer %s' % self.queryIndexer
         MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
+        
         self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData, META_TYPE_KEY)

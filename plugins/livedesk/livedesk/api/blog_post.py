@@ -11,17 +11,15 @@ API specifications for livedesk blog posts.
 
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query, UPDATE, extension
-from livedesk.api.domain_livedesk import modelLiveDesk
-from superdesk.post.api.post import Post, QPostUnpublished, \
-    QPost, IPostService
-from superdesk.user.api.user import User
-from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter, Reference
 from ally.api.criteria import AsRangeOrdered, AsBoolean
-from ally.api.authentication import auth
-from superdesk.person.api.person import Person
-from superdesk.post.api.type import PostType
 from ally.api.extension import IterPart
+from ally.api.type import Iter, Reference
+from livedesk.api.domain_livedesk import modelLiveDesk
+from superdesk.collaborator.api.collaborator import Collaborator
+from superdesk.person.api.person import Person
+from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
+from superdesk.post.api.type import PostType
+from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
 
@@ -111,7 +109,7 @@ class IBlogPostService:
         '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:auth(User), typeId:PostType=None, offset:int=None, limit:int=None,
+    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, offset:int=None, limit:int=None,
                  q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have

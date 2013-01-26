@@ -17,7 +17,7 @@ from ally.core.http.spec.server import RequestHTTP, RequestContentHTTP, \
 from ally.core.spec.codes import Code
 from ally.design.processor import ONLY_AVAILABLE, CREATE_REPORT, Assembly, \
     Processing, Chain
-from ally.support.util_io import IOutputStream, readGenerator
+from ally.support.util_io import IInputStream, readGenerator
 from urllib.parse import urlparse, parse_qsl
 import re
 
@@ -98,7 +98,7 @@ def processGet(pathProcessing, headers, url):
     if not rsp.code.isSuccess: raise Exception('Bad response \'%s\' %s' % (rsp.code.code, rsp.text))
 
     if rspCnt.source is not None:
-        if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source)
+        if isinstance(rspCnt.source, IInputStream): source = readGenerator(rspCnt.source)
         else: source = rspCnt.source
 
         for bytes in source: pass  # Just the consume the stream

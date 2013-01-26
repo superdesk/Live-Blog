@@ -1,7 +1,7 @@
 '''
 Created on Apr 19, 2012
 
-@package: superdesk media archive
+@package: superdesk
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -14,5 +14,14 @@ from ally.api.config import model
 
 # --------------------------------------------------------------------
 
-DOMAIN = 'Superdesk/'
-modelSuperDesk = partial(model, domain=DOMAIN)
+DOMAIN_LOCALIZATION = 'Localization/'
+modelLocalization = partial(model, domain=DOMAIN_LOCALIZATION)
+
+DOMAIN = 'HR/'
+modelHR = partial(model, domain=DOMAIN)
+
+DOMAIN_DATA = 'Data/'
+modelData = partial(model, domain=DOMAIN_DATA)
+
+DOMAIN_TOOL = 'Tool/'
+modelTool = partial(model, domain=DOMAIN_TOOL)

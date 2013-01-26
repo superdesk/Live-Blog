@@ -12,11 +12,11 @@ API specifications for languages.
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Locale, List, Iter
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelLocalization
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk(id='Code')
+@modelLocalization(id='Code')
 class Country:
     '''    
     Provides the country model.
