@@ -9,12 +9,12 @@ Created on Jan 9, 2012
 Contains the services for livedesk.
 '''
 
+from ..cdm.local_cdm import contentDeliveryManager
 from ..plugin.registry import addService
 from ..superdesk.db_superdesk import bindSuperdeskSession, \
     bindSuperdeskValidations
-from ally.container import support
-from ..cdm.local_cdm import contentDeliveryManager
-from ..livedesk_embed.gui import themes_path
+from ally.container import support, ioc
+from cdm.spec import ICDM
 
 # --------------------------------------------------------------------
 
@@ -27,9 +27,5 @@ support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------
 
-@ioc.replace(ioc.getEntity(IBlogThemeService))
-def blogThemeService() -> IBlogThemeService:
-    s = BlogThemeServiceAlchemy()
-    s.themesPath = themes_path()
-    s.cdmGUI = contentDeliveryManager()
-    return s
+@ioc.entity
+def blogThemeCDM() -> ICDM: return contentDeliveryManager()
