@@ -23,7 +23,7 @@ function($, superdesk, giz, uploadCom)
         {
             $('input[type="file"]', this.el).trigger('click');
         },
-        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
         upload: function()
         {
             var files = $('[data-action="upload"]', this.el)[0].files,
