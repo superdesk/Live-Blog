@@ -9,17 +9,16 @@ Created on Aug 23, 2012
 API specifications for media archive video info.
 '''
 
-from ally.api.config import query, service
-from superdesk.media_archive.api.domain_archive import modelArchive
-from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo,\
+from ally.api.config import query, service, model
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from superdesk.media_archive.api.meta_data import MetaData, QMetaData
+from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo, \
     IMetaInfoService
 from superdesk.media_archive.api.video_data import VideoData, QVideoData
-from superdesk.media_archive.api.meta_data import MetaData, QMetaData
-from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
-@modelArchive
+@model
 class VideoInfo(MetaInfo):
     '''
     Provides the meta info video.
