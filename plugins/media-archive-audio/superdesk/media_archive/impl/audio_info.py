@@ -9,16 +9,17 @@ Created on Aug 23, 2012
 SQL Alchemy based implementation for the audio data API. 
 '''
 
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import QueryIndexer
-from ally.container import wire
-from superdesk.media_archive.meta.audio_data import AudioDataEntry,\
-    AudioDataMapped, META_TYPE_KEY
-from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from superdesk.media_archive.api.audio_data import QAudioData
 from superdesk.media_archive.api.audio_info import IAudioInfoService, QAudioInfo
-from superdesk.media_archive.meta.audio_info import AudioInfoMapped,\
+from superdesk.media_archive.core.impl.meta_service_base import \
+    MetaInfoServiceBaseAlchemy
+from superdesk.media_archive.core.spec import QueryIndexer
+from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
+    AudioDataMapped, META_TYPE_KEY
+from superdesk.media_archive.meta.audio_info import AudioInfoMapped, \
     AudioInfoEntry
 
 
@@ -31,7 +32,7 @@ class AudioInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IAudioInfoService):
     @see: IAudioInfoService
     '''
     
-    queryIndexer = QueryIndexer;wire.entity('queryIndexer')
+    queryIndexer = QueryIndexer; wire.entity('queryIndexer')
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, AudioInfoMapped, QAudioInfo, AudioDataMapped, QAudioData)

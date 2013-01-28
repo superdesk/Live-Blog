@@ -10,14 +10,11 @@ Contains the services setups for media image archive.
 '''
 
 from ..cdm.local_cdm import contentDeliveryManager
-from ..superdesk import service
 from ally.container import ioc
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
 
 # --------------------------------------------------------------------
-
-imageDataHandler = ioc.entityOf('imageDataHandler', service)
 
 @ioc.entity
 def cdmArchiveImage() -> ICDM:

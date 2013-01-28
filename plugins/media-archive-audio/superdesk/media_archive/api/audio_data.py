@@ -9,21 +9,19 @@ Created on Oct 1, 2012
 API specifications for media meta data audio archive.
 '''
 
-from ally.api.config import query, service
-from superdesk.media_archive.api.domain_archive import modelArchive
-from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService,\
-    MetaData
-from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from ally.api.config import query, service, model
 from ally.api.criteria import AsRangeOrdered, AsEqualOrdered, AsLikeOrdered
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService, \
+    MetaData
 
 # --------------------------------------------------------------------
 
-@modelArchive
+@model
 class AudioData(MetaData):
     '''
     Provides the meta data that is extracted based on the content.
     '''
-
     Length = int
     AudioEncoding = str
     SampleRate = int
