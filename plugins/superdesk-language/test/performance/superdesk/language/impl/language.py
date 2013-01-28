@@ -9,12 +9,19 @@ Created on Feb 21, 2012
 Provides unit testing for the language module.
 '''
 
-import unittest
-from superdesk.language.impl.language import LanguageServiceBabelAlchemy
-from superdesk.language.api.language import QLanguage
+# Required in order to register the package extender whenever the unit test is run.
+if True:
+    import package_extender
+    package_extender.PACKAGE_EXTENDER.setForUnitTest(True)
+
+# --------------------------------------------------------------------
+
 from ally.container import ioc
-import pstats
 from profile import Profile
+from superdesk.language.api.language import QLanguage
+from superdesk.language.impl.language import LanguageServiceBabelAlchemy
+import pstats
+import unittest
 
 # --------------------------------------------------------------------
 
@@ -32,11 +39,10 @@ class TestLanguage(unittest.TestCase):
         profile = Profile()
         qlang = QLanguage(name='rom%')
         try:
-            profile = profile.runctx("languageService.getAllAvailable(0, 10, qlang, None)", globals(), locals())
+            profile = profile.runctx("languageService.getAllAvailable(['en'], 0, 10, qlang)", globals(), locals())
         except SystemExit: pass
         pstats.Stats(profile).sort_stats('time', 'cum').print_stats()
         
 # --------------------------------------------------------------------
   
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == '__main__': unittest.main()
