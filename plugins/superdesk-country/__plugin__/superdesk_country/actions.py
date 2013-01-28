@@ -63,10 +63,10 @@ def registerActions():
     addAction(modulesListAction())
     #addAction(modulesAddAction())
 
-@acl.setup
-def registerAclCountryView():
-    rightCountryView().addActions(menuAction(), modulesAction(), modulesListAction())\
-    .allGet(ICountryService)
+#@acl.setup
+#def registerAclCountryView():
+#    rightCountryView().addActions(menuAction(), modulesAction(), modulesListAction())\
+#    .allGet(ICountryService)
     
 #@acl.setup
 #def registerAclCountryModify():
