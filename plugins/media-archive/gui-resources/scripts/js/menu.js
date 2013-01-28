@@ -10,8 +10,8 @@ function($, superdesk)
         .done(function(action)
         {
             if( !action ) return; 
-            if( action.Path == 'modules.media-archive.main' && action.ScriptPath )
-                require([superdesk.apiUrl+action.ScriptPath], function(app){ app(); });
+            if( action.Path == 'modules.media-archive.main' && action.Script )
+                require([action.Script.href], function(app){ app(); });
         });
     }};
 });
