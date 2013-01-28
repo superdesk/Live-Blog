@@ -81,5 +81,3 @@ def publishQueryCriteriaService() -> IQueryCriteriaService: return QueryCriteria
 def publishQueryService():
     b = createService(queryIndexer(), cdmArchive(), support.entityFor(IThumbnailManager))
     registerService(b, (bindSuperdeskSession,))
-
-
