@@ -108,7 +108,8 @@
                     Language: lang.val(),
                     Title: $.styledNodeHtml(title).replace(/<br\s*\/?>\s*$/, ''),
                     Type: blogtype.val(),
-                    Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
+                    Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, ''),
+                    Creator: localStorage.getItem('superdesk.login.id')
                 };
             self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type,Admin').sync().done(function(liveBlog){
                     self.model._parseHash(liveBlog);

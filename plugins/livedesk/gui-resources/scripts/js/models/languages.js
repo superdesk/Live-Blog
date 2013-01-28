@@ -4,7 +4,7 @@ define([
 ], function( Gizmo ) {
 
     return Gizmo.Collection.extend({
-    	url: new Gizmo.Url('Superdesk/Language'),
+    	url: new Gizmo.Url('Localization/Language'),
     	model: Gizmo.Register.Language 
     }, { register: 'Languages' } );
 
