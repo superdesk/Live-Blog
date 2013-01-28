@@ -9,36 +9,32 @@ Created on Oct 1, 2012
 SQL Alchemy based implementation for the audio data API. 
 '''
 
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer,\
-    IThumbnailManager
-from superdesk.media_archive.api.audio_data import IAudioDataService, QAudioData
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from cdm.spec import ICDM
-from ally.container import wire
+from superdesk.media_archive.api.audio_data import IAudioDataService, QAudioData
+from superdesk.media_archive.core.impl.meta_service_base import \
+    MetaDataServiceBaseAlchemy
+from superdesk.media_archive.core.spec import IMetaDataReferencer, \
+    IThumbnailManager
 from superdesk.media_archive.meta.audio_data import AudioDataMapped
-from superdesk.media_archive.core.impl.meta_service_base import MetaDataServiceBaseAlchemy
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IAudioDataService)
+@setup(IAudioDataService, name='audioDataService')
 class AudioDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IAudioDataService):
     '''
-    @see: IAudioDataService
+    Implementation for see @see: IAudioDataService
     '''
-
-    handler = IMetaDataHandler
     
-    cdmArchive = ICDM
-    # The archive CDM.
+    cdmArchiveAudio = ICDM; wire.entity('cdmArchiveAudio')
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
-    # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.handler, IMetaDataHandler), 'Invalid handler %s' % self.handler
-        assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
+        assert isinstance(self.cdmArchiveAudio, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveAudio
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
        
         MetaDataServiceBaseAlchemy.__init__(self, AudioDataMapped, QAudioData, self)
@@ -50,10 +46,8 @@ class AudioDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
         @see: IMetaDataReferencer.populate
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
+        metaData.Content = self.cdmArchiveAudio.getURI(metaData.content, scheme)
         self.thumbnailManager.populate(metaData, scheme, thumbSize)
         
         return metaData
-
-    # ----------------------------------------------------------------
     

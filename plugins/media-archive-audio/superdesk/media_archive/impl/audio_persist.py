@@ -21,18 +21,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler,\
+from superdesk.media_archive.core.spec import IMetaDataHandler, \
     IThumbnailManager
 import re
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
-from superdesk.media_archive.meta.audio_data import AudioDataEntry,\
+from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     META_TYPE_KEY
+from distribution.support import IPopulator
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, name='audioDataHandler')
-class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
+@setup(IMetaDataHandler, IPopulator, name='audioDataHandler')
+class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
     '''
     Provides the service that handles the audio persistence @see: IAudioPersistanceService.
     '''
@@ -62,17 +63,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
-
-    def deploy(self):
-        '''
-        @see: IMetaDataHandler.deploy
-        '''
-        
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'audio.jpg')))
-        
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
-        self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -92,12 +83,12 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        #extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
-        #the generated metadata file will be deleted
+        # extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
+        # the generated metadata file will be deleted
         tmpFile = self.ffmpeg_tmp_path + str(metaDataMapped.Id)
         
         if exists(tmpFile): remove(tmpFile)       
-        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  tmpFile), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata', tmpFile), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait() 
         if exists(tmpFile): remove(tmpFile)  
         if result != 0: return False
@@ -140,7 +131,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     elif property == 'composer':
                         audioDataEntry.Composer = self.extractString(line)
                     elif property == 'Duration':
-                        #Metadata section is finished 
+                        # Metadata section is finished 
                         metadata = False
                             
                 if metadata: continue        
@@ -169,8 +160,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
         metaDataMapped.content = path
-        metaDataMapped.typeId = self._metaTypeId
-        metaDataMapped.thumbnailFormatId = self._defaultThumbnailFormat.id
+        metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 
         try:
@@ -183,9 +174,40 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return True
 
     # ----------------------------------------------------------------
+    
+    def doPopulate(self):
+        '''
+        @see: IPopulator.doPopulate
+        '''
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
+                                           abspath(join(pythonPath(), 'resources', 'audio.jpg')))
+        
+    # ----------------------------------------------------------------
+
+    def metaTypeId(self):
+        '''
+        Provides the meta type id.
+        '''
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        return self._metaTypeId
+    
+    def defaultThumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._defaultThumbnailFormatId:
+            self._defaultThumbnailFormatId = thumbnailFormatFor(self.session(), self.default_format_thumbnail).id
+        return self._defaultThumbnailFormatId
+    
+    def thumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
+        return self._thumbnailFormatId
 
     def extractDuration(self, line):
-        #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
+        # Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
         properties = line.split(',')
         
         length = properties[0].partition(':')[2]
@@ -204,7 +226,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
 
     def extractAudio(self, line):
-        #Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
+        # Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
         properties = (line.rpartition(':')[2]).split(',')
 
         index = 0

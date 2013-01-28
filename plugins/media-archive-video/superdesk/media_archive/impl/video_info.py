@@ -25,7 +25,7 @@ from superdesk.media_archive.meta.video_info import VideoInfoMapped,\
 # --------------------------------------------------------------------
 
 @injected
-@setup(IVideoInfoService)
+@setup(IVideoInfoService, name='videoInfoService')
 class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
     '''
     @see: IVideoInfoService

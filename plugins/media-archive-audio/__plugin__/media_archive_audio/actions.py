@@ -7,11 +7,12 @@ Created on May 3rd, 2012
 @author: Mihai Balaceanu
 '''
 
-from ally.container import ioc
-from gui.action.api.action import Action
-from ..gui_action.service import actionManagerService
-from ..gui_core.gui_core import getPublishedGui
+from ..gui_action.service import addAction
+from ..gui_core.gui_core import publishedURI
 from ..media_archive.actions import modulesAction as mediaArchiveAction
+from ally.container import ioc
+from distribution.container import app
+from gui.action.api.action import Action
 
 # --------------------------------------------------------------------
 
@@ -20,9 +21,9 @@ def modulesAction():
     '''
     register image plugin on media archive actions
     '''
-    return Action('audio', Parent=mediaArchiveAction(), ScriptPath=getPublishedGui('media-archive-audio/scripts/js/media-archive/'))
+    return Action('audio', Parent=mediaArchiveAction(), Script=publishedURI('media-archive-audio/scripts/js/media-archive/'))
 
-@ioc.start
+@app.deploy
 def registerActions():
-    actionManagerService().add(modulesAction())
+    addAction(modulesAction())
     

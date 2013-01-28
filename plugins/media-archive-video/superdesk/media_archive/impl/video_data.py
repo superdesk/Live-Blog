@@ -9,37 +9,33 @@ Created on Aug 23, 2012
 SQL Alchemy based implementation for the video data API. 
 '''
 
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer,\
-    IThumbnailManager
-from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from cdm.spec import ICDM
-from ally.container import wire
-from superdesk.media_archive.core.impl.meta_service_base import MetaDataServiceBaseAlchemy
+from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
+from superdesk.media_archive.core.impl.meta_service_base import \
+    MetaDataServiceBaseAlchemy
+from superdesk.media_archive.core.spec import IMetaDataHandler, \
+    IMetaDataReferencer, IThumbnailManager
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.video_data import VideoDataMapped
 
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IVideoDataService)
+@setup(IVideoDataService, name='videoDataService')
 class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IVideoDataService):
     '''
     @see: IVideoDataService
     '''
 
-    handler = IMetaDataHandler
-    
-    cdmArchive = ICDM
-    # The archive CDM.
+    cdmArchiveVideo = ICDM; wire.entity('cdmArchiveVideo')
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
-    # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.handler, IMetaDataHandler), 'Invalid handler %s' % self.handler
-        assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
+        assert isinstance(self.cdmArchiveVideo, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveVideo
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
        
         MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self)
@@ -51,7 +47,7 @@ class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
         @see: IMetaDataReferencer.populate
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
+        metaData.Content = self.cdmArchiveVideo.getURI(metaData.content, scheme)
         self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
         return metaData
