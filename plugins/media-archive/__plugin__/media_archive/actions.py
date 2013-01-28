@@ -13,7 +13,15 @@ from ..gui_core.gui_core import publishedURI
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
+from ..gui_security import acl
 from gui.action.api.action import Action
+from superdesk.media_archive.api.meta_data import IMetaDataService,\
+    IMetaDataUploadService
+from superdesk.media_archive.api.meta_info import IMetaInfoService,\
+    IMetaDataInfoService
+from superdesk.media_archive.api.meta_type import IMetaTypeService
+from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
+from superdesk.media_archive.core.impl.query_service_creator import IQueryService
 
 # --------------------------------------------------------------------
 
@@ -21,10 +29,6 @@ from gui.action.api.action import Action
 def menuAction():
     return Action('media-archive', Parent=defaults.menuAction(), Label=NC_('menu', 'Media Archive'), NavBar='/media-archive',
                   Script=publishedURI('media-archive/scripts/js/menu.js'))
-
-# @ioc.entity   
-# def subMenuAction():
-#    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('media-archive/scripts/js/submenu-media-archive.js'))
 
 @ioc.entity   
 def modulesAction():
@@ -44,6 +48,15 @@ def modulesMainAction():
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(),
                   Script=publishedURI('media-archive/scripts/js/configure-media-archive.js'))
+ 
+# --------------------------------------------------------------------
+
+@ioc.entity
+def rightMediaArchiveView():
+    return acl.actionRight(NC_('security', 'IAM view'), NC_('security', '''
+    Allows read only access to IAM.''')) 
+
+# --------------------------------------------------------------------
 
 @app.deploy
 def registerActions():
@@ -52,4 +65,16 @@ def registerActions():
     addAction(modulesAddAction())
     addAction(modulesMainAction())
     addAction(modulesConfigureAction())
+
+# --------------------------------------------------------------------
     
+@acl.setup
+def registerAclMediaArchiveView():
+    rightMediaArchiveView()\
+        .addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesConfigureAction())\
+        .allGet(IMetaDataService)\
+        .all(IMetaDataUploadService)\
+        .all(IMetaInfoService)\
+        .all(IMetaTypeService)\
+        .all(IMetaDataInfoService)\
+        .all(IQueryCriteriaService)  
