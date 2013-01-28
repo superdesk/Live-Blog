@@ -41,7 +41,7 @@ def modulesAction():
 
 @ioc.entity   
 def dashboardAction():
-    return Action('livedesk', Parent=defaults.modulesDashboardAction(), ScriptPath=getPublishedGui('livedesk/scripts/js/dashboard.js'))
+    return Action('livedesk', Parent=defaults.modulesDashboardAction(), Script=publishedURI('livedesk/scripts/js/dashboard.js'))
 
 @ioc.entity   
 def modulesAddAction():
@@ -85,17 +85,18 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
+    addAction(dashboardAction())
 
 @acl.setup
 def registerAclLivedeskView():
-    rightLivedeskView().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction())\
+    rightLivedeskView().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())\
     .allGet(IBlogService, filter=filterBlog())\
     .byName(IBlogService, IBlogService.getAll)\
     .allGet(IBlogAdminService, filter=filterBlog())
     
 @acl.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
+    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(),\
                                       modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction())\
     .all(IBlogAdminService).all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
     .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)
