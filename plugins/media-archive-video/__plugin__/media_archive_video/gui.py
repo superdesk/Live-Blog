@@ -9,12 +9,12 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
-from ally.container import ioc
 from ..gui_core.gui_core import publishGui
+from distribution.container import app
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def publishJS():
     publishGui('media-archive-video')
     
