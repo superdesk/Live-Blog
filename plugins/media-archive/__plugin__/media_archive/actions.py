@@ -21,7 +21,6 @@ from superdesk.media_archive.api.meta_info import IMetaInfoService,\
     IMetaDataInfoService
 from superdesk.media_archive.api.meta_type import IMetaTypeService
 from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
-from superdesk.media_archive.core.impl.query_service_creator import IQueryService
 
 # --------------------------------------------------------------------
 
@@ -77,4 +76,4 @@ def registerAclMediaArchiveView():
         .all(IMetaInfoService)\
         .all(IMetaTypeService)\
         .all(IMetaDataInfoService)\
-        .all(IQueryCriteriaService)  
+        .all(IQueryCriteriaService)
