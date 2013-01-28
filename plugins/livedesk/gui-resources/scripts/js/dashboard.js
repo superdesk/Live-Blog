@@ -61,8 +61,6 @@ function($, Gizmo, superdesk, BLOGSArchive)
                     items.archive = data['archive'];
                 }
 
-                console.log(data['archive']);
-
                 if ( title != '' ) {
                     items.searchkey = title;
                 }
@@ -155,22 +153,22 @@ function($, Gizmo, superdesk, BLOGSArchive)
                 self.searchArchive(key, 0, order);
             });
 
-            $(self.el).on('click', '.archive-blog-link', function(event)
+            $('.archive-blogs .archive-blog-link').off('click').on('click', function(event)
             {
-                event.preventDefault();
-                superdesk.showLoader();
-                var theBlog = $(this).attr('data-blog-link'), self = this;
-                superdesk.getAction('modules.livedesk.edit')
-                .done(function(action)
-                {
-                    var callback = function()
-                    { 
-                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
-                    };
-                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
-                });
-                event.preventDefault();
+             superdesk.showLoader();
+             var theBlog = $(this).attr('data-blog-link'), self = this;
+             superdesk.getAction('modules.livedesk.edit')
+             .done(function(action)
+             {
+                if(!action) return;
+                var callback = function()
+                { 
+                    require([action.Script.href], function(EditApp){ EditApp(theBlog); }); 
+                };
+                action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
             });
+             event.preventDefault();
+         });
 
             $(self.el).off('click').on('click', '.ippli', function(el, evt){
                 self.ipp = $(this).attr('data-ipp');
