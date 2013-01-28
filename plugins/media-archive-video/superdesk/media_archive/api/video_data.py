@@ -9,15 +9,14 @@ Created on Aug 23, 2012
 API specifications for media meta data video archive.
 '''
 
-from ally.api.config import query, service
+from ally.api.config import query, service, model
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData, \
     IMetaDataService
-from superdesk.media_archive.api.domain_archive import modelArchive
 from ally.api.criteria import AsRangeOrdered, AsLikeOrdered
 
 # --------------------------------------------------------------------
 
-@modelArchive
+@model
 class VideoData(MetaData):
     '''
     Provides the meta data that is extracted based on the content.
