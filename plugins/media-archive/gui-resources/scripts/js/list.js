@@ -536,10 +536,10 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             superdesk.getAction('modules.media-archive.'+model.get('Type'))
             .done(function(action)
             {
-                if( action && action.ScriptPath ) 
+                if( action && action.Script ) 
                     // TODO clean up this path
                     // TODO fallback on default
-                    require([superdesk.apiUrl+action.ScriptPath+self.displayModes[self.displayMode]+'.js'], function(View)
+                    require([action.Script.href+self.displayModes[self.displayMode]+'.js'], function(View)
                             { 
                                 try
                                 { 
