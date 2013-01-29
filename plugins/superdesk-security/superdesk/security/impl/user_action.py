@@ -15,6 +15,7 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError
 from gui.action.api.action import IActionManagerService, Action
+from gui.action.impl.action import processChildCount
 from security.acl.core.spec import IAclAccessService
 from security.api.right_type import IRightTypeService, RightType
 from superdesk.security.api.user_action import IUserActionService
@@ -67,4 +68,4 @@ class IUserActionServiceAlchemy(IUserActionService):
         actions = []
         for action in self.actionManagerService.getAll(path):
             if action.Path in actionPaths: actions.append(action)
-        return actions
+        return processChildCount(actions)
