@@ -123,9 +123,37 @@ class IThumbnailProcessor(metaclass=abc.ABCMeta):
             The thumbnail height.
         '''
 
+class IQueryIndexer:
+    '''
+        Manages the query related information about plugins in order to be able to support
+        the multi-plugin queries
+    '''
+
+    def __init__(self):
+        '''
+        '''
+
+    # --------------------------------------------------------------------
+
+    def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass, type):
+        '''
+        Construct the meta info base service for the provided classes.
+
+        @param EntryMetaInfoClass: class
+            A class that contains the specific for media meta info related columns.
+        @param QMetaInfoClass: class
+            A class that extends QMetaInfo API class.
+        @param MetaDataClass: class
+            A class that contains the specific for media meta data related columns.
+        @param QMetaDataClass: class
+            A class that extends QMetaData API class.
+        @param typeId: int
+            The id of the type associated to the current registered plugin
+        '''
+
 # --------------------------------------------------------------------
 
-class QueryIndexer:
+class QueryIndexer(IQueryIndexer):
     '''
         Manages the query related information about plugins in order to be able to support
         the multi-plugin queries
@@ -182,18 +210,7 @@ class QueryIndexer:
 
     def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass, type):
         '''
-        Construct the meta info base service for the provided classes.
-
-        @param EntryMetaInfoClass: class
-            A class that contains the specific for media meta info related columns.
-        @param QMetaInfoClass: class
-            A class that extends QMetaInfo API class.
-        @param MetaDataClass: class
-            A class that contains the specific for media meta data related columns.
-        @param QMetaDataClass: class
-            A class that extends QMetaData API class.
-        @param typeId: int
-            The id of the type associated to the current registered plugin
+        see: IQueryIndexer.register()
         '''
 
         assert isclass(EntryMetaInfoClass) and issubclass(EntryMetaInfoClass, Base), \
