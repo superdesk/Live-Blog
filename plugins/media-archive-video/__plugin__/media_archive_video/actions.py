@@ -13,6 +13,10 @@ from ..media_archive.actions import modulesAction as mediaArchiveAction
 from ally.container import ioc
 from distribution.container import app
 from gui.action.api.action import Action
+from superdesk.media_archive.api.video_data import IVideoDataService
+from superdesk.media_archive.api.video_info import IVideoInfoService
+from ally.internationalization import NC_
+from __plugin__.gui_security import acl
 
 # --------------------------------------------------------------------
 
@@ -26,4 +30,17 @@ def modulesAction():
 @app.deploy
 def registerActions():
     addAction(modulesAction())
+     
+# --------------------------------------------------------------------
+
+@ioc.entity
+def rightMediaArchiveVideoView():
+    return acl.actionRight(NC_('security', 'IAM Video view'), NC_('security', '''
+    Allows read only access to IAM Video items.''')) 
+
+# --------------------------------------------------------------------
     
+@acl.setup
+def registerAclMediaArchiveVideoView():
+    rightMediaArchiveVideoView().addActions(modulesAction()).all(IVideoDataService).all(IVideoInfoService)
+   
