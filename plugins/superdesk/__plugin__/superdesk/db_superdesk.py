@@ -9,7 +9,9 @@ Created on Jan 17, 2012
 Provides the database settings for the superdesk database.
 '''
 
-from ..security.db_security import updateMetasForSecurity
+from ..security.db_security import \
+    alchemySessionCreator as alchemySessionCreatorSecurity, updateMetasForSecurity, \
+    database_url as database_url_security
 from ally.container import ioc, support
 from ally.container.binder_op import bindValidations
 from ally.support.sqlalchemy.mapper import mappingsOf
@@ -31,10 +33,16 @@ def database_url():
     '''This database URL is used for the Superdesk tables'''
     return 'sqlite:///workspace/shared/superdesk.db'
 
+# We make the security use the same session creator.
+@ioc.replace(alchemySessionCreatorSecurity)
+def alchemySessionCreatorSuperdesk(): return alchemySessionCreator()
+
 @ioc.before(updateMetasForSecurity)
 def updateMetasForSuperdesk():
     from ..security.db_security import metas  # Needs the import here since the metas will be included
     metas().append(meta) # The superdesk meta needs to be created before the security meta because of RacUser
+
+ioc.doc(database_url_security, 'This is absolute with superdesk plugin')
 
 # --------------------------------------------------------------------
 
