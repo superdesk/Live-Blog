@@ -16,8 +16,7 @@ from cdm.spec import ICDM
 from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
 from superdesk.media_archive.core.impl.meta_service_base import \
     MetaDataServiceBaseAlchemy
-from superdesk.media_archive.core.spec import IMetaDataHandler, \
-    IMetaDataReferencer, IThumbnailManager
+from superdesk.media_archive.core.spec import IMetaDataReferencer, IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.video_data import VideoDataMapped
 

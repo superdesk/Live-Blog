@@ -20,12 +20,11 @@ from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
 from distribution.container import app
 from superdesk.media_archive.api.meta_data import IMetaDataService
-from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
 from superdesk.media_archive.core.impl.query_service_creator import \
     createService
-from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer
+from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
+    IQueryIndexer
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
-from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
 
 # --------------------------------------------------------------------
 
@@ -70,10 +69,7 @@ def cdmThumbnail() -> ICDM:
 def metaDataHandlers() -> list: return []
 
 @ioc.entity
-def queryIndexer() -> QueryIndexer: return QueryIndexer()
-
-@ioc.entity
-def publishQueryCriteriaService() -> IQueryCriteriaService: return QueryCriteriaService(queryIndexer())
+def queryIndexer() -> IQueryIndexer: return QueryIndexer()
 
 # --------------------------------------------------------------------
 
