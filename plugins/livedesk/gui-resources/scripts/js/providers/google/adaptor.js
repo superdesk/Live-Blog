@@ -62,7 +62,7 @@ function(providers,str, $, Gizmo)
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'google'}})
                     .done(function(collabs)
