@@ -57,7 +57,7 @@ define('providers/twitter/adaptor', [
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'twitter'}})
                     .done(function(collabs)
