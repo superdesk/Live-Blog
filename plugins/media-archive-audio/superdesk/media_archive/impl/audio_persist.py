@@ -161,7 +161,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
         metaDataMapped.content = path
         metaDataMapped.typeId = self.metaTypeId()
-        metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
+        metaDataMapped.thumbnailFormatId = self.defaultThumbnailFormatId()
         metaDataMapped.IsAvailable = True
 
         try:

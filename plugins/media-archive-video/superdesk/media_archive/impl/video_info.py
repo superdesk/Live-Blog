@@ -11,7 +11,7 @@ SQL Alchemy based implementation for the video data API.
 
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import QueryIndexer
+from superdesk.media_archive.core.spec import IQueryIndexer
 from ally.container import wire
 from superdesk.media_archive.api.video_info import IVideoInfoService, QVideoInfo
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
@@ -31,9 +31,10 @@ class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
     @see: IVideoInfoService
     '''
     
-    queryIndexer = QueryIndexer;wire.entity('queryIndexer')
+    queryIndexer = IQueryIndexer;wire.entity('queryIndexer')
 
     def __init__(self):
+        assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
         MetaInfoServiceBaseAlchemy.__init__(self, VideoInfoMapped, QVideoInfo, VideoDataMapped, QVideoData)
         self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData, META_TYPE_KEY)
         

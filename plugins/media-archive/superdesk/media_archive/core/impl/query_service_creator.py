@@ -17,7 +17,7 @@ from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData, MetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo, MetaInfo
-from superdesk.media_archive.core.spec import QueryIndexer, IThumbnailManager
+from superdesk.media_archive.core.spec import IQueryIndexer, IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from ally.api.extension import IterPart
@@ -73,7 +73,7 @@ class QMetaDataInfo:
 # --------------------------------------------------------------------
 
 def createService(queryIndexer, cdmArchive, thumbnailManager):
-    assert isinstance(queryIndexer, QueryIndexer), 'Invalid query indexer %s' % queryIndexer
+    assert isinstance(queryIndexer, IQueryIndexer), 'Invalid query indexer %s' % queryIndexer
     assert isinstance(cdmArchive, ICDM), 'Invalid archive CDM %s' % cdmArchive
     assert isinstance(thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % thumbnailManager
 
@@ -114,6 +114,8 @@ class QueryServiceAlchemy(SessionSupport):
     # The archive CDM.
     thumbnailManager = IThumbnailManager
     # Provides the thumbnail referencer
+    queryIndexer = IQueryIndexer
+    # Provides the query indexer reference
 
     def __init__(self, queryIndexer, cdmArchive, thumbnailManager, QMetaInfoClass, QMetaDataClass):
         '''
@@ -122,7 +124,7 @@ class QueryServiceAlchemy(SessionSupport):
         assert isinstance(cdmArchive, ICDM), 'Invalid archive CDM %s' % cdmArchive
         assert isinstance(thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % thumbnailManager
 
-        assert isinstance(queryIndexer, QueryIndexer), 'Invalid query indexer %s' % queryIndexer
+        assert isinstance(queryIndexer, IQueryIndexer), 'Invalid query indexer %s' % queryIndexer
         assert isclass(QMetaInfoClass), 'Invalid meta info class %s' % QMetaInfoClass
         assert isclass(QMetaDataClass), 'Invalid meta data class %s' % QMetaDataClass
 
