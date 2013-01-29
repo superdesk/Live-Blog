@@ -13,6 +13,10 @@ from ..media_archive.actions import modulesAction as mediaArchiveAction
 from ally.container import ioc
 from distribution.container import app
 from gui.action.api.action import Action
+from __plugin__.gui_security import acl
+from superdesk.media_archive.api.image_data import IImageDataService
+from superdesk.media_archive.api.image_info import IImageInfoService
+from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
@@ -23,7 +27,21 @@ def modulesAction():
     '''
     return Action('image', Parent=mediaArchiveAction(), Script=publishedURI('media-archive-image/scripts/js/media-archive/'))
 
+# --------------------------------------------------------------------
+
 @app.deploy
 def registerActions():
     addAction(modulesAction())
     
+# --------------------------------------------------------------------
+
+@ioc.entity
+def rightMediaArchiveImageView():
+    return acl.actionRight(NC_('security', 'IAM Image view'), NC_('security', '''
+    Allows read only access to IAM Image items.''')) 
+
+# --------------------------------------------------------------------
+    
+@acl.setup
+def registerAclMediaArchiveImageView():
+    rightMediaArchiveImageView().addActions(modulesAction()).all(IImageDataService).all(IImageInfoService)
