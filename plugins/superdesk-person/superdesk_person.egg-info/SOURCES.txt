@@ -8,6 +8,7 @@ gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
 gui-resources/templates/__init__.py
 superdesk/__init__.py
+superdesk/api/__init__.py
 superdesk/person/__init__.py
 superdesk/person/api/__init__.py
 superdesk/person/api/person.py

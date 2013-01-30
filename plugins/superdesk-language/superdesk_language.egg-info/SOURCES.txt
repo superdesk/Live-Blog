@@ -17,5 +17,8 @@ superdesk_language.egg-info/requires.txt
 superdesk_language.egg-info/top_level.txt
 superdesk_language.egg-info/zip-safe
 test/__init__.py
-test/superdesk/__init__.py
-test/superdesk/language.py
+test/performance/__init__.py
+test/performance/superdesk/__init__.py
+test/performance/superdesk/language/__init__.py
+test/performance/superdesk/language/impl/__init__.py
+test/performance/superdesk/language/impl/language.py
