@@ -68,6 +68,7 @@ define('providers/ads/adaptor', [
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: $(obj).html(),
                         Type: 'advertisement',
                         Author: this.author

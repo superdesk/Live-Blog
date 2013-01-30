@@ -3,6 +3,7 @@ define('providers/twitter/adaptor', [
     'utils/str',
     'jquery',
     'gizmo',
+    'jquery/superdesk',
     'jquery/rest',
     'jquery/utils',
     'providers/twitter/tab',
@@ -75,6 +76,7 @@ define('providers/twitter/adaptor', [
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.text,
                         Type: 'normal',
                         Author: this.author,

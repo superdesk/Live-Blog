@@ -72,6 +72,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.images.standard_resolution.url,
                         Type: 'normal',
                         Author: this.author,

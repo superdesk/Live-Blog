@@ -72,6 +72,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.title,
                         Type: 'normal',
                         Author: this.author,
@@ -84,6 +85,7 @@ function(providers,str, $, Gizmo)
                 myClone.find('time').remove();
                 
                 var data = {
+                    Creator: localStorage.getItem('superdesk.login.id'),
                     Content: myClone.find('.result-content').html(),
                     Type: 'normal',
                     Author: this.author
