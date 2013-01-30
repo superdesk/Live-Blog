@@ -23,9 +23,9 @@ superdesk/security/impl/user_rbac.py
 superdesk/security/meta/__init__.py
 superdesk/security/meta/authentication.py
 superdesk/security/meta/security_intern.py
-superdesk_gateway.egg-info/PKG-INFO
-superdesk_gateway.egg-info/SOURCES.txt
-superdesk_gateway.egg-info/dependency_links.txt
-superdesk_gateway.egg-info/requires.txt
-superdesk_gateway.egg-info/top_level.txt
-superdesk_gateway.egg-info/zip-safe
+superdesk_security.egg-info/PKG-INFO
+superdesk_security.egg-info/SOURCES.txt
+superdesk_security.egg-info/dependency_links.txt
+superdesk_security.egg-info/requires.txt
+superdesk_security.egg-info/top_level.txt
+superdesk_security.egg-info/zip-safe
