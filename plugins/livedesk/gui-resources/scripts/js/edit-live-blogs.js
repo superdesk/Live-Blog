@@ -587,7 +587,7 @@ function(providers, Gizmo, $)
 					});
 
 			},
-			unpublishDialog: function()
+			unpublishDialog: function(evt)
 			{
 				var self = this;
 				$('#unpublish-post .yes')
@@ -1139,8 +1139,10 @@ function(providers, Gizmo, $)
 				// wrapup toggle
 				$(content)
 				.off('click'+this.getNamespace())
-				.on('click'+this.getNamespace(), 'li.wrapup', function()
+				.on('click'+this.getNamespace(), 'li.wrapup', function(evt)
 				{
+					if(evt.target.tagName.toUpperCase() === 'A')
+						return;
 					if($(this).hasClass('open'))
 						$(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
 					else
