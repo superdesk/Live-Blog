@@ -11,6 +11,7 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     'gizmo/views/list',
+    'gizmo/superdesk/action',
     config.guiJs('media-archive', 'models/meta-data'),
     config.guiJs('media-archive', 'models/meta-type'),
     config.guiJs('media-archive', 'models/meta-data-info'),
@@ -23,7 +24,7 @@ define
     'tmpl!media-archive>sidebar/crit-numeric',
     'tmpl!media-archive>sidebar/crit-string',
 ],
-function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
+function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
 {
     var // collections
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),
@@ -533,28 +534,29 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             // make a placeholder element to append the new view after it has been loaded
             var placeEl = $('<span />'),
                 self = this;
-            superdesk.getAction('modules.media-archive.'+model.get('Type'))
+            
+            Action.get('modules.media-archive.'+model.get('Type'))
             .done(function(action)
             {
-                if( action && action.Script ) 
+                if( action && action.get('Script') ) 
                     // TODO clean up this path
                     // TODO fallback on default
-                    require([action.Script.href+self.displayModes[self.displayMode]+'.js'], function(View)
-                            { 
-                                try
-                                { 
-                                    // render new item view
-                                    var newItemView = new View({ model: model, el: placeEl, parent: self });
-                                    newItemView.render();
-                                    // look for recently uploaded item to popup edit
-                                    if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )
-                                    {
-                                        newItemView.edit();
-                                        self.recentlyUploaded = null;
-                                    }
-                                }
-                                catch(e){ console.debug(View); }
-                            });
+                    require([action.get('Script').href+self.displayModes[self.displayMode]+'.js'], function(View)
+                    { 
+                        try
+                        { 
+                            // render new item view
+                            var newItemView = new View({ model: model, el: placeEl, parent: self });
+                            newItemView.render();
+                            // look for recently uploaded item to popup edit
+                            if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )
+                            {
+                                newItemView.edit();
+                                self.recentlyUploaded = null;
+                            }
+                        }
+                        catch(e){ console.debug(View); }
+                    });
             });
             
             return placeEl;
@@ -584,6 +586,6 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
     
     listView = new ListView(); 
     
-    return function(){ listView.activate(); };
+    return { init: function(){ listView.activate(); } };
 });
 

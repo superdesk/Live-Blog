@@ -8,10 +8,11 @@ define
 ([
   'jquery', 'jquery/superdesk',
   'gizmo/superdesk',
+  'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
-], function($, superdesk, Gizmo, Blog)
+], function($, superdesk, Gizmo, Action, Blog)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
         b = Gizmo.Auth(new Blogs());
@@ -60,15 +61,15 @@ define
             {
                 superdesk.showLoader();
                 var theBlog = $(this).attr('data-blog-link'), self = this;
-                superdesk.getAction('modules.livedesk.edit')
+                Action.get('modules.livedesk.edit')
                 .done(function(action)
                 {
                     if(!action) return;
                     var callback = function()
                     { 
-                        require([action.Script.href], function(EditApp){ EditApp(theBlog); }); 
+                        require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                     };
-                    action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 });
                 event.preventDefault();
             });
