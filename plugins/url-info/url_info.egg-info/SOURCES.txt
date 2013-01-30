@@ -1,0 +1,15 @@
+setup.cfg
+setup.py
+__plugin__/__init__.py
+__plugin__/url_info/__init__.py
+__plugin__/url_info/service.py
+url_info/__init__.py
+url_info.egg-info/PKG-INFO
+url_info.egg-info/SOURCES.txt
+url_info.egg-info/dependency_links.txt
+url_info.egg-info/top_level.txt
+url_info.egg-info/zip-safe
+url_info/api/__init__.py
+url_info/api/url_info.py
+url_info/impl/__init__.py
+url_info/impl/url_info.py

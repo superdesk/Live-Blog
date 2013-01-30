@@ -164,6 +164,8 @@ define([
 						
 						$(this).next('.share-box').toggle();
 					})
+				} else {
+					console.error(e);
 				}
 			});
 			setTimeout(function(){

@@ -4,10 +4,13 @@
 
 /plugins/internationalization/test/internationalization/core/impl/repo/
 /distribution/workspace/
+/distribution/components
+/distribution/plugins
 /airtime/distribution/workspace/
 
 *.pyc
-*.egg
+/distribution/components/*.egg
+/distribution/plugins/*.egg
 *.properties
 *.properties.bak
 
