@@ -1,11 +1,14 @@
 define
 ([
-    'jquery','jquery/superdesk',
+    'jquery','jquery/superdesk', 'gizmo/superdesk/action'
 ],
-function($, superdesk)
+function($, superdesk, Action)
 {
     return { init: function() 
     {
+        Action.initApp('modules.media-archive.main');
+        return;
+        
         superdesk.getAction('modules.media-archive.main')
         .done(function(action)
         {
