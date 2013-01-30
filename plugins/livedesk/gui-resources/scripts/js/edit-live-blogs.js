@@ -1,3 +1,8 @@
+requirejs.config({
+	paths: { 
+		'providers': config.gui('livedesk/scripts/js/providers')
+	}
+});
 define
 ([ 
     'providers/enabled', 
