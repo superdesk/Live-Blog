@@ -2,11 +2,16 @@ setup.cfg
 setup.py
 __plugin__/__init__.py
 __plugin__/media_archive_video/__init__.py
+__plugin__/media_archive_video/actions.py
+__plugin__/media_archive_video/gui.py
 __plugin__/media_archive_video/service.py
 gui-resources/__init__.py
 gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
 gui-resources/scripts/js/media-archive/__init__.py
+gui-resources/scripts/js/models/__init__.py
+gui-resources/templates/__init__.py
+gui-resources/templates/media-archive/__init__.py
 media_archive_video.egg-info/PKG-INFO
 media_archive_video.egg-info/SOURCES.txt
 media_archive_video.egg-info/dependency_links.txt

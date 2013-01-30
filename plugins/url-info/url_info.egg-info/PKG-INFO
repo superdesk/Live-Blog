@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: url-info
+Version: 1.0.dev
+Summary: URL info plugin
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Mugur Rus
+Author-email: mugur.rus@sourcefabric.org
+License: GPL v3
+Description: Service for retrieving information about an URL (model, service)
+Keywords: Ally REST framework plugin
+Platform: all
