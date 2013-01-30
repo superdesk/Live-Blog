@@ -72,6 +72,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.title,
                         Type: 'normal',
                         Author: this.author,
