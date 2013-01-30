@@ -52,7 +52,7 @@ define('providers/ads/adaptor', [
             author: 1,
             init: function() {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'advertisement'}})
                     .done(function(collabs)
@@ -68,6 +68,7 @@ define('providers/ads/adaptor', [
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: $(obj).html(),
                         Type: 'advertisement',
                         Author: this.author

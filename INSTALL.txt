@@ -24,7 +24,7 @@ See https://github.com/sourcefabric/Ally-py
 it the content of this package.
 
 3. Build eggs by running the following command:
-[path_to_python3.2] [path_to_livedesk]/build-eggs
+[path_to_livedesk]/build-eggs
 
 4. Create the configuration files by running the following command:
 [path_to_python3.2] [path_to_livedesk]/distribution/application.py -dump

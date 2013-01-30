@@ -57,7 +57,7 @@ function(providers,str, $, Gizmo)
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'youtube'}})
                     .done(function(collabs)
@@ -73,6 +73,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.title,
                         Type: 'normal',
                         Author: this.author,
