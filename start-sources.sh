@@ -47,6 +47,6 @@ PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}url-info
 
 #echo $PYTHONPATH
 export PYTHONPATH=$PYTHONPATH
-rm -f distribution/workspace/shared/superdesk.db
+export LC_CTYPE="en_US.UTF-8"
 python3.2 distribution/application.py
 #python3.2 distribution/application.py -dump
