@@ -3,6 +3,7 @@ define
     
     'jquery',
     'gizmo/superdesk',
+    'gizmo/superdesk/action',
     'jquery/superdesk',
     config.guiJs('livedesk', 'models/blogsarchive'),
     config.guiJs('livedesk', 'models/blog'),
@@ -12,7 +13,7 @@ define
     'tmpl!livedesk>layouts/dashboard',
     'tmpl!livedesk>layouts/dashboard-archive'
  ], 
-function($, Gizmo, superdesk, BLOGSArchive) 
+function($, Gizmo, Action, superdesk, BLOGSArchive) 
 {
     var 
 
@@ -157,15 +158,15 @@ function($, Gizmo, superdesk, BLOGSArchive)
             {
              superdesk.showLoader();
              var theBlog = $(this).attr('data-blog-link'), self = this;
-             superdesk.getAction('modules.livedesk.edit')
+             Action.get('modules.livedesk.edit')
              .done(function(action)
              {
                 if(!action) return;
                 var callback = function()
                 { 
-                    require([action.Script.href], function(EditApp){ EditApp(theBlog); }); 
+                    require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                 };
-                action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
             });
              event.preventDefault();
          });
@@ -211,15 +212,15 @@ function($, Gizmo, superdesk, BLOGSArchive)
                 {
                     superdesk.showLoader();
                     var theBlog = $(this).attr('data-blog-link'), self = this;
-                    superdesk.getAction('modules.livedesk.edit')
+                    Action.get('modules.livedesk.edit')
                     .done(function(action)
                     {
                         if(!action) return;
                         var callback = function()
                         { 
-                            require([action.Script.href], function(EditApp){ EditApp(theBlog); }); 
+                            require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                         };
-                        action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                        action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                     });
                     event.preventDefault();
                 });
@@ -228,11 +229,11 @@ function($, Gizmo, superdesk, BLOGSArchive)
                     $('#welcome-screen-create-liveblog').off('off').on('click', function(event)
                     {
                         superdesk.showLoader();
-                        superdesk.getAction('modules.livedesk.add')
+                        Action.get('modules.livedesk.add')
                         .done(function(action)
                         {
-                            action.Script &&
-                            require([action.Script.href], function(AddApp){ addApp = new AddApp(); });
+                            action.get('Script') &&
+                            require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
                         }); 
                         event.preventDefault();
                     });
