@@ -3,6 +3,7 @@ define
     'jquery',
     'jquery/superdesk',
     'gizmo/superdesk',
+    'gizmo/superdesk/action',
     config.guiJs('superdesk/user', 'models/user'),
     config.guiJs('superdesk/user', 'models/person'),
     'utils/sha512',
@@ -16,7 +17,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, superdesk, giz, User, Person, sha, uploadCom)
+function($, superdesk, giz, Action, User, Person, sha, uploadCom)
 {
     var 
     // TODO place in appropriate plugins
@@ -53,7 +54,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 function()
                 {
                     // authentication techniques
-                    $.superdesk.getAction('modules.user.update').done(function(action)
+                    Action.get('modules.user.update').done(function(action)
                     { 
                         if( !action )
                         { 
@@ -589,7 +590,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 self.el.html(o);
                 
                 // authentication techniques
-                $.superdesk.getAction('modules.user.update').done(function(action)
+                Action.get('modules.user.update').done(function(action)
                 { 
                     if( !action ){ $('.add-user', self.el).addClass('hide'); }
                 });
