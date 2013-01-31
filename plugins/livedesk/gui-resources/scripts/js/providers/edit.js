@@ -274,6 +274,7 @@ define('providers/edit', [
 			drd.done(function(){
 				drd.model.publishSync();
 			});
+			return drd;
 		}
 	}),
 	EditView = Gizmo.View.extend({
@@ -365,9 +366,7 @@ define('providers/edit', [
 				});					
 			}).fail(function() {
 				//show error message
-				console.log('error dude');
 				$.tmpl('livedesk>providers/generic-error' , {message: 'Could not retreive site info'}, function(e,o) {
-					console.log(o);
 					self.el.find('article.editable').html(o)
 				});
 			})		
@@ -536,17 +535,46 @@ define('providers/edit', [
 			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
 			this.el.find('.url-input-holder').html('');
 		},
+		showMessage: function(type, message, timeout) {
+			var self = this;
+			var template = 'livedesk>providers/generic-error';
+			switch (type) {
+				case 'error':
+					template = 'livedesk>providers/generic-error';
+					break;
+			}
+			$.tmpl(template , {
+				message: message
+			}, function(e,o) {
+				self.el.find('.edit-post-message').html(o);
+				setTimeout(function(){
+					self.el.find('.edit-post-message').html('');
+				},timeout)
+			});
+		},
 		savepost: function(evt){
+			var self = this;
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
 				Content: originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
-			this.clear();
-			this.postsView.savepost(data);
+			
+			content = this.postsView.savepost(data).fail(function(data){
+				var status = data.status;
+				switch ( status ) {
+					case 400:
+						console.log('409');
+						self.showMessage('error', _('Maximum post size is 1000 characters'), 5000);
+						break;
+				}
+			}).done(function(){
+				self.clear();
+			});
 		},
 		save: function(evt){
+			console.log('save');
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
