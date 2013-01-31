@@ -71,22 +71,20 @@ define('providers/soundcloud', [
                             {
                                 if( action && action.Script)
                                     el.find('.soundcloud').draggable(
-                                        {
-                                            revert: 'invalid',
-                                            containment:'document',
-                                            helper: 'clone',
-                                            appendTo: 'body',
-                                            zIndex: 2700,
-                                            clone: true,
-                                            start: function(evt, ui) {
-                                                item = $(evt.currentTarget);
-                                                $(ui.helper).css('width', item.width());
-                                                var itemNo = $(this).attr('data-id');
-                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                            }
+                                    {
+                                        revert: 'invalid',
+                                        containment:'document',
+                                        helper: 'clone',
+                                        appendTo: 'body',
+                                        zIndex: 2700,
+                                        clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            var itemNo = $(this).attr('data-id');
+                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                         }
-                                    );
-                                }
+                                    });
                             });
                         });
                     } else {
