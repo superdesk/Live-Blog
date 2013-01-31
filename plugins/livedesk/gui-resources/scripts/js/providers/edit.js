@@ -573,6 +573,7 @@ define('providers/edit', [
 			});
 		},
 		save: function(evt){
+			var self = this;
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
