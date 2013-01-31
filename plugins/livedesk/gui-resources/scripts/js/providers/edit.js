@@ -266,7 +266,8 @@ define('providers/edit', [
 		save: function(model)
 		{
 			var self = this;
-			this.posts.insertFrom(model);
+			var drd = this.posts.insertFrom(model);
+			return drd;
 		},
 		savepost: function(model)
 		{
@@ -560,11 +561,10 @@ define('providers/edit', [
 				Type: this.el.find('[name="type"]').val()
 			};
 			
-			content = this.postsView.savepost(data).fail(function(data){
+			this.postsView.savepost(data).fail(function(data){
 				var status = data.status;
 				switch ( status ) {
 					case 400:
-						console.log('409');
 						self.showMessage('error', _('Maximum post size is 1000 characters'), 5000);
 						break;
 				}
@@ -579,8 +579,17 @@ define('providers/edit', [
 				Content:  originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
-			this.clear();
-			this.postsView.save(data);			
+			
+			this.postsView.save(data).fail(function(data){
+				var status = data.status;
+				switch ( status ) {
+					case 400:
+						self.showMessage('error', _('Maximum post size is 1000 characters'), 5000);
+						break;
+				}
+			}).done(function(){
+				self.clear();
+			});			
 		}
 	});	
 	var editView = false;
