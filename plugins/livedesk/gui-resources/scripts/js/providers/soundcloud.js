@@ -2,6 +2,7 @@ define('providers/soundcloud', [
     'providers',
     'providers/common',
     'jquery',
+    'gizmo/superdesk/action',    
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
@@ -11,7 +12,7 @@ define('providers/soundcloud', [
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-    ], function( providers, common, $) {
+    ], function( providers, common, $, Action) {
         $.extend(providers.soundcloud, common, {
             client_id : 'd913360f3cad924d67e1ad1887c00855',
             init : function() {
@@ -66,25 +67,22 @@ define('providers/soundcloud', [
                             items : data,
                         }, function(e,o) {
                             el = $('#soundcloud-sound-results').append(o)
-                            $.superdesk.getAction('modules.livedesk.blog-post-publish')
-                            .done(function(action)
-                            {
-                                if( action && action.Script)
-                                    el.find('.soundcloud').draggable(
-                                    {
-                                        revert: 'invalid',
-                                        containment:'document',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var itemNo = $(this).attr('data-id');
-                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                        }
-                                    });
+                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.find('.soundcloud').draggable(
+                                {
+                                    revert: 'invalid',
+                                    containment:'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var itemNo = $(this).attr('data-id');
+                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                    }
+                                });
                             });
                         });
                     } else {
