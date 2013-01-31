@@ -1,4 +1,7 @@
-ALLYPATH=../
+FULLPATH=$(cd ${0%/*} && echo $PWD/${0##*/})
+FULLPATH=`dirname "$FULLPATH"`
+ALLYPATH=`dirname "$FULLPATH"`
+
 ALLYCOM=${ALLYPATH}components/
 PYTHONPATH=${PYTHONPATH}:${ALLYCOM}ally-api
 PYTHONPATH=${PYTHONPATH}:${ALLYCOM}ally-core
@@ -25,7 +28,6 @@ PYTHONPATH=${PYTHONPATH}:${ALLYPLUG}security-rbac
 PYTHONPATH=${PYTHONPATH}:${ALLYPLUG}support-acl
 PYTHONPATH=${PYTHONPATH}:${ALLYPLUG}support-sqlalchemy
 
-FULLPATH=
 SUPERPLUG=${FULLPATH}plugins/
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}livedesk
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}livedesk-embed
@@ -48,5 +50,4 @@ PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}url-info
 #echo $PYTHONPATH
 export PYTHONPATH=$PYTHONPATH
 export LC_CTYPE="en_US.UTF-8"
-python3.2 distribution/application.py
-#python3.2 distribution/application.py -dump
+python3.2 distribution/application.py $*
