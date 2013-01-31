@@ -26,7 +26,7 @@ class VideoInfoDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = declared_attr(lambda cls: Column('fk_metainfo_id', ForeignKey(MetaInfoMapped.Id), primary_key=True))
-    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=False, key='Caption'))
+    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=True, key='Caption'))
 
 # --------------------------------------------------------------------
 

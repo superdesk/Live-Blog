@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
     ImageDataEntry
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
+from superdesk.media_archive.meta.image_info import ImageInfoMapped
 
 # --------------------------------------------------------------------
 
@@ -61,6 +62,18 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
+
+
+    def addMetaInfo(self, metaDataMapped, languageId):
+        imageInfoMapped = ImageInfoMapped()
+        imageInfoMapped.MetaData = metaDataMapped.Id
+        imageInfoMapped.Language = languageId
+        try:
+            self.session().add(imageInfoMapped)
+            self.session().flush((imageInfoMapped,))
+        except SQLAlchemyError as e:
+            handle(e, imageInfoMapped)
+        return imageInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -116,6 +129,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
         metaDataMapped.content = path
         metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.Type = META_TYPE_KEY
         metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 

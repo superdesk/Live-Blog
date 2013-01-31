@@ -20,6 +20,7 @@ from superdesk.media_archive.meta.image_data import ImageDataMapped, \
     ImageDataEntry, META_TYPE_KEY
 from superdesk.media_archive.meta.image_info import ImageInfoMapped, \
     ImageInfoEntry
+from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
 
 
 # --------------------------------------------------------------------
@@ -31,10 +32,14 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     @see: IImageInfoService
     '''
 
-    queryIndexer = IQueryIndexer; wire.entity('queryIndexer')
+    queryIndexer = IQueryIndexer;wire.entity('queryIndexer')
+    # The query indexer manages the query related information about plugins in order to be able to support the multi-plugin queries
+    searchProvider = ISearchProvider; wire.entity('searchProvider')
+    # The search provider that will be used to manage all search related activities
 
     def __init__(self):
-        assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid query indexer %s' % self.queryIndexer
-        MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
+        assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
+        assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
         
+        MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData, self.searchProvider)
         self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData, META_TYPE_KEY)

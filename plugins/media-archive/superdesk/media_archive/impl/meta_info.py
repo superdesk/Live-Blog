@@ -17,7 +17,10 @@ from ..meta.meta_info import MetaInfoMapped
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
+from superdesk.media_archive.core.impl.query_service_creator import \
+    ISearchProvider
 from superdesk.media_archive.core.spec import IQueryIndexer
+
 
 # --------------------------------------------------------------------
 
@@ -29,10 +32,15 @@ class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     '''
 
     queryIndexer = IQueryIndexer;wire.entity('queryIndexer')
+    # The query indexer manages the query related information about plugins in order to be able to support the multi-plugin queries
+    searchProvider = ISearchProvider; wire.entity('searchProvider')
+    # The search provider that will be used to manage all search related activities
+
 
     def __init__(self):
         '''
         Construct the meta info service.
         '''
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
-        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData)
+        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, self.searchProvider)
+

@@ -26,7 +26,6 @@ from sqlalchemy.sql.operators import desc_op
 from livedesk.api.blog_type_post import IBlogTypePostService, BlogTypePost, \
     QBlogTypePost, BlogTypePostPersist
 from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
-from ally.support.api.util_service import copy
 
 # --------------------------------------------------------------------
 
