@@ -5,12 +5,12 @@
 	<section class="title-page">
         <header>
         	<a class="pull-right collapse-button" href="#">
-        		<i class="icon-chevron-down"></i> <span class="button-text collapse-title-page">Collapse</span>
+        		<i class="icon-chevron-down"></i> <span class="button-text collapse-title-page">_("Collapse");</span>
         	</a>
             <h2>{Title|s}</h2>
             <p class="article-info">
             	Reported by <span class="blog-author">{creatorName}</span>, 
-            	<time>{CreatedOn}</time> {#LiveOn}<span class="update-time">last updated <time>{LiveOn}</time></span>{/LiveOn}
+            	<time>{CreatedOn}</time> {#LiveOn}<span class="update-time">_("last updated");<time>{LiveOn}</time></span>{/LiveOn}
            	</p>
         </header>
         <article id="blog-intro">
