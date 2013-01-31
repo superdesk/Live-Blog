@@ -12,6 +12,7 @@ from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
 from ..gui_security import acl
 from ..livedesk.acl import filterBlog
+from ..superdesk_security.acl import filterAuthenticated
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
@@ -49,14 +50,24 @@ def modulesAddAction():
 def modulesEditAction():
     return Action('edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
-@ioc.entity
+@ioc.entity   
+def modulesBlogPublishAction():
+    return Action('blog-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-publish.js'))
+
+@ioc.entity   
+def modulesBlogPostPublishAction():
+    return Action('blog-post-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-post-publish.js'))
+
+@ioc.entity   
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/configure-blog.js'))
-@ioc.entity
+
+@ioc.entity   
 def modulesManageCollaboratorsAction():
     return Action('manage-collaborators', Parent=modulesAction(),
                   Script=publishedURI('livedesk/scripts/js/manage-collaborators.js'))
-@ioc.entity
+
+@ioc.entity   
 def modulesArchiveAction():
     return Action('archive', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/archive.js'))
 
@@ -71,7 +82,7 @@ def rightLivedeskView():
 def rightLivedeskUpdate():
     return acl.actionRight(NC_('security', 'Livedesk edit'), NC_('security', '''
     Allows edit access to users for livedesk.'''))
-
+ 
 # --------------------------------------------------------------------
 
 @app.deploy
@@ -84,6 +95,8 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
+    addAction(modulesBlogPublishAction())
+    addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
 
 @acl.setup
@@ -92,10 +105,11 @@ def registerAclLivedeskView():
     .allGet(IBlogService, filter=filterBlog())\
     .byName(IBlogService, IBlogService.getAll)\
     .allGet(IBlogAdminService, filter=filterBlog())
-
+    
 @acl.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(), \
-                                      modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction())\
+    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(),\
+                                      modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),\
+                                      modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .all(IBlogAdminService).all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
     .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)

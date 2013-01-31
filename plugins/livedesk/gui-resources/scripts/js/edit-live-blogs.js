@@ -984,22 +984,18 @@ function(providers, Gizmo, $)
 						submenuActive1: 'active'
 					},
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
-				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; },
-				    isCreatorOrAdmin: (function()
-				    { 
-				        var userId = localStorage.getItem('superdesk.login.id');
-				        if( self.model.get('Creator').get('Id') == userId) return true;
-				        self.model.get('Admin').each(function()
-				        { 
-				            if(this.get('Id') == userId) return true;
-				        });  
-				        return false;
-				    })()
+				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
                                 var creator = this.model.get('Creator').feed();
                                 $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
+					$.superdesk.getAction('modules.livedesk.blog-publish')
+					.done(function(action)
+					{
+						if( action && action.Script )
+							self.el.find('#role-blog-publish').show();
+					});
 					// refresh twitter share button
 					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    

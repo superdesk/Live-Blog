@@ -1,10 +1,10 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
-	{#isCreatorOrAdmin}
-	<a class="btn btn-medium pull-right btn-success {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Live')</a>
-	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Put live')</a>
-	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
-	{/isCreatorOrAdmin}
+  <div id="role-blog-publish" class="hidden">
+  	<a class="btn btn-medium pull-right btn-success {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Live')</a>
+  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Put live')</a>
+  	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
+  </div>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
 		<li class="{ui.submenuActive1}"><a data-target="edit-blog" href="{BlogHref}">{Title|t}</a></li>

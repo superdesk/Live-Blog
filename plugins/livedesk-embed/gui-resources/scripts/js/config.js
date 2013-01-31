@@ -1,5 +1,5 @@
 requirejs.config({
-	baseUrl: 'http://localhost:8080/content/lib/',
+	baseUrl: '/content/lib/',
 	paths: 	{
 		'livedesk-embed': 'livedesk-embed/scripts/js/',
 		'livedesk-embed/templates': 'livedesk-embed/templates',
