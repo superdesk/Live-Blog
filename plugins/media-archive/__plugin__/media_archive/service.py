@@ -25,7 +25,6 @@ from superdesk.media_archive.core.impl.query_service_creator import \
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
     IQueryIndexer
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
-from superdesk.media_archive.core.impl.solr_search import SolrSearchProvider
 from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
 
 # --------------------------------------------------------------------
@@ -49,7 +48,13 @@ def use_solr_search():
 
 @ioc.entity
 def searchProvider() -> ISearchProvider:
-    b = SolrSearchProvider() if use_solr_search() else SqlSearchProvider()
+
+    if use_solr_search():
+        from superdesk.media_archive.core.impl.solr_search import SolrSearchProvider
+        b = SolrSearchProvider()
+    else:
+        b = SqlSearchProvider()
+
     return b
 
 # --------------------------------------------------------------------

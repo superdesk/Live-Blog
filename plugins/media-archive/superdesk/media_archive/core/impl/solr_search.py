@@ -9,8 +9,8 @@ Created on Jan 10, 2013
 The implementation for Solr based search API.
 '''
 
-from ally.container.ioc import injected
 from sunburnt import SolrInterface
+from ally.container.ioc import injected
 from superdesk.media_archive.core.impl.query_service_creator import QMetaDataInfo, \
      ISearchProvider
 from superdesk.media_archive.api.criteria import AsLikeExpression
