@@ -32,8 +32,9 @@ define('providers/soundcloud', [
                 });   
             },
             doSoundcloud : function(query) {
-                var self = this;
-                var text = $('#soundcloud-search-text').val();
+                var self = this,
+                    el,
+                    text = $('#soundcloud-search-text').val();
                 if (text.length < 1) {
                     return;
                 }
@@ -64,22 +65,29 @@ define('providers/soundcloud', [
                         {
                             items : data,
                         }, function(e,o) {
-                            $('#soundcloud-sound-results').append(o).find('.soundcloud').draggable(
-                                {
-                                    revert: 'invalid',
-                                    containment:'document',
-                                    helper: 'clone',
-                                    appendTo: 'body',
-                                    zIndex: 2700,
-                                    clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        var itemNo = $(this).attr('data-id');
-                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                    }
+                            el = $('#soundcloud-sound-results').append(o)
+                            $.superdesk.getAction('modules.livedesk.blog-post-publish')
+                            .done(function(action)
+                            {
+                                if( action && action.Script)
+                                    el.find('.soundcloud').draggable(
+                                        {
+                                            revert: 'invalid',
+                                            containment:'document',
+                                            helper: 'clone',
+                                            appendTo: 'body',
+                                            zIndex: 2700,
+                                            clone: true,
+                                            start: function(evt, ui) {
+                                                item = $(evt.currentTarget);
+                                                $(ui.helper).css('width', item.width());
+                                                var itemNo = $(this).attr('data-id');
+                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            }
+                                        }
+                                    );
                                 }
-                            );
+                            });
                         });
                     } else {
                         $.tmpl('livedesk>providers/no-results', {}, function(e,o) {

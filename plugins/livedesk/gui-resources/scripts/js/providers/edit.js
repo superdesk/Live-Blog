@@ -203,15 +203,22 @@ define('providers/edit', [
 			}
 			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
 				self.setElement( out );
-				if(!self.model.get('PublishedOn')) {
-							self.el.draggable({
-								revert: 'invalid',
-								containment:'document',
-								helper: 'clone',
-								appendTo: 'body',
-								zIndex: 2700
-							});
-				}
+				$.superdesk.getAction('modules.livedesk.blog-post-publish')
+				.done(function(action)
+				{
+					if( action && action.Script && !self.model.get('PublishedOn')) {
+						self.el.draggable({
+							revert: 'invalid',
+							containment:'document',
+							helper: 'clone',
+							appendTo: 'body',
+							zIndex: 2700
+						});
+					} else {
+						self.el.removeClass('draggable');
+					}
+
+				});				
 				self.resetEvents();
 			});
 			return this;
@@ -467,6 +474,12 @@ define('providers/edit', [
 
 			
 			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
+				$.superdesk.getAction('modules.livedesk.blog-post-publish')
+					.done(function(action){
+						if( action && action.Script) {
+							self.el.find('[ci="savepost"]').show();
+						}					
+					});
 				// editor 
 				fixedToolbar = 
 				{
