@@ -30,14 +30,17 @@ superdesk/media_archive/api/__init__.py
 superdesk/media_archive/api/criteria.py
 superdesk/media_archive/api/domain_archive.py
 superdesk/media_archive/api/meta_data.py
+superdesk/media_archive/api/meta_data_info.py
 superdesk/media_archive/api/meta_info.py
 superdesk/media_archive/api/meta_type.py
 superdesk/media_archive/api/query_criteria.py
 superdesk/media_archive/core/__init__.py
 superdesk/media_archive/core/spec.py
 superdesk/media_archive/core/impl/__init__.py
+superdesk/media_archive/core/impl/db_search.py
 superdesk/media_archive/core/impl/meta_service_base.py
 superdesk/media_archive/core/impl/query_service_creator.py
+superdesk/media_archive/core/impl/solr_search.py
 superdesk/media_archive/core/impl/thumbnail_manager.py
 superdesk/media_archive/core/impl/thumbnail_processor_avconv.py
 superdesk/media_archive/core/impl/thumbnail_processor_ffmpeg.py
