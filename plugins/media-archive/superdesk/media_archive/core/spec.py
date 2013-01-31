@@ -83,6 +83,17 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
             True if the content has been processed, False otherwise.
         '''
 
+    @abc.abstractclassmethod
+    def addMetaInfo(self, metaDataMapped):
+        '''
+        Add an empty meta info for the current plugin
+
+        @param metaDataMapped: MetaDataMapped
+            The meta data mapped for the current uploaded content.
+        @return: MetaInfo
+            Return the MetaInfoMapped created object.
+        '''
+
 # --------------------------------------------------------------------
 
 class IThumbnailManager(IMetaDataReferencer):

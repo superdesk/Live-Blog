@@ -29,9 +29,9 @@ class MetaInfoMapped(Base, MetaInfo):
     Id = Column('id', INTEGER(unsigned=True), primary_key=True, key='Id')
     MetaData = Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), nullable=False, key='MetaData')
     Language = Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language')
-    Title = Column('title', String(255), nullable=False, key='Title')
-    Keywords = Column('keywords', String(255), key='Keywords')
-    Description = Column('description', String(255), key='Description')
+    Title = Column('title', String(255), nullable=True, key='Title')
+    Keywords = Column('keywords', String(255), nullable=True, key='Keywords')
+    Description = Column('description', String(255), nullable=True, key='Description')
 
     __table_args__ = (UniqueConstraint(MetaData, Language), dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 

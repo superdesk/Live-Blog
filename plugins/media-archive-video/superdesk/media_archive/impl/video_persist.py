@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.video_data import META_TYPE_KEY, \
     VideoDataEntry
 import re
+from superdesk.media_archive.meta.video_info import VideoInfoMapped
 
 # --------------------------------------------------------------------
 
@@ -63,16 +64,16 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         self.videoSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.video_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
 
-    def deploy(self):
-        '''
-        @see: IMetaDataHandler.deploy
-        '''
-        
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'video.jpg')))
-        
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
-        self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+    def addMetaInfo(self, metaDataMapped, languageId):
+        videoInfoMapped = VideoInfoMapped()
+        videoInfoMapped.MetaData = metaDataMapped.Id
+        videoInfoMapped.Language = languageId
+        try:
+            self.session().add(videoInfoMapped)
+            self.session().flush((videoInfoMapped,))
+        except SQLAlchemyError as e:
+            handle(e, videoInfoMapped)
+        return videoInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -136,6 +137,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
         metaDataMapped.content = path
         metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.Type = META_TYPE_KEY
         metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 

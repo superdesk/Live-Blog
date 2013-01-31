@@ -21,6 +21,7 @@ from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     AudioDataMapped, META_TYPE_KEY
 from superdesk.media_archive.meta.audio_info import AudioInfoMapped, \
     AudioInfoEntry
+from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
 
 
 # --------------------------------------------------------------------
@@ -32,10 +33,15 @@ class AudioInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IAudioInfoService):
     @see: IAudioInfoService
     '''
 
-    queryIndexer = IQueryIndexer; wire.entity('queryIndexer')
+    queryIndexer = IQueryIndexer;wire.entity('queryIndexer')
+    # The query indexer manages the query related information about plugins in order to be able to support the multi-plugin queries
+    searchProvider = ISearchProvider; wire.entity('searchProvider')
+    # The search provider that will be used to manage all search related activities
 
     def __init__(self):
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
-        MetaInfoServiceBaseAlchemy.__init__(self, AudioInfoMapped, QAudioInfo, AudioDataMapped, QAudioData)
+        assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
+
+        MetaInfoServiceBaseAlchemy.__init__(self, AudioInfoMapped, QAudioInfo, AudioDataMapped, QAudioData, self.searchProvider)
         self.queryIndexer.register(AudioInfoEntry, QAudioInfo, AudioDataEntry, QAudioData, META_TYPE_KEY)
 

@@ -21,10 +21,12 @@ from cdm.support import ExtendPathCDM
 from distribution.container import app
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.core.impl.query_service_creator import \
-    createService
+    createService, ISearchProvider
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
     IQueryIndexer
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
+from superdesk.media_archive.core.impl.solr_search import SolrSearchProvider
+from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
 
 # --------------------------------------------------------------------
 
@@ -38,6 +40,20 @@ support.loadAllEntities(IMetaDataHandler, module=service)
 
 # --------------------------------------------------------------------
 
+@ioc.config
+def use_solr_search():
+    ''' If true then the media archive search is made using solr'''
+    return False
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def searchProvider() -> ISearchProvider:
+    b = SolrSearchProvider() if use_solr_search() else SqlSearchProvider()
+    return b
+
+# --------------------------------------------------------------------
+
 @ioc.entity
 def delivery() -> IDelivery:
     d = HTTPDelivery()
@@ -45,11 +61,15 @@ def delivery() -> IDelivery:
     d.repositoryPath = repository_path()
     return d
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def contentDeliveryManager() -> ICDM:
     cdm = LocalFileSystemCDM();
     cdm.delivery = delivery()
     return cdm
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def cdmArchive() -> ICDM:
@@ -58,6 +78,8 @@ def cdmArchive() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def cdmThumbnail() -> ICDM:
     '''
@@ -65,8 +87,12 @@ def cdmThumbnail() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/thumbnail/%s')
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def metaDataHandlers() -> list: return []
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def queryIndexer() -> IQueryIndexer: return QueryIndexer()
@@ -75,5 +101,5 @@ def queryIndexer() -> IQueryIndexer: return QueryIndexer()
 
 @app.deploy
 def publishQueryService():
-    b = createService(queryIndexer(), cdmArchive(), support.entityFor(IThumbnailManager))
+    b = createService(queryIndexer(), cdmArchive(), support.entityFor(IThumbnailManager), searchProvider())
     registerService(b, (bindSuperdeskSession,))

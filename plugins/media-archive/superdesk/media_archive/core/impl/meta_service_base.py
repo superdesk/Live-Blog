@@ -6,7 +6,7 @@ Created on Apr 27, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Base SQL Alchemy implementation to support meta type services. 
+Base SQL Alchemy implementation to support meta type services.
 '''
 
 from ally.exception import InputError, Ref
@@ -15,7 +15,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from inspect import isclass
 from sqlalchemy.orm.exc import NoResultFound
-from superdesk.media_archive.api.meta_data import QMetaData
+from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.core.spec import IMetaDataReferencer
 from superdesk.media_archive.meta.meta_data import MetaDataMapped, ThumbnailFormat
@@ -23,10 +23,11 @@ from superdesk.media_archive.meta.meta_info import MetaInfo
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from sqlalchemy.orm.session import Session
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
+from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
 
 # --------------------------------------------------------------------
 
-class MetaDataServiceBaseAlchemy(SessionSupport):
+class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
     '''
     Base SQL alchemy implementation for meta data type services.
     '''
@@ -34,13 +35,15 @@ class MetaDataServiceBaseAlchemy(SessionSupport):
     def __init__(self, MetaDataClass, QMetaDataClass, referencer):
         '''
         Construct the meta data base service for the provided classes.
-        
+
         @param MetaDataClass: class
             A class that extends MetaData meta class.
         @param QMetaDataClass: class
             A class that extends QMetaData API class.
         @param referencer: IMetaDataReferencer
             The referencer to provide the references in the meta data.
+        @param searchProvider: ISearchProvider
+            The provider that will be used for search related actions
         '''
         assert isclass(MetaDataClass) and issubclass(MetaDataClass, MetaDataMapped), \
         'Invalid meta data class %s' % MetaDataClass
@@ -74,6 +77,18 @@ class MetaDataServiceBaseAlchemy(SessionSupport):
         sql = buildLimits(sql, offset, limit)
         return (self.referencer.populate(metaData, scheme, thumbSize) for metaData in sql.all())
 
+    # --------------------------------------------------------------------
+
+    def delete(self, id):
+        '''
+        needed to overwrite this because EntityCRUDServiceAlchemy.delete didn't work
+        something to do with the join between the extended mapped tables
+        '''
+        self.session().delete(self.session().query(self.Entity).get(id))
+        self.session().commit()
+
+        return True
+
     # ----------------------------------------------------------------
 
     def buildSql(self, typeId, q):
@@ -94,10 +109,10 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
     Base SQL alchemy implementation for meta info type services.
     '''
 
-    def __init__(self, MetaInfoClass, QMetaInfoClass, MetaDataClass, QMetaDataClass):
+    def __init__(self, MetaInfoClass, QMetaInfoClass, MetaDataClass, QMetaDataClass, searchProvider):
         '''
         Construct the meta info base service for the provided classes.
-        
+
         @param MetaInfoClass: class
             A class that extends MetaInfo meta class.
         @param QMetaInfoClass: class
@@ -106,7 +121,10 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
             A class that extends MetaData meta class.
         @param QMetaDataClass: class
             A class that extends QMetaData API class.
+        @param searchProvider: ISearchProvider
+            The provider that will be used for search related actions
         '''
+
         assert isclass(MetaInfoClass) and issubclass(MetaInfoClass, MetaInfo), \
         'Invalid meta info class %s' % MetaInfoClass
         assert isclass(QMetaInfoClass) and issubclass(QMetaInfoClass, QMetaInfo), \
@@ -115,12 +133,15 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         'Invalid meta data class %s' % MetaDataClass
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
+        assert isinstance(searchProvider, ISearchProvider), 'Invalid search provider %s' % searchProvider
+
         EntityGetCRUDServiceAlchemy.__init__(self, MetaInfoClass)
 
         self.MetaInfo = MetaInfoClass
         self.QMetaInfo = QMetaInfoClass
         self.MetaData = MetaDataClass
         self.QMetaData = QMetaDataClass
+        self.searchProvider = searchProvider
 
     def getMetaInfosCount(self, dataId=None, languageId=None, qi=None, qd=None):
         '''
@@ -136,6 +157,26 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         sql = buildLimits(sql, offset, limit)
         return sql.all()
 
+    # --------------------------------------------------------------------
+
+    def insert(self, metaInfo):
+        EntityGetCRUDServiceAlchemy.insert(self, metaInfo)
+
+        metaData = self.session().query(self.MetaData).filter(self.MetaData.Id == metaInfo.MetaData).one()
+        self.searchProvider.update(metaInfo, metaData)
+
+    # --------------------------------------------------------------------
+
+    def update(self, metaInfo):
+        EntityGetCRUDServiceAlchemy.update(self, metaInfo)
+
+        metaInfo = self.session().query(self.MetaInfo).filter(self.MetaInfo.Id == metaInfo.Id).one()
+        metaData = self.session().query(self.MetaData).filter(self.MetaData.Id == metaInfo.MetaData).one()
+
+        self.searchProvider.update(metaInfo, metaData)
+
+    # --------------------------------------------------------------------
+
     def delete(self, id):
         '''
         needed to overwrite this because EntityCRUDServiceAlchemy.delete didn't work
@@ -143,6 +184,9 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         '''
         self.session().delete(self.session().query(self.Entity).get(id))
         self.session().commit()
+
+        self.searchProvider.delete(id)
+
         return True
 
     # ----------------------------------------------------------------
@@ -167,7 +211,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
 def metaTypeFor(session, type):
     '''
     Provides the meta type id for the type, if there is no such meta type then one will be created.
-    
+
     @param session: Session
         The session used for getting the meta type.
     @param type: string
@@ -188,11 +232,11 @@ def metaTypeFor(session, type):
 def thumbnailFormatFor(session, format):
     '''
     Provides the thumbnail id for the format, if there is no such thumbnail format than one will be created.
-    
+
     @param session: Session
         The session used for getting the thumbnail.
     @param format: string
-        The thumbnail format. 
+        The thumbnail format.
     '''
 
     assert isinstance(session, Session), 'Invalid session %s' % session

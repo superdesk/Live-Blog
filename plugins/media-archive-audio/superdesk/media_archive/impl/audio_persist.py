@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     META_TYPE_KEY
 from distribution.support import IPopulator
+from superdesk.media_archive.meta.audio_info import AudioInfoMapped
 
 # --------------------------------------------------------------------
 
@@ -64,6 +65,17 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
+
+    def addMetaInfo(self, metaDataMapped, languageId):
+        audioInfoMapped = AudioInfoMapped()
+        audioInfoMapped.MetaData = metaDataMapped.Id
+        audioInfoMapped.Language = languageId
+        try:
+            self.session().add(audioInfoMapped)
+            self.session().flush((audioInfoMapped,))
+        except SQLAlchemyError as e:
+            handle(e, audioInfoMapped)
+        return audioInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -160,6 +172,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
         metaDataMapped.content = path
+        metaDataMapped.Type = META_TYPE_KEY
         metaDataMapped.typeId = self.metaTypeId()
         metaDataMapped.thumbnailFormatId = self.defaultThumbnailFormatId()
         metaDataMapped.IsAvailable = True
