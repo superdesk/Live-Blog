@@ -8,6 +8,7 @@ define
     'providers/enabled', 
     'gizmo/superdesk',
     'jquery',
+    'gizmo/superdesk/action',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -24,7 +25,7 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $) 
+function(providers, Gizmo, $, Action) 
 {
     // TODO rethink cause this is very ugly
     var AuthApp;
@@ -990,11 +991,10 @@ function(providers, Gizmo, $)
                                 $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
-					$.superdesk.getAction('modules.livedesk.blog-publish')
+					Action.get('modules.livedesk.blog-publish')
 					.done(function(action)
 					{
-						if( action && action.Script )
-							self.el.find('#role-blog-publish').show();
+						self.el.find('#role-blog-publish').show();
 					});
 					// refresh twitter share button
 					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
@@ -1101,11 +1101,10 @@ function(providers, Gizmo, $)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
-					$.superdesk.getAction('modules.livedesk.configure')
+					Action.get('modules.livedesk.configure')
 					.done(function(action)
 					{
-						action.Script && 
-							require([action.Script.href], function(app){ new app(blogHref); });
+						require([action.get('Script').href], function(app){ new app(blogHref); });
 					});
 				})
 				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
@@ -1113,11 +1112,10 @@ function(providers, Gizmo, $)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
-					$.superdesk.getAction('modules.livedesk.manage-collaborators')
+					Action.get('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
-						action.Script && 
-							require([action.Script.href], function(app){ new app(blogHref); });
+						require([action.get('Script').href], function(app){ new app(blogHref); });
 					});
 				})
 				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')
@@ -1125,11 +1123,10 @@ function(providers, Gizmo, $)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href');
-					$.superdesk.getAction('modules.livedesk.edit')
+					Action.get('modules.livedesk.edit')
 					.done(function(action)
 					{
-						action.ScriptPath && 
-							require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+						require([$.superdesk.apiUrl+action.get('ScriptPath')], function(EditApp){ EditApp(blogHref); });
 					});
 				});
 				// wrapup toggle

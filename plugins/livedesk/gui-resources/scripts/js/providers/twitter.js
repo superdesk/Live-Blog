@@ -5,7 +5,9 @@
 
 define('providers/twitter', [
     'providers',    
-    'jquery','jquery/tmpl',
+    'jquery',
+    'gizmo/superdesk/action',
+    'jquery/tmpl',
     'jquery/jsonp',    
     'jqueryui/draggable',
     'providers/twitter/adaptor',
@@ -16,7 +18,7 @@ define('providers/twitter', [
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading',
-], function( providers,  $ ) {
+], function( providers,  $, Action ) {
 $.extend(providers.twitter, {
         initialized: false,
         urlTimeline : 'http://api.twitter.com/1/statuses/following_timeline.json?callback=?&include_entities=true&include_rts=true&screen_name=%(text)s&page=%(page)s',
@@ -210,7 +212,7 @@ $.extend(providers.twitter, {
                 return data;
             },
         doTimeline: function(page) {
-                var self = this;
+                var self = this, el;
                 
                 if ( $('#twitter-search-timeline').val().length < 1) {
                     $('#twitter-search-timeline').val(this.lastSearchItem);
@@ -258,16 +260,19 @@ $.extend(providers.twitter, {
                         
                         if ( data.length > 0 || page > 1) {
                             $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                                $('#twt-timeline-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        $(this).data('data', self.adaptor.universal( $(this) ));
-                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                        var itemNo = parseInt( (page * ipp) + idx );
-                                        self.data[itemNo].type = 'user';
-                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                    }   
+                                el = $('#twt-timeline-results').append(o);
+                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                    el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            $(this).data('data', self.adaptor.universal( $(this) ));
+                                            var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
+                                            var itemNo = parseInt( (page * ipp) + idx );
+                                            self.data[itemNo].type = 'user';
+                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        }   
+                                    });
                                 });
                             });
                             if (data.length > 19) {
@@ -356,15 +361,18 @@ $.extend(providers.twitter, {
                     
                     if (data.length > 0 || page > 1) {
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                            $('#twt-user-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                    var itemNo = parseInt( (page * ipp) + idx );
-                                    self.data[itemNo].type = 'user';
-                                    $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                }   
+                            el = $('#twt-user-results').append(o);
+                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
+                                        var itemNo = parseInt( (page * ipp) + idx );
+                                        self.data[itemNo].type = 'user';
+                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                    }   
+                                });
                             });
                         });			
                         
@@ -450,15 +458,18 @@ $.extend(providers.twitter, {
                     if (data.length > 0 || page > 1) {
                         //feed results to template
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                            $('#twt-favorites-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                    var itemNo = parseInt( (page * ipp) + idx );
-                                    self.data[itemNo].type = 'user';
-                                    $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                }   
+                            el = $('#twt-favorites-results').append(o);
+                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
+                                        var itemNo = parseInt( (page * ipp) + idx );
+                                        self.data[itemNo].type = 'user';
+                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                    }   
+                                });
                             });
                         });
                         //handle load more button

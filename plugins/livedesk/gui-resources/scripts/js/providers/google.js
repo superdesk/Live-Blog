@@ -4,10 +4,12 @@
  */
 
 define('providers/google', [
-	'providers','utils/str', 
-	'jquery','jquery/tmpl',
+	'providers',
+    'utils/str', 
+	'jquery',
+    'jquery/tmpl',
 	'jqueryui/draggable',
-        'providers/google/adaptor',
+    'providers/google/adaptor',
 	'tmpl!livedesk>providers/google',
 	'tmpl!livedesk>providers/google/web-item',
 	'tmpl!livedesk>providers/google/news-item',

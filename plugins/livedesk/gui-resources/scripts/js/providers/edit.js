@@ -6,7 +6,8 @@
 define('providers/edit', [
     'providers',
 	'jquery',
-	'gizmo/superdesk',	
+	'gizmo/superdesk',
+    'gizmo/superdesk/action',
 	config.guiJs('livedesk', 'models/posttype'),
 	config.guiJs('livedesk', 'models/post'),
     config.guiJs('media-archive', 'upload'),
@@ -26,7 +27,7 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/image',
     'tmpl!livedesk>providers/loading',
     'tmpl!livedesk>providers/generic-error'
-], function( providers, $, Gizmo, PostType, Post, uploadCom, URLInfo ) {
+], function( providers, $, Gizmo, Action, PostType, Post, uploadCom, URLInfo ) {
 	var 
 	
 	ImagePostType = Gizmo.View.extend
@@ -203,10 +204,10 @@ define('providers/edit', [
 			}
 			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
 				self.setElement( out );
-				$.superdesk.getAction('modules.livedesk.blog-post-publish')
+				Action.get('modules.livedesk.blog-post-publish')
 				.done(function(action)
 				{
-					if( action && action.Script && !self.model.get('PublishedOn')) {
+					if( !self.model.get('PublishedOn')) {
 						self.el.draggable({
 							revert: 'invalid',
 							containment:'document',
@@ -473,11 +474,9 @@ define('providers/edit', [
 
 			
 			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
-				$.superdesk.getAction('modules.livedesk.blog-post-publish')
+				Action.get('modules.livedesk.blog-post-publish')
 					.done(function(action){
-						if( action && action.Script) {
-							self.el.find('[ci="savepost"]').show();
-						}					
+						self.el.find('[ci="savepost"]').show();	
 					});
 				// editor 
 				fixedToolbar = 
@@ -574,7 +573,6 @@ define('providers/edit', [
 			});
 		},
 		save: function(evt){
-			console.log('save');
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {

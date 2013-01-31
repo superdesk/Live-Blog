@@ -95,7 +95,7 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
-    addAction(modulesBlogPublishAction())
+    #addAction(modulesBlogPublishAction())
     addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
 
