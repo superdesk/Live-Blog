@@ -22,6 +22,7 @@ from ally.api.criteria import AsBoolean, AsLike, AsEqual, AsDate, AsDateTime, \
     AsRange, AsTime, AsOrdered
 from ally.support.api.util_service import namesForQuery
 from ally.api.extension import IterPart
+import urllib
 
 @injected
 class SolrSearchProvider(ISearchProvider):
