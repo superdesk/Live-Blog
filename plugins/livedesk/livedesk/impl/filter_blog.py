@@ -14,7 +14,9 @@ from ally.support.sqlalchemy.session import SessionSupport
 from livedesk.api.filter_blog import IBlogFilterService
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_admin import AdminEntry
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sqlalchemy.sql.expression import exists
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 
 # --------------------------------------------------------------------
 
@@ -28,9 +30,10 @@ class BlogFilterServiceAlchemy(SessionSupport, IBlogFilterService):
         '''
         @see: IBlogFilterService.isAllowed
         '''
-        sql = self.session().query(BlogMapped).filter((BlogMapped.Creator == adminId) | 
-                                                      exists().where((AdminEntry.adminId == adminId) & 
-                                                                     (AdminEntry.Blog == BlogMapped.Id)))
-        sql = sql.filter(BlogMapped.Id == blogId)
-        return sql.count() > 0
+        userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) & (AdminEntry.Blog == BlogMapped.Id))
+        userFilter |= exists().where((CollaboratorMapped.User == adminId) \
+                                         & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
+                                         & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
+
+        return self.session().query(BlogMapped).filter(userFilter).filter(BlogMapped.Id == blogId).count() > 0
         
