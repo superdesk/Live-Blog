@@ -133,7 +133,7 @@ def registerAclManageOwnPost():
     .byName(IBlogService, IBlogService.getAll)\
     .allGet(IBlogAdminService, filter=filterBlog())
 
-    rightManageOwnPost().byName(IPostService, IBlogPostService.delete)
+    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.delete)
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update, filter=filterBlog())
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
