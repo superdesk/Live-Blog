@@ -35,6 +35,8 @@ define('providers/ads', [
                                         $(this).data('data', self.adaptor.universal($(this)));
                                     }
                                 });
+                            }).fail(function(){
+                                $('.search-result-list', self.el).find('.advertisement ').removeClass('draggable');
                             });
                         });
                     })

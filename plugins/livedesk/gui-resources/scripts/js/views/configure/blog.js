@@ -4,11 +4,12 @@
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
     config.guiJs('livedesk', 'views/configure/themes'),
+    'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages'
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView) {
+], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, Action) {
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -105,11 +106,8 @@
                 {
                     event.preventDefault();
                     var blogHref = $(this).attr('href')
-                    $.superdesk.getAction('modules.livedesk.configure')
-                    .done(function(action)
-                    {
-                        action.Script && 
-                            require([action.Script.href], function(app){ new app(blogHref); });
+                    Action.get('modules.livedesk.configure').done(function(action) {
+                        require([action.get('Script').href], function(app){ new app(blogHref); });
                     });
                 })
                 .off(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
@@ -117,11 +115,8 @@
                 {
                     event.preventDefault();
                     var blogHref = $(this).attr('href')
-                    $.superdesk.getAction('modules.livedesk.manage-collaborators')
-                    .done(function(action)
-                    {
-                        action.Script && 
-                            require([action.Script.href], function(app){ new app(blogHref); });
+                    Action.get('modules.livedesk.manage-collaborators').done(function(action) {
+                        require([action.get('Script').href], function(app){ new app(blogHref); });
                     });
                 })
                 .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
@@ -129,11 +124,8 @@
                 {
                     event.preventDefault();
                     var blogHref = $(this).attr('href');
-                    $.superdesk.getAction('modules.livedesk.edit')
-                    .done(function(action)
-                    {
-                        action.Script && 
-                            require([action.Script.href], function(EditApp){ EditApp(blogHref); });
+                    Action.get('modules.livedesk.edit').done(function(action) { 
+                        require([action.get('Script').href], function(EditApp){ EditApp(blogHref); });
                     });
                 });
             });

@@ -2,6 +2,7 @@ define([
 	'jquery',
 	'gizmo/superdesk',
 	config.guiJs('superdesk/user', 'models/person'),
+    'gizmo/superdesk/action',
 	'jquery/rest',
 	'jquery/superdesk',
 	'jquery/avatar',
@@ -14,7 +15,7 @@ define([
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
 	'tmpl!livedesk>manage-collaborators/add-internal-collaborator'
-	], function ($, Gizmo, Person) {
+	], function ($, Gizmo, Person, Action ) {
 
     var 
     userImages = [],
@@ -338,12 +339,8 @@ define([
 		        {
 		            event.preventDefault();
 		            var blogHref = $(this).attr('href');
-		            $.superdesk.getActions('modules.livedesk.configure')
-		            .done(function(action)
-		            {
-		            	action = (action[0])? action[0] : action;
-		                action.Script &&
-		                    require([action.Script.href], function(app){ 
+		            Action.get('modules.livedesk.configure').done(function(action) {
+		                    require([action.get('Script').href], function(app){ 
 		                    	//console.log(app);
 		                    	new app(blogHref); });
 		            });
@@ -353,12 +350,8 @@ define([
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
-					$.superdesk.getAction('modules.livedesk.manage-collaborators')
-					.done(function(action)
-					{
-						action = (action[0])? action[0] : action;
-						action.Script && 
-							require([action.Script.href], function(app){ new app(blogHref); });
+					Action.get('modules.livedesk.manage-collaborators').done(function(action) {
+							require([action.get('Script').href], function(app){ new app(blogHref); });
 					});
 				})
 		        .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
@@ -366,12 +359,8 @@ define([
 		        {
 		            event.preventDefault();
 		            var blogHref = $(this).attr('href');
-		            $.superdesk.getAction('modules.livedesk.edit')
-		            .done(function(action)
-		            {
-		            	action = (action[0])? action[0] : action;
-		                action.Script && 
-							require([action.Script.href], function(EditApp){ EditApp(blogHref); });
+		            Action.get('modules.livedesk.edit').done(function(action) {
+							require([action.get('Script').href], function(EditApp){ EditApp(blogHref); });
 		            });
 		        });
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);

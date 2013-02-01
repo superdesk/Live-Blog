@@ -96,7 +96,7 @@ def registerActions():
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
     #addAction(modulesBlogPublishAction())
-    addAction(modulesBlogPostPublishAction())
+    #addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
 
 @acl.setup

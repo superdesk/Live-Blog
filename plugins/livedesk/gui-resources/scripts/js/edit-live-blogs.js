@@ -991,9 +991,7 @@ function(providers, Gizmo, $, Action)
                                 $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
-					Action.get('modules.livedesk.blog-publish')
-					.done(function(action)
-					{
+					Action.get('modules.livedesk.blog-publish').done(function(action) {
 						self.el.find('#role-blog-publish').show();
 					});
 					// refresh twitter share button
