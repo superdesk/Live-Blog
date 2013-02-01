@@ -111,8 +111,8 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
-    #addAction(modulesBlogPublishAction())
-    #addAction(modulesBlogPostPublishAction())
+    addAction(modulesBlogPublishAction())
+    addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
     addAction(modulesBlogEditAction())
 

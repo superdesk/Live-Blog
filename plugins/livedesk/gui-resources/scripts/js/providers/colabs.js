@@ -232,7 +232,7 @@ function(providers, $, giz, Blog, Collaborator, Person)
                     (new Person(Person.prototype.url.get()+'/'+colab.get('User').get('Id')))
                     .on('read', function()
                     { 
-                        var meta = this.get('MetaData')
+                        var meta = this.get('MetaDataIcon')
                         meta.sync({data:{ thumbSize: 'medium' }}).done(function()
                         {  
                             userImages.push({UserId: colab.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
