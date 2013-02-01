@@ -3,11 +3,12 @@ define
     'jquery',
     'jquery/superdesk',
     'gizmo/superdesk',
+    'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>archive/list',
     'tmpl!livedesk>archive/item'
 ],
-function($, superdesk, giz, Blog)
+function($, superdesk, giz, Action, Blog)
 {
     var 
     ItemView = giz.View.extend
@@ -22,14 +23,14 @@ function($, superdesk, giz, Blog)
         {
             superdesk.showLoader();
             var theBlog = $(evt.target).attr('data-blog-link'), self = this;
-            superdesk.getAction('modules.livedesk.edit')
+            Action.get('modules.livedesk.edit')
             .done(function(action)
             {
                 var callback = function()
                 { 
-                    require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                    require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                 };
-                action.ScriptPath && superdesk.navigation.bind( $(evt.target).attr('href'), callback, $(evt.target).attr('data-blog-title') );
+                action.get('Script') && superdesk.navigation.bind( $(evt.target).attr('href'), callback, $(evt.target).attr('data-blog-title') );
             });
             evt.preventDefault();
         },

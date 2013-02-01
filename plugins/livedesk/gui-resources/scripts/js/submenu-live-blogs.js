@@ -34,14 +34,14 @@ define
             {
                 var self = this;
                 superdesk.showLoader();
-                superdesk.getAction('modules.livedesk.archive')
+                Action.get('modules.livedesk.archive')
                 .done(function(action)
                 {
                     var callback = function()
                     { 
-                        require([action.Script.href], function(app){ new app(); });
+                        require([action.get('Script').href], function(app){ new app(); });
                     };
-                    action.Script && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 }); 
                 event.preventDefault();
             });
@@ -49,11 +49,11 @@ define
             $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
                 superdesk.showLoader();
-                superdesk.getAction('modules.livedesk.add')
+                Action.get('modules.livedesk.add')
                 .done(function(action)
                 {
-                    action.Script &&
-                        require([action.Script.href], function(AddApp){ addApp = new AddApp(); });
+                    action.get('Script') &&
+                        require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
                 }); 
                 event.preventDefault();
             });
