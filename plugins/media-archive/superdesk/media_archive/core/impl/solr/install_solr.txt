@@ -3,7 +3,7 @@ Solr - install and configuration for Media Archive
 1. Check/install Java1.5 or greater
 2. Download http://lucene.apache.org/solr/downloads.html from Apache Solr 3.6.2
 3. Unzip/untar the file to disk
-4. On <install directory>/example create the MediaArchive directory
+4. On <install directory>/example create the media_archive directory
 5. Copy on new created directory all files from media-archive plugin, "superdesk/media_archive/core/imp/solr" directory
 6. Start the Solr server with the following command: java -Dsolr.solr.home=media_archive -jar start.jar
 7. By default the server starts at the following address: http://localhost:8983/solr
