@@ -918,21 +918,25 @@ function(providers, Gizmo, $, Action)
              */
 			save: function(evt)
 			{
-				var content = $(this.el).find('[is-content]'),
-				titleInput = content.find('section header h2'),
-				descrInput = content.find('article#blog-intro'),
-				data = {
-						Title: $.styledNodeHtml(titleInput),
-						Description: $.styledNodeHtml(descrInput)
-				};
-				this.model.set(data).sync().done(function() {
-					content.find('.tool-box-top .update-success').removeClass('hide')
-					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-				})
-				.fail(function() {
-					content.find('.tool-box-top .update-error').removeClass('hide')
-					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+				var self = this;
+				Action.get('modules.livedesk.blog-edit').done(function(action) {
+					var content = $(self.el).find('[is-content]'),
+					titleInput = content.find('section header h2'),
+					descrInput = content.find('article#blog-intro'),
+					data = {
+							Title: $.styledNodeHtml(titleInput),
+							Description: $.styledNodeHtml(descrInput)
+					};
+					self.model.set(data).sync().done(function() {
+						content.find('.tool-box-top .update-success').removeClass('hide')
+						setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+					})
+					.fail(function() {
+						content.find('.tool-box-top .update-error').removeClass('hide')
+						setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+					});
 				});
+				
 			},
 			putLive: function()
 			{
@@ -1090,13 +1094,15 @@ function(providers, Gizmo, $, Action)
                 delete timelinectrl.html;
                 delete timelinectrl.image;
 				// assign editors
-				titleInput.texteditor({
-					plugins: {controls: h2ctrl},
-					floatingToolbar: 'top'
-				});
-				descrInput.texteditor({
-					plugins: {controls: editorTitleControls},
-					floatingToolbar: 'top'
+				Action.get('modules.livedesk.blog-edit').done(function(action) {
+					titleInput.texteditor({
+						plugins: {controls: h2ctrl},
+						floatingToolbar: 'top'
+					});
+					descrInput.texteditor({
+						plugins: {controls: editorTitleControls},
+						floatingToolbar: 'top'
+					});
 				});
 				/** text editor stop */
 				
