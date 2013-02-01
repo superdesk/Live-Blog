@@ -16,9 +16,9 @@
  limitations under the License.
 -->
 
-<schema name="example core one" version="1.1">
+<schema name="superdesk media archive" version="1.1">
   <types>
-   <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+   <fieldType name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="bool" class="solr.BoolField" sortMissingLast="true"/>
    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
