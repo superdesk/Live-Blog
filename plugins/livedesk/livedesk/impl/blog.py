@@ -83,7 +83,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if not blog: raise InputError(_('Invalid blog or credentials')) 
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
-        return self.session().merge(blog)
+        self.session().merge(blog)
 
 
     def insert(self, blog):
