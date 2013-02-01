@@ -524,8 +524,14 @@ function(providers, Gizmo, $, Action)
 				    {
 				        providers[src].timeline.render.call(self, function()
 				        {
-				            $('.editable', this.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-				            
+				        	var that = this;
+				        	Action.get('modules.livedesk.blog-publish').done(function(action) {
+				            	$('.editable', that.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+				            }).fail(function(action){
+				            	self.el.find('.unpublish,.close').remove();
+				            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
+				            		self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+				            });
 				            $(self).triggerHandler('render');
 				        });
 				        rendered = true;
@@ -537,9 +543,14 @@ function(providers, Gizmo, $, Action)
 				!rendered &&
 				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
 				{
-					self.setElement(o).el.find('.editable')
-					    .texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-					
+					self.setElement(o);
+					Action.get('modules.livedesk.blog-publish').done(function(action) {
+						self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+		            }).fail(function(action){
+		            	self.el.find('.unpublish,.close').remove();
+		            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
+							self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+					});
 					/*!
                      * conditionally handing over some functionallity to provider if
                      * model has source name in providers 
