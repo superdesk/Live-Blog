@@ -87,7 +87,7 @@ define([
 			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
             .on('read', function()
             { 
-                var meta = this.get('MetaData')
+                var meta = this.get('MetaDataIcon')
                 meta.sync({data:{ thumbSize: 'medium' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
@@ -127,7 +127,7 @@ define([
 		    (new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
             .on('read', function()
             { 
-                var meta = this.get('MetaData')
+                var meta = this.get('MetaDataIcon')
                 meta.sync({data:{ thumbSize: 'medium' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
