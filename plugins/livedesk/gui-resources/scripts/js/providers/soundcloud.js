@@ -66,9 +66,9 @@ define('providers/soundcloud', [
                         {
                             items : data,
                         }, function(e,o) {
-                            el = $('#soundcloud-sound-results').append(o)
+                            el = $('#soundcloud-sound-results').append(o).find('.soundcloud');
                             Action.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                el.find('.soundcloud').draggable(
+                                el.draggable(
                                 {
                                     revert: 'invalid',
                                     containment:'document',
@@ -83,6 +83,8 @@ define('providers/soundcloud', [
                                         $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                     }
                                 });
+                            }).fail(function(){
+                                el.removeClass('draggable').css('cursor','');
                             });
                         });
                     } else {

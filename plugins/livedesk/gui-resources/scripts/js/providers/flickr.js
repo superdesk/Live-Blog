@@ -6,6 +6,7 @@
 define('providers/flickr', [
     'providers',
     'jquery',
+    'gizmo/superdesk/action',
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
@@ -16,7 +17,7 @@ define('providers/flickr', [
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-], function( providers,  $ ) {
+], function( providers,  $, Action ) {
 $.extend(providers.flickr, {
         initialized: false,
         per_page : 8,
@@ -95,7 +96,7 @@ $.extend(providers.flickr, {
             return photos;
         },
         doFlickerImage : function(start) {
-            var self = this;
+            var self = this, el;
             var text = $('#flickr-search-text').val();
             if (text.length < 1) {
                 return;
@@ -123,25 +124,28 @@ $.extend(providers.flickr, {
                             photos : self.trimTitle(data.photos.photos),
                             page : parseInt(start - 1)
                         }, function(e,o) {
-                            $('#flickr-image-results').append(o).find('.flickr').draggable(
-                            {
-                                revert: 'invalid',
-                                containment:'document',
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
-                                    var originalUrl = $(this).attr('data-url');
-                                    var itemNo = parseInt( (page * self.per_page) + idx );
-                                    self.data[itemNo].originalUrl = originalUrl;
-                                    $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                }
-                            }
-                            );
+                            el = $('#flickr-image-results').append(o).find('.flickr');
+                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.draggable({
+                                    revert: 'invalid',
+                                    containment:'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
+                                        var originalUrl = $(this).attr('data-url');
+                                        var itemNo = parseInt( (page * self.per_page) + idx );
+                                        self.data[itemNo].originalUrl = originalUrl;
+                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                    }
+                                });
+                            }).fail(function(){
+                                el.removeClass('draggable');
+                            });
                             self.doOriginalUrl(data.photos);
                         });			
 

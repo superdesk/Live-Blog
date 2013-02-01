@@ -216,7 +216,8 @@ define('providers/edit', [
 					} else {
 						self.el.removeClass('draggable');
 					}
-
+				}).fail(function(){
+					self.el.removeClass('draggable');
 				});				
 				self.resetEvents();
 			});

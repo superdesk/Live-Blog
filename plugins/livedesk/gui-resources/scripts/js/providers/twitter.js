@@ -260,9 +260,9 @@ $.extend(providers.twitter, {
                         
                         if ( data.length > 0 || page > 1) {
                             $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                                el = $('#twt-timeline-results').append(o);
+                                el = $('#twt-timeline-results').append(o).find('.twitter');
                                 Action.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                    el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                         start: function(evt, ui) {
                                             item = $(evt.currentTarget);
                                             $(ui.helper).css('width', item.width());
@@ -273,6 +273,8 @@ $.extend(providers.twitter, {
                                             $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                         }   
                                     });
+                                }).fail(function(){
+                                    el.removeClass('draggable');
                                 });
                             });
                             if (data.length > 19) {
@@ -361,9 +363,9 @@ $.extend(providers.twitter, {
                     
                     if (data.length > 0 || page > 1) {
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                            el = $('#twt-user-results').append(o);
+                            el = $('#twt-user-results').append(o).find('.twitter');
                             Action.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                     start: function(evt, ui) {
                                         item = $(evt.currentTarget);
                                         $(ui.helper).css('width', item.width());
@@ -373,6 +375,8 @@ $.extend(providers.twitter, {
                                         $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                     }   
                                 });
+                            }).fail(function(){
+                                el.removeClass('draggable');
                             });
                         });			
                         
@@ -458,9 +462,9 @@ $.extend(providers.twitter, {
                     if (data.length > 0 || page > 1) {
                         //feed results to template
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
-                            el = $('#twt-favorites-results').append(o);
+                            el = $('#twt-favorites-results').append(o).find('.twitter');
                             Action.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                el.find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
+                                el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                     start: function(evt, ui) {
                                         item = $(evt.currentTarget);
                                         $(ui.helper).css('width', item.width());
@@ -470,6 +474,8 @@ $.extend(providers.twitter, {
                                         $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                     }   
                                 });
+                            }).fail(function(){
+                                el.removeClass('draggable');
                             });
                         });
                         //handle load more button
@@ -566,21 +572,25 @@ $.extend(providers.twitter, {
                         }
                     if (data.results.length > 0) {
                         $.tmpl('livedesk>providers/twitter/web-item', res, function(e,o) {
-                                $('#twt-web-results').append(o).find('.twitter').draggable(
-                                {
-                                    revert: 'invalid',
-                                    helper: 'clone',
-                                    appendTo: 'body',
-                                    zIndex: 2700,
-                                    clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                        var itemNo = parseInt( (page * ipp) + idx );
-                                        self.data[itemNo].type = 'natural';
-                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                    }   
+                                el = $('#twt-web-results').append(o).find('.twitter');
+                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                    el.draggable({
+                                        revert: 'invalid',
+                                        helper: 'clone',
+                                        appendTo: 'body',
+                                        zIndex: 2700,
+                                        clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
+                                            var itemNo = parseInt( (page * ipp) + idx );
+                                            self.data[itemNo].type = 'natural';
+                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        }   
+                                    });
+                                }).fail(function(){
+                                    el.removeClass('draggable');
                                 });
                         });			
                         if (data.next_page) {

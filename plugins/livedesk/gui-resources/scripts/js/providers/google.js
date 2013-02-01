@@ -142,7 +142,7 @@ $.extend(providers.google, {
 
                                 });
                             }).fail(function(){
-                                $('#ggl-web-results').find('.google').removeClass('draggable');
+                                el.removeClass('draggable');
                             });
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);
@@ -233,7 +233,7 @@ $.extend(providers.google, {
                                     }
                                 });
                             }).fail(function(){
-                                $('#ggl-news-results').find('.google').removeClass('draggable');
+                                el.removeClass('draggable');
                             });   
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);
@@ -306,7 +306,7 @@ $.extend(providers.google, {
                                     }
                                 });
                             }).fail(function(){
-                                $('#ggl-images-results').find('.google').removeClass('draggable');
+                                el.removeClass('draggable');
                             }); 
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);

@@ -107,8 +107,13 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
+<<<<<<< HEAD
+    # addAction(modulesBlogPublishAction())
+    # addAction(modulesBlogPostPublishAction())
+=======
     addAction(modulesBlogPublishAction())
     addAction(modulesBlogPostPublishAction())
+>>>>>>> NR-624: Timeline bugs
     addAction(dashboardAction())
 
 @acl.setup
