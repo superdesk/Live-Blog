@@ -123,7 +123,8 @@ def registerAclLivedeskView():
     .allGet(IBlogAdminService, filter=filterBlog())\
     .allGet(IBlogPostService, filter=filterBlog())\
     .allGet(IBlogCollaboratorService, filter=filterBlog())\
-    .allGet(IBlogTypeService)
+    .allGet(IBlogTypeService)\
+    .allGet(IBlogTypePostService)
 
 @acl.setup
 def registerAclManageOwnPost():
