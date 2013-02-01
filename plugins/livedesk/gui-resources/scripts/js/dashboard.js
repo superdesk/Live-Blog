@@ -22,10 +22,8 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
         ipp: 15,
         init: function(){
             this.collection = new Gizmo.Register.LiveBlogs;
-            this.collection.on('read update', this.render, this).
-                xfilter('*,Creator.*,PostPublished').sync();
+            this.collection.on('read update', this.render, this);
             this.ipp = 10;
-
         },
         searchArchive: function(title, page, order){
             
@@ -179,7 +177,9 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
 
 
         },
-        render: function(){
+        
+        render: function()
+        {
             var self = this;
             var data = [];
             data['live'] = [];
@@ -197,16 +197,13 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
                 });
                 data['live'].push(self.cleanDescription(this.data));
             });
-            var item = {
-                live: data['live']
-            }
+            
+            var item = { live: data['live'] };
+            if( data['live'].length == 0) delete item.live;
 
-            if ( data['live'].length == 0) {
-                delete item.live;
-            }
-
-            $.tmpl('livedesk>layouts/dashboard', item, function(e,o) {
-                $(self.el).append(o);
+            $.tmpl('livedesk>layouts/dashboard', item, function(e,o) 
+            {
+                self.el.html(o);
                 //fix blog links
                 $('.list-active-blogs .active-blog-link').off('click').on('click', function(event)
                 {
@@ -226,17 +223,17 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
                 });
 
                 //fix create new blog button
-                    $('#welcome-screen-create-liveblog').off('off').on('click', function(event)
+                $('#welcome-screen-create-liveblog').off('off').on('click', function(event)
+                {
+                    superdesk.showLoader();
+                    Action.get('modules.livedesk.add')
+                    .done(function(action)
                     {
-                        superdesk.showLoader();
-                        Action.get('modules.livedesk.add')
-                        .done(function(action)
-                        {
-                            action.get('Script') &&
-                            require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
-                        }); 
-                        event.preventDefault();
-                    });
+                        action.get('Script') &&
+                        require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
+                    }); 
+                    event.preventDefault();
+                });
 
                 self.searchArchive();
             });
@@ -247,14 +244,22 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
             var clean = data.Description;
             data.Description = clean.replace(/(<([^>]+)>)/ig,"");
             return data;
+        },
+        
+        activate: function(element)
+        {
+            this.el.appendTo(element);
+            this.collection.xfilter('*,Creator.*,PostPublished').sync();
         }
+        
     }),
     dashboardApp = new DashboardApp();
-
+    window.da = dashboardApp;
+    
     return {
         init: function(element)
         { 
-            $(element).append( dashboardApp.el );
+            dashboardApp.activate(element);
             return dashboardApp; 
         }
     };
