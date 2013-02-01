@@ -24,6 +24,7 @@ from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_theme import IBlogThemeService
 from livedesk.api.blog_type import IBlogTypeService
 from livedesk.api.blog_type_post import IBlogTypePostService
+from superdesk.post.api.post import IPostService
 
 # --------------------------------------------------------------------
 
@@ -46,8 +47,9 @@ def dashboardAction():
 @ioc.entity
 def modulesAddAction():
     return Action('add', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/add-live-blogs.js'))
+
 @ioc.entity
-def modulesEditAction():
+def modulesEditAction():  # TODO: change to view
     return Action('edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.entity   
@@ -77,6 +79,16 @@ def modulesArchiveAction():
 def rightLivedeskView():
     return acl.actionRight(NC_('security', 'Livedesk view'), NC_('security', '''
     Allows read only access to users for livedesk.'''))
+    
+@ioc.entity
+def rightManageOwnPost():
+    return acl.actionRight(NC_('security', 'Manage own post'), NC_('security', '''
+    Allows the creation and management of own posts in livedesk.'''))
+    
+@ioc.entity
+def rightBlogEdit():
+    return acl.actionRight(NC_('security', 'Blog edit'), NC_('security', '''
+    Allows for editing the blog.'''))
 
 @ioc.entity
 def rightLivedeskUpdate():
@@ -95,8 +107,8 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
-    #addAction(modulesBlogPublishAction())
-    #addAction(modulesBlogPostPublishAction())
+    # addAction(modulesBlogPublishAction())
+    # addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
 
 @acl.setup
@@ -107,9 +119,20 @@ def registerAclLivedeskView():
     .allGet(IBlogAdminService, filter=filterBlog())
     
 @acl.setup
+def registerAclManageOwnPost():
+    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())\
+    .allGet(IBlogService, filter=filterBlog())\
+    .byName(IBlogService, IBlogService.getAll)\
+    .allGet(IBlogAdminService, filter=filterBlog())
+    
+    rightManageOwnPost().byName(IPostService, IPostService.delete)  # TODO: add: filter=filterOwnPost()
+    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update, filter=filterBlog())
+    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
+    
+@acl.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(),\
-                                      modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),\
+    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(), \
+                                      modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), \
                                       modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .all(IBlogAdminService).all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
     .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)

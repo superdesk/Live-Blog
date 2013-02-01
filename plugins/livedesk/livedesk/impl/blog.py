@@ -75,7 +75,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
         return sql.all()
 
-    def putLive(self, adminId, blogId):
+    def putLive(self, blogId):
         '''
         @see: IBlogService.putLive
         '''

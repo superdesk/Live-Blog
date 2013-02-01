@@ -9,56 +9,90 @@ Created on Jan 26, 2013
 Contains the default data for the live desk plugin.
 '''
 
+from ..gui_security.acl import aclType
+from ..livedesk.actions import rightLivedeskView, rightManageOwnPost
+from ..security_rbac.populate import rootRoleId
 from ally.container import support, ioc
+from ally.internationalization import NC_
 from distribution.container import app
+from security.api.right import IRightService
+from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
-from security.api.right import IRightService
-from ..gui_security.acl import aclType
-from ..livedesk.actions import rightLivedeskView
-from security.rbac.api.rbac import IRoleService, QRole, Role
-from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def blogViewerRoleId():
+def blogRoleAdministratorId():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
     
-    roles = roleService.getAll(limit=1, q=QRole(name='Blog viewer'))
-    try: viewerRole = next(iter(roles))
+    roles = roleService.getAll(limit=1, q=QRole(name='Administrator'))
+    try: admin = next(iter(roles))
     except StopIteration:
-        viewerRole = Role()
-        viewerRole.Name = NC_('security role', 'Blog viewer')
-        viewerRole.Description = NC_('security role', 'Role that allows the view only access to blogs')
-        return roleService.insert(viewerRole)
-    return viewerRole.Id
-        
+        admin = Role()
+        admin.Name = NC_('security role', 'Administrator')
+        admin.Description = NC_('security role', 'Role that allows all rights')
+        return roleService.insert(admin)
+    return admin.Id
+
+@ioc.entity
+def blogRoleCollaboratorId():
+    roleService = support.entityFor(IRoleService)
+    assert isinstance(roleService, IRoleService)
+    
+    roles = roleService.getAll(limit=1, q=QRole(name='Collaborator'))
+    try: collaborator = next(iter(roles))
+    except StopIteration:
+        collaborator = Role()
+        collaborator.Name = NC_('security role', 'Collaborator')
+        collaborator.Description = NC_('security role', 'Role that allows submit to desk and edit his own posts')
+        return roleService.insert(collaborator)
+    return collaborator.Id
+
 # --------------------------------------------------------------------
 
 @app.populate
-def populateBlogViewerRoleRights():
+def populateCollaboratorRole():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
     rightService = support.entityFor(IRightService)
     assert isinstance(rightService, IRightService)
-    roleService.assignRight(blogViewerRoleId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightManageOwnPost().name).Id)
 
 @app.populate
-def populateBlogViewer():
+def populateBlogAdministratorRole():
+    roleService = support.entityFor(IRoleService)
+    assert isinstance(roleService, IRoleService)
+    rightService = support.entityFor(IRightService)
+    assert isinstance(rightService, IRightService)
+    roleService.assignRole(blogRoleAdministratorId(), rootRoleId())
+
+# --------------------------------------------------------------------
+
+@app.populate
+def populateDefaultUsers():
     userService = support.entityFor(IUserService)
     assert isinstance(userService, IUserService)
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
     
-    users = userService.getAll(limit=1, q=QUser(name='view'))
+    users = userService.getAll(limit=1, q=QUser(name='admin'))
     if not users:
         user = User()
-        user.Name = 'view'
-        user.Password = hashlib.sha512(b'view').hexdigest()
+        user.Name = 'admin'
+        user.Password = hashlib.sha512(b'admin').hexdigest()
         user.Id = userService.insert(user)
     else: user = next(iter(users))
+    userRbacService.assignRole(user.Id, blogRoleAdministratorId())
     
-    userRbacService.assignRole(user.Id, blogViewerRoleId())
+    users = userService.getAll(limit=1, q=QUser(name='collaborator'))
+    if not users:
+        user = User()
+        user.Name = 'collaborator'
+        user.Password = hashlib.sha512(b'collaborator').hexdigest()
+        user.Id = userService.insert(user)
+    else: user = next(iter(users))
+    userRbacService.assignRole(user.Id, blogRoleCollaboratorId())
