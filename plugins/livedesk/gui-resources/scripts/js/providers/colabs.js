@@ -5,13 +5,14 @@ define( 'providers/colabs', [
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/collaborator'),
     config.guiJs('superdesk/user', 'models/person'),
+    'gizmo/superdesk/action',
    'jquery/avatar',
 
     'providers/colabs/adaptor',
     'tmpl!livedesk>providers/colabs',
     'tmpl!livedesk>providers/colabs/items' ],
   
-function(providers, $, giz, Blog, Collaborator, Person)
+function(providers, $, giz, Blog, Collaborator, Person, Action)
 {
     var config = { updateInterval: 10 },
         colabsList = [], 
@@ -45,13 +46,17 @@ function(providers, $, giz, Blog, Collaborator, Person)
             {
                 self.setElement(o);
                 // make draggable
-                self.el.hasClass('draggable') && self.el.draggable
-                ({
-                    helper: 'clone',
-                    appendTo: 'body',
-                    zIndex: 2700,
-                    start: function(){ $(this).data('post', self.model); }
-                });
+                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                    self.el.hasClass('draggable') && self.el.draggable
+                    ({
+                        helper: 'clone',
+                        appendTo: 'body',
+                        zIndex: 2700,
+                        start: function(){ $(this).data('post', self.model); }
+                    });
+                }).fail(function(){
+                    self.el.removeClass('draggable');
+                })
                 addUserImages();
             });
             return self;
