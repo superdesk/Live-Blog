@@ -62,7 +62,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id == postId)
 
-        
+
         try: return self._addImage(sql.one(), thumbSize)
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
@@ -84,7 +84,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        
+
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed:
             posts = IterPost(self._addImages(self._trimmDeleted(sqlLimit.all()), thumbSize), sql.count(), offset, limit)
@@ -299,7 +299,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         Trim the information from the deleted posts.
         '''
         for post in posts:
-            assert isinstance(post, BlogPost)
+            assert isinstance(post, BlogPostMapped)
             if (BlogPost.DeletedOn in post and post.DeletedOn is not None) or (BlogPost.PublishedOn not in post or post.PublishedOn is None):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
@@ -325,24 +325,22 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         max = self.session().query(fn.max(BlogPostMapped.Order)).filter(BlogPostMapped.Blog == blogId).scalar()
         if max: return max + 1
         return 1
-    
-    # TODO: nasty 
+
+    # TODO: nasty
     def _addImage(self, post, thumbSize='medium'):
         '''
         Takes the image for the author or creator and adds the thumbnail to the response
         '''
-        assert isinstance(post, BlogPostMapped)
-        id = None
-        if post.author is None: id = post.Creator
-        if post.author.User is not None: id = post.author.User
-        
-        try: 
-            if id is not None: 
+        assert isinstance(post, BlogPost)
+        id = post.AuthorPerson if post.AuthorPerson is not None else post.Creator
+
+        try:
+            if id is not None:
                 post.AuthorImage = self.personIconService.getByPersonId(id=id, thumbSize=thumbSize).Thumbnail
         except: pass
-        
+
         return post
-    
+
     def _addImages(self, posts, thumbSize='medium'):
         for post in posts:
             post = self._addImage(post, thumbSize)
