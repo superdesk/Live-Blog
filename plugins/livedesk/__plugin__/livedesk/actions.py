@@ -52,6 +52,10 @@ def modulesAddAction():
 def modulesEditAction():  # TODO: change to view
     return Action('edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
+@ioc.entity
+def modulesBlogEditAction():  # TODO: change to view
+    return Action('blog-edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
+
 @ioc.entity   
 def modulesBlogPublishAction():
     return Action('blog-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-publish.js'))
@@ -107,9 +111,10 @@ def registerActions():
     addAction(modulesConfigureAction())
     addAction(modulesArchiveAction())
     addAction(modulesManageCollaboratorsAction())
-    addAction(modulesBlogPublishAction())
-    addAction(modulesBlogPostPublishAction())
+    #addAction(modulesBlogPublishAction())
+    #addAction(modulesBlogPostPublishAction())
     addAction(dashboardAction())
+    addAction(modulesBlogEditAction())
 
 @acl.setup
 def registerAclLivedeskView():
@@ -131,7 +136,7 @@ def registerAclManageOwnPost():
     
 @acl.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction(), \
+    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(), dashboardAction(), \
                                       modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), \
                                       modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .all(IBlogAdminService).all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
