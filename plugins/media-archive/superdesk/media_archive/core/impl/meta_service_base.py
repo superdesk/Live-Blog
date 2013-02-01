@@ -160,10 +160,11 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
     # --------------------------------------------------------------------
 
     def insert(self, metaInfo):
-        EntityGetCRUDServiceAlchemy.insert(self, metaInfo)
+        id = EntityGetCRUDServiceAlchemy.insert(self, metaInfo)
 
         metaData = self.session().query(self.MetaData).filter(self.MetaData.Id == metaInfo.MetaData).one()
         self.searchProvider.update(metaInfo, metaData)
+        return id
 
     # --------------------------------------------------------------------
 
