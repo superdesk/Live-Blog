@@ -12,7 +12,6 @@ from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
 from ..gui_security import acl
 from ..livedesk.acl import filterBlog
-from ..superdesk_security.acl import filterAuthenticated
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
@@ -56,24 +55,24 @@ def modulesEditAction():  # TODO: change to view
 def modulesBlogEditAction():  # TODO: change to view
     return Action('blog-edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesBlogPublishAction():
     return Action('blog-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-publish.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesBlogPostPublishAction():
     return Action('blog-post-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-post-publish.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/configure-blog.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesManageCollaboratorsAction():
     return Action('manage-collaborators', Parent=modulesAction(),
                   Script=publishedURI('livedesk/scripts/js/manage-collaborators.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesArchiveAction():
     return Action('archive', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/archive.js'))
 
@@ -83,12 +82,12 @@ def modulesArchiveAction():
 def rightLivedeskView():
     return acl.actionRight(NC_('security', 'Livedesk view'), NC_('security', '''
     Allows read only access to users for livedesk.'''))
-    
+
 @ioc.entity
 def rightManageOwnPost():
     return acl.actionRight(NC_('security', 'Manage own post'), NC_('security', '''
     Allows the creation and management of own posts in livedesk.'''))
-    
+
 @ioc.entity
 def rightBlogEdit():
     return acl.actionRight(NC_('security', 'Blog edit'), NC_('security', '''
@@ -98,7 +97,7 @@ def rightBlogEdit():
 def rightLivedeskUpdate():
     return acl.actionRight(NC_('security', 'Livedesk edit'), NC_('security', '''
     Allows edit access to users for livedesk.'''))
- 
+
 # --------------------------------------------------------------------
 
 @app.deploy
@@ -125,18 +124,19 @@ def registerAclLivedeskView():
     .allGet(IBlogPostService, filter=filterBlog())\
     .allGet(IBlogCollaboratorService, filter=filterBlog())\
     .allGet(IBlogTypeService)
-    
+
 @acl.setup
 def registerAclManageOwnPost():
     rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction(), modulesEditAction())\
     .allGet(IBlogService, filter=filterBlog())\
     .byName(IBlogService, IBlogService.getAll)\
     .allGet(IBlogAdminService, filter=filterBlog())
-    
-    rightManageOwnPost().byName(IPostService, IPostService.delete)  # TODO: add: filter=filterOwnPost()
+
+    rightManageOwnPost().byName(IPostService, IBlogPostService.delete)
+    # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update, filter=filterBlog())
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
-    
+
 @acl.setup
 def registerAclLivedeskUpdate():
     rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(), dashboardAction(), \
