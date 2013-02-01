@@ -20,6 +20,7 @@ from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
+from __plugin__.media_archive.actions import rightMediaArchiveView
 
 # --------------------------------------------------------------------
 
@@ -27,7 +28,7 @@ import hashlib
 def blogRoleAdministratorId():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
-    
+
     roles = roleService.getAll(limit=1, q=QRole(name='Administrator'))
     try: admin = next(iter(roles))
     except StopIteration:
@@ -41,7 +42,7 @@ def blogRoleAdministratorId():
 def blogRoleCollaboratorId():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
-    
+
     roles = roleService.getAll(limit=1, q=QRole(name='Collaborator'))
     try: collaborator = next(iter(roles))
     except StopIteration:
@@ -61,6 +62,7 @@ def populateCollaboratorRole():
     assert isinstance(rightService, IRightService)
     roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
     roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightManageOwnPost().name).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightMediaArchiveView().name).Id)
 
 @app.populate
 def populateBlogAdministratorRole():
@@ -78,7 +80,7 @@ def populateDefaultUsers():
     assert isinstance(userService, IUserService)
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
-    
+
     users = userService.getAll(limit=1, q=QUser(name='admin'))
     if not users:
         user = User()

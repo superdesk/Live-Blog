@@ -10,14 +10,15 @@ Created on May 3rd, 2012
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
+from ..gui_security import acl
+from ..superdesk_security.acl import filterAuthenticated
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
-from ..gui_security import acl
 from gui.action.api.action import Action
-from superdesk.media_archive.api.meta_data import IMetaDataService,\
+from superdesk.media_archive.api.meta_data import IMetaDataService, \
     IMetaDataUploadService
-from superdesk.media_archive.api.meta_info import IMetaInfoService,\
+from superdesk.media_archive.api.meta_info import IMetaInfoService, \
     IMetaDataInfoService
 from superdesk.media_archive.api.meta_type import IMetaTypeService
 from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
@@ -72,7 +73,7 @@ def registerAclMediaArchiveView():
     rightMediaArchiveView()\
         .addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesConfigureAction())\
         .allGet(IMetaDataService)\
-        .all(IMetaDataUploadService)\
+        .all(IMetaDataUploadService, filter=filterAuthenticated())\
         .all(IMetaInfoService)\
         .all(IMetaTypeService)\
         .all(IMetaDataInfoService)\

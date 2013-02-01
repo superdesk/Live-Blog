@@ -23,7 +23,6 @@ from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_theme import IBlogThemeService
 from livedesk.api.blog_type import IBlogTypeService
 from livedesk.api.blog_type_post import IBlogTypePostService
-from superdesk.post.api.post import IPostService
 
 # --------------------------------------------------------------------
 
