@@ -67,11 +67,13 @@ class SolrSearchProvider(ISearchProvider):
 
     # ----------------------------------------------------------------
 
-    def delete(self, idMetaInfo, idMetaData):
+    def delete(self, idMetaInfo, metaType):
         '''
         @see: ISearchProvider.delete()
         '''
-        print('MetaDataServiceAlchemy - delete idMetaInfo=%d, idMetaData=%d', idMetaInfo, idMetaData)
+        si = SolrInterface('http://%s%s' % (self.solr_server_url, metaType))
+        si.delete(str(idMetaInfo))
+        si.commit()
 
     # ----------------------------------------------------------------
 

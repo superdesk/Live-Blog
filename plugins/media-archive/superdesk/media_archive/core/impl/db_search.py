@@ -43,7 +43,7 @@ class SqlSearchProvider(ISearchProvider):
 
     # ----------------------------------------------------------------
 
-    def delete(self, idMetaInfo, idMetaData):
+    def delete(self, idMetaInfo, metaType):
         '''
         @see: ISearchProvider.delete()
         '''

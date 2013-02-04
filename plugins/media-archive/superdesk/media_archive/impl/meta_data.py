@@ -161,6 +161,12 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     # ----------------------------------------------------------------
 
+    def delete(self, id):
+        # TODO: implement it
+        pass
+
+    # ----------------------------------------------------------------
+
     def doPopulate(self):
         '''
         @see: IPopulator.doPopulate

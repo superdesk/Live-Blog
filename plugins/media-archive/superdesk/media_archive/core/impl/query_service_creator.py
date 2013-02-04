@@ -76,7 +76,7 @@ class ISearchProvider:
 
     # --------------------------------------------------------------------
 
-    def delete(self, idMetaInfo, idMetaData):
+    def delete(self, idMetaInfo, metaType):
         '''
         Provides the delete of data from search indexes.
         '''
