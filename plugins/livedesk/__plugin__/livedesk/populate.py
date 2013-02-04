@@ -15,7 +15,7 @@ from ..security_rbac.populate import rootRoleId
 from ally.container import support, ioc
 from ally.internationalization import NC_
 from distribution.container import app
-from security.api.right import IRightService
+from security.api.right import IRightService, Right
 from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
@@ -63,7 +63,7 @@ def populateCollaboratorRole():
     roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
     roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightManageOwnPost().name).Id)
     roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightMediaArchiveView().name).Id)
-    roleService.assignRole(rootRoleId(), blogRoleCollaboratorId())
+    roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
 
 @app.populate
 def populateBlogAdministratorRole():
@@ -71,6 +71,9 @@ def populateBlogAdministratorRole():
     assert isinstance(roleService, IRoleService)
     rightService = support.entityFor(IRightService)
     assert isinstance(rightService, IRightService)
+    for right in rightService.getAll():
+        assert isinstance(right, Right)
+        roleService.assignRight(blogRoleAdministratorId(), right.Id)
     roleService.assignRole(rootRoleId(), blogRoleAdministratorId())
 
 # --------------------------------------------------------------------
