@@ -14,7 +14,7 @@
     <h3>{Name}</h3>
   </div>
   <div class="blogtype-content">
-    <h4>_("Blog Posts");</h4>
+    <h4>_("Predefined posts");</h4>
   </div>
 </li>
 {/BlogType}
