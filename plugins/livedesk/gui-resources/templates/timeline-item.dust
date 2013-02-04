@@ -125,9 +125,9 @@
 	        <figure>
 	        	{Avatar|s}
 	            {?AuthorPerson.Avatar}
-	                <img src="{AuthorPerson.Avatar}" />
+	                <img src="{AuthorPerson.Avatar}">
 	            {:else}
-	        	    <img />
+	        	    <!--<img>-->
 	            {/AuthorPerson}
 	        </figure>
 	        <div class="result-content" style='margin-right:61px'>
