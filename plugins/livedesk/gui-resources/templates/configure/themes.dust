@@ -1,6 +1,6 @@
 {+themes_content}
 <select name="Theme" class="span3">
-<option value="">_('Choose the theme to be generate');</option>
+<option value="">_('Select');</option>
 	{+theme_item}
 	{#Themes}
 	    <option value="{Name}"{@if cond="'{Name}'==='{selected}'"} selected{/if}>{Name}</option>

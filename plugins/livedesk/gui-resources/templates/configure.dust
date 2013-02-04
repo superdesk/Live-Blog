@@ -9,15 +9,8 @@
 			<form class="form-horizontal form-large">
         	<fieldset>
         		<legend>General</legend>
-        		<div class="control-group">
-            		<label class="control-label">_("This Blogs output feed");</label>
-            		<div class="controls">
-              			<a href="#" class="block-link" 
-              				data-key="OutputLink">{OutputLink}</a>
-             		</div>
-          		</div>
               <div class="control-group">
-                <label class="control-label">_('Theme');</label>
+                <label class="control-label">_('Embed Theme');</label>
                 <div class="controls themes"></div>
               </div>
               <div class="control-group">

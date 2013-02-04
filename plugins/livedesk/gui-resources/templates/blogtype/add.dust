@@ -27,7 +27,7 @@
   <div screenid="1" class="modalscreen">
 
     <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
-      <h3>_("Create new Post");</h3>
+      <h3>_("Create new Predefined Post");</h3>
     </div>
   
     <div class="modal-body">
@@ -42,9 +42,9 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend" style="clear:both;">_("Post Name");</legend>
+        <legend class="small-legend" style="clear:both;">_("Predefined Post Name");</legend>
         <input type="text" placeholder='_("Enter the Post Name");' class="fullwidth-input" name="post-name">
-        <div class="message-error">_("Post Name can't be empty!");</div>
+        <div class="message-error">_("Predefined Post Name can't be empty!");</div>
       </form>
 
     </div>
@@ -61,7 +61,7 @@
   <div screenid="2" class="modalscreen">
 
     <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
-      <h3>_("Create new Post");</h3>
+      <h3>_("Create new Predefined Post");</h3>
     </div>
   
     <div class="modal-body">
@@ -79,7 +79,7 @@
         <legend class="small-legend" style="clear:both;">_("Predefine the content of the Post");</legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">x</a>
-           <strong>_("Note!");</strong> _("You can optionally place a predifined text in your Post type.");
+           <strong>_("Note!");</strong> _("You can optionally place a predifined text in your Predefine Post.");
         </div>
         <textarea class="fullwidth-input" name="post-predefined" placeholder='_("Type your text here");' rows="4"></textarea>
 
@@ -104,7 +104,7 @@
   <div screenid="3" class="modalscreen">
 
     <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
-      <h3>_("Create new Post");</h3>
+      <h3>_("Create new Predefined Post");</h3>
     </div>
   
     <div class="modal-body">
@@ -119,10 +119,10 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend" style="clear:both;">Customize the Font style and color of the Post Type <i style="color:#989898">(optional)</i></legend>
+        <legend class="small-legend" style="clear:both;">_("Customize the Font style and color of the Predefined Post"); <i style="color:#989898">(_("optional");)</i></legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">x</a>
-           <strong>Note!</strong> You can difine a differnt Font style, size and/or color for each Post type.
+           <strong>_("Note!");</strong>_("You can difine a differnt Font style, size and/or color for each Predefined Post.");
         </div>
         <legend class="small-legend wizard-legend">Font options</legend>
         <select name="post-fontfamily" style="width:140px;">
@@ -208,7 +208,7 @@
   <div screenid="4" class="modalscreen">
 
     <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
-      <h3>_("Create new Post");</h3>
+      <h3>_("Create new Predefined Post");</h3>
     </div>
   
     <div class="modal-body">
@@ -223,14 +223,14 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend" style="clear:both;">Customize the Background the Post Type <i style="color:#989898">(optional)</i></legend>
+        <legend class="small-legend" style="clear:both;">_("Customize the Background the Predefined Post"); <i style="color:#989898">(_("optional");)</i></legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">×</a>
-           <strong>Note!</strong> You can difine a differnt Background color and/or graphic for each Post type.
+           <strong>_("Note!");</strong> _("You can difine a differnt Background color and/or graphic for each Predefined Post.");
         </div>
 
-        <legend class="small-legend wizard-legend">Background options</legend>
-        <label class="bgcolor">Background color:</label>
+        <legend class="small-legend wizard-legend">_("Background options");</legend>
+        <label class="bgcolor">_("Background color");:</label>
 
         <div style="float:left;margin-left:10px;" id="colorpicker2" class="btn-group color-picker">
           <button name="picked-color" class="btn"><span name="picked-color" class="wizard-color white"></span></button>
@@ -238,7 +238,7 @@
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu pull-right">
-            <li><span class="wizard-color white"></span> Default color</li>
+            <li><span class="wizard-color white"></span> _("Default color");</li>
             <li class="divider"></li>
             <li>
               <span class="wizard-color gray"></span>
@@ -256,7 +256,7 @@
 
         <label style="display:inline-block; vertical-align:middle; margin-left:20px;" class="checkbox">
           <input type="checkbox" name="post-addbgimage">
-          Add Background graphic
+          _("Add Background graphic");
         </label>
 
         <div class="wizard-picture-selection">
@@ -276,7 +276,7 @@
           </ul>
         </div>
 
-        <legend style="border:0;margin-bottom:0px;" class="small-legend wizard-legend">Preview</legend>
+        <legend style="border:0;margin-bottom:0px;" class="small-legend wizard-legend">_("Preview");</legend>
         <div class="wizard-preview">
           Vel vut turpis rhoncus lectus pulvinar lacus, sed urna, scelerisque vel lundium a, egestas! Vut, amet in, porttitor lacus phasellus dignissim lundium lundium! Placerat! Nisi, dolor proin augue in, nec aliquet nisi pellentesque
         </div>
@@ -287,9 +287,9 @@
     </div>
 
     <div class="modal-footer"> 
-      <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
-      <a name="wizard-start" class="btn" href="#">Cancel</a> 
-      <a name="save-post" class="btn btn-primary" href="#">Save</a>
+      <a name="wizard-back" class="btn pull-left" href="#">_("Back");</a> 
+      <a name="wizard-start" class="btn" href="#">_("Cancel");</a> 
+      <a name="save-post" class="btn btn-primary" href="#">_("Save");</a>
       <!--<a data-dismiss="modal" name="save-post-close" class="btn btn-primary" href="#">Save and Close</a>-->
 
     </div>
