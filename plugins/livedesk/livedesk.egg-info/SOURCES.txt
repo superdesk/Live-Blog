@@ -6,8 +6,8 @@ __plugin__/livedesk/acl.py
 __plugin__/livedesk/actions.py
 __plugin__/livedesk/gui.py
 __plugin__/livedesk/populate.py
+__plugin__/livedesk/populate_default_data.py
 __plugin__/livedesk/service.py
-__plugin__/livedesk/temp_populate.py
 gui-resources/__init__.py
 gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
