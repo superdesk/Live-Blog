@@ -20,13 +20,29 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
     DashboardApp = Gizmo.View.extend
     ({
         ipp: 15,
-        init: function(){
+        events: 
+        { 
+            '.list-active-blogs .active-blog-link': { 'click': 'loadBlog' },
+            '#welcome-screen-create-liveblog': { 'click': 'createBlog' },
+            '#search-archive-button': { 'click': 'searchArchiveHandle' },
+            '#search-archive-clear': { 'click': 'searchArchiveClear' },
+            '#pag-first': { 'click': 'pageFirst' },
+            '#pag-prev': { 'click': 'pagePrev' },
+            '#pag-next': { 'click': 'pageNext' },
+            '#pag-last': { 'click': 'pageLast' },
+            '.ippli': { 'click': 'itemsPerPage' }
+        },
+        init: function()
+        {
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this);
             this.ipp = 10;
         },
-        searchArchive: function(title, page, order){
-            
+        /*!
+         * 
+         */
+        searchArchive: function(title, page, order)
+        {
             var self = this;
             var data = [];
             data['archive'] = [];
@@ -55,7 +71,7 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
                 }
                 var items = {
                     ippa:'',ippb:'', ippc:''
-                }
+                };
                 if ( data['archive'].length > 0) {
                     items.archive = data['archive'];
                 }
@@ -95,87 +111,122 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
                         items.selc = 'selected="selected"';
                         break;
                 }                 
-                $.tmpl('livedesk>layouts/dashboard-archive', items, function(e,o) {
-                    $('#archive_blogs').html(o);
+                $.tmpl('livedesk>layouts/dashboard-archive', items, function(e,o) 
+                {
+                    $('#archive_blogs', self.el).html(o);
                     self.setArchiveActions(page, maxpage, self.ipp, order);
                 });
             });
         },
-        setArchiveActions: function(curpage, maxpage) {
+        /*!
+         * 
+         */
+        setArchiveActions: function(curpage, maxpage, ipp, order) 
+        {
+            this.page = { curpage: curpage, maxpage: maxpage, ipp: ipp, order: order };
             var self = this;
+        },
+        
+        /*!
+         * search archive
+         */
+        searchArchiveHandle: function(event)
+        {
+            var key = $('#search-archive-text', this.el).val();
+            if( key.length > 0 ) this.searchArchive(key);
+        },
+        
+        /*!
+         * clear archive search
+         */
+        searchArchiveClear: function(event)
+        {
+            this.searchArchive();   
+        },
 
-            //search button
-            $('#search-archive-button').off('click').on('click', function(){
-                var key = $('#search-archive-text').val();
-                if ( key.length > 0 ) {
-                    self.searchArchive(key);
-                }
-            });
-            //clear button
-            $('#search-archive-clear').off('click').on('click', function(){
-                self.searchArchive();
-            });
-
-            //pagination buttons
-            $('#pag-first').off('click').on('click', function(){
-                var key = $('#search-archive-text').val();
-                var order = $('.archive-sort').val();
-                self.searchArchive(key, 0, order);
-            });
-            $('#pag-prev').off('click').on('click', function(){
-                var key = $('#search-archive-text').val();
-                var order = $('.archive-sort').val();
-                var prevpage = 0;
-                if ( curpage - 1 >= 0 ) {
-                    prevpage = curpage - 1;
-                }
-                self.searchArchive(key, prevpage, order);
-            });
-            $('#pag-next').off('click').on('click', function(){
-                var key = $('#search-archive-text').val();
-                var order = $('.archive-sort').val();
-                var nextpage = maxpage;
-                if ( curpage + 1 < maxpage ) {
-                    nextpage = curpage + 1;
-                }
-                self.searchArchive(key, nextpage, order);
-            });
-            $('#pag-last').off('click').on('click', function(){
-                var key = $('#search-archive-text').val();
-                var order = $('.archive-sort').val();
-                self.searchArchive(key, maxpage, order);
-            });
-
-            $('.archive-sort').off('change').on('change', function(){
-                var key = $('#search-archive-text').val();
-                var order = $('.archive-sort').val();
-                self.searchArchive(key, 0, order);
-            });
-
-            $('.archive-blogs .archive-blog-link').off('click').on('click', function(event)
+        /*!
+         * navigate to first page
+         */
+        pageFirst: function()
+        {
+            var key = $('#search-archive-text', this.el).val();
+            var order = $('.archive-sort', this.el).val();
+            this.searchArchive(key, 0, order);
+        },
+        
+        /*!
+         * navigate to previous page
+         */
+        pagePrev: function()
+        {
+            var key = $('#search-archive-text', this.el).val();
+            var order = $('.archive-sort', this.el).val();
+            var prevpage = 0;
+            if( this.page.curpage - 1 >= 0 ) prevpage = this.page.curpage - 1;
+            this.searchArchive(key, prevpage, order);
+        },
+        
+        /*!
+         * navigate to next page
+         */
+        pageNext: function()
+        {
+            var key = $('#search-archive-text', this.el).val();
+            var order = $('.archive-sort', this.el).val();
+            var nextpage = maxpage;
+            if( this.page.curpage + 1 < maxpage ) nextpage = this.page.curpage + 1;
+            this.searchArchive(key, nextpage, order);
+        },
+        
+        itemsPerPage: function()
+        {
+            this.ipp = $(event.currentTarget).attr('data-ipp');
+            this.searchArchive();
+        },
+        
+        /*!
+         * navigate to last page
+         */
+        pageLast:  function()
+        {
+            var key = $('#search-archive-text').val();
+            var order = $('.archive-sort').val();
+            this.searchArchive(key, this.page.maxpage, order);
+        },
+        
+        /*!
+         * loads the selected blog
+         */
+        loadBlog: function(event)
+        {
+            superdesk.showLoader();
+            var theBlog = $(event.currentTarget).attr('data-blog-link');
+            Action.get('modules.livedesk.edit')
+            .done(function(action)
             {
-             superdesk.showLoader();
-             var theBlog = $(this).attr('data-blog-link'), self = this;
-             Action.get('modules.livedesk.edit')
-             .done(function(action)
-             {
                 if(!action) return;
                 var callback = function()
                 { 
                     require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                 };
-                action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                action.get('Script') && superdesk.navigation.bind( $(event.currentTarget).attr('href'), callback, $(event.currentTarget).text() );
             });
-             event.preventDefault();
-         });
-
-            $(self.el).off('click').on('click', '.ippli', function(el, evt){
-                self.ipp = $(this).attr('data-ipp');
-                self.searchArchive();
-            });
-
-
-
+            event.preventDefault();
+        },
+        
+        /*!
+         * shwo create blog dialog
+         */
+        createBlog: function(event)
+        {
+            superdesk.showLoader();
+            Action.get('modules.livedesk.add')
+            .done(function(action)
+            {
+                action.get('Script') &&
+                require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
+            }); 
+            event.preventDefault();
         },
         
         render: function()
@@ -204,37 +255,6 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
             $.tmpl('livedesk>layouts/dashboard', item, function(e,o) 
             {
                 self.el.html(o);
-                //fix blog links
-                $('.list-active-blogs .active-blog-link').off('click').on('click', function(event)
-                {
-                    superdesk.showLoader();
-                    var theBlog = $(this).attr('data-blog-link'), self = this;
-                    Action.get('modules.livedesk.edit')
-                    .done(function(action)
-                    {
-                        if(!action) return;
-                        var callback = function()
-                        { 
-                            require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
-                        };
-                        action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
-                    });
-                    event.preventDefault();
-                });
-
-                //fix create new blog button
-                $('#welcome-screen-create-liveblog').off('off').on('click', function(event)
-                {
-                    superdesk.showLoader();
-                    Action.get('modules.livedesk.add')
-                    .done(function(action)
-                    {
-                        action.get('Script') &&
-                        require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
-                    }); 
-                    event.preventDefault();
-                });
-
                 self.searchArchive();
             });
            
@@ -254,7 +274,6 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
         
     }),
     dashboardApp = new DashboardApp();
-    window.da = dashboardApp;
     
     return {
         init: function(element)

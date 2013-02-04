@@ -361,7 +361,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 if( $('#user-add-modal form input#inputCollaborator:checked').length )
                 {
                     var newCollaborator = new Collaborator;
-                    newCollaborator.set('Person', newModel.get('Id'))
+                    newCollaborator.set('User', newModel.get('Id'))
                         .on('insert', h, this)
                         .sources.xfilter('*').sync().done(function()
                         {
