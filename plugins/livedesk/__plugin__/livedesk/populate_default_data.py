@@ -10,11 +10,13 @@ Populates sample data for the services.
 '''
 
 from ..superdesk.db_superdesk import alchemySessionCreator
+from __plugin__.livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
+from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
+from distribution.container import app
 from livedesk.api.blog import IBlogService, QBlog, Blog
-from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
@@ -30,9 +32,6 @@ from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
-from __plugin__.livedesk.populate import populateDefaultUsers
-from ally.container import ioc
-from distribution.container import app
 
 # --------------------------------------------------------------------
 
@@ -253,15 +252,15 @@ BLOG_ADMINS = {
 
 @ioc.after(createBlogTypePosts)
 def createBlogAdmins():
-    blogAdminService = entityFor(IBlogAdminService)
-    assert isinstance(blogAdminService, IBlogAdminService)
+    blogCollaboratorService = entityFor(IBlogCollaboratorService)
+    assert isinstance(blogCollaboratorService, IBlogCollaboratorService)
     for name, blog in BLOG_ADMINS.items():
-        blogId, userId = getBlogsIds()[blog], getUsersIds()[name]
-        blgs = blogAdminService.getAll(blogId)
+        blogId, collId = getBlogsIds()[blog], getCollaboratorsIds()[name]
+        blgs = blogCollaboratorService.getAll(blogId)
         for blg in blgs:
-            if blg.Id == userId: break
+            if blg.Id == collId: break
         else:
-            blogAdminService.addAdmin(blogId, userId)
+            blogCollaboratorService.addCollaborator(blogId, collId, 'Administrator')
 
 POSTS = [
 		 ('Liveblog Master Class', 'normal', 'admin', 'admin', 'Hello world!'),

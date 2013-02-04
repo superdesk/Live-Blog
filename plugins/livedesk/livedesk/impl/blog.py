@@ -11,18 +11,17 @@ Contains the SQL alchemy meta for blog API.
 
 from ..api.blog import IBlogService, QBlog, Blog
 from ..meta.blog import BlogMapped
-from ..meta.blog_admin import AdminEntry
+from ally.api.extension import IterPart
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from ally.container.support import setup
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
-from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
-from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 
 # --------------------------------------------------------------------
@@ -54,24 +53,16 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         @see: IBlogService.getAll
         '''
-        sql = self._buildQuery(languageId, userId, userId, q)
+        sql = self._buildQuery(languageId, userId, q)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
-
-    def getLiveWhereAdmin(self, adminId, languageId=None, q=None):
-        '''
-        @see: IBlogService.getLiveWhereAdmin
-        '''
-        sql = self._buildQuery(languageId, adminId, None, q)
-        sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
-        return sql.all()
 
     def getLive(self, languageId=None, q=None):
         '''
         @see: IBlogService.getLive
         '''
-        sql = self._buildQuery(languageId, None, None, q)
+        sql = self._buildQuery(languageId, None, q)
         sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
         return sql.all()
 
@@ -96,21 +87,18 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
 
     # ----------------------------------------------------------------
 
-    def _buildQuery(self, languageId=None, adminId=None, collaboratorId=None, q=None):
+    def _buildQuery(self, languageId=None, userId=None, q=None):
         '''
         Builds the general query for blogs.
         '''
         sql = self.session().query(BlogMapped)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
-        userFilter = None
-        if adminId:
-            userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) &
-                                                                          (AdminEntry.Blog == BlogMapped.Id))
-        if collaboratorId:
-            userFilter |= exists().where((CollaboratorMapped.User == collaboratorId) \
+        if userId:
+            userFilter = (BlogMapped.Creator == userId) | exists().where((CollaboratorMapped.User == userId) \
                                          & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
                                          & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
-        if userFilter is not None: sql = sql.filter(userFilter)
+            sql = sql.filter(userFilter)
+            
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogMapped)

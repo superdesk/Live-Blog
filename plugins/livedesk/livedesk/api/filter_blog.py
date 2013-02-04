@@ -26,13 +26,25 @@ class HasBlog(IsAllowed):
 # --------------------------------------------------------------------
 
 @service
-class IBlogFilterService(IAclFilter):
+class IBlogAdminFilterService(IAclFilter):
     '''
-    Provides the service that checks if the authenticated user has access to a requested blog.
+    Provides the service that checks if the authenticated user has administrative access to a requested blog.
     '''
     
-    @call(method=GET)
-    def isAllowed(self, adminId:Authenticated.Id, blogId:Blog.Id) -> HasBlog.HasAccess:
+    @call(method=GET, webName='Administrator')
+    def isAllowed(self, userId:Authenticated.Id, blogId:Blog.Id) -> HasBlog.HasAccess:
+        '''
+        @see: IAclFilter.isAllowed
+        '''
+        
+@service
+class IBlogCollaboratorFilterService(IAclFilter):
+    '''
+    Provides the service that checks if the authenticated user has access to a requested blog as a collaborator.
+    '''
+    
+    @call(method=GET, webName='Collaborator')
+    def isAllowed(self, userId:Authenticated.Id, blogId:Blog.Id) -> HasBlog.HasAccess:
         '''
         @see: IAclFilter.isAllowed
         '''

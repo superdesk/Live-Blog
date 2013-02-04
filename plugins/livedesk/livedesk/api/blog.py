@@ -74,12 +74,6 @@ class IBlogService(IEntityCRUDService):
         Provides all the blogs.
         '''
 
-    @call(webName='Administered')
-    def getLiveWhereAdmin(self, adminId:User, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
-        '''
-        Provides all the blogs that are administered by the provided user.
-        '''
-
     @call(webName='Live')
     def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
         '''

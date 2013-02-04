@@ -11,18 +11,18 @@ from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
 from ..gui_security import acl
-from ..livedesk.acl import filterBlog
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
 from gui.action.api.action import Action
 from livedesk.api.blog import IBlogService
-from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_theme import IBlogThemeService
 from livedesk.api.blog_type import IBlogTypeService
 from livedesk.api.blog_type_post import IBlogTypePostService
+from .acl import filterCollaboratorBlog
+from ..superdesk_security.acl import filterAuthenticated
 
 # --------------------------------------------------------------------
 
@@ -117,24 +117,23 @@ def registerActions():
 @acl.setup
 def registerAclLivedeskView():
     rightLivedeskView().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())\
-    .allGet(IBlogService, filter=filterBlog())\
-    .byName(IBlogService, IBlogService.getAll)\
-    .allGet(IBlogAdminService, filter=filterBlog())\
-    .allGet(IBlogPostService, filter=filterBlog())\
-    .allGet(IBlogCollaboratorService, filter=filterBlog())\
+    .allGet(IBlogService, filter=filterCollaboratorBlog())\
+    .byName(IBlogService, IBlogService.getAll, filter=filterAuthenticated())\
+    .allGet(IBlogPostService, filter=filterCollaboratorBlog())\
+    .allGet(IBlogCollaboratorService, filter=filterCollaboratorBlog())\
     .allGet(IBlogTypeService)\
     .allGet(IBlogTypePostService)
 
 @acl.setup
 def registerAclManageOwnPost():
-    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction(), modulesEditAction())\
-    .allGet(IBlogService, filter=filterBlog())\
-    .byName(IBlogService, IBlogService.getAll)\
-    .allGet(IBlogAdminService, filter=filterBlog())
+    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(),
+                                    dashboardAction(), modulesEditAction())\
+    .allGet(IBlogService, filter=filterCollaboratorBlog())
 
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.delete)
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
-    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update, filter=filterBlog())
+    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update,
+                                filter=filterCollaboratorBlog())
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
 
 @acl.setup
@@ -142,5 +141,5 @@ def registerAclLivedeskUpdate():
     rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(), dashboardAction(), \
                                       modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), \
                                       modulesBlogPublishAction(), modulesBlogPostPublishAction())\
-    .all(IBlogAdminService).all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
+    .all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
     .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)

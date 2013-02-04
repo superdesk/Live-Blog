@@ -10,35 +10,55 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import IBlogCollaboratorService
-from ally.container.ioc import injected
-from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
-    BlogCollaboratorEntry
-from superdesk.source.meta.source import SourceMapped
-from sqlalchemy.exc import OperationalError
-from ally.exception import InputError, Ref
-from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.container.support import setup
-from sqlalchemy.orm.exc import NoResultFound
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from sqlalchemy.sql.expression import not_
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.api.extension import IterPart
+from ally.container import wire
+from ally.container.ioc import injected
+from ally.container.support import setup
+from ally.exception import InputError, Ref
+from ally.internationalization import _, NC_
+from ally.support.sqlalchemy.session import SessionSupport
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from livedesk.api.blog_collaborator import BlogCollaborator
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
+    BlogCollaboratorEntry, BlogCollaboratorTypeMapped
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import not_
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.source.meta.source import SourceMapped
 from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IBlogCollaboratorService)
+@setup(IBlogCollaboratorService, name='blogCollaboratorService')
 class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
     Implementation for @see: IBlogCollaboratorService
     '''
+    
+    collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator')];
+    wire.config('collaborator_types', doc='''
+    The collaborator types to be assigned to added blog collaborators, if the type is not specified then the first entry
+    is used.
+    ''')
 
     def __init__(self):
         '''
         Construct the blog collaborator service.
         '''
+        assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
+        if __debug__:
+            for name in self.collaborator_types: assert isinstance(name, str), 'Invalid collaborator type name %s' % name
+        super().__init__()
+        
+        self._collaboratorTypeIds = {}
+
+    def getAllTypes(self):
+        '''
+        @see: IBlogCollaboratorService.getAllTypes
+        '''
+        return self.session().query(BlogCollaboratorTypeMapped).all()
 
     def getById(self, blogId, collaboratorId):
         '''
@@ -76,21 +96,30 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sql.all()
 
-    def addCollaborator(self, blogId, collaboratorId):
+    def addCollaboratorAsDefault(self, blogId, collaboratorId):
+        '''
+        @see: IBlogCollaboratorService.addCollaboratorAsDefault
+        '''
+        self.addCollaborator(blogId, collaboratorId, self.collaborator_types[0])
+
+    def addCollaborator(self, blogId, collaboratorId, typeName):
         '''
         @see: IBlogCollaboratorService.addCollaborator
         '''
+        typeId = self.collaboratorTypeIds()[typeName]
+        if typeId is None: raise InputError(Ref(_('Invalid collaborator type'), ref=BlogCollaborator.Type))
+        
         sql = self.session().query(BlogCollaboratorEntry)
         sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
         sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
-        if sql.count() > 0: raise InputError(_('Already a collaborator for this blog'))
+        if sql.update({BlogCollaboratorEntry.typeId: typeId}) > 0: return
 
         bgc = BlogCollaboratorEntry()
         bgc.Blog = blogId
         bgc.blogCollaboratorId = collaboratorId
+        bgc.typeId = typeId
         self.session().add(bgc)
         self.session().flush((bgc,))
-        return bgc.blogCollaboratorId
 
     def removeCollaborator(self, blogId, collaboratorId):
         '''
@@ -103,3 +132,22 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
             return sql.delete() > 0
         except OperationalError:
             raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))
+
+    # ----------------------------------------------------------------
+    
+    def collaboratorTypeIds(self):
+        '''
+        Provides the collaborator types ids dictionary.
+        '''
+        if not self._collaboratorTypeIds:
+            for name in self.collaborator_types:
+                sql = self.session().query(BlogCollaboratorTypeMapped)
+                sql = sql.filter(BlogCollaboratorTypeMapped.Name == name)
+                try: bt = sql.one()
+                except NoResultFound:
+                    bt = BlogCollaboratorTypeMapped()
+                    bt.Name = name
+                    self.session().add(bt)
+                    self.session().flush((bt,))
+                self._collaboratorTypeIds[name] = bt.id
+        return self._collaboratorTypeIds

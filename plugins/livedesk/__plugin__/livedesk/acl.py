@@ -11,15 +11,23 @@ Provides the acl setup.
 
 from acl.spec import Filter
 from ally.container import ioc, support
-from superdesk.security.api.filter_authenticated import Authenticated
 from livedesk.api.blog import Blog
-from livedesk.api.filter_blog import IBlogFilterService
+from livedesk.api.filter_blog import IBlogAdminFilterService, \
+    IBlogCollaboratorFilterService
+from superdesk.security.api.filter_authenticated import Authenticated
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def filterBlog():
+def filterAdminBlog():
     '''
-    Provides filtering for the users blogs.
+    Provides filtering for the admin users blogs.
     '''
-    return Filter(1, Authenticated.Id, Blog.Id, support.entityFor(IBlogFilterService))
+    return Filter(1, Authenticated.Id, Blog.Id, support.entityFor(IBlogAdminFilterService))
+
+@ioc.entity
+def filterCollaboratorBlog():
+    '''
+    Provides filtering for the collaborator users blogs.
+    '''
+    return Filter(2, Authenticated.Id, Blog.Id, support.entityFor(IBlogCollaboratorFilterService))

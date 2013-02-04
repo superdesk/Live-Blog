@@ -10,7 +10,7 @@ API specifications for livedesk blog collaborator.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call, INSERT, DELETE, LIMIT_DEFAULT
+from ally.api.config import service, call, DELETE, LIMIT_DEFAULT, UPDATE, alias
 from ally.api.type import Iter
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.collaborator.api.collaborator import Collaborator
@@ -19,12 +19,26 @@ from superdesk.user.api.user import QUser
 
 # --------------------------------------------------------------------
 
+@modelLiveDesk(id='Name')
+class BlogCollaboratorType:
+    '''
+    Provides the blog collaborator type.
+    '''
+    Name = str
+
+@alias
+class Type(BlogCollaboratorType):
+    '''
+    Short blog type alias
+    '''
+    
 @modelLiveDesk(name=Collaborator)
 class BlogCollaborator(Collaborator):
     '''
     Provides the blog collaborator model.
     '''
     Blog = Blog
+    Type = str
 
 # --------------------------------------------------------------------
 
@@ -37,6 +51,12 @@ class IBlogCollaboratorService:
     '''
     Provides the service methods for the blog collaborators.
     '''
+        
+    @call
+    def getAllTypes(self) -> Iter(BlogCollaboratorType):
+        '''
+        Provides all the blog collaborator types.
+        '''
 
     @call
     def getById(self, blogId:Blog, collaboratorId:BlogCollaborator) -> BlogCollaborator:
@@ -57,8 +77,14 @@ class IBlogCollaboratorService:
         Provides all the collaborators that are not registered to this blog.
         '''
 
-    @call(method=INSERT, webName='Add')
-    def addCollaborator(self, blogId:Blog.Id, collaboratorId:Collaborator.Id) -> BlogCollaborator.Id:
+    @call(method=UPDATE)
+    def addCollaborator(self, blogId:Blog.Id, collaboratorId:Collaborator.Id, typeName:Type.Name):
+        '''
+        Assigns the collaborator as a collaborator to the blog.
+        '''
+    # TODO: merge this methods when will do the combinations for UPDATE.
+    @call(method=UPDATE, webName='Add')
+    def addCollaboratorAsDefault(self, blogId:Blog.Id, collaboratorId:Collaborator.Id):
         '''
         Assigns the collaborator as a collaborator to the blog.
         '''
