@@ -12,7 +12,7 @@ Publish the GUI resources.
 from ..gui_core import publish_gui_resources
 from ..gui_core.gui_core import getGuiPath, getPublishedLib, gui_folder_format, \
     lib_folder_format, publishGui
-from ..gui_core.gui_lib import publish, server_url
+from ..gui_core.gui_lib import server_url
 from ..plugin.registry import cdmGUI
 from ally.container import ioc
 from ally.support.util_io import openURI
@@ -38,7 +38,11 @@ def themes_path():
 
 # --------------------------------------------------------------------
 
-@ioc.after(publish)
+@app.populate
+def publishJS():
+    publishGui('livedesk-embed')
+
+@ioc.after(publishJS)
 def updateDemoEmbedFile():
     if not publish_gui_resources(): return  # No publishing is allowed
     try:
@@ -47,12 +51,8 @@ def updateDemoEmbedFile():
             out = f.read().replace(b'{server_url}', bytes(server_url(), 'utf-8'))
             out = out.replace(b'{gui}', bytes(gui_folder_format(), 'utf-8'));
             out = out.replace(b'{lib_core}', bytes(lib_folder_format() % 'core/', 'utf-8'));
-            cdmGUI().publishFromFile(bootPath + ui_demo_embed_file(), BytesIO(out))
+            cdmGUI().publishContent(bootPath + ui_demo_embed_file(), BytesIO(out))
     except:
         log.exception('Error publishing demo client file')
     else:
         assert log.debug('Client demo script published:', server_url() + getPublishedLib('livedesk-embed/' + ui_demo_embed_file())) or True
-
-@app.populate
-def publishJS():
-    publishGui('livedesk-embed')
