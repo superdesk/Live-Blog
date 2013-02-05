@@ -118,6 +118,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         },
         currentMeta: {},
         tmpl: 'media-archive>types/_default/view',
+        renderCb: $.noop,
         render: function()
         {
             var self = this,
@@ -130,6 +131,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             $(this.el).tmpl(this.tmpl, data, function()
             {
                 self.selectMetaByLanguage();
+                self.renderCb();
             });
             
             return this;
@@ -196,6 +198,15 @@ function($, superdesk, giz, MetaInfo, Languages)
                 }
                 $(this).val(self.currentMeta[theLang][$(this).attr('name')]);    
             });
+        },
+        
+        renderCb: function()
+        {
+            for(var i in this.currentMeta)
+            {
+                $('[data-select="language"] select:eq(0)', this.el).val(i);
+                return;
+            }
         },
         
         /*!
@@ -277,8 +288,8 @@ function($, superdesk, giz, MetaInfo, Languages)
             this.currentMeta = {};
             this.currentAdd = null;
             this.currentLang = null;
-            this.getModel().on('full-refresh', this.render, this);
             var self = this;
+            this.getModel().on('full-refresh', this.render, this);
         }
     }),
     
