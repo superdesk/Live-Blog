@@ -19,6 +19,7 @@ from ally.internationalization import _, NC_
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.api.blog_collaborator import BlogCollaborator
+from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorEntry, BlogCollaboratorTypeMapped
 from sqlalchemy.exc import OperationalError
@@ -113,7 +114,14 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
         sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
         if sql.update({BlogCollaboratorEntry.typeId: typeId}) > 0: return
-
+        
+        sql = self.session().query(BlogCollaboratorMapped.Id)
+        sql = sql.join(BlogMapped)
+        sql = sql.filter(BlogCollaboratorMapped.User == BlogMapped.Creator)
+        sql = sql.filter(BlogMapped.Id == blogId)
+        sql = sql.filter(BlogCollaboratorMapped.Id == collaboratorId)
+        if sql.count() > 0: raise InputError(_('The blog creator cannot be assigned as a collaborator'))
+        
         bgc = BlogCollaboratorEntry()
         bgc.Blog = blogId
         bgc.blogCollaboratorId = collaboratorId

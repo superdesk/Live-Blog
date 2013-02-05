@@ -17,8 +17,6 @@ from livedesk.api.filter_blog import IBlogAdminFilterService, \
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorTypeMapped
-from sqlalchemy.sql.expression import exists
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 
 # --------------------------------------------------------------------
 
@@ -27,9 +25,7 @@ class BlogFilterServiceAlchemyBase(SessionSupport):
     Generic implementation for blog filter service.
     '''
     
-    collaborator_types = []; wire.config('collaborator_types', doc='''
-    The collaborator type name associated with this filter.
-    ''')
+    collaborator_types = list
     
     def __init__(self):
         assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
@@ -39,19 +35,13 @@ class BlogFilterServiceAlchemyBase(SessionSupport):
         '''
         @see: IBlogAdminFilterService.isAllowed
         '''
-        return self.session().query(BlogMapped).filter(self._createFilter(userId)).filter(BlogMapped.Id == blogId).count() > 0
-    
-    # ----------------------------------------------------------------
-    
-    def _createFilter(self, userId):
-        '''
-        Creates the filter for the query.
-        '''
-        return exists().where((CollaboratorMapped.User == userId) \
-                              & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
-                              & (BlogCollaboratorMapped.Blog == BlogMapped.Id)
-                              & (BlogCollaboratorMapped.typeId == BlogCollaboratorTypeMapped.id)
-                              & (BlogCollaboratorTypeMapped.Name.in_(self.collaborator_types))) | (BlogMapped.Creator == userId)
+        sql = self.session().query(BlogCollaboratorMapped.Id)
+        sql = sql.join(BlogCollaboratorTypeMapped)
+        sql = sql.join(BlogMapped)
+        sql = sql.filter(BlogMapped.Id == blogId)
+        sql = sql.filter(((BlogCollaboratorMapped.User == userId) & 
+                          BlogCollaboratorTypeMapped.Name.in_(self.collaborator_types)) | (BlogMapped.Creator == userId))
+        return sql.count() > 0
 
 # --------------------------------------------------------------------
 
@@ -61,7 +51,11 @@ class BlogAdminFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogAdminFilt
     Implementation for @see: IBlogAdminFilterService
     '''
     
-    collaborator_type = ['Administrator']
+    collaborator_types = ['Administrator']; wire.config('collaborator_types', doc='''
+    The collaborator type(s) name associated with the administrator filter.
+    ''')
+    
+    def __init__(self): super().__init__()
         
 @setup(IBlogCollaboratorFilterService, name='blogCollaboratorFilterService')
 class BlogCollaboratorFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogCollaboratorFilterService):
@@ -69,4 +63,8 @@ class BlogCollaboratorFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogCo
     Implementation for @see: IBlogCollaboratorFilterService
     '''
     
-    collaborator_type = ['Administrator', 'Collaborator']
+    collaborator_types = ['Administrator', 'Collaborator']; wire.config('collaborator_types', doc='''
+    The collaborator type(s) name associated with the collaborator filter.
+    ''')
+    
+    def __init__(self): super().__init__()
