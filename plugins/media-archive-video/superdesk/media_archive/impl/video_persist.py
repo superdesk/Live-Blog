@@ -105,6 +105,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
             line = p.stdout.readline()
             if not line: break
             line = str(line, 'utf-8')
+            if line.find('misdetection possible!') != -1: return False
 
             if line.find('Video') != -1 and line.find('Stream') != -1:
                 try:

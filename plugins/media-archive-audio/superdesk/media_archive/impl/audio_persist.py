@@ -112,7 +112,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         while True:
             line = p.stdout.readline()
             if not line: break
-            line = str(line, 'utf-8')
+            line = str(line, 'utf-8')  
+            if line.find('misdetection possible!') != -1: return False
             
             if metadata:
                 property = self.extractProperty(line)
