@@ -114,7 +114,10 @@ function($, superdesk, giz, MetaInfo, Languages)
                 i = +Math.floor(Math.log(data.SizeInBytes) / Math.log(1024));
             data.Size = (data.SizeInBytes / Math.pow(1024, i)).toFixed( i ? 2 : 0 ) + ' ' + sizes[ isNaN( data.SizeInBytes ) ? 0 : i+1 ];
             
-            return {Item: data};
+            var metas = [];
+            this.model.get('MetaInfo').each(function(){ metas.push(this.feed()); });
+            
+            return {Item: data, Meta: metas};
         },
         currentMeta: {},
         tmpl: 'media-archive>types/_default/view',
@@ -327,7 +330,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             
             $(this.el).removeClass('hide');
             $(this.el).find('div:eq(0)').css('position', 'relative');
-            if( displayMode == 'grid-view')
+            if( displayMode == 'grid-view' )
                 $(this.el).find('div:eq(0)').offset({top: boxPosition.top-8, left : boxPosition.left-8});
             else $(this.el).find('div:eq(0)').offset({top: boxPosition.top, left : boxPosition.left});
 

@@ -17,6 +17,8 @@ define
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
+    config.guiJs('media-archive', 'types/_default/grid-view'),
+    config.guiJs('media-archive', 'types/_default/list-view'),
     'jqueryui/datepicker',
     'tmpl!media-archive>list',
     'tmpl!media-archive>sidebar/types',
@@ -24,7 +26,7 @@ define
     'tmpl!media-archive>sidebar/crit-numeric',
     'tmpl!media-archive>sidebar/crit-string',
 ],
-function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
+function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add, DefaGridView, DefaListView)
 {
     var // collections
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),
@@ -527,6 +529,26 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
          */
         displayMode: 0,
         /*!
+         * 
+         */
+        noViewTypes: [],
+        noViewTypeCb: function(model, el)
+        { 
+            if( $.inArray(model.get('Type'), this.noViewTypes) !== -1 ) this.noViewTypes.push(model.get('Type'));
+            var newItemView;
+            switch(this.displayModes[this.displayMode])
+            {
+                case 'grid-view': newItemView = new DefaGridView({ model: model, el: el, parent: this }); break;
+                case 'list-view': newItemView = new DefaListView({ model: model, el: el, parent: this }); break;
+            }
+            newItemView.render();
+            if( this.recentlyUploaded && this.recentlyUploaded == model.get('Id') )
+            {
+                newItemView.edit();
+                this.recentlyUploaded = null;
+            }
+        },
+        /*!
          * return item view, applied for each item
          */
         getItemView: function(model)
@@ -534,30 +556,32 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             // make a placeholder element to append the new view after it has been loaded
             var placeEl = $('<span />'),
                 self = this;
-            
-            Action.get('modules.media-archive.'+model.get('Type'))
-            .done(function(action)
-            {
-                if( action && action.get('Script') ) 
-                    // TODO clean up this path
-                    // TODO fallback on default
-                    require([action.get('Script').href+self.displayModes[self.displayMode]+'.js'], function(View)
-                    { 
-                        try
+
+            if( $.inArray(model.get('Type'), self.noViewTypes) === -1 ) 
+                Action.get('modules.media-archive.'+model.get('Type'))
+                .done(function(action)
+                {
+                    if( action && action.get('Script') ) 
+                        require([action.get('Script').href+self.displayModes[self.displayMode]+'.js'], function(View)
                         { 
-                            // render new item view
-                            var newItemView = new View({ model: model, el: placeEl, parent: self });
-                            newItemView.render();
-                            // look for recently uploaded item to popup edit
-                            if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )
-                            {
-                                newItemView.edit();
-                                self.recentlyUploaded = null;
+                            try
+                            { 
+                                // render new item view
+                                var newItemView = new View({ model: model, el: placeEl, parent: self });
+                                newItemView.render();
+                                // look for recently uploaded item to popup edit
+                                if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )
+                                {
+                                    newItemView.edit();
+                                    self.recentlyUploaded = null;
+                                }
                             }
-                        }
-                        catch(e){ console.debug(View); }
-                    });
-            });
+                            catch(e){ console.debug(View); }
+                        });
+                })
+                .fail(function(){ self.noViewTypeCb(model, placeEl); });
+            else
+                self.noViewTypeCb(model, placeEl);
             
             return placeEl;
         },

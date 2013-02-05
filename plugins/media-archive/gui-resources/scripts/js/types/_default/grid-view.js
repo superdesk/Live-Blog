@@ -8,7 +8,7 @@ define
 ],
 function($, superdesk, giz, base)
 {
-    ItemView = base.item.extend({});
+    ItemView = base.item.extend({tmpl: 'media-archive>types/_default/grid'});
     return ItemView;
 });
 

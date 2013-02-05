@@ -14,10 +14,9 @@
         	<div class="span6">
            		{+content}
            		<figure>
-                	{Content|s}
+                	<img src="{Thumbnail.href}" />
 				</figure>
 				{/content}
-                <a href="#" class="btn"><i class="icon-pencil"></i> _('Edit')</a>
 				<dl class="line-borders">
             		<dt>_('File name')</dt><dd>{Name}</dd>
                     <dt>_('File size')</dt><dd>{Size}</dd>

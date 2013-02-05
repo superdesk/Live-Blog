@@ -17,6 +17,7 @@ function(giz, MetaData, Language)
         {
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+this.get('Id'));
             meta.set('Id', this.get('Id'));
+            meta._changed = false;
             return meta;
         },
         hash: function()
