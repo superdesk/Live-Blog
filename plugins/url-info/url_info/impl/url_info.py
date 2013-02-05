@@ -31,8 +31,9 @@ class URLInfoService(IURLInfoService):
         '''
         @see: IURLInfoService.getURLInfo
         '''
-        url = unquote(url)
+        if not url: raise InputError('Invalid URL %s' % url)
         assert isinstance(url, str), 'Invalid URL %s' % url
+        url = unquote(url)
 
         try:
             with urlopen(url) as conn:
@@ -57,7 +58,7 @@ class URLInfoService(IURLInfoService):
                 except AssertionError: pass
                 except UnicodeDecodeError: pass
                 return extr.urlInfo
-        except URLError: raise InputError('Invalid URL %s' % url)
+        except (URLError, ValueError): raise InputError('Invalid URL %s' % url)
 
 # --------------------------------------------------------------------
 
