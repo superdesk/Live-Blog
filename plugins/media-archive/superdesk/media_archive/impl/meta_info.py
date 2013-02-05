@@ -20,6 +20,7 @@ from ally.container.support import setup
 from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.core.spec import IQueryIndexer
+from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 
 
 # --------------------------------------------------------------------
@@ -43,4 +44,6 @@ class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
         '''
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
         MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, self.searchProvider)
+        
+        self.queryIndexer.register(MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, META_TYPE_KEY)
 
