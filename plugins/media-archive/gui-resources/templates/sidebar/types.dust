@@ -36,18 +36,27 @@
 	</div>
 </div>
 <div class="module">
-    <h3 class="header"><i class="icon-chevron-down"></i>Date</h3>
+    <h3 class="header"><i class="icon-chevron-down"></i>_('Date')</h3>
     <div class="module-row">
     	
-        <label class="half" for="date_from">from
+        <label class="half" for="date_from">_('from')
         	<input type="text" id="display_date_from" class="date">
         	<input type="text" id="date_from" class="date" style="display:none">
         </label>
         
-        <label class="half" for="date_to">to
+        <label class="half" for="date_to">_('to')
         	<input type="text" id="display_date_to" class="date">
          	<input type="text" id="date_to" class="date" style="display:none">
         </label>
+    </div>
+    
+</div>
+
+<div class="module">
+    
+    <h3 class="header"><i class="icon-chevron-down"></i>_('Language')</h3>
+    <div class="module-row" id="languages">
+        
     </div>
     
 </div>

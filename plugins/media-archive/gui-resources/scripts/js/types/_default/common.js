@@ -483,6 +483,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         }
     });
     
-    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView, hoverMenu: HoverMenu};
+    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView, languageView: LanguagesEditView, hoverMenu: HoverMenu};
 });
 

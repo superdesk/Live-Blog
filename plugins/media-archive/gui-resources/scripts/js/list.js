@@ -17,6 +17,7 @@ define
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
+    config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive', 'types/_default/grid-view'),
     config.guiJs('media-archive', 'types/_default/list-view'),
     'jqueryui/datepicker',
@@ -26,7 +27,7 @@ define
     'tmpl!media-archive>sidebar/crit-numeric',
     'tmpl!media-archive>sidebar/crit-string',
 ],
-function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add, DefaGridView, DefaListView)
+function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add, Common, DefaGridView, DefaListView)
 {
     var // collections
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),
@@ -83,17 +84,22 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             '#date_from': { 'keydown': 'selectDate' },
             '#date_to': { 'keydown': 'selectDate' },
             '#display_date_from': { 'keydown': 'selectDate', 'change': 'selectDate' },
-            '#display_date_to': { 'keydown': 'selectDate', 'change': 'selectDate' }
+            '#display_date_to': { 'keydown': 'selectDate', 'change': 'selectDate' },
+            '#languages select': { 'change': 'selectLanguage'}
         },
         tagName: 'span',
         types: null,
         criteriaList: null, 
+        languageView: null,
         init: function()
         {
             this.types = new MetaTypeCollection;
             this.criteriaList = new QueryCriteriaList;
             this.types.on('read update', this.render, this);
             this.criteriaList.on('read update', this.renderCriteria, this);
+            
+            this.languageView = new Common.languageView;
+            
         },
         placeInView: function(el)
         {
@@ -113,24 +119,39 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             $(this.el).tmpl('media-archive>sidebar/types', {Types: data}, function()
             {
                 self.criteriaList.sync();
-                $('#display_date_from')
+                $('#display_date_from', self.el)
                     .datepicker
                     ({
                         altField: '#date_from',
                         altFormat: "yy-mm-dd 00:00:00", 
                         dateFormat: "yy-mm-dd" 
                     }); 
-                $('#display_date_to')
+                $('#display_date_to', self.el)
                 .datepicker
                     ({
                         altField: '#date_to',
                         altFormat: "yy-mm-dd 23:59:59", 
                         dateFormat: "yy-mm-dd" 
                     }); 
+                
+                $('#languages', self.el).append(self.languageView.el);
+                $('select', self.languageView.el).prepend('<option value="">'+_('Any')+'</option>');
+                
                 self.resetEvents();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
         },
 
+        /*!
+         * simply trigger search procedure
+         */
+        selectLanguage: function()
+        {
+            $(this).triggerHandler('trigger-search');
+        },
+        
+        /*!
+         * check the keypressed is return or type of event is change and trigger search procedure
+         */
         selectDate: function(evt)
         {
             if(evt.keyCode == 13 || evt.type == 'change') $(this).triggerHandler('trigger-search');
@@ -435,13 +456,15 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         {
             var query = [],
                 dateFrom = $('#date_from', self.el).val(),
-                dateTo = $('#date_to', self.el).val();
+                dateTo = $('#date_to', self.el).val(),
+                language = $('#languages select').val();
             $('.tag-container li', self.el).each(function()
             {
                 query = query.concat($(this).data('criteria'));
             });
-            dateFrom.length && query.push({'qd.createdOn.since': dateFrom });
-            dateTo.length && query.push({'qd.createdOn.until': dateTo });
+            dateFrom.length && query.push({ 'qd.createdOn.since': dateFrom });
+            dateTo.length && query.push({ 'qd.createdOn.until': dateTo });
+            language.length && query.push({ 'language': language });
             $('#type-list input:checked', this.el).each(function(){ query.push({'type': $(this).val()}); });
             return query;
         }
