@@ -243,7 +243,7 @@ def createBlogCollaborators():
         for blg in blgs:
             if blg.Id == collId: break
         else:
-            blogCollaboratorService.addCollaborator(blogId, collId)
+            blogCollaboratorService.addCollaboratorAsDefault(blogId, collId)
 
 
 BLOG_ADMINS = {
