@@ -115,7 +115,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             data.Size = (data.SizeInBytes / Math.pow(1024, i)).toFixed( i ? 2 : 0 ) + ' ' + sizes[ isNaN( data.SizeInBytes ) ? 0 : i+1 ];
             
             var metas = [];
-            this.model.get('MetaInfo').each(function(){ metas.push(this.feed()); });
+            try{ this.model.get('MetaInfo').each(function(){ metas.push(this.feed()); }); }catch(e){}
             
             return {Item: data, Meta: metas};
         },
