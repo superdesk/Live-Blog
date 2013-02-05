@@ -15,6 +15,8 @@ from ..superdesk.db_superdesk import bindSuperdeskSession, \
     bindSuperdeskValidations
 from ally.container import support, ioc
 from cdm.spec import ICDM
+from livedesk.impl.blog_collaborator import CollaboratorSpecification
+from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
@@ -29,3 +31,9 @@ support.loadAllEntities(SERVICES)
 
 @ioc.entity
 def blogThemeCDM() -> ICDM: return contentDeliveryManager()
+
+@ioc.entity
+def collaboratorSpecification() -> CollaboratorSpecification:
+    b = CollaboratorSpecification()
+    b.collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator')]
+    return b

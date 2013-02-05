@@ -11,6 +11,10 @@ from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
 from ..gui_security import acl
+from ..superdesk_security.acl import filterAuthenticated
+from .acl import filterCollaboratorBlog
+from .service import collaboratorSpecification
+from __plugin__.livedesk.acl import filterAdminBlog
 from ally.container import ioc
 from ally.internationalization import NC_
 from distribution.container import app
@@ -21,8 +25,7 @@ from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_theme import IBlogThemeService
 from livedesk.api.blog_type import IBlogTypeService
 from livedesk.api.blog_type_post import IBlogTypePostService
-from .acl import filterCollaboratorBlog
-from ..superdesk_security.acl import filterAuthenticated
+from livedesk.impl.blog_collaborator import CollaboratorSpecification
 
 # --------------------------------------------------------------------
 
@@ -126,8 +129,9 @@ def registerAclLivedeskView():
 
 @acl.setup
 def registerAclManageOwnPost():
-    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(),
-                                    dashboardAction(), modulesEditAction())\
+    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
+                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(), \
+                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .allGet(IBlogService, filter=filterCollaboratorBlog())
 
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.delete)
@@ -138,8 +142,26 @@ def registerAclManageOwnPost():
 
 @acl.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(), dashboardAction(), \
-                                      modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), \
-                                      modulesBlogPublishAction(), modulesBlogPostPublishAction())\
+    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
+                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(), \
+                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
     .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)
+
+# --------------------------------------------------------------------
+
+@ioc.before(collaboratorSpecification)
+def updateCollaboratorSpecification():
+    spec = collaboratorSpecification()
+    assert isinstance(spec, CollaboratorSpecification)
+    
+    spec.type_filter = []
+    spec.type_filter.append(('Administrator', filterAdminBlog()))
+    spec.type_filter.append(('Collaborator', filterCollaboratorBlog()))
+    
+    spec.type_actions = {}
+    spec.type_actions['Collaborator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
+                                                          modulesArchiveAction(), dashboardAction(), modulesEditAction())]
+    spec.type_actions['Administrator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
+                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
+                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())]

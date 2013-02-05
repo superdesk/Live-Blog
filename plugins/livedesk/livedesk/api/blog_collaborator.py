@@ -15,7 +15,8 @@ from ally.api.type import Iter
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.collaborator.api.collaborator import Collaborator
 from superdesk.source.api.source import QSource
-from superdesk.user.api.user import QUser
+from superdesk.user.api.user import QUser, User
+from gui.action.api.action import Action
 
 # --------------------------------------------------------------------
 
@@ -56,6 +57,12 @@ class IBlogCollaboratorService:
     def getAllTypes(self) -> Iter(BlogCollaboratorType):
         '''
         Provides all the blog collaborator types.
+        '''
+        
+    @call
+    def getActions(self, userId:User.Id, blogId:Blog, path:str=None) -> Iter(Action):
+        '''
+        Get all actions registered for the provided user for the blog.
         '''
 
     @call
