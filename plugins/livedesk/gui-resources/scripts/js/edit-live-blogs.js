@@ -880,7 +880,7 @@ function(providers, Gizmo, $, Action)
 				    // once
 				    .done(function()
 				    {
-				        self.model.get('Admin').on('read', function(){ self.render.call(self); }).xfilter('*').sync();
+				        self.render();
 				    });
 			},
 			/*!

@@ -9,6 +9,7 @@ define([
 	config.guiJs('livedesk', 'models/collaborators'),
 	config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/collaborator'),
+	config.guiJs('livedesk', 'models/blog-collaborator-types'),
 	'tmpl!livedesk>layouts/livedesk',
 	'tmpl!livedesk>layouts/blog',
 	'tmpl!livedesk>manage-collaborators',
@@ -74,9 +75,6 @@ define([
 			}
 			return view;
 		}
-	}),
-	TypesCollaboratorView = Gizmo.View.extend({
-
 	}),
 	AddInternalCollaboratorView = Gizmo.View.extend({
 		events: {
