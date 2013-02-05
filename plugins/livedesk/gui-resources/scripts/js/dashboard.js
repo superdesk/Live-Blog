@@ -255,6 +255,7 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
             $.tmpl('livedesk>layouts/dashboard', item, function(e,o) 
             {
                 self.el.html(o);
+                self.resetEvents();
                 self.searchArchive();
             });
            
