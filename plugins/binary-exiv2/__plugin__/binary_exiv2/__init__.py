@@ -35,4 +35,4 @@ def exiv2_dir_path():
 
 @app.populate
 def deploy():
-    if exiv2_dir_path(): deployTool(join(pythonPath(), 'resources', 'exiv2'), exiv2_dir_path(), machineName=MACHINE_ALL)
+    if exiv2_dir_path(): deployTool(join(pythonPath(), 'resources', 'exiv2'), exiv2_dir_path())
