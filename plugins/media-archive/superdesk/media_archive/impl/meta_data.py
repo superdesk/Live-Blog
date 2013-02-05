@@ -28,12 +28,12 @@ from os.path import join, getsize, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.language.meta.language import LanguageEntity
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
-from superdesk.media_archive.api.meta_info import MetaInfo
 from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
     thumbnailFormatFor
 from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
+from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 
 
 # --------------------------------------------------------------------
@@ -143,7 +143,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
                 self.session().merge(metaData)
                 self.session().flush((metaData,))
             else:
-                metaInfo = MetaInfo()
+                metaInfo = MetaInfoMapped()
                 metaInfo.MetaData = metaData.Id
                 metaInfo.Language = self.languageId
 
