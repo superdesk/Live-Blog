@@ -14,7 +14,8 @@ define([
 	'tmpl!livedesk>manage-collaborators',
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
-	'tmpl!livedesk>manage-collaborators/add-internal-collaborator'
+	'tmpl!livedesk>manage-collaborators/add-internal-collaborator',
+	'tmpl!livedesk>manage-collaborators/types-collaborator'
 	], function ($, Gizmo, Person, Action ) {
 
     var 
@@ -74,44 +75,8 @@ define([
 			return view;
 		}
 	}),
-	CollaboratorView = Gizmo.View.extend({
-		events: {
-			'a[href="#delete_internal_collaborator"]': { click: 'delete' }
-		},
-		init: function(){
-			this.render();
-		},
-		render: function(){
-			var self = this;
-			
-			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
-            .on('read', function()
-            { 
-                var meta = this.get('MetaDataIcon')
-                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
-                {  
-                    userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
-                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
-                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
-                });
-            })
-            .sync();
-			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed('', true), addUserImages );
-		},
-		delete: function(){
-			var self = this;
-			$('#delete_internal_collaborator')
-				.find('#delete_collaborator_name').text(self.model.get('Name')).end()
-				.find('.btn-primary').off(self.getEvent("click")).on(self.getEvent("click"), function(evt){
-					evt.preventDefault();
-					self._parent.remove(evt, self.model);
-					delete self.model.get('User').internalCollaboratorView;
-					self.el.fadeTo(900, '0.1', function(){
-						self.el.remove();
-					});
-					//$("#delete_internal_collaborator").modal('hide');			
-				});
-		}
+	TypesCollaboratorView = Gizmo.View.extend({
+
 	}),
 	AddInternalCollaboratorView = Gizmo.View.extend({
 		events: {
@@ -221,6 +186,70 @@ define([
 			self.el.find('.internal-collaborators [type="checkbox"]').prop('checked', $(evt.target).is(':checked')).change();
 		}
 	}),
+	TypesCollaboratorView = Gizmo.View.extend({
+		events: {},
+		init: function(){
+			var self = this;
+			if(self.collection.desynced) {
+				self.collection
+					.on('read update',self.render, self);
+			} else {
+				self.render();
+			}
+		},
+		render: function(){
+			var self = this,
+				data = self.collection.feed();
+				data.Selected = self.model.get("Type");
+			self.el.tmpl("livedesk>manage-collaborators/types-collaborator",data);
+		}
+	}),
+	ManageInternalCollaboratorView = Gizmo.View.extend({
+		events: {
+			'a[href="#delete_internal_collaborator"]': { click: 'delete' }
+		},
+		init: function(){
+			this.render();
+		},
+		render: function(){
+			var self = this;
+			
+			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
+            .on('read', function()
+            { 
+                var meta = this.get('MetaDataIcon')
+                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                {  
+                    userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
+                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
+                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
+                });
+            })
+            .sync();
+			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed('', true), function(){
+				addUserImages();
+				self.typesCollaaborator = new TypesCollaboratorView({
+					el: self.el.find('.dropdown-simple'),
+					collection: self._parent.typesCollaborator,
+					model: self.model
+				});
+			});
+		},
+		delete: function(){
+			var self = this;
+			$('#delete_internal_collaborator')
+				.find('#delete_collaborator_name').text(self.model.get('Name')).end()
+				.find('.btn-primary').off(self.getEvent("click")).on(self.getEvent("click"), function(evt){
+					evt.preventDefault();
+					self._parent.remove(evt, self.model);
+					delete self.model.get('User').internalCollaboratorView;
+					self.el.fadeTo(900, '0.1', function(){
+						self.el.remove();
+					});
+					//$("#delete_internal_collaborator").modal('hide');			
+				});
+		}
+	}),
 	ManageInternalCollaboratorsView = SortedView.extend({
 		events: {
 			'[href="#addCollaborator2"]': { click: 'addInternalCollaborators' }
@@ -236,10 +265,12 @@ define([
 				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
 				//.limit(self.collection.config("limit"))
 				.sync();
+			self.typesCollaborator = new Gizmo.Register.TypesCollaborator();
+			self.typesCollaborator.sync();
 		},
 		addOne: function(model) {
 			var self = this,
-				view = new CollaboratorView({ model: model, _parent: self});
+				view = new ManageInternalCollaboratorView({ model: model, _parent: self});
 			model.get('User').internalCollaboratorView = view;
 			self.el.find('.plain-table').prepend(view.el);
 			self.sortOne(model, view);
