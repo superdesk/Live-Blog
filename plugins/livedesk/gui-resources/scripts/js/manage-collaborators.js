@@ -16,7 +16,7 @@ define([
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
 	'tmpl!livedesk>manage-collaborators/add-internal-collaborator',
-	'tmpl!livedesk>manage-collaborators/types-collaborator'
+	'tmpl!livedesk>manage-collaborators/blog-collaborator-types'
 	], function ($, Gizmo, Person, Action ) {
 
     var 
@@ -185,7 +185,11 @@ define([
 		}
 	}),
 	TypesCollaboratorView = Gizmo.View.extend({
-		events: {},
+		events: {
+			'.dropdown-menu li': {
+				click: 'selectType'
+			}
+		},
 		init: function(){
 			var self = this;
 			if(self.collection.desynced) {
@@ -197,9 +201,19 @@ define([
 		},
 		render: function(){
 			var self = this,
-				data = self.collection.feed();
-				data.Selected = self.model.get("Type");
-			self.el.tmpl("livedesk>manage-collaborators/types-collaborator",data);
+				data = { 
+					Selected: self.model.get("Type"),
+					BlogCollaaboratorTypes: self.collection.feed()
+				};
+			self.el.tmpl("livedesk>manage-collaborators/blog-collaborator-types",data);
+		},
+		selectType: function(evt){
+			var self = this,
+				blogCollaboratorType = $(evt.target).attr('data-name');
+			self.model.saveType(blogCollaboratorType).done(function(){
+				self.el.find('.dropdown-toggle span').text(blogCollaboratorType);
+			});
+			//console.log('selected: ',$(evt.target).attr('data-name'));
 		}
 	}),
 	ManageInternalCollaboratorView = Gizmo.View.extend({
@@ -228,7 +242,7 @@ define([
 				addUserImages();
 				self.typesCollaaborator = new TypesCollaboratorView({
 					el: self.el.find('.dropdown-simple'),
-					collection: self._parent.typesCollaborator,
+					collection: self._parent.blogTypesCollaborator,
 					model: self.model
 				});
 			});
@@ -260,11 +274,11 @@ define([
 			self._deletePending = [];
 			self.collection
 				.one('read', self.render, self)
-				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
+				.xfilter('Id,Type,Name,User.Id,User.FullName,User.EMail')
 				//.limit(self.collection.config("limit"))
 				.sync();
-			self.typesCollaborator = new Gizmo.Register.TypesCollaborator();
-			self.typesCollaborator.sync();
+			self.blogTypesCollaborator = new Gizmo.Register.BlogCollaaboratorTypes();
+			self.blogTypesCollaborator.sync();
 		},
 		addOne: function(model) {
 			var self = this,

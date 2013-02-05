@@ -10,7 +10,7 @@
         <label>_("Blog type name");</label>
         <input type="text" class="fullwidth-input" value="{Name}" placeholder='_("Enter Blog Type Name");' name="blogtypename">
         <div class="blogtype-content"></div>
-        <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Post");</a>
+        <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Predefined Post");</a>
       </form> 
     </div>
 

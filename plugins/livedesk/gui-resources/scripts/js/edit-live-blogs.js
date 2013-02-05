@@ -877,7 +877,7 @@ function(providers, Gizmo, $, Action)
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
 				
 				this.model.xfilter('Creator.*').sync()
-				    // once
+				    // once	
 				    .done(function()
 				    {
 				        self.render();

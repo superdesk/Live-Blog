@@ -15,6 +15,14 @@ function( Gizmo ) {
             Source: Gizmo.Register.Source,
             Person: Gizmo.Register.Person,
             User: Gizmo.Register.User
-        }
+        },
+        saveType: function(type) {
+            var typeHref = this.href+'/Type/'+type;
+            var
+                self = this,
+                dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(typeHref).update();
+            return ret;
+        },
     }, { register: 'Collaborator' } );
 });
