@@ -147,7 +147,8 @@
                     Type: 'normal',
                     Meta: JSON.stringify($.extend({},self._post_settings)),
                     Content: self.el.find('.wizard-preview').clone().removeClass('wizard-preview').wrap('<p>').parent().html(),
-                    Name: self._post_settings.name
+                    Name: self._post_settings.name,
+                    Creator: localStorage.getItem('superdesk.login.id')
                 });    
             } else {
                 self.currentPost.set({

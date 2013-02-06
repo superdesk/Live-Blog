@@ -88,7 +88,7 @@ define([
 		    var data = this.model.feed('', true),
 		        self = this;
 		    (new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
-            .on('read', function()
+            .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
                 meta.sync({data:{ thumbSize: 'medium' }}).done(function()
@@ -228,7 +228,7 @@ define([
 			var self = this;
 			
 			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
-            .on('read', function()
+            .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
                 meta.sync({data:{ thumbSize: 'medium' }}).done(function()

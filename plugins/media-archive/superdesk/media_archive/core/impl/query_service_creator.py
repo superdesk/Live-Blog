@@ -141,10 +141,10 @@ class QueryServiceAlchemy(SessionSupport):
             metaDataMapped = row[0]
             metaInfoMapped = row[1]
              
-            if languageId and indexDict.get(metaDataMapped.Id, None):
+            if languageId and metaDataMapped.Id in indexDict:
                 if languageId != metaInfoMapped.Language: continue
                 else: 
-                    index = indexDict.get(metaDataMapped.Id, None)
+                    index = indexDict[metaDataMapped.Id]
                     del metaDataInfos[index]
                     count = count - 1
            
