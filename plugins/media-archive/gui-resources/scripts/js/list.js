@@ -135,7 +135,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
                     }); 
                 
                 $('#languages', self.el).append(self.languageView.el);
-                $('select', self.languageView.el).prepend('<option value="">'+_('Any')+'</option>');
+                $('select', self.languageView.el).prepend('<option value="" selected="selected">'+_('Any')+'</option>');
                 
                 self.resetEvents();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});

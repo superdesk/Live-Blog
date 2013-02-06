@@ -19,6 +19,7 @@ from superdesk.media_archive.api.criteria import AsIn, \
     AsLikeExpressionOrdered
 from sqlalchemy.schema import MetaData
 from superdesk.media_archive.api.meta_info import MetaInfo
+from ally.api.criteria import AsEqual
 
 @modelArchive(id='Id')
 class MetaDataInfo(MetaData, MetaInfo):
@@ -53,5 +54,6 @@ class QMetaDataInfo:
     '''
     all = AsLikeExpressionOrdered
     type = AsIn
+    language = AsEqual
 
 # --------------------------------------------------------------------

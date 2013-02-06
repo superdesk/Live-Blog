@@ -124,20 +124,35 @@ class QueryServiceAlchemy(SessionSupport):
         '''
 
         sql, count = self.searchProvider.buildQuery(self.session(), scheme, offset, limit, qa, qi, qd)
-
+        
+        indexDict = {}
+        languageId = None
+                
+        if qa and QMetaDataInfo.language in qa:
+            languageId = int(qa.language.equal)
+            
         metaDataInfos = list()
         if count == 0:
             return IterPart(metaDataInfos, count, offset, limit)
+        
+        count = 0
 
         for row in sql.all():
-            metaDataInfo = MetaDataInfo()
-
             metaDataMapped = row[0]
             metaInfoMapped = row[1]
-
+             
+            if languageId and indexDict.get(metaDataMapped.Id, None):
+                if languageId != metaInfoMapped.Language: continue
+                else: 
+                    index = indexDict.get(metaDataMapped.Id, None)
+                    del metaDataInfos[index]
+                    count = count - 1
+           
             assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data %s' % metaDataMapped
             metaDataMapped.Content = self.cdmArchive.getURI(metaDataMapped.content, scheme)
             self.thumbnailManager.populate(metaDataMapped, scheme, thumbSize)
+            
+            metaDataInfo = MetaDataInfo()
 
             metaDataInfo.Id = metaDataMapped.Id
             metaDataInfo.Name = metaDataMapped.Name
@@ -154,5 +169,8 @@ class QueryServiceAlchemy(SessionSupport):
             metaDataInfo.Description = metaInfoMapped.Description
 
             metaDataInfos.append(metaDataInfo)
-
+            
+            indexDict[metaDataMapped.Id] = count
+            count = count + 1
+            
         return IterPart(metaDataInfos, count, offset, limit)
