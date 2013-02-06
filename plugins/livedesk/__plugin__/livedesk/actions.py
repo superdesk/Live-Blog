@@ -163,5 +163,5 @@ def updateCollaboratorSpecification():
     spec.type_actions['Collaborator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
                                                           modulesArchiveAction(), dashboardAction(), modulesEditAction())]
     spec.type_actions['Administrator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
-                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
+                                modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
                                 modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())]

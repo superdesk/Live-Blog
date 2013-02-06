@@ -8,7 +8,7 @@ define
 ([
   'jquery', 'jquery/superdesk',
   'gizmo/superdesk',
-  'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
   config.guiJs('livedesk', 'models/blog'),
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
@@ -60,7 +60,11 @@ define
             $(this.menu).on('click', '.submenu-blog', function(event)
             {
                 superdesk.showLoader();
-                var theBlog = $(this).attr('data-blog-link'), self = this;
+                var self = this,
+                    theBlog = $(this).attr('data-blog-link'),
+                    blogArray = theBlog.split('/'),
+                    blogId = blogArray[blogArray.length - 1];
+                Action.actions.href = Action.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
                 Action.get('modules.livedesk.edit')
                 .done(function(action)
                 {

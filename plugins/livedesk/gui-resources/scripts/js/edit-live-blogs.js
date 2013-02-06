@@ -8,7 +8,7 @@ define
     'providers/enabled', 
     'gizmo/superdesk',
     'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -27,6 +27,7 @@ define
  ], 
 function(providers, Gizmo, $, Action) 
 {
+		
     // TODO rethink cause this is very ugly
     var AuthApp;
     // force homepage

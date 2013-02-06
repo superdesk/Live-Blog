@@ -352,16 +352,7 @@ define([
 						submenuActive1: 'active'
 					},
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
-				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; },
-				    isCreatorOrAdmin: (function() {
-
-				        var userId = localStorage.getItem('superdesk.login.id');
-				        if( self.model.get('Creator').get('Id') == userId) return true;
-				        self.model.get('Admin').each(function() { 
-				            if(this.get('Id') == userId) return true;
-				        });  
-				        return false;
-				    })()
+				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 			});
 			self.manageInternalCollaboratorsView = new ManageInternalCollaboratorsView({
 				collection: self.model.get('Collaborator'),

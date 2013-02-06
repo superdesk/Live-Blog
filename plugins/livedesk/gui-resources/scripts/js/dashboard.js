@@ -3,7 +3,7 @@ define
     
     'jquery',
     'gizmo/superdesk',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/superdesk',
     config.guiJs('livedesk', 'models/blogsarchive'),
     config.guiJs('livedesk', 'models/blog'),
@@ -200,7 +200,10 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
         loadBlog: function(event)
         {
             superdesk.showLoader();
-            var theBlog = $(event.currentTarget).attr('data-blog-link');
+            var theBlog = $(event.currentTarget).attr('data-blog-link'),
+                blogArray = theBlog.split('/'),
+                blogId = blogArray[blogArray.length - 1];
+            Action.actions.href = Action.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
             Action.get('modules.livedesk.edit')
             .done(function(action)
             {
