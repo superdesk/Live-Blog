@@ -201,11 +201,8 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         loadBlog: function(event)
         {
             superdesk.showLoader();
-            var theBlog = $(event.currentTarget).attr('data-blog-link'),
-                blogArray = theBlog.split('/'),
-                blogId = blogArray[blogArray.length - 1];
-            BlogAction.actions.href = BlogAction.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
-            BlogAction.clearCache();
+            var theBlog = $(event.currentTarget).attr('data-blog-link');
+            BlogAction.setBlogUrl(theBlog);
             BlogAction.get('modules.livedesk.edit')
             .done(function(action)
             {
@@ -225,7 +222,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         createBlog: function(event)
         {
             superdesk.showLoader();
-            Action.clearCache();
             Action.get('modules.livedesk.add')
             .done(function(action)
             {

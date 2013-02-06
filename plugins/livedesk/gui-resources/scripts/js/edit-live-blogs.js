@@ -1179,13 +1179,8 @@ function(providers, Gizmo, $, BlogAction)
 	
 	return function(theBlog)
 	{
-		var
-            blogArray = theBlog.split('/'),
-            blogId = blogArray[blogArray.length - 1];
-            if(BlogAction.actions.href.data) {
-		        BlogAction.actions.href = BlogAction.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
-		        BlogAction.clearCache();
-	    	}
+
+	    BlogAction.setBlogUrl(theBlog);
 	    // stop autoupdate if any
 	    editView.timelineView && editView.timelineView.collection.stop();
 	    

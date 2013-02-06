@@ -61,10 +61,8 @@ define
             {
                 superdesk.showLoader();
                 var self = this,
-                    theBlog = $(this).attr('data-blog-link'),
-                    blogArray = theBlog.split('/'),
-                    blogId = blogArray[blogArray.length - 1];
-                Action.actions.href = Action.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
+                    theBlog = $(this).attr('data-blog-link');
+                Action.setBlogUrl(theBlog);
                 Action.get('modules.livedesk.edit')
                 .done(function(action)
                 {
