@@ -105,6 +105,7 @@ define([
 		addInternalCollaborator: function(evt) {
 			var self = this;
 			if($(evt.target).is(':checked')) {
+				self.model.set({'Type': 'Collaborator'}, {silent: true});
 				self._parent._addPending.push(self.model);
 			} else {
 				pos = self._parent._addPending.indexOf(self.model);
