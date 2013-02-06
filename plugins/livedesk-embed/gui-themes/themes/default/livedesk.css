@@ -204,7 +204,7 @@
             .liveblog-post-list li.quotation .result-content {
                 padding-left:55px ;
                 min-height: 40px;
-                /*background: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/quotes.png") no-repeat 0 5px;*/
+                background: url("img/quotes.png") no-repeat 0 5px;
             }
             
             .liveblog-post-list li a[rel="bookmark"] {
