@@ -2,7 +2,7 @@ define([
 	'jquery',
 	'gizmo/superdesk',
 	config.guiJs('superdesk/user', 'models/person'),
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
 	'jquery/rest',
 	'jquery/superdesk',
 	'jquery/avatar',

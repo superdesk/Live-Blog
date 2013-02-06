@@ -138,6 +138,10 @@ def registerAclManageOwnPost():
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update,
                                 filter=filterCollaboratorBlog())
+    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.publish, IBlogPostService.insertAndPublish, IBlogPostService.unpublish, IBlogPostService.reorder,
+                                filter=filterAdminBlog())
+    rightManageOwnPost().byName(IBlogCollaboratorService, IBlogCollaboratorService.addCollaborator, IBlogCollaboratorService.addCollaboratorAsDefault,
+                                filter=filterAdminBlog())
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
 
 @acl.setup
