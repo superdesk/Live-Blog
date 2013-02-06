@@ -26,6 +26,8 @@ from livedesk.api.blog_theme import IBlogThemeService
 from livedesk.api.blog_type import IBlogTypeService
 from livedesk.api.blog_type_post import IBlogTypePostService
 from livedesk.impl.blog_collaborator import CollaboratorSpecification
+from superdesk.person.api.person import IPersonService
+from superdesk.person_icon.api.person_icon import IPersonIconService
 
 # --------------------------------------------------------------------
 
@@ -125,7 +127,8 @@ def registerAclLivedeskView():
     .allGet(IBlogPostService, filter=filterCollaboratorBlog())\
     .allGet(IBlogCollaboratorService, filter=filterCollaboratorBlog())\
     .allGet(IBlogTypeService)\
-    .allGet(IBlogTypePostService)
+    .allGet(IBlogTypePostService)\
+    .allGet(IPersonService).allGet(IPersonIconService)
 
 @acl.setup
 def registerAclManageOwnPost():
@@ -150,7 +153,8 @@ def registerAclLivedeskUpdate():
                                 modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(), \
                                 modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())\
     .all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
-    .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)
+    .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)\
+    .all(IPersonService).all(IPersonIconService)
 
 # --------------------------------------------------------------------
 
