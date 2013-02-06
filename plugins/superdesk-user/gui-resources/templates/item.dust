@@ -5,7 +5,7 @@
 	</td>
 	<td>{FirstName}</td>
 	<td>{LastName}</td>
-	<td>{Name}</td>
+	<td><figure class="user-table-avatar"><img src="img/avatar_default_collaborator.png"></figure>{Name}</td>
 	<td>{EMail}</td>
 	<td>{CreatedOn}</td>
 

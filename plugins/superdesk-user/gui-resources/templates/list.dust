@@ -7,10 +7,7 @@
 </style>
 <!-- ... -->
 
-<div data-main-table="true" 
-	style="
-    margin: 0;
-    height: 100%; overflow: auto;">
+<div data-main-table="true" class="users-table">
     <div style="padding: 5px 19px 14px;">
 		<div class="input-append pull-right" style="display:inline-block; margin: 10px 0">
 			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0;height:28px;" />
