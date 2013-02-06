@@ -11,8 +11,6 @@ gui-resources/scripts/js/__init__.py
 gui-resources/scripts/js/models/__init__.py
 gui-resources/scripts/js/types/__init__.py
 gui-resources/scripts/js/types/_default/__init__.py
-gui-resources/scripts/js/types/audio/__init__.py
-gui-resources/scripts/js/types/video/__init__.py
 gui-resources/templates/__init__.py
 gui-resources/templates/sidebar/__init__.py
 gui-resources/templates/types/__init__.py

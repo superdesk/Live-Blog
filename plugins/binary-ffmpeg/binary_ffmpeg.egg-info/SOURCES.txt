@@ -14,6 +14,8 @@ resources/ffmpeg/Darwin/all/__init__.py
 resources/ffmpeg/Darwin/all/bin/__init__.py
 resources/ffmpeg/Linux/__init__.py
 resources/ffmpeg/Linux/all/__init__.py
+resources/ffmpeg/Linux/all/bin/__init__.py
+resources/ffmpeg/Linux/all/lib/__init__.py
 resources/ffmpeg/Linux/x86_64/__init__.py
 resources/ffmpeg/Linux/x86_64/bin/__init__.py
 resources/ffmpeg/Windows/__init__.py

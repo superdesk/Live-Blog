@@ -58,7 +58,6 @@ livedesk.egg-info/top_level.txt
 livedesk.egg-info/zip-safe
 livedesk/api/__init__.py
 livedesk/api/blog.py
-livedesk/api/blog_admin.py
 livedesk/api/blog_collaborator.py
 livedesk/api/blog_post.py
 livedesk/api/blog_theme.py
@@ -68,7 +67,6 @@ livedesk/api/domain_livedesk.py
 livedesk/api/filter_blog.py
 livedesk/impl/__init__.py
 livedesk/impl/blog.py
-livedesk/impl/blog_admin.py
 livedesk/impl/blog_collaborator.py
 livedesk/impl/blog_post.py
 livedesk/impl/blog_theme.py
@@ -77,7 +75,6 @@ livedesk/impl/blog_type_post.py
 livedesk/impl/filter_blog.py
 livedesk/meta/__init__.py
 livedesk/meta/blog.py
-livedesk/meta/blog_admin.py
 livedesk/meta/blog_collaborator.py
 livedesk/meta/blog_post.py
 livedesk/meta/blog_theme.py
