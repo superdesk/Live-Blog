@@ -359,9 +359,18 @@ function(providers, Gizmo, $, BlogAction)
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
-				'.editable': { focusout: 'save',  focusin: 'edit'}
+				'.editable': { /*focusout: 'save', */ focusin: 'edit', click: 'showActions'},
+				'.btn.cancel': {click: 'hideActions'},
+				'.btn.publish': {click: 'save'}
 			},
-			
+			showActions: function() {
+				var self = this;
+				self.el.find('.actions').removeClass('hide');
+			},
+			hideActions: function() {
+				var self = this;
+				self.el.find('.actions').addClass('hide');
+			},
 			init: function()
 			{
 				var self = this;
@@ -580,6 +589,7 @@ function(providers, Gizmo, $, BlogAction)
 					return;
 				this.model.updater = this;
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
+				this.el.find('.actions').addClass('hide');
 			},		
 			remove: function()
 			{
