@@ -9,10 +9,11 @@ define
   'jquery', 'jquery/superdesk',
   'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
+    'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
-], function($, superdesk, Gizmo, Action, Blog)
+], function($, superdesk, Gizmo, BlogAction, Action, Blog)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
         b = Gizmo.Auth(new Blogs());
@@ -62,8 +63,8 @@ define
                 superdesk.showLoader();
                 var self = this,
                     theBlog = $(this).attr('data-blog-link');
-                Action.setBlogUrl(theBlog);
-                Action.get('modules.livedesk.edit')
+                BlogAction.setBlogUrl(theBlog);
+                BlogAction.get('modules.livedesk.edit')
                 .done(function(action)
                 {
                     if(!action) return;
