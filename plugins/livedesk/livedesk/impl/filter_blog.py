@@ -35,12 +35,15 @@ class BlogFilterServiceAlchemyBase(SessionSupport):
         '''
         @see: IBlogAdminFilterService.isAllowed
         '''
+        sql = self.session().query(BlogMapped.Id)
+        sql = sql.filter(BlogMapped.Id == blogId)
+        sql = sql.filter(BlogMapped.Creator == userId)
+        if sql.count() > 0: return True
+        
         sql = self.session().query(BlogCollaboratorMapped.Id)
         sql = sql.join(BlogCollaboratorTypeMapped)
-        sql = sql.join(BlogMapped)
-        sql = sql.filter(BlogMapped.Id == blogId)
-        sql = sql.filter(((BlogCollaboratorMapped.User == userId) & 
-                          BlogCollaboratorTypeMapped.Name.in_(self.collaborator_types)) | (BlogMapped.Creator == userId))
+        sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
+        sql = sql.filter((BlogCollaboratorMapped.User == userId) & BlogCollaboratorTypeMapped.Name.in_(self.collaborator_types))
         return sql.count() > 0
 
 # --------------------------------------------------------------------
