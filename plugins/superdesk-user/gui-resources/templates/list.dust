@@ -16,7 +16,7 @@
 		</div>
 		{~s}
 		<button style="margin: 10px 0" class="btn btn-primary add-user">_('Add User')</button>
-		<table class="table table-hover table-bordered table-sort table-buttons-control" style="background:#fff;" >
+		<table class="table table-hover table-sort table-buttons-control" style="background:#fff;" >
 			<thead>
 				<tr>
 	    			<th>#</th>
@@ -34,7 +34,7 @@
 			<tfoot>
 			{#pagination}
 				<tr>
-					<td colspan="7" class="pagination">
+					<td colspan="8" class="pagination">
 					{?currentpages}
 					<ul class="{className}">
 						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>

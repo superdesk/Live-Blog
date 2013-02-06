@@ -1,74 +1,96 @@
-<div class="modal hide fade" id="user-edit-modal" style="width: 820px; margin-left: -410px;">
-    <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+
+<div class="modal hide fade large-modal" id="user-edit-modal">
+
+	<div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
     	<h3>_('Edit user')</h3>
-    </div>
-    <div class="modal-body">
-    	<div class="row-fluid">
-	    	<div class="span3">
-	    		<figure class="user-image"></figure>
-				<input type="button" value="_('Browse')" data-action="browse"
-	    			class="btn btn-primary btn-block btn-medium" style="width:100%;" />
-	    		<input type="file" name="upload_file" multiple="multiple" data-action="upload"
-	    			style="display:none" />
-		 	</div>
-	 	
-	    	<form class="form-horizontal span9">
+	</div>
+  
+	<div class="modal-body">
+		<form class="form-horizontal row-fluid">
+      
+      	<figure class="user-avatar">
+             <img src="img/default_profile_3_bigger.png" width="128" height="128" alt="">
+             <div class="avatar-upload" id="avatar-upload-edit">_('CHANGE AVATAR')</div>
+		</figure>
+		
+		<div class="popover fade bottom in avatar-upload-popover"  id="avatar-upload-popover-edit">
+			<div class="popover-inner">
+            	<a class="close">×</a>
+            	<h3 class="popover-title">_('Change avatar image')</h3>
+            	<div class="popover-content">
+              		<a class="btn" id="fileselectbutton2" style="width:176px;margin-bottom:5px;"><i class="icon-picture"></i> _('upload from computer')</a>
+              		<input id="filename2" type="text" class="input disabled" style="width:188px;" name="filename2" readonly>
+              		<a class="btn disabled" id="confirmupload2">_('OK')</a>
+              		<input class="input-file" id="fileInput2" type="file" data-action="browse">
+            	</div>
+			</div>
+        </div>
+        
+        <div class="user-details">
+            <fieldset>
 				<div class="control-group">
 					<label class="control-label" for="inputFName">_('First Name')</label>
 					<div class="controls">
-						<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name')" />
+						<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name')" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputName">Last Name</label>
+					<label class="control-label" for="inputName">_('Last Name')</label>
 					<div class="controls">
-						<input type="text" name="LastName" id="inputName" placeholder="_('Last Name')" />
+						<input type="text" name="LastName" id="inputName" placeholder="_('Last Name')" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputName">Login</label>
+					<label class="control-label" for="inputName">_('Login')</label>
 					<div class="controls">
-						<input type="text" name="Name" id="inputLogin" placeholder="_('Login Name')" />
+						<input type="text" name="Name" id="inputLogin" placeholder="_('Login Name')" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputEmail">_('E-Mail')</label>
 					<div class="controls">
-						<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" />
+						<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputAddress">_('Address')</label>
 					<div class="controls">
-						<input type="text" name="Address" id="inputAddress" placeholder="_('Address')" />
+						<input type="text" name="Address" id="inputAddress" placeholder="_('Address')" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputCollaborator">_('Set as collaborator')</label>
-					<div class="controls">
-						<input type="checkbox" name="Collaborator" id="inputCollaborator" value="1" />
-						<span class="help-inline">_('Make available as a potential collaborator <br />in the live blog configure screen')</span>
-					</div>
+		        	<label class="control-label" for="collaborator-role">Role</label>
+		            <div class="controls">
+		            	<div class="btn-group" data-content="role">
+		                	<button class="btn">{Role}</button>
+		                	<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+		                	<ul class="dropdown-menu">
+		                  		{#Roles}<li><a href="javascript:void(0)">{Name}</a></li>{/Roles}
+		                	</ul>
+		              	</div>
+		            </div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputPass">_('New Password')</label>
 					<div class="controls">
-						<input type="password" name="Password" id="inputPass" />
+						<input type="password" name="Password" id="inputPass" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputPass">_('Confirm Password')</label>
 					<div class="controls">
-						<input type="password" id="inputPassConfirm" />
+						<input type="password" id="inputPassConfirm" class="input-xlarge" />
 					</div>
 				</div>
-			</form>
+			</fieldset>
 		</div>
-    </div>
     <div class="modal-footer">
     	<p class="alert alert-error hide pull-left" style="margin-bottom:0"></p>
-    	<button class="btn" data-action="close">_('Close')</button>
+    	<button class="btn" data-action="close">_('Cancel')</button>
     	<button class="btn btn-primary" data-action="save">_('Save changes')</button>
     </div>
 </div>
+
+
+
+

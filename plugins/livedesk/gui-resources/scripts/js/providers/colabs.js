@@ -193,6 +193,7 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
                     colab._viewModels.push(this.get('Id'));
                 }
                 var pCId = parseInt(this.get('CId'));
+                // store last id
                 if(!isNaN(pCId)) colab._latestPost = Math.max(colab._latestPost, pCId);
             });
             updateItemCount += appendPosts.length;

@@ -35,7 +35,9 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
     ({
         url: new giz.Url('HR/Person/{1}/MetaData/{2}/PersonIcon')
     });
-    
+    /*!
+     * list item view
+     */
     var ItemView = giz.View.extend
     ({
         tagName: 'tr',
@@ -45,9 +47,21 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             var self = this;
             this.model.on('read update', this.render, this);
             this.model.on('delete', function(){ self.el.remove(); });
+            this.model.sync();
         },
         render: function()
         {
+            var self = this,
+            
+            // set icon
+                icon = new PersonIcon;
+                icon.href = this.model.get('MetaDataIcon').href.replace('my/', '');
+            icon.sync({data: { thumbSize: 'small'}}).done(function()
+            { 
+                $('figure img', self.el).attr('src', icon.get('Thumbnail').href);
+            });
+            // ---
+            
             delete this.model.data['Password'];
             $(this.el).tmpl( 'superdesk/user>item', 
                 {User: this.model.feed()},
@@ -64,8 +78,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                     });
                 });
             $(this.el).prop('model', this.model).prop('view', this);
-            $('.edit', this.el).prop('model', this.model).prop('view', this);
-            $('.delete', this.el).prop('model', this.model).prop('view', this);
+            $('[data-action="edit"]', this.el).prop('model', this.model).prop('view', this);
+            $('[data-action="delete"]', this.el).prop('model', this.model).prop('view', this);
             return this;
         },
         update: function(data)
@@ -138,8 +152,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             '#user-add-modal [data-action="save"]': { 'click': 'addUser' },
             '#user-edit-modal [data-action="save"]': { 'click': 'updateUser' },
             '.pagination a': { 'click': 'switchPage' },
-            'table tbody .edit': { 'click': 'showUpdateUser' },
-            'table tbody .delete': { 'click': 'showDeleteUser' },
+            'table tbody [data-action="edit"]': { 'click': 'showUpdateUser' },
+            'table tbody [data-action="delete"]': { 'click': 'showDeleteUser' },
             '.add-user': { 'click': 'showAddUser' },
             '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
@@ -399,12 +413,12 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          */
         showUpdateUser: function(evt)
         {
-            var $this = $(evt.target),
+            var $this = $(evt.currentTarget),
                 model = $this.prop('model');
 
             $('#user-edit-modal figure.user-image', this.el).html('');
             
-            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person'))),
+            var personModel = /*giz.Auth(*/new Person(model.hash().replace('User', 'Person').replace('my/', ''))/*)*/,
                 checkColab = function(id)
                 {
                     $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', false);
@@ -426,11 +440,16 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             personModel.sync().done(function()
             {
                 var p = personModel.get('Id'),
-                    person = $.avatar.parse(personModel, 'Email'),
-                    m = personModel.get('MetaData');
+                    person = personModel.feed(),
+                    m = personModel.get('MetaDataIcon');
                 checkColab(p);
 
-                $('#user-edit-modal figure.user-image', self.el).html(person['Avatar']);
+                m.sync({data:{thumbSize: 'huge'}})
+                    .done(function()
+                    { 
+                        $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />'); 
+                    });
+                
                 $('#user-edit-modal form input', self.el).each(function()
                 {
                     var val = model.get( $(this).attr('name') ) || person[$(this).attr('name')];
@@ -531,6 +550,9 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('HR/User') })));
             //this.users = new (giz.Collection.extend({ model: User, href: new giz.Url('HR/User') }));
             this._resetEvents = false;
+            
+            this._roleList = (new (giz.Collection.extend({ href: localStorage.getItem('superdesk.login.selfHref').replace('my/', '')+'/Role' })));
+            this._roleList.xfilter('*').sync();
         },
         refresh: function(opts)
         {
@@ -557,7 +579,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         
         addItem: function(model)
         {
-            $('table tbody', this.el).append( (new ItemView({ model: model })).render().el );
+            $('table tbody', this.el).append( (new ItemView({ model: model })).el );
         },
         
         paginate: function()
