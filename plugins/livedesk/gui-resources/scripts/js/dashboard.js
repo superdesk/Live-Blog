@@ -4,6 +4,7 @@ define
     'jquery',
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
+    'gizmo/superdesk/action',
     'jquery/superdesk',
     config.guiJs('livedesk', 'models/blogsarchive'),
     config.guiJs('livedesk', 'models/blog'),
@@ -13,7 +14,7 @@ define
     'tmpl!livedesk>layouts/dashboard',
     'tmpl!livedesk>layouts/dashboard-archive'
  ], 
-function($, Gizmo, Action, superdesk, BLOGSArchive) 
+function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive) 
 {
     var 
 
@@ -203,8 +204,9 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
             var theBlog = $(event.currentTarget).attr('data-blog-link'),
                 blogArray = theBlog.split('/'),
                 blogId = blogArray[blogArray.length - 1];
-            Action.actions.href = Action.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
-            Action.get('modules.livedesk.edit')
+            BlogAction.actions.href = BlogAction.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
+            BlogAction.clearCache();
+            BlogAction.get('modules.livedesk.edit')
             .done(function(action)
             {
                 if(!action) return;
@@ -223,6 +225,7 @@ function($, Gizmo, Action, superdesk, BLOGSArchive)
         createBlog: function(event)
         {
             superdesk.showLoader();
+            Action.clearCache();
             Action.get('modules.livedesk.add')
             .done(function(action)
             {

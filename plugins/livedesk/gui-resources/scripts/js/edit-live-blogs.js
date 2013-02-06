@@ -25,7 +25,7 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, Action) 
+function(providers, Gizmo, $, BlogAction) 
 {
 		
     // TODO rethink cause this is very ugly
@@ -526,7 +526,7 @@ function(providers, Gizmo, $, Action)
 				        providers[src].timeline.render.call(self, function()
 				        {
 				        	var that = this;
-				        	Action.get('modules.livedesk.blog-publish').done(function(action) {
+				        	BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 				            	$('.editable', that.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 				            }).fail(function(action){
 				            	self.el.find('.unpublish,.close').remove();
@@ -545,7 +545,7 @@ function(providers, Gizmo, $, Action)
 				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
 				{
 					self.setElement(o);
-					Action.get('modules.livedesk.blog-publish').done(function(action) {
+					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 						self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 		            }).fail(function(action){
 		            	self.el.find('.unpublish,.close').remove();
@@ -920,7 +920,7 @@ function(providers, Gizmo, $, Action)
 			save: function(evt)
 			{
 				var self = this;
-				Action.get('modules.livedesk.blog-edit').done(function(action) {
+				BlogAction.get('modules.livedesk.blog-edit').done(function(action) {
 					var content = $(self.el).find('[is-content]'),
 					titleInput = content.find('section header h2'),
 					descrInput = content.find('article#blog-intro'),
@@ -1007,7 +1007,7 @@ function(providers, Gizmo, $, Action)
                                 $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
-					Action.get('modules.livedesk.blog-publish').done(function(action) {
+					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 						self.el.find('#role-blog-publish').show();
 					});
 					// refresh twitter share button
@@ -1095,7 +1095,7 @@ function(providers, Gizmo, $, Action)
                 delete timelinectrl.html;
                 delete timelinectrl.image;
 				// assign editors
-				Action.get('modules.livedesk.blog-edit').done(function(action) {
+				BlogAction.get('modules.livedesk.blog-edit').done(function(action) {
 					titleInput.texteditor({
 						plugins: {controls: h2ctrl},
 						floatingToolbar: 'top'
@@ -1117,7 +1117,7 @@ function(providers, Gizmo, $, Action)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
-					Action.get('modules.livedesk.configure')
+					BlogAction.get('modules.livedesk.configure')
 					.done(function(action)
 					{
 						require([action.get('Script').href], function(app){ new app(blogHref); });
@@ -1128,7 +1128,7 @@ function(providers, Gizmo, $, Action)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
-					Action.get('modules.livedesk.manage-collaborators')
+					BlogAction.get('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
 						require([action.get('Script').href], function(app){ new app(blogHref); });
@@ -1139,7 +1139,7 @@ function(providers, Gizmo, $, Action)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href');
-					Action.get('modules.livedesk.edit')
+					BlogAction.get('modules.livedesk.edit')
 					.done(function(action)
 					{
 						require([$.superdesk.apiUrl+action.get('ScriptPath')], function(EditApp){ EditApp(blogHref); });
@@ -1179,6 +1179,13 @@ function(providers, Gizmo, $, Action)
 	
 	return function(theBlog)
 	{
+		var
+            blogArray = theBlog.split('/'),
+            blogId = blogArray[blogArray.length - 1];
+            if(BlogAction.actions.href.data) {
+		        BlogAction.actions.href = BlogAction.actions.href.data.url.replace('/Action','/Blog/'+blogId+'/Action');
+		        BlogAction.clearCache();
+	    	}
 	    // stop autoupdate if any
 	    editView.timelineView && editView.timelineView.collection.stop();
 	    

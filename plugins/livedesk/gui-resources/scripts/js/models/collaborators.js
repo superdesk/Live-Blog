@@ -10,7 +10,7 @@ function($, Gizmo, Collaborator)
                     return self.syncAdapter.request.apply(self.syncAdapter, arguments); 
                 }, dfd = $.Deferred();
             for( var i = 0, count = data.length; i < count; i++) {
-                ret = dataAdapter(this.href+data[i].get('Id')+'/Add').insert({});
+                ret = dataAdapter(this.href+data[i].get('Id')+'/Add').update({});
             }
             return ret;
         },
