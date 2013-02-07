@@ -12,7 +12,9 @@ define
     config.guiJs('livedesk', 'models/post'),
     config.guiJs('livedesk', 'models/liveblogs'),
     'tmpl!livedesk>layouts/dashboard',
-    'tmpl!livedesk>layouts/dashboard-archive'
+    'tmpl!livedesk>layouts/dashboard-archive',
+    'tmpl!livedesk>layouts/main',
+    'tmpl!livedesk>layouts/footer-static',
  ], 
 function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive) 
 {

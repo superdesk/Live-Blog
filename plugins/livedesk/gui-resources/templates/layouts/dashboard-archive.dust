@@ -1,3 +1,5 @@
+{>"livedesk>layouts/main"/}
+{<body}
 <div class="archive-blogs-header">
 	<input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search by Title" style="float:left !important;" id="search-archive-text" value="{searchkey}">
 	<a href="#" class="btn pull-left" id="search-archive-button">Go!</a>
@@ -40,3 +42,4 @@
 	<li class="{ippb}"> <a href="#" class="ippli" data-ipp="20">20</a> </li>
 	<li class="{ippc}"> <a href="#" class="ippli" data-ipp="50">50</a> </li>
 </ul>
+{/body}

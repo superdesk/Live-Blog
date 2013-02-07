@@ -6,7 +6,9 @@ define
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>archive/list',
-    'tmpl!livedesk>archive/item'
+    'tmpl!livedesk>archive/item',
+    'tmpl!livedesk>layouts/main',
+    'tmpl!livedesk>layouts/footer-static'
 ],
 function($, superdesk, giz, Action, Blog)
 {

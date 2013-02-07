@@ -7,7 +7,7 @@ define('providers/google', [
 	'providers',
     'utils/str', 
 	'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/tmpl',
 	'jqueryui/draggable',
     'providers/google/adaptor',
@@ -18,7 +18,7 @@ define('providers/google', [
 	'tmpl!livedesk>providers/google-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-], function( providers, str, $, Action ) {
+], function( providers, str, $, BlogAction ) {
 $.extend(providers.google, {
 	initialized: false,
 	url: 'https://ajax.googleapis.com/ajax/services/search/%(type)s?v=1.0&start=%(start)s&q=%(text)s&callback=?',
@@ -125,7 +125,7 @@ $.extend(providers.google, {
                         }, function(e,o) {
 
                             el = $('#ggl-web-results').append(o).find('.google');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({
                                     revert: 'invalid',
                                     helper: 'clone',
@@ -217,7 +217,7 @@ $.extend(providers.google, {
                             startx: start
                         }, function(e,o) {
                             el = $('#ggl-news-results').append(o).find('.google');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({
                                     revert: 'invalid',
                                     helper: 'clone',
@@ -290,7 +290,7 @@ $.extend(providers.google, {
                             startx: start
                         }, function(e,o) {
                             el = $('#ggl-images-results').append(o).find('li');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({
                                     revert: 'invalid',
                                     helper: 'clone',

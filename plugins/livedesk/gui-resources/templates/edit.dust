@@ -31,14 +31,14 @@
         <div class="btn-group pull-right">
 
 			<span class="timeline-controls">
-        		<button data-toggle="autorefresh" class="btn" title="_("Pin timeline so you won't get disturbed by new incoming posts")">_("Pin")</button>
+        		<button data-toggle="autorefresh" class="btn" title="_("Pin timeline so you won't get disturbed by new incoming posts")">_("Pin");</button>
         	</span>
 
 			<button data-toggle="dropdown" class="btn dropdown-toggle">_("Action"); <span class="caret"></span></button>
 			<ul class="dropdown-menu filter-posts">
     			<li><a href="javascript:void(0)" data-value="all">_("Show all");</a></li>
 				{#PostTypes}
-					<li><a href="javascript:void(0)" data-value="{Key}">_("Show") {Key} _("posts")</option>
+					<li><a href="javascript:void(0)" data-value="{Key}">_("Show"); {Key} _("posts");</option>
 				{/PostTypes}
   			</ul>
         	
@@ -51,7 +51,7 @@
 			<div class="tab-pane active" id="timeline-view">
 				<ul class="new-results hide">
 					<li>
-						<button class="btn btn-large bottom-full">_("Show"){~s}<span></span>{~s}_("new results")</button>
+						<button class="btn btn-large bottom-full">_("Show");{~s}<span></span>{~s}_("new results");</button>
 					</li>
 				</ul>
 				<div class="results-placeholder">
@@ -67,4 +67,4 @@
 		<button type="button" id="more" class="btn btn-medium btn-primary">_("More");</button>
 	</div>
 </div>
-{/live}
+{/list}

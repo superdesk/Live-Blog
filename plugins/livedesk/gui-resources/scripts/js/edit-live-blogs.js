@@ -17,6 +17,7 @@ define
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', config.guiJs('superdesk/user', 'jquery/avatar'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
+    'tmpl!livedesk>layouts/footer-static',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
     'tmpl!livedesk>timeline-item',

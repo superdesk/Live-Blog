@@ -7,6 +7,7 @@
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>layouts/livedesk',
+    'tmpl!livedesk>layouts/footer-static',
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages'
 ], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, Action) {
