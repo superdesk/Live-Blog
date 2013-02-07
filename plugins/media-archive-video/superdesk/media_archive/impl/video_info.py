@@ -15,7 +15,7 @@ from superdesk.media_archive.core.spec import IQueryIndexer
 from ally.container import wire
 from superdesk.media_archive.api.video_info import IVideoInfoService, QVideoInfo
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
-from superdesk.media_archive.api.video_data import QVideoData
+from superdesk.media_archive.api.video_data import QVideoData, IVideoDataService
 from superdesk.media_archive.meta.video_data import VideoDataMapped,\
     VideoDataEntry, META_TYPE_KEY
 from superdesk.media_archive.meta.video_info import VideoInfoMapped,\
@@ -36,11 +36,16 @@ class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
     # The query indexer manages the query related information about plugins in order to be able to support the multi-plugin queries
     searchProvider = ISearchProvider; wire.entity('searchProvider')
     # The search provider that will be used to manage all search related activities
+    videoDataService = IVideoDataService; wire.entity('videoDataService')
+    #The correspondent meta data service for video
 
     def __init__(self):
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
         assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
+        assert isinstance(self.videoDataService, IVideoDataService), 'Invalid video meta data service %s' % self.videoDataService
 
-        MetaInfoServiceBaseAlchemy.__init__(self, VideoInfoMapped, QVideoInfo, VideoDataMapped, QVideoData, self.searchProvider)
+        MetaInfoServiceBaseAlchemy.__init__(self, VideoInfoMapped, QVideoInfo, VideoDataMapped, QVideoData, 
+                                            self.searchProvider, self.videoDataService, META_TYPE_KEY)
+        
         self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData, META_TYPE_KEY)
         

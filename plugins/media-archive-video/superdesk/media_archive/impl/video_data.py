@@ -17,7 +17,6 @@ from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
 from superdesk.media_archive.core.impl.meta_service_base import \
     MetaDataServiceBaseAlchemy
 from superdesk.media_archive.core.spec import IMetaDataReferencer, IThumbnailManager
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.video_data import VideoDataMapped
 
 
@@ -37,18 +36,5 @@ class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
         assert isinstance(self.cdmArchiveVideo, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveVideo
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
        
-        MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self)
+        MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self, self.cdmArchiveVideo, self.thumbnailManager)
     
-    # ----------------------------------------------------------------
-
-    def populate(self, metaData, scheme, thumbSize=None):
-        '''
-        @see: IMetaDataReferencer.populate
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchiveVideo.getURI(metaData.content, scheme)
-        self.thumbnailManager.populate(metaData, scheme, thumbSize)
-
-        return metaData
-    
-    # ----------------------------------------------------------------

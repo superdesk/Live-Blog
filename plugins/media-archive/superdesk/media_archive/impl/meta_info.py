@@ -21,6 +21,7 @@ from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.core.spec import IQueryIndexer
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
+from superdesk.media_archive.api.meta_data import IMetaDataService
 
 
 # --------------------------------------------------------------------
@@ -36,14 +37,20 @@ class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     # The query indexer manages the query related information about plugins in order to be able to support the multi-plugin queries
     searchProvider = ISearchProvider; wire.entity('searchProvider')
     # The search provider that will be used to manage all search related activities
-
+    metaDataService = IMetaDataService; wire.entity('metaDataService')
+    #The correspondent meta data service for other media type
+    
 
     def __init__(self):
         '''
         Construct the meta info service.
         '''
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
-        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, self.searchProvider)
+        assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
+        assert isinstance(self.metaDataService, IMetaDataService), 'Invalid meta data service %s' % self.metaDataService
+        
+        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, 
+                                            self.searchProvider, self.metaDataService, META_TYPE_KEY)
         
         self.queryIndexer.register(MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData, META_TYPE_KEY)
 

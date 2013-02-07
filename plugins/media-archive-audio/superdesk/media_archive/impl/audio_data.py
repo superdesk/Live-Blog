@@ -19,7 +19,6 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataReferencer, \
     IThumbnailManager
 from superdesk.media_archive.meta.audio_data import AudioDataMapped
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
 
 # --------------------------------------------------------------------
 
@@ -37,17 +36,5 @@ class AudioDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
         assert isinstance(self.cdmArchiveAudio, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveAudio
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
        
-        MetaDataServiceBaseAlchemy.__init__(self, AudioDataMapped, QAudioData, self)
-    
-    # ----------------------------------------------------------------
-
-    def populate(self, metaData, scheme, thumbSize=None):
-        '''
-        @see: IMetaDataReferencer.populate
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchiveAudio.getURI(metaData.content, scheme)
-        self.thumbnailManager.populate(metaData, scheme, thumbSize)
-        
-        return metaData
+        MetaDataServiceBaseAlchemy.__init__(self, AudioDataMapped, QAudioData, self, self.cdmArchiveAudio, self.thumbnailManager)
     

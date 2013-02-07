@@ -17,13 +17,15 @@ from inspect import isclass
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService
 from superdesk.media_archive.api.meta_info import QMetaInfo
-from superdesk.media_archive.core.spec import IMetaDataReferencer
+from superdesk.media_archive.core.spec import IMetaDataReferencer,\
+    IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped, ThumbnailFormat
-from superdesk.media_archive.meta.meta_info import MetaInfo
+from superdesk.media_archive.meta.meta_info import MetaInfo, MetaInfoMapped
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from sqlalchemy.orm.session import Session
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
+from cdm.spec import ICDM
 
 # --------------------------------------------------------------------
 
@@ -32,7 +34,7 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
     Base SQL alchemy implementation for meta data type services.
     '''
 
-    def __init__(self, MetaDataClass, QMetaDataClass, referencer):
+    def __init__(self, MetaDataClass, QMetaDataClass, referencer, cdmArchive, thumbnailManager):
         '''
         Construct the meta data base service for the provided classes.
 
@@ -42,18 +44,24 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
             A class that extends QMetaData API class.
         @param referencer: IMetaDataReferencer
             The referencer to provide the references in the meta data.
-        @param searchProvider: ISearchProvider
-            The provider that will be used for search related actions
+        @param cdmArchive: ICDM
+            The CDM used for current media archive type
+        @param thumbnailManager: IThumbnailManager
+            The thumbnail manager used to manage the current media archive type    
         '''
         assert isclass(MetaDataClass) and issubclass(MetaDataClass, MetaDataMapped), \
         'Invalid meta data class %s' % MetaDataClass
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
         assert isinstance(referencer, IMetaDataReferencer), 'Invalid referencer %s' % referencer
+        assert isinstance(cdmArchive, ICDM), 'Invalid CDM %s' % self.searchProvider
+        assert isinstance(thumbnailManager, IThumbnailManager), 'Invalid video meta data service %s' % thumbnailManager
 
         self.MetaData = MetaDataClass
         self.QMetaData = QMetaDataClass
         self.referencer = referencer
+        self.cdmArchive = cdmArchive
+        self.thumbnailManager = thumbnailManager
 
     def getById(self, id, scheme, thumbSize=None):
         '''
@@ -81,10 +89,15 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
 
     def delete(self, id):
         '''
-        needed to overwrite this because EntityCRUDServiceAlchemy.delete didn't work
-        something to do with the join between the extended mapped tables
-        '''
-        self.session().delete(self.session().query(self.Entity).get(id))
+        deletes the metadata and the associated media file and generated thumbnails
+        '''        
+        metaData = self.session().query(self.MetaData).filter(self.MetaData.Id == id).one()
+        
+        #delete file from CDM
+        self.cdmArchive.remove(metaData.content)
+        #TODO: delete the thumbnails
+        
+        self.session().delete(metaData)
         self.session().commit()
 
         return True
@@ -102,6 +115,18 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
             sql = buildQuery(sql, q, self.MetaData)
         return sql
 
+    # ----------------------------------------------------------------
+
+    def populate(self, metaData, scheme, thumbSize=None):
+        '''
+        @see: IMetaDataReferencer.populate
+        '''
+        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
+        metaData.Content = self.cdmArchiveImage.getURI(metaData.content, scheme)
+        self.thumbnailManager.populate(metaData, scheme, thumbSize)
+
+        return metaData
+
 # --------------------------------------------------------------------
 
 class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
@@ -109,7 +134,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
     Base SQL alchemy implementation for meta info type services.
     '''
 
-    def __init__(self, MetaInfoClass, QMetaInfoClass, MetaDataClass, QMetaDataClass, searchProvider):
+    def __init__(self, MetaInfoClass, QMetaInfoClass, MetaDataClass, QMetaDataClass, searchProvider, metaDataService, type):
         '''
         Construct the meta info base service for the provided classes.
 
@@ -123,6 +148,10 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
             A class that extends QMetaData API class.
         @param searchProvider: ISearchProvider
             The provider that will be used for search related actions
+        @param metaDataService: MetaDataServiceBaseAlchemy
+            The current meta data for media archive
+        @param type: str
+            The media archive type        
         '''
 
         assert isclass(MetaInfoClass) and issubclass(MetaInfoClass, MetaInfo), \
@@ -134,6 +163,8 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
         assert isinstance(searchProvider, ISearchProvider), 'Invalid search provider %s' % searchProvider
+        assert isinstance(metaDataService, MetaDataServiceBaseAlchemy), 'Invalid meta data service %s' % metaDataService
+        assert isinstance(type, str), 'Invalid media type%s' % type
 
         EntityGetCRUDServiceAlchemy.__init__(self, MetaInfoClass)
 
@@ -142,6 +173,8 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         self.MetaData = MetaDataClass
         self.QMetaData = QMetaDataClass
         self.searchProvider = searchProvider
+        self.metaDataService = metaDataService
+        self.type = type
 
     def getMetaInfosCount(self, dataId=None, languageId=None, qi=None, qd=None):
         '''
@@ -180,13 +213,20 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
 
     def delete(self, id):
         '''
-        needed to overwrite this because EntityCRUDServiceAlchemy.delete didn't work
-        something to do with the join between the extended mapped tables
+        deletes the current metaInfo from both database and search index
+        if there is no other meta info, delete also the related meta data 
         '''
-        self.session().delete(self.session().query(self.Entity).get(id))
-        self.session().commit()
+       
+        metaInfo = self.session().query(self.MetaInfo).filter(self.MetaInfo.Id == id).one()    
+        metaDataId = metaInfo.MetaData
 
-        self.searchProvider.delete(id)
+        self.session().delete(metaInfo)
+        self.session().commit()
+        
+        self.searchProvider.delete(id, self.type)
+        
+        if self.session().query(MetaInfoMapped).filter(MetaInfoMapped.MetaData == metaDataId).count() == 0:
+            return self.metaDataService.delete(metaDataId)
 
         return True
 

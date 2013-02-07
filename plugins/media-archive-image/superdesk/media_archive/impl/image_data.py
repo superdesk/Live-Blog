@@ -19,7 +19,6 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataReferencer, \
     IThumbnailManager
 from superdesk.media_archive.meta.image_data import ImageDataMapped
-from superdesk.media_archive.meta.meta_data import MetaDataMapped
 
 # --------------------------------------------------------------------
 
@@ -37,16 +36,5 @@ class ImageDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
         assert isinstance(self.cdmArchiveImage, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveImage
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
        
-        MetaDataServiceBaseAlchemy.__init__(self, ImageDataMapped, QImageData, self)
+        MetaDataServiceBaseAlchemy.__init__(self, ImageDataMapped, QImageData, self, self.cdmArchiveImage, self.thumbnailManager)
     
-    # ----------------------------------------------------------------
-
-    def populate(self, metaData, scheme, thumbSize=None):
-        '''
-        @see: IMetaDataReferencer.populate
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchiveImage.getURI(metaData.content, scheme)
-        self.thumbnailManager.populate(metaData, scheme, thumbSize)
-
-        return metaData

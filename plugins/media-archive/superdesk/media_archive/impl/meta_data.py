@@ -75,20 +75,9 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
 
 
-        MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self)
+        MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self, self.cdmArchive, self.thumbnailManager)
 
         self._thumbnailFormatId = self._metaTypeId = None
-
-    # ----------------------------------------------------------------
-
-    def populate(self, metaData, scheme, thumbSize=None):
-        '''
-        @see: IMetaDataReferencer.populate
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
-
-        return self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
     # ----------------------------------------------------------------
 
@@ -158,12 +147,6 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
             self.cdmArchive.republish(path, metaData.content)
 
         return self.getById(metaData.Id, scheme, thumbSize)
-
-    # ----------------------------------------------------------------
-
-    def delete(self, id):
-        # TODO: implement it
-        pass
 
     # ----------------------------------------------------------------
 
