@@ -11,7 +11,7 @@ API implementation for URL info service.
 
 from url_info.api.url_info import IURLInfoService, URLInfo
 from urllib.request import urlopen, Request
-from html.parser import HTMLParser
+from html.parser import HTMLParser, HTMLParseError
 from datetime import datetime
 from inspect import isclass
 from ally.container.support import setup
@@ -55,8 +55,7 @@ class URLInfoService(IURLInfoService):
                 elif contentType == 'text/html': urlInfo.ContentType = contentType
                 extr = HTMLInfoExtractor(urlInfo)
                 try: extr.feed(conn.read().decode())
-                except AssertionError: pass
-                except UnicodeDecodeError: pass
+                except (AssertionError, HTMLParseError, UnicodeDecodeError): pass
                 return extr.urlInfo
         except (URLError, ValueError): raise InputError('Invalid URL %s' % url)
 
