@@ -6,7 +6,7 @@
 define('providers/flickr', [
     'providers',
     'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
@@ -17,7 +17,7 @@ define('providers/flickr', [
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-], function( providers,  $, Action ) {
+], function( providers,  $, BlogAction ) {
 $.extend(providers.flickr, {
         initialized: false,
         per_page : 8,
@@ -125,7 +125,7 @@ $.extend(providers.flickr, {
                             page : parseInt(start - 1)
                         }, function(e,o) {
                             el = $('#flickr-image-results').append(o).find('.flickr');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({
                                     revert: 'invalid',
                                     containment:'document',

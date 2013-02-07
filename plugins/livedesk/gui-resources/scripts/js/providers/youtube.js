@@ -6,7 +6,7 @@
 define('providers/youtube', [
     'providers','utils/str', 
     'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/tmpl',
     'jquery/jsonp',
     'jqueryui/draggable',
@@ -19,7 +19,7 @@ define('providers/youtube', [
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading'
-    ], function( providers, str, $, Action ) {
+    ], function( providers, str, $, BlogAction ) {
         $.extend(providers.youtube, {
             initialized: false,
             
@@ -163,7 +163,7 @@ define('providers/youtube', [
                         } else {
                             $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
                                 el = $('#ytb-src-results').append(o).find('.youtube')
-                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                     el.draggable({
                                         revert: 'invalid',
                                         helper: 'clone',
@@ -232,7 +232,7 @@ define('providers/youtube', [
                         } else {
                             $.tmpl('livedesk>providers/youtube/favorite-item', {results : self.cleanContent(results)}, function(e,o) {
                                 el = $('#ytb-fav-results').append(o).find('.youtube');
-                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                     el.draggable({
                                         revert: 'invalid',
                                         helper: 'clone',
@@ -301,7 +301,7 @@ define('providers/youtube', [
                         } else {
                             $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
                                 el = $('#ytb-usr-results').append(o).find('.youtube');
-                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                     el.draggable({
                                         revert: 'invalid',
                                         helper: 'clone',

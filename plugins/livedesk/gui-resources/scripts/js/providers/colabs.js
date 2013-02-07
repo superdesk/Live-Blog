@@ -5,14 +5,14 @@ define( 'providers/colabs', [
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/collaborator'),
     config.guiJs('superdesk/user', 'models/person'),
-    'gizmo/superdesk/action',
+   config.guiJs('livedesk', 'action'),
    'jquery/avatar',
 
     'providers/colabs/adaptor',
     'tmpl!livedesk>providers/colabs',
     'tmpl!livedesk>providers/colabs/items' ],
   
-function(providers, $, giz, Blog, Collaborator, Person, Action)
+function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 {
     var config = { updateInterval: 10 },
         colabsList = [], 
@@ -54,7 +54,7 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
             {
                 self.setElement(o);
                 // make draggable
-                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                     self.el.hasClass('draggable') && self.el.draggable
                     ({
                         helper: 'clone',

@@ -1,7 +1,7 @@
 define('providers/instagram', [
     'providers',
     'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
@@ -11,7 +11,7 @@ define('providers/instagram', [
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-    ], function( providers,  $, Action ) {
+    ], function( providers,  $, BlogAction ) {
        $.extend(providers.instagram, {
             cliend_id : '2bba61e66c8c4773b32c765955bd2b8d',
             url : 'https://api.instagram.com/v1/tags/%(apykey)s/media/recent?client_id=2bba61e66c8c4773b32c765955bd2b8d', 
@@ -75,7 +75,7 @@ define('providers/instagram', [
                             photos : images,
                         }, function(e,o) {
                             el = $('#instagram-image-results').append(o).find('.instagram');              
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({
                                     revert: 'invalid',
                                     containment:'document',

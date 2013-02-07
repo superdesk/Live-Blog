@@ -2,7 +2,7 @@ define('providers/soundcloud', [
     'providers',
     'providers/common',
     'jquery',
-    'gizmo/superdesk/action',    
+    config.guiJs('livedesk', 'action'),    
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
@@ -12,7 +12,7 @@ define('providers/soundcloud', [
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-    ], function( providers, common, $, Action) {
+    ], function( providers, common, $, BlogAction) {
         $.extend(providers.soundcloud, common, {
             client_id : 'd913360f3cad924d67e1ad1887c00855',
             init : function() {
@@ -67,7 +67,7 @@ define('providers/soundcloud', [
                             items : data,
                         }, function(e,o) {
                             el = $('#soundcloud-sound-results').append(o).find('.soundcloud');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable(
                                 {
                                     revert: 'invalid',

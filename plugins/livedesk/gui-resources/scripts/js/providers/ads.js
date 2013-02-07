@@ -2,12 +2,12 @@ define('providers/ads', [
     'providers', 
     'jquery', 
     'gizmo/superdesk',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     config.guiJs('livedesk', 'models/posts'),
     'providers/ads/adaptor',
     'tmpl!livedesk>providers/ads',
     'tmpl!livedesk>providers/ads/items'
-], function(providers, $, Gizmo, Action)
+], function(providers, $, Gizmo, BlogAction)
 {
     $.extend(providers.ads,  
     {
@@ -24,7 +24,7 @@ define('providers/ads', [
                         $.tmpl('livedesk>providers/ads/items', {Posts: posts.feed()}, function(e, o)
                         {  
                             $('.search-result-list', self.el).prepend(o);
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 $('.search-result-list li', self.el).draggable
                                 ({
                                     helper: 'clone',

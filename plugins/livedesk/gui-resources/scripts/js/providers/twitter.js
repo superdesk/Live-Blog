@@ -6,7 +6,7 @@
 define('providers/twitter', [
     'providers',    
     'jquery',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
     'jquery/tmpl',
     'jquery/jsonp',    
     'jqueryui/draggable',
@@ -18,7 +18,7 @@ define('providers/twitter', [
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading',
-], function( providers,  $, Action ) {
+], function( providers,  $, BlogAction ) {
 $.extend(providers.twitter, {
         initialized: false,
         urlTimeline : 'http://api.twitter.com/1/statuses/following_timeline.json?callback=?&include_entities=true&include_rts=true&screen_name=%(text)s&page=%(page)s',
@@ -261,7 +261,7 @@ $.extend(providers.twitter, {
                         if ( data.length > 0 || page > 1) {
                             $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                                 el = $('#twt-timeline-results').append(o).find('.twitter');
-                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                     el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                         start: function(evt, ui) {
                                             item = $(evt.currentTarget);
@@ -364,7 +364,7 @@ $.extend(providers.twitter, {
                     if (data.length > 0 || page > 1) {
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                             el = $('#twt-user-results').append(o).find('.twitter');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                     start: function(evt, ui) {
                                         item = $(evt.currentTarget);
@@ -463,7 +463,7 @@ $.extend(providers.twitter, {
                         //feed results to template
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                             el = $('#twt-favorites-results').append(o).find('.twitter');
-                            Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
                                     start: function(evt, ui) {
                                         item = $(evt.currentTarget);
@@ -573,7 +573,7 @@ $.extend(providers.twitter, {
                     if (data.results.length > 0) {
                         $.tmpl('livedesk>providers/twitter/web-item', res, function(e,o) {
                                 el = $('#twt-web-results').append(o).find('.twitter');
-                                Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                     el.draggable({
                                         revert: 'invalid',
                                         helper: 'clone',
