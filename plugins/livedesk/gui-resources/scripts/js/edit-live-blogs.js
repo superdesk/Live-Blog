@@ -411,6 +411,12 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update', function(evt, data)
 					{
+						/**
+						 * Quickfix.
+						 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
+						 */
+					    if( self._parent.collection.isCollectionDeleted(self.model) )
+					    	return;
 					    /*!
                          * conditionally handing over save functionality to provider if
                          * model has source name in providers 

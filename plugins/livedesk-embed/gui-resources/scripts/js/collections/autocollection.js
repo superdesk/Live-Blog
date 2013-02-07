@@ -115,7 +115,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
                 for( var i=0; i < list.length; i++ )
                 {
                     var model = false;
-                    for( var j=0; j<count; j++ ) {
+                    for( var j=0; j<self._list.length; j++ ) {
 						if( list[i].hash() == self._list[j].hash() )
                         {
 							model = list[i];

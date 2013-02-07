@@ -27,7 +27,12 @@ define([
 							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
 					self.model
 							.on('read update', function(evt, data){
-
+									/**
+									 * Quickfix.
+									 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
+									 */
+					   				if( self._parent.model.get('PostPublished').isCollectionDeleted(self.model) )
+										return;
 									//console.log('this.data: ',$.extend({},this.data), ' is only:' ,isOnly(this.data, ['CId','Order']));
 									/*if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
 											console.log('this.data: ',$.extend({},this.data));
