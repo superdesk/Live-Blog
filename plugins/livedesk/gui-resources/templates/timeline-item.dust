@@ -138,9 +138,9 @@
 						<!-- google or smth else -->
 					{/Author}
 				</h3>
-				<p class="result-text {?AuthorPerson}editable{/AuthorPerson} " data-post-id="{Id}">
+				<div class="result-text {?AuthorPerson}editable{/AuthorPerson} " data-post-id="{Id}">
 					{Content|s}
-				</p>
+				</div>
 				<p class="attributes">
 					<i class="source-icon"></i>
 					<time>{CreatedOn}</time>
