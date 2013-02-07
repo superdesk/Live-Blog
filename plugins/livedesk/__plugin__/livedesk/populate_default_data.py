@@ -227,7 +227,6 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'admin': 'Liveblog Master Class',
                       'collab1': 'Liveblog Master Class',
                       'collab2': 'Liveblog Master Class',
                      }
@@ -263,17 +262,16 @@ def createBlogAdmins():
 
 POSTS = [
 		 ('Liveblog Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
-         ('Liveblog Master Class', 'quote', 'collab1', 'collab1', 'GEN Live Desk is a next-generation '
+         ('Liveblog Master Class', 'quote', 'collab1', 'collab1', 'Liveblog is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
-         ('Liveblog Master Class', 'normal', 'collab2', 'collab2', 'GEN Live Desk is free to download, '
+         ('Liveblog Master Class', 'normal', 'collab2', 'collab2', 'Liveblog is free to download, '
           'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
           'than replaces. Helps convince an IT department!'),
-         ('Liveblog Master Class', 'normal', 'admin', 'admin', 'With GEN Live Desk, you can '
+         ('Liveblog Master Class', 'normal', 'admin', 'admin', 'With Liveblog, you can '
           'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
           'paid subscriptions to increase revenue.'),
-         ('Liveblog Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks. Join us '
-          'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
-         ('Liveblog Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">GEN Live Desk is a new open source '
+         ('Liveblog Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
+         ('Liveblog Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Liveblog is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
           'be one of the first to test it!</a>')
          ]
