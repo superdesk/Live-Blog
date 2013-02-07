@@ -383,7 +383,14 @@ function(providers, Gizmo, $, BlogAction)
 				
 				this.model
 				    .on('delete', this.remove, this)
-				    .on('unpublish', this.remove, this)
+				    .off('unpublish').on('unpublish', function() {
+				    	this.remove();
+						 /*
+						 * @TODO: remove this
+						 * Dirty hack to actualize the owncollection
+						 */
+						providers['edit'].collections.posts.sync();
+				    }, this)
 					.on('read', function()
 					{
 					    /*!
@@ -759,6 +766,11 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			removeAllAutoupdate: function(evt, data)
 			{
+				/**
+				 * @TODO: remove this
+				 * Dirty hack to actualize the owncollection
+				 */
+				providers['edit'].collections.posts.sync();
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {

@@ -173,16 +173,20 @@ define('providers/edit', [
 					}
 				})
 				.on('update', function(evt, data){ 						
-					/**
-					 * if the updater on the model is the current view don't update the view;
-					 */
-					if(self.model.updater === self) {
-						delete self.model.updater; return;
+					if(self.model.get('IsPublished') === 'True') {
+						self.remove();
+					} else {
+						/**
+						 * if the updater on the model is the current view don't update the view;
+						 */
+						if(self.model.updater === self) {
+							delete self.model.updater; return;
+						}
+						/**
+						 * if the Change Id is received, then sync the hole model
+						 */			
+						self.rerender();
 					}
-					/**
-					 * if the Change Id is received, then sync the hole model
-					 */			
-					self.rerender();
 				})
 				.on('delete', this.remove, this);
 		},
@@ -225,6 +229,7 @@ define('providers/edit', [
 		},
 		remove: function(){
 			var self = this;
+			delete self.model.updater;
 			self.el.fadeTo(500, '0.1', function(){
 				self.el.remove();
 			});
@@ -244,14 +249,14 @@ define('providers/edit', [
 	PostsView = Gizmo.View.extend({
 		init: function(){
 			var self = this;
-			this.posts.on('read', this.render, this);
+			this.posts.on('read update', this.render, this);
 			this.posts.model.on('insert', function(evt, model){
 				self.addOne(model);
 			});
 			this.posts.sync();
 		},
 		render: function(evt, data){
-			if ( data === undefined)
+			//if ( data === undefined)
 				data = this.posts._list;			
 			for(var len = data.length, i = 0; i < len; i++ ) {
 				this.addOne(data[i]);
@@ -278,8 +283,10 @@ define('providers/edit', [
 			return drd;
 		}
 	}),
+	collections = {},
 	EditView = Gizmo.View.extend({
 		postView: null,
+
 		lastType: null,
 		events: {
 			'[ci="savepost"]': { 'click': 'savepost'},
@@ -512,13 +519,14 @@ define('providers/edit', [
     				}
 				});
 				var posts = Gizmo.Auth(new OwnCollection(
-						self.theBlog+ '/User/'+localStorage.getItem('superdesk.login.id')+'/Post/Owned?asc=createdOn', 
+						self.theBlog+ '/User/'+localStorage.getItem('superdesk.login.id')+'/Post/Owned?asc=createdOn&isPublished=false', 
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
 				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta';
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
+				collections.posts =  posts;
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 				
 				self.changetype();
@@ -596,6 +604,8 @@ define('providers/edit', [
     $.extend( providers.edit, { init: function(blogUrl)
     {
         editView = new EditView({ el: this.el, blogUrl: blogUrl }); // !editView? new EditView({ el: this.el, blogUrl: blogUrl }): editView;
-    }});
+    },
+		collections: collections
+	});
 	return providers;	
 });
