@@ -122,7 +122,7 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         @see: IMetaDataReferencer.populate
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchiveImage.getURI(metaData.content, scheme)
+        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
         self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
         return metaData
