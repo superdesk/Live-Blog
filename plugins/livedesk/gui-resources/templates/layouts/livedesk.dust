@@ -98,4 +98,4 @@
 </div>
 
 {+body/}
-{>"livedesk>layouts/footer-static"/}
+{>"livedesk>layouts/footer"/}

@@ -8,7 +8,9 @@ define
     'tmpl!livedesk>archive/list',
     'tmpl!livedesk>archive/item',
     'tmpl!livedesk>layouts/main',
-    'tmpl!livedesk>layouts/footer-static'
+    'tmpl!livedesk>layouts/footer',
+    'tmpl!livedesk>layouts/footer-static',
+    'tmpl!livedesk>layouts/footer-dinamic',
 ],
 function($, superdesk, giz, Action, Blog)
 {
@@ -192,6 +194,7 @@ function($, superdesk, giz, Action, Blog)
             this.paginate();
             var data = {pagination: this.page},
                 self = this;
+            data.FooterFixed = true;
             superdesk.applyLayout('livedesk>archive/list', data, function()
             {
                 // new ItemView for each models 

@@ -97,13 +97,6 @@
 	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
 	        </div>
 	        <div class="result-content">
-				<h3>
-					{?AuthorPerson}
-						<span class="author">{AuthorPerson.FirstName} {AuthorPerson.LastName}</span>
-					{:else}
-						<!-- google or smth else -->
-					{/Author}
-				</h3>
 				<p class="result-text {?AuthorPerson}editable{/AuthorPerson}" data-post-id="{Id}">
 					{Content|s}
 				</p>
@@ -132,11 +125,11 @@
 	        </figure>
 	        <div class="result-content" style='margin-right:61px'>
 				<h3>
-					{?AuthorPerson}
-						<span class="author">{AuthorPerson.FirstName} {AuthorPerson.LastName}</span>
+					{?AuthorName}
+						<span class="author">{AuthorName}</span>
 					{:else}
 						<!-- google or smth else -->
-					{/Author}
+					{/AuthorName}
 				</h3>
 				<div class="result-text {?AuthorPerson}editable{/AuthorPerson} " data-post-id="{Id}">
 					{Content|s}

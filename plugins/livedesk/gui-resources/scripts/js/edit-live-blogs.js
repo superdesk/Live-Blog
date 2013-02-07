@@ -17,7 +17,9 @@ define
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', config.guiJs('superdesk/user', 'jquery/avatar'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
+    'tmpl!livedesk>layouts/footer',
     'tmpl!livedesk>layouts/footer-static',
+    'tmpl!livedesk>layouts/footer-dinamic',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
     'tmpl!livedesk>timeline-item',
@@ -1010,6 +1012,7 @@ function(providers, Gizmo, $, BlogAction)
 				data = $.extend({}, this.model.feed(), 
 				{
 					BlogHref: self.theBlog,
+					FooterFixed: false,
 					ui: 
 					{
 						content: 'is-content=1',

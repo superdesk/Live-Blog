@@ -12,6 +12,9 @@ define([
 	config.guiJs('livedesk', 'models/blog-collaborator-types'),
 	'tmpl!livedesk>layouts/livedesk',
 	'tmpl!livedesk>layouts/blog',
+    'tmpl!livedesk>layouts/footer',
+    'tmpl!livedesk>layouts/footer-static',
+    'tmpl!livedesk>layouts/footer-dinamic',	
 	'tmpl!livedesk>manage-collaborators',
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
@@ -345,6 +348,7 @@ define([
 			data = $.extend({}, this.model.feed(), {
 					
 					BlogHref: self.theBlog,
+					FooterFixed: true,
 					ui:	{
 
 						content: 'is-content=1',
