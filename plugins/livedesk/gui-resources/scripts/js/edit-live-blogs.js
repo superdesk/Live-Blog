@@ -603,6 +603,10 @@ function(providers, Gizmo, $, BlogAction)
 			remove: function()
 			{
 				var self = this;
+				/**
+				 * @TODO remove only this view events from the model
+				 */
+				//self.model.off('delete unpublish read update set');
 				self._parent.removeOne(self);
 				self.tightkNots();
 				$(this.el).fadeTo(500, '0.1', function(){
@@ -704,7 +708,8 @@ function(providers, Gizmo, $, BlogAction)
 				var 
 					self = this,
 					pos = self._views.indexOf(view);
-				//console.log(self.model.get('PostPublished').total);
+				if(pos === -1)
+					return self;
 				self.total--;
 				self._views.splice(pos,1);
 				return self;
