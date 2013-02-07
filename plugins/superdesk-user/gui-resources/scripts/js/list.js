@@ -31,6 +31,26 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
     PersonCollaborators = giz.Collection.extend({model: Collaborator}),
     // ---
     
+    RoleModel = giz.Model.extend
+    ({
+        url: new giz.Url('HR/User/{1}/Role/{2}'),
+        update: function(userId, roleId)
+        {
+            var self = this;
+                href = this.url.get().replace('\{1\}', userId).replace('\{2\}', roleId),
+                dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+            return dataAdapter(href).update();
+        },
+        remove: function(userId, roleId)
+        {
+            var self = this;
+            href = this.url.get().replace('\{1\}', userId).replace('\{2\}', roleId),
+            dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+            return dataAdapter(href).remove();            
+        }
+    }),
+    RoleCollection = giz.Collection.extend({ model: RoleModel }),
+    
     PersonIcon = giz.Model.extend
     ({
         url: new giz.Url('HR/Person/{1}/MetaData/{2}/PersonIcon')
@@ -45,14 +65,14 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         init: function()
         {
             var self = this;
-            this.model.on('read update', this.render, this);
-            this.model.on('delete', function(){ self.el.remove(); });
+            
+            this.model.off('read.userlist').off('update.userlist').on('read.userlist update.userlist', this.render, this);
+            this.model.off('delete.userlist').on('delete.userlist', function(){ self.el.remove(); });
             this.model.sync();
         },
         render: function()
         {
             var self = this,
-            
             // set icon
                 icon = new PersonIcon;
                 icon.href = this.model.get('MetaDataIcon').href.replace('my/', '');
@@ -84,14 +104,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         },
         update: function(data)
         {
-            /*!
-             * Set all the data at once, caz a nasty bug in set model in gizmojs.
-             */
-            if( this.model.__collaborator && !data.Collaborator )
-                var colabSync = this.model.__collaborator.remove().sync();
-            
-            if( !this.model.__collaborator && data.Collaborator )
-            {
+            var self = this;
+            // ?
                 var newCollaborator = new Collaborator;
                 var colabSync = newCollaborator.set('User', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
@@ -106,10 +120,23 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                         });
                         newCollaborator.sync(newCollaborator.url.get()); 
                     });
-            }
+            // ?
             
-            delete this.model.__collaborator;
             delete data.Collaborator;
+            
+            // update role
+            var newRole = new RoleModel(),
+                roleRem = [],
+                roleAct = data.Role,
+                roleSync = $.Deferred;
+            for(var i=0; i<this.model.__roles.length; i++) // remove prev roles
+                roleRem.push(newRole.remove(self.model.get('Id'), self.model.__roles[i].get('Id')));
+            $.when.apply($, roleRem).then(function() // add new roles
+            {
+                roleSync = newRole.update(self.model.get('Id'), roleAct);
+                self.model.__roles = [];
+            });
+            delete data.Role;
             
             // hash password
             if( data.Password )
@@ -126,7 +153,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             // TODO add this fnc in gizmo
             var personSync = this.model.sync(); 
             $.isEmptyObject(this.model.changeset) && personSync.resolve();
-            return $.when(colabSync, passSync, personSync);
+            return $.when(roleSync, passSync, personSync);
         },
         remove: function()
         {
@@ -160,8 +187,16 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
             '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
             "[data-action='browse']": { 'click': 'browse' },
-            "[data-action='upload']": { 'change': 'upload' }
+            "[data-action='upload']": { 'change': 'showUpload' },
+            "[data-action='confirm-upload']": { 'click': 'upload' },
+            '[data-input="role"] li': { 'click': 'changeRole' },
+            '#avatar-upload-edit': { 'click': 'editUserIcon' },
+            '#avatar-upload-popover-edit a.close': { 'click' : 'closeEditUserIcon' }
         },
+        
+        editUserIcon: function(evt){ evt.preventDefault(); $("#avatar-upload-popover-edit", this.el).show(); },
+        
+        closeEditUserIcon: function(evt) { evt.preventDefault(); $("#avatar-upload-popover-edit").hide(); },
         
         closeUpdateUser: function(){ $('#user-edit-modal', this.el).modal('hide'); },
         
@@ -177,9 +212,16 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         uploadEndPoint: $.superdesk.apiUrl+'/resources/my/HR/User/'+
             localStorage.getItem('superdesk.login.id')+
             '/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        showUpload: function(evt)
+        {
+            var val = $(evt.currentTarget).val(),
+                file = val.split(/[\\/]/);
+            $('[data-value="upload-filename"]').val(file[file.length-1]);
+            $('[data-action="confirm-upload"]').removeClass("disabled");
+        },
         upload: function(evt)
         {
-            var uploadInput = $(evt.target),
+            var uploadInput = $(evt.target).siblings('[type="file"]'),
                 files = uploadInput[0].files,
                 self = this; 
             for( var i=0; i<files.length; i++)
@@ -202,7 +244,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                     $(self).triggerHandler('uploaded', [content.Id]);
                     self._latestUpload = content;
                     
-                    uploadInput.siblings('.user-image').html('<img src="'+content.Thumbnail.href+'" />');
+                    uploadInput.parents('form:eq(0)').find('figure.user-avatar img').attr('src', content.Thumbnail.href);
                 };
             }
             $('[data-action="upload"]', this.el).val('');
@@ -221,11 +263,22 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 $('#user-add-modal form input:eq(0)', this.el).focus(); 
             })
             .on('close', function(){ self._latestUpload = null; });
+            
+            // show role select val
+            var firstRole = $('#user-edit-modal form [data-input="role"] li:eq(0)');
+            $('#user-add-modal form [data-input="role"] [data-selected-value]', self.el)
+                .attr('data-selected-value', firstRole.attr('data-value'))
+                .text(firstRole.text());
+            
+            $('#user-add-modal figure.user-avatar img', this.el).attr('src', config.content_url+'/lib/core/images/default_profile_3_bigger.png');
         },
         
+        /*!
+         * passing along view prop
+         */
         showDeleteUser: function(evt)
         { 
-            $('#user-delete-modal', this.el).prop('view', $(evt.target).prop('view')); 
+            $('#user-delete-modal', this.el).prop('view', $(evt.currentTarget).prop('view')); 
             $('#user-delete-modal', this.el).modal(); 
         },
         
@@ -317,6 +370,18 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         {
             return /^([_a-zA-Z0-9-]+)(\.[_a-zA-Z0-9-]+)*@([a-zA-Z0-9-]+\.)+([a-zA-Z]+)$/.test(email);
         },
+        
+        /*!
+         * change role select handler
+         */
+        changeRole: function(evt)
+        {
+            var clicked = $(evt.currentTarget); 
+            clicked.parents('[data-input="role"]:eq(0)').find('[data-selected-value]')
+                .attr('data-selected-value', clicked.attr('data-value'))
+                .text(clicked.text());
+        },
+        
         /*!
          * add user handler
          */
@@ -372,8 +437,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 }
                 
                 // TODO very uncool
-                if( $('#user-add-modal form input#inputCollaborator:checked').length )
-                {
+                //if( $('#user-add-modal form input#inputCollaborator:checked').length )
+                //{
                     var newCollaborator = new Collaborator;
                     newCollaborator.set('User', newModel.get('Id'))
                         .on('insert', h, this)
@@ -389,9 +454,13 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                             });
                             newCollaborator.sync(newCollaborator.url.get()); 
                         });
-                }
-                else h.call(this);
+                //}
+                //else h.call(this);
                 // ---   
+                    
+               // insert role
+               var newRole = new RoleModel;
+               newRole.update(newModel.get('Id'), $('#user-add-modal form [data-input="role"] [data-selected-value]', self.el).attr('data-selected-value'));
                 
             });
             
@@ -416,9 +485,10 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             var $this = $(evt.currentTarget),
                 model = $this.prop('model');
 
-            $('#user-edit-modal figure.user-image', this.el).html('');
+            $('#user-edit-modal figure.user-avatar img', this.el).attr('src', config.content_url+'/lib/core/images/default_profile_3_bigger.png');
             
             var personModel = /*giz.Auth(*/new Person(model.hash().replace('User', 'Person').replace('my/', ''))/*)*/,
+                roleCollection = new RoleCollection({href: new giz.Url('HR/User/'+model.get('Id')+'/Role')});
                 checkColab = function(id)
                 {
                     $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', false);
@@ -437,17 +507,31 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                         });
                     });
                 };
+            
+            // get user role and display it
+            model.__roles = [];
+            roleCollection.xfilter('*').sync({data: {limit: 1}}).done(function()
+            { 
+                roleCollection.each(function()
+                { 
+                    model.__roles.push(this);
+                    $('#user-edit-modal form [data-input="role"] [data-selected-value]', self.el)
+                        .attr('data-selected-value', this.get('Id'))
+                        .text(this.get('Name'));
+                });
+            });
+            
             personModel.sync().done(function()
             {
                 var p = personModel.get('Id'),
                     person = personModel.feed(),
                     m = personModel.get('MetaDataIcon');
-                checkColab(p);
+                //checkColab(p);
 
                 m.sync({data:{thumbSize: 'huge'}})
                     .done(function()
                     { 
-                        $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />'); 
+                        $('#user-edit-modal figure.user-avatar img', self.el).attr('src', m.get('Thumbnail').href); 
                     });
                 
                 $('#user-edit-modal form input', self.el).each(function()
@@ -459,7 +543,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             })
             .fail(function()
             {
-                checkColab(model.get('Id'));
+                /*checkColab(model.get('Id'));*/
                 $('#user-edit-modal form input', self.el).each(function()
                 {
                     $(this).val( model.get( $(this).attr('name') ) );
@@ -496,6 +580,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 if( $(this).is(':checkbox') ) data[name] = true;
                 if( name && val != '' ) data[name] = val;
             });
+            data['Role'] = $('#user-edit-modal form [data-input="role"] [data-selected-value]', self.el).attr('data-selected-value');
             
             // checking email
             if( data.EMail && !self.checkEmail(data.EMail) )
@@ -535,6 +620,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
+        _roleList: null,
+        _dialogs: {add: $('<span />'), update: $('<span />') },
         init: function()
         {
             var self = this;
@@ -551,8 +638,13 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             //this.users = new (giz.Collection.extend({ model: User, href: new giz.Url('HR/User') }));
             this._resetEvents = false;
             
-            this._roleList = (new (giz.Collection.extend({ href: localStorage.getItem('superdesk.login.selfHref').replace('my/', '')+'/Role' })));
-            this._roleList.xfilter('*').sync();
+            // get available roles and add them to templates
+            this._roleList = new RoleCollection({href: localStorage.getItem('superdesk.login.selfHref').replace('my/', '')+'/Role'});
+            this._roleList.xfilter('*').sync().done(function()
+            {
+                $.tmpl('superdesk/user>add', {Roles: self._roleList.feed()}, function(e, o){ self._dialogs.add.append(o); });
+                $.tmpl('superdesk/user>update', {Roles: self._roleList.feed()}, function(e, o){ self._dialogs.update.append(o); });    
+            });
         },
         refresh: function(opts)
         {
@@ -601,6 +693,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             var self = this;
             this.users.each(function(){ self.addItem(this); });
         },
+        
         tagName: 'span',
         render: function(cb)
         {
@@ -611,18 +704,22 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             {
                 self.el.html(o);
                 
+                $(self.el).append(self._dialogs.add);
+                $(self.el).append(self._dialogs.update);
+                
                 // authentication techniques
                 Action.get('modules.user.update').done(function(action)
                 { 
                     if( !action ){ $('.add-user', self.el).addClass('hide'); }
                 });
-                
-                $.tmpl('superdesk/user>add', {}, function(e, o){ $(self.el).append(o); });
-                $.tmpl('superdesk/user>update', {}, function(e, o){ $(self.el).append(o); });
                 $.isFunction(cb) && cb.apply(self);
                 // new ItemView for each models
                 self.renderList();
-                self.users.on('read update', self.renderList, self);
+                /*if( !self.users.__hasUserListEvents )
+                {
+                    self.users.on('read update', self.renderList, self);
+                    self.users.__hasUserListEvents = true;
+                }*/
             });
             $.superdesk.hideLoader();
         }

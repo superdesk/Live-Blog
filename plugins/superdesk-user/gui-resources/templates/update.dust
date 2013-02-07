@@ -9,7 +9,7 @@
 		<form class="form-horizontal row-fluid">
       
       	<figure class="user-avatar">
-             <img src="img/default_profile_3_bigger.png" width="128" height="128" alt="">
+             <img src="images/default_profile_3_bigger.png" width="128" height="128" alt="" />
              <div class="avatar-upload" id="avatar-upload-edit">_('CHANGE AVATAR')</div>
 		</figure>
 		
@@ -18,10 +18,10 @@
             	<a class="close">×</a>
             	<h3 class="popover-title">_('Change avatar image')</h3>
             	<div class="popover-content">
-              		<a class="btn" id="fileselectbutton2" style="width:176px;margin-bottom:5px;"><i class="icon-picture"></i> _('upload from computer')</a>
-              		<input id="filename2" type="text" class="input disabled" style="width:188px;" name="filename2" readonly>
-              		<a class="btn disabled" id="confirmupload2">_('OK')</a>
-              		<input class="input-file" id="fileInput2" type="file" data-action="browse">
+              		<a class="btn" id="fileselectbutton2" style="width:176px;margin-bottom:5px;" data-action="browse"><i class="icon-picture"></i> _('upload from computer')</a>
+              		<input type="text" class="input disabled" style="width:188px;" readonly data-value="upload-filename" />
+              		<a class="btn disabled" id="confirmupload2" data-action="confirm-upload">_('OK')</a>
+              		<input class="input-file" type="file" data-action="upload" />
             	</div>
 			</div>
         </div>
@@ -59,13 +59,13 @@
 					</div>
 				</div>
 				<div class="control-group">
-		        	<label class="control-label" for="collaborator-role">Role</label>
+		        	<label class="control-label" for="collaborator-role">_('Role')</label>
 		            <div class="controls">
-		            	<div class="btn-group" data-content="role">
-		                	<button class="btn">{Role}</button>
+		            	<div class="btn-group" data-input="role">
+		                	<button class="btn" data-selected-value="">&nbsp;</button>
 		                	<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
 		                	<ul class="dropdown-menu">
-		                  		{#Roles}<li><a href="javascript:void(0)">{Name}</a></li>{/Roles}
+		                  		{#Roles}<li data-value="{Id}"><a href="javascript:void(0)">{Name}</a></li>{/Roles}
 		                	</ul>
 		              	</div>
 		            </div>
@@ -84,6 +84,9 @@
 				</div>
 			</fieldset>
 		</div>
+		
+		</form>
+	</div>
     <div class="modal-footer">
     	<p class="alert alert-error hide pull-left" style="margin-bottom:0"></p>
     	<button class="btn" data-action="close">_('Cancel')</button>
