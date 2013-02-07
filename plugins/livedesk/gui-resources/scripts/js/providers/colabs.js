@@ -40,6 +40,14 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
         },
         render: function()
         {
+            /**
+             * @TODO implement this with IsCollectionDeleted Method
+             * Ugly hack to remove published posts.
+             */
+            if(this.model.get('PublishedOn')) {
+                this.remove();
+                return;
+            }
             var self = this,
                 posts = this.model.feed('json');
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts}, function(e, o)
@@ -141,7 +149,7 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
                     self.setupHeader.call(self, this);
                     self.setupColabStream.call(self, this); 
                 });
-                collaborators.xfilter('User.Id', 'User.FullName', 'User.EMail', 'Post').sync();
+                collaborators.xfilter('User.Id', 'User.FullName', 'User.EMail', 'PostUnpublished').sync();
             });
             
             $('.'+providers.colabs.className)
@@ -163,9 +171,9 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
             this.colabsList.each(function()
             {
                 var colab = this,
-                    post = colab.get('Post');
+                    post = colab.get('PostUnpublished');
                 // get post list and sync it with the server
-                this.get('Post').xfilter('*').sync({data: {'cId.since': this._latestPost}})
+                this.get('PostUnpublished').xfilter('*').sync({data: {'cId.since': this._latestPost}})
                     .done(function(){ self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
@@ -247,7 +255,7 @@ function(providers, $, giz, Blog, Collaborator, Person, Action)
                     .sync();
 
                     // get posts for each collaborator
-                    var post = colab.get('Post');
+                    var post = colab.get('PostUnpublished');
                     post.xfilter('*')
                         .sync()
                         .done(function(){ self.readPostsHandle.call(post, colab, initColabHandle, self); });
