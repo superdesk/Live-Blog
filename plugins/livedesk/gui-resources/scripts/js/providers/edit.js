@@ -7,7 +7,7 @@ define('providers/edit', [
     'providers',
 	'jquery',
 	'gizmo/superdesk',
-    'gizmo/superdesk/action',
+    config.guiJs('livedesk', 'action'),
 	config.guiJs('livedesk', 'models/posttype'),
 	config.guiJs('livedesk', 'models/post'),
     config.guiJs('media-archive', 'upload'),
@@ -27,7 +27,7 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/image',
     'tmpl!livedesk>providers/loading',
     'tmpl!livedesk>providers/generic-error'
-], function( providers, $, Gizmo, Action, PostType, Post, uploadCom, URLInfo ) {
+], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo ) {
 	var 
 	
 	ImagePostType = Gizmo.View.extend
@@ -204,7 +204,7 @@ define('providers/edit', [
 			}
 			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
 				self.setElement( out );
-				Action.get('modules.livedesk.blog-post-publish').done(function(action) {
+				BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
 					if( !self.model.get('PublishedOn')) {
 						self.el.draggable({
 							revert: 'invalid',
@@ -474,7 +474,7 @@ define('providers/edit', [
 
 			
 			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
-				Action.get('modules.livedesk.blog-post-publish')
+				BlogAction.get('modules.livedesk.blog-post-publish')
 					.done(function(action){
 						self.el.find('[ci="savepost"]').show();	
 					});
