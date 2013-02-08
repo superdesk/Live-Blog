@@ -1,5 +1,4 @@
-	<div>{url}</div>
-	<div class="link-preview">
+	<div class="link-preview" style="border-top: 0px; margin-top:0px">
 		<figure class="link-thumbnail"> 
 			<img src="{thumbnail}">
 		</figure>
