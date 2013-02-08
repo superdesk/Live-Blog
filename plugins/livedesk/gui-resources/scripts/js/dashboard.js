@@ -17,6 +17,7 @@ define
     'tmpl!livedesk>layouts/footer',
     'tmpl!livedesk>layouts/footer-static',
     'tmpl!livedesk>layouts/footer-dinamic',
+    'tmpl!livedesk>error-notif',
  ], 
 function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive) 
 {
@@ -204,18 +205,28 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
          */
         loadBlog: function(event)
         {
-            superdesk.showLoader();
             var theBlog = $(event.currentTarget).attr('data-blog-link');
             BlogAction.setBlogUrl(theBlog);
             BlogAction.get('modules.livedesk.edit')
             .done(function(action)
             {
+                superdesk.showLoader();
                 if(!action) return;
                 var callback = function()
                 { 
                     require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                 };
                 action.get('Script') && superdesk.navigation.bind( $(event.currentTarget).attr('href'), callback, $(event.currentTarget).text() );
+            })
+            .fail(function()
+            { 
+                $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o)
+                {
+                    var o = $(o);
+                    $('#area-main').append(o);
+                    $('.close', o).on('click', function(){ $(o).remove(); });
+                    setTimeout(function(){ $(o).remove(); }, 3000);
+                });
             });
             event.preventDefault();
         },
@@ -225,12 +236,22 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
          */
         createBlog: function(event)
         {
-            superdesk.showLoader();
             Action.get('modules.livedesk.add')
             .done(function(action)
             {
+                superdesk.showLoader();
                 action.get('Script') &&
                 require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
+            })
+            .fail(function()
+            { 
+                $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o)
+                {
+                    var o = $(o);
+                    $('#area-main').append(o);
+                    $('.close', o).on('click', function(){ $(o).remove(); });
+                    setTimeout(function(){ $(o).remove(); }, 3000);
+                });
             }); 
             event.preventDefault();
         },

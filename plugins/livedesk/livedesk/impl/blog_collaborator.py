@@ -91,13 +91,10 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
             assert isinstance(f, Filter), 'Invalid filter'
             assert isinstance(f.filter, IAclFilter)
             if f.filter.isAllowed(userId, blogId): break
-        else: return ()
+        else: return self.userActionService.getAll(userId, path)
         
         actionsForType = self.collaboratorSpecification.type_actions.get(name)
-        if not actionsForType:  return ()
-        actions = self.userActionService.getAll(userId, path)
-        actions = (action for action in actions if action.Path in actionsForType)
-        return actions
+        return actionsForType or ()
 
     def getById(self, blogId, collaboratorId):
         '''

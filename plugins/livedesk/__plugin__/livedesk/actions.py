@@ -133,8 +133,7 @@ def registerAclLivedeskView():
 @acl.setup
 def registerAclManageOwnPost():
     rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
-                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(), \
-                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())\
+                                dashboardAction())\
     .allGet(IBlogService, filter=filterCollaboratorBlog())
 
     rightManageOwnPost().byName(IBlogPostService, IBlogPostService.delete)
@@ -168,8 +167,8 @@ def updateCollaboratorSpecification():
     spec.type_filter.append(('Collaborator', filterCollaboratorBlog()))
     
     spec.type_actions = {}
-    spec.type_actions['Collaborator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
-                                                          modulesArchiveAction(), dashboardAction(), modulesEditAction())]
-    spec.type_actions['Administrator'] = [action.Path for action in (menuAction(), subMenuAction(), modulesAction(),
+    spec.type_actions['Collaborator'] = [menuAction(), subMenuAction(), modulesAction(),
+                                         modulesArchiveAction(), dashboardAction(), modulesEditAction()]
+    spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
-                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())]
+                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]

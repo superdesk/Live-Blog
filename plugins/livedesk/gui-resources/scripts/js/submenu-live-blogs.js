@@ -12,7 +12,8 @@ define
     'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   'jquery/tmpl', 'jquery/rest',
-  'tmpl!livedesk>submenu'
+  'tmpl!livedesk>submenu',
+  'tmpl!livedesk>error-notif'
 ], function($, superdesk, Gizmo, BlogAction, Action, Blog)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
@@ -49,10 +50,10 @@ define
             
             $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
-                superdesk.showLoader();
                 Action.get('modules.livedesk.add')
                 .done(function(action)
                 {
+                    superdesk.showLoader();
                     action.get('Script') &&
                         require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
                 }); 
@@ -60,19 +61,29 @@ define
             });
             $(this.menu).on('click', '.submenu-blog', function(event)
             {
-                superdesk.showLoader();
                 var self = this,
                     theBlog = $(this).attr('data-blog-link');
                 BlogAction.setBlogUrl(theBlog);
                 BlogAction.get('modules.livedesk.edit')
                 .done(function(action)
                 {
+                    superdesk.showLoader();
                     if(!action) return;
                     var callback = function()
                     { 
                         require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                     };
                     action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                })
+                .fail(function()
+                { 
+                    $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o)
+                    {
+                        var o = $(o);
+                        $('#area-main').append(o);
+                        $('.close', o).on('click', function(){ $(o).remove(); });
+                        setTimeout(function(){ $(o).remove(); }, 3000);
+                    });
                 });
                 event.preventDefault();
             });
