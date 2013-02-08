@@ -572,7 +572,7 @@ define('providers/edit', [
 				var status = data.status;
 				switch ( status ) {
 					case 400:
-						self.showMessage('error', _('Maximum post size is 1000 characters'), 5000);
+						self.showMessage('error', _('Maximum post size is 3000 characters'), 5000);
 						break;
 				}
 			}).done(function(){
@@ -592,7 +592,7 @@ define('providers/edit', [
 				var status = data.status;
 				switch ( status ) {
 					case 400:
-						self.showMessage('error', _('Maximum post size is 1000 characters'), 5000);
+						self.showMessage('error', _('Maximum post size is 3000 characters'), 5000);
 						break;
 				}
 			}).done(function(){
