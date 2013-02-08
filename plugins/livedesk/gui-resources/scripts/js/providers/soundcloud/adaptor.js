@@ -42,6 +42,9 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = "<br />";
+            }
             this.el.tmpl('livedesk>providers/soundcloud/post', this.data);
             //this.el.addClass('with-avatar soudloud clearfix');
             $('.actions', this.el).removeClass('hide');

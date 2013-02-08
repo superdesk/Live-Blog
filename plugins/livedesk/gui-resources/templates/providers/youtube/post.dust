@@ -6,7 +6,7 @@
     </div>
     <div class="youtube-full-content">
             <div class="editable annotation">
-                    {Meta.annotation.before|s}<br />
+                    {Meta.annotation.before|s}
             </div>
 	    <div class="result-content">
 			<div class="result-text">                               
@@ -24,7 +24,7 @@
                {/Meta}
     	</div>
 	<div class="editable annotation">
-                {Meta.annotation.after|s}<br />
+                {Meta.annotation.after|s}
         </div>	
 	</div> 
     <div class="btn-group pull-right clearfix actions hide">

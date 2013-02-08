@@ -45,6 +45,9 @@ function(providers,str, $, Gizmo)
         render: function()
         {
             var self = this;
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = "<br />";
+            }
             $.tmpl('livedesk>providers/google/post', this.data, function(e, o)
             { 
                 self.el.addClass( $(o).attr('class') );

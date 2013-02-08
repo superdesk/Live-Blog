@@ -41,6 +41,10 @@ define('providers/twitter/adaptor', [
         render: function()
         {
             var self = this;
+            
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = {before: "<br />", after: "<br />"};
+            }
             $.tmpl('livedesk>providers/twitter/post', this.data, function(e, o)
             { 
                 self.el.addClass( $(o).attr('class') );

@@ -42,6 +42,10 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
+            console.log(this.data);
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = "<br />";
+            }
             this.el.tmpl('livedesk>providers/flickr/post', this.data);
             this.el.addClass('with-avatar twitter clearfix');
             $('.actions', this.el).removeClass('hide');

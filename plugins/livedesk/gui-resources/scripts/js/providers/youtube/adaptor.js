@@ -43,6 +43,9 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = {before: "<br />", after: "<br />"};
+            }
             this.el.tmpl('livedesk>providers/youtube/post', this.data);
             this.el.addClass('with-avatar youtube clearfix');
             $('.actions', this.el).removeClass('hide');

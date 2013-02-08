@@ -7,7 +7,7 @@
 	<div class="twitter-full-content">
 	
 		<div class="editable annotation">
-			{Meta.annotation.before|s}<br />
+			{Meta.annotation.before|s}
 		</div>
 		
 		<article class="twitter-quote">
@@ -28,7 +28,7 @@
 		</article>
 		
 		<div class="editable annotation">
-			{Meta.annotation.after|s}<br />
+			{Meta.annotation.after|s}
 		</div>
 		
     </div> 

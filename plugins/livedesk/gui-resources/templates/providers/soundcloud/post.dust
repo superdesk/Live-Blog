@@ -28,7 +28,7 @@
         </div>
 	</div>
     <div class="editable annotation">
-            {Meta.annotation|s}<br />
+            {Meta.annotation|s}
     </div>	
 	
     <div class="btn-group pull-right clearfix actions hide">
