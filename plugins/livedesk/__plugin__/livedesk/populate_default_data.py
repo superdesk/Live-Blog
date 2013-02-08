@@ -201,9 +201,9 @@ def createBlogTypePosts():
 
 
 BLOGS = {
-         'Liveblog Master Class': ('default', 'admin', 'en', 'An in-depth demonstration'
+         'Live Desk Master Class': ('default', 'admin', 'en', 'An in-depth demonstration'
                                    ' of the current state of development of the'
-                                   ' Liveblog tool for live online news coverage.',
+                                   ' Live Desk tool for live online news coverage.',
                                    datetime.now(), datetime.now()),
          }
 
@@ -227,8 +227,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'collab1': 'Liveblog Master Class',
-                      'collab2': 'Liveblog Master Class',
+                      'collab1': 'Live Desk Master Class',
+                      'collab2': 'Live Desk Master Class',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -245,7 +245,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'admin': 'Liveblog Master Class',
+               'admin': 'Live Desk Master Class',
                }
 
 @ioc.after(createBlogTypePosts)
@@ -261,17 +261,17 @@ def createBlogAdmins():
             blogCollaboratorService.addCollaborator(blogId, collId, 'Administrator')
 
 POSTS = [
-		 ('Liveblog Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
-         ('Liveblog Master Class', 'quote', 'collab1', 'collab1', 'Liveblog is a next-generation '
+		 ('Live Desk Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
+         ('Live Desk Master Class', 'quote', 'collab1', 'collab1', 'Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
-         ('Liveblog Master Class', 'normal', 'collab2', 'collab2', 'Liveblog is free to download, '
+         ('Live Desk Master Class', 'normal', 'collab2', 'collab2', 'Live Desk is free to download, '
           'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
           'than replaces. Helps convince an IT department!'),
-         ('Liveblog Master Class', 'normal', 'admin', 'admin', 'With Liveblog, you can '
+         ('Live Desk Master Class', 'normal', 'admin', 'admin', 'With Live Desk, you can '
           'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
           'paid subscriptions to increase revenue.'),
-         ('Liveblog Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
-         ('Liveblog Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Liveblog is a new open source '
+         ('Live Desk Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
+         ('Live Desk Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Live Desk is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
           'be one of the first to test it!</a>')
          ]
@@ -295,20 +295,3 @@ def createBlogPosts():
             blogPostService.insert(getBlogsIds()[blog], pst)
             pst.Id = None
         blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
-
-# --------------------------------------------------------------------
-
-# @ioc.after(populateDefaultUsers)
-# def populate():
-#    getSourcesIds()
-#    createPostType('normal')
-#    createPostType('wrapup')
-#    createPostType('link')
-#    createPostType('image')
-#    createPostType('quote')
-#    createPostType('advertisement')
-#    getBlogsIds()
-#    createBlogCollaborators()
-#    createBlogAdmins()
-#    createBlogPosts()
-#    createBlogTypePosts()
