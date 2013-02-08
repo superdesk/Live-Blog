@@ -73,13 +73,13 @@
 				<div class="control-group">
 					<label class="control-label" for="inputPass">_('Password')</label>
 					<div class="controls">
-						<input type="password" name="Password" id="inputPass" />
+						<input type="password" name="Password" id="inputPass" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputPass">_('Confirm Password')</label>
 					<div class="controls">
-						<input type="password" id="inputPassConfirm" />
+						<input type="password" id="inputPassConfirm" class="input-xlarge" />
 					</div>
 				</div>
 			</fieldset>

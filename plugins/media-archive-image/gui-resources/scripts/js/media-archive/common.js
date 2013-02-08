@@ -45,6 +45,14 @@ function($, superdesk, giz, base, ImageData, ImageInfo)
             return new ImageInfo;
         }
     });
-    return {edit: Edit, view: View};
+    // remove view
+    Remove = base.remove.extend
+    ({
+        getInfoModel: function()
+        {
+            return new ImageInfo(ImageInfo.prototype.url.get()+'/'+this.model.get('Id'));
+        }
+    });
+    return {edit: Edit, view: View, remove: Remove};
 });
 

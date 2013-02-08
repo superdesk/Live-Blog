@@ -48,6 +48,10 @@ def modulesMainAction():
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(),
                   Script=publishedURI('media-archive/scripts/js/configure-media-archive.js'))
+
+@ioc.entity   
+def modulesTypesAction():
+    return Action('types', Parent=modulesAction())
  
 # --------------------------------------------------------------------
 
@@ -65,13 +69,14 @@ def registerActions():
     addAction(modulesAddAction())
     addAction(modulesMainAction())
     addAction(modulesConfigureAction())
+    addAction(modulesTypesAction())
 
 # --------------------------------------------------------------------
     
 @acl.setup
 def registerAclMediaArchiveView():
     rightMediaArchiveView()\
-        .addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesConfigureAction())\
+        .addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesConfigureAction(), modulesTypesAction())\
         .allGet(IMetaDataService)\
         .all(IMetaDataUploadService, filter=filterAuthenticated())\
         .all(IMetaInfoService)\

@@ -8,6 +8,7 @@ define
     'tmpl!media-archive>types/_default/menu', // list/grid item context menu
     'tmpl!media-archive>types/_default/view', 
     'tmpl!media-archive>types/_default/edit',
+    'tmpl!media-archive>types/_default/remove',
     'tmpl!media-archive>types/_default/languages',
     'tmpl!media-archive>types/_default/grid-hover',
     'tmpl!media-archive>types/_default/list-hover'
@@ -296,6 +297,45 @@ function($, superdesk, giz, MetaInfo, Languages)
         }
     }),
     
+    /*!
+     * remove view
+     */
+    Remove = giz.View.extend
+    ({
+        tmpl: 'media-archive>types/_default/remove',
+        events:
+        {
+            '[data-dismiss="modal"]': { 'click' : 'hide' },
+            '[data-action="delete"]': { 'click': 'remove' }
+        },
+        init: function()
+        {
+            $(this.el).modal({show: false});
+        },
+        render: function(cb)
+        {
+            var self = this,
+                data = this.model.feed();
+            $(this.el).tmpl(this.tmpl, data, cb);
+            return this;
+        },
+        activate: function()
+        {
+            var self = this;
+            return this.render(function(){ $(self.el).modal('show'); });
+        },
+        getInfoModel: function()
+        {
+            return new MetaInfo(MetaInfo.prototype.url.get()+'/'+this.model.get('Id'));
+        },
+        remove: function()
+        {
+            var self = this;
+            this.getInfoModel().remove().sync().done(function(){ self.el.remove() });
+        }
+    }),
+      
+    
     HoverMenuView = giz.View.extend
     ({
         events: 
@@ -456,10 +496,24 @@ function($, superdesk, giz, MetaInfo, Languages)
         },
         
         download: function(){ window.open(this.model.get('Content').href); },
-        
+
+        removeClass: Remove,
+        removeView: false, // the instance
+        /*!
+         * init "remove" modal
+         */
+        getRemove: function()
+        {
+            return !this.removeView ? (this.removeView = new (this.removeClass)({ model: this.model })) : this.removeView;
+        },
+        /*!
+         * show delete modal
+         */
         remove: function()
         {
-            this.model.remove().sync();
+            this.getRemove().activate();
+            //var self = this;
+            //this.model.getMetaInfo().remove().sync().done(function(){ self.el.remove() });
         },
         
         model: null,
@@ -483,6 +537,14 @@ function($, superdesk, giz, MetaInfo, Languages)
         }
     });
     
-    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView, languageView: LanguagesEditView, hoverMenu: HoverMenu};
+    return {
+        item: ItemView, 
+        view: ViewDetails, 
+        edit: Edit, 
+        remove: Remove,
+        languages: LangEditView, 
+        languageView: LanguagesEditView, 
+        hoverMenu: HoverMenu
+    };
 });
 

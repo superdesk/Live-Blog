@@ -581,7 +581,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
                 self = this;
 
             if( $.inArray(model.get('Type'), self.noViewTypes) === -1 ) 
-                Action.get('modules.media-archive.'+model.get('Type'))
+                Action.get('modules.media-archive.types.'+model.get('Type'))
                 .done(function(action)
                 {
                     if( action && action.get('Script') ) 

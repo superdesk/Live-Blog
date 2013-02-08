@@ -9,7 +9,7 @@ Created on May 3rd, 2012
 
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..media_archive.actions import modulesAction as mediaArchiveAction
+from ..media_archive.actions import modulesTypesAction as mediaArchiveAction
 from ally.container import ioc
 from distribution.container import app
 from gui.action.api.action import Action

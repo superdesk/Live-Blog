@@ -1,5 +1,9 @@
 <ul class="dropdown-menu pull-right">
 	<li>
+  		<a data-action="delete" href="javascript:void(0)"><i class="icon-remove"></i> _('Delete')</a>
+  	</li>
+
+	<li>
   		<a data-action="view" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
   	</li>
 	<li>
