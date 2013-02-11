@@ -58,11 +58,11 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    def getLive(self, languageId=None, q=None):
+    def getLive(self, languageId=None, userId=None, q=None):
         '''
         @see: IBlogService.getLive
         '''
-        sql = self._buildQuery(languageId, None, q)
+        sql = self._buildQuery(languageId, userId, q)
         sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
         return sql.all()
 

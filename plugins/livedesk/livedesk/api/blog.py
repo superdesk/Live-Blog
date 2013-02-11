@@ -75,7 +75,7 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(webName='Live')
-    def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
+    def getLive(self, languageId:LanguageEntity=None, userId:User=None, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs that are live at this moment.
         '''
