@@ -84,7 +84,7 @@
 				</div>
 			</fieldset>
 		</div>
-		
+		<input type="submit" style="visibility:hidden;height:0;width:0;margin:0;padding:0;border:0" />
 		</form>
 	</div>
     <div class="modal-footer">
