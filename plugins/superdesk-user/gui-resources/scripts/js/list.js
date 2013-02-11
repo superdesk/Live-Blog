@@ -396,8 +396,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          */
         addUserFormSubmit: function(evt)
         {
-            $('#user-add-modal [data-action="save"]').trigger('click');
             evt.preventDefault();
+            $('#user-add-modal [data-action="save"]').trigger('click');
         },
         /*!
          * add user handler
@@ -429,7 +429,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             }
             
             // hashing password
-            newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
+            newModel.get('Password').length && newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
 
             newModel.on('insert', function()
             {
@@ -500,8 +500,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          */
         updateUserFormSubmit: function(evt)
         {
-            $('#user-edit-modal [data-action="save"]').trigger('click');
             evt.preventDefault();
+            $('#user-edit-modal [data-action="save"]').trigger('click');
         },
         
         /*!

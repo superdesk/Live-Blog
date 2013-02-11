@@ -62,8 +62,8 @@
 		        	<label class="control-label" for="collaborator-role">_('Role')</label>
 		            <div class="controls">
 		            	<div class="btn-group" data-input="role">
-		                	<button class="btn" data-selected-value="">&nbsp;</button>
-		                	<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+		                	<button class="btn" type="button" data-selected-value="">&nbsp;</button>
+		                	<button class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button>
 		                	<ul class="dropdown-menu">
 		                  		{#Roles}<li data-value="{Id}"><a href="javascript:void(0)">{Name}</a></li>{/Roles}
 		                	</ul>
