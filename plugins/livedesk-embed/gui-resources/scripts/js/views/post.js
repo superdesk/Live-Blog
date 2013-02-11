@@ -119,7 +119,7 @@ define([
 					self.setElement(o);
 					var input = $('input[data-type="permalink"]',self.el);
 					$('a[rel="bookmark"]',self.el).on(self.getEvent('click'), function(evt) {
-						evt.preventDefault();
+						//evt.preventDefault();
 						if(input.css('visibility') === 'visible') {
 							input.css('visibility', 'hidden' );
 						} else {

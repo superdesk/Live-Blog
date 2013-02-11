@@ -4,9 +4,9 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie'], function($){
     var buildMap = {},
 	apiUrl = config.api_url,
 	langCode = $.cookie('superdesk.langcode');
-    /*if(livedesk.language) {
+    if(livedesk.language) {
        langCode = livedesk.language;
-    } else*/ 
+    } else 
     if(!langCode) {
 		langCode = $.browser.language.substring(0,2);
 		$.cookie('superdesk.langcode',langCode);
