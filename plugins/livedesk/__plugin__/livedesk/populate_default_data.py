@@ -201,9 +201,9 @@ def createBlogTypePosts():
 
 
 BLOGS = {
-         'Live Desk Master Class': ('default', 'admin', 'en', 'An in-depth demonstration'
+         'Live Blog Master Class': ('default', 'admin', 'en', 'An in-depth demonstration'
                                    ' of the current state of development of the'
-                                   ' Live Desk tool for live online news coverage.',
+                                   ' Live Blog tool for live online news coverage.',
                                    datetime.now(), datetime.now()),
          }
 
@@ -227,8 +227,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'collab1': 'Live Desk Master Class',
-                      'collab2': 'Live Desk Master Class',
+                      'collab1': 'Live Blog Master Class',
+                      'collab2': 'Live Blog Master Class',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -245,7 +245,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'admin': 'Live Desk Master Class',
+               'admin': 'Live Blog Master Class',
                }
 
 @ioc.after(createBlogTypePosts)
@@ -261,17 +261,17 @@ def createBlogAdmins():
             blogCollaboratorService.addCollaborator(blogId, collId, 'Administrator')
 
 POSTS = [
-		 ('Live Desk Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
-         ('Live Desk Master Class', 'quote', 'collab1', 'collab1', 'Live Desk is a next-generation '
+		 ('Live Blog Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
+         ('Live Blog Master Class', 'quote', 'collab1', 'collab1', 'Live Blog is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
-         ('Live Desk Master Class', 'normal', 'collab2', 'collab2', 'Live Desk is free to download, '
+         ('Live Blog Master Class', 'normal', 'collab2', 'collab2', 'Live Blog is free to download, '
           'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
           'than replaces. Helps convince an IT department!'),
-         ('Live Desk Master Class', 'normal', 'admin', 'admin', 'With Live Desk, you can '
+         ('Live Blog Master Class', 'normal', 'admin', 'admin', 'With Live Blog, you can '
           'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
           'paid subscriptions to increase revenue.'),
-         ('Live Desk Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
-         ('Live Desk Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Live Desk is a new open source '
+         ('Live Blog Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
+         ('Live Blog Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Live Blog is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
           'be one of the first to test it!</a>')
          ]
