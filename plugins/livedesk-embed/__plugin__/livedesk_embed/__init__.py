@@ -11,10 +11,10 @@ Contains the superdesk media archive setup files.
 
 # --------------------------------------------------------------------
 
-NAME = 'Media archive'
-GROUP = 'Superdesk media archive'
+NAME = 'Livedesk embed'
+GROUP = 'Livedesk'
 VERSION = '1.0'
 DESCRIPTION = \
 '''
-This plugin provides the support required for other media archive plugins to publish specific media resources.
+This plugin provides the embed scripts for Livedesk.
 '''
