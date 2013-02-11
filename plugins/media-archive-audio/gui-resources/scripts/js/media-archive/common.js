@@ -6,10 +6,11 @@ define
     config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive-audio', 'models/audio-data'),
     config.guiJs('media-archive-audio', 'models/audio-info'),
+    config.guiJs('media-archive-audio', 'models/audio-info-list'),
     'tmpl!media-archive-audio>media-archive/view',
     'tmpl!media-archive-audio>media-archive/edit'
 ],
-function($, superdesk, giz, base, AudioData, AudioInfo)
+function($, superdesk, giz, base, AudioData, AudioInfo, AudioInfoList)
 {
     var 
     // view details view
@@ -45,6 +46,14 @@ function($, superdesk, giz, base, AudioData, AudioInfo)
             return new AudioInfo;
         }
     });
-    return {edit: Edit, view: View};
+    // remove view
+    Remove = base.remove.extend
+    ({
+        getInfoCollection: function()
+        {
+            return new AudioInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'AudioInfo').replace('MetaData', 'AudioData'));
+        }
+    });
+    return {edit: Edit, view: View, remove: Remove};
 });
 

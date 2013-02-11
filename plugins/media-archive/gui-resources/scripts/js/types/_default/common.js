@@ -319,19 +319,43 @@ function($, superdesk, giz, MetaInfo, Languages)
             $(this.el).tmpl(this.tmpl, data, cb);
             return this;
         },
+        /*!
+         * activate
+         */
         activate: function()
         {
             var self = this;
-            return this.render(function(){ $(self.el).modal('show'); });
+            return this.model.sync().done(function(){ self.render(function(){ $(self.el).modal('show'); }); });
         },
-        getInfoModel: function()
+        /*!
+         * where to get the metainfo list from
+         */
+        getInfoCollection: function()
         {
-            return new MetaInfo(MetaInfo.prototype.url.get()+'/'+this.model.get('Id'));
+            return this.model.get('MetaInfo');
         },
+        parentList: null,
+        /*!
+         * remove method
+         */
         remove: function()
         {
-            var self = this;
-            this.getInfoModel().remove().sync().done(function(){ self.el.remove() });
+            var self = this,
+                infoModel = this.getInfoCollection();
+            infoModel.sync().done(function()
+            { 
+                var howMany = infoModel._list.length; // count how many we got and decrement it, refresh list at 0
+                infoModel.each(function()
+                { 
+                    this.href = this.data.href; // TODO hotfix for "insert into collection + delete after" bug
+                    this.remove().sync().done(function()
+                    { 
+                        howMany--;
+                        $(self.el).modal('hide');
+                        if(!howMany) self.parentList.refresh();
+                    }); 
+                });
+            });
         }
     }),
       
@@ -504,7 +528,7 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         getRemove: function()
         {
-            return !this.removeView ? (this.removeView = new (this.removeClass)({ model: this.model })) : this.removeView;
+            return !this.removeView ? (this.removeView = new (this.removeClass)({ model: this.model.getMetaData(), parentList: this.parent })) : this.removeView;
         },
         /*!
          * show delete modal
@@ -512,8 +536,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         remove: function()
         {
             this.getRemove().activate();
-            //var self = this;
-            //this.model.getMetaInfo().remove().sync().done(function(){ self.el.remove() });
         },
         
         model: null,

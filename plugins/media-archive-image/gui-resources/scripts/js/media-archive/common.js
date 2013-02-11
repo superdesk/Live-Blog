@@ -6,10 +6,11 @@ define
     config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive-image', 'models/image-data'),
     config.guiJs('media-archive-image', 'models/image-info'),
+    config.guiJs('media-archive-image', 'models/image-info-list'),
     'tmpl!media-archive-image>media-archive/view',
     'tmpl!media-archive-image>media-archive/edit'
 ],
-function($, superdesk, giz, base, ImageData, ImageInfo)
+function($, superdesk, giz, base, ImageData, ImageInfo, ImageInfoList)
 {
     var 
     // vide details view
@@ -48,9 +49,9 @@ function($, superdesk, giz, base, ImageData, ImageInfo)
     // remove view
     Remove = base.remove.extend
     ({
-        getInfoModel: function()
+        getInfoCollection: function()
         {
-            return new ImageInfo(ImageInfo.prototype.url.get()+'/'+this.model.get('Id'));
+            return new ImageInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'ImageInfo').replace('MetaData', 'ImageData'));
         }
     });
     return {edit: Edit, view: View, remove: Remove};

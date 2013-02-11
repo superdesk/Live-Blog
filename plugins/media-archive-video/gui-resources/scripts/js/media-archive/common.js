@@ -6,10 +6,11 @@ define
     config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive-video', 'models/video-data'),
     config.guiJs('media-archive-video', 'models/video-info'),
+    config.guiJs('media-archive-video', 'models/video-info-list'),
     'tmpl!media-archive-video>media-archive/view',
     'tmpl!media-archive-video>media-archive/edit'
 ],
-function($, superdesk, giz, base, VideoData, VideoInfo)
+function($, superdesk, giz, base, VideoData, VideoInfo, VideoInfoList)
 {
     var 
     // view details view
@@ -45,6 +46,14 @@ function($, superdesk, giz, base, VideoData, VideoInfo)
             return new VideoInfo;
         }
     });
-    return {edit: Edit, view: View};
+    // remove view
+    Remove = base.remove.extend
+    ({
+        getInfoCollection: function()
+        {
+            return new VideoInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'VideoInfo').replace('MetaData', 'VideoData'));
+        }
+    });
+    return {edit: Edit, view: View, remove: Remove};
 });
 
