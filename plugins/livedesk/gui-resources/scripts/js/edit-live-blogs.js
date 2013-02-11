@@ -1047,6 +1047,10 @@ function(providers, Gizmo, $, BlogAction)
 					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 						self.el.find('#role-blog-publish').show();
 					});
+					BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
+						self.el.find('[data-target="configure-blog"]').css('display', 'none');
+						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
+					});
 					// refresh twitter share button
 					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
@@ -1216,7 +1220,16 @@ function(providers, Gizmo, $, BlogAction)
 	
 	return function(theBlog)
 	{
-
+		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
+						delete providers["google"];
+						delete providers["colabs"];
+						delete providers["twitter"];
+						delete providers["flickr"];
+						delete providers["youtube"];
+						delete providers["instagram"];
+						delete providers["soundcloud"];
+						delete providers["ads"];
+					});
 	    BlogAction.setBlogUrl(theBlog);
 	    // stop autoupdate if any
 	    editView.timelineView && editView.timelineView.collection.stop();
