@@ -58,7 +58,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
 
             offset = page * self.ipp;
             var archive = Gizmo.Auth(new BLOGSArchive({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog'}));
-            console.log(archive);
             archive.getInfoSync(title, offset, self.ipp, order).done(function(dataArchive){
                 //pagination
                 var total = dataArchive.total;
