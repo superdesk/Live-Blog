@@ -3,8 +3,8 @@
 			<img src="{thumbnail}">
 		</figure>
 
-		<p><h3 class="linkpost-editable"><a href="{url}">{title}</a></h3></p>
-		<p class="result-text linkpost-editable">{description}</p>
+		<p><h3 ><a href="{url}">{title}</a></h3></p>
+		<p class="result-text">{description}</p>
 		<p class="attributes">
 			<i class="source-icon">
 				<img src="{favicon}" style="max-width: 16px" border="0">
