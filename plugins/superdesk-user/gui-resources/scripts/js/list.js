@@ -177,7 +177,9 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             '[data-action="search"]': { 'click': 'search' },
             '[data-action="cancel-search"]': { 'click': 'cancelSearch' },
             '#user-add-modal [data-action="save"]': { 'click': 'addUser' },
+            '#user-add-modal form': { 'submit': 'addUserFormSubmit' },
             '#user-edit-modal [data-action="save"]': { 'click': 'updateUser' },
+            '#user-edit-modal form': { 'submit': 'updateUserFormSubmit' },
             '.pagination a': { 'click': 'switchPage' },
             'table tbody [data-action="edit"]': { 'click': 'showUpdateUser' },
             'table tbody [data-action="delete"]': { 'click': 'showDeleteUser' },
@@ -191,12 +193,18 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             "[data-action='confirm-upload']": { 'click': 'upload' },
             '[data-input="role"] li': { 'click': 'changeRole' },
             '#avatar-upload-edit': { 'click': 'editUserIcon' },
-            '#avatar-upload-popover-edit a.close': { 'click' : 'closeEditUserIcon' }
+            '#avatar-upload-add': { 'click': 'addUserIcon' },
+            '#avatar-upload-popover-edit a.close': { 'click' : 'closeEditUserIcon' },
+            '#avatar-upload-popover-add a.close': { 'click' : 'closeAddUserIcon' }
         },
         
         editUserIcon: function(evt){ evt.preventDefault(); $("#avatar-upload-popover-edit", this.el).show(); },
         
-        closeEditUserIcon: function(evt) { evt.preventDefault(); $("#avatar-upload-popover-edit").hide(); },
+        addUserIcon: function(evt){ evt.preventDefault(); $("#avatar-upload-popover-add", this.el).show(); },
+        
+        closeEditUserIcon: function(evt) { evt.preventDefault(); $("#avatar-upload-popover-edit", this.el).hide(); },
+        
+        closeAddUserIcon: function(evt) { evt.preventDefault(); $("#avatar-upload-popover-add", this.el).hide(); },
         
         closeUpdateUser: function(){ $('#user-edit-modal', this.el).modal('hide'); },
         
@@ -244,6 +252,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                     $(self).triggerHandler('uploaded', [content.Id]);
                     self._latestUpload = content;
                     
+                    $('#avatar-upload-popover-edit a.close', self.el).trigger('click');
+                    $('#avatar-upload-popover-add a.close', self.el).trigger('click');
                     uploadInput.parents('form:eq(0)').find('figure.user-avatar img').attr('src', content.Thumbnail.href);
                 };
             }
@@ -381,7 +391,14 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 .attr('data-selected-value', clicked.attr('data-value'))
                 .text(clicked.text());
         },
-        
+        /*!
+         * 
+         */
+        addUserFormSubmit: function(evt)
+        {
+            $('#user-add-modal [data-action="save"]').trigger('click');
+            evt.preventDefault();
+        },
         /*!
          * add user handler
          */
@@ -477,6 +494,16 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                     .html('<strong>'+data.message+'</strong> '+msg);
             });
         },
+        
+        /*!
+         * 
+         */
+        updateUserFormSubmit: function(evt)
+        {
+            $('#user-edit-modal [data-action="save"]').trigger('click');
+            evt.preventDefault();
+        },
+        
         /*!
          * popup update user interface
          */
@@ -614,9 +641,12 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 {
                     var pi = new PersonIcon,
                         piurl = PersonIcon.prototype.url.get().replace('\{1\}', $('#user-edit-modal', self.el).prop('view').model.get('Id')).replace('\{2\}', self._latestUpload.Id);
-                    pi.sync(piurl).done(function(){ self._latestUpload = null; });
+                    pi.sync(piurl).done(function()
+                    {
+                        $('#user-edit-modal', self.el).prop('view').model.triggerHandler('update');
+                        self._latestUpload = null; 
+                    });
                 }
-                
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
