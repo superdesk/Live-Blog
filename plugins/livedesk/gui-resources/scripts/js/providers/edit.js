@@ -291,7 +291,9 @@ define('providers/edit', [
 		events: {
 			'[ci="savepost"]': { 'click': 'savepost'},
 			'[ci="save"]': { 'click': 'save'},
-			'[name="type"]' : {'change': 'changetype'}
+			'[name="type"]' : {'change': 'changetype'},
+			'[name="type"]' : {'change': 'changetype'},
+			'.insert-link' : {'focusout':'populateUrlInfo'}
 		},
 		init: function()
 		{	
