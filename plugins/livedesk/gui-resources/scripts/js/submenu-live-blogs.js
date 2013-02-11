@@ -16,7 +16,7 @@ define
   'tmpl!livedesk>error-notif'
 ], function($, superdesk, Gizmo, BlogAction, Action, Blog)
 {
-    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
+    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
         b = Gizmo.Auth(new Blogs());
     
     var SubmenuView = Gizmo.View.extend
@@ -27,6 +27,7 @@ define
         },
         refresh: function()
         {
+            this.model.href = localStorage.getItem('superdesk.login.selfHref')+'/Blog';
             this.model._list = [];
             this.model.xfilter('Title, Id').sync();
         },

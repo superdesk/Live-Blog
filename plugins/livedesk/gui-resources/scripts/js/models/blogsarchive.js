@@ -2,7 +2,7 @@ define([ 'gizmo/superdesk'],
 function(Gizmo) 
 {
     // BLOGSArchive
-    return Gizmo.Model.extend
+    return Gizmo.Collection.extend
     ({
         url: new Gizmo.Url('LiveDesk/Blog/?isLive=false&X-Filter=*'),
 
@@ -15,8 +15,7 @@ function(Gizmo)
 
             //http://localhost:8080/resources/LiveDesk/Blog/?X-Filter=*&isLive=true&title.ilike=gen%%
             var params = '&title.ilike=' + encodeURIComponent('%' + title + '%') + '&limit=' + limit + '&offset=' + offset + '&asc=' + order;
-            //console.log('params ', params);
-            var getInfoHref = this.url.get() + params;
+            var getInfoHref = this.href+'?isLive=false&X-Filter=*'+params; // this.url.get() + params;
             var
                 self = this,
                 dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
