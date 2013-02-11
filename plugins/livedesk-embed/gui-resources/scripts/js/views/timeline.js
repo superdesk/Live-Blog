@@ -7,6 +7,7 @@ define([
 	'livedesk-embed/models/blog',
 	'tmpl!theme/container'
 ], function($, Gizmo, PostView) {
+	require(['i18n!livedesk_embed']);
 	return Gizmo.View.extend({
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',
@@ -271,6 +272,7 @@ define([
 			for(i = 0, count = data.length; i < count; i++) {
 				this.addOne(data[i]);
 			}
+			console.log('add all');
 			this.toggleMoreVisibility();
 		},
 		updateingStatus: function()
@@ -283,7 +285,9 @@ define([
 			var now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
 				
-				$(this).find('#liveblog-status-time').text(_('updated on %s').format(now.format(_('HH:MM:ss')))).end().fadeIn();
+				$(this).find('#liveblog-status-time')
+					.attr('time',now.format())
+					.text(_('updated on %s').format(now.format(_('HH:MM:ss')))).end().fadeIn();
 			});
 		},
 		renderBlog: function()

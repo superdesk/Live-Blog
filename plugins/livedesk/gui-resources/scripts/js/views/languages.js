@@ -1,8 +1,7 @@
  define([
     'jquery', 
     'gizmo/superdesk',
-    config.guiJs('livedesk', 'models/languages'),
-    
+    config.guiJs('livedesk', 'models/languages'),   
     'tmpl!livedesk>base/languages',
 ], function( $, Gizmo) {
    
@@ -16,7 +15,7 @@
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Id,Name')
+                .xfilter('Id,Name,Code')
                 .sync();
         },
         render: function(evt, data){

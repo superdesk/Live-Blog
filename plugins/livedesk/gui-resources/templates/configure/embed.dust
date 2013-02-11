@@ -2,7 +2,10 @@
 <script>
 var livedesk = {
 	'server': function(){ return "{ApiUrl}"; },
-	'blog': '{TheBlog}',
+	{?Language}
+	'language': '{Language}',
+	{/Language}
+	'blog': '{TheBlog}'
 };
 </script>
 <script data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>

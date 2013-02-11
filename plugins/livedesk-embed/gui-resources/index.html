@@ -52,7 +52,8 @@
 			var path = window.location.href.toString().split(window.location.host)[1],
 				attributes = path.split('?')[1],
 				objd,
-				id = 1;	
+				id = 1,
+				po;	
 			if(attributes) {
 				var parts = attributes.split('&');
 				for( var i = 0, count = parts.length; i < count; i++ ){
@@ -60,27 +61,33 @@
 					if(objd[0].toLowerCase() === 'id') {
 						id = objd[1];
 					}
+					if(objd[0].toLowerCase() === 'po') {
+						po = objd[1];
+					}
 				}
 			}
 			var livedesk = { 
 				'theme': {
 					'item/posttype/normal': '{>"theme/item/base"/}{<item_class}normal{/item_class}{<reference_name}thewebsiteyouwant.extension{/reference_name}'
 				},
+				'language': 'de',
 				'server': function(){ return config.api_url; },
 				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
 			};
 		</script>
 
 		<script>
-		(function (d, s, id) {
-		    var js, fjs = d.getElementsByTagName(s)[0];
-		    if (d.getElementById(id)) return;
-		    js = d.createElement(s);
-		    js.id = id;
-		    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/default');
-		    js.src = config.coreScripts('require.js');
-		    fjs.parentNode.insertBefore(js, fjs);
-		}(document, "script", "livedesk-jssdk"));
+		if(po === undefined){
+			(function (d, s, id) {
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    if (d.getElementById(id)) return;
+			    js = d.createElement(s);
+			    js.id = id;
+			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/default');
+			    js.src = config.coreScripts('require.js');
+			    fjs.parentNode.insertBefore(js, fjs);
+			}(document, "script", "livedesk-jssdk"));
+		}
 		</script>
 		<style>
 			.container {
@@ -91,5 +98,12 @@
 			}		
 		</style>
 		<!--<script data-main="//{server_url}/{gui}/livedesk-embed/scripts/js/theme/default" src="//{server_url}/{lib_core}/scripts/js/require.js"></script>-->
+		<div id="here"></div>
+		<script>
+			if(po !== undefined){
+				var html='<form  enctype="multipart/form-data" action="'+config.api_url+'/resources/Admin/Plugin/livedesk_embed/PO/'+po+'?X-HTTP-Method-Override=PUT" method="POST"><input name="source" type="file"/><input value="Load it" type="submit"/></form>';
+				document.getElementById('here').innerHTML = html;
+			}
+		</script>
 	</body>
 </html>

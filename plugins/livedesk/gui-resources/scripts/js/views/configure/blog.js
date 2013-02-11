@@ -17,7 +17,8 @@
         events: {
             '[data-action="save"]': { 'click': 'save' },
             '[data-action="save-close"]': { 'click': 'saveClose' },
-            '[data-action="cancel"]': { 'click': 'close' }
+            '[data-action="cancel"]': { 'click': 'close' },
+            '[name="Language"]': { change: 'changeLanguage' }
         },
         init: function() {
             
@@ -58,6 +59,9 @@
             self.model
                 .one('read', self.render, self)
                 .sync();
+        },
+        changeLanguage: function(evt) {
+           this.themesView.change(evt); 
         },
         render: function() {
             var self = this,

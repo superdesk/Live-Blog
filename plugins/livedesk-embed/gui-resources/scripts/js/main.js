@@ -1,9 +1,12 @@
 require([
 	'jquery',
-	'livedesk-embed/views/timeline', 
-	'jquery/i18n'
+	'livedesk-embed/views/timeline',
+	'jquery/cookie'
 ], function( $, TimelineView ){
 	var data = { url: livedesk.blog };
+	if(livedesk.language) {
+		$.cookie('superdesk.langcode',livedesk.language);
+	}
 	if( livedesk.el !== undefined) {
 		if($(livedesk.el).length !== 0)
 			data.el = livedesk.el;

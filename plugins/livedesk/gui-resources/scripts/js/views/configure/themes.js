@@ -23,7 +23,9 @@
         change: function(evt) {
         	var self = this,
         		el = self.el.find('[name="Theme"]'),
-        		theme, data;
+        		theme, data,
+                idLanguage = $('[name="Language"]').val(),
+                optionLanguage = $('[name="Language"] [value="'+idLanguage+'"]');
         	if(el.val() == '') {
         		$('#emebed-script').val('');
         		return;
@@ -38,7 +40,8 @@
         		'Theme': theme.get('URL').href.replace('\\','/'),
         		'TheBlog': self.theBlog,
         		'GuiLivedeskEmbed': config.content_url + '/' + config.guiJs('livedesk-embed','core/require.js'),
-        		'ApiUrl': config.api_url
+        		'ApiUrl': config.api_url,
+                'Language': optionLanguage.attr('data-code')
         	};
         	$.tmpl('livedesk>configure/embed',data, function(e,o){
         		$('#emebed-script')

@@ -70,13 +70,13 @@ define([
 				var collapse = true;
 				if ( collapse ) {
 					item.removeClass('open').addClass('closed');
-					item.nextUntil('.wrapup').hide();
+					item.nextUntil('.wrapup,#loading-more').hide();
 				} else {
 					//don't collapse wrap'
 				}
 			} else {
 				item.removeClass('closed').addClass('open');
-				item.nextUntil('.wrapup').show();
+				item.nextUntil('.wrapup,#loading-more').show();
 			}
 		},		
 		render: function(evt, data)

@@ -3,9 +3,9 @@
 	{+head}
 	<div class="result-header">
 		<div class="post_info">
-			<time>{CreatedOn}</time>
+			<time >{CreatedOn}</time>
 			<p rel="author">_('by'); {AuthorName}</p>
-			<a href="#" class="sf-share">_('Share')</a>
+			<a href="#" class="sf-share">_('Share');</a>
 			<a href="#{HashIdentifier}{Order}" rel="bookmark">#</a>
 			<input type="text" data-type="permalink" style="visibility:hidden" value="{permalink}">
 		</div>
