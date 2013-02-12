@@ -104,7 +104,7 @@ class IBlogPostService:
 
     @call(webName='Unpublished')
     def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
-                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+                       offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
         '''

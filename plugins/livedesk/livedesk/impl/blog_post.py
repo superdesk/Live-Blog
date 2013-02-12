@@ -68,8 +68,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         try: return self._addImage(sql.one(), thumbSize)
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
-    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, detailed=False,
-                     q=None):
+    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
+                     detailed=False, q=None):
         '''
         @see: IBlogPostService.getPublished
         '''
@@ -89,27 +89,43 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed:
-            posts = IterPost(self._addImages(self._trimmDeleted(sqlLimit.all()), thumbSize), sql.count(), offset, limit)
+            posts = IterPost(self._addImages(self._trimPosts(sqlLimit.all()), thumbSize), sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
         else:
-            posts = self._addImages(self._trimmDeleted(sqlLimit.all()), thumbSize)
+            posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
         return posts
 
-    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
+    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
+                       detailed=False, q=None):
         '''
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
+        sqlMore = None
+        if q:
+            if QWithCId.cId in q and q.cId:
+                sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
+            sql = buildQuery(sql, q, BlogPostMapped)
+        if not sqlMore:
+            sql = sql.filter(BlogPostMapped.DeletedOn == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all())
-    
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed:
+            posts = IterPost(self._addImages(self._trimPosts(sqlLimit.all(), trimUnpublished=False), thumbSize), sql.count(), offset, limit)
+
+            posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
+            if sqlMore: posts.offsetMore = sqlMore.count()
+            else: posts.offsetMore = posts.total
+        else:
+            posts = self._addImages(self._trimPosts(sqlLimit.all(), trimUnpublished=False), thumbSize)
+        return posts
+
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
         @see: IBlogPostService.getUnpublished
@@ -163,9 +179,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
-        if post.PublishedOn is not None:
-            postEntry.CId = self._nextCId()
-            postEntry.Order = self._nextOrdering(blogId)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
 
         return postEntry.blogPostId
@@ -316,13 +331,14 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return sql
 
-    def _trimmDeleted(self, posts):
+    def _trimPosts(self, posts, trimDeleted=True, trimUnpublished=True):
         '''
         Trim the information from the deleted posts.
         '''
         for post in posts:
             assert isinstance(post, BlogPostMapped)
-            if (BlogPost.DeletedOn in post and post.DeletedOn is not None) or (BlogPost.PublishedOn not in post or post.PublishedOn is None):
+            if (trimDeleted and BlogPost.DeletedOn in post and post.DeletedOn is not None) \
+            or (trimUnpublished and (BlogPost.PublishedOn not in post or post.PublishedOn is None)):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
