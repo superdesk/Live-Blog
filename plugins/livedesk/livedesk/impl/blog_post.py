@@ -21,17 +21,19 @@ from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost, IterPost
+from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
+from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
+from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.sql.expression import func
-from superdesk.person_icon.api.person_icon import IPersonIconService
+from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 
 # --------------------------------------------------------------------
 
@@ -104,6 +106,26 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
 
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        sql = buildLimits(sql, offset, limit)
+        return self._addImages(sql.all())
+    
+    def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
+        '''
+        @see: IBlogPostService.getUnpublished
+        '''
+        assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+        
+        updateLastAccessOn(self.session(), groupId)
+        
+        sql = self._buildQuery(blogId, typeId, None, authorId, q)
+        sql = sql.filter(BlogPostMapped.PublishedOn == None)
+        
+        #blog collaborator group
+        sql = sql.join(BlogCollaboratorGroupMemberMapped, BlogCollaboratorGroupMemberMapped.BlogCollaborator == BlogPostMapped.Creator)
+        sql = sql.filter(BlogCollaboratorGroupMemberMapped.Group == groupId)
+        
+        sql = sql.order_by(desc_op(BlogPostMapped.Creator))
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
         return self._addImages(sql.all())

@@ -20,6 +20,7 @@ from superdesk.person.api.person import Person
 from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
+from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
 
 # --------------------------------------------------------------------
 
@@ -106,6 +107,13 @@ class IBlogPostService:
                        offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
+        '''
+    
+    @call(webName='GroupUnpublished')
+    def getGroupUnpublished(self, blogId:Blog, groupId:BlogCollaboratorGroup, typeId:PostType=None, authorId:Collaborator=None, thumbSize:str=None,
+                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+        '''
+        Provides all the unpublished blogs posts for current blog colllaborator group.
         '''
 
     @call(webName='Owned')
