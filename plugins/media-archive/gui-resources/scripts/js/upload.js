@@ -59,10 +59,15 @@ function()
                     var xhr = uploadComponent.upload( $('[name="upload_file"]', 
                         command.dialog)[0].files[0], 'upload_file', 
                         $(this).attr('action'),
-                        function(){ $('form#editoruploadform [type=button]', command.dialog).val(_('Uploading...')); });
+                        function()
+                        {
+                            $('body').css('cursor', 'wait');
+                            $('form#editoruploadform [type=button]', command.dialog).val(_('Uploading...')); 
+                        });
                     
                     xhr.onload = function(event) 
                     { 
+                        $('body').css('cursor', 'auto');
                         $('form#editoruploadform [type=button]', command.dialog).val(_('Browse'));
                         $('[name="upload_file"]', command.dialog).val('');
                         try // either get it from the responseXML or responseText

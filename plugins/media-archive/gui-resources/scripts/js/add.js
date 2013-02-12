@@ -32,9 +32,14 @@ function($, superdesk, giz, uploadCom)
             {
                 xhr = uploadCom.upload( files[i], 'upload_file', this.uploadEndPoint,
                         // display some progress type visual
-                        function(){ $('[data-action="browse"]', self.el).val(_('Uploading...')); }, 'json');
+                        function()
+                        {
+                            $('body').css('cursor', 'wait');
+                            $('[data-action="browse"]', self.el).val(_('Uploading...')); 
+                        }, 'json');
                 xhr.onload = function(event) 
                 { 
+                    $('body').css('cursor', 'auto');
                     $('[data-action="browse"]', this.el).val(_('Browse'));
                     try // either get it from the responseXML or responseText
                     {

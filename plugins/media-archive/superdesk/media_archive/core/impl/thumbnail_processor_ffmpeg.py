@@ -73,5 +73,5 @@ class ThumbnailProcessor(IThumbnailProcessor):
 
         if error:
             if exists(destination): os.remove(destination)
-            raise IOError('Cannot process thumbnail from \'%s\' to \'%s\'' % (source, destination))
+            #raise IOError('Cannot process thumbnail from \'%s\' to \'%s\'' % (source, destination))
 
