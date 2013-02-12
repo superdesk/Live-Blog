@@ -229,6 +229,7 @@ define('providers/edit', [
 		},
 		remove: function(){
 			var self = this;
+			self._parent.removeOne(self.model);
 			delete self.model.updater;
 			self.el.fadeTo(500, '0.1', function(){
 				self.el.remove();
@@ -256,11 +257,19 @@ define('providers/edit', [
 			this.posts.sync();
 		},
 		render: function(evt, data){
-			//if ( data === undefined)
-				data = this.posts._list;			
+			if ( data === undefined)
+				data = this.posts._list;	
 			for(var len = data.length, i = 0; i < len; i++ ) {
 				this.addOne(data[i]);
 			}
+		},
+		removeOne: function(model) {
+			var self = this,
+				pos = self.posts._list.indexOf(model);
+			if(pos === -1)
+				return self;
+			self.posts._list.splice(pos,1);
+			return self;
 		},
 		addOne: function(model)
 		{

@@ -157,11 +157,13 @@ define([
 		{
 			var 
 				self = this,
-				pos = self._views.indexOf(view);
+				pos = self._views.indexOf(view),
+				pos2 = self.model.get('PostPublished')._list.indexOf(view.model);
 			if(pos !== -1 ) {
-				//console.log(self.model.get('PostPublished').total);
 				self.model.get('PostPublished').total--;					
 				self._views.splice(pos,1);
+				if(pos2 !== -1) 
+					self.model.get('PostPublished')._list.splice(pos2,1);
 				self.markScroll();
 			}
 			return self;
@@ -172,12 +174,9 @@ define([
 				return a.order - b.order;
 			});
 			pos = self._views.indexOf(view);
-			//console.log(pos, '===',(self._views.length-1));
 			if(pos === 0) {
-				//console.log(view.model.get('Content'), '.insertAfter('+self._views[1].model.get('Content')+');');
 				view.el.insertAfter(self._views[1].el);
 			} else {
-				//console.log(view.model.get('Content'), '.insertBefore('+self._views[pos>0? pos-1: 1].model.get('Content')+');');
 				view.el.insertBefore(self._views[pos>0? pos-1: 1].el);
 			}
 		},
@@ -246,7 +245,6 @@ define([
 				}
 			} else if(data.length !== 0){
 				this.pendingAutoupdates = this.pendingAutoupdates.concat(data);
-				//console.log('Pending autoupdates',this.pendingAutoupdates);
 				this.toggleStatusCount();
 			}
 		},
@@ -272,7 +270,6 @@ define([
 			for(i = 0, count = data.length; i < count; i++) {
 				this.addOne(data[i]);
 			}
-			console.log('add all');
 			this.toggleMoreVisibility();
 		},
 		updateingStatus: function()
@@ -350,7 +347,7 @@ define([
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
-			});			
+			});	
 		},
 		renderedOn: function(){
 		   this.renderedTotal--;

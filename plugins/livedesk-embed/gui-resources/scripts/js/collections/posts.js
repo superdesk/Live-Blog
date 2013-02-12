@@ -16,7 +16,7 @@ define([
 		},
 		parseAttributes: function(data){
 			return {
-				lastCId: data.lastCid,
+				lastCId: data.lastCId,
 				offset: data.offset,
 				offsetMore: data.offsetMore,
 				total: data.total,

@@ -18,13 +18,16 @@ define(['gizmo/superdesk'], function(Gizmo) {
 					self._stats.lastCId++;
 			});
 			self.on('readauto', function(evt, data, attr){
+				//console.log('attr.lastCId: ',attr);
 				// set offset to limit
 				self._stats.offset = self._stats.limit;
 				// set total from the attributes 
 				self._stats.total = parseInt(attr.total);
 				attr.lastCId = parseInt(attr.lastCId);
-				if(attr.lastCId > self._stats.lastCId)
+				if(attr.lastCId > self._stats.lastCId) {
 					self._stats.lastCId = attr.lastCId;
+				}
+				self.getFirstOrder(data);
 			}).on('readauto updatesauto addingsauto removeingsauto update',function(evt, data)
 			{
 				self.getLastCid(data);
@@ -122,6 +125,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
                             break;
                         }
 					}
+//					console.log('length', list[i].length);
+//					console.log(self._list);
                     if( !model ) {
                         if( !list[i].isDeleted() ) {
 							self._list.push(list[i]);
@@ -140,7 +145,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
                             updates.push(model);
                         }
                         if(self.isCollectionDeleted(model)) {
-                            self._list.splice(i,1);
+                            self._list.splice(j,1);
                             if( self.hasEvent('removeingsauto') ) {
                                 removeings.push(model);
                             }
@@ -163,7 +168,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				 * else UPDATE with the changeset if there are some
 				 */
 				if( ( count === 0) ){
-					//console.log('read');
+					//console.log('read: ',$.extend({},attr));
 					self.triggerHandler('readauto',[self._list,attr]);
                 } else {          
                     /**
