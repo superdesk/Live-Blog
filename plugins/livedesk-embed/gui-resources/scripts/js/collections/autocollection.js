@@ -126,11 +126,18 @@ define(['gizmo/superdesk'], function(Gizmo) {
                         }
 					}
 //					console.log('length', list[i].length);
-//					console.log(self._list);
+//					console.log('model: ',model);
+//					console.log('list: ',self._list);
                     if( !model ) {
-                        if( !list[i].isDeleted() ) {
-							self._list.push(list[i]);
-							changeset.push(list[i]);
+                        if(self.isCollectionDeleted(list[i])) {
+                            if( self.hasEvent('removeingsauto') ) {
+                                if( self.hasEvent('removeingsauto') ) {
+                                	removeings.push(list[i]);
+                            	}
+                            }
+                        } else if( !list[i].isDeleted() ) {
+								self._list.push(list[i]);
+								changeset.push(list[i]);
                             if( self.hasEvent('addingsauto') ) {
                                 addings.push(list[i]);
                             }
