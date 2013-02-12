@@ -7,7 +7,6 @@ define([
 	'livedesk-embed/models/blog',
 	'tmpl!theme/container'
 ], function($, Gizmo, PostView) {
-	require(['i18n!livedesk_embed']);
 	return Gizmo.View.extend({
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',

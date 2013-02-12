@@ -389,7 +389,8 @@ function(providers, Gizmo, $, BlogAction)
 						 * @TODO: remove this
 						 * Dirty hack to actualize the owncollection
 						 */
-						providers['edit'].collections.posts.sync();
+						var editposts = providers['edit'].collections.posts;
+						editposts.xfilter(editposts._xfilter).sync();
 				    }, this)
 					.on('read', function()
 					{
@@ -770,7 +771,8 @@ function(providers, Gizmo, $, BlogAction)
 				 * @TODO: remove this
 				 * Dirty hack to actualize the owncollection
 				 */
-				providers['edit'].collections.posts.sync();
+				var editposts = providers['edit'].collections.posts;
+				editposts.xfilter(editposts._xfilter).sync();
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
