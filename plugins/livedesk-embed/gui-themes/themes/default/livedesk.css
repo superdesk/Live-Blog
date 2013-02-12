@@ -86,6 +86,11 @@
             }
             .liveblog-post-list li .result-text img  {
                 max-width: 500px;
+                height: auto !important;
+            }
+            .liveblog-post-list li .result-content img {
+                max-width: 100%;
+                height: auto !important;
             }
             .liveblog-post-list li .attributes  {
                 font-size: 12px ;
