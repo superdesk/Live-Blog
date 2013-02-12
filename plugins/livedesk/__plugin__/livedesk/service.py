@@ -14,16 +14,21 @@ from ..plugin.registry import addService
 from ..superdesk.db_superdesk import bindSuperdeskSession, \
     bindSuperdeskValidations
 from ally.container import support, ioc
-from cdm.spec import ICDM
-from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from ally.internationalization import NC_
+from cdm.spec import ICDM
+from distribution.container import app
+from livedesk.core.spec import IBlogCollaboratorGroupCleanupService
+from livedesk.impl.blog_collaborator import CollaboratorSpecification
+from sched import scheduler
+from threading import Thread
+import time
 
 # --------------------------------------------------------------------
 
 SERVICES = 'livedesk.api.**.I*Service'
 
 support.createEntitySetup('livedesk.impl.**.*')
-support.bindToEntities('livedesk.impl.**.*Alchemy', binders=bindSuperdeskSession)
+support.bindToEntities('livedesk.impl.**.*Alchemy', IBlogCollaboratorGroupCleanupService, binders=bindSuperdeskSession)
 support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
 support.loadAllEntities(SERVICES)
 
@@ -32,8 +37,46 @@ support.loadAllEntities(SERVICES)
 @ioc.entity
 def blogThemeCDM() -> ICDM: return contentDeliveryManager()
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def collaboratorSpecification() -> CollaboratorSpecification:
     b = CollaboratorSpecification()
     b.collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator')]
     return b
+
+# --------------------------------------------------------------------
+
+@ioc.config
+def perform_group_cleanup() -> bool:
+    '''
+    True if blog collaborator groups should be cleaned.
+    '''
+    return True
+
+# --------------------------------------------------------------------
+
+@ioc.config
+def cleanup_group_timeout() -> int:
+    '''
+    The number of seconds at which to run the cleanup for blog collaborator groups.
+    '''
+    return 600
+
+# --------------------------------------------------------------------
+
+@app.deploy
+def cleanup():
+    if not perform_group_cleanup(): return
+    timeout, cleanup = cleanup_group_timeout(), support.entityFor(IBlogCollaboratorGroupCleanupService)
+
+    schedule = scheduler(time.time, time.sleep)
+    def executeCleanup():
+        assert isinstance(cleanup, IBlogCollaboratorGroupCleanupService)
+        cleanup.cleanExpired()
+        schedule.enter(timeout, 1, executeCleanup, ())
+
+    schedule.enter(timeout, 1, executeCleanup, ())
+    scheduleRunner = Thread(name='Cleanup blog collaborator groups thread', target=schedule.run)
+    scheduleRunner.daemon = True
+    scheduleRunner.start()
