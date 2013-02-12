@@ -77,7 +77,7 @@ define('providers/edit', [
         {
             $(evt.target).siblings('[type="file"]').trigger('click');
         },
-        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
         _upload: function(evt)
         {
             var uploadInput = $(evt.target),

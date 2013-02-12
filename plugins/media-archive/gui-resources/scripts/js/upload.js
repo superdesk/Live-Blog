@@ -38,7 +38,7 @@ function()
                 var command = origImageCtrl.apply(this, arguments),
                     htmlCom = ' <form id="editoruploadform" '+
                               '     method="post" enctype="multipart/form-data" class="form-horizontal clearfix"'+
-                              '     action="'+$.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?Authorization='+ localStorage.getItem('superdesk.login.session')+'"><fieldset>'+
+                              '     action="'+$.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session')+'"><fieldset>'+
                               '     <label class="control-label" for="editor-image-text">Upload:</label>'+
                               '     <div style="position:relative" class="controls">'+
                               //'         <input type="hidden" name="Authorization" value="'+ localStorage.getItem('superdesk.login.session')+'"/>"'+
