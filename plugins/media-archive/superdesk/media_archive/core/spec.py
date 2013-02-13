@@ -113,6 +113,17 @@ class IThumbnailManager(IMetaDataReferencer):
         @param metaData: MetaData|None
             The object containing the content metadata for which the thumbnail is placed.
         '''
+        
+    @abc.abstractclassmethod  
+    def deleteThumbnail(self, thumbnailFormatId, metaData): 
+        '''
+        Deletes all thumbnails associated to the current MetaData
+
+        @param thumbnailFormatId: integer
+            The thumbnail path format identifier
+        @param metaData: MetaData
+            The MetaData associated to thumbnails
+        '''  
 
 class IThumbnailProcessor(metaclass=abc.ABCMeta):
     '''

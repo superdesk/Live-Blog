@@ -47,6 +47,8 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     cdmThumbnail = ICDM; wire.entity('cdmThumbnail')
     # the content delivery manager where to publish thumbnails
 
+    # ----------------------------------------------------------------
+    
     def __init__(self):
         assert isinstance(self.original_name, str), 'Invalid original name %s' % self.original_name
         assert isinstance(self.thumbnail_sizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnail_sizes
@@ -60,6 +62,8 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         self.thumbnailSizes = OrderedDict(thumbnailSizes)
         self._cache_thumbnail = {}
 
+    # ----------------------------------------------------------------
+    
     def putThumbnail(self, thumbnailFormatId, imagePath, metaData=None):
         '''
         @see IThumbnailManager.putThumbnail
@@ -82,6 +86,31 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
                 thumbPath, thumbProcPath = self.cdmThumbnail.getURI(thumbPath, 'file'), self.cdmThumbnail.getURI(thumbProcPath, 'file')
                 self.thumbnailProcessor.processThumbnail(thumbPath, thumbProcPath)
 
+    # ----------------------------------------------------------------
+    
+    def deleteThumbnail(self, thumbnailFormatId, metaData):
+        '''
+        @see IThumbnailManager.deleteThumbnail
+        '''
+        
+        assert isinstance(thumbnailFormatId, int), 'Invalid thumbnail format identifier %s' % thumbnailFormatId
+        assert isinstance(metaData, MetaData), 'Invalid thumbnail associated MetaData %s' % id
+        
+        thumbPath = self.thumbnailPath(thumbnailFormatId, metaData)
+        format = self._cache_thumbnail.get(thumbnailFormatId)
+        if format.find("id") == -1: return
+        try: self.cdmThumbnail.remove(thumbPath)
+        except PathNotFound: return
+                
+        for size in self.thumbnail_sizes:
+            thumbPath = self.thumbnailPath(thumbnailFormatId, metaData, size)
+            try: self.cdmThumbnail.remove(thumbPath)
+            except PathNotFound: 
+                #the thumbnail for this size not generated yet
+                pass
+    
+    # ----------------------------------------------------------------        
+                
     def populate(self, metaData, scheme, size=None):
         '''
         @see: IMetaDataReferencer.populate

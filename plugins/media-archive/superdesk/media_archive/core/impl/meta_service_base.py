@@ -95,7 +95,8 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         
         #delete file from CDM
         self.cdmArchive.remove(metaData.content)
-        #TODO: delete the thumbnails
+        #delete the thumbnails
+        self.thumbnailManager.deleteThumbnail(metaData.thumbnailFormatId, metaData)
         
         self.session().delete(metaData)
         self.session().commit()
