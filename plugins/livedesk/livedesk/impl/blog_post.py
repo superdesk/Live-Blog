@@ -79,7 +79,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:
-                sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
+                sql = sql.filter(BlogPostMapped.CId != None)
+#                sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
                 sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
             sql = buildQuery(sql, q, BlogPostMapped)
         if not sqlMore:
@@ -88,14 +89,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
         sqlLimit = buildLimits(sql, offset, limit)
+        posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
         if detailed:
-            posts = IterPost(self._addImages(self._trimPosts(sqlLimit.all()), thumbSize), sql.count(), offset, limit)
+            posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
-        else:
-            posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
         return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
@@ -105,25 +105,24 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._filterQuery(blogId, typeId, creatorId, authorId)
-        sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:
+                sql = sql.filter(BlogPostMapped.CId != None)
                 sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
             sql = buildQuery(sql, q, BlogPostMapped)
         if not sqlMore:
-            sql = sql.filter(BlogPostMapped.DeletedOn == None)
+            sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
+        posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(self._addImages(self._trimPosts(sqlLimit.all(), trimUnpublished=False), thumbSize), sql.count(), offset, limit)
+            posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
-        else:
-            posts = self._addImages(self._trimPosts(sqlLimit.all(), trimUnpublished=False), thumbSize)
         return posts
 
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
@@ -131,16 +130,16 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        
+
         updateLastAccessOn(self.session(), groupId)
-        
+
         sql = self._buildQuery(blogId, typeId, None, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        
-        #blog collaborator group
+
+        # blog collaborator group
         sql = sql.join(BlogCollaboratorGroupMemberMapped, BlogCollaboratorGroupMemberMapped.BlogCollaborator == BlogPostMapped.Creator)
         sql = sql.filter(BlogCollaboratorGroupMemberMapped.Group == groupId)
-        
+
         sql = sql.order_by(desc_op(BlogPostMapped.Creator))
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
@@ -331,14 +330,15 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return sql
 
-    def _trimPosts(self, posts, trimDeleted=True, trimUnpublished=True):
+    def _trimPosts(self, posts, deleted=True, unpublished=True, published=False):
         '''
         Trim the information from the deleted posts.
         '''
         for post in posts:
             assert isinstance(post, BlogPostMapped)
-            if (trimDeleted and BlogPost.DeletedOn in post and post.DeletedOn is not None) \
-            or (trimUnpublished and (BlogPost.PublishedOn not in post or post.PublishedOn is None)):
+            if (deleted and BlogPost.DeletedOn in post and post.DeletedOn is not None) \
+            or (unpublished and (BlogPost.PublishedOn not in post or post.PublishedOn is None)) \
+            or (published and (BlogPost.PublishedOn in post and post.PublishedOn is not None)):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
