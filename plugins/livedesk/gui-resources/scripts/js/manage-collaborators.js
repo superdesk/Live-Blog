@@ -161,7 +161,7 @@ define([
 				.sync();
 		},
 		addOne: function(model) {
-			if( (model.get('User')._clientId !== undefined) && (model.get('User').internalCollaboratorView === undefined) ) {
+			if( (model.get('User')._clientId !== undefined) && ($.inArray(model.get('User').get('Id'), this._parent.internalColabsList) === -1) ) {
 				var self = this,
 					view = new AddInternalCollaboratorView({ model: model, _parent: self});
 					self.el.find('.internal-collaborators').append(view.el);
@@ -217,7 +217,6 @@ define([
 			self.model.saveType(blogCollaboratorType, self.updateTypeHref).done(function(){
 				self.el.find('.dropdown-toggle span').text(blogCollaboratorType);
 			});
-			//console.log('selected: ',$(evt.target).attr('data-name'));
 		}
 	}),
 	ManageInternalCollaboratorView = Gizmo.View.extend({
@@ -259,6 +258,12 @@ define([
 				.find('.btn-primary').off(self.getEvent("click")).on(self.getEvent("click"), function(evt){
 					evt.preventDefault();
 					self._parent.remove(evt, self.model);
+					
+					// remove from list of current internal colabs
+					var idx = $.inArray(self.model.get('User').get('Id'), self._parent.internalColabsList); 
+					idx !== -1 && self._parent.internalColabsList.splice(idx, 1);
+					// ---
+					
 					delete self.model.get('User').internalCollaboratorView;
 					self.el.fadeTo(900, '0.1', function(){
 						self.el.remove();
@@ -277,6 +282,7 @@ define([
 			self._views = [];
 			self._addPending = [];
 			self._deletePending = [];
+			self._internalColabsList = [];
 			self.collection
 				.one('read', self.render, self)
 				.xfilter('Id,Type,Name,User.Id,User.FullName,User.EMail')
@@ -288,7 +294,8 @@ define([
 		addOne: function(model) {
 			var self = this,
 				view = new ManageInternalCollaboratorView({ model: model, _parent: self});
-			model.get('User').internalCollaboratorView = view;
+			//model.get('User').internalCollaboratorView = view;
+			self._internalColabsList.push(model.get('User').get('Id'));
 			self.el.find('.plain-table').prepend(view.el);
 			self.sortOne(model, view);
 		},
