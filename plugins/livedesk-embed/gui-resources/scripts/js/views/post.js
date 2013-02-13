@@ -54,6 +54,7 @@ define([
 			var self = this;
 			self._parent.removeOne(self);
 			self.el.remove();
+			self.model.off('read update delete');
 			return self;			
 		},
 		toggleWrap: function(e, forceToggle) {
