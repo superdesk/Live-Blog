@@ -301,7 +301,6 @@ define('providers/edit', [
 			'[ci="savepost"]': { 'click': 'savepost'},
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
-			'[name="type"]' : {'change': 'changetype'},
 			'.insert-link' : {'focusout':'populateUrlInfo'}
 		},
 		init: function()
@@ -341,6 +340,9 @@ define('providers/edit', [
 		populateUrlInfo: function() {
 			var self = this;
 
+			self.el.find('[ci="save"]').attr('disabled', 'disabled');
+			self.el.find('[ci="savepost"]').attr('disabled', 'disabled');
+			
 			//show loading info
 			$.tmpl('livedesk>providers/loading' , {}, function(e,o) {
 					self.el.find('article.editable').html(o)
@@ -388,7 +390,14 @@ define('providers/edit', [
 				$.tmpl('livedesk>providers/generic-error' , {message: 'Could not retreive site info'}, function(e,o) {
 					self.el.find('article.editable').html(o)
 				});
-			})		
+			}).complete( function() {
+				self.enableSaveButtons();
+			});
+		},
+		enableSaveButtons: function() {
+			var self = this;
+			self.el.find('[ci="save"]').removeAttr('disabled');
+			self.el.find('[ci="savepost"]').removeAttr('disabled');
 		},
 		selectContent: function(evt) {
 			var self = this,
@@ -431,6 +440,7 @@ define('providers/edit', [
 		},
 		changetype: function(evt) {
 			var self = this;
+			self.enableSaveButtons();
 			var type = self.el.find('[name="type"]').val();
 			
 			/*if( type == 'image' ) 
