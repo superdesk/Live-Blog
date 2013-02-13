@@ -279,11 +279,19 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             var item = { live: data['live'] };
             if( data['live'].length == 0) delete item.live;
             item.FooterFixed = false;
+            self.el.html('');
             $.tmpl('livedesk>layouts/dashboard', item, function(e,o) 
             {
                 self.el.html(o);
                 self.resetEvents();
                 self.searchArchive();
+                
+                // show create has right else...
+                Action.get('modules.livedesk.add')
+                    .done(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', ''); })
+                    .fail(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', 'none'); });
+
+                
             });
            
             

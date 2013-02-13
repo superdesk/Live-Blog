@@ -5,7 +5,7 @@
 	  <li class="active"><a href="#active_blogs" data-toggle="tab">Active blogs</a></li>
 	  <li><a href="#archive_blogs" data-toggle="tab">Archive blogs</a></li>
 	</ul>
-	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog"><i class="icon-white icon-plus-sign"></i> Create Live blog</a>
+	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog" style="display:none"><i class="icon-white icon-plus-sign"></i> Create Live blog</a>
 </div>
 <div class="tab-content">
 

@@ -94,6 +94,9 @@ define
              */
             this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}, function()
             {
+                // hide create if no right
+                Action.get('modules.livedesk.add').fail(function(){ $('#submenu-liveblogs-create', self.menu).hide(); });
+                
                 if( superdesk.navigation.getStartPathname() == '') return false;
                 self.menu.find('[href]').each(function()
                 {
