@@ -209,7 +209,7 @@ define('providers/edit', [
 			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
 				self.setElement( out );
 				BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-					if( !self.model.get('PublishedOn')) {
+					//if( !self.model.get('PublishedOn')) {
 						self.el.draggable({
 							revert: 'invalid',
 							containment:'document',
@@ -217,9 +217,9 @@ define('providers/edit', [
 							appendTo: 'body',
 							zIndex: 2700
 						});
-					} else {
+					/*} else {
 						self.el.removeClass('draggable');
-					}
+					}*/
 				}).fail(function(){
 					self.el.removeClass('draggable');
 				});				

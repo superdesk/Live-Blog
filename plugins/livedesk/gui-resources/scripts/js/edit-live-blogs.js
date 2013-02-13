@@ -283,7 +283,7 @@ function(providers, Gizmo, $, BlogAction)
                                 updates.push(model);
                             }
                             if(self.isCollectionDeleted(model)) {
-                                self._list.splice(i,1);
+                                self._list.splice(j,1);
                                 if( self.hasEvent('removeingsauto') ) {
                                     removeings.push(model);
                                 }
@@ -348,7 +348,11 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			isCollectionDeleted: function(model)
 	        {
-	        	return model.get('IsPublished') === 'True'? false : true;
+	        	var IsPublished = model.get('IsPublished') === 'True'?  true : false;
+				if(!IsPublished) {
+					delete model.data["PublishedOn"];
+				}
+	        	return !IsPublished;
 	        }	
 		}),
 		
@@ -777,6 +781,7 @@ function(providers, Gizmo, $, BlogAction)
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
 						data[i].postview.remove();
+						delete data[i].postview;
 					}
 				}
 			},
