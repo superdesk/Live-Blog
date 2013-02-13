@@ -16,9 +16,8 @@ function( Gizmo ) {
             Person: Gizmo.Register.Person,
             User: Gizmo.Register.User
         },
-        saveType: function(type) {
-            var typeHref = this.href+'/Type/'+type;
-            var
+        saveType: function(type, href) {
+            var typeHref = href+this.get('Id')+'/Type/'+type,
                 self = this,
                 dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(typeHref).update();

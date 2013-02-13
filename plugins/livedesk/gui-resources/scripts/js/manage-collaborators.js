@@ -214,7 +214,7 @@ define([
 		selectType: function(evt){
 			var self = this,
 				blogCollaboratorType = $(evt.target).attr('data-name');
-			self.model.saveType(blogCollaboratorType).done(function(){
+			self.model.saveType(blogCollaboratorType, self.updateTypeHref).done(function(){
 				self.el.find('.dropdown-toggle span').text(blogCollaboratorType);
 			});
 			//console.log('selected: ',$(evt.target).attr('data-name'));
@@ -247,6 +247,7 @@ define([
 				self.typesCollaaborator = new TypesCollaboratorView({
 					el: self.el.find('.dropdown-simple'),
 					collection: self._parent.blogTypesCollaborator,
+					updateTypeHref: self._parent.collection.href, // need to pass this for correct update href
 					model: self.model
 				});
 			});
