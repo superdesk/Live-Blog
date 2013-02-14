@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: binary-gm
+Version: 1.0.dev
+Summary: GM tool
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: GM team
+Author-email: 
+License: GPL v3
+Description: GM tool
+Keywords: Ally REST framework plugin GM
+Platform: all

@@ -23,9 +23,12 @@ from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.core.impl.query_service_creator import \
     createService, ISearchProvider
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
-    IQueryIndexer
+    IQueryIndexer, IThumbnailProcessor
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
 from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
+from superdesk.media_archive.core.impl.thumbnail_processor_gm import ThumbnailProcessorGM
+from superdesk.media_archive.core.impl.thumbnail_processor_ffmpeg import ThumbnailProcessorFfmpeg
+from superdesk.media_archive.core.impl.thumbnail_processor_avconv import ThumbnailProcessorAVConv
 
 # --------------------------------------------------------------------
 
@@ -101,6 +104,23 @@ def metaDataHandlers() -> list: return []
 
 @ioc.entity
 def queryIndexer() -> IQueryIndexer: return QueryIndexer()
+
+# --------------------------------------------------------------------
+
+@ioc.config
+def thumnail_processor():
+    ''' Specify which implementation will be used for thumbnail processor. Currently the following options are available: gm, ffmpeg, avconv '''
+    return 'gm'
+
+@ioc.entity
+def thumbnailProcessor() -> IThumbnailProcessor: 
+    if thumnail_processor() == 'ffmpeg':
+        return ThumbnailProcessorFfmpeg()
+    elif thumnail_processor() == 'avconv':
+        return ThumbnailProcessorAVConv()
+    else:
+        return ThumbnailProcessorGM()
+    
 
 # --------------------------------------------------------------------
 
