@@ -76,7 +76,12 @@
 				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
 			};
 		</script>
-
+		<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		</style>
 		<script>
 		if(po === undefined){
 			(function (d, s, id) {
@@ -90,14 +95,6 @@
 			}(document, "script", "livedesk-jssdk"));
 		}
 		</script>
-		<style>
-			.container {
-				float: left;
-				height: auto;
-				margin: 50px;
-				width: 600px;
-			}		
-		</style>
 		<!--<script data-main="//{server_url}/{gui}/livedesk-embed/scripts/js/theme/default" src="//{server_url}/{lib_core}/scripts/js/require.js"></script>-->
 		<div id="here"></div>
 		<script>
