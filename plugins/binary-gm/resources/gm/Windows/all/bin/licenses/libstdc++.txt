@@ -1,0 +1,67 @@
+[ From http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/license.html]
+
+Licenses for the Library
+
+There are two licenses affecting GNU libstdc++-v3: one for the code, and one
+for the documentation. Here we will describe both of them, and try to answer
+some of the widespread questions. If you have more questions, ask the FSF or
+the gcc mailing list; the person writing this page is a programmer, not a
+lawyer.
+
+  ------------------------------------------------------------------------
+
+The Code: Runtime GPL
+
+The source code of libstdc++-v3 is distributed under version 2 of the GNU
+General Public License, with the so-called "runtime exception," as follows
+(or see any header or implementation file):
+
+   As a special exception, you may use this file as part of a free software
+   library without restriction.  Specifically, if other files instantiate
+   templates or use macros or inline functions from this file, or you compile
+   this file and link it with other files to produce an executable, this
+   file does not by itself cause the resulting executable to be covered by
+   the GNU General Public License.  This exception does not however
+   invalidate any other reasons why the executable file might be covered by
+   the GNU General Public License.
+
+
+Hopefully that text is self-explanatory. If it isn't, you need to speak to
+your lawyer, or the Free Software Foundation.
+
+Q: So any program which uses libstdc++ falls under the GPL?
+A: No. The special exception permits use of the library in proprietary
+applications.
+
+Q: How is that different from the GNU {Lesser,Library} GPL?
+A: The LGPL requires that users be able to replace the LGPL code with a
+modified version; this is trivial if the library in question is a C shared
+library. But there's no way to make that work with C++, where much of the
+library consists of inline functions and templates, which are expanded
+inside the code that uses the library. So to allow people to replace the
+library code, someone using the library would have to distribute their own
+source, rendering the LGPL equivalent to the GPL.
+
+Q: I see. So, what restrictions are there on programs that use the library?
+A: None. We encourage such programs to be released as open source, but we
+won't punish you or sue you if you choose otherwise.
+
+  ------------------------------------------------------------------------
+
+The Docs: FDL
+
+The documentation shipped with the library and made available over the web,
+including the pages generated from source comments, are copyrighted by the
+Free Software Foundation, and placed under the GNU Free Documentation
+License version 1.1. There are no Front-Cover Texts, no Back-Cover Texts,
+and no Invariant Sections.
+
+If you plan on making copies of the documentation, please let us know. We
+can probably offer suggestions.
+
+  ------------------------------------------------------------------------
+
+Comments and suggestions about this page are welcome, and may be sent to the
+libstdc++ mailing list. Comments or questions about the licenses themselves
+are also welcome, and should be directed to the GCC list as descibed above.
+
