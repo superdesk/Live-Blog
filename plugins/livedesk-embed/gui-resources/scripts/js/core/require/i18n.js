@@ -2,7 +2,7 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie'], function($){
 
 	
     var buildMap = {},
-	apiUrl = livedesk.server(),
+	apiUrl = livedesk.FrontendServer,
 	langCode = $.cookie('superdesk.langcode');
     if(livedesk.language) {
        langCode = livedesk.language;
@@ -17,9 +17,10 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie'], function($){
 
         load : function(name, req, onLoad, config) {
             // Append '.json' if no filename given:
-            //name = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
-			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
-			$.ajax({ dataType: 'json', url: req.toUrl(name)}).done(function(data){
+            name = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
+			//name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
+            var urlish = req.toUrl(name)+'&t='+(new Date()).getTime();
+			$.ajax({ dataType: 'json', url: urlish}).done(function(data){
 				if (config.isBuild) {
                     buildMap[name] = data;
                     onLoad(data);

@@ -78,7 +78,7 @@
         },
         render: function() {
             var embedConfig = this.model.get('EmbedConfig');
-            console.log(embedConfig);
+            //console.log(embedConfig);
             if(embedConfig !== undefined) {
                 this.model.data['EmbedConfig'] = JSON.parse(this.model.get('EmbedConfig'));
             } else {
