@@ -60,7 +60,7 @@
             var self = this;
             self.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
             self.model
-                .one('read', self.render, self)
+                .one('read update', self.render, self)
                 .sync();
         },
         changeFrontendServer: function(evt){

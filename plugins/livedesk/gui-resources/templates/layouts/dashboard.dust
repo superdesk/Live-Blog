@@ -20,17 +20,6 @@
           		</ul>
       	</div>
 
-      	<script type="text/javascript">
-      		$(document).ready(function(){
-      			$("#grid_view").click(function(){
-      					$(".active-blogs").removeClass("list-active-blogs");
-      			});
-      			$("#list_view").click(function(){
-      					$(".active-blogs").addClass("list-active-blogs");
-      			});
-      		});
-      	</script>
-
 		<ul class="active-blogs clearfix list-active-blogs">
 			{#live}
 			<li class="clearfix">

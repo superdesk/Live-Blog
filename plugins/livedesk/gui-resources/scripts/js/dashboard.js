@@ -28,7 +28,9 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         ipp: 15,
         events: 
         { 
-            '.list-active-blogs .active-blog-link': { 'click': 'loadBlog' },
+            '.active-blog-link': { 'click': 'loadBlog' },
+            '#grid_view': { 'click' : 'switchViewType' },
+            '#list_view': { 'click' : 'switchViewType' },
             '#welcome-screen-create-liveblog': { 'click': 'createBlog' },
             '#search-archive-button': { 'click': 'searchArchiveHandle' },
             '#search-archive-clear': { 'click': 'searchArchiveClear' },
@@ -43,6 +45,16 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             this.collection = Gizmo.Auth(new Gizmo.Register.LiveBlogs({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog/Live'}));
             this.collection.on('read update', this.render, this);
             this.ipp = 10;
+        },
+        /*!
+         * 
+         */
+        switchViewType: function(evt)
+        {
+            if($(evt.currentTarget).attr('id') == 'grid_view')
+                $(".active-blogs", this.el).removeClass("list-active-blogs");
+            else
+                $(".active-blogs", this.el).addClass("list-active-blogs");
         },
         /*!
          * 
