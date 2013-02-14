@@ -1,6 +1,6 @@
 #livedesk-root {
     font-size: 12px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "GeorgiaProW01-Regular", Georgia, 'Times New Roman', Times, serif;
     padding: 0;
     position: relative;
 }
@@ -86,10 +86,19 @@
             }
             .liveblog-post-list li .result-text img  {
                 max-width: 500px;
+                height: auto !important;
+            }
+            .liveblog-post-list li .result-content img {
+                max-width: 100%;
+				height: auto !important;
+                box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                -o-box-sizing: border-box;
+                -moz-box-sizing: border-box;
             }
             .liveblog-post-list li .attributes  {
                 font-size: 12px ;
-                color:#666 ;
+                color:#787878 ;
                 text-transform: uppercase;
                 margin: 5px 0;
             }
@@ -98,7 +107,7 @@
                     height: 16px ;
                     display: inline-block ;
                     margin-right: 3px ;
-                    vertical-align: middle ;
+                    vertical-align: top ;
                 }
                 .source-link {
                     color: #2D6AAF;
@@ -127,28 +136,39 @@
                 }
                 
                 .quotation .attributes .source-icon {
-                    background-image: url("img/tw-16px.png");
+                    background-image: url("img/icfj-16px.png");
                 }
                 .googleservice .attributes .source-icon {
                     background-image: url("img/google-16px.png");
                 }
                 .instagram .attributes .source-icon {
                     background-image: url("img/instagram.png");
-                }            
+                }  
 
                 .googleservice h3,
                 .linkpost h3,
-                {
-                    margin:0;
-                    padding: 0 0 5px 0;
-                }
-                .googleservice h3 a,
-                .linkpost h3 a {
-                    color:#2d6aaf;
-                    text-decoration: none;
-                    font-size: 14px;
+                .googleservice h3, 
+                .twitterservice h3 {
+                    color:#787878;
+                    font-size: 13px;
+                    font-weight: normal;
+                    padding: 0;
+                    margin: 0;
+                    margin-top: -3px;
                 }
 
+
+                .twitterservice h3 a,
+                .googleservice h3 a,
+                .linkpost h3 a {
+
+                    /*color:#2d6aaf;*/
+                    color: #008148;
+                    font-size: 15px;
+                    padding-right: 5px;
+                }
+
+                .twitterservice h3 a:hover,
                 .googleservice h3 a:hover,
                 .linkpost h3 a:hover {
                     color:#484848;
@@ -173,8 +193,9 @@
                 .flickrservice figure figcaption {
                     color:#787878;
                     padding: 5px 0 0;
-                    font-size: 12px;
-                    width: 500px;
+                    font-size: 13px;
+                    line-height: 17px;
+					width: 500px;
                 }
 
 
@@ -182,20 +203,25 @@
                     color:#666;
                 }
 
+                .twitterservice figure.profile-thumbnail,
                 .linkpost figure.link-thumbnail {
-                    max-width: 50px;
-                    max-height: 50px;
+                    max-width: 48px;
+                    max-height: 48px;
                     margin: 0 10px 0 0;
                     padding: 0;
                     float:left;
                 }
+
+                .twitterservice figure.profile-thumbnail img,
                 .linkpost figure.link-thumbnail img {
-                    max-width: 50px;
-                    max-height: 50px;
+                    max-width: 48px;
+                    max-height: 48px;
                 }
+                .twitterservice figure + h3 + .result-text,
                 .linkpost figure + h3 + .result-text {
                     padding-left: 60px;
                 }
+                .twitterservice figure + h3 + .result-text + .twitter-controls + p,
                 .linkpost figure + h3 + .result-text + p {
                     padding-left: 60px;
                 }
@@ -204,7 +230,7 @@
             .liveblog-post-list li.quotation .result-content {
                 padding-left:55px ;
                 min-height: 40px;
-                background: url("img/quotes.png") no-repeat 0 5px;
+                background: url("img/quotes.png") no-repeat 0 5px; 
             }
             
             .liveblog-post-list li a[rel="bookmark"] {
@@ -262,7 +288,8 @@
     }
     .wrapup h3 {
         color:#fff;
-        font-size: 14px;
+         font-family: Arial,Helvetica,sans-serif ;
+        font-size: 15px;
         line-height: 22px;
     }
     .wrapup span.big-toggle {
@@ -310,7 +337,7 @@ ol.liveblog-post-list li.advertisement a,
 ul.liveblog-post-list li.advertisement a {
     display: block;
     padding: 12px 8px 0;
-    color:#025bc1;
+    color:#000;
     text-decoration: none ;
     font-size: 14px;
 }
@@ -338,10 +365,11 @@ ul.liveblog-post-list li.advertisement a p {
 .liveblog-more {
 	cursor: pointer;
 	display: block;
-	font-size: 14px ;
+	font-size: 15px ;
+    font-family: Arial,Helvetica,sans-serif ;
 	font-weight: bold;
 	text-decoration: none;
-	color: #2d6aaf;
+	color: #787878;
     margin: 0;
 }
 
@@ -372,17 +400,19 @@ ul.liveblog-post-list li.advertisement a p {
 }
 
 .liveblog-post-list li .result-header time {
-    font-weight: bold;
-    font-size: 11px;
+     font-family: "GeorgiaProW01-SemiBold", Georgia, 'Times New Roman', Times, serif;
+    /*font-weight: bold;*/
+    font-size: 12px;
     padding: 0 10px 0 0;
-    color:#2d6aaf;
+    color:#787878;
     border-right: 1px solid #e0e0e0;
 }
 .liveblog-post-list li .result-header p {
-    font-weight: bold;
-    font-size: 11px;
+    font-family: "GeorgiaProW01-SemiBold", Georgia, 'Times New Roman', Times, serif;
+    /*font-weight: bold;*/
+    font-size: 12px;
     display: inline;
-    color:#999999;
+    color:#787878;
     padding: 0px 10px;
 }
 
@@ -394,7 +424,8 @@ ul.liveblog-post-list li.advertisement a p {
     position: relative;
     margin: 12px 0px 2px 10px;
     color:#787878;
-    font-size: 12px;
+    font-size: 14px;
+    line-height: 18px;
 }
 .liveblog-post-list li .result-header .editable {
     border: 0;
@@ -467,9 +498,10 @@ ul.liveblog-post-list li.advertisement a p {
 
 
 #pintotop {
-    background: #656565;
+    background: #787878;
     padding: 3px 5px;
     color:#fff;
+    font-family: Arial,Helvetica,sans-serif ;
     font-weight: bold;
     position: absolute;
     top:5px;
@@ -483,7 +515,7 @@ ul.liveblog-post-list li.advertisement a p {
 }
 
 .new-notification {
-    background: #3676be;
+    background: #787878;
     color:#fff;
     padding: 3px 5px;
      -webkit-border-radius: 3px;
@@ -491,6 +523,7 @@ ul.liveblog-post-list li.advertisement a p {
     border-radius: 3px;
     text-decoration: none;
     font-size: 11px;
+    font-family: Arial,Helvetica,sans-serif ;
     font-weight: bold;
     margin-left: 20px;
 }
@@ -501,7 +534,7 @@ li.loading-more {
     padding: 20px !important;
 }
 li.loading-more:hover{
-    -background: none !important ;
+    background: none !important ;
 }
 li#loading-more:hover{
     background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
@@ -530,8 +563,29 @@ li#loading-more{
     display: block ;
 }
 
-.liveblog-post-list li:hover .share-box {
-    display: none ;
+.share {
+    position: absolute;
+    width: 35px;
+    height: 15px;
+    right: 40px;
+    top: 6px;
+    line-height: 12px;
+    font-size: 12px;
+    color: #585858;
+    text-decoration: none;
+    background: url(img/share.png) no-repeat 0 2px;
+    padding: 1px 0 0 18px;
+    display: none;
+}
+
+
+
+
+.liveblog-post-list li:hover .share,
+.liveblog-post-list li:hover .reply,
+.liveblog-post-list li:hover .retweet,
+.liveblog-post-list li:hover .favorites {
+    display: block ;
 }
 
 .share-box {
@@ -546,6 +600,7 @@ li#loading-more{
     -moz-border-radius: 4px;
     border-radius: 4px;
     box-shadow: 2px 2px 4px 0px #787878;
+    z-index: 5;
 }
 
 .social {
@@ -582,30 +637,30 @@ li#loading-more{
     margin-right: 10px;
 }
 
-.twitter-controls .twitter-button {
-    float: right;
-    width: auto;
-    padding-left: 18px;
-    margin-left: 15px;
-    height: 15px;
-    line-height: 12px;
-    font-size: 11px;
-    color: #585858;
-    text-decoration: none;
-    display: none;
-}
+    .twitter-controls .twitter-button {
+        float: right;
+        width: auto;
+        padding-left: 18px;
+        margin-left: 15px;
+        height: 15px;
+        line-height: 12px;
+        font-size: 12px;
+        color: #585858;
+        text-decoration: none;
+        display: none;
+    }
 
-.twitter-controls .twitter-button.reply {
-    background: url(img/reply.png) no-repeat 0 2px;
-}
+        .twitter-controls .twitter-button.reply {
+            background: url(img/reply.png) no-repeat 0 2px;
+        }
 
-.twitter-controls .twitter-button.retweet {
-    background: url(img/retweet.png) no-repeat 0 2px;
-}
+        .twitter-controls .twitter-button.retweet {
+            background: url(img/retweet.png) no-repeat 0 2px;
+        }
 
-.twitter-controls .twitter-button.favorites {
-  background: url(img/favorites.png) no-repeat 0 1px;
-}
+        .twitter-controls .twitter-button.favorites {
+              background: url(img/favorites.png) no-repeat 0 1px;
+        }
 
 .liveblog-post-list li:hover .share,
 .liveblog-post-list li:hover .reply,

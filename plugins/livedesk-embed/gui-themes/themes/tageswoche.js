@@ -1,7 +1,7 @@
 requirejs.config({
-	urlArgs: 'v=6', 
+	urlArgs: 'v=7', 
 	paths: {
-		'theme': 'livedesk-embed/themes/default'
+		'theme': 'livedesk-embed/themes/tageswoche'
 	}
 });
 require(['tageswoche.min'], function() {
