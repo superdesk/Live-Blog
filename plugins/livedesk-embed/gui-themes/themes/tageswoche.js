@@ -4,7 +4,7 @@ requirejs.config({
 		'theme': 'livedesk-embed/themes/default'
 	}
 });
-require(['default.min'], function() {
+require(['tageswoche.min'], function() {
 	require(['../scripts/js/config'], function(){
 		var name;
 		for(name in livedesk.theme) {
