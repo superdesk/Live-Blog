@@ -29,6 +29,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         events: 
         { 
             '.active-blog-link': { 'click': 'loadBlog' },
+            '.archive-blog-link': { 'click': 'loadBlog' },
             '#grid_view': { 'click' : 'switchViewType' },
             '#list_view': { 'click' : 'switchViewType' },
             '#welcome-screen-create-liveblog': { 'click': 'createBlog' },
@@ -302,7 +303,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
                 Action.get('modules.livedesk.add')
                     .done(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', ''); })
                     .fail(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', 'none'); });
-
                 
             });
            
