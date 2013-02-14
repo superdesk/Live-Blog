@@ -1056,6 +1056,13 @@ function(providers, Gizmo, $, BlogAction)
                                 // template data
                                 //to do feed is not getting recursive read
 				mfeed = this.model.feed(),
+				embedConfig = {};
+				if(mfeed.EmbedConfig !== undefined)
+					embedConfig = JSON.parse(mfeed.EmbedConfig);
+
+				if(embedConfig.FrontendServer !== undefined)
+					embedConfig.FrontendServer = config.api_url
+				var
 				data = $.extend({}, this.model.feed(), 
 				{
 					BlogHref: self.theBlog,
@@ -1067,7 +1074,7 @@ function(providers, Gizmo, $, BlogAction)
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
 					},
-					OutputLink: JSON.parse(mfeed.EmbedConfig).FrontendServer,
+					OutputLink: embedConfig.FrontendServer,
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
 				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
