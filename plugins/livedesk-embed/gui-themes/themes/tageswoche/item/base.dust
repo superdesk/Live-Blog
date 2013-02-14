@@ -1,4 +1,4 @@
-<li class="{+item_class}default{/item_class}">{!/!}
+<li class="{+item_class}default{/item_class}">
 	<a name="{Order}"></a>{!/!}
 	{+head}
 	<div class="result-header">
