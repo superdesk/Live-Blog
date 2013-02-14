@@ -261,18 +261,22 @@ function(providers, Gizmo, $, BlogAction)
                             }
 						}
                         if( !model ) {
+							//console.log('is model');
 							if(self.isCollectionDeleted(list[i])) {
+                                //console.log('is collection deleted');
                                 if( self.hasEvent('removeingsauto') ) {
                                     removeings.push(list[i]);
                                 }
 
                             } else if( !list[i].isDeleted() ) {
+                            	//console.log('is deleted')
 								self._list.push(list[i]);
 								changeset.push(list[i]);
                                 if( self.hasEvent('addingsauto') ) {
                                     addings.push(list[i]);
                                 }
 							} else {
+								//console.log('is updated1');
                                 if( self.hasEvent('updatesauto') ) {
 								    updates.push(list[i]);
                                 }					
@@ -280,6 +284,7 @@ function(providers, Gizmo, $, BlogAction)
                         }
                         else {
                             if( self.hasEvent('updatesauto') ) {
+                                //console.log('has event');
                                 updates.push(model);
                             }
                             if(self.isCollectionDeleted(model)) {
@@ -288,16 +293,24 @@ function(providers, Gizmo, $, BlogAction)
                                     removeings.push(model);
                                 }
 
-                            }
-                            if( model.isDeleted()) {
-                                model._remove();                               
-                            } else if( model.isChanged() ){
-								changeset.push(model);
-							}
-                            else {
-                                model.on('delete', function(){ self.remove(this.hash()); })
-                                        .on('garbage', function(){ this.desynced = true; });
-                            }
+                            } else {
+	                            //console.log('model.isChanged: ',model.isChanged());
+	                            if( model.isDeleted()) {
+	                                model._remove();                               
+	                            } 
+	                            /**
+	                             * @TODO: remove this dirty hack and find the real problem 
+	                             * 		why is the model not seen as changed after un unpublish
+	                             * secenarion: admin unpublish an collab1 post the collab1(admin) is republishing the post.
+								 */
+	                            else/* if( model.isChanged() )*/{
+									changeset.push(model);
+								}/*
+	                            else {
+	                                model.on('delete', function(){ self.remove(this.hash()); })
+	                                        .on('garbage', function(){ this.desynced = true; });
+	                            }*/
+	                        }
                         }
                     }
                     self.desynced = false;
@@ -387,8 +400,8 @@ function(providers, Gizmo, $, BlogAction)
 				
 				this.model
 				    .on('delete', this.remove, this)
-				    .off('unpublish').on('unpublish', function() {
-				    	this.remove();
+				    .off('unpublish').on('unpublish', function(evt) {
+				    	self.remove(evt);
 						 /*
 						 * @TODO: remove this
 						 * Dirty hack to actualize the owncollection
@@ -398,6 +411,7 @@ function(providers, Gizmo, $, BlogAction)
 				    }, this)
 					.on('read', function()
 					{
+					    //console.log('read: ');
 					    /*!
 			             * conditionally handing over save functionallity to provider if
 			             * model has source name in providers 
@@ -426,6 +440,7 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update', function(evt, data)
 					{
+						//console.log('update model: ',data);
 						/**
 						 * Quickfix.
 						 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
@@ -612,8 +627,9 @@ function(providers, Gizmo, $, BlogAction)
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
 				this.el.find('.actions').addClass('hide');
 			},		
-			remove: function()
+			remove: function(evt)
 			{
+				//console.log('evt: ',evt);
 				var self = this;
 				/**
 				 * @TODO remove only this view events from the model
@@ -672,6 +688,7 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update updateauto', function(evt, data)
 					{
+						//console.log('update collection: ',evt, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
@@ -722,6 +739,7 @@ function(providers, Gizmo, $, BlogAction)
 					pos = self._views.indexOf(view);
 				if(pos === -1)
 					return self;
+				//delete view.model.updater;
 				self.total--;
 				self._views.splice(pos,1);
 				return self;
@@ -775,6 +793,7 @@ function(providers, Gizmo, $, BlogAction)
 				 * @TODO: remove this
 				 * Dirty hack to actualize the owncollection
 				 */
+				//console.log('removings: ',data);
 				var editposts = providers['edit'].collections.posts;
 				editposts.xfilter(editposts._xfilter).sync();
 				var self = this;
@@ -784,6 +803,8 @@ function(providers, Gizmo, $, BlogAction)
 						delete data[i].postview;
 					}
 				}
+				//console.log('removings: ',data);
+				//console.log('collection: ',this.collection._list);
 			},
 			addAll: function(data)
 			{
@@ -963,6 +984,7 @@ function(providers, Gizmo, $, BlogAction)
 			save: function(evt)
 			{
 				var self = this;
+				//console.log('evt: ',evt.type);
 				BlogAction.get('modules.livedesk.blog-edit').done(function(action) {
 					var content = $(self.el).find('[is-content]'),
 					titleInput = content.find('section header h2'),

@@ -38,13 +38,13 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 			this.model.on('read', this.render, this);
 			this.model.on('delete', this.remove, this); // TODO should remove from ColabView?
         },
-        render: function()
+        render: function(evt)
         {
             /**
              * @TODO implement this with IsCollectionDeleted Method
              * Ugly hack to remove published posts.
              */
-            if(this.model.get('PublishedOn')) {
+            if(this.model.get('PublishedOn') || (this.model.get('IsPublished') === 'True')) {
                 this.remove();
                 return;
             }
@@ -71,6 +71,12 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
         },
         remove: function()
         {
+            var pos = this.colab.get('PostUnpublished')._list.indexOf(this.model),
+                pos2 = this.colab._viewModels.indexOf(this.model.get('Id'));
+            if( pos !== -1 )
+                this.colab.get('PostUnpublished')._list.splice(pos,1);
+            if( pos2 !== -1 )
+                this.colab._viewModels.splice(pos2,1);
             this.el.remove();
         }
     }),
@@ -173,11 +179,12 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 var colab = this,
                     post = colab.get('PostUnpublished');
                 // get post list and sync it with the server
-                this.get('PostUnpublished').xfilter('*').sync({data: {'cId.since': this._latestPost}})
-                    .done(function(){ self.readPostsHandle.call(post, colab, $.noop, self); });
+                this.get('PostUnpublished')
+                    .xfilter('*')
+                    .sync({data: {'cId.since': this._latestPost}})
+                    .done(function(data){ colab._latestPost = parseInt(data.lastCId);self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
-        
         /*!
          * display list header
          */
@@ -195,6 +202,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 self = this;
             this.each(function()
             {
+                //console.log('Id',this.get('Id'));
                 if( $.inArray( this.get('Id'), colab._viewModels ) === -1 && !this.get('DeletedOn'))
                 {
                     appendPosts.push(this);
@@ -210,8 +218,9 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             $('.new-results', view.el).trigger('update.livedesk', [updateItemCount, function()
             {
                 $(appendPosts.reverse()).each(function()
-                { 
-                    $('.search-result-list', view.el).prepend( (new PostView({ model: this })).render().el );
+                {
+                    //if(this.get('IsPublished') !== 'True')
+                        $('.search-result-list', view.el).prepend( (new PostView({ model: this, colab: colab })).render().el );
                 });
                 updateItemCount -= appendPosts.length;
             }, initColabHandle()]);
@@ -258,7 +267,11 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     var post = colab.get('PostUnpublished');
                     post.xfilter('*')
                         .sync()
-                        .done(function(){ self.readPostsHandle.call(post, colab, initColabHandle, self); });
+                        .done(function(data){
+                            //console.log('data:',data); 
+                            colab._latestPost = parseInt(data.lastCId)
+                            self.readPostsHandle.call(post, colab, initColabHandle, self); 
+                        });
                     // start the auto update timers
                     self.startAutoUpdate();
                 });
