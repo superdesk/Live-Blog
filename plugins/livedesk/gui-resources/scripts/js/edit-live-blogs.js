@@ -1083,7 +1083,7 @@ function(providers, Gizmo, $, BlogAction)
 						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
 					});
 					// refresh twitter share button
-					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
+					require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
 					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
