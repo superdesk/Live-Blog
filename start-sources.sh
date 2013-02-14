@@ -53,4 +53,4 @@ PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}url-info
 #echo $PYTHONPATH
 export PYTHONPATH=$PYTHONPATH
 export LC_CTYPE="en_US.UTF-8"
-python3.2 distribution/application.py $*
+python3 distribution/application.py $*
