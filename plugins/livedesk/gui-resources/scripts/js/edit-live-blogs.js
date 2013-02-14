@@ -679,7 +679,7 @@ function(providers, Gizmo, $, BlogAction)
 				self.collection.model.on('publish', function(evt, model){
 					self.addOne(model);
 				});
-				self.xfilter = 'CId, Order';
+				self.xfilter = 'CId, Order, IsPublished';
 				self.collection
 					.on('read readauto', function()
 					{
@@ -688,7 +688,7 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update updateauto', function(evt, data)
 					{
-						//console.log('update collection: ',evt, data);
+						//console.log('update collection: ',evt.type, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
