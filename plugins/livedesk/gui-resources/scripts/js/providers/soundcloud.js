@@ -51,7 +51,9 @@ define('providers/soundcloud', [
                     url : query,
                 }).fail(function(data){
                     self.stopLoading('#soundcloud-sound-more');
-                    //handle failure
+                    $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
+                        $('#soundcloud-sound-results').append(o);
+                    });
                 }).done(function(data){
                     self.stopLoading('#soundcloud-sound-more');
                     if (data.length > 0) {
