@@ -60,7 +60,7 @@
             var self = this;
             self.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
             self.model
-                .one('read', self.render, self)
+                .one('read update', self.render, self)
                 .sync();
         },
         changeFrontendServer: function(evt){
@@ -78,7 +78,7 @@
         },
         render: function() {
             var embedConfig = this.model.get('EmbedConfig');
-            console.log(embedConfig);
+            //console.log(embedConfig);
             if(embedConfig !== undefined) {
                 this.model.data['EmbedConfig'] = JSON.parse(this.model.get('EmbedConfig'));
             } else {

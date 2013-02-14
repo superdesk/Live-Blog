@@ -1,5 +1,5 @@
 requirejs.config({
-	//urlArgs: 't='+(new Date()).getTime(), 
+	urlArgs: 'v=1', 
 	paths: {
 		'theme': 'livedesk-embed/themes/default'
 	}
