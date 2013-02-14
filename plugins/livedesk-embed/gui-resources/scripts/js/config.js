@@ -1,5 +1,5 @@
 requirejs.config({
-	baseUrl: '/content/lib/',
+	baseUrl: livedesk.FrontendServer+'/content/lib/',
 	paths: 	{
 		'livedesk-embed': 'livedesk-embed/scripts/js/',
 		'livedesk-embed/templates': 'livedesk-embed/templates',

@@ -5,7 +5,8 @@ var livedesk = {
 	{?Language}
 	'language': '{Language}',
 	{/Language}
-	'blog': '{TheBlog}'
+	'blog': '{TheBlog}',
+	'FrontendServer': '{FrontendServer}'
 };
 </script>
 <script data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>

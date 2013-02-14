@@ -5,7 +5,8 @@ define([
 	'jquery/tmpl',
 	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
-	'tmpl!theme/container'
+	'tmpl!theme/container',
+	'jquery/xdomainrequest'
 ], function($, Gizmo, PostView) {
 	return Gizmo.View.extend({
 		limit: 6,

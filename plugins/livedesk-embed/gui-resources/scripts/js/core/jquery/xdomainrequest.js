@@ -1,5 +1,5 @@
 define(['jquery'],function( jQuery ) {
-	
+var root = this;	
 if (root.XDomainRequest) {
   jQuery.ajaxTransport("+*",function( s ) {
 	if ( s.crossDomain && s.async ) {

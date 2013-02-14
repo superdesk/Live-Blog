@@ -20,6 +20,12 @@
                 </div>
               </div>
               <div class="control-group">
+                <label class="control-label">_("Frontend server");</label>
+                <div class="controls">
+                    <input name="FrontendServer" style="width:600px;height:auto;" value="{EmbedConfig.FrontendServer}"/>
+                </div>
+              </div>
+              <div class="control-group">
                 <label class="control-label">_('Language');</label>
                 <div class="controls languages"></div>
               </div>

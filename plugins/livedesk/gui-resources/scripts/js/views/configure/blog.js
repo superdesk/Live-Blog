@@ -18,7 +18,8 @@
             '[data-action="save"]': { 'click': 'save' },
             '[data-action="save-close"]': { 'click': 'saveClose' },
             '[data-action="cancel"]': { 'click': 'close' },
-            '[name="Language"]': { change: 'changeLanguage' }
+            '[name="Language"]': { change: 'changeLanguage' },
+            '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' }
         },
         init: function() {
             
@@ -26,7 +27,8 @@
         save: function(evt){
             var self = this,
                 EmbedConfig = {
-                    'theme': self.el.find('[name="Theme"]').val()
+                    'theme': self.el.find('[name="Theme"]').val(),
+                    'FrontendServer': self.el.find('[name="FrontendServer"]').val()
                 },
                 data = {
                     Language: self.el.find('[name="Language"]').val(),
@@ -38,7 +40,8 @@
         saveClose: function(evt) {
             var self = this,
                 EmbedConfig = {
-                    'theme': self.el.find('[name="Theme"]').val()
+                    'theme': self.el.find('[name="Theme"]').val(),
+                    'FrontendServer': self.el.find('[name="FrontendServer"]').val()
                 },
                 data = {
                     Language: self.el.find('[name="Language"]').val(),
@@ -60,13 +63,29 @@
                 .one('read', self.render, self)
                 .sync();
         },
+        changeFrontendServer: function(evt){
+            this.themesView.change(evt);
+        },
+        keydownFrontendServer: function(e){
+            var code = (e.keyCode ? e.keyCode : e.which);
+             if(code == 13) {
+                e.preventDefault();
+                this.themesView.change(e);
+            } 
+        },
         changeLanguage: function(evt) {
            this.themesView.change(evt); 
         },
         render: function() {
+            var embedConfig = this.model.get('EmbedConfig');
+            console.log(embedConfig);
+            if(embedConfig !== undefined) {
+                this.model.data['EmbedConfig'] = JSON.parse(this.model.get('EmbedConfig'));
+            } else {
+                this.model.data['EmbedConfig'] = {};
+            }
             var self = this,
                 themesData,
-                embedConfig,
                 data = $.extend({}, self.model.feed(), {
                     BlogHref: self.theBlog,
                     FooterFixed: true,
@@ -78,6 +97,10 @@
                         submenuActive2: 'active'
                     }
                 });
+            embedConfig = this.model.get('EmbedConfig');
+            if(!embedConfig.FrontendServer || embedConfig.FrontendServer == ''){
+                embedConfig.FrontendServer = config.api_url;
+            }
             $.superdesk.applyLayout('livedesk>configure', data, function() {
             //$.tmpl('livedesk>configure', self.model.feed(), function(e, o){
                 //self.el.html(o);
@@ -99,7 +122,7 @@
                     theBlog: self.theBlog
                 };
                 if(self.model.get('EmbedConfig')) {
-                    embedConfig = JSON.parse(self.model.get('EmbedConfig'));
+                    //embedConfig = self.model.get('EmbedConfig');
                     themesData.tmplData = { selected: embedConfig.theme };
                 } 
                 self.themesView = new ThemesView(themesData);
