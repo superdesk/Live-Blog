@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=7', 
+	urlArgs: 'v=8', 
 	paths: {
 		'theme': 'livedesk-embed/themes/tageswoche'
 	}
