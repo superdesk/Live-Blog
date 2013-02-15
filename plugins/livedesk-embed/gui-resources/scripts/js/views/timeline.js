@@ -75,7 +75,7 @@ define([
 				var closedOn = new Date(this.model.get('ClosedOn'));
 				this.pause();
 				this.model.get('PostPublished').pause();					
-				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('dd.mm.yyyy, HH:MM:ss')));
 			}
 		},                       
 		gotoHash : function() {

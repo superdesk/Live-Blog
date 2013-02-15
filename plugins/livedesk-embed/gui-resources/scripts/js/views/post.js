@@ -114,6 +114,9 @@ define([
 			}
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
+			if(data.CreatedOn) {
+				data.CreatedOn = (new Date(data.CreatedOn)).format(_('dd.mm.yyyy, HH:MM:ss'));
+			}
 			//console.log(data.Author.Source.Name,data.item);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
