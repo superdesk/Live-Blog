@@ -119,13 +119,14 @@ define([
 				if(!e) {
 					self.setElement(o);
 					var input = $('input[data-type="permalink"]',self.el);
-					$('a[rel="bookmark"]',self.el).on(self.getEvent('click'), function(evt) {
+					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
 						//evt.preventDefault();
 						if(input.css('visibility') === 'visible') {
 							input.css('visibility', 'hidden' );
 						} else {
 							input.css('visibility', 'visible' );
 							input.trigger(self.getEvent('focus'));
+							$('.result-header .share-box', self.el).fadeOut('fast');
 						}
 						
 					});
@@ -141,10 +142,12 @@ define([
 						//hover in
 					}, function(){
 						$(this).find('.share-box').fadeOut(100);
+						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
 					});
 
 					var sharelink = $('.sf-share', self.el);
-					sharelink.on(self.getEvent('click'), function(){
+					sharelink.on(self.getEvent('click'), function(evt){
+					    evt.preventDefault();
 						var share = $(this);
 						var added = share.attr('data-added');
 						if ( added != 'yes') {
@@ -167,7 +170,7 @@ define([
 								share.attr('data-added', 'yes');	
 							});
 						}
-						
+						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
 						$(this).next('.share-box').toggle();
 					})
 				} else {

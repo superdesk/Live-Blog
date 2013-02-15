@@ -17,8 +17,8 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie'], function($){
 
         load : function(name, req, onLoad, config) {
             // Append '.json' if no filename given:
-            name = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
-			//name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
+            //name = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
+			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
             var urlish = req.toUrl(name)+'&t='+(new Date()).getTime();
 			$.ajax({ dataType: 'json', url: urlish}).done(function(data){
 				if (config.isBuild) {
