@@ -19,4 +19,4 @@
 {<body_bottom}
 	{?Meta.annotation.after}<div class="editable annotation">{Meta.annotation.after|s}</div>{/Meta.annotation.after}
 {/body_bottom}
-{<reference_name} youtube.com{/reference_name}
+{<reference}{/reference}
