@@ -559,7 +559,8 @@ define('providers/edit', [
 		},
 		clear: function()
 		{
-			this.el.find('[name="type"]').val('normal');
+			// this.el.find('[name="type"]').val('normal');
+			$('[name="type"] option:first').attr('selected', 'selected');
 			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
 			this.el.find('.url-input-holder').html('');
 		},
