@@ -219,7 +219,8 @@ define([
 		toggleStatusCount: function()
 		{
 			if(this.pendingAutoupdates.length !== 0) {
-				$("#liveblog-status-count",this.el).text(_('%(count)s new posts').format( { count: this.pendingAutoupdates.length})).show();
+				var n = this.pendingAutoupdates.length;
+				$("#liveblog-status-count",this.el).text(ngettext('one new post', '%(count)s new posts',n ).format( { count: n})).show();
 			} else {
 				$("#liveblog-status-count",this.el).hide();
 			}

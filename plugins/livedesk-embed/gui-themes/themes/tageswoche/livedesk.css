@@ -250,6 +250,7 @@
             
             .liveblog-post-list li input[data-type="permalink"] {
                 margin: 0 ;
+                font-size: 11px;
                 padding: 3px 10px ;
                 position: absolute ;
                 top: 24px ;
@@ -386,7 +387,7 @@ ul.liveblog-post-list li.advertisement a p {
 
 #liveblog-posts {
     padding-top: 29px;
-    max-height: 500px;
+    max-height: 1200px;
     overflow: auto;
 }
 
@@ -692,4 +693,7 @@ li#loading-more{
     font-weight: bold;
     padding-right: 5px;
     text-decoration: none;
+}
+.normal .attributes {
+    display: none;
 }
