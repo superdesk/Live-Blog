@@ -151,6 +151,7 @@ define([
 						var share = $(this);
 						var added = share.attr('data-added');
 						if ( added != 'yes') {
+							var blogTitle = self._parent.model.get('Title');
 							var myPerm = escape(data.permalink);
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
 							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
@@ -158,7 +159,7 @@ define([
 							var emailurl = "mailto:?to=&subject=&body=" + myPerm;
 							var socialParams = {
 								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
-								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=Reading:" + myPerm + "',400,570); return false;",
+								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
 								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "', 400, 570); return false;",
 								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
 								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
