@@ -1,11 +1,11 @@
 Metadata-Version: 1.0
 Name: binary-gm
 Version: 1.0.dev
-Summary: GM tool
+Summary: GraphicsMagic tool
 Home-page: http://www.sourcefabric.org/en/superdesk/
-Author: GM team
-Author-email: 
+Author: GraphicsMagic team
+Author-email: ahuggel@gmx.net
 License: GPL v3
-Description: GM tool
+Description: GraphicsMagic tool
 Keywords: Ally REST framework plugin GM
 Platform: all

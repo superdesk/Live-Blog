@@ -42,6 +42,7 @@ superdesk/media_archive/core/impl/solr_search.py
 superdesk/media_archive/core/impl/thumbnail_manager.py
 superdesk/media_archive/core/impl/thumbnail_processor_avconv.py
 superdesk/media_archive/core/impl/thumbnail_processor_ffmpeg.py
+superdesk/media_archive/core/impl/thumbnail_processor_gm.py
 superdesk/media_archive/impl/__init__.py
 superdesk/media_archive/impl/meta_data.py
 superdesk/media_archive/impl/meta_info.py

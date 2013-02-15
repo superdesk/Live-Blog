@@ -105,6 +105,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+
+        # TODO: delete this filter for the final version
+#        sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
+
         sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:

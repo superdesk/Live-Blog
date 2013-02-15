@@ -32,6 +32,11 @@ gui-themes/themes/default/item/posttype/__init__.py
 gui-themes/themes/default/item/source/__init__.py
 gui-themes/themes/space/__init__.py
 gui-themes/themes/space/item/__init__.py
+gui-themes/themes/tageswoche/__init__.py
+gui-themes/themes/tageswoche/img/__init__.py
+gui-themes/themes/tageswoche/item/__init__.py
+gui-themes/themes/tageswoche/item/posttype/__init__.py
+gui-themes/themes/tageswoche/item/source/__init__.py
 livedesk_embed.egg-info/PKG-INFO
 livedesk_embed.egg-info/SOURCES.txt
 livedesk_embed.egg-info/dependency_links.txt
