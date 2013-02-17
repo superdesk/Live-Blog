@@ -9,12 +9,11 @@ Created on Feb 2, 2012
 Contains the GUI configuration setup for the node presenter plugin.
 '''
 
-from ..gui_core.gui_core import publishGui
-from distribution.container import app
+from ..gui_core.gui_core import publishGui, publish
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('superdesk/person')
     

@@ -10,17 +10,19 @@ The superdesk authentication implementation.
 '''
 
 from ..api.authentication import IAuthenticationService, Authentication
-from ally.api.operator.type import TypeProperty, TypeModel
+from acl.gateway.core.spec import IGatewayAclService, IAuthenticatedProvider
+from acl.spec import Acl
+from ally.api.operator.type import TypeProperty
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
+from ally.core.spec.resources import Node
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport, commitNow
 from ally.support.sqlalchemy.util_service import handle
 from datetime import timedelta
 from os import urandom
-from security.acl.core.spec import IAclAccessService, AclAccess
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
@@ -47,8 +49,12 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     The service implementation that provides the authentication.
     '''
 
-    aclAccessService = IAclAccessService; wire.entity('aclAccessService')
-    # The acl access service used for constructing the accesses
+    gatewayAclService = IGatewayAclService; wire.entity('gatewayAclService')
+    # The acl gateway service used for constructing the gateways
+    acl = Acl; wire.entity('acl')
+    # The acl repository.
+    resourcesRoot = Node; wire.entity('resourcesRoot')
+    # The root node to process the acl rights against.
     userRbacService = IUserRbacService; wire.entity('userRbacService')
     # The user rbac service.
     
@@ -69,7 +75,9 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         '''
         Construct the authentication service.
         '''
-        assert isinstance(self.aclAccessService, IAclAccessService), 'Invalid acl access service %s' % self.aclAccessService
+        assert isinstance(self.gatewayAclService, IGatewayAclService), 'Invalid acl gateway service %s' % self.gatewayAclService
+        assert isinstance(self.acl, Acl), 'Invalid acl repository %s' % self.acl
+        assert isinstance(self.resourcesRoot, Node), 'Invalid root node %s' % self.resourcesRoot
         assert isinstance(self.userRbacService, IUserRbacService), 'Invalid user rbac service %s' % self.userRbacService
         assert isinstance(self.authentication_token_size, int), 'Invalid token size %s' % self.authentication_token_size
         assert isinstance(self.session_token_size, int), 'Invalid session token size %s' % self.session_token_size
@@ -84,35 +92,27 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         '''
         @see: IAuthenticationService.authenticate
         '''
-        olderThan = self.session().query(current_timestamp()).scalar()
-        olderThan -= self._sessionTimeOut
-        sql = self.session().query(LoginMapped)
-        sql = sql.filter(LoginMapped.Session == session)
-        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
-        try: login = sql.one()
-        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
-        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
-        login.AccessedOn = current_timestamp()
-        self.session().flush((login,))
-        self.session().expunge(login)
-        commitNow()
+        # TODO: uncomment
+#        olderThan = self.session().query(current_timestamp()).scalar()
+#        olderThan -= self._sessionTimeOut
+#        sql = self.session().query(LoginMapped)
+#        sql = sql.filter(LoginMapped.Session == session)
+#        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
+#        try: login = sql.one()
+#        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
+#        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
+#        login.AccessedOn = current_timestamp()
+#        self.session().flush((login,))
+#        self.session().expunge(login)
+#        commitNow()
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
+        userId = int(session)
         
-        userId = str(login.User)
-        rights = (right.Name for right in self.userRbacService.getRights(login.User))
-        accesses = self.aclAccessService.accessFor(self.aclAccessService.rightsFor(rights))
-        allowed = []
-        for access in accesses:
-            assert isinstance(access, AclAccess), 'Invalid access %s' % access
-            for propertyType, mark in access.markers.items():
-                assert isinstance(propertyType, TypeProperty), 'Invalid property type %s' % propertyType
-                assert isinstance(propertyType.parent, TypeModel)
-                if propertyType.parent.clazz == User or issubclass(propertyType.parent.clazz, User):
-                    for k in range(len(access.Filter)): access.Filter[k] = access.Filter[k].replace(mark, userId)
-            allowed.append(access)
-        return allowed
-
+        rights = (right.Name for right in self.userRbacService.getRights(userId))  # login.User
+        rights = self.acl.activeRightsFor(self.resourcesRoot, rights)
+        return self.gatewayAclService.gatewaysFor(rights, UserProvider(str(userId)))
+        
     def requestLogin(self):
         '''
         @see: IAuthenticationService.requestLogin
@@ -196,3 +196,29 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         sql = sql.filter(LoginMapped.AccessedOn <= olderThan - self._sessionTimeOut)
         deleted = sql.delete()
         assert log.debug('Cleaned \'%s\' expired sessions', deleted) or True
+
+# --------------------------------------------------------------------
+
+class UserProvider(IAuthenticatedProvider):
+    '''
+    Implementation for @see: IAuthenticatedProvider that provides the authenticated user id.
+    '''
+    __slots__ = ('userId',)
+    
+    def __init__(self, userId):
+        '''
+        Construct the provider for the user id.
+        
+        @param userId: string
+            The user id.
+        '''
+        assert isinstance(userId, str), 'Invalid user id %s' % userId
+        self.userId = userId
+    
+    def valueFor(self, propertyType):
+        '''
+        @see: IAuthenticatedProvider.valueFor
+        '''
+        assert isinstance(propertyType, TypeProperty), 'Invalid property type %s' % propertyType
+        if propertyType.parent.clazz == User or issubclass(propertyType.parent.clazz, User): return self.userId
+        

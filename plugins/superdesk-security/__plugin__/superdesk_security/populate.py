@@ -10,8 +10,7 @@ Contains the default data for the user plugin.
 '''
 
 from ..security_rbac.populate import rootRoleId
-from ally.container import support
-from distribution.container import app
+from ally.container import support, app
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User
 import hashlib

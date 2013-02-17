@@ -11,13 +11,11 @@ from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
 from ..gui_security import acl
-from ally.container import ioc
+from ..superdesk_security.acl import filterAuthenticated
+from ally.container import ioc, app
 from ally.internationalization import NC_
-from distribution.container import app
 from gui.action.api.action import Action
 from superdesk.user.api.user import IUserService
-from superdesk.media_archive.api.meta_data import IMetaDataUploadService
-from ..superdesk_security.acl import filterAuthenticated
     
 # --------------------------------------------------------------------
 
@@ -73,4 +71,7 @@ def registerAclUserView():
 def registerAclUserUpdate():
     rightUserUpdate().addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())\
     .all(IUserService)
-    rightUserUpdate().byName(IMetaDataUploadService, IMetaDataUploadService.insert, filter=filterAuthenticated())
+    try: from superdesk.media_archive.api.meta_data import IMetaDataUploadService
+    except ImportError: pass
+    else:
+        rightUserUpdate().byName(IMetaDataUploadService, IMetaDataUploadService.insert, filter=filterAuthenticated())

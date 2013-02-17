@@ -12,7 +12,7 @@ The API specifications for the user authentication.
 from ally.api.config import service, call, INSERT, GET
 from ally.api.type import Iter
 from datetime import datetime
-from security.acl.api.access import Access
+from gateway.http.api.gateway import Gateway
 from security.api.domain_security import modelSecurity
 from superdesk.user.api.user import User
 
@@ -52,9 +52,9 @@ class IAuthenticationService:
     '''
 
     @call(method=GET)
-    def authenticate(self, session:Login.Session) -> Iter(Access):
+    def authenticate(self, session:Login.Session) -> Iter(Gateway):
         '''
-        Provides the authenticated access for the provided session, if the session is invalid an error is raised.
+        Provides the authenticated gateways for the provided session, if the session is invalid an error is raised.
         '''
         
     @call(method=INSERT)

@@ -9,9 +9,9 @@ Created on Jan 12, 2013
 The filter used to check if the authenticated identifier is allowed for the resource identifier.
 '''
 
+from acl.gateway.api.domain_filter import aliasFilter
+from acl.gateway.api.filter import IsAllowed, IAclFilter
 from ally.api.config import service, call, GET
-from security.acl.api.filter import IsAllowed, IAclFilter
-from security.api.domain_security import aliasFilter
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------

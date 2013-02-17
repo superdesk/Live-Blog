@@ -41,4 +41,5 @@ class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, Blo
     '''
     Provides the mapping for BlogCollaborator.
     '''
-    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_collaborator_id', name='uix_1'), dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True))
+    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_collaborator_id', name='uix_1'),
+                      dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True))

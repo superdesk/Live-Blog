@@ -9,8 +9,7 @@ Created on Sep 9, 2012
 Contains the services setups for superdesk security.
 '''
 
-from ally.container import ioc, support
-from distribution.container import app
+from ally.container import ioc, support, app
 from sched import scheduler
 from superdesk.security.core.spec import ICleanupService
 from threading import Thread
