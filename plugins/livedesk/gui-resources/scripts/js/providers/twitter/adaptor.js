@@ -2,7 +2,7 @@ define('providers/twitter/adaptor', [
     'providers',
     'utils/str',
     'jquery',
-    'gizmo',
+    'gizmo/superdesk',
     'jquery/superdesk',
     'jquery/rest',
     'jquery/utils',
@@ -62,9 +62,10 @@ define('providers/twitter/adaptor', [
             init: function() 
             {
                 var self = this;
-                new $.rest('Data/Collaborator/')
-                    .xfilter('Id')
-                    .request({data: { 'qs.name': 'twitter'}})
+                    Colabs = Gizmo.Collection.extend({  url: new Gizmo.Url('Data/Collaborator/') }),
+                    colabs = new Colabs;
+                colabs.xfilter('Id')
+                    .sync({data: { 'qs.name': 'twitter'}})
                     .done(function(collabs)
                     {
                         if( $.isDefined(collabs[0]) ) 
