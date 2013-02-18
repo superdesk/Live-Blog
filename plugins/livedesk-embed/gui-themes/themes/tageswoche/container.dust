@@ -4,6 +4,7 @@ _('updated on ');
 _('new posts');
 _('Load top Posts');
 _('Loading posts...');
+_('Load more posts ...');
 !}
 <div class="live-blog">
 	{+header}
@@ -23,7 +24,8 @@ _('Loading posts...');
 					<a class="liveblog-more" id="liveblog-more">_('Load top Posts');</a>
 				</li>
 				<li class="loading-more" id="loading-more" style="display:none">
-					<span class="loading">_('Loading posts...');</span>
+					<div id="loading-more-image"></div>
+					<div id="loading-more-text">_('Load more posts ...');</div>
 				</li>
 			</ol>
 		</div>

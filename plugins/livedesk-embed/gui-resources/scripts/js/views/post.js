@@ -117,6 +117,9 @@ define([
 			if(data.CreatedOn) {
 				data.CreatedOn = (new Date(data.CreatedOn)).format(_('dd.mm.yyyy, HH:MM:ss'));
 			}
+			if(data.Content) {
+				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
+			}
 			//console.log(data.Author.Source.Name,data.item);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {

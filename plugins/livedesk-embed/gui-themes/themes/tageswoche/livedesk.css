@@ -538,12 +538,20 @@ li.loading-more {
 li.loading-more:hover{
     background: none !important ;
 }
-li#loading-more:hover{
+#loading-more-image:hover{
     background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
 }
-li#loading-more{
+#loading-more-image{
+    cursor: pointer;
     background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
+    height: 10px;
+    width: 100%;
 }
+#loading-more-text{
+    cursor: pointer;
+    font-size: 12px !important;
+}
+
 .sf-share {
     width: 35px;
     height: 25px;

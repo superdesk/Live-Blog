@@ -16,10 +16,14 @@ define([
 		_views: [],
 		el: '#livedesk-root',
 		timeInterval: 10000,
+		events: {
+			'#loading-more': { click: 'moreButton' }
+		},
 		idInterval: 0,
 		flags: { 
 			addAllPending: false,
 			more: false,
+			moreButton: false,
 			atEnd: false
 		},
 		scroll: {
@@ -28,6 +32,33 @@ define([
 		},
 		autoRender: true,
 		pendingAutoupdates: [],
+		moreButton: function(evt) {
+			var self = this;
+			if(self.flags.atEnd || self.flags.moreButton)
+				return;
+			self.flags.moreButton = true;
+			self.flags.more = true;
+			var delta = self.model.get('PostPublished').delta;
+				postPublished = self.model.get('PostPublished')
+			if(self.filters) {
+				$.each(self.filters, function(method, args) {
+					postPublished[method].apply(postPublished, args);
+				});
+			}
+			postPublished
+				.xfilter(self.xfilter)
+				.limit(postPublished._stats.limit)
+				.offset(postPublished._stats.offset)
+				.sync().done(function(data){				
+					var total = self.model.get('PostPublished').total;
+					self.toggleMoreVisibility();
+					if(self._views.length >= total) {
+						self.flags.atEnd = true;
+					}
+					self.flags.more = false;
+					self.flags.moreButton = false;
+				});
+		},
 		more: function(evt) {
 			var self = this;
 			if(self.flags.atEnd || self.flags.more)
