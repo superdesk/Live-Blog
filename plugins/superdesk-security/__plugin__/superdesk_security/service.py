@@ -9,11 +9,25 @@ Created on Sep 9, 2012
 Contains the services setups for superdesk security.
 '''
 
+from __setup__.ally_core_http.processor import root_uri_resources
 from ally.container import ioc, support, app
 from sched import scheduler
 from superdesk.security.core.spec import ICleanupService
+from superdesk.security.impl.authentication import AuthenticationServiceAlchemy
 from threading import Thread
 import time
+from superdesk.security.core.impl.gateways_filter import RegisterDefaultGateways
+
+# --------------------------------------------------------------------
+
+def configureRootPattern(service):
+    '''
+    Listener used for populating the root pattern on the authentication service based on the 'root_uri_resources' configuration.    
+    '''
+    assert isinstance(service, AuthenticationServiceAlchemy), 'Invalid service %s' % service
+    service.root_uri = root_uri_resources()
+
+support.listenToEntities(AuthenticationServiceAlchemy, listeners=configureRootPattern, all=True)
 
 # --------------------------------------------------------------------
 
@@ -33,7 +47,33 @@ def cleanup_timeout() -> int:
 
 # --------------------------------------------------------------------
 
-@app.deploy
+@ioc.config
+def default_authenticated_gateways():
+    '''
+    The default authenticated gateways that are available for any user as long as it is authenticated.
+    This structure is the same as the one in 'default_gateways' configuration.
+    '''
+    return []
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def gatewaysFilters():
+    ''' The gateway filters that will be used by the authentication service'''
+    return []
+
+@ioc.entity
+def defaultAuthenticatedGateways(): return RegisterDefaultGateways(default_authenticated_gateways())
+
+# --------------------------------------------------------------------
+
+@ioc.before(gatewaysFilters)
+def updateGatewaysFiltersForDefaults():
+    gatewaysFilters().append(defaultAuthenticatedGateways())
+
+# --------------------------------------------------------------------
+
+@app.deploy(app.NORMAL)
 def cleanup():
     if not perform_cleanup(): return
     timeout, cleanup = cleanup_timeout(), support.entityFor(ICleanupService)

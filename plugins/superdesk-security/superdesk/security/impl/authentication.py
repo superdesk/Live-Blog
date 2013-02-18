@@ -26,9 +26,8 @@ from os import urandom
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
-from superdesk.security.api.authentication import Login
 from superdesk.security.api.user_rbac import IUserRbacService
-from superdesk.security.core.spec import ICleanupService
+from superdesk.security.core.spec import ICleanupService, IGatewaysFilter
 from superdesk.security.meta.authentication import LoginMapped, TokenMapped
 from superdesk.user.api.user import User
 from superdesk.user.meta.user import UserMapped
@@ -43,7 +42,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IAuthenticationService, ICleanupService)
+@setup(IAuthenticationService, ICleanupService, name='authenticationService')
 class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, ICleanupService):
     '''
     The service implementation that provides the authentication.
@@ -57,6 +56,8 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     # The root node to process the acl rights against.
     userRbacService = IUserRbacService; wire.entity('userRbacService')
     # The user rbac service.
+    gatewaysFilters = list; wire.entity('gatewaysFilters')
+    # The gateways filters used by authentication
     
     authentication_token_size = 5; wire.config('authentication_token_size', doc='''
     The number of characters that the authentication token should have.
@@ -70,6 +71,9 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     session_timeout = 3600; wire.config('session_timeout', doc='''
     The number of seconds after which the session expires.
     ''')
+    
+    root_uri = str
+    # This will be used for adjusting the gateways patterns to have a root URI.
 
     def __init__(self):
         '''
@@ -79,11 +83,13 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         assert isinstance(self.acl, Acl), 'Invalid acl repository %s' % self.acl
         assert isinstance(self.resourcesRoot, Node), 'Invalid root node %s' % self.resourcesRoot
         assert isinstance(self.userRbacService, IUserRbacService), 'Invalid user rbac service %s' % self.userRbacService
+        assert isinstance(self.gatewaysFilters, list), 'Invalid gateways filters %s' % self.gatewaysFilters
         assert isinstance(self.authentication_token_size, int), 'Invalid token size %s' % self.authentication_token_size
         assert isinstance(self.session_token_size, int), 'Invalid session token size %s' % self.session_token_size
         assert isinstance(self.authentication_timeout, int), \
         'Invalid authentication timeout %s' % self.authentication_timeout
         assert isinstance(self.session_timeout, int), 'Invalid session timeout %s' % self.session_timeout
+        assert isinstance(self.root_uri, str), 'Invalid root uri %s' % self.root_uri
 
         self._authenticationTimeOut = timedelta(seconds=self.authentication_timeout)
         self._sessionTimeOut = timedelta(seconds=self.session_timeout)
@@ -111,7 +117,13 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         
         rights = (right.Name for right in self.userRbacService.getRights(userId))  # login.User
         rights = self.acl.activeRightsFor(self.resourcesRoot, rights)
-        return self.gatewayAclService.gatewaysFor(rights, UserProvider(str(userId)))
+        gateways = self.gatewayAclService.gatewaysFor(rights, UserProvider(str(userId)), self.root_uri)
+        
+        for gatewaysFilter in self.gatewaysFilters:
+            assert isinstance(gatewaysFilter, IGatewaysFilter), 'Invalid gateways filter %s' % gatewaysFilter
+            gateways = gatewaysFilter.filter(gateways, userId)
+        
+        return gateways
         
     def requestLogin(self):
         '''
