@@ -8,7 +8,7 @@
 			<img src="{Meta.profile_image_url}"/>{!/!}
 		</figure>{!/!}
 
-		<h3>
+		<h3 style="display: block; margin-bottom:2px;">
 			<a target="_blank" href="http://twitter.com/{Meta.from_user}" target="_blank">{!/!}{Meta.from_user_name}</a>{!/!}	<!-- Person name -->
 			<span class="twitter-name">(@{Meta.from_user})</span>{!/!}		<!-- twitter username -->
 		</h3>{!/!}
