@@ -83,6 +83,7 @@
 		}
 		.container {
 			height: auto;
+			width: 500px;
 		}
 		</style>
 		<script>
@@ -92,7 +93,7 @@
 			    if (d.getElementById(id)) return;
 			    js = d.createElement(s);
 			    js.id = id;
-			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/default');
+			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/tageswoche');
 			    js.src = config.coreScripts('require.js');
 			    fjs.parentNode.insertBefore(js, fjs);
 			}(document, "script", "livedesk-jssdk"));

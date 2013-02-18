@@ -332,7 +332,8 @@ define([
 				self.views.push(auxView);
 			}
 			self.model.get('PostPublished').triggerHandler('rendered');
-			$("#pintotop", self.el).on(self.getEvent('click'), function(){
+			$("#pintotop,#liveblog-status-count", self.el).on(self.getEvent('click'), function(evt){
+				evt.preventDefault();
 				$("#liveblog-posts",self.el).scrollTop(0);
 			});
 			self.markScroll();

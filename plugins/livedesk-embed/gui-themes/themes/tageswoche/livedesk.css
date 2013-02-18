@@ -388,7 +388,8 @@ ul.liveblog-post-list li.advertisement a p {
 #liveblog-posts {
     padding-top: 29px;
     max-height: 1200px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .update-time + #liveblog-posts li:first-child {
@@ -696,4 +697,8 @@ li#loading-more{
 }
 .normal .attributes {
     display: none;
+}
+
+#liveblog-status-count{
+    cursor: pointer;
 }
