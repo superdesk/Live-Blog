@@ -62,7 +62,7 @@ define('providers/twitter/adaptor', [
             init: function() 
             {
                 var self = this;
-                    Colabs = Gizmo.Collection.extend({  url: new Gizmo.Url('Data/Collaborator/') }),
+                    Colabs = Gizmo.Collection.extend({  url: new Gizmo.Url('Data/Collaborator/'), model: Gizmo.Model.extend() }),
                     colabs = new Colabs;
                 colabs.xfilter('Id')
                     .sync({data: { 'qs.name': 'twitter'}})

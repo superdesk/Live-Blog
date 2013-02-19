@@ -42,7 +42,6 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
-            console.log(this.data);
             if ( typeof this.data.Meta.annotation == 'undefined' ) {
                 this.data.Meta.annotation = "<br />";
             }
