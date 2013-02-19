@@ -1171,7 +1171,6 @@ function(providers, Gizmo, $, BlogAction)
 				delete timelinectrl.justifyRight;
                 delete timelinectrl.justifyLeft;
                 delete timelinectrl.justifyCenter;
-                delete timelinectrl.html;
                 delete timelinectrl.image;
 				// assign editors
 				BlogAction.get('modules.livedesk.blog-edit').done(function(action) {
