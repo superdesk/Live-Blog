@@ -34,6 +34,7 @@ from superdesk.user.meta.user import UserMapped
 import hashlib
 import hmac
 import logging
+from superdesk.security.api.authentication import Login
 
 # --------------------------------------------------------------------
 
@@ -72,8 +73,10 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     The number of seconds after which the session expires.
     ''')
     
-    root_uri = str
-    # This will be used for adjusting the gateways patterns to have a root URI.
+    root_uri = str; wire.config('root_uri', doc='''
+    This will be used for adjusting the gateways patterns and filters with a root URI. It needs to have the place holder '%s',
+    something like 'resources/%s'.
+    ''')
 
     def __init__(self):
         '''
@@ -98,30 +101,28 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         '''
         @see: IAuthenticationService.authenticate
         '''
-        # TODO: uncomment
-#        olderThan = self.session().query(current_timestamp()).scalar()
-#        olderThan -= self._sessionTimeOut
-#        sql = self.session().query(LoginMapped)
-#        sql = sql.filter(LoginMapped.Session == session)
-#        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
-#        try: login = sql.one()
-#        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
-#        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
-#        login.AccessedOn = current_timestamp()
-#        self.session().flush((login,))
-#        self.session().expunge(login)
-#        commitNow()
+        olderThan = self.session().query(current_timestamp()).scalar()
+        olderThan -= self._sessionTimeOut
+        sql = self.session().query(LoginMapped)
+        sql = sql.filter(LoginMapped.Session == session)
+        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
+        try: login = sql.one()
+        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
+        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
+        login.AccessedOn = current_timestamp()
+        self.session().flush((login,))
+        self.session().expunge(login)
+        commitNow()
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
-        userId = int(session)
         
-        rights = (right.Name for right in self.userRbacService.getRights(userId))  # login.User
+        rights = (right.Name for right in self.userRbacService.getRights(login.User))  # login.User
         rights = self.acl.activeRightsFor(self.resourcesRoot, rights)
-        gateways = self.gatewayAclService.gatewaysFor(rights, UserProvider(str(userId)), self.root_uri)
+        gateways = self.gatewayAclService.gatewaysFor(rights, UserProvider(str(login.User)), self.root_uri)
         
         for gatewaysFilter in self.gatewaysFilters:
             assert isinstance(gatewaysFilter, IGatewaysFilter), 'Invalid gateways filter %s' % gatewaysFilter
-            gateways = gatewaysFilter.filter(gateways, userId)
+            gateways = gatewaysFilter.filter(gateways, login.User)
         
         return gateways
         

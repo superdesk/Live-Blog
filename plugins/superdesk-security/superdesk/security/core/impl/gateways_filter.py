@@ -10,14 +10,13 @@ Implementations for @see: IGatewaysFilter for general purposes.
 '''
 
 from ..spec import IGatewaysFilter
+from ally.container.ioc import injected
+from ally.http.spec.server import HTTP_GET, HTTP_POST, HTTP_DELETE, HTTP_PUT
+from ally.support.api.util_service import copy
 from collections import Iterable
+from gateway.http.api.gateway import Gateway
 from gateway.http.support.util_gateway import gatewayFrom
 from itertools import chain
-from ally.http.spec.server import HTTP_GET, HTTP_POST, HTTP_DELETE, HTTP_PUT
-from ally.container.ioc import injected
-from gateway.http.api.gateway import Gateway
-from ally.support.api.util_service import copy
-import re
 
 # --------------------------------------------------------------------
 
@@ -53,8 +52,8 @@ class PopulateMethodOverride(IGatewaysFilter):
     user id.
     '''
     
-    nameXMethodOverride = 'X-HTTP-Method-Override'
-    # The header name for the method override.
+    patternXMethodOverride = 'X\-HTTP\-Method\-Override\\:[\s]*%s[\s]*(?i)'
+    # The header pattern for the method override, needs to contain '%s' where the value will be placed.
     methodsOverride = {
                        HTTP_DELETE: [HTTP_GET],
                        HTTP_PUT: [HTTP_POST],
@@ -65,10 +64,8 @@ class PopulateMethodOverride(IGatewaysFilter):
         '''
         Construct the populate method override filter.
         '''
-        assert isinstance(self.nameXMethodOverride, str), 'Invalid method override name %s' % self.nameXMethodOverride
+        assert isinstance(self.patternXMethodOverride, str), 'Invalid method override pattern %s' % self.patternXMethodOverride
         assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
-        
-        self._headerPattern = '%s\\:[\s]*%s[\s]*(?i)' % re.escape('X-HTTP-Method-Override')
         
     def filter(self, gateways, userId):
         '''
@@ -80,18 +77,20 @@ class PopulateMethodOverride(IGatewaysFilter):
             yield gateway
             if not gateway.Methods: continue
             
-            methods = set()
-            if len(gateway.Methods) == 1:
-                method = gateway.Methods[0]
-                if method not in self.methodsOverride: continue
-                methods.add(method)
-            else:
-                pass
+            methods, overrides = set(), set()
+            for method in gateway.Methods:
+                override = self.methodsOverride.get(method)
+                if override:
+                    methods.add(method)
+                    overrides.update(override)
+            
+            # If the override methods are already declared as methods we don't need to declare them anymore
+            if methods.union(overrides).issubset(gateway.Methods): continue
                 
-            for overriden in overrides:
-                ogateway = Gateway()
-                copy(gateway, ogateway, exclude=('Methods',))
-                ogateway.Methods = [overriden]
-                if Gateway.Headers not in ogateway: ogateway.Headers = []
-                ogateway.Headers.append(self._headerPattern % method)
-                yield ogateway
+            ogateway = Gateway()
+            copy(gateway, ogateway, exclude=('Methods',))
+            ogateway.Methods = list(overrides)
+            if Gateway.Headers not in ogateway: ogateway.Headers = []
+            for method in methods:
+                ogateway.Headers.append(self.patternXMethodOverride % method)
+            yield ogateway
