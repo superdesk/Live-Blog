@@ -66,10 +66,9 @@ define('providers/twitter/adaptor', [
                     colabs = new Colabs;
                 colabs.xfilter('Id')
                     .sync({data: { 'qs.name': 'twitter'}})
-                    .done(function(collabs)
+                    .done(function()
                     {
-                        if( $.isDefined(collabs[0]) ) 
-                            self.author = collabs[0].Id;
+                        colabs.each(function(){ self.author = this.get('Id'); return false; });
                     });
             },
             universal: function(obj) 
