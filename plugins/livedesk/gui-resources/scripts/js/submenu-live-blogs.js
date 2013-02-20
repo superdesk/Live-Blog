@@ -24,6 +24,7 @@ define
         init: function()
         {
             this.model.on('read update', this.render, this);
+            this.model.on('insert', this.refresh, this);
         },
         refresh: function()
         {
