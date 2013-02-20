@@ -47,7 +47,7 @@
                 <h3><span class="author">{Meta.from_user_name}({Meta.from_user})</span></h3>
             {/if}
 			<div class="result-text">
-				{Content|s}
+				{Content|s}{@if cond="'{Author.Source.Name}'=='flickr'"}<p>{Meta.title|s}</p>{/if}
                 {#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
 			</div>
 			<p class="attributes">

@@ -50,6 +50,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             }
             var self = this,
                 posts = this.model.feed('json');
+                posts.Meta = JSON.parse(posts.Meta);
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts}, function(e, o)
             {
                 self.setElement(o);
