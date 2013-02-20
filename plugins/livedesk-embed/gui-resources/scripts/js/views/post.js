@@ -162,7 +162,7 @@ define([
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
 							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
-							var emailurl = "mailto:?to=&subject=&body=" + myPerm;
+							var emailurl = "mailto:?to=&subject=" + _('Check out this Live Blog') + "&body=" + myPerm;
 							var socialParams = {
 								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
 								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
