@@ -106,10 +106,13 @@ define([
 			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator', data, addUserImages );
 		},
 		addInternalCollaborator: function(evt) {
-			var self = this;
+			var self = this, pos;
 			if($(evt.target).is(':checked')) {
 				self.model.set({'Type': 'Collaborator'}, {silent: true});
-				self._parent._addPending.push(self.model);
+				pos = self._parent._addPending.indexOf(self.model);
+				if(pos === -1) {
+					self._parent._addPending.push(self.model);
+				}
 			} else {
 				pos = self._parent._addPending.indexOf(self.model);
 				if(pos !== -1) {
@@ -121,6 +124,7 @@ define([
 	AddInternalCollaboratorsView = Gizmo.View.extend({
 		events: {
 			'.save': { click: 'addPendingCollaborators'},
+			'.cancel': { click: 'removeStatus' },
 			'[name="internalCollaboratorSelectAll"]': { change: 'toggleCollaborators' },
 			'.searchbox': { keyup: 'searchWait' }
 		},
@@ -179,8 +183,13 @@ define([
 			self.el.find('.internal-collaborators').html('');
 			self.addAll(evt, data);
 		},
+		removeStatus: function(evt) {
+			var self = this;
+			self.el.find('[name="internalCollaboratorSelectAll"]').removeAttr('checked');
+		},
 		addPendingCollaborators: function(evt) {
 			var self = this;
+			self.removeStatus(evt);
 			self._parent.addAllNew(evt, self._addPending).save(evt, self._addPending);
 		},
 		toggleCollaborators: function(evt) {
