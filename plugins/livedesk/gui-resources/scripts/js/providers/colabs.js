@@ -19,7 +19,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
         updateInterval = 0,
         intervalRunning = false,
         updateItemCount = 0,
-        
+        postDateList = [],
         userImages = [];
     
     var addUserImages = function()
@@ -50,7 +50,8 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             }
             var self = this,
                 posts = this.model.feed('json');
-                posts.Meta = JSON.parse(posts.Meta);
+            try{ posts.Meta = JSON.parse(posts.Meta); } catch(e){}
+
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts}, function(e, o)
             {
                 self.setElement(o);
@@ -220,8 +221,32 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             {
                 $(appendPosts.reverse()).each(function()
                 {
+                    // TODO very inefficient, refactoring on server needed 
+                    postDateList.push({ Date: this.get('CreatedOn'), Timestamp: (new Date(this.get('CreatedOn'))).getTime(), Id: this.get('Id') });
+                    postDateList.sort(function(x, y){ return x.Timestamp >  y.Timestamp; });
+                    for(var i=0; i<postDateList.length; i++)
+                    {
+                        if( postDateList[i].Id == this.get('Id') )
+                        {
+                            if( postDateList[i-1] )
+                            {
+                                (new PostView({ model: this, colab: colab })).render().el.insertBefore($('[data-post-id="'+postDateList[i-1].Id+'"]', view.el));
+                                break;
+                            }
+                            else if( postDateList[i+1] )
+                            {
+                                (new PostView({ model: this, colab: colab })).render().el.insertAfter($('[data-post-id="'+postDateList[i+1].Id+'"]', view.el));
+                                break;
+                            }
+                            else
+                            {
+                                $('.search-result-list', view.el).append( (new PostView({ model: this, colab: colab })).render().el );
+                                break;
+                            }
+                        }
+                    }
                     //if(this.get('IsPublished') !== 'True')
-                        $('.search-result-list', view.el).prepend( (new PostView({ model: this, colab: colab })).render().el );
+                    //    $('.search-result-list', view.el).prepend( (new PostView({ model: this, colab: colab })).render().el );
                 });
                 updateItemCount -= appendPosts.length;
             }, initColabHandle()]);

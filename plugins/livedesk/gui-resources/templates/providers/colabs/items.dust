@@ -15,7 +15,7 @@
     	<h3><span class="author">{AuthorName}</span></h3>
         {@if cond="'{Type.Key}'=='wrapup'"}<div class="collabs-wrap-arrow"></div>{/if}
     	<p class="result-text">{Content|s}</p>{@if cond="'{Author.Source.Name}'=='flickr'"}<p>{Meta.title|s}</p>{/if}
-    	<p class="attributes"><time>{PublishedOn}</time></p>
+    	<p class="attributes"><time>{CreatedOn}</time></p>
 	</div>
 </li>
 {/Posts}
