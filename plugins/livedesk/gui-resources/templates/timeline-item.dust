@@ -4,8 +4,8 @@
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="tool-box-right">
-       	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
-       	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
+       	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
+       	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
        </div>
        <div class="wrapup-content">
             {Content|s}
@@ -93,8 +93,8 @@
 	    {@if cond="'{Author.Source.Name}'=='advertisement'"}
 		<li class="{Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 	        <div class="tool-box-right">
-	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
-	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
 	        </div>
 	        <div class="result-content">
 				<p class="result-text {?AuthorPerson}editable{/AuthorPerson}" data-post-id="{Id}">
@@ -112,8 +112,8 @@
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
-	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
 	        </div>
 	        <figure>
 	        	{Avatar|s}
