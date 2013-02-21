@@ -464,7 +464,8 @@ define('providers/edit', [
 					self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
 						var keyCode = event.keyCode;
 						if ( keyCode == 13 ) {
-							self.el.find('[ci="savepost"]').focus();
+							self.el.find('[ci="save"]').focus();
+
 						}
 					});
 
