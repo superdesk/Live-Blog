@@ -1,10 +1,10 @@
 requirejs.config({
-	urlArgs: 'v=18', 
+	urlArgs: 'v=17', 
 	paths: {
-		'theme': 'livedesk-embed/themes/tageswoche'
+		'theme': 'livedesk-embed/themes/sdtageswoche'
 	}
 });
-require(['tageswoche.min'], function() {
+require(['sdtageswoche.min'], function() {
 	require(['../scripts/js/config'], function(){
 		function loadCss(url) {
 			var link = document.createElement("link");
