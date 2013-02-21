@@ -1012,19 +1012,25 @@ function(providers, Gizmo, $, BlogAction)
                     var stsLive = $('[data-status="live"]', self.el);
                         stsOffline = $('[data-status="offline"]', self.el),
                         msgLive = $('#put-live-msg-live', self.el),
-                        msgOffline = $('#put-live-msg-offline', self.el);
+                        titleLive = $('#put-live-title-live', self.el),
+                        msgOffline = $('#put-live-msg-offline', self.el),
+                        titleOffline = $('#put-live-title-offline', self.el);
                     if( stsLive.hasClass('hide') )
                     {
                         stsLive.removeClass('hide');
                         stsOffline.addClass('hide');
                         msgLive.addClass('hide');
+                        titleLive.addClass('hide');
                         msgOffline.removeClass('hide');
+                        titleOffline.removeClass('hide');
                         return;
                     }
                     stsLive.addClass('hide');
                     stsOffline.removeClass('hide');
                     msgLive.removeClass('hide');
+                    titleLive.removeClass('hide');
                     msgOffline.addClass('hide');
+                    titleOffline.addClass('hide');
                 });
 			},
 			textToggleStatus: function()

@@ -1,8 +1,8 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
   <div id="role-blog-publish" style="display: none;">
-  	<a class="btn btn-medium pull-right btn-success {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Live')</a>
-  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Put live')</a>
+  	<a class="btn btn-medium pull-right btn-danger {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Take offline')</a>
+  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Go live')</a>
   	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
   </div>
 	<ul class="nav nav-pills pull-left">	
@@ -35,7 +35,8 @@
 <div class="modal hide fade" id="put-live">
   <div class="modal-header">
 	<a class="close image" data-dismiss="modal">×</a>
-    <h3>_('Put live')</h3>
+    <h3 id="put-live-title-live" class="{isLive}">_('Go live?')</h3>
+    <h3 id="put-live-title-offline" class="{isOffline}">_('Take offline?')</h3>
   </div>
   <div class="modal-body" style="height:50px; min-height:50px">
     <p id="put-live-msg-live" class="{isLive}">_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
@@ -48,7 +49,7 @@
 </div>
 <div class="modal hide fade" id="unpublish-live">
   <div class="modal-header"> <a class="close image" data-dismiss="modal">x</a>
-    <h3>_('Put live')</h3>
+    <h3>_('Go live')</h3>
   </div>
   <div class="modal-body" style="height:50px; min-height:50px">
     <p>_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
