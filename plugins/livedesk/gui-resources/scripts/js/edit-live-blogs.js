@@ -583,9 +583,15 @@ function(providers, Gizmo, $, BlogAction)
 				        rendered = true;
 				    }
 				}
-				var post = this.model.feed();
+				var img = new Image,
+				    post = this.model.feed();
+				
+				img.src = $.avatar.get('AuthorPerson.EMail');
+				img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
+				img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
+				
 				post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
-				        '<img src="'+$.avatar.get('AuthorPerson.EMail')+'" />';
+				        '<img data-avatar-id="'+post['Id']+'" />';
 				!rendered &&
 				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
 				{
