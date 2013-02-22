@@ -722,3 +722,55 @@ li.loading-more:hover{
 #liveblog-status-count{
     cursor: pointer;
 }
+
+
+
+@media screen and (max-width: 768px) {
+
+
+    #livedesk-root ol.liveblog-post-list li, 
+    #livedesk-root ul.liveblog-post-list li {
+        padding: 7px 5px 35px 5px;
+    }
+
+    .liveblog-post-list li a[rel="bookmark"] {
+        display: block !important;
+        top: auto;
+        right: 10px;
+        bottom: 9px;
+        
+    }
+
+    .share {
+        display: block !important;
+        top: auto;
+        right: 50px;
+        bottom: 5px;
+        height: 20px;
+        font-size: 12px;
+    }
+    
+    .share-box {
+        top: auto;
+        bottom: 35px;
+        right: 50px;
+    }
+
+    .twitter-controls {
+        height: 15px;
+        top: auto !important;
+        padding: 5px 0;
+    }
+
+    .twitter-controls .twitter-button {
+        display: block !important;
+    }
+    
+    .liveblog-post-list li input[data-type="permalink"] {
+        top: auto;
+        bottom: 35px;
+        right: 15px;
+        display: block;
+    }
+
+}
