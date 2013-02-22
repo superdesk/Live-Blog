@@ -1,7 +1,9 @@
-define(['jquery'],function( jQuery ) {
+define(['jquery'],function( $ ) {
+
+$.support.cors = true;
 var root = this;	
 if (root.XDomainRequest) {
-  jQuery.ajaxTransport("+*",function( s ) {
+  $.ajaxTransport("+*",function( s ) {
 	if ( s.crossDomain && s.async ) {
 	  if ( s.timeout ) {
 		s.xdrTimeout = s.timeout;
@@ -11,7 +13,7 @@ if (root.XDomainRequest) {
 	  return {
 		send: function( _, complete ) {
 		  function callback( status, statusText, responses, responseHeaders ) {
-			xdr.onload = xdr.onerror = xdr.ontimeout = jQuery.noop;
+			xdr.onload = xdr.onerror = xdr.ontimeout = $.noop;
 			xdr = undefined;
 			complete( status, statusText, responses, responseHeaders );
 		  }
@@ -42,7 +44,7 @@ if (root.XDomainRequest) {
 		},
 		abort: function() {
 		  if ( xdr ) {
-			xdr.onerror = jQuery.noop();
+			xdr.onerror = $.noop();
 			xdr.abort();
 		  }
 		}

@@ -8,7 +8,6 @@ define([
 	'tmpl!theme/container',
 	'jquery/xdomainrequest'
 ], function($, Gizmo, PostView) {
-	$.support.cors = true;
 	return Gizmo.View.extend({
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',
