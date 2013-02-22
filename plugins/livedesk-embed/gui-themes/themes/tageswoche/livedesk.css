@@ -124,7 +124,13 @@
                 }
                 .twitterservice .attributes .source-icon {
                     background-image: url("img/twitter-16px.png");
+                    vertical-align: middle;
                 }
+                 .twitterservice .attributes {
+                    text-transform: none !important;
+                    margin-top: 10px !important;
+                }
+
                 .flickrservice .attributes .source-icon {
                     background-image: url("img/flickr-16px.png");
                 }
@@ -149,9 +155,9 @@
                 .linkpost h3,
                 .googleservice h3, 
                 .twitterservice h3 {
-                    color:#787878;
-                    font-size: 13px;
-                    font-weight: normal;
+                    color:#787878 !important;
+                    font-size: 13px !important;
+                    font-weight: normal !important;;
                     padding: 0;
                     margin: 0;
                     margin-top: -3px;
