@@ -84,6 +84,12 @@
                 color:#000000;
                 line-height: 18px;
             }
+            .liveblog-post-list li .result-text b, 
+            .liveblog-post-list li .result-text strong {
+               font-family: "GeorgiaProW01-SemiBold", Georgia, 'Times New Roman', Times, serif; 
+               font-style: normal !important; 
+            }
+            
             .liveblog-post-list li .result-text img  {
                 max-width: 500px;
                 height: auto !important;
@@ -147,7 +153,7 @@
                 .googleservice .attributes .source-icon {
                     background-image: url("img/google-16px.png");
                 }
-                .instagram .attributes .source-icon {
+                .instagramservice .attributes .source-icon {
                     background-image: url("img/instagram.png");
                 }  
 
