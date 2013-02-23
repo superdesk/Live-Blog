@@ -9,13 +9,31 @@ Created on Sep 9, 2012
 Contains the services setups for superdesk security.
 '''
 
+from acl.core.impl.processor.default_right import RegisterDefaultRights
+from acl.core.impl.processor.method_override_gateway import \
+    RegisterMethodOverride
+from acl.core.impl.processor.rbac_right import RbacPopulateRights
+from acl.core.impl.processor.resource_gateway import \
+    GatewaysFromResourcePermissions
+from acl.core.impl.processor.resource_node_associate import \
+    RepositoryNodeService, IterateResourcePermissions, CheckResourceAvailableRights
 from ally.container import ioc, support, app
+from ally.design.processor.assembly import Assembly
 from sched import scheduler
-from superdesk.security.core.impl.gateways_filter import RegisterDefaultGateways, \
-    PopulateMethodOverride
+from superdesk.security.core.impl.processor.user_rbac_provider import \
+    UserRbacProvider
 from superdesk.security.core.spec import ICleanupService
 from threading import Thread
 import time
+
+# --------------------------------------------------------------------
+
+support.createEntitySetup(UserRbacProvider, RbacPopulateRights, RegisterDefaultRights, IterateResourcePermissions,
+                          GatewaysFromResourcePermissions, RegisterMethodOverride, RepositoryNodeService,
+                          CheckResourceAvailableRights)
+
+global userRbacProvider, rbacPopulateRights, registerDefaultRights, iterateResourcePermissions, checkResourceAvailableRights, \
+gatewaysFromResourcePermissions, registerMethodOverride
 
 # --------------------------------------------------------------------
 
@@ -35,33 +53,27 @@ def cleanup_timeout() -> int:
 
 # --------------------------------------------------------------------
 
-@ioc.config
-def default_authenticated_gateways():
-    '''
-    The default authenticated gateways that are available for any user as long as it is authenticated.
-    This structure is the same as the one in 'default_gateways' configuration.
-    '''
-    return []
+@ioc.entity
+def assemblyGateways() -> Assembly:
+    ''' Assembly used for creating the users gateways'''
+    return Assembly('Users gateways')
+
+@ioc.entity
+def assemblyActiveRights() -> Assembly:
+    ''' Assembly used for getting the users active rights'''
+    return Assembly('Active rights')
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def gatewaysFilters() -> list:
-    ''' The gateway filters that will be used by the authentication service'''
-    return []
-
-@ioc.entity
-def defaultAuthenticatedGateways(): return RegisterDefaultGateways(default_authenticated_gateways())
-
-@ioc.entity
-def populateMethodOverrideGateways(): return PopulateMethodOverride()
-
-# --------------------------------------------------------------------
-
-@ioc.before(gatewaysFilters)
-def updateGatewaysFilters():
-    gatewaysFilters().append(populateMethodOverrideGateways())
-    gatewaysFilters().append(defaultAuthenticatedGateways())
+@ioc.before(assemblyGateways)
+def updateAssemblyGateways():
+    assemblyGateways().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(), iterateResourcePermissions(),
+                           gatewaysFromResourcePermissions(), registerMethodOverride())
+    
+@ioc.before(assemblyActiveRights)
+def updateAssemblyActiveRights():
+    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(),
+                               checkResourceAvailableRights())
 
 # --------------------------------------------------------------------
 

@@ -23,24 +23,3 @@ class ICleanupService(metaclass=abc.ABCMeta):
         '''
         Clean the expired authentications/sessions.
         '''
-
-# --------------------------------------------------------------------
-
-class IGatewaysFilter(metaclass=abc.ABCMeta):
-    '''
-    Specification for gateway filter. A gateway filter has the ability to manipulate the users gateways.
-    The order in which the filters are executed is crucial since the first filter will provide the gateways for the second
-    filter and so on.
-    '''
-    
-    def filter(self, gateways, userId):
-        '''
-        Filter the provided gateways.
-        
-        @param gateways: Iterable(Gateway)
-            The gateways to filter.
-        @param userId: integer
-            The user id that this gateways belongs to.
-        @return: Iterable(Gateway)
-            The filtered gateways.
-        '''

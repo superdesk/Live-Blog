@@ -10,7 +10,7 @@ Created on Feb 23, 2012
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..gui_security import acl
+from ..acl import gui
 from ..superdesk_security.acl import filterAuthenticated
 from ally.container import ioc, app
 from ally.internationalization import NC_
@@ -44,12 +44,12 @@ def modulesListAction():
 
 @ioc.entity
 def rightUserView():
-    return acl.actionRight(NC_('security', 'Users view'), NC_('security', '''
+    return gui.actionRight(NC_('security', 'Users view'), NC_('security', '''
     Allows read only access to users.'''))
 
 @ioc.entity
 def rightUserUpdate():
-    return acl.actionRight(NC_('security', 'Users update'), NC_('security', '''
+    return gui.actionRight(NC_('security', 'Users update'), NC_('security', '''
     Allows the update of users.'''))
 
 # --------------------------------------------------------------------
@@ -62,12 +62,12 @@ def registerActions():
     addAction(modulesListAction())
     # addAction(modulesAddAction())
 
-@acl.setup
+@gui.setup
 def registerAclUserView():
     rightUserView().addActions(menuAction(), modulesAction(), modulesListAction())\
     .allGet(IUserService)
     
-@acl.setup
+@gui.setup
 def registerAclUserUpdate():
     rightUserUpdate().addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())\
     .all(IUserService)

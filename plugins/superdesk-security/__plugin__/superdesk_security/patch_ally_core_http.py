@@ -12,8 +12,8 @@ Provides the ally core http setup patch.
 from . import service
 from ally.container import ioc, support
 from ally.container.support import nameInEntity
-from superdesk.security.impl.authentication import AuthenticationServiceAlchemy
 import logging
+from acl.core.impl.processor.resource_gateway import GatewaysFromResourcePermissions
 
 # --------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ else:
     
     from __setup__.ally_core_http.processor import root_uri_resources
 
-    root_uri = ioc.entityOf(nameInEntity(AuthenticationServiceAlchemy, 'root_uri'), module=service)
+    root_uri = ioc.entityOf(nameInEntity(GatewaysFromResourcePermissions, 'root_uri_resources'), module=service)
     ioc.doc(root_uri, '''
         !Attention, this is automatically set to the server resources root. 
         ''')

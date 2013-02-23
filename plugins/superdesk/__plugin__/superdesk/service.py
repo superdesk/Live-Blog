@@ -11,15 +11,20 @@ Contains the services for superdesk.
 
 from ..plugin.registry import addService
 from .db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
-from ally.container import support
+from ally.container import support, bind, ioc
+from itertools import chain
 
 # --------------------------------------------------------------------
 
 SERVICES = 'superdesk.*.api.**.I*Service'
+@ioc.entity
+def binders(): return [bindSuperdeskSession]
+@ioc.entity
+def bindersService(): return list(chain(binders(), (bindSuperdeskValidations,)))
 
+bind.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.*.impl.**.*')
-support.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=bindSuperdeskSession)
-support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
+support.listenToEntities(SERVICES, listeners=addService(bindersService))
 support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------

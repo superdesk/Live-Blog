@@ -12,7 +12,7 @@ The API specifications for the user authentication.
 from ally.api.config import service, call, INSERT, GET
 from ally.api.type import Iter
 from datetime import datetime
-from gateway.http.api.gateway import Gateway
+from gateway.api.gateway import Gateway
 from security.api.domain_security import modelSecurity
 from superdesk.user.api.user import User
 

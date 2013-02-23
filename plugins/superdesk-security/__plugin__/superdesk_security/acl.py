@@ -9,8 +9,7 @@ Created on Jan 15, 2013
 Provides the acl setup.
 '''
 
-from ..gui_security.acl import updateDefaults, aclType
-from acl.impl.sevice_right import RightService
+from ..acl.gui import defaultRight, updateDefault
 from acl.spec import Filter
 from ally.container import ioc, support
 from superdesk.security.api.authentication import IAuthenticationService
@@ -30,13 +29,10 @@ def filterAuthenticated():
 
 # --------------------------------------------------------------------
 
-@ioc.replace(updateDefaults)
+@ioc.replace(updateDefault)
 def updateFilteredDefaults():
-    default = aclType().default()
-    assert isinstance(default, RightService)
-    # Provides access to the users actions
-    default.allGet(IUserActionService, filter=filterAuthenticated())
+    defaultRight().allGet(IUserActionService, filter=filterAuthenticated())
     # Provides access for performing login
-    default.byName(IAuthenticationService, IAuthenticationService.requestLogin, IAuthenticationService.performLogin)
+    defaultRight().byName(IAuthenticationService, IAuthenticationService.requestLogin, IAuthenticationService.performLogin)
     # Provides read only access to the logged in user
-    default.byName(IUserService, IUserService.getById, filter=filterAuthenticated())
+    defaultRight().byName(IUserService, IUserService.getById, filter=filterAuthenticated())
