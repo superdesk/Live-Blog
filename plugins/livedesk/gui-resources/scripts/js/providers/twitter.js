@@ -233,7 +233,7 @@ $.extend(providers.twitter, {
                 page = typeof page !== 'undefined' ? page : 1;
                 if (page == 1) {
                     $('#twt-timeline-results').html('');
-                    self.data = [];
+                    self.data.timeline = [];
                 }
                 this.showLoading('#twt-timeline-more');
                 self.resetAutoRefresh();
@@ -242,7 +242,7 @@ $.extend(providers.twitter, {
                     url : fullUrl,
                     success : function(data){
                         self.stopLoading('#twt-timeline-more');
-                        self.data = self.data.concat(data);
+                        self.data.timeline = self.data.timeline.concat(data);
                         
                         
                         var res = {
@@ -269,8 +269,8 @@ $.extend(providers.twitter, {
                                             $(this).data('data', self.adaptor.universal( $(this) ));
                                             var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                             var itemNo = parseInt( (page * ipp) + idx );
-                                            self.data[itemNo].type = 'user';
-                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            self.data.timeline[itemNo].type = 'user';
+                                            $(this).data('data', self.adaptor.universal(self.data.timeline[ itemNo ]));
                                         }   
                                     });
                                 }).fail(function(){
@@ -306,7 +306,7 @@ $.extend(providers.twitter, {
                 success : function(data){
                     if (data.length > 1) {
                         if (data[0].id_str != self.lastUser.id_str) {
-                            console.log(data[0], ' ',self.lastUser);
+                            //console.log(data[0], ' ',self.lastUser);
                             self.flashThumb('user');
                             clearInterval(self.iidUser);
                             self.doUser();
@@ -337,7 +337,7 @@ $.extend(providers.twitter, {
             
             if (page == 1) {
                 $('#twt-user-results').html('');
-                self.data = [];
+                self.data.user = [];
             }
             this.showLoading('#twt-user-more');
             self.resetAutoRefresh();
@@ -346,7 +346,7 @@ $.extend(providers.twitter, {
                 url : fullUrl,
                 success : function(data){
                     self.stopLoading('#twt-user-more');
-                    self.data = self.data.concat(data);
+                    self.data.user = self.data.user.concat(data);
                     var res = {
                         results : self.adaptUserData(data),
                         page : parseInt(page - 1),
@@ -371,8 +371,8 @@ $.extend(providers.twitter, {
                                         $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                         var itemNo = parseInt( (page * ipp) + idx );
-                                        self.data[itemNo].type = 'user';
-                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        self.data.user[itemNo].type = 'user';
+                                        $(this).data('data', self.adaptor.universal(self.data.user[ itemNo ]));
                                     }   
                                 });
                             }).fail(function(){
@@ -436,7 +436,7 @@ $.extend(providers.twitter, {
             page = typeof page !== 'undefined' ? page : 1;
             if( page == 1 ) {
                 $('#twt-favorites-results').html('');
-                self.data = [];
+                self.data.favorites = [];
             }
             this.showLoading('#twt-favorites-more');
             var fullUrl = str.format(this.urlFavorites,{text: encodeURIComponent(text), page: page});
@@ -445,7 +445,7 @@ $.extend(providers.twitter, {
                 url: fullUrl,
                 success : function(data) {
                     self.stopLoading('#twt-favorites-more');
-                    self.data = self.data.concat(data);
+                    self.data.favorites = self.data.favorites.concat(data);
                     var res = {
                         results : self.adaptUserData(data),
                         page : parseInt(page - 1),
@@ -470,8 +470,8 @@ $.extend(providers.twitter, {
                                         $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                         var itemNo = parseInt( (page * ipp) + idx );
-                                        self.data[itemNo].type = 'user';
-                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        self.data.favorites[itemNo].type = 'user';
+                                        $(this).data('data', self.adaptor.universal(self.data.favorites[ itemNo ]));
                                     }   
                                 });
                             }).fail(function(){
@@ -545,7 +545,7 @@ $.extend(providers.twitter, {
             qstring = typeof qstring !== 'undefined' ? qstring : '?q='+ encodeURIComponent(text) +'&include_entities=true';
             if ( qstring == '?q='+ encodeURIComponent(text) +'&include_entities=true' ) {
                 $('#twt-web-results').html('');
-                self.data = [];
+                self.data.web = [];
             }
 
             var mainUrl = 'http://search.twitter.com/search.json';
@@ -556,7 +556,7 @@ $.extend(providers.twitter, {
                url : url,
                success : function(data){
                     
-                    self.data = self.data.concat(data.results);
+                    self.data.web = self.data.web.concat(data.results);
                     self.stopLoading('#twt-web-more');
                     var res = {
                         results : data.results,
@@ -585,8 +585,8 @@ $.extend(providers.twitter, {
                                             $(ui.helper).css('width', item.width());
                                             var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                             var itemNo = parseInt( (page * ipp) + idx );
-                                            self.data[itemNo].type = 'natural';
-                                            $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            self.data.web[itemNo].type = 'natural';
+                                            $(this).data('data', self.adaptor.universal(self.data.web[ itemNo ]));
                                         }   
                                     });
                                 }).fail(function(){
