@@ -12,7 +12,10 @@ define
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
-    'tmpl!superdesk/user>update'
+    'tmpl!superdesk/user>update',
+    'tmpl!core>layouts/footer',
+    'tmpl!core>layouts/footer-static',
+    'tmpl!core>layouts/footer-dinamic'
 ],
 
 // TODO remove cleanup duplicate code

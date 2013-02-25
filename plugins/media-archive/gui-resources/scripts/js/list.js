@@ -26,6 +26,9 @@ define
     'tmpl!media-archive>sidebar/crit-date',
     'tmpl!media-archive>sidebar/crit-numeric',
     'tmpl!media-archive>sidebar/crit-string',
+    'tmpl!core>layouts/footer',
+    'tmpl!core>layouts/footer-static',
+    'tmpl!core>layouts/footer-dinamic'
 ],
 function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add, Common, DefaGridView, DefaListView)
 {

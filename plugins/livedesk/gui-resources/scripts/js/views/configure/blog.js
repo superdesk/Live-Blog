@@ -7,9 +7,9 @@
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>layouts/livedesk',
-    'tmpl!livedesk>layouts/footer',
-    'tmpl!livedesk>layouts/footer-static',
-    'tmpl!livedesk>layouts/footer-dinamic',
+    'tmpl!core>layouts/footer',
+    'tmpl!core>layouts/footer-static',
+    'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages'
 ], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, Action) {
@@ -87,7 +87,6 @@
                 themesData,
                 data = $.extend({}, self.model.feed(), {
                     BlogHref: self.theBlog,
-                    FooterFixed: true,
                     ui: 
                     {
                         content: 'is-content=1',

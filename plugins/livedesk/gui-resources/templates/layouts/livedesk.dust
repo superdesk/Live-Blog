@@ -99,4 +99,4 @@
 </div>
 
 {+body/}
-{>"livedesk>layouts/footer"/}
+{>"core>layouts/footer"/}

@@ -14,9 +14,9 @@ define
     'tmpl!livedesk>layouts/dashboard',
     'tmpl!livedesk>layouts/dashboard-archive',
     'tmpl!livedesk>layouts/main',
-    'tmpl!livedesk>layouts/footer',
-    'tmpl!livedesk>layouts/footer-static',
-    'tmpl!livedesk>layouts/footer-dinamic',
+    'tmpl!core>layouts/footer',
+    'tmpl!core>layouts/footer-static',
+    'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>error-notif',
  ], 
 function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive) 
@@ -291,7 +291,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             
             var item = { live: data['live'] };
             if( data['live'].length == 0) delete item.live;
-            item.FooterFixed = false;
             self.el.html('');
             $.tmpl('livedesk>layouts/dashboard', item, function(e,o) 
             {

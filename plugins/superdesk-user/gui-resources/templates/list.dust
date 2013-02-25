@@ -74,3 +74,4 @@
     	<button class="btn btn-danger" data-action="delete">_('Delete')</button>
     </div>
 </div>
+{>"core>layouts/footer"/}

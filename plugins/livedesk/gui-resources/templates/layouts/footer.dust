@@ -1,5 +1,0 @@
-{?FooterDinamic}
-	{>"livedesk>layouts/footer-static"/}
-{:else}
-	{>"livedesk>layouts/footer-dinamic"/}
-{/FooterFixed}
