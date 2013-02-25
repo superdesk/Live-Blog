@@ -52,7 +52,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 posts = this.model.feed('json');
             try{ posts.Meta = JSON.parse(posts.Meta); } catch(e){}
 
-            $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts}, function(e, o)
+            $.tmpl( 'livedesk>providers/colabs/items', posts, function(e, o)
             {
                 self.setElement(o);
                 // make draggable
@@ -291,7 +291,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 
                     // get posts for each collaborator
                     var post = colab.get('PostUnpublished');
-                    post.xfilter('*')
+                    post.xfilter('*,Author.Source.*,Creator.*')
                         .sync()
                         .done(function(data){
                             //console.log('data:',data); 

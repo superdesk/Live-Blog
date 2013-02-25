@@ -379,13 +379,20 @@ function(providers, Gizmo, $, BlogAction)
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
-				'.editable': { /*focusout: 'save', */ focusin: 'edit', click: 'showActions'},
+				
 				'.btn.cancel': {click: 'hideActions'},
-				'.btn.publish': {click: 'save'}
+				'.btn.publish': {click: 'save'},
+				'.editable': { focusin: 'edit', click: 'showActions', focusout: 'hideActionsSlow'}
 			},
 			showActions: function() {
 				var self = this;
 				self.el.find('.actions').removeClass('hide');
+			},
+			hideActionsSlow: function() {
+				var self = this;
+				setTimeout(function(){
+					self.hideActions();
+				},500)
 			},
 			hideActions: function() {
 				var self = this;
