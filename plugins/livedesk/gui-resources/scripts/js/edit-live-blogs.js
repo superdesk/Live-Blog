@@ -1069,7 +1069,7 @@ function(providers, Gizmo, $, BlogAction)
                                 //to do feed is not getting recursive read
 				mfeed = this.model.feed(),
 				embedConfig = {};
-				if(mfeed.EmbedConfig !== undefined)
+				if((mfeed.EmbedConfig !== undefined) && $.isString(mfeed.EmbedConfig))
 					embedConfig = JSON.parse(mfeed.EmbedConfig);
 
 				if(embedConfig.FrontendServer !== undefined)

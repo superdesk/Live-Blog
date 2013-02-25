@@ -78,10 +78,9 @@
         },
         render: function() {
             var embedConfig = this.model.get('EmbedConfig');
-            //console.log(embedConfig);
-            if(embedConfig !== undefined) {
+            if((embedConfig !== undefined) && $.isString(embedConfig)) {
                 this.model.data['EmbedConfig'] = JSON.parse(this.model.get('EmbedConfig'));
-            } else {
+            } else if(embedConfig === undefined){
                 this.model.data['EmbedConfig'] = {};
             }
             var self = this,
