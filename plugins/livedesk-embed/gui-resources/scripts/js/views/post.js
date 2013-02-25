@@ -115,7 +115,7 @@ define([
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				data.CreatedOn = (new Date(data.CreatedOn)).format(_('dd.mm.yyyy, HH:MM:ss'));
+				data.CreatedOn = (new Date(data.CreatedOn)).format(_('mm/dd/yyyy HH:MM'));
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);

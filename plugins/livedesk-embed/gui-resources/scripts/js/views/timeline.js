@@ -105,7 +105,7 @@ define([
 				var closedOn = new Date(this.model.get('ClosedOn'));
 				this.pause();
 				this.model.get('PostPublished').stop();					
-				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('dd.mm.yyyy, HH:MM:ss')));
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
 			}
 		},                       
 		gotoHash : function() {
@@ -316,7 +316,7 @@ define([
 				
 				$(this).find('#liveblog-status-time')
 					.attr('time',now.format())
-					.text(_('updated on %s').format(now.format(_('HH:MM:ss')))).end().fadeIn();
+					.text(_('updated on %s').format(now.format(_('HH:MM')))).end().fadeIn();
 			});
 		},
 		renderBlog: function()
