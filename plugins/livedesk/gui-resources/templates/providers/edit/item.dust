@@ -2,6 +2,9 @@
 {@if cond="'{Type.Key}'=='wrapup'"}
 <li class="wrapup open draggable" style="border-top: 3px solid #007FB3 !important;">
    <div class="drag-bar"></div>
+	<div class="tool-box-right">
+		<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
+	</div>
    <div class="arrow" style="height:20px; width:20px; float: left; background: url('images/wrapup-arrow.png') no-repeat scroll 0 0 transparent; background-position: -40px 0;"></div>
    <div class="wrapup-content">{Content|s}</div>
   <div class="clear"></div>
