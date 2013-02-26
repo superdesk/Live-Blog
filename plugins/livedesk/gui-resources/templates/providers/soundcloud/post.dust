@@ -5,10 +5,10 @@
         {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
     </div>
     
-    <div class="result-content" style="display:block; position:relative; min-height: 256px;">
-        <div style="display:block; right: 90px; position: absolute; left:5px;">
+    <div class="result-content" style="display:block; position:relative;">
+        <div>
             <h3><a href="{Meta.permalink_url}" target="_blank">{Meta.title|s}</a></h3>
-            <p class="result-text" style="float:left; text-align: left; height:51px;">
+            <p class="result-text" style="float:left; text-align: left;">
                     {Meta.description|s}&nbsp;
             </p>
             <p>
