@@ -16,26 +16,54 @@ define([
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		events: {
-			'#loading-more': { click: 'moreButton' }
+			'#loading-more': { click: 'loadingMore' },
+			'#load-more': { click: 'loadMore' }
 		},
 		idInterval: 0,
-		flags: { 
-			addAllPending: false,
-			more: false,
-			moreButton: false,
-			atEnd: false
-		},
+		flags: {},
 		scroll: {
 			element: null,
 			start: 0
 		},
+		resetFlags: function(){
+			this.flags = {
+				addAllPending: false,
+				more: false,
+				loadingMore: false,
+				atEnd: false
+			}
+		},
 		autoRender: true,
 		pendingAutoupdates: [],
-		moreButton: function(evt) {
+		loadMore: function(evt) {
 			var self = this;
-			if(self.flags.atEnd || self.flags.moreButton)
+			this.resetFlags();
+			self.el.find('#liveblog-post-list').html('');
+			for(i=0, count = self._views.length; i<count; i++) {
+				self._views[i].rendered = false;
+			}
+			self._views = [];
+			delete self.filters;
+			var postPublished = self.model.get('PostPublished');
+			postPublished._list = [];						
+			postPublished.resetStats();
+			postPublished
+				.limit(postPublished._stats.limit)
+				.offset(postPublished._stats.offset)
+				.auto();
+			$(this).hide();			
+		},
+		showLiner: function()
+		{
+			var self = this;
+			$('#load-more').show();
+		},
+		loadingMore: function(evt) {
+			var self = this;
+			console.log(self.flags);
+			if(self.flags.atEnd || self.flags.loadingMore)
 				return;
-			self.flags.moreButton = true;
+			self.flags.loadingMore = true;
 			self.flags.more = true;
 			var delta = self.model.get('PostPublished').delta;
 				postPublished = self.model.get('PostPublished')
@@ -55,7 +83,7 @@ define([
 						self.flags.atEnd = true;
 					}
 					self.flags.more = false;
-					self.flags.moreButton = false;
+					self.flags.loadingMore = false;
 				});
 		},
 		more: function(evt) {
@@ -118,6 +146,7 @@ define([
 		init: function()
 		{
 			var self = this;
+			self.resetFlags();
 			self._views = [];
 			self.location = window.location.href.split('#')[0];
 			self.rendered = false;
@@ -161,28 +190,6 @@ define([
 				self.renderBlog();
 			});
 			self.sync();				
-		},
-		showLiner: function()
-		{
-			var self = this;
-			$('#load-more')
-				.on('click', function(){
-					self.el.find('#liveblog-post-list').html('');
-					for(i=0, count = self._views.length; i<count; i++) {
-						self._views[i].rendered = false;
-					}
-					self._views = [];
-					delete self.filters;
-					var postPublished = self.model.get('PostPublished');
-					postPublished._list = [];						
-					postPublished._latestCId = 0;
-					postPublished
-						.limit(postPublished._stats.limit)
-						.offset(postPublished._stats.offset)
-						.auto();
-					$(this).hide();
-				})
-				.show();
 		},
 		removeOne: function(view)
 		{

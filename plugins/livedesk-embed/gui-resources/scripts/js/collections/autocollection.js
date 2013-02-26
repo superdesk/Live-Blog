@@ -6,18 +6,22 @@ define(['gizmo/superdesk'], function(Gizmo) {
 	({
 		_timeInterval: 10000,
 		_idInterval: 0,
-		_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+		_stats: {},
 		/*!
 		 * for auto refresh
 		 */
 		keep: false,
+		resetStats: function() {
+			this._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 }
+		},
 		init: function(){ 
 			var self = this;
+			self.resetStats();
 			self.model.on('publish reorder', function(evt, post){
 				if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 					self._stats.lastCId++;
 			});
-			self.on('readauto', function(evt, data, attr){
+			self.on('read readauto', function(evt, data, attr){
 				//console.log('attr.lastCId: ',attr);
 				// set offset to limit
 				self._stats.offset = self._stats.limit;
