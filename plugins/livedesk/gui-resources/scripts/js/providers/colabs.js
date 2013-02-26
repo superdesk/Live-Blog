@@ -291,7 +291,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 
                     // get posts for each collaborator
                     var post = colab.get('PostUnpublished');
-                    post.xfilter('*')
+                    post.xfilter('*,Creator.*')
                         .sync()
                         .done(function(data){
                             //console.log('data:',data); 
