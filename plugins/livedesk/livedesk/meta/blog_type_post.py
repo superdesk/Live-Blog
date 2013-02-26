@@ -29,7 +29,7 @@ class BlogTypePostDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogTypeMapped.Id), nullable=False))
-    Name = declared_attr(lambda cls: Column('name', String(255), nullable=False, unique=True))
+    Name = declared_attr(lambda cls: Column('name', String(190), nullable=False, unique=True))
     Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------
     blogTypePostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id, ondelete='CASCADE'), primary_key=True))

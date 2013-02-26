@@ -88,6 +88,13 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         postDb = PostMapped()
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
+
+        # TODO: implement the proper fix using SQLAlchemy compilation rules
+        nohigh = { i: None for i in range(0x10000, 0x110000) }
+        if postDb.Meta: postDb.Meta = postDb.Meta.translate(nohigh)
+        if postDb.Content: postDb.Content = postDb.Content.translate(nohigh)
+        if postDb.ContentPlain: postDb.ContentPlain = postDb.ContentPlain.translate(nohigh)
+
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
         if not postDb.Author:
             colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == postDb.Creator).all()

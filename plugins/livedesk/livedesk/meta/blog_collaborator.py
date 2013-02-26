@@ -29,7 +29,7 @@ class BlogCollaboratorTypeMapped(Base, BlogCollaboratorType):
     __tablename__ = 'livedesk_collaborator_type'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
     
-    Name = Column('name', String(255), nullable=False, unique=True)
+    Name = Column('name', String(190), nullable=False, unique=True)
     
     # Non REST model attribute --------------------------------------
     id = Column('id', INTEGER(unsigned=True), primary_key=True)

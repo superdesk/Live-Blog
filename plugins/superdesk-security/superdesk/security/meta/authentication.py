@@ -24,7 +24,7 @@ class TokenMapped(Base, Token):
     __tablename__ = 'authentication_token'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Token = Column('token', String(255), primary_key=True)
+    Token = Column('token', String(190), primary_key=True)
 
     # Non REST model attributes --------------------------------------
     requestedOn = Column('requested_on', DateTime, nullable=False)
@@ -36,7 +36,7 @@ class LoginMapped(Base, Login):
     __tablename__ = 'authentication_login'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Session = Column('session', String(255), primary_key=True)
+    Session = Column('session', String(190), primary_key=True)
     User = Column('fk_user_id', ForeignKey(UserMapped.userId), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     AccessedOn = Column('accessed_on', DateTime, nullable=False)

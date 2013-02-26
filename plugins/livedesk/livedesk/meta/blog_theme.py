@@ -27,5 +27,5 @@ class BlogThemeMapped(Base, BlogTheme):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Name = Column('name', String(255), unique=True, nullable=False)
+    Name = Column('name', String(190), unique=True, nullable=False)
     URL = Column('url', String(1024), nullable=False)
