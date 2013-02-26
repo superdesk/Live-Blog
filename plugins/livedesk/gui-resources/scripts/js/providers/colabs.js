@@ -226,7 +226,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     postDateList.sort(function(x, y){ return x.Timestamp >  y.Timestamp; });
                     for(var i=0; i<postDateList.length; i++)
                     {
-                        if( postDateList[i].Id == this.get('Id') )
+                        if( parseInt(postDateList[i].Id) == parseInt(this.get('Id')) )
                         {
                             if( postDateList[i-1] )
                             {
