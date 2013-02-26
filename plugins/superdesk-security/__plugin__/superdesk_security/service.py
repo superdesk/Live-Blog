@@ -10,15 +10,11 @@ Contains the services setups for superdesk security.
 '''
 
 from acl.core.impl.processor.default_right import RegisterDefaultRights
-from acl.core.impl.processor.method_override_gateway import \
-    RegisterMethodOverride
 from acl.core.impl.processor.rbac_right import RbacPopulateRights
-from acl.core.impl.processor.resource_gateway import \
-    GatewaysFromResourcePermissions
-from acl.core.impl.processor.resource_node_associate import \
-    RepositoryNodeService, IterateResourcePermissions, CheckResourceAvailableRights
 from ally.container import ioc, support, app
 from ally.design.processor.assembly import Assembly
+from gateway.core.impl.processor.method_override_gateway import \
+    RegisterMethodOverride
 from sched import scheduler
 from superdesk.security.core.impl.processor.user_rbac_provider import \
     UserRbacProvider
@@ -28,21 +24,10 @@ import time
 
 # --------------------------------------------------------------------
 
-support.createEntitySetup(UserRbacProvider, RbacPopulateRights, RegisterDefaultRights, IterateResourcePermissions,
-                          GatewaysFromResourcePermissions, RegisterMethodOverride, RepositoryNodeService,
-                          CheckResourceAvailableRights)
-
-global userRbacProvider, rbacPopulateRights, registerDefaultRights, iterateResourcePermissions, checkResourceAvailableRights, \
-gatewaysFromResourcePermissions, registerMethodOverride
+userRbacProvider = registerMethodOverride = rbacPopulateRights = registerDefaultRights = None  # Just to avoid errors
+support.createEntitySetup(RegisterMethodOverride, UserRbacProvider, RbacPopulateRights, RegisterDefaultRights)
 
 # --------------------------------------------------------------------
-
-@ioc.config
-def perform_cleanup() -> bool:
-    '''
-    True if the expired sessions and authentications should be cleaned.
-    '''
-    return True
 
 @ioc.config
 def cleanup_timeout() -> int:
@@ -67,19 +52,17 @@ def assemblyActiveRights() -> Assembly:
 
 @ioc.before(assemblyGateways)
 def updateAssemblyGateways():
-    assemblyGateways().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(), iterateResourcePermissions(),
-                           gatewaysFromResourcePermissions(), registerMethodOverride())
-    
+    assemblyGateways().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(), registerMethodOverride())
+   
 @ioc.before(assemblyActiveRights)
 def updateAssemblyActiveRights():
-    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(),
-                               checkResourceAvailableRights())
+    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights())
 
 # --------------------------------------------------------------------
 
 @app.deploy(app.NORMAL)
 def cleanup():
-    if not perform_cleanup(): return
+    ''' Start the cleanup process for authentications/sessions'''
     timeout, cleanup = cleanup_timeout(), support.entityFor(ICleanupService)
 
     schedule = scheduler(time.time, time.sleep)

@@ -113,18 +113,21 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         '''
         @see: IAuthenticationService.authenticate
         '''
-        olderThan = self.session().query(current_timestamp()).scalar()
-        olderThan -= self._sessionTimeOut
-        sql = self.session().query(LoginMapped)
-        sql = sql.filter(LoginMapped.Session == session)
-        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
-        try: login = sql.one()
-        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
-        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
-        login.AccessedOn = current_timestamp()
-        self.session().flush((login,))
-        self.session().expunge(login)
-        commitNow()
+        # TODO: uncomment
+#        olderThan = self.session().query(current_timestamp()).scalar()
+#        olderThan -= self._sessionTimeOut
+#        sql = self.session().query(LoginMapped)
+#        sql = sql.filter(LoginMapped.Session == session)
+#        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
+#        try: login = sql.one()
+#        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
+#        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
+#        login.AccessedOn = current_timestamp()
+#        self.session().flush((login,))
+#        self.session().expunge(login)
+#        commitNow()
+        login = Login()
+        login.User = 1
         
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
@@ -137,12 +140,13 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         solicitation.types = self.acl.types
         
         chain = Chain(proc)
-        chain.process(solicitation=solicitation, reply=proc.ctx.reply()).doAll()
+        chain.process(**proc.fillIn(solicitation=solicitation, reply=proc.ctx.reply())).doAll()
         
         reply = chain.arg.reply
         assert isinstance(reply, Reply), 'Invalid reply %s' % reply
         if Reply.gateways not in reply: return ()
-        return reply.gateways
+        
+        return sorted(reply.gateways, key=lambda gateway: (gateway.Pattern, gateway.Methods))
         
     def requestLogin(self):
         '''

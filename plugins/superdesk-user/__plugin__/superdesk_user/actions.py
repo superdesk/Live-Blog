@@ -70,7 +70,7 @@ def registerAclUserView():
 @gui.setup
 def registerAclUserUpdate():
     rightUserUpdate().addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())\
-    .all(IUserService)
+    .all(IUserService, filter=filterAuthenticated()) #TODO: remove the filter, is only for testing
     try: from superdesk.media_archive.api.meta_data import IMetaDataUploadService
     except ImportError: pass
     else:
