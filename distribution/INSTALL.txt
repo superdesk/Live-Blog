@@ -1,14 +1,14 @@
-Installation procedure for Livedesk V.1.0
+Installation procedure for Live Blog v1.0
 http://www.sourcefabric.org
 
 
 PREPARATION
 -----------
 
-The following applications need to be installed prior to Livedesk:
+The following applications need to be installed prior to Live Blog:
 
 1. Python 3.2
-Livedesk requires Python 3.2 with standard libraries.
+Live Blog requires Python 3.2 with standard libraries.
 
 2. Java
 Version 1.5 or later. The 'java' binary must be in the system path.
@@ -31,7 +31,7 @@ directory and python3 binary is in the system path.
 3. The admin interface can be accessed from a browser on the same system at
 the URL: http://localhost:8080/content/lib/core/start.html
 
-Log in with User1 .. User5 and password a
+Log in with admin and password a
 
 Access from the Internet
 ------------------------
@@ -48,7 +48,7 @@ E.g.: server_url: my.machine.domain.com:8080
 
 3. Restart the REST Ally server.
 
-Embedding Livedesk into your site
+Embedding Live Blog into your site
 ---------------------------------
 
 In order to embed the output of your liveblog into your site take the
@@ -57,8 +57,9 @@ following steps:
 1. Open the admin interface (see above)
 2. Select the blog that you want to embed from the menu
 3. Click 'Configure Blog' button 
-4. Copy the content of the field 'This Blogs embed script' and paste it
-into your site content.
+4. Select an embed theme
+5. Copy the content of the field 'Embed script' and paste it into your site
+content.
 
 Changing the database server
 ----------------------------
