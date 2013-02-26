@@ -5,7 +5,6 @@
         {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
     </div>
     <figure>
-        {Avatar|s}
         {?AuthorPerson.Avatar}
         <img src="{AuthorPerson.Avatar}">
         {:else}

@@ -16,25 +16,31 @@
 		<div class="tool-box-right">
 			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
 		</div>
+		<figure>
+            {?Avatar}
+                <img src="{Avatar}" />
+            {:else}
+                <img src="images/avatar_default_collaborator.png" />
+            {/Avatar}
+        </figure>
 	{:else}
 	<li class="with-avatar {Author.Source.Name} {Type.Key} draggable">
 		<div class="drag-bar"></div>
 		<div class="tool-box-right">
 			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
 		</div>
-		
+		<figure>
+            {?Avatar}
+                <img src="{Avatar}" />
+            {:else}
+                <img src="images/avatar_default_collaborator.png" />
+            {/Avatar}
+        </figure>
         {@if cond="'{Author.Source.Name}'=='twitter'"}
             <figure><img src="{Meta.profile_image_url}" width="48" height="48" alt="1"></figure>
-        {:else}
-            <figure>
-                {?Avatar}
-                    <img src="{Avatar}" />
-                {:else}
-                    <img src="images/avatar_default_collaborator.png" />
-                {/Avatar}
-            </figure>
         {/if}
 	{/if}
+		<div class="post-info">{Creator.FullName}</div>
 		<div class="result-content">
 			<h3>
 				{?Author.Person}
