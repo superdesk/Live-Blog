@@ -23,3 +23,19 @@ class ICleanupService(metaclass=abc.ABCMeta):
         '''
         Clean the expired authentications/sessions.
         '''
+
+class IUserRbacSupport(metaclass=abc.ABCMeta):
+    '''
+    Provides the user rbac support. 
+    '''
+    
+    @abc.abstractclassmethod
+    def rbacIdFor(self, userId):
+        '''
+        Provides the rbac id of the user id.
+        
+        @param userId: integer
+            The user id to provide the rbac id for.
+        @return: integer|None
+            The rbac id, or None if not available.
+        '''

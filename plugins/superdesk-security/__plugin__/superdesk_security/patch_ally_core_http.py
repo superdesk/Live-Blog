@@ -9,8 +9,9 @@ Created on Feb 19, 2013
 Provides the ally core http setup patch.
 '''
 
-from .service import assemblyGateways
-from ally.container import ioc, support, aop
+from .service import assemblyGateways, userRbac, rbacPopulateRights, \
+    registerDefaultRights
+from ally.container import ioc, support
 from ally.container.support import nameInEntity
 from ally.design.processor.assembly import Assembly
 import logging
@@ -28,23 +29,42 @@ else:
     # ----------------------------------------------------------------
     
     from . import patch_ally_core
-    from .patch_ally_core import gatewaysFromPermissions, updateAssemblyGatewaysForResources
-    from __setup__.ally_core_http.processor import root_uri_resources
-    from __setup__.ally_http.processor import headerEncodeRequest
+    from .patch_ally_core import gatewaysFromPermissions, updateAssemblyGatewaysForResources, \
+        iterateResourcePermissions, modelFiltersForPermissions
+    from __setup__.ally_core_http.processor import root_uri_resources, assemblyResources
+    from __setup__.ally_core.processor import invoking
     from acl.core.impl.processor.resource_gateway import GatewaysFromPermissions
-    from acl.core.impl.processor import resource_gateway_persist
+    from superdesk.security.core.impl.processor import user_persistence_filter
     
-    gatewaysPersistenceFromPermissions = support.notCreated  # Just to avoid errors
-    support.createEntitySetup(aop.classesIn(resource_gateway_persist))
+    gatewaysPersistenceFromPermissions = invokingFilter = support.notCreated  # Just to avoid errors
+    support.createEntitySetup(user_persistence_filter)
     
     # --------------------------------------------------------------------
     
     @ioc.entity
-    def assemblyPersistenceGateways() -> Assembly:
-        ''' Assembly used for creating the persistence gateways'''
+    def assemblyGatewaysFromPermissions() -> Assembly:
+        ''' Assembly used for creating gateways based on resource permissions'''
         return Assembly('Persistence gateways')
-
+    
+    @ioc.entity
+    def assemblyPermissions() -> Assembly:
+        ''' Assembly used for creating resource permissions'''
+        return Assembly('Resource permissions')
+        
     # --------------------------------------------------------------------
+ 
+    @ioc.before(assemblyGatewaysFromPermissions)
+    def updateAssemblyGatewaysFromPermissions():
+        assemblyGatewaysFromPermissions().add(gatewaysFromPermissions())
+        
+    @ioc.before(assemblyPermissions)
+    def updateAssemblyPermissions():
+        assemblyPermissions().add(userRbac(), rbacPopulateRights(), registerDefaultRights(),
+                                  iterateResourcePermissions(), modelFiltersForPermissions())
+        
+    @ioc.after(updateAssemblyGatewaysForResources)
+    def updateAssemblyGatewaysForPersistenceResources():
+        assemblyGateways().add(gatewaysPersistenceFromPermissions(), before=gatewaysFromPermissions())
 
     root_uri = ioc.entityOf(nameInEntity(GatewaysFromPermissions, 'root_uri_resources'), module=patch_ally_core)
     ioc.doc(root_uri, '''
@@ -55,10 +75,6 @@ else:
     def root_uri_force():
         support.force(root_uri, root_uri_resources())
     
-    @ioc.after(assemblyPersistenceGateways)
-    def updateAssemblyPersistenceGateways():
-        assemblyPersistenceGateways().add(gatewaysFromPermissions())
-        
-    @ioc.after(updateAssemblyGatewaysForResources)
-    def updateAssemblyGatewaysForPersistenceResources():
-        assemblyGateways().add(headerEncodeRequest(), gatewaysPersistenceFromPermissions(), before=gatewaysFromPermissions())
+    @ioc.start  # The update needs to be on start event since the resource assembly id from setup context 
+    def updateAssemblyResourcesForInvokingFilter():
+        assemblyResources().add(invokingFilter(), before=invoking())

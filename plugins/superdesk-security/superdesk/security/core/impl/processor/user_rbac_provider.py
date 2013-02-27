@@ -10,16 +10,15 @@ Processor that adds default Gateway objects.
 '''
 
 from ally.api.operator.type import TypeProperty
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.design.processor.attribute import defines, requires
 from ally.design.processor.context import Context
 from ally.design.processor.execution import Chain
 from ally.design.processor.handler import HandlerProcessor, Handler
-from ally.support.sqlalchemy.session import SessionSupport
 from collections import Callable
-from sqlalchemy.orm.exc import NoResultFound
-from superdesk.security.meta.security_intern import RbacUser
+from superdesk.security.core.spec import IUserRbacSupport
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
@@ -38,6 +37,12 @@ class Solicitation(Context):
     @rtype: integer
     The id of the rbac to create gateways for.
     ''')
+    
+class SolicitationWithProvider(Solicitation):
+    '''
+    The solicitation context.
+    '''
+    # ---------------------------------------------------------------- Defined
     provider = defines(Callable, doc='''
     @rtype: callable(TypeProperty) -> string|None
     Callable used for getting the authenticated value.
@@ -46,11 +51,18 @@ class Solicitation(Context):
 # --------------------------------------------------------------------
 
 @injected
-@setup(Handler, name='userRbacProvider')
-class UserRbacProvider(HandlerProcessor, SessionSupport):
+@setup(Handler, name='userRbac')
+class UserRbac(HandlerProcessor):
     '''
     Provides the handler that extracts the rbac id for the user id.
     '''
+    
+    userRbacSupport = IUserRbacSupport; wire.entity('userRbacSupport')
+    # The user rbac support use by the provider.
+    
+    def __init__(self):
+        assert isinstance(self.userRbacSupport, IUserRbacSupport), 'Invalid user rbac support %s' % self.userRbacSupport
+        super().__init__()
     
     def process(self, chain, solicitation:Solicitation, **keyargs):
         '''
@@ -62,11 +74,29 @@ class UserRbacProvider(HandlerProcessor, SessionSupport):
         assert isinstance(solicitation, Solicitation), 'Invalid solicitation %s' % solicitation
         assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
 
-        try: solicitation.rbacId, = self.session().query(RbacUser.Id).filter(RbacUser.userId == solicitation.userId).one()
-        except NoResultFound: return
-        solicitation.provider = UserProvider(str(solicitation.userId))
+        solicitation.rbacId = self.userRbacSupport.rbacIdFor(solicitation.userId)
+        if solicitation.rbacId is None: return  # No rbac available so stopping the processing
         
         chain.proceed()
+        return True
+
+@injected
+@setup(Handler, name='userRbacProvider')
+class UserRbacProvider(UserRbac):
+    '''
+    Provides the handler that extracts the rbac id for the user id.
+    '''
+    
+    def process(self, chain, solicitation:SolicitationWithProvider, **keyargs):
+        '''
+        @see: HandlerProcessor.process
+        
+        Populate the rbac id.
+        '''
+        assert isinstance(solicitation, SolicitationWithProvider), 'Invalid solicitation %s' % solicitation
+        assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
+        
+        if super().process(chain, solicitation, **keyargs): solicitation.provider = UserProvider(str(solicitation.userId))
 
 # --------------------------------------------------------------------
 

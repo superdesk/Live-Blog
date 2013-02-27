@@ -9,23 +9,22 @@ Created on Sep 9, 2012
 Contains the services setups for superdesk security.
 '''
 
-from acl.core.impl.processor.default_right import RegisterDefaultRights
-from acl.core.impl.processor.rbac_right import RbacPopulateRights
+from acl.core.impl.processor import default_right
 from ally.container import ioc, support, app
 from ally.design.processor.assembly import Assembly
-from gateway.core.impl.processor.method_override_gateway import \
-    RegisterMethodOverride
+from gateway.core.impl.processor import method_override_gateway
 from sched import scheduler
-from superdesk.security.core.impl.processor.user_rbac_provider import \
-    UserRbacProvider
+from security.rbac.core.impl.processor import rbac_right
+from superdesk.security.core.impl.processor import user_rbac_provider
 from superdesk.security.core.spec import ICleanupService
 from threading import Thread
 import time
 
 # --------------------------------------------------------------------
 
-userRbacProvider = registerMethodOverride = rbacPopulateRights = registerDefaultRights = None  # Just to avoid errors
-support.createEntitySetup(RegisterMethodOverride, UserRbacProvider, RbacPopulateRights, RegisterDefaultRights)
+userRbac = userRbacProvider = registerMethodOverride = rbacPopulateRights = \
+registerDefaultRights = support.notCreated  # Just to avoid errors
+support.createEntitySetup(user_rbac_provider, method_override_gateway, rbac_right, default_right)
 
 # --------------------------------------------------------------------
 
