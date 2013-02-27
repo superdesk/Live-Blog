@@ -11,25 +11,34 @@ API specifications for media archive meta info.
 
 from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData
-from ally.api.config import query, call, service
-from ally.api.criteria import AsLikeOrdered, AsLike
-from ally.api.type import Iter#, Count 
+from ally.api.config import query, call, service, model
+from ally.api.type import Iter, Scheme
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from superdesk.language.api.language import LanguageEntity
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
+    AsLikeExpression
+from superdesk.media_archive.api.meta_data import MetaDataBase
 
 # --------------------------------------------------------------------
 
 @modelArchive
-class MetaInfo(Entity):
+class MetaInfoBase:
     '''
     Provides the meta data information that is provided by the user.
     '''
-
-    MetaData = MetaData
     Language = LanguageEntity
     Title = str
     Keywords = str
     Description = str
+
+# --------------------------------------------------------------------
+
+@model
+class MetaInfo(MetaInfoBase, Entity):
+    '''
+    Provides the meta data information that is provided by the user.
+    '''
+    MetaData = MetaData
 
 # --------------------------------------------------------------------
 
@@ -38,9 +47,9 @@ class QMetaInfo(QEntity):
     '''
     The query for he meta info model.
     '''
-    title = AsLikeOrdered
-    keywords = AsLikeOrdered
-    description = AsLike
+    title = AsLikeExpressionOrdered
+    keywords = AsLikeExpressionOrdered
+    description = AsLikeExpression
 
 # --------------------------------------------------------------------
 
@@ -51,8 +60,33 @@ class IMetaInfoService(IEntityGetCRUDService):
     '''
 
     @call
-    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
-                     qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
+    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None,
+                     offset:int=None, limit:int=10, qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
         '''
         Provides the meta info's.
         '''
+
+# --------------------------------------------------------------------
+
+@model
+class MetaDataInfo(MetaDataBase, MetaInfoBase, Entity):
+    '''
+    Provides the meta data information that is provided by the user.
+    '''
+
+# --------------------------------------------------------------------
+
+@service
+class IMetaDataInfoService:
+    '''
+    Provides the service methods for the meta info.
+    '''
+
+    @call
+    def getAll(self, scheme:Scheme, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
+                     qi:QMetaInfo=None, qd:QMetaData=None, thumbSize:str=None) -> Iter(MetaDataInfo):
+        '''
+        Provides the meta & info info's.
+        '''
+
+

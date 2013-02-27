@@ -17,10 +17,11 @@ from superdesk.language.meta.language import LanguageEntity
 from superdesk.user.meta.user import UserMapped
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
-from sqlalchemy.sql.expression import select, func
+from sqlalchemy.sql.expression import select, func, case
 from ally.support.sqlalchemy.mapper import validate
 from ally.container.binder_op import validateManaged
 from livedesk.meta.blog_type import BlogTypeMapped
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # --------------------------------------------------------------------
 
@@ -39,9 +40,19 @@ class BlogMapped(Base, Blog):
     Title = Column('title', String(255), nullable=False)
     Description = Column('description', Text)
     OutputLink = Column('output_link', Text)
+    EmbedConfig = Column('embed_config', Text)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)
+    @hybrid_property
+    def IsLive(self):
+        return self.LiveOn is not None and self.ClosedOn is None
+
+    # Expression for hybrid ------------------------------------
+    @classmethod
+    @IsLive.expression
+    def _IsLive(cls):
+        return case([((cls.LiveOn != None) & (cls.ClosedOn == None), True)], else_=False)
 
 validateManaged(BlogMapped.CreatedOn)
 

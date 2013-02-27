@@ -1,16 +1,19 @@
 {#User}
 	<td>
 		<a name="{href}" />
-		{Id}
+		{Id} {x|s}
 	</td>
 	<td>{FirstName}</td>
 	<td>{LastName}</td>
-	<td>{Name}</td>
+	<td><figure class="user-table-avatar"><img src="img/avatar_default_collaborator.png"></figure>{Name}</td>
 	<td>{EMail}</td>
-	<td>    
-		<div class="btn-group">
-    		<button class="btn edit">_('Edit')</button>
-    		<button class="btn btn-danger delete">_('Delete')</button>
+	<td>{CreatedOn}</td>
+
+    <td style="width:50px !important;">
+    	<div class="tool-box-right">
+    		<a class="tool-box-button" href="#" data-action="delete"><i class="icon-remove"></i></a>
+    		<a class="tool-box-button" href="#" data-action="edit"><i class="icon-pencil"></i></a>
     	</div>
     </td>
+
 {/User}

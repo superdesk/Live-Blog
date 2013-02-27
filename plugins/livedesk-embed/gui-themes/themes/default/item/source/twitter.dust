@@ -1,0 +1,27 @@
+{>"theme/item/base"/}{!/!}
+{<item_class}twitterservice{/item_class}{!/!}
+
+{<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{!/!}{/Meta.annotation.before}{!/!}{/body_top}{!/!}
+{<body_content}{!/!}
+	<div class="result-text">
+		<figure class="profile-thumbnail">  <!-- profile-thumbnail class -->
+			<img src="{Meta.profile_image_url}"/>{!/!}
+		</figure>{!/!}
+
+		<h3 style="display: block; margin-bottom:2px;">
+			<a target="_blank" href="http://twitter.com/{Meta.from_user}" target="_blank">{!/!}{Meta.from_user_name}</a>{!/!}	<!-- Person name -->
+			<span class="twitter-name">(@{Meta.from_user})</span>{!/!}		<!-- twitter username -->
+		</h3>{!/!}
+
+		<div class="result-text">{Content|twitter_all|s}</div>{!/!}
+		<div class="twitter-controls"> <!-- twitter buttons -->
+			<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>{!/!}
+			<a href="http://twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank" class="twitter-button retweet">_('Retweet');</a>{!/!}
+			<a href="http://twitter.com/intent/tweet?in_reply_to={Meta.id_str}" target="_blank" class="twitter-button reply">_('Reply');</a>{!/!}
+		</div>{!/!}
+	</div>{!/!}
+{/body_content}{!/!}
+{<body_bottom}
+	{?Meta.annotation.after}<div class="editable annotation">{Meta.annotation.after|s}</div>{!/!}{/Meta.annotation.after}{!/!}
+{/body_bottom}{!/!}
+{<reference_name} twitter.com{/reference_name}{!/!}

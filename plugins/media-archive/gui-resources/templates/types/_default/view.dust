@@ -1,0 +1,44 @@
+<div id="viewDetailsModal" class="modal hide in" style="width: 820px; margin-left: -410px; display: block;">
+
+	{#Item}
+	<div class="modal-header">
+    	<button data-dismiss="modal" class="close" type="button">&times;</button>
+       	<h3>{Title}</h3>
+	</div>
+    {/Item}
+            
+    <div class="modal-body">
+    	<div class="row-fluid">
+        	{+body}
+        	{#Item}
+        	<div class="span6">
+           		{+content}
+           		<figure>
+                	<img src="{Thumbnail.href}" />
+				</figure>
+				{/content}
+				<dl class="line-borders">
+            		<dt>_('File name')</dt><dd>{Name}</dd>
+                    <dt>_('File size')</dt><dd>{Size}</dd>
+				</dl>
+			</div>
+			{/Item}
+			{/body}
+			{+meta}
+            <div class="span6">
+            	<dl>
+                	{#Meta}
+                		<dt>_('Title')</dt><dd>{Title}</dd>
+                		<dt>_('Description')</dt><dd>{Description}</dd>
+                	{/Meta}
+            	</dl>
+            </div>
+            {/meta}
+		</div>
+	</div>
+    <div class="modal-footer">
+    	{+footer}
+    	<a class="btn" href="javascript:void(0)" data-action="edit"><i class="icon-list-alt"></i>_('Edit metadata')</a>
+    	{/footer}
+    </div>
+</div>

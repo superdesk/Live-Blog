@@ -6,21 +6,22 @@
 define('providers/flickr', [
     'providers',
     'jquery',
+    config.guiJs('livedesk', 'action'),
     'jquery/jsonp',
     'jquery/tmpl',
     'jqueryui/draggable',
-     'providers/flickr/adaptor',
+    'providers/flickr/adaptor',
     'tmpl!livedesk>providers/flickr',
     'tmpl!livedesk>providers/flickr/image-item',
     'tmpl!livedesk>providers/flickr/licenses',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-], function( providers,  $ ) {
+], function( providers,  $, BlogAction ) {
 $.extend(providers.flickr, {
         initialized: false,
         per_page : 8,
-	apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
+	   apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
         url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=%(per_page)s&page=%(start)s&license=%(license)s',
         licenseUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
         infoUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
@@ -29,7 +30,7 @@ $.extend(providers.flickr, {
                 //console.log('flickr main init');
 		if(!this.initialized || !this.el.children(":first").length) {
 			this.render();
-                        this.adaptor.init();
+            this.adaptor.init();    
 		}
 		this.initialized = true;
 	},
@@ -95,7 +96,7 @@ $.extend(providers.flickr, {
             return photos;
         },
         doFlickerImage : function(start) {
-            var self = this;
+            var self = this, el;
             var text = $('#flickr-search-text').val();
             if (text.length < 1) {
                 return;
@@ -123,25 +124,28 @@ $.extend(providers.flickr, {
                             photos : self.trimTitle(data.photos.photos),
                             page : parseInt(start - 1)
                         }, function(e,o) {
-                            $('#flickr-image-results').append(o).find('.flickr').draggable(
-                            {
-                                revert: 'invalid',
-                                containment:'document',
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
-                                    var originalUrl = $(this).attr('data-url');
-                                    var itemNo = parseInt( (page * self.per_page) + idx );
-                                    self.data[itemNo].originalUrl = originalUrl;
-                                    $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                }
-                            }
-                            );
+                            el = $('#flickr-image-results').append(o).find('.flickr');
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.draggable({
+                                    revert: 'invalid',
+                                    containment:'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
+                                        var originalUrl = $(this).attr('data-url');
+                                        var itemNo = parseInt( (page * self.per_page) + idx );
+                                        self.data[itemNo].originalUrl = originalUrl;
+                                        $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                    }
+                                });
+                            }).fail(function(){
+                                el.removeClass('draggable');
+                            });
                             self.doOriginalUrl(data.photos);
                         });			
 

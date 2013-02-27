@@ -9,31 +9,32 @@ Created on Aug 23, 2012
 Implementation for the video persistence API.
 '''
 
-from ..core.spec import IThumbnailManager
-from ..meta.meta_data import MetaDataMapped
-from ..meta.video_data import VideoDataEntry
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
-from os import remove
-from os.path import exists, splitext, abspath
 from ally.support.util_sys import pythonPath
+from distribution.support import IPopulator
+from os import remove
+from os.path import exists, splitext, abspath, join
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler
-from superdesk.media_archive.meta.video_data import META_TYPE_KEY
+from superdesk.media_archive.core.spec import IMetaDataHandler, \
+    IThumbnailManager
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.meta.video_data import META_TYPE_KEY, \
+    VideoDataEntry
 import re
-from os.path import join
+from superdesk.media_archive.meta.video_info import VideoInfoMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, 'videoDataHandler')
-class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
+@setup(IMetaDataHandler, IPopulator, name='videoDataHandler')
+class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
     '''
     Provides the service that handles the video persistence @see: IVideoPersistanceService.
     '''
@@ -61,17 +62,18 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
 
         self.videoSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.video_supported_files))
+        self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
 
-    def deploy(self):
-        '''
-        @see: IMetaDataHandler.deploy
-        '''
-        
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'video.jpg')))
-        
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
-        self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+    def addMetaInfo(self, metaDataMapped, languageId):
+        videoInfoMapped = VideoInfoMapped()
+        videoInfoMapped.MetaData = metaDataMapped.Id
+        videoInfoMapped.Language = languageId
+        try:
+            self.session().add(videoInfoMapped)
+            self.session().flush((videoInfoMapped,))
+        except SQLAlchemyError as e:
+            handle(e, videoInfoMapped)
+        return videoInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -93,7 +95,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         thumbnailPath = contentPath + '.jpg'
         p = Popen((self.ffmpeg_path, '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
-                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0: return False
         if not exists(thumbnailPath): return False
 
@@ -103,6 +105,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, 'utf-8')
+            if line.find('misdetection possible!') != -1: return False
 
             if line.find('Video') != -1 and line.find('Stream') != -1:
                 try:
@@ -134,11 +137,12 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
         metaDataMapped.content = path
-        metaDataMapped.typeId = self._metaTypeId
-        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.Type = META_TYPE_KEY
+        metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 
-        self.thumbnailManager.putThumbnail(self._thumbnailFormat.id, thumbnailPath, metaDataMapped)
+        self.thumbnailManager.putThumbnail(self.thumbnailFormatId(), thumbnailPath, metaDataMapped)
         remove(thumbnailPath)
 
         try:
@@ -151,9 +155,40 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return True
 
     # ----------------------------------------------------------------
+    
+    def doPopulate(self):
+        '''
+        @see: IPopulator.doPopulate
+        '''
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
+                                           abspath(join(pythonPath(), 'resources', 'video.jpg')))
+        
+    # ----------------------------------------------------------------
+
+    def metaTypeId(self):
+        '''
+        Provides the meta type id.
+        '''
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        return self._metaTypeId
+    
+    def defaultThumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._defaultThumbnailFormatId:
+            self._defaultThumbnailFormatId = thumbnailFormatFor(self.session(), self.default_format_thumbnail).id
+        return self._defaultThumbnailFormatId
+    
+    def thumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
+        return self._thumbnailFormatId
 
     def extractDuration(self, line):
-        #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
+        # Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
         properties = line.split(',')
         
         length = properties[0].partition(':')[2]
@@ -171,7 +206,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return (length, bitrate)
 
     def extractVideo(self, line):
-        #Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc
+        # Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc
         properties = (line.rpartition('Video:')[2]).split(',')
 
         index = 0
@@ -199,7 +234,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return (encoding, width, height, bitrate, fps)
 
     def extractAudio(self, line):
-        #Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
+        # Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
         properties = (line.rpartition(':')[2]).split(',')
 
         index = 0

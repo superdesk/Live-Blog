@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Livedesk Embed </title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+		<div class="container">
+			<div id="livedesk-root"></div>
+		</div>
+		<script>
+		config = new function()
+		{
+		    // this.server_tech = true;
+		    // use this if you have some sort of server tech like mod_rewrite,
+		    // and also would be nice to add a <base /> tag
+		    
+			this.domain = '{server_url}';
+			this.api_url = '//' + this.domain;
+			this.rest_url = '//' + this.domain + '/resources';
+			this.content_url =  '//' + this.domain + '/content';
+			this.lib_url = this.content_url + '/{lib_core}';
+			this.lib_js_url = this.lib_url + 'scripts/js/%s';
+			this.lib_css_url = this.lib_url + 'styles/css/%s';
+
+			// other
+			this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
+			
+			this.gui_url = '{gui}';
+			
+			var replace = function(format)
+			{
+				return function()
+				{
+					var a = arguments, i = -1,
+					str = format.replace(/(%s)/g, function(m){ i++; return typeof a[i] !== 'undefined' ? a[i] : m; });
+					return str;
+				}
+			}
+			// TODO core() and gui() is inconsistent 
+			this.core = replace(this.lib_url);
+			this.coreScripts = this.cjs = replace(this.lib_js_url);
+			this.coreStyles = this.ccss = replace(this.lib_css_url);
+			
+			this.gui = replace(this.gui_url);
+			this.guiJs = replace(this.gui('%s/scripts/js/%s'));
+			
+		};
+		</script>
+		<!-- Blog configuration should go from configuration -->
+		<script type="text/javascript">
+			var path = window.location.href.toString().split(window.location.host)[1],
+				attributes = path.split('?')[1],
+				objd,
+				id = 1,
+				po;	
+			if(attributes) {
+				var parts = attributes.split('&');
+				for( var i = 0, count = parts.length; i < count; i++ ){
+					objd = parts[i].split('=');
+					if(objd[0].toLowerCase() === 'id') {
+						id = objd[1];
+					}
+					if(objd[0].toLowerCase() === 'po') {
+						po = objd[1];
+					}
+				}
+			}
+			var livedesk = { 
+				'theme': {
+					'item/posttype/normal': '{>"theme/item/base"/}{<item_class}normal{/item_class}{<reference_name}thewebsiteyouwant.extension{/reference_name}'
+				},
+				'language': 'de',
+				'server': function(){ return config.api_url; },
+				'FrontendServer': config.api_url,
+				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
+			};
+		</script>
+		<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		.container {
+			height: auto;
+			width: 500px;
+		}
+		</style>
+		<script>
+		if(po === undefined){
+			(function (d, s, id) {
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    if (d.getElementById(id)) return;
+			    js = d.createElement(s);
+			    js.id = id;
+			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/tageswoche');
+			    js.src = config.coreScripts('require.js');
+			    fjs.parentNode.insertBefore(js, fjs);
+			}(document, "script", "livedesk-jssdk"));
+		}
+		</script>
+		<!--<script data-main="//{server_url}/{gui}/livedesk-embed/scripts/js/theme/default" src="//{server_url}/{lib_core}/scripts/js/require.js"></script>-->
+		<div id="here"></div>
+		<script>
+			if(po !== undefined){
+				var html='<form  enctype="multipart/form-data" action="'+config.api_url+'/resources/Admin/Plugin/livedesk_embed/PO/'+po+'?X-HTTP-Method-Override=PUT" method="POST"><input name="source" type="file"/><input value="Load it" type="submit"/></form>';
+				document.getElementById('here').innerHTML = html;
+			}
+		</script>
+	</body>
+</html>

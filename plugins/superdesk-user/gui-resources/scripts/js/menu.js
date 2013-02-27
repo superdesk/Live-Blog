@@ -1,16 +1,16 @@
 define
 ([
-    'jquery','jquery/superdesk',
+    'jquery','jquery/superdesk', 'gizmo/superdesk/action'
 ],
-function($, superdesk)
+function($, superdesk, Action)
 {
     return { init: function() 
     {
-        superdesk.getAction('modules.user.list')
+        Action.get('modules.user.list')
         .done(function(action)
         {
-            if(action.Path == 'modules.user.list' && action.ScriptPath)
-                require([superdesk.apiUrl+action.ScriptPath], function(app){ app(); });
+            if(action.get('Path') == 'modules.user.list' && action.get('Script'))
+                require([action.get('Script').href], function(app){ app(); });
         });
     }};
 });

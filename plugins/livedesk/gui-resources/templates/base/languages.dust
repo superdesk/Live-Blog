@@ -1,0 +1,10 @@
+{+language_content}
+<select name="Language" class="span3">
+<option value="">_('Choose language');</option>
+	{+language_item}
+	{#Languages}
+	    <option data-code="{Code}" value="{Id}"{@if cond="'{Id}'==='{selected}'"} selected{/if}>{Name}</option>
+	{/Languages}
+	{/language_item}
+</select>
+{/language_content}

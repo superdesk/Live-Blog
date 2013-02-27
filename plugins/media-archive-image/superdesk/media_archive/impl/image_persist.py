@@ -9,9 +9,6 @@ Created on Apr 25, 2012
 Implementation for the image persistence API.
 '''
 
-from ..core.spec import IThumbnailManager
-from ..meta.image_data import ImageDataEntry
-from ..meta.meta_data import MetaDataMapped
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -19,20 +16,25 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
+from distribution.support import IPopulator
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler
-from superdesk.media_archive.meta.image_data import META_TYPE_KEY
+from superdesk.media_archive.core.spec import IMetaDataHandler, \
+    IThumbnailManager
+from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
+    ImageDataEntry
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
+from superdesk.media_archive.meta.image_info import ImageInfoMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, 'imageDataHandler')
-class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
+@setup(IMetaDataHandler, IPopulator, name='imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
     '''
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
@@ -59,19 +61,19 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
+        self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
 
-    def deploy(self):
-        '''
-        @see: IMetaDataHandler.deploy
-        '''
 
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'image.jpg')))
-
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
-        self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
-
-# --------------------------------------------------------------------
+    def addMetaInfo(self, metaDataMapped, languageId):
+        imageInfoMapped = ImageInfoMapped()
+        imageInfoMapped.MetaData = metaDataMapped.Id
+        imageInfoMapped.Language = languageId
+        try:
+            self.session().add(imageInfoMapped)
+            self.session().flush((imageInfoMapped,))
+        except SQLAlchemyError as e:
+            handle(e, imageInfoMapped)
+        return imageInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -92,7 +94,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
         p = Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait()
         # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
@@ -126,11 +128,12 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
         metaDataMapped.content = path
-        metaDataMapped.typeId = self._metaTypeId
-        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.typeId = self.metaTypeId()
+        metaDataMapped.Type = META_TYPE_KEY
+        metaDataMapped.thumbnailFormatId = self.thumbnailFormatId()
         metaDataMapped.IsAvailable = True
 
-        self.thumbnailManager.putThumbnail(self._thumbnailFormat.id, contentPath, metaDataMapped)
+        self.thumbnailManager.putThumbnail(self.thumbnailFormatId(), contentPath, metaDataMapped)
 
         try: self.session().add(imageDataEntry)
         except SQLAlchemyError as e:
@@ -140,7 +143,38 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return True
 
     # ----------------------------------------------------------------
+    
+    def doPopulate(self):
+        '''
+        @see: IPopulator.doPopulate
+        '''
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
+                                           abspath(join(pythonPath(), 'resources', 'image.jpg')))
+        
+    # ----------------------------------------------------------------
 
+    def metaTypeId(self):
+        '''
+        Provides the meta type id.
+        '''
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        return self._metaTypeId
+    
+    def defaultThumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._defaultThumbnailFormatId:
+            self._defaultThumbnailFormatId = thumbnailFormatFor(self.session(), self.default_format_thumbnail).id
+        return self._defaultThumbnailFormatId
+    
+    def thumbnailFormatId(self):
+        '''
+        Provides the thumbnail format id.
+        '''
+        if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
+        return self._thumbnailFormatId
+    
     def extractProperty(self, line):
         return line.partition(':')[0].strip()
 

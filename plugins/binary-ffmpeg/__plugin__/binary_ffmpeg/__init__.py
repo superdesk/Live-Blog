@@ -9,10 +9,11 @@ Created on Apr 19, 2012
 Provides the ffmpeg in the workspace tools.
 '''
 
-from os.path import join
-from ally.support.util_sys import pythonPath
 from ally.container import ioc
 from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_sys import pythonPath
+from distribution.container import app
+from os.path import join
 
 # --------------------------------------------------------------------
 
@@ -32,6 +33,6 @@ def ffmpeg_dir_path():
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def deploy():
     if ffmpeg_dir_path(): deployTool(join(pythonPath(), 'resources', 'ffmpeg'), ffmpeg_dir_path())

@@ -8,23 +8,27 @@ define
 ([
   'jquery', 'jquery/superdesk',
   'gizmo/superdesk',
+    config.guiJs('livedesk', 'action'),
+    'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   'jquery/tmpl', 'jquery/rest',
-  'tmpl!livedesk>submenu'
-], function($, superdesk, Gizmo, Blog)
+  'tmpl!livedesk>submenu',
+  'tmpl!livedesk>error-notif'
+], function($, superdesk, Gizmo, BlogAction, Action, Blog)
 {
-    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
+    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
         b = Gizmo.Auth(new Blogs());
-    //b.href.decorate('%s/Administered');
     
     var SubmenuView = Gizmo.View.extend
     ({
         init: function()
         {
             this.model.on('read update', this.render, this);
+            this.model.on('insert', this.refresh, this);
         },
         refresh: function()
         {
+            this.model.href = localStorage.getItem('superdesk.login.selfHref')+'/Blog';
             this.model._list = [];
             this.model.xfilter('Title, Id').sync();
         },
@@ -34,41 +38,54 @@ define
             {
                 var self = this;
                 superdesk.showLoader();
-                superdesk.getAction('modules.livedesk.archive')
+                Action.get('modules.livedesk.archive')
                 .done(function(action)
                 {
                     var callback = function()
                     { 
-                        require([superdesk.apiUrl+action.ScriptPath], function(app){ new app(); });
+                        require([action.get('Script').href], function(app){ new app(); });
                     };
-                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 }); 
                 event.preventDefault();
             });
             
             $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
-                superdesk.showLoader();
-                superdesk.getAction('modules.livedesk.add')
+                Action.get('modules.livedesk.add')
                 .done(function(action)
                 {
-                    action.ScriptPath &&
-                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
+                    superdesk.showLoader();
+                    action.get('Script') &&
+                        require([action.get('Script').href], function(AddApp){ addApp = new AddApp(); });
                 }); 
                 event.preventDefault();
             });
             $(this.menu).on('click', '.submenu-blog', function(event)
             {
-                superdesk.showLoader();
-                var theBlog = $(this).attr('data-blog-link'), self = this;
-                superdesk.getAction('modules.livedesk.edit')
+                var self = this,
+                    theBlog = $(this).attr('data-blog-link');
+                BlogAction.setBlogUrl(theBlog);
+                BlogAction.get('modules.livedesk.edit')
                 .done(function(action)
                 {
+                    superdesk.showLoader();
+                    if(!action) return;
                     var callback = function()
                     { 
-                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                        require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
                     };
-                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                    action.get('Script') && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                })
+                .fail(function()
+                { 
+                    $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o)
+                    {
+                        var o = $(o);
+                        $('#area-main').append(o);
+                        $('.close', o).on('click', function(){ $(o).remove(); });
+                        setTimeout(function(){ $(o).remove(); }, 3000);
+                    });
                 });
                 event.preventDefault();
             });
@@ -78,12 +95,15 @@ define
              */
             this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}, function()
             {
+                // hide create if no right
+                Action.get('modules.livedesk.add').fail(function(){ $('#submenu-liveblogs-create', self.menu).hide(); });
+                
                 if( superdesk.navigation.getStartPathname() == '') return false;
                 self.menu.find('[href]').each(function()
                 {
                     if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname())
                     {
-                        superdesk.navigation.consumeStartPathname()
+                        superdesk.navigation.consumeStartPathname();
                         $(this).trigger('click');
                     }
                 });

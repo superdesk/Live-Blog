@@ -1,20 +1,23 @@
 {#Post}
 {@if cond="'{Type.Key}'=='wrapup'"}
-<li class="wrapup open {?PublishedOn}published{:else}draggable{/PublishedOn}" style="border-top: 3px solid #007FB3 !important;">
+<li class="wrapup open draggable" style="border-top: 3px solid #007FB3 !important;">
    <div class="drag-bar"></div>
+	<div class="tool-box-right">
+		<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
+	</div>
    <div class="arrow" style="height:20px; width:20px; float: left; background: url('images/wrapup-arrow.png') no-repeat scroll 0 0 transparent; background-position: -40px 0;"></div>
    <div class="wrapup-content">{Content|s}</div>
   <div class="clear"></div>
 </li>
 {:else}
 	{@if cond="'{Author.Source.Name}'=='google'"}
-	<li class="{Author.Source.Name} {?PublishedOn}published{:else}draggable{/PublishedOn}">
+	<li class="{Author.Source.Name} draggable">
 		<div class="drag-bar"></div>
 		<div class="tool-box-right">
 			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
 		</div>
 	{:else}
-	<li class="with-avatar {Author.Source.Name} {Type.Key} {?PublishedOn}published{:else}draggable{/PublishedOn}">
+	<li class="with-avatar {Author.Source.Name} {Type.Key} draggable">
 		<div class="drag-bar"></div>
 		<div class="tool-box-right">
 			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
@@ -47,7 +50,7 @@
                 <h3><span class="author">{Meta.from_user_name}({Meta.from_user})</span></h3>
             {/if}
 			<div class="result-text">
-				{Content|s}
+				{Content|s}{@if cond="'{Author.Source.Name}'=='flickr'"}<p>{Meta.title|s}</p>{/if}
                 {#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
 			</div>
 			<p class="attributes">

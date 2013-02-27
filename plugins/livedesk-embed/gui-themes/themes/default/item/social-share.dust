@@ -1,0 +1,8 @@
+<div class="share-box">
+	<a href="#" class='social facebook' target='_blank' title="_('Share this post on Facebook');" onclick="{fbclick}"></a>{!/!}
+	<a href="#" class='social twitter' target='_blank' title="_('Share this post on Facebook');" onclick="{twtclick}"></a>{!/!}
+	<a href="#" class='social linkedin' title="_('Share this post on Linkedin');" onclick="{linclick}"></a>{!/!}
+	<a href="#" class='social pinterest' title="_('Share this post on Pinterest');" onclick="{pinclick}"></a>{!/!}
+	<a href="#" class='social google' title="_('Share this post on Google+');" onclick="{gglclick}"></a>{!/!}
+	<a href="{emailurl}" class='social email' title="_('Share this post via Email');" target="_blank"></a>{!/!}
+</div>{!/!}

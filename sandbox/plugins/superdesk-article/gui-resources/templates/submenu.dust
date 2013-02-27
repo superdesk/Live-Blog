@@ -1,0 +1,12 @@
+<li class="nav-header">Articles</li>
+{?Articles}
+	{#Articles}
+		<li>
+			<a class="submenu-article" data-article-link="{href}" href="article/{Id}">
+				{Slug|t} {Id|t} {CreatedOn|t}
+			</a>
+		</li>
+	{/Articles}
+{:else}
+	<li><a>No articles yet!</a></li>
+{/Blogs}

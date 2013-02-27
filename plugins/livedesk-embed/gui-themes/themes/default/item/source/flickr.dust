@@ -1,0 +1,14 @@
+{>"theme/item/base"/}{!/!}
+{<item_class}flickrservice{/item_class}{!/!}
+{<body_content}
+			<a href="http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg" target="_blank">
+				<img alt="{Meta.title}" src='http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg'>
+			</a>{!/!}
+			<div class="result-text"><p>{Meta.title}</p>{!/!}</div>{!/!}
+{/body_content}{!/!}
+{<body_bottom}
+	{?Meta.annotation}
+	<div class="editable annotation">{Meta.annotation|s}</div>{!/!}
+	{/Meta.annotation}{!/!}
+{/body_bottom}{!/!}
+{<reference_name} flickr.com{/reference_name}{!/!}

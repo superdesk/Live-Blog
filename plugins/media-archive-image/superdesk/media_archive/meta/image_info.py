@@ -9,12 +9,12 @@ Created on Apr 18, 2012
 Contains the SQL alchemy meta for media image info API.
 '''
 
-from ..api.image_info import ImageInfo
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
+from superdesk.media_archive.api.image_info import ImageInfo
 
 # --------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ class ImageInfoDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = declared_attr(lambda cls: Column('fk_metainfo_id', ForeignKey(MetaInfoMapped.Id), primary_key=True))
-    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=False, key='Caption'))
+    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=True, key='Caption'))
 
 # --------------------------------------------------------------------
 

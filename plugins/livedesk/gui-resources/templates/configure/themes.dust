@@ -1,0 +1,10 @@
+{+themes_content}
+<select name="Theme" class="span3">
+<option value="">_('Select');</option>
+	{+theme_item}
+	{#Themes}
+	    <option value="{Name}"{@if cond="'{Name}'==='{selected}'"} selected{/if}>{Name}</option>
+	{/Themes}
+	{/theme_item}
+</select>
+{/themes_content}

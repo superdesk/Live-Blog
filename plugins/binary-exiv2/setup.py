@@ -21,7 +21,7 @@ setup(
     platforms=['all'],
     zip_safe=True,
     package_data={
-        '': ['*.exe', '*.1', '*.2', '*.6', '*.12'],
+        '': ['*.exe', '*.dll', '*.so.*', '*.txt', '*.html', '*.dylib'],
     },
 
     # metadata for upload to PyPI

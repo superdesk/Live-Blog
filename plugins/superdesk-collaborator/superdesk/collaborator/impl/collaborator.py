@@ -15,9 +15,9 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
-from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
 from ally.api.extension import IterPart
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -34,14 +34,15 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         '''
         EntityGetCRUDServiceAlchemy.__init__(self, CollaboratorMapped)
 
-    def getAll(self, personId=None, sourceId=None, offset=None, limit=None, detailed=False, qp=None, qs=None):
+    def getAll(self, userId=None, sourceId=None, offset=None, limit=None, detailed=False, qu=None, qs=None):
         '''
         @see: ICollaboratorService.getAll
         '''
         sql = self.session().query(CollaboratorMapped)
-        if personId: sql = sql.filter(CollaboratorMapped.Person == personId)
+        if userId: sql = sql.filter(CollaboratorMapped.User == userId)
+        sql = sql.filter(UserMapped.DeletedOn == None)
         if sourceId: sql = sql.filter(CollaboratorMapped.Source == sourceId)
-        if qp: sql = buildQuery(sql.join(PersonMapped), qp, PersonMapped)
+        if qu: sql = buildQuery(sql.join(UserMapped), qu, UserMapped)
         if qs: sql = buildQuery(sql.join(SourceMapped), qs, SourceMapped)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)

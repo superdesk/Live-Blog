@@ -1,0 +1,40 @@
+<li class="soundcloud draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
+    <div class="drag-bar"></div>
+    <div class="tool-box-right" style="z-index: 1000">
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+    </div>
+    
+    <div class="result-content" style="display:block; position:relative;">
+        <div>
+            <h3><a href="{Meta.permalink_url}" target="_blank">{Meta.title|s}</a></h3>
+            <p class="result-text" style="float:left; text-align: left;">
+                    {Meta.description|s}&nbsp;
+            </p>
+            <p>
+            <iframe width="100%" height="166" scrolling="no" frameborder="no" src="http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F{Meta.id}&show_artwork=true"></iframe>
+            </p>
+            <br/>    
+
+        </div>
+        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+            <p class="attributes" >
+                    <i class="source-icon">
+                            <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
+                    </i>
+                    <a class="author-name" href="{Meta.user.permalink_url}" target="_blank">{Meta.user.username}</a>
+                    <time>{Meta.created_at}</time>
+            </p>
+        </div>
+	</div>
+    <div class="editable annotation">
+            {Meta.annotation|s}
+    </div>	
+	
+    <div class="btn-group pull-right clearfix actions hide">
+    	<button class="btn btn-mini cancel">Cancel</button>
+    	<button class="btn btn-mini btn-primary publish">Publish</button>
+   	</div>		
+</li>
+
+

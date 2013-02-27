@@ -10,17 +10,17 @@ API specifications for livedesk blog posts.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call, INSERT, query, UPDATE
-from livedesk.api.domain_livedesk import modelLiveDesk
-from superdesk.post.api.post import Post, QPostUnpublished, \
-    QPost, IPostService
-from superdesk.user.api.user import User
-from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter
+from ally.api.config import service, call, INSERT, query, UPDATE, extension
 from ally.api.criteria import AsRangeOrdered, AsBoolean
-from ally.api.authentication import auth
+from ally.api.extension import IterPart
+from ally.api.type import Iter, Reference
+from livedesk.api.domain_livedesk import modelLiveDesk
+from superdesk.collaborator.api.collaborator import Collaborator
 from superdesk.person.api.person import Person
+from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
+from superdesk.user.api.user import User
+from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
 
 # --------------------------------------------------------------------
 
@@ -34,6 +34,7 @@ class BlogPost(Post):
     Blog = Blog
     AuthorPerson = Person
     AuthorName = str
+    AuthorImage = Reference
 
 # --------------------------------------------------------------------
 
@@ -66,6 +67,22 @@ class QBlogPost(QPost, QWithCId):
 
 # --------------------------------------------------------------------
 
+@extension
+class IterPost(IterPart):
+    '''
+    The post iterable that provides extended information on the posts collection. The offset more is constructed without
+	the cId filtering, the idea is if you provide in your query a filter saying that you require elements that have an
+	order greater then a certain value and also provide a cId in your filtering, you will have a return that is presenting
+	you the changed entries based on the cId, but the offsetMore will present you how many posts there are that are greater
+	then the provided order with no regards to cId. This is helpful when requesting the next page because the offset more
+	will tell you exactly fron where you next page will start. As a conclusion to have a relevant offsetMore you need to
+	query based on order and cId.
+    '''
+    offsetMore = int
+    lastCId = int
+
+# --------------------------------------------------------------------
+
 @service
 class IBlogPostService:
     '''
@@ -73,27 +90,34 @@ class IBlogPostService:
     '''
 
     @call
-    def getById(self, blogId:Blog, postId:BlogPost) -> BlogPost:
+    def getById(self, blogId:Blog, postId:BlogPost, thumbSize:str=None) -> BlogPost:
         '''
         Provides the blog post based on the id.
         '''
 
     @call(webName='Published')
-    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
                      offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
-        Provides all the blogs published posts.
+        Provides all the blogs published posts. The detailed iterator will return a @see: IterPost.
         '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
-                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
+                       offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
         '''
+    
+    @call(webName='GroupUnpublished')
+    def getGroupUnpublished(self, blogId:Blog, groupId:BlogCollaboratorGroup, typeId:PostType=None, authorId:Collaborator=None, thumbSize:str=None,
+                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+        '''
+        Provides all the unpublished blogs posts for current blog colllaborator group.
+        '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:auth(User), typeId:PostType=None, offset:int=None, limit:int=None,
+    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, offset:int=None, limit:int=None,
                  q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have
@@ -101,7 +125,7 @@ class IBlogPostService:
         '''
 
     @call
-    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
                        offset:int=None, limit:int=None, q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
@@ -110,19 +134,25 @@ class IBlogPostService:
     @call
     def insert(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Inserts the post in the blog.
         '''
 
     @call(method=INSERT, webName='Publish')
     def publish(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Publishes the post in the blog.
         '''
 
     @call(webName='Published')
     def insertAndPublish(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Inserts and publishes the post in the blog.
+        '''
+
+    @call(method=INSERT, webName='Unpublish')
+    def unpublish(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Unpublishes the post in the blog.
         '''
 
     @call
@@ -141,9 +171,9 @@ class IBlogPostService:
     def delete(self, id:Post.Id) -> bool:
         '''
         Delete the post for the provided id.
-        
+
         @param id: integer
             The id of the post to be deleted.
-            
+
         @return: True if the delete is successful, false otherwise.
         '''

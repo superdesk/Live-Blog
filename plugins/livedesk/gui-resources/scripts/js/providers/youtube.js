@@ -5,7 +5,10 @@
 
 define('providers/youtube', [
     'providers','utils/str', 
-    'jquery','jquery/tmpl','jquery/jsonp',
+    'jquery',
+    config.guiJs('livedesk', 'action'),
+    'jquery/tmpl',
+    'jquery/jsonp',
     'jqueryui/draggable',
     'providers/youtube/adaptor',
     'tmpl!livedesk>providers/youtube',
@@ -16,7 +19,7 @@ define('providers/youtube', [
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading'
-    ], function( providers, str, $ ) {
+    ], function( providers, str, $, BlogAction ) {
         $.extend(providers.youtube, {
             initialized: false,
             
@@ -107,8 +110,9 @@ define('providers/youtube', [
             },
             
             trimDesc : function(desc) {
+                desc = typeof desc != 'undefined' ? desc : '';
                 if (desc.length > 200) {
-                    return desc.substring(0, 200) + ' ...;'
+                    return desc.substring(0, 200) + ' ...';
                 } else {
                     return desc;
                 }
@@ -129,7 +133,7 @@ define('providers/youtube', [
                 return results;
             },
             doSearch: function (start) {
-                var self = this;
+                var self = this, el;
                 var key = $('#youtube-search-text').val();
                 if(key == '') {
                     return 1;
@@ -158,18 +162,23 @@ define('providers/youtube', [
                             self.noResults('#ytb-src-results');
                         } else {
                             $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
-                                $('#ytb-src-results').append(o).find('.youtube').draggable({
-                                    revert: 'invalid',
-                                    helper: 'clone',
-                                    appendTo: 'body',
-                                    zIndex: 2700,
-                                    clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        var idx = parseInt($(this).attr('idx'),10);
-                                        $(this).data('data', self.adaptor.universal( results[idx] ));
-                                    }   
+                                el = $('#ytb-src-results').append(o).find('.youtube')
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                    el.draggable({
+                                        revert: 'invalid',
+                                        helper: 'clone',
+                                        appendTo: 'body',
+                                        zIndex: 2700,
+                                        clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            var idx = parseInt($(this).attr('idx'),10);
+                                            $(this).data('data', self.adaptor.universal( results[idx] ));
+                                        }   
+                                    });
+                                }).fail(function(){
+                                    el.removeClass('draggable');
                                 });
                             });
                         }
@@ -222,20 +231,25 @@ define('providers/youtube', [
                             self.noResults('#ytb-fav-results');
                         } else {
                             $.tmpl('livedesk>providers/youtube/favorite-item', {results : self.cleanContent(results)}, function(e,o) {
-                                $('#ytb-fav-results').append(o).find('.youtube').draggable({
-                                    revert: 'invalid',
-                                    helper: 'clone',
-                                    appendTo: 'body',
-                                    zIndex: 2700,
-                                    clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        var idx = parseInt($(this).attr('idx'),10);
-                                        results[idx].id = results[idx].video.id;
-                                        results[idx].uploaded = results[idx].video.uploaded;
-                                        $(this).data('data', self.adaptor.universal( results[idx] ));
-                                    }   
+                                el = $('#ytb-fav-results').append(o).find('.youtube');
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                    el.draggable({
+                                        revert: 'invalid',
+                                        helper: 'clone',
+                                        appendTo: 'body',
+                                        zIndex: 2700,
+                                        clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            var idx = parseInt($(this).attr('idx'),10);
+                                            results[idx].id = results[idx].video.id;
+                                            results[idx].uploaded = results[idx].video.uploaded;
+                                            $(this).data('data', self.adaptor.universal( results[idx] ));
+                                        }   
+                                    });
+                                }).fail(function(){
+                                    el.removeClass('draggable');
                                 });
                             });
                         }
@@ -286,18 +300,23 @@ define('providers/youtube', [
                             self.noResults('#ytb-usr-results');
                         } else {
                             $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
-                                $('#ytb-usr-results').append(o).find('.youtube').draggable({
-                                    revert: 'invalid',
-                                    helper: 'clone',
-                                    appendTo: 'body',
-                                    zIndex: 2700,
-                                    clone: true,
-                                    start: function(evt, ui) {
-                                        item = $(evt.currentTarget);
-                                        $(ui.helper).css('width', item.width());
-                                        var idx = parseInt($(this).attr('idx'),10);
-                                        $(this).data('data', self.adaptor.universal( results[idx] ));
-                                    }   
+                                el = $('#ytb-usr-results').append(o).find('.youtube');
+                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                    el.draggable({
+                                        revert: 'invalid',
+                                        helper: 'clone',
+                                        appendTo: 'body',
+                                        zIndex: 2700,
+                                        clone: true,
+                                        start: function(evt, ui) {
+                                            item = $(evt.currentTarget);
+                                            $(ui.helper).css('width', item.width());
+                                            var idx = parseInt($(this).attr('idx'),10);
+                                            $(this).data('data', self.adaptor.universal( results[idx] ));
+                                        }   
+                                    });
+                                }).fail(function(){
+                                    el.removeClass('draggable');
                                 });
                             });
                         }

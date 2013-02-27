@@ -11,19 +11,20 @@ API specifications for media archive meta data.
 
 from .domain_archive import modelArchive
 from .meta_type import MetaType
-from ally.api.config import query, service, call
-from ally.api.criteria import AsDateTimeOrdered
+from ally.api.config import query, service, call, model
+from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered
 from ally.api.model import Content
-from ally.api.type import Reference, Iter, Scheme#, Count
+from ally.api.type import Reference, Iter, Scheme
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
+    AsInOrdered
 from superdesk.user.api.user import User
-from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
 @modelArchive
-class MetaData(Entity):
+class MetaDataBase:
     '''
     Provides the meta data that is extracted based on the content.
     '''
@@ -32,8 +33,17 @@ class MetaData(Entity):
     Content = Reference
     Thumbnail = Reference
     SizeInBytes = int
-    Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
+    Creator = User
     CreatedOn = datetime
+
+# --------------------------------------------------------------------
+
+
+@model
+class MetaData(MetaDataBase, Entity):
+    '''
+    Provides the meta data that is extracted based on the content.
+    '''
 
 # --------------------------------------------------------------------
 
@@ -42,6 +52,10 @@ class QMetaData(QEntity):
     '''
     The query for he meta models.
     '''
+    name = AsLikeExpressionOrdered
+    # type = AsInOrdered
+    sizeInBytes = AsRangeOrdered
+    creator = AsInOrdered
     createdOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
@@ -65,7 +79,6 @@ class IMetaDataService:
         Provides the meta data's.
         '''
 
-
 @service
 class IMetaDataUploadService(IMetaDataService):
     '''
@@ -73,7 +86,7 @@ class IMetaDataUploadService(IMetaDataService):
     '''
 
     @call(webName='Upload')
-    def insert(self, userId:auth(User.Id), content:Content) -> MetaData.Id:
+    def insert(self, userId:User.Id, content:Content, scheme:Scheme='http', thumbSize:str=None) -> MetaData:
         '''
         Inserts the meta data content into the media archive. The process of a adding a resource to the media archive is as
         follows:

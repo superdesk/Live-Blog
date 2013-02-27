@@ -9,12 +9,13 @@ Created on Aug 23, 2012
 Contains the SQL alchemy meta for media audio info API.
 '''
 
-from ..api.audio_info import AudioInfo
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
+from superdesk.media_archive.api.audio_info import AudioInfo
+
 
 # --------------------------------------------------------------------
 
@@ -26,7 +27,7 @@ class AudioInfoDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = declared_attr(lambda cls: Column('fk_metainfo_id', ForeignKey(MetaInfoMapped.Id), primary_key=True))
-    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=False, key='Caption'))
+    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=True, key='Caption'))
 
 # --------------------------------------------------------------------
 

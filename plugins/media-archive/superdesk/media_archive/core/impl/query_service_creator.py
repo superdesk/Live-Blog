@@ -6,25 +6,28 @@ Created on Aug 21, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor, Ioan v. Pocol
 
-Creates the service that will be used for multi-plugins queries. 
+Creates the service that will be used for multi-plugins queries.
 '''
 
 from ally.api.config import service, call, query
 from ally.api.type import Iter, Scheme
-from ally.support.api.util_service import namesForQuery
 from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData, MetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo, MetaInfo
-from superdesk.media_archive.core.spec import QueryIndexer
+from superdesk.media_archive.core.spec import QueryIndexer, IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
-from superdesk.media_archive.meta.meta_info import MetaInfoMapped
+from ally.api.extension import IterPart
+from cdm.spec import ICDM
+from superdesk.media_archive.api.meta_data_info import MetaDataInfo, \
+    QMetaDataInfo
 
-# --------------------------------------------------------------------
 
-def createService(queryIndexer):
+def createService(queryIndexer, cdmArchive, thumbnailManager, searchProvider):
     assert isinstance(queryIndexer, QueryIndexer), 'Invalid query indexer %s' % queryIndexer
+    assert isinstance(cdmArchive, ICDM), 'Invalid archive CDM %s' % cdmArchive
+    assert isinstance(thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % thumbnailManager
+    assert isinstance(searchProvider, ISearchProvider), 'Invalid search provider %s' % searchProvider
 
     qMetaInfoClass = type('Compund$QMetaInfo', (QMetaInfo,), queryIndexer.infoCriterias)
     qMetaInfoClass = query(MetaInfo)(qMetaInfoClass)
@@ -32,12 +35,13 @@ def createService(queryIndexer):
     qMetaDataClass = type('Compund$QMetaData', (QMetaData,), queryIndexer.dataCriterias)
     qMetaDataClass = query(MetaData)(qMetaDataClass)
 
-    types = (Iter(MetaInfo), Scheme, int, int, qMetaInfoClass, qMetaDataClass, str)
+    types = (Iter(MetaDataInfo), Scheme, int, int, QMetaDataInfo, qMetaInfoClass, qMetaDataClass, str)
     apiClass = type('Generated$IQueryService', (IQueryService,), {})
     apiClass.getMetaInfos = call(*types, webName='Query')(apiClass.getMetaInfos)
     apiClass = service(apiClass)
 
-    return type('Generated$QueryServiceAlchemy', (QueryServiceAlchemy, apiClass), {})(queryIndexer, qMetaInfoClass, qMetaDataClass)
+    return type('Generated$QueryServiceAlchemy', (QueryServiceAlchemy, apiClass), {}
+                 )(queryIndexer, cdmArchive, thumbnailManager, searchProvider, qMetaInfoClass, qMetaDataClass)
 
 # --------------------------------------------------------------------
 
@@ -46,9 +50,35 @@ class IQueryService:
     Provides the service methods for the unified multi-plugin criteria query.
     '''
 
-    def getMetaInfos(self, scheme, offset=None, limit=10, qi=None, qd=None, thumbSize=None):
+    def getMetaInfos(self, scheme, offset=None, limit=10, qa=None, qi=None, qd=None, thumbSize=None):
         '''
         Provides the meta data based on unified multi-plugin criteria.
+        '''
+
+# --------------------------------------------------------------------
+
+class ISearchProvider:
+    '''
+    Provides the methods for search related functionality.
+    '''
+
+    def buildQuery(self, session, scheme, offset, limit, qa=None, qi=None, qd=None):
+        '''
+        Provides the meta data based query on unified multi-plugin criteria.
+        '''
+
+    # --------------------------------------------------------------------
+
+    def update(self, MetaInfo, MetaData):
+        '''
+        Provides the update of data on search indexes.
+        '''
+
+    # --------------------------------------------------------------------
+
+    def delete(self, idMetaInfo, metaType):
+        '''
+        Provides the delete of data from search indexes.
         '''
 
 # --------------------------------------------------------------------
@@ -58,64 +88,89 @@ class QueryServiceAlchemy(SessionSupport):
     Provides the service methods for the unified multi-plugin criteria query.
     '''
 
-    def __init__(self, queryIndexer, QMetaInfoClass, QMetaDataClass):
+    cdmArchive = ICDM
+    # The archive CDM.
+    thumbnailManager = IThumbnailManager
+    # Provides the thumbnail referencer
+
+    searchProvider = ISearchProvider
+
+
+    def __init__(self, queryIndexer, cdmArchive, thumbnailManager, searchProvider, QMetaInfoClass, QMetaDataClass):
         '''
         '''
+        assert isinstance(cdmArchive, ICDM), 'Invalid archive CDM %s' % cdmArchive
+        assert isinstance(thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % thumbnailManager
+
         assert isinstance(queryIndexer, QueryIndexer), 'Invalid query indexer %s' % queryIndexer
         assert isclass(QMetaInfoClass), 'Invalid meta info class %s' % QMetaInfoClass
         assert isclass(QMetaDataClass), 'Invalid meta data class %s' % QMetaDataClass
 
-        self.queryIndexer = queryIndexer
-        self.QMetaInfo = QMetaInfoClass
-        self.QMetaData = QMetaDataClass
+        self.cdmArchive = cdmArchive
+        self.thumbnailManager = thumbnailManager
+
+
+        searchProvider.queryIndexer = queryIndexer
+        searchProvider.QMetaInfo = QMetaInfoClass
+        searchProvider.QMetaData = QMetaDataClass
+        self.searchProvider = searchProvider
+
 
     # --------------------------------------------------------------------
 
-    def getMetaInfos(self, scheme, offset=None, limit=None, qi=None, qd=None, thumbSize=None):
+    def getMetaInfos(self, scheme, offset=None, limit=1000, qa=None, qi=None, qd=None, thumbSize=None):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
-        sql = self.session().query(MetaInfoMapped)
 
-        if qi is not None:
-            assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
-            metaInfos = self.queryIndexer.metaInfos.copy()
-            assert isinstance(metaInfos, set)
+        sql, count = self.searchProvider.buildQuery(self.session(), scheme, offset, limit, qa, qi, qd)
+        
+        indexDict = {}
+        languageId = None
+                
+        if qa and QMetaDataInfo.language in qa:
+            languageId = int(qa.language.equal)
+            
+        metaDataInfos = list()
+        if count == 0:
+            return IterPart(metaDataInfos, count, offset, limit)
+        
+        count = 0
 
-            for name in namesForQuery(qi):
-                if getattr(self.QMetaInfo, name) not in qi: continue
-                criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
-                assert criteriaMetaInfos, 'No model class available for %s' % name
-                metaInfos.intersection(criteriaMetaInfos)
+        for row in sql.all():
+            metaDataMapped = row[0]
+            metaInfoMapped = row[1]
+             
+            if languageId and metaDataMapped.Id in indexDict:
+                if languageId != metaInfoMapped.Language: continue
+                else: 
+                    index = indexDict[metaDataMapped.Id]
+                    del metaDataInfos[index]
+                    count = count - 1
+           
+            assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data %s' % metaDataMapped
+            metaDataMapped.Content = self.cdmArchive.getURI(metaDataMapped.content, scheme)
+            self.thumbnailManager.populate(metaDataMapped, scheme, thumbSize)
+            
+            metaDataInfo = MetaDataInfo()
 
-            sql = buildQuery(sql, qi, MetaInfoMapped)
-            for metaInfo in metaInfos:
-                sql = sql.join(metaInfo)
-                try:
-                    sql = buildQuery(sql, qi, metaInfo)
-                except :
-                    raise Exception('Cannot build query for meta info %s' % metaInfo)
+            metaDataInfo.Id = metaDataMapped.Id
+            metaDataInfo.Name = metaDataMapped.Name
+            metaDataInfo.Type = metaDataMapped.Type
+            metaDataInfo.Content = metaDataMapped.Content
+            metaDataInfo.Thumbnail = metaDataMapped.Thumbnail
+            metaDataInfo.SizeInBytes = metaDataMapped.SizeInBytes
+            metaDataInfo.Creator = metaDataMapped.Creator
+            metaDataInfo.CreatedOn = metaDataMapped.CreatedOn
 
+            metaDataInfo.Language = metaInfoMapped.Language
+            metaDataInfo.Title = metaInfoMapped.Title
+            metaDataInfo.Keywords = metaInfoMapped.Keywords
+            metaDataInfo.Description = metaInfoMapped.Description
 
-        if qd is not None:
-            assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
-            metaDatas = self.queryIndexer.metaDatas.copy()
-            assert isinstance(metaDatas, set)
-
-            for name in namesForQuery(qd):
-                if getattr(self.QMetaData, name) not in qd: continue
-                criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
-                assert criteriaMetaDatas, 'No model class available for %s' % name
-                metaDatas.intersection(criteriaMetaDatas)
-
-            sql = sql.join(MetaDataMapped)
-            sql = buildQuery(sql, qd, MetaDataMapped)
-            for metaData in metaDatas:
-                sql = sql.join(metaData)
-                sql = buildQuery(sql, qd, metaData)
-
-
-        sql = buildLimits(sql, offset, limit)
-
-        return sql.all()
-
+            metaDataInfos.append(metaDataInfo)
+            
+            indexDict[metaDataMapped.Id] = count
+            count = count + 1
+            
+        return IterPart(metaDataInfos, count, offset, limit)

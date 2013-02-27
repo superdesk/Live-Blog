@@ -9,32 +9,32 @@ Created on Aug 23, 2012
 SQL Alchemy based implementation for the video data API. 
 '''
 
-from ..api.video_data import QVideoData
-from ..meta.video_data import VideoDataMapped
-from .meta_data import MetaDataServiceBaseAlchemy
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer
-from superdesk.media_archive.api.video_data import IVideoDataService
+from cdm.spec import ICDM
+from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
+from superdesk.media_archive.core.impl.meta_service_base import \
+    MetaDataServiceBaseAlchemy
+from superdesk.media_archive.core.spec import IMetaDataReferencer, IThumbnailManager
+from superdesk.media_archive.meta.video_data import VideoDataMapped
+
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IVideoDataService)
+@setup(IVideoDataService, name='videoDataService')
 class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IVideoDataService):
     '''
     @see: IVideoDataService
     '''
 
-    handler = IMetaDataHandler
+    cdmArchiveVideo = ICDM; wire.entity('cdmArchiveVideo')
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
 
     def __init__(self):
-        assert isinstance(self.handler, IMetaDataHandler), \
-        'Invalid handler %s' % self.handler
-        MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self)
+        assert isinstance(self.cdmArchiveVideo, ICDM), 'Invalid archive CDM %s' % self.cdmArchiveVideo
+        assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
+       
+        MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self, self.cdmArchiveVideo, self.thumbnailManager)
     
-    # ----------------------------------------------------------------
-
-    def populate(self, metaData, scheme, thumbSize=None):
-        
-        return metaData

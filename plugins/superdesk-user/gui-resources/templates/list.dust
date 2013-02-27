@@ -1,36 +1,31 @@
 <!-- ... -->
 <style>
-	.table .btn-group{ visibility: hidden; display: inline; }
+	.table .btn-group{ visibility: hidden; display: inline; position: static }
 	.table tr:hover .btn-group{ visibility: visible; }
 	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }
 	.pagination .ipp:after{ content: "_('items per page')"; float: left; line-height: 35px; margin: 0 8px; }   
 </style>
 <!-- ... -->
 
-<div data-main-table="true" 
-	style="
-	margin-top:60px;
-	background-color: #FFFFFF;
-    border: 1px solid #DDDDDD;
-    border-radius: 4px 4px 4px 4px;
-    margin: 0;
-    height: 100%; overflow: auto;">
+<div data-main-table="true" class="users-table">
     <div style="padding: 5px 19px 14px;">
 		<div class="input-append pull-right" style="display:inline-block; margin: 10px 0">
-			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0" />
+			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0;height:28px;" />
 			<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
 			<button class="btn" data-action="search" type="button">Search</button>
 		</div>
 		{~s}
 		<button style="margin: 10px 0" class="btn btn-primary add-user">_('Add User')</button>
-		<table class="table table-hover table-bordered">
+		<table class="table table-hover table-sort table-buttons-control" style="background:#fff;" >
 			<thead>
 				<tr>
 	    			<th>#</th>
-	        		<th>First Name</th>
-	        		<th>Last Name</th>
-	        		<th>Login</th>
-	        		<th>E-Mail</th>
+	        		<th data-sort="firstName">_('First Name')</th>
+	        		<th data-sort="lastName">_('Last Name')</th>
+	        		<th data-sort="name">_('Login')</th>
+	        		<th data-sort="email">_('E-Mail')</th>
+	        		<th data-sort="createdOn">_('Created On')</th>
+	        		<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -39,7 +34,7 @@
 			<tfoot>
 			{#pagination}
 				<tr>
-					<td colspan="6" class="pagination">
+					<td colspan="8" class="pagination">
 					{?currentpages}
 					<ul class="{className}">
 						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>
@@ -79,3 +74,4 @@
     	<button class="btn btn-danger" data-action="delete">_('Delete')</button>
     </div>
 </div>
+{>"core>layouts/footer"/}

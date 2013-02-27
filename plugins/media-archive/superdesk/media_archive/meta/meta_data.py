@@ -36,7 +36,7 @@ class ThumbnailFormat(Base):
     __table_args__ = dict(mysql_engine='InnoDB')
 
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    format = Column('format', String(255), unique=True, nullable=False, doc='''
+    format = Column('format', String(190), unique=True, nullable=False, doc='''
     The format for the reference of the thumbnail images in the media archive
     id = the meta data database id; name = the name of the content file; size = the key of the thumbnail size
     ''')
@@ -64,9 +64,9 @@ class MetaDataMapped(Base, MetaData):
     # expected.
     @reconstructor
     def init_on_load(self):
-        type = self._cache_types.get(self.typeId)
-        if type is None:
+        typeId = self._cache_types.get(self.typeId)
+        if typeId is None:
             metaType = openSession().query(MetaTypeMapped).get(self.typeId)
             assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
-            type = self._cache_types[metaType.Id] = metaType.Type
-        self.Type = type
+            typeId = self._cache_types[metaType.Id] = metaType.Type
+        self.Type = typeId

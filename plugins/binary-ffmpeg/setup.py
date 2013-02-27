@@ -21,7 +21,7 @@ setup(
     platforms=['all'],
     zip_safe=True,
     package_data={
-        '': ['*.exe', '*.txt', '*.xsd', '*.ffpreset'],
+        '': ['*.exe', '*.txt', '*.xsd', '*.ffpreset', '*.so.*'],
     },
 
     # metadata for upload to PyPI

@@ -9,13 +9,13 @@ Created on Apr 19, 2012
 Contains the SQL alchemy meta for media image data API.
 '''
 
-from ..api.image_data import ImageData
-from .meta_data import MetaDataMapped
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, DateTime
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
 from ally.internationalization import N_
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.api.image_data import ImageData
 
 # --------------------------------------------------------------------
 

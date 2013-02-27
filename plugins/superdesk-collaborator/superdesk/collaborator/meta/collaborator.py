@@ -17,8 +17,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
-from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -28,19 +28,19 @@ class CollaboratorMapped(Base, Collaborator):
     Provides the mapping for Collaborator.
     '''
     __tablename__ = 'collaborator'
-    __table_args__ = (UniqueConstraint('fk_person_id', 'fk_source_id', name='uix_1'), dict(mysql_engine='InnoDB'))
+    __table_args__ = (UniqueConstraint('fk_user_id', 'fk_source_id', name='uix_1'), dict(mysql_engine='InnoDB'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Person = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'))
+    User = Column('fk_user_id', ForeignKey(UserMapped.userId, ondelete='CASCADE'))
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'), nullable=False)
     @hybrid_property
     def Name(self):
-        if self.Person is None: return self.source.Name
-        return self.person.FullName
+        if self.User is None: return self.source.Name
+        return self.user.FullName
 
     # Non REST model attributes --------------------------------------
-    person = relationship(PersonMapped, uselist=False, lazy='joined')
+    user = relationship(UserMapped, uselist=False, lazy='joined')
     source = relationship(SourceMapped, uselist=False, lazy='joined')
 
     # Expression for hybrid ------------------------------------
-    Name.expression(lambda cls: case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.FirstName))
+    Name.expression(lambda cls: case([(cls.User == None, SourceMapped.Name)], else_=UserMapped.FirstName))

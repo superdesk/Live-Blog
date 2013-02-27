@@ -45,6 +45,9 @@ function(providers,str, $, Gizmo)
         render: function()
         {
             var self = this;
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = "<br />";
+            }
             $.tmpl('livedesk>providers/google/post', this.data, function(e, o)
             { 
                 self.el.addClass( $(o).attr('class') );
@@ -62,7 +65,7 @@ function(providers,str, $, Gizmo)
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'google'}})
                     .done(function(collabs)
@@ -79,6 +82,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.content,
                         Type: 'normal',
                         Author: this.author,
@@ -93,6 +97,7 @@ function(providers,str, $, Gizmo)
 				delete obj['$len'];
 				delete obj['GsearchResultClass'];
 				return {
+                    Creator: localStorage.getItem('superdesk.login.id'),
                     Content: str.format('<h3><a href="%(url)s">%(title)s</a></h3><p class="result-text">%(content)s</p><i class="source-icon"><img src="http://g.etfv.co/%(url)s" style="max-width: 16px" border="0"></i><a class="author-name" href="%(url)s">%(visibleUrl)s</a>',obj),
                     Type: 'normal',
                     Author: this.author,
@@ -101,6 +106,7 @@ function(providers,str, $, Gizmo)
             },
             news: function(obj) {
                 return {
+                    Creator: localStorage.getItem('superdesk.login.id'),
                     Content: str.format('<h3><a href="%(url)s">%(title)s</a></h3><p class="result-text">%(content)s</p><i class="source-icon"><img src="http://g.etfv.co/%(url)s" style="max-width: 16px" border="0"></i><a class="author-name" href="%(unescapedUrl)s">%(publisher)s</a>',obj),
                     Type: 'normal',
                     Author: this.author,
@@ -109,6 +115,7 @@ function(providers,str, $, Gizmo)
             },
             images: function(obj) {
                 return {
+                    Creator: localStorage.getItem('superdesk.login.id'),
                     Content: str.format('<p class="result-text">%(content)s</p><a href="%(url)s"><img src="%(tbUrl)s"/></a>', obj),
                     Type: 'normal',
                     Author: this.author,

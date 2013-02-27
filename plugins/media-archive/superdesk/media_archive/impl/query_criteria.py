@@ -6,35 +6,35 @@ Created on Aug 28, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Ioan v. Pocol
 
-The implementation for the query criteria API. 
+The implementation for the query criteria API.
 '''
 
+from ..api.query_criteria import IQueryCriteriaService
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.api.util_service import processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
-from ..api.query_criteria import IQueryCriteriaService
-from superdesk.media_archive.core.spec import QueryIndexer
 from superdesk.media_archive.api.query_criteria import QueryCriteria
+from superdesk.media_archive.core.spec import IQueryIndexer
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IQueryCriteriaService)
+@setup(IQueryCriteriaService, name='queryCriteriaService')
 class QueryCriteriaService(IQueryCriteriaService):
     '''
-    Implementation for @see: IQueryCriteriaService to get the list of multi-plugin query criteria and
-    uses Babel library for translating the names of query criteria.
+    Implementation for @see: IQueryCriteriaService to get the list of multi-plugin query criteria.
     '''
 
-    def __init__(self, queryIndexer):
+    queryIndexer = IQueryIndexer;wire.entity('queryIndexer')
+
+    def __init__(self):
         '''
         Construct the query criteria service.
         '''
-        assert isinstance(queryIndexer, QueryIndexer), 'Invalid QueryIndexer %s' % queryIndexer
-
-        self.queryIndexer = queryIndexer
+        assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
         self._locales = {code:Locale.parse(code) for code in locale_identifiers()}
 
     def getCriterias(self, locales, q=None):
@@ -45,11 +45,15 @@ class QueryCriteriaService(IQueryCriteriaService):
 
         queryCriterias = list()
 
-        for key, criteria in self.queryIndexer.infoCriterias.items():
-            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#TODO: self._translate(key, locales)))
+        for key, metaInfos in self.queryIndexer.metaInfoByCriteria.items():
+            types = ''.join([(self.queryIndexer.typesByMetaInfo[metaInfo.__name__] + '-') for metaInfo in metaInfos])
+            criteria = self.queryIndexer.infoCriterias[key]
+            queryCriterias.append(QueryCriteria('qi.' + key, criteria.__name__, types, key))
 
-        for key, criteria in self.queryIndexer.dataCriterias.items():
-            queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, key))#TODO: self._translate(key, locales)))
+        for key, metaDatas in self.queryIndexer.metaDataByCriteria.items():
+            types = ''.join([(self.queryIndexer.typesByMetaData[metaData.__name__] + '-') for metaData in metaDatas])
+            criteria = self.queryIndexer.dataCriterias[key]
+            queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, types, key))
 
         if q:
             queryCriterias = processQuery(queryCriterias, q, QueryCriteria)
@@ -61,7 +65,7 @@ class QueryCriteriaService(IQueryCriteriaService):
     def _localeOf(self, code):
         '''
         Helper that parses the code to a babel locale.
-        
+
         @param code: string
             The language code to provide the locale for.
         @return: Locale|None
@@ -73,7 +77,7 @@ class QueryCriteriaService(IQueryCriteriaService):
     def _localesOf(self, codes):
         '''
         Helper method that based on a language code list will provide a babel locales.
-        
+
         @param codes: string|iter(string)
             The language code to provide the locale for.
         @return: Locale|None
@@ -86,7 +90,7 @@ class QueryCriteriaService(IQueryCriteriaService):
         '''
         Helper method that provides the translated query name based on the babel locales list. The first
         locale will be used if not translation will be available.
-        
+
         @param key: string
             The key to get the translated name for.
         @param locales: list[Locale]|tuple(Locale)

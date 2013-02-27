@@ -43,6 +43,9 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = {before: "<br />", after: "<br />"};
+            }
             this.el.tmpl('livedesk>providers/youtube/post', this.data);
             this.el.addClass('with-avatar youtube clearfix');
             $('.actions', this.el).removeClass('hide');
@@ -57,7 +60,7 @@ function(providers,str, $, Gizmo)
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'youtube'}})
                     .done(function(collabs)
@@ -73,6 +76,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.title,
                         Type: 'normal',
                         Author: this.author,

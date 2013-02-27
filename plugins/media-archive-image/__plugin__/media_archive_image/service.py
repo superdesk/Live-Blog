@@ -9,18 +9,16 @@ Created on Aug 23, 2012
 Contains the services setups for media image archive.
 '''
 
-from ..superdesk import service
+from ..cdm.local_cdm import contentDeliveryManager
 from ally.container import ioc
-from superdesk.media_archive.api.image_data import IImageDataService
-from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
+from cdm.spec import ICDM
+from cdm.support import ExtendPathCDM
 
 # --------------------------------------------------------------------
 
-imageDataHandler = ioc.getEntity('imageDataHandler', service)
-
-@ioc.replace(ioc.getEntity(IImageDataService, service))
-def imageData() -> IImageDataService:
-    b = ImageDataServiceAlchemy()
-    b.handler = imageDataHandler()
-    return b
-
+@ioc.entity
+def cdmArchiveImage() -> ICDM:
+    '''
+    The content delivery manager (CDM) for the media archive.
+    '''
+    return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')

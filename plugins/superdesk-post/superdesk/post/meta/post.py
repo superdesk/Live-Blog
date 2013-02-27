@@ -40,8 +40,8 @@ class PostMapped(Base, Post):
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Meta = Column('meta', String(10000))
-    ContentPlain = Column('content_plain', String(1000))
-    Content = Column('content', String(1000), nullable=False)
+    ContentPlain = Column('content_plain', String(3000))
+    Content = Column('content', String(3000), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
@@ -50,8 +50,13 @@ class PostMapped(Base, Post):
     def IsModified(self):
         return self.UpdatedOn is not None
     @hybrid_property
+    def IsPublished(self):
+        return self.PublishedOn is not None
+    @hybrid_property
     def AuthorName(self):
-        if self.Author is None: return self.creator.Name
+        if self.Author is None:
+            if self.creator is None: return None
+            else: return self.creator.Name
         return self.author.Name
 
     # Non REST model attributes --------------------------------------
@@ -65,6 +70,10 @@ class PostMapped(Base, Post):
     @IsModified.expression
     def _IsModified(cls):
         return case([(cls.UpdatedOn != None, True)], else_=False)
+    @classmethod
+    @IsPublished.expression
+    def _IsPublished(cls):
+        return case([(cls.PublishedOn != None, True)], else_=False)
     @classmethod
     @AuthorName.expression
     def _AuthorName(cls):

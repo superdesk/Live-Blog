@@ -2,7 +2,8 @@ define('providers/twitter/adaptor', [
     'providers',
     'utils/str',
     'jquery',
-    'gizmo',
+    'gizmo/superdesk',
+    'jquery/superdesk',
     'jquery/rest',
     'jquery/utils',
     'providers/twitter/tab',
@@ -18,8 +19,7 @@ define('providers/twitter/adaptor', [
             $(self.el).on('click', '.btn.publish', function()
             {
                 //self.data.Content = $('.twitter-full-content .result-text', self.el).html();
-                self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), 
-                    $('.twitter-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), $('.twitter-full-content .annotation:eq(1)', self.el).html()];
 					self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
@@ -41,6 +41,10 @@ define('providers/twitter/adaptor', [
         render: function()
         {
             var self = this;
+            
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = {before: "<br />", after: "<br />"};
+            }
             $.tmpl('livedesk>providers/twitter/post', this.data, function(e, o)
             { 
                 self.el.addClass( $(o).attr('class') );
@@ -58,13 +62,13 @@ define('providers/twitter/adaptor', [
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
-                    .xfilter('Id')
-                    .request({data: { 'qs.name': 'twitter'}})
-                    .done(function(collabs)
+                    Colabs = Gizmo.Collection.extend({  url: new Gizmo.Url('Data/Collaborator/'), model: Gizmo.Model.extend() }),
+                    colabs = new Colabs;
+                colabs.xfilter('Id')
+                    .sync({data: { 'qs.name': 'twitter'}})
+                    .done(function()
                     {
-                        if( $.isDefined(collabs[0]) ) 
-                            self.author = collabs[0].Id;
+                        colabs.each(function(){ self.author = this.get('Id'); return false; });
                     });
             },
             universal: function(obj) 
@@ -76,6 +80,7 @@ define('providers/twitter/adaptor', [
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.text,
                         Type: 'normal',
                         Author: this.author,

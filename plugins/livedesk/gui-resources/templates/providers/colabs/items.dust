@@ -1,20 +1,148 @@
-{#Posts}
-<li class="with-avatar collaborators {?PublishedOn}published{:else}draggable{/PublishedOn}" 
-	data-colab-id="{Creator.Id}" data-post-id="{Id}">
-	<div class="drag-bar"></div>
-	<figure>
-        {#Person}
-            {?Avatar}
-                <img src="{Avatar}" />
-            {:else}
-                <img src="images/avatar_default_collaborator.png" />
-            {/Avatar}
-        {/Person}
-	</figure>
-	<div class="result-content">
-    	<h3><span class="author">{AuthorName}</span></h3>
-    	<p class="result-text">{Content|s}</p>
-    	<p class="attributes"><time>{PublishedOn}</time></p>
-	</div>
-</li>
-{/Posts}
+
+{@select key="'{Author.Source.Name}'"}
+	{@eq value="'twitter'"}
+	<li class="with-avatar twitter {?PublishedOn}published{:else}draggable{/PublishedOn}" 
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+	    <figure><img src="{#Meta}{profile_image_url}{/Meta}" width="48" height="48" alt="1"></figure>
+	    <div class="result-content">
+	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+	        <h3><span class="author">{#Meta}{from_user_name}({from_user}){/Meta}</span></h3>
+	        <p class="result-text">{Content|s}</p>
+	        <p class="attributes">
+	        	<i class="source-icon"></i>
+	        	<a href="http://twitter.com/{#Meta}{from_user}/status/{id_str}{/Meta}" target="_blank"><time>{CreatedOn}</time></a>
+	        </p>
+	    </div>
+	</li>
+	{/eq}
+	{@eq value="'flickr'"}
+	<li class="flickr image {?PublishedOn}published{:else}draggable{/PublishedOn}"
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+	    <div class="result-content" style="display:inline">
+	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+	     	<div class="flickr-box">
+	        	{#Meta}
+	        	<a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
+	            	<img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg' align='left' style='margin-right:4px' />
+	            	{trimmedTitle|s}
+	        	</a>
+	        	{/Meta}
+			</div>
+	    </div>
+	</li>
+	{/eq}
+	{@eq value="'google'"}
+	<li class="google {?PublishedOn}published{:else}draggable{/PublishedOn}"
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+		<div class="drag-bar"></div>
+		<div class="result-content">
+			<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+			<h3><a href="{url}" target="_blank">{#Meta}{title|s}{/Meta}</a></h3>
+			<p class="result-text">{Content|s}</p>
+			<p class="attributes">
+				{#Meta}
+				<i class="source-icon">
+					<img src="http://g.etfv.co/{url}" style="max-width: 16px" border="0">
+				</i>
+				<a class="author-name" href="{url}" target="_blank">{visibleUrl}</a>
+				{/Meta}
+				<time>{CreatedOn}</time>
+			</p>
+	    </div>
+	</li>
+	{/eq}
+	{@eq value="'soundcloud'"}
+	<li class="soundcloud {?PublishedOn}published{:else}draggable{/PublishedOn}" style="min-height:105px; cursor: move;" 
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+		<div class="drag-bar"></div>
+		<div class="result-content" style="display: block">
+			<img src="{#Meta}{artwork_url}{/Meta}" style="position:absolute; max-width: 80px; max-height: 64px; right: 5px;">
+	        <div style="display:block; right: 90px; position: absolute; left:5px;">
+	            <h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+				{#Meta}
+					<h3><a href="{permalink_url}" target="_blank">{title|s}</a></h3>
+	            <p class="result-text" style="float:left; text-align: left; height:51px;">
+	                    {description|s}&nbsp;
+	            </p>
+	            
+	        </div>
+	        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+	            <p class="attributes" >
+	                    <i class="source-icon">
+	                            <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
+	                    </i>
+	                    {#Meta}{#user}
+	                    <a class="author-name" href="{permalink_url}" target="_blank">{username}</a>
+	                    {/user}{/Meta}
+	             {/Meta}
+	                    <time>{CreatedOn}</time>
+	            </p>
+	        </div>
+	    </div>
+	</li>
+	{/eq}
+	{@eq value="'youtube'"}
+	<li class="youtube {?PublishedOn}published{:else}draggable{/PublishedOn}"
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+		<div class="result-content">
+			<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+			<img src="{#Meta}{#thumbnail}{sqDefault}{/thumbnail}{/Meta}" style="float: right; max-width: 80px; max-height: 64px;">
+	                <div style="display:block; width: 100%">
+	                    <h3><a href="{#Meta.player}{default}{/Meta.player}" target="_blank">{#Meta}{title|s}</a></h3>
+	                    <p class="result-text" style="float:left; text-align: left; width:85%; height:51px;">
+	                            {description|s}&nbsp;
+	                    </p>
+	                    
+	                </div>
+	                <div style="display:block; width: 100%; float:left">
+	                    <p class="attributes" >
+	                            <i class="source-icon">
+	                                    <img src="http://g.etfv.co/http://www.youtube.com" style="max-width: 16px" border="0">
+	                            </i>
+	                            <a class="author-name" href="http://youtube.com/{uploader}" target="_blank">{uploader}</a>
+	                            <time>{uploaded}</time>
+	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">{viewCount} _('views')</span>
+	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">_('rating') {rating}</span>
+	                         {/Meta}   
+	                    </p>
+	                </div>
+	    </div>
+	</li>
+	{/eq}
+	{@eq value="'instagram'"}
+	 <li class="instagram image {?PublishedOn}published{:else}draggable{/PublishedOn}" 
+		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+	    <div class="result-content" style="display: inline;">
+	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
+	    	<a href="{#Meta}{#images}{#standard_resolution}{url}{/standard_resolution}{/images}{/Meta}" 
+	    		{#Meta}{#caption}title="{text}"  alt="{text}" {/caption}{/Meta} target="_blank">
+	    		{#Meta}{#images}{#thumbnail}
+	        	<img src="{url}" width="{width}" height="{height}">
+	        	{/thumbnail}{/images}{/Meta}
+			</a>
+		</div>
+	</li>
+	{/eq}
+	{@default}
+	<li class="with-avatar collaborators {?PublishedOn}published{:else}draggable{/PublishedOn}" 
+		data-colab-id="{Creator.Id}" data-post-id="{Id}">
+		<div class="drag-bar"></div>
+		<figure>
+	        {#AuthorPerson}
+	            {?Avatar}
+	                <img src="{Avatar}" />
+	            {:else}
+	                <img src="images/avatar_default_collaborator.png" />
+	            {/AuthorPerson}
+	        {/User}
+		</figure>
+		<div class="result-content">
+	    	<h3><span class="author">{AuthorName}</span></h3>
+	        {@if cond="'{Type.Key}'=='wrapup'"}<div class="collabs-wrap-arrow"></div>{/if}
+	    	<p class="result-text">{Content|s}</p>
+	    	<p class="attributes"><time>{CreatedOn}</time></p>
+		</div>
+	</li>
+	{/default}
+{/select}
+

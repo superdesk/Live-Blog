@@ -6,7 +6,7 @@
     </select>
 
 </div>
-<ul class="search-result-list scroller" id="flickr-image-holder" style="margin-top:10px;">
-    <div id="flickr-image-results"></div>
-    <div id="flickr-image-more"></div>
-</ul>
+<div class="search-result-list scroller" id="flickr-image-holder" style="margin-top:10px;">
+    <ul id="flickr-image-results" class="post-list"></ul>
+    <div id="flickr-image-more" style="display:block; float:left; width:100%;"></div>
+</div>

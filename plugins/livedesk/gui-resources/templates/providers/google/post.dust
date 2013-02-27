@@ -1,7 +1,8 @@
 <li class="google draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
 	<div class="drag-bar"></div>
     <div class="tool-box-right">
-    	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
+    	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
     </div>
     <div class="google-full-content">
 	    <div class="result-content">
@@ -20,7 +21,7 @@
 			</p>
     	</div>
     	<div class="editable annotation">
-			{annotation|s}<br />
+			{annotation|s}
 		</div>
 		{/Meta}
 	</div> 

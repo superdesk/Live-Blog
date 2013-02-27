@@ -3,6 +3,10 @@
     <li class="wrapup open timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
        <div class="drag-bar"></div>
        <div class="arrow"></div>
+       <div class="tool-box-right">
+       	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
+       	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+       </div>
        <div class="wrapup-content">
             {Content|s}
        </div>
@@ -89,16 +93,11 @@
 	    {@if cond="'{Author.Source.Name}'=='advertisement'"}
 		<li class="{Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 	        <div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+	        	
 	        </div>
 	        <div class="result-content">
-				<h3>
-					{?AuthorPerson}
-						<span class="author">{AuthorPerson.FirstName} {AuthorPerson.LastName}</span>
-					{:else}
-						<!-- google or smth else -->
-					{/Author}
-				</h3>
 				<p class="result-text {?AuthorPerson}editable{/AuthorPerson}" data-post-id="{Id}">
 					{Content|s}
 				</p>
@@ -114,32 +113,38 @@
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
 	        </div>
 	        <figure>
+	        	{Avatar|s}
 	            {?AuthorPerson.Avatar}
-	                <img src="{AuthorPerson.Avatar}" />
+	                <img src="{AuthorPerson.Avatar}">
 	            {:else}
-	        	    <img />
+	        	    <!--<img>-->
 	            {/AuthorPerson}
 	        </figure>
-	        <div class="result-content">
+	        <div class="result-content" style='margin-right:61px'>
 				<h3>
-					{?AuthorPerson}
-						<span class="author">{AuthorPerson.FirstName} {AuthorPerson.LastName}</span>
+					{?AuthorName}
+						<span class="author">{AuthorName}</span>
 					{:else}
 						<!-- google or smth else -->
-					{/Author}
+					{/AuthorName}
 				</h3>
-				<p class="result-text {?AuthorPerson}editable{/AuthorPerson}" data-post-id="{Id}">
+				<div class="result-text {?AuthorPerson}editable{/AuthorPerson} " data-post-id="{Id}">
 					{Content|s}
-				</p>
+				</div>
 				<p class="attributes">
 					<i class="source-icon"></i>
 					<time>{CreatedOn}</time>
 					<!--a class="share" href="#"><i class="icon-share-alt"></i> Share</a-->
 				</p>
-			</div>			
+			</div>	
+			<div class="btn-group pull-right clearfix actions hide">
+		    	<button class="btn btn-mini cancel">Cancel</button>
+		    	<button class="btn btn-mini btn-primary publish">Publish</button>
+		   	</div>		
         {/if}
 			<div class="message-error">
 				_("There an error updating the post!")

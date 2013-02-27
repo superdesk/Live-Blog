@@ -11,10 +11,9 @@ Thumbnail processor class definition.
 
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.container.support import setup
 from genericpath import exists
-from os.path import join, abspath, dirname
 from os import makedirs
+from os.path import join, abspath, dirname
 from subprocess import Popen, PIPE
 from superdesk.media_archive.core.spec import IThumbnailProcessor
 import logging
@@ -28,8 +27,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IThumbnailProcessor)
-class ThumbnailProcessor(IThumbnailProcessor):
+class ThumbnailProcessorFfmpeg(IThumbnailProcessor):
     '''
     Implementation for @see: IThumbnailProcessor
     '''
@@ -73,5 +71,5 @@ class ThumbnailProcessor(IThumbnailProcessor):
 
         if error:
             if exists(destination): os.remove(destination)
-            raise IOError('Cannot process thumbnail from \'%s\' to \'%s\'' % (source, destination))
+            #raise IOError('Cannot process thumbnail from \'%s\' to \'%s\'' % (source, destination))
 

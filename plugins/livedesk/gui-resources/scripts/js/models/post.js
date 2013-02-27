@@ -1,10 +1,17 @@
-define([ 'gizmo/superdesk'],
-function(Gizmo)
+define([ 'gizmo/superdesk', config.guiJs('superdesk/user', 'models/person')],
+function(Gizmo, Person)
 {
     // Post
 	return Gizmo.Model.extend
 	({
+	    defaults: 
+	    {
+	        AuthorPerson: Person
+	    },
+	    insertExcludes: [ 'AuthorPerson' ],
+	      
 		url: new Gizmo.Url('/Post'),
+		
 		orderSync: function(id, before)
 		{
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;
@@ -19,7 +26,7 @@ function(Gizmo)
 		{
 			var removeHref = this.href;
 			if(this.href.indexOf('LiveDesk/Blog') !== -1 ) {
-				removeHref = removeHref.replace(/LiveDesk\/Blog\/[\d]+/,'Superdesk')
+				removeHref = removeHref.replace(/LiveDesk\/Blog\/[\d]+/,'Data')
 			}
 			var
 				self = this,
@@ -37,8 +44,22 @@ function(Gizmo)
 				self = this,
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
-					self.parse(data);
+					self._parse(data);
 					self.Class.triggerHandler('publish', self);
+				});
+			return ret;
+		},
+		unpublishSync: function()
+		{
+			var publishHref = this.href+'/Unpublish';
+			var
+				self = this,
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
+					delete self.data["PublishedOn"];
+					self.triggerHandler('unpublish');
+					self._parse(data);
+					self.Class.triggerHandler('unpublish', self);
 				});
 			return ret;
 		}

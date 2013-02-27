@@ -24,7 +24,7 @@ from superdesk.post.api.post import IPostService, Post
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.sql.operators import desc_op
 from livedesk.api.blog_type_post import IBlogTypePostService, BlogTypePost, \
-    QBlogTypePost
+    QBlogTypePost, BlogTypePostPersist
 from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
 
 # --------------------------------------------------------------------
@@ -72,10 +72,11 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         @see: IBlogPostService.insert
         '''
-        assert isinstance(post, Post), 'Invalid post %s' % post
+        assert isinstance(post, BlogTypePostPersist), 'Invalid post %s' % post
 
         postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogTypePostId=self.postService.insert(post))
         postEntry.Order = self._nextOrdering(blogTypeId)
+        postEntry.Name = post.Name
         self.session().add(postEntry)
         self.session().flush((postEntry,))
 
@@ -131,9 +132,9 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         @see: IBlogPostService.delete
         '''
         if self.postService.delete(id):
-            postEntry = self.session().query(BlogTypePostEntry).get(id)
+            postEntry = self.session().query(BlogTypePostMapped).get(id)
             if postEntry:
-                assert isinstance(postEntry, BlogTypePostEntry)
+                assert isinstance(postEntry, BlogTypePostMapped)
                 self.session().flush((postEntry,))
             return True
         return False

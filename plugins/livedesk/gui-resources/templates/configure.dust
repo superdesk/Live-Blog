@@ -9,174 +9,31 @@
 			<form class="form-horizontal form-large">
         	<fieldset>
         		<legend>General</legend>
-        		<div class="control-group">
-            		<label class="control-label">This Blogs output feed</label>
-            		<div class="controls">
-              			<a href="#" class="block-link" 
-              				data-key="OutputLink">{OutputLink}</a>
-             		</div>
-          		</div>
-        		<div class="control-group">
-            		<label class="control-label">gettext("This Blogs embed script");</label>
-            		<div class="controls">
-              			<textarea>{EmbedSource}</textarea>
-             		</div>
-          		</div>				
-          		<div class="control-group">
-            		<label class="control-label">Language</label>
-            		<div class="controls">
-              			<select class="span3" data-key="Language" data-value="{Language.Id}">
-                			<option value="">Choose language</option>
-              			</select>
-            		</div>
-          		</div>
+              <div class="control-group">
+                <label class="control-label">_('Embed Theme');</label>
+                <div class="controls themes"></div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_("Embed script");</label>
+                <div class="controls">
+                    <textarea id="emebed-script" rows="3" style="width:600px;height:auto;"></textarea>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_("Frontend server");</label>
+                <div class="controls">
+                    <input name="FrontendServer" style="width:600px;height:auto;" value="{EmbedConfig.FrontendServer}"/>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_('Language');</label>
+                <div class="controls languages"></div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_('Configure type of blog');</label>
+                <div class="controls blogtypes"></div>
+              </div>
 			</fieldset>
-			<fieldset>
-				<legend>Define Collaborators</legend>
-				<div class="control-group">
-                	<label class="control-label" for="optionsCheckboxList">Internal Collaborators</label>
-                 	<div class="controls" style="height:210px; overflow:auto">
-						<ul class="collaborators-list" id="internal-colabs">
-							
-	                	</ul>
-	            	</div>
-          		</div>
-          <!--div class="control-group">
-            <label class="control-label">External Collaborators</label>
-            <div class="controls">
-                <a class="btn" data-toggle="modal" href="#addCollaborator"><i class="icon-plus-sign"></i> Add external Collaborators</a>
-            </div>
-          </div-->
-          
-			<!--div class="control-group">
-            
-            <div class="controls">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-bordered table-striped user-table">
-  <thead>
-  <tr>
-    <th scope="col">Username</th>
-    <th scope="col">Editor's name</th>
-    <th scope="col">Status</th>
-    <th scope="col">Publication</th>
-    <th scope="col">Blogs</th>
-    <th scope="col">Rights</th>
-    <th scope="col" class="only-icon">&nbsp;</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td><a href="#">dani</a></td>
-    <td>Dani Winter</td>
-    <td>Editor</td>
-    <td>Tageswoche</td>
-    <td>457</td>
-    <td>
-    <div class="dropdown dropdown-simple">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">View only <b class="caret"></b></a>
-        <ul class="dropdown-menu bottom-up">
-            <li><a href="#">View only</a></li>
-            <li><a href="#">Edit</a></li>
-            <li><a href="#">Publish</a></li>
-            <li><a href="#">Admin</a></li>
-      </ul>
-    </div>
-    </td>
-    <td><a class="close" href="#">×</a></td>
-  </tr>
-  <tr>
-    <td><a href="#">matt_good</a></td>
-    <td>Matthew Goodwin</td>
-    <td>Editor</td>
-    <td>Tageswoche</td>
-    <td>221</td>
-    <td>
-    <div class="dropdown dropdown-simple">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">View only <b class="caret"></b></a>
-        <ul class="dropdown-menu bottom-up">
-            <li><a href="#">View only</a></li>
-            <li><a href="#">Edit</a></li>
-            <li><a href="#">Publish</a></li>
-            <li><a href="#">Admin</a></li>
-      </ul>
-    </div>
-    </td>
-    <td><a class="close" href="#">×</a></td>
-  </tr>
-  <tr>
-    <td><a href="#">bbragg</a>  <span class="label label-warning">External</span></td>
-    <td>Billy Bragg</td>
-    <td>Guest</td>
-    <td>Reuters </td>
-    <td>32</td>
-    <td>
-    <div class="dropdown dropdown-simple">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">View only <b class="caret"></b></a>
-        <ul class="dropdown-menu bottom-up">
-            <li><a href="#">View only</a></li>
-            <li><a href="#">Edit</a></li>
-            <li><a href="#">Publish</a></li>
-            <li><a href="#">Admin</a></li>
-      </ul>
-    </div>
-    </td>
-    <td><a class="close" href="#">x</a></td>
-  </tr>
-  </tbody>
-</table>
-
-               
-               
-               
-            </div>
-          </div-->
-          
-          </fieldset>
-          <!--<fieldset>
-          <legend>Advertisement</legend>
-          
-          <div class="control-group">
-            <label class="control-label">Advertisement one</label>
-            <div class="controls docs-input-sizes">
-              <select class="span4">
-                <option>Please choose</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </select>
-              <p class="help-block middle-block">or add Code snippet</p>
-              <textarea class="span4" id="textarea" rows="3" placeholder="Paste code here"></textarea>
-            </div>
-          </div>
-          
-          <div class="control-group">
-            <label class="control-label">Advertisement two</label>
-            <div class="controls docs-input-sizes">
-              <select class="span4">
-                <option>Please choose</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </select>
-              <p class="help-block middle-block">or add Code snippet</p>
-              <textarea class="span4" rows="3" placeholder="Paste code here"></textarea>
-            </div>
-          </div>
-          
-          <div class="control-group">
-            <label class="control-label">Interactive Ad</label>
-            <div class="controls docs-input-sizes">
-              <select class="span4">
-                <option>Please choose</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </select>
-            </div>
-          </div></fieldset>-->
-
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
             <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}

@@ -4,10 +4,13 @@
  */
 
 define('providers/google', [
-	'providers','utils/str', 
-	'jquery','jquery/tmpl',
+	'providers',
+    'utils/str', 
+	'jquery',
+    config.guiJs('livedesk', 'action'),
+    'jquery/tmpl',
 	'jqueryui/draggable',
-        'providers/google/adaptor',
+    'providers/google/adaptor',
 	'tmpl!livedesk>providers/google',
 	'tmpl!livedesk>providers/google/web-item',
 	'tmpl!livedesk>providers/google/news-item',
@@ -15,7 +18,7 @@ define('providers/google', [
 	'tmpl!livedesk>providers/google-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
-], function( providers, str, $ ) {
+], function( providers, str, $, BlogAction ) {
 $.extend(providers.google, {
 	initialized: false,
 	url: 'https://ajax.googleapis.com/ajax/services/search/%(type)s?v=1.0&start=%(start)s&q=%(text)s&callback=?',
@@ -95,7 +98,7 @@ $.extend(providers.google, {
             $(where).html('');
         },
 	doWeb: function (start) {
-                var self = this;
+                var self = this, el;
                 var text = $('#google-search-text').val();		
                 if (text.length < 1) {
                     return;
@@ -121,23 +124,26 @@ $.extend(providers.google, {
                             startx: start
                         }, function(e,o) {
 
-                            $('#ggl-web-results').append(o).find('.google').draggable(
-                            {
-                                revert: 'invalid',
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                    self.data[startx+idx].type = 'web';
-                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
-                                }
+                            el = $('#ggl-web-results').append(o).find('.google');
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.draggable({
+                                    revert: 'invalid',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                        self.data[startx+idx].type = 'web';
+                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                    }
 
-                            }
-                            );
+                                });
+                            }).fail(function(){
+                                el.removeClass('draggable');
+                            });
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);
                         cpage += 1;
@@ -182,7 +188,7 @@ $.extend(providers.google, {
             }
         },
 	doNews: function (start) {
-                var self = this;
+                var self = this, el;
                 var text = $('#google-search-text').val();		
                 if (text.length < 1) {
                     return;
@@ -210,22 +216,25 @@ $.extend(providers.google, {
                             results: data.responseData.results, 
                             startx: start
                         }, function(e,o) {
-                            $('#ggl-news-results').append(o).find('.google').draggable(
-                            {
-                                revert: 'invalid',
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                    self.data[startx+idx].type = 'news';
-                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
-                                }
-                            }
-                            );
+                            el = $('#ggl-news-results').append(o).find('.google');
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.draggable({
+                                    revert: 'invalid',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                        self.data[startx+idx].type = 'news';
+                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                    }
+                                });
+                            }).fail(function(){
+                                el.removeClass('draggable');
+                            });   
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);
                         cpage += 1;
@@ -255,7 +264,7 @@ $.extend(providers.google, {
                 });
             },
 	doImages: function (start) {
-                var self = this;
+                var self = this, el;
                 var text = $('#google-search-text').val();		
                 if (text.length < 1) {
                     return;
@@ -280,22 +289,25 @@ $.extend(providers.google, {
                             results: data.responseData.results, 
                             startx: start
                         }, function(e,o) {
-                            $('#ggl-images-results').append(o).find('li').draggable(
-                            {
-                                revert: 'invalid',
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                clone: true,
-                                start: function(evt, ui) {
-                                    item = $(evt.currentTarget);
-                                    $(ui.helper).css('width', item.width());
-                                    var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                    self.data[startx+idx].type = 'images';
-                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
-                                }
-                            }
-                            );
+                            el = $('#ggl-images-results').append(o).find('li');
+                            BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                el.draggable({
+                                    revert: 'invalid',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
+                                        var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                        self.data[startx+idx].type = 'images';
+                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                    }
+                                });
+                            }).fail(function(){
+                                el.removeClass('draggable');
+                            }); 
                         });			
                         var cpage = parseInt(data.responseData.cursor.currentPageIndex);
                         cpage += 1;

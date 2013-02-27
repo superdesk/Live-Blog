@@ -42,6 +42,9 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
+            if ( typeof this.data.Meta.annotation == 'undefined' ) {
+                this.data.Meta.annotation = "<br />";
+            }
             this.el.tmpl('livedesk>providers/flickr/post', this.data);
             this.el.addClass('with-avatar twitter clearfix');
             $('.actions', this.el).removeClass('hide');
@@ -56,7 +59,7 @@ function(providers,str, $, Gizmo)
             init: function() 
             {
                 var self = this;
-                new $.rest('Superdesk/Collaborator/')
+                new $.rest('Data/Collaborator/')
                     .xfilter('Id')
                     .request({data: { 'qs.name': 'flickr'}})
                     .done(function(collabs)
@@ -72,6 +75,7 @@ function(providers,str, $, Gizmo)
                 ({
                     data: 
                     {
+                        Creator: localStorage.getItem('superdesk.login.id'),
                         Content: obj.title,
                         Type: 'normal',
                         Author: this.author,
@@ -84,6 +88,7 @@ function(providers,str, $, Gizmo)
                 myClone.find('time').remove();
                 
                 var data = {
+                    Creator: localStorage.getItem('superdesk.login.id'),
                     Content: myClone.find('.result-content').html(),
                     Type: 'normal',
                     Author: this.author
