@@ -85,7 +85,8 @@
                 color:#000000;
                 line-height: 18px;
             }
-            .liveblog-post-list li .result-text b, 
+            .liveblog-post-list li .result-text b,
+            .liveblog-post-list li .ediable.annotation b, 
             .liveblog-post-list li .result-text strong {
                font-family: "GeorgiaProW01-SemiBold", Georgia, 'Times New Roman', Times, serif; 
                font-style: normal !important; 
@@ -261,6 +262,10 @@
                     font-size: 13px !important;
                     line-height: 17px !important;
                     color: #484848 !important;
+                }
+
+                .normal img {
+                    padding: 10px 0;
                 }
 
 
@@ -611,7 +616,7 @@ li.loading-more:hover{
 }
 */
 
-.share {
+.sf-share {
     position: absolute;
     width: 35px;
     height: 15px;
@@ -639,6 +644,7 @@ li.loading-more:hover{
 .share-box {
     display: none;
     background: #F8F8F8;
+    height: 24px;
     padding: 10px;
     border: 1px solid #D0D0D0;
     position: absolute;
