@@ -1,9 +1,9 @@
-Superdesk - Livedesk package
-version     : 1.0-beta1
-release date: September 19, 2012
+Superdesk - Live Blog package
+version     : 1.0
+release date: February 27, 2013
 contact     : contact@sourcefabric.org
 url         : http://www.sourcefabric.org
-copyright   : (C) 2012 Sourcefabric o.p.s
+copyright   : (C) 2013 Sourcefabric o.p.s
 support     : mailto: superdesk-qa@lists.sourcefabric.org
 wiki        : https://wiki.sourcefabric.org/display/NR/
 
