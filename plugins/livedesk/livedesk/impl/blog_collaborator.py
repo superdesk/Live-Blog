@@ -39,7 +39,7 @@ class CollaboratorSpecification:
     '''
     The class that provides the collaborator configurations.
     '''
-    
+
     collaborator_types = list
     # The collaborator types to be assigned to added blog collaborators, if the type is not specified then the first entry
     # is used.
@@ -47,7 +47,7 @@ class CollaboratorSpecification:
     # Contains the user to blog filter to be used for a certain type, this have to be in the proper order.
     type_actions = dict
     # The action names to be associated with a collaborator type.
-    
+
     def __init__(self):
         assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
         assert isinstance(self.type_filter, list), 'Invalid type filter %s' % self.type_filter
@@ -61,7 +61,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
     Implementation for @see: IBlogCollaboratorService
     '''
-    
+
     collaboratorSpecification = CollaboratorSpecification; wire.entity('collaboratorSpecification')
     userActionService = IUserActionService; wire.entity('userActionService')
 
@@ -74,7 +74,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         assert isinstance(self.userActionService, IUserActionService), \
         'Invalid user actions service %s' % self.userActionService
         super().__init__()
-        
+
         self._collaboratorTypeIds = {}
 
     def getAllTypes(self):
@@ -82,19 +82,22 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         @see: IBlogCollaboratorService.getAllTypes
         '''
         return self.session().query(BlogCollaboratorTypeMapped).all()
-    
+
     def getActions(self, userId, blogId, path=None):
         '''
         @see: IBlogCollaboratorService.getActions
         '''
+        actions = list(self.userActionService.getAll(userId, path))
+        paths = { a.Path for a in actions }
         for name, f in self.collaboratorSpecification.type_filter:
             assert isinstance(f, Filter), 'Invalid filter'
             assert isinstance(f.filter, IAclFilter)
-            if f.filter.isAllowed(userId, blogId): break
-        else: return self.userActionService.getAll(userId, path)
-        
-        actionsForType = self.collaboratorSpecification.type_actions.get(name)
-        return actionsForType or ()
+            if f.filter.isAllowed(userId, blogId):
+                collActions = list(self.collaboratorSpecification.type_actions.get(name))
+                collPaths = { a.Path for a in collActions }.difference(paths)
+                actions.extend([action for action in collActions if action.Path in collPaths])
+                break
+        return actions
 
     def getById(self, blogId, collaboratorId):
         '''
@@ -144,19 +147,19 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         typeId = self.collaboratorTypeIds()[typeName]
         if typeId is None: raise InputError(Ref(_('Invalid collaborator type'), ref=BlogCollaborator.Type))
-        
+
         sql = self.session().query(BlogCollaboratorEntry)
         sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
         sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
         if sql.update({BlogCollaboratorEntry.typeId: typeId}) > 0: return
-        
+
         sql = self.session().query(BlogCollaboratorMapped.Id)
         sql = sql.join(BlogMapped)
         sql = sql.filter(BlogCollaboratorMapped.User == BlogMapped.Creator)
         sql = sql.filter(BlogMapped.Id == blogId)
         sql = sql.filter(BlogCollaboratorMapped.Id == collaboratorId)
         if sql.count() > 0: raise InputError(_('The blog creator cannot be assigned as a collaborator'))
-        
+
         bgc = BlogCollaboratorEntry()
         bgc.Blog = blogId
         bgc.blogCollaboratorId = collaboratorId
@@ -177,7 +180,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
             raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))
 
     # ----------------------------------------------------------------
-    
+
     def collaboratorTypeIds(self):
         '''
         Provides the collaborator types ids dictionary.
