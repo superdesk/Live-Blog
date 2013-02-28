@@ -52,7 +52,7 @@ $.extend(providers.google, {
 			  self.el.find('.scroller').css('visibility', 'hidden');
 			  //show only the one we need
 			  $('#ggl-'+myArr[1]+'-holder').css('visibility', 'visible');
-			  self.startSearch(true);
+			  self.startSearch(false);
 			})
             .off('keyup.livedesk')
 			.on('keyup.livedesk','#google-search-text', function(e){
@@ -106,7 +106,7 @@ $.extend(providers.google, {
                 $('#ggl-web-more').html('');
                 start = typeof start !== 'undefined' ? start : 0;
                 if ( start == 0) {
-                    self.data = [];
+                    self.data.web = [];
                     $('#ggl-web-results').html('');
                 }
                 var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
@@ -116,7 +116,7 @@ $.extend(providers.google, {
                     text: text
                 }), {}, function(data){
                     self.stopLoading('#ggl-web-more');
-                    self.data = self.data.concat(data.responseData.results);
+                    self.data.web = self.data.web.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
                         $.tmpl('livedesk>providers/google/web-item', {
@@ -136,8 +136,8 @@ $.extend(providers.google, {
                                         item = $(evt.currentTarget);
                                         $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                        self.data[startx+idx].type = 'web';
-                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                        self.data.web[startx+idx].type = 'web';
+                                        $(this).data('data', self.adaptor.universal(self.data.web[startx+idx]));
                                     }
 
                                 });
@@ -196,7 +196,7 @@ $.extend(providers.google, {
                 $('#ggl-news-more').html('');
                 start = typeof start !== 'undefined' ? start : 0;
                 if ( start == 0) {
-                    self.data = [];
+                    self.data.news = [];
                     $('#ggl-news-results').html('');
                 }
                 var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
@@ -206,7 +206,7 @@ $.extend(providers.google, {
                     text: text
                 }), {}, function(data){
                     self.stopLoading('#ggl-news-more');
-                    self.data = self.data.concat(data.responseData.results);
+                    self.data.news = self.data.news.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
                         for (var i = 0; i < data.responseData.results.length; i++) {
@@ -228,8 +228,8 @@ $.extend(providers.google, {
                                         item = $(evt.currentTarget);
                                         $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                        self.data[startx+idx].type = 'news';
-                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                        self.data.news[startx+idx].type = 'news';
+                                        $(this).data('data', self.adaptor.universal(self.data.news[startx+idx]));
                                     }
                                 });
                             }).fail(function(){
@@ -272,7 +272,7 @@ $.extend(providers.google, {
                 $('#ggl-images-more').html('');
                 start = typeof start !== 'undefined' ? start : 0;
                 if ( start == 0) {
-                    self.data = [];
+                    self.data.images = [];
                     $('#ggl-images-results').html('');
                 }
                 var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
@@ -282,7 +282,7 @@ $.extend(providers.google, {
                     text: text
                 }), {}, function(data){
                     self.stopLoading('#ggl-images-more');
-                    self.data = self.data.concat(data.responseData.results);
+                    self.data.images = self.data.images.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
                         $.tmpl('livedesk>providers/google/images-item', {
@@ -301,8 +301,8 @@ $.extend(providers.google, {
                                         item = $(evt.currentTarget);
                                         $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                        self.data[startx+idx].type = 'images';
-                                        $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
+                                        self.data.images[startx+idx].type = 'images';
+                                        $(this).data('data', self.adaptor.universal(self.data.images[startx+idx]));
                                     }
                                 });
                             }).fail(function(){
