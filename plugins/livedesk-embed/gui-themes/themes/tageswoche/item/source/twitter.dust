@@ -6,7 +6,7 @@ _('Reply');
 {>"theme/item/base"/}
 {<item_class}twitterservice{/item_class}
 
-{<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/body_top}
+{<head_bottom}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/head_bottom}
 {<body_content}
 	<div class="result-text">
 		<figure class="profile-thumbnail">  <!-- profile-thumbnail class -->
