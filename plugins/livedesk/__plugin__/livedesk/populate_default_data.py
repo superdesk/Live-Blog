@@ -9,6 +9,7 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
+from os.path import abspath, dirname, join
 from ..superdesk.db_superdesk import alchemySessionCreator
 from __plugin__.livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
@@ -32,6 +33,7 @@ from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
+import csv
 
 # --------------------------------------------------------------------
 
@@ -179,8 +181,8 @@ def createPostTypes():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'admin', 'admin', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'admin', 'admin', 'Conclusion', 'To summarize, this is the conclusion...',)
+                   ('default', 'normal', 'Janet', 'Janet', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'Janet', 'Janet', 'Conclusion', 'To summarize, this is the conclusion...',)
                    ]
 
 @ioc.after(populateDefaultUsers, createPostTypes)
@@ -200,25 +202,33 @@ def createBlogTypePosts():
             blogTypePostService.insert(blogTypeId, pst)
 
 
-BLOGS = {
-         'Live Blog Master Class': ('default', 'admin', 'en', 'An in-depth demonstration'
-                                   ' of the current state of development of the'
-                                   ' Live Blog tool for live online news coverage.',
-                                   datetime.now(), datetime.now()),
-         }
+BLOGS_DEFAULTS = ('default', 'en')
+
+def defaultBlogs():
+    '''
+    Reads blogs data from blogs.csv (CSV) file
+    '''
+    blogs = {}
+    blogsFile = join(dirname(abspath(__file__)), 'blogs.csv')
+    with open(blogsFile, 'rt') as csvfile:
+        blogsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for blog in blogsRead:
+            data = (BLOGS_DEFAULTS[0], blog[1], BLOGS_DEFAULTS[1], blog[2], datetime.now(), datetime.now())
+            blogs[blog[0]] = data
+    return blogs
 
 @ioc.entity
 def getBlogsIds():
     blogService = entityFor(IBlogService)
     assert isinstance(blogService, IBlogService)
     blogs = {}
-    for name in BLOGS:
+    for name, data in defaultBlogs().items():
         blgs = blogService.getAll(q=QBlog(title=name))
         if blgs: blogs[name] = next(iter(blgs)).Id
         else:
             blg = Blog()
             blg.Title = name
-            blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+            blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = data
             blg.Type = getBlogTypesIds()[blogType]
             blg.Creator = getUsersIds()[usrName]
             blg.Language = getLanguagesIds()[langCode]
@@ -227,8 +237,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'collab1': 'Live Blog Master Class',
-                      'collab2': 'Live Blog Master Class',
+                      'Andrew': 'Election Night 2013',
+                      'Christine': 'Election Night 2013',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -245,7 +255,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'admin': 'Live Blog Master Class',
+               'Janet': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)
@@ -260,21 +270,18 @@ def createBlogAdmins():
         else:
             blogCollaboratorService.addCollaborator(blogId, collId, 'Administrator')
 
-POSTS = [
-		 ('Live Blog Master Class', 'normal', 'admin', 'admin', 'Hello world!'),
-         ('Live Blog Master Class', 'quote', 'collab1', 'collab1', 'Live Blog is a next-generation '
-          'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
-         ('Live Blog Master Class', 'normal', 'collab2', 'collab2', 'Live Blog is free to download, '
-          'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
-          'than replaces. Helps convince an IT department!'),
-         ('Live Blog Master Class', 'normal', 'admin', 'admin', 'With Live Blog, you can '
-          'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
-          'paid subscriptions to increase revenue.'),
-         ('Live Blog Master Class', 'wrapup', 'collab1', 'collab1', 'That is all for today folks.'),
-         ('Live Blog Master Class', 'advertisement', 'collab2', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">Live Blog is a new open source '
-          'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
-          'be one of the first to test it!</a>')
-         ]
+
+def defaultPosts():
+    '''
+    Reads posts data from posts.csv (CSV) file
+    '''
+    posts = []
+    postsFile = join(dirname(abspath(__file__)), 'posts.csv')
+    with open(postsFile, 'rt') as csvfile:
+        postsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for post in postsRead:
+            posts.append(post)
+    return posts
 
 @ioc.after(createBlogAdmins, createBlogCollaborators)
 def createBlogPosts():
@@ -284,7 +291,7 @@ def createBlogPosts():
         published = blogPostService.getPublished(blogId, detailed=True, limit=0)
         assert isinstance(published, IterPart), 'Invalid part %s' % published
         if published.total > 0: return
-    for data in POSTS:
+    for data in defaultPosts():
         pst = Post()
         blog, pst.Type, creator, author, pst.Content = data
         pst.Creator = getUsersIds()[creator]
