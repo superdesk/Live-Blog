@@ -12,7 +12,10 @@
     	<!--<img>-->
     	{/AuthorPerson}
     </figure>
-    <div class="post-info">{Creator.FullName}</div>	
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+    </div>	
     <div class="instagram-full-content">
     	{#Meta}
 	    <div class="result-content">

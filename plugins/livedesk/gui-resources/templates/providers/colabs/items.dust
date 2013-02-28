@@ -11,7 +11,10 @@
             {/AuthorPerson}
         {/User}
 	</figure>
-    <div class="post-info">{Creator.FullName}</div> 
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+    </div>
 	<div class="result-content">
     	<h3><span class="author">{AuthorName}</span></h3>
         {@if cond="'{Type.Key}'=='wrapup'"}<div class="collabs-wrap-arrow"></div>{/if}

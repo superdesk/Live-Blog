@@ -12,7 +12,10 @@
     	<!--<img>-->
     	{/AuthorPerson}
     </figure>
-    <div class="post-info">{Creator.FullName}</div>	
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+    </div>	
     <div class="google-full-content">
 	    <div class="result-content">
 			{#Meta}<h3><a href="{url}" target="_blank">{title|s}</a></h3>{/Meta}

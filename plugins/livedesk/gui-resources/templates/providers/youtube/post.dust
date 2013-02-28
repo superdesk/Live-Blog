@@ -11,7 +11,10 @@
         <!--<img>-->
         {/AuthorPerson}
     </figure>
-    <div class="post-info">{Creator.FullName}</div> 
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+    </div> 
     <div class="youtube-full-content">
             <div class="editable annotation">
                     {Meta.annotation.before|s}
