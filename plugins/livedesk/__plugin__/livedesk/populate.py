@@ -88,23 +88,23 @@ def populateDefaultUsers():
     users = userService.getAll(limit=1, q=QUser(name='admin'))
     if not users:
         user = User()
-        user.FirstName = 'Change admin'
-        user.LastName = 'name'
-        user.EMail = 'admin@change.mail'
-        user.Name = 'admin'
+        user.FirstName = 'Janet'
+        user.LastName = 'Editor'
+        user.EMail = 'Janet.Editor@email.addr'
+        user.Name = 'Janet'
         user.Password = hashlib.sha512(b'a').hexdigest()
         user.Id = userService.insert(user)
     else: user = next(iter(users))
     userRbacService.assignRole(user.Id, blogRoleAdministratorId())
 
-    for name in ('collab1', 'collab2'):
-        users = userService.getAll(limit=1, q=QUser(name=name))
+    for name in (('Andrew', 'Reporter'), ('Christine', 'Journalist')):
+        users = userService.getAll(limit=1, q=QUser(name=name[0]))
         if not users:
             user = User()
-            user.FirstName = 'Change ' + name
-            user.LastName = 'name'
-            user.EMail = name + '@change.mail'
-            user.Name = name
+            user.FirstName = name[0]
+            user.LastName = name[1]
+            user.EMail = '%s.%s@email.addr' % name
+            user.Name = name[0]
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
         else: user = next(iter(users))
