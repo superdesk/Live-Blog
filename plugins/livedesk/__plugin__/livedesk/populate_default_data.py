@@ -9,6 +9,7 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
+from os.path import abspath, dirname, join
 from ..superdesk.db_superdesk import alchemySessionCreator
 from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
@@ -190,8 +191,8 @@ def createPostTypes():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'admin', 'admin', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'admin', 'admin', 'Conclusion', 'To summarize, this is the conclusion...',)
+                   ('default', 'normal', 'Janet', 'Janet', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'Janet', 'Janet', 'Conclusion', 'To summarize, this is the conclusion...',)
                    ]
 
 @ioc.after(populateDefaultUsers, createPostTypes)
@@ -219,7 +220,7 @@ def defaultBlogs():
     '''
     blogs = {}
     blogsFile = join(dirname(abspath(__file__)), 'blogs.csv')
-    with openURI(blogsFile, byteMode=False) as csvfile:
+    with open(blogsFile, 'rt') as csvfile:
         blogsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
         for blog in blogsRead:
             data = (BLOGS_DEFAULTS[0], blog[1], BLOGS_DEFAULTS[1], blog[2], datetime.now(), datetime.now())
@@ -246,8 +247,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'reporter': 'Election Night 2013',
-                      'journalist': 'Election Night 2013',
+                      'Andrew': 'Election Night 2013',
+                      'Christine': 'Election Night 2013',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -264,7 +265,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'admin': 'Election Night 2013',
+               'Janet': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)
@@ -286,7 +287,7 @@ def defaultPosts():
     '''
     posts = []
     postsFile = join(dirname(abspath(__file__)), 'posts.csv')
-    with openURI(postsFile, byteMode=False) as csvfile:
+    with open(postsFile, 'rt') as csvfile:
         postsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
         for post in postsRead:
             posts.append(post)
