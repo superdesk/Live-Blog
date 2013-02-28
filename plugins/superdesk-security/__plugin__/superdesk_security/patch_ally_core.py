@@ -11,7 +11,7 @@ Provides the ally core setup patch.
 
 from .service import assemblyGateways, updateAssemblyGateways, \
     registerMethodOverride, updateAssemblyActiveRights, assemblyActiveRights, \
-    registerDefaultRights
+    registerDefaultRights, userValueForFilter
 from ally.container import support, ioc
 import logging
 
@@ -27,18 +27,18 @@ else:
     ally_core = ally_core  # Just to avoid the import warning
     # ----------------------------------------------------------------
     
-    from acl.core.impl.processor import resource_node_associate, resource_model_filter, resource_gateway
+    from acl.core.impl.processor import resource_node_associate, resource_model_filter, resource_alternate, resource_gateway
     
     iterateResourcePermissions = checkResourceAvailableRights = modelFiltersForPermissions = \
-    authenticatedForPermissions = gatewaysFromPermissions = support.notCreated  # Just to avoid errors
-    support.createEntitySetup(resource_node_associate, resource_model_filter, resource_gateway)
+    authenticatedForPermissions = gatewaysAlternateForPermissions = gatewaysFromPermissions = support.notCreated
+    support.createEntitySetup(resource_node_associate, resource_model_filter, resource_alternate, resource_gateway)
     
     # --------------------------------------------------------------------
     
     @ioc.after(updateAssemblyGateways)
     def updateAssemblyGatewaysForResources():
-        assemblyGateways().add(iterateResourcePermissions(), authenticatedForPermissions(), gatewaysFromPermissions(),
-                               before=registerMethodOverride())
+        assemblyGateways().add(iterateResourcePermissions(), authenticatedForPermissions(), userValueForFilter(),
+                               gatewaysAlternateForPermissions(), gatewaysFromPermissions(), before=registerMethodOverride())
        
     @ioc.after(updateAssemblyActiveRights)
     def updateAssemblyActiveRightsForResources():

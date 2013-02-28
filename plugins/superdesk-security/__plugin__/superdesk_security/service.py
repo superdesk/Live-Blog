@@ -15,16 +15,19 @@ from ally.design.processor.assembly import Assembly
 from gateway.core.impl.processor import method_override_gateway
 from sched import scheduler
 from security.rbac.core.impl.processor import rbac_right
-from superdesk.security.core.impl.processor import user_rbac_provider
+from superdesk.security.core.impl.processor import user_rbac_provider, \
+    user_filter_value
 from superdesk.security.core.spec import ICleanupService
+from superdesk.security.impl.filter_authenticated import \
+    AuthenticatedFilterService
 from threading import Thread
 import time
 
 # --------------------------------------------------------------------
 
-userRbac = userRbacProvider = registerMethodOverride = rbacPopulateRights = \
+userRbac = userRbacProvider = userValueForFilter = registerMethodOverride = rbacPopulateRights = \
 registerDefaultRights = support.notCreated  # Just to avoid errors
-support.createEntitySetup(user_rbac_provider, method_override_gateway, rbac_right, default_right)
+support.createEntitySetup(user_rbac_provider, user_filter_value, method_override_gateway, rbac_right, default_right)
 
 # --------------------------------------------------------------------
 
@@ -36,6 +39,11 @@ def cleanup_timeout() -> int:
     return 180
 
 # --------------------------------------------------------------------
+
+@ioc.entity
+def equaliltyUserFilterClasses() -> list:
+    ''' The @see: IAclFilter classes that checks if the authenticated identifier is same with the resource identifier'''
+    return [AuthenticatedFilterService]
 
 @ioc.entity
 def assemblyGateways() -> Assembly:
@@ -55,7 +63,7 @@ def updateAssemblyGateways():
    
 @ioc.before(assemblyActiveRights)
 def updateAssemblyActiveRights():
-    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights())
+    assemblyActiveRights().add(userRbac(), rbacPopulateRights(), registerDefaultRights())
 
 # --------------------------------------------------------------------
 

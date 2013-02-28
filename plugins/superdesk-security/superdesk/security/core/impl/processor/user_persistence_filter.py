@@ -121,6 +121,7 @@ class GatewaysPersistenceFromPermissions(HandlerBranchingProceed, AuthenticatedU
         assert issubclass(Permission, PermissionWithAuthenticated), 'Invalid permission class %s' % Permission
         assert isinstance(solicitation, SolicitationPutHeader), 'Invalid solicitation %s' % solicitation
         assert isinstance(reply, ReplyPutHeader), 'Invalid reply %s' % reply
+        assert isinstance(solicitation.permissions, Iterable), 'Invalid permissions %s' % solicitation.permissions
         
         authenticated, unprocessed = [], []
         for permission in solicitation.permissions:
