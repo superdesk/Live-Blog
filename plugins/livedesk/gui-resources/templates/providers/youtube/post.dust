@@ -4,12 +4,17 @@
     	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
         {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
     </div>
-    <figure class="author-avatar">
-        <!--<img src="" />-->
+    <figure>
+        {Avatar|s}
+        {?AuthorPerson.Avatar}
+        <img src="{AuthorPerson.Avatar}">
+        {:else}
+        <!--<img>-->
+        {/AuthorPerson}
     </figure>
-    <div class="post-info">
-        <p rel="author">John Spancer</p>
-        <time>1 day ago</time>                     
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
     </div>
     <div class="youtube-full-content">
             <div class="editable annotation">
