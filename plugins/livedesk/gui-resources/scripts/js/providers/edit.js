@@ -545,7 +545,7 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta';
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta,Creator.FullName';
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				collections.posts =  posts;
