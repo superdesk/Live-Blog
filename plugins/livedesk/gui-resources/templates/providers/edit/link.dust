@@ -6,9 +6,11 @@
 		<p><h3 ><a href="{url}">{title}</a></h3></p>
 		<p class="result-text">{description}</p>
 		<p class="attributes">
+			<a href="{url}" class="source-link" target="_blank">
 			<i class="source-icon">
 				<img src="{favicon}" style="max-width: 16px" border="0">
 			</i>
+			</a>
 			<a href="{url}" class="source-link" target="_blank">{title}</a>
 		</p>
 
