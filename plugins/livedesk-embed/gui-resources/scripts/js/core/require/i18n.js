@@ -31,6 +31,7 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomai
                 options = {
                         dataType: 'json',
                         timeout : 1000,
+                        processTime: 300,
                         tryCount : 0,
                         retryLimit : 2,
                         statusCode: {
@@ -75,12 +76,12 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomai
                          * provide url option in the form of the urlCached
                          * also apply timeout retries for the urlCached 
                          */
-                        options.url = urlCached;
+                        options.url = url;
                         options.error =  this.errorTimeout;
                         $.ajax(options);
                     }
                 }
-                options.url = url;
+                options.url = urlCached;
                 $.ajax(options);
         },
 

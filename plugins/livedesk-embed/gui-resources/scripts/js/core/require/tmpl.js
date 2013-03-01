@@ -8,7 +8,7 @@
 /*global define, window, XMLHttpRequest, importScripts, Packages, java,
   ActiveXObject, process, require */
 
-define(['dust/compiler','dust/i18n_parse'], function(dust, i18n_parse) {
+define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], function($, dust, i18n_parse) {
     'use strict';
     var fs, getXhr,
         progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
@@ -28,44 +28,24 @@ define(['dust/compiler','dust/i18n_parse'], function(dust, i18n_parse) {
             callback(fs.readFileSync(path, 'utf8'));
         };
     } else if ((typeof window !== "undefined" && window.navigator && window.document) || typeof importScripts !== "undefined") {
-        // Browser action
-        getXhr = function () {
-            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i, progId;
-            if (typeof XMLHttpRequest !== "undefined") {
-                return new XMLHttpRequest();
-            } else {
-                for (i = 0; i < 3; i++) {
-                    progId = progIds[i];
-                    try {
-                        xhr = new ActiveXObject(progId);
-                    } catch (e) {}
-
-                    if (xhr) {
-                        progIds = [progId];  // so faster next time
-                        break;
-                    }
-                }
-            }
-
-            if (!xhr) {
-                throw new Error("getXhr(): XMLHttpRequest not available");
-            }
-
-            return xhr;
-        };
-
         fetchText = function (url, callback) {
-            var xhr = getXhr();
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function (evt) {
-                //Do not explicitly handle errors, those should be
-                //visible via console output in the browser.
-                if (xhr.readyState === 4) {
-                    callback(xhr.responseText);
+            /*!
+             * If dataType is requested as text then it fails due to some cdm issues with ie
+             * so request it as json and in error method if is a json parsing issue we are good to go.
+             */
+            $.ajax({
+                //dataType: 'json',
+                url: url,
+                error: function(xhr, textStatus, errorThrown){
+                    console.log('err');
+                    if(textStatus == 'parsererror')
+                        callback(xhr.responseText);
+                },
+                //contentType: 'application/octet-stream',
+                success: function(data) {
+                    callback(data);
                 }
-            };
-            xhr.send(null);
+            });
         };
         // end browser.js adapters
     } else if (typeof Packages !== 'undefined') {
