@@ -13,7 +13,7 @@ from ..security_rbac.populate import rootRoleId
 from ally.container import support
 from distribution.container import app
 from superdesk.security.api.user_rbac import IUserRbacService
-from superdesk.user.api.user import IUserService, User
+from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
 
 # --------------------------------------------------------------------
@@ -25,9 +25,12 @@ def populateRootUser():
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
     
-    user = User()
-    user.Name = 'root'
-    user.Password = hashlib.sha512(b'root').hexdigest()
-    user.Id = userService.insert(user)
+    users = userService.getAll(limit=1, q=QUser(name='Janet'))
+    if not users:
+        user = User()
+        user.Name = 'root'
+        user.Password = hashlib.sha512(b'root').hexdigest()
+        user.Id = userService.insert(user)
+    else: user = users[0]
     
     userRbacService.assignRole(user.Id, rootRoleId())

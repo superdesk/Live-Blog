@@ -30,6 +30,11 @@ gui-themes/themes/default/img/__init__.py
 gui-themes/themes/default/item/__init__.py
 gui-themes/themes/default/item/posttype/__init__.py
 gui-themes/themes/default/item/source/__init__.py
+gui-themes/themes/sdtageswoche/__init__.py
+gui-themes/themes/sdtageswoche/img/__init__.py
+gui-themes/themes/sdtageswoche/item/__init__.py
+gui-themes/themes/sdtageswoche/item/posttype/__init__.py
+gui-themes/themes/sdtageswoche/item/source/__init__.py
 gui-themes/themes/space/__init__.py
 gui-themes/themes/space/item/__init__.py
 gui-themes/themes/tageswoche/__init__.py
