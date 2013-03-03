@@ -85,7 +85,7 @@ def populateDefaultUsers():
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
 
-    users = userService.getAll(limit=1, q=QUser(name='admin'))
+    users = userService.getAll(limit=1, q=QUser(name='Janet'))
     if not users:
         user = User()
         user.FirstName = 'Janet'
