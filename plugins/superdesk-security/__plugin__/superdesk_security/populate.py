@@ -27,7 +27,7 @@ def populateRootUser():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
     
-    users = userService.getAll(limit=1, q=QUser(name='root'))
+    users = userService.getAll(limit=1, q=QUser(name='Janet'))
     if not users:
         user = User()
         user.Name = 'root'

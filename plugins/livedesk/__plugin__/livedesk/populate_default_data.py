@@ -35,6 +35,7 @@ from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
+from ally.support.util_io import openURI
 
 # --------------------------------------------------------------------
 
@@ -220,7 +221,7 @@ def defaultBlogs():
     '''
     blogs = {}
     blogsFile = join(dirname(abspath(__file__)), 'blogs.csv')
-    with open(blogsFile, 'rt') as csvfile:
+    with openURI(blogsFile, byteMode=False) as csvfile:
         blogsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
         for blog in blogsRead:
             data = (BLOGS_DEFAULTS[0], blog[1], BLOGS_DEFAULTS[1], blog[2], datetime.now(), datetime.now())
@@ -287,7 +288,7 @@ def defaultPosts():
     '''
     posts = []
     postsFile = join(dirname(abspath(__file__)), 'posts.csv')
-    with open(postsFile, 'rt') as csvfile:
+    with openURI(postsFile, byteMode=False) as csvfile:
         postsRead = csv.reader(csvfile, delimiter=',', quotechar='"')
         for post in postsRead:
             posts.append(post)
