@@ -5,7 +5,7 @@
 		<h3>_('Configure:'); {Title|t}</h3>
 	</header>
 	<div class="row-fluid">
-		<div class="span10">
+		<div class="span8">
 			<form class="form-horizontal form-large">
         	<fieldset>
         		<legend>General</legend>

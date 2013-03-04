@@ -16,7 +16,7 @@
     
     {~s}
 	<div class="alert pull-left hide" style="margin-left:20px; padding: 6px 35px 6px 14px">
-		<a href="#" data-dismiss="alert" class="close">×</a>
+		<a href="#" data-dismiss="alert" class="popup-close">x</a>
 		<span></span>
     </div>
 	    
@@ -34,7 +34,7 @@
 </header>
 <div class="modal hide fade" id="put-live">
   <div class="modal-header">
-	<a class="close image" data-dismiss="modal">×</a>
+	<a class="popup-close" data-dismiss="modal">x</a>
     <h3 id="put-live-title-live" class="{isLive}">_('Go live?')</h3>
     <h3 id="put-live-title-offline" class="{isOffline}">_('Take offline?')</h3>
   </div>
@@ -48,7 +48,7 @@
   </div>
 </div>
 <div class="modal hide fade" id="unpublish-live">
-  <div class="modal-header"> <a class="close image" data-dismiss="modal">x</a>
+  <div class="modal-header"> <a class="popup-close" data-dismiss="modal">x</a>
     <h3>_('Go live')</h3>
   </div>
   <div class="modal-body" style="height:50px; min-height:50px">
@@ -61,7 +61,7 @@
 </div>
 
 <div id="delete-post" class="modal hide">
-  <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+  <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
     <h3>_("Delete post")</h3>
   </div>
   <div class="modal-body">
@@ -73,7 +73,7 @@
   </div>
 </div>
 <div id="delete-own-post" class="modal hide">
-  <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+  <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
     <h3>_("Delete post")</h3>
   </div>
   <div class="modal-body">
@@ -86,7 +86,7 @@
 </div>
 <div id="unpublish-post" class="modal hide in">
   <div class="modal-header"> 
-    <a data-dismiss="modal" class="close">x</a>
+    <a data-dismiss="modal" class="popup-close">x</a>
     <h3>Unpublish post</h3>
   </div>
   <div class="modal-body">
