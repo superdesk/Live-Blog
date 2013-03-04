@@ -30,7 +30,7 @@ else:
     from acl.core.impl.processor import resource_node_associate, resource_model_filter, resource_alternate, resource_gateway
     
     iterateResourcePermissions = checkResourceAvailableRights = modelFiltersForPermissions = \
-    authenticatedForPermissions = gatewaysAlternateForPermissions = gatewaysFromPermissions = support.notCreated
+    authenticatedForPermissions = alternateNavigationPermissions = gatewaysFromPermissions = support.notCreated
     support.createEntitySetup(resource_node_associate, resource_model_filter, resource_alternate, resource_gateway)
     
     # --------------------------------------------------------------------
@@ -38,7 +38,7 @@ else:
     @ioc.after(updateAssemblyGateways)
     def updateAssemblyGatewaysForResources():
         assemblyGateways().add(iterateResourcePermissions(), authenticatedForPermissions(), userValueForFilter(),
-                               gatewaysAlternateForPermissions(), gatewaysFromPermissions(), before=registerMethodOverride())
+                               alternateNavigationPermissions(), gatewaysFromPermissions(), before=registerMethodOverride())
        
     @ioc.after(updateAssemblyActiveRights)
     def updateAssemblyActiveRightsForResources():

@@ -95,7 +95,7 @@ class UserValueForFilter(HandlerProcessorProceed):
         '''
         for permission in permissions:
             assert isinstance(permission, PermissionFilters), 'Invalid permission %s' % permission
-            if PermissionFilters.filters not in permission:  # No filters to check
+            if not permission.filters:  # No filters to check
                 yield permission
                 continue
             
@@ -110,7 +110,7 @@ class UserValueForFilter(HandlerProcessorProceed):
                         assert rfilter.filter.isAllowed(userId, userId), \
                         'Filter %s failed to allow for the expected behavior' % rfilter.filter
                         assert log.debug('Replaced %s with the static user id value %s', rfilter.filter, userId) or True
-                        if PermissionFilters.values not in permission: permission.values = {}
+                        if permission.values is None: permission.values = {}
                         permission.values[rfilter.resource] = str(userId)
                         # We remove this filter since we added a static value for it
                         k -= 1

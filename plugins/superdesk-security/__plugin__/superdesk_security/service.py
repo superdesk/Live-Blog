@@ -25,7 +25,7 @@ import time
 
 # --------------------------------------------------------------------
 
-userRbac = userRbacProvider = userValueForFilter = registerMethodOverride = rbacPopulateRights = \
+userRbacProvider = userValueForFilter = registerMethodOverride = rbacPopulateRights = \
 registerDefaultRights = support.notCreated  # Just to avoid errors
 support.createEntitySetup(user_rbac_provider, user_filter_value, method_override_gateway, rbac_right, default_right)
 
@@ -63,7 +63,7 @@ def updateAssemblyGateways():
    
 @ioc.before(assemblyActiveRights)
 def updateAssemblyActiveRights():
-    assemblyActiveRights().add(userRbac(), rbacPopulateRights(), registerDefaultRights())
+    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights())
 
 # --------------------------------------------------------------------
 

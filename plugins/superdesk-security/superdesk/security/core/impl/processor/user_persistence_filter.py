@@ -10,25 +10,22 @@ Processor that handles the invoking filtering for persist methods.
 '''
 
 from acl.api.filter import IAclFilter
-from acl.core.impl.processor.resource_model_filter import \
-    PermissionWithModelFilters
 from acl.spec import Filter, Acl
 from ally.api.operator.type import TypeProperty
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.core.spec.resources import Node, Invoker, Path
+from ally.core.spec.resources import Invoker, Path
 from ally.design.processor.assembly import Assembly
 from ally.design.processor.attribute import requires, defines
 from ally.design.processor.context import Context
 from ally.design.processor.execution import Processing, Chain
-from ally.design.processor.handler import Handler, HandlerBranchingProceed
-from ally.design.processor.processor import Included, Using
+from ally.design.processor.handler import Handler, HandlerBranchingProceed, \
+    HandlerProcessorProceed
+from ally.design.processor.processor import Using
 from ally.http.spec.codes import HEADER_ERROR, FORBIDDEN_ACCESS
 from ally.http.spec.server import IDecoderHeader
-from collections import Iterable, Callable
-from gateway.api.gateway import Gateway
-from itertools import chain
+from collections import Iterable
 from superdesk.user.api.user import User
 import logging
 
@@ -45,12 +42,9 @@ class AuthenticatedUserConfigurations:
     
     nameHeader = 'X-Authenticated-User'
     # The header name used for placing the authenticated user into.
-    separatorHeader = ':'
-    # The separator used between the header name and header value.
     
     def __init__(self):
         assert isinstance(self.nameHeader, str), 'Invalid header name %s' % self.nameHeader
-        assert isinstance(self.separatorHeader, str), 'Invalid header separator %s' % self.separatorHeader
 
 # --------------------------------------------------------------------
 
@@ -58,6 +52,11 @@ class PermissionWithAuthenticated(Context):
     '''
     The permission context.
     '''
+    # ---------------------------------------------------------------- Defined
+    putHeaders = defines(dict, doc='''
+    @rtype: dictionary{string: string}
+    The put headers dictionary.
+    ''')
     # ---------------------------------------------------------------- Required
     modelsAuthenticated = requires(set)
 
@@ -68,106 +67,54 @@ class SolicitationPutHeader(Context):
     # ---------------------------------------------------------------- Required
     userId = requires(int)
     permissions = requires(Iterable)
-    
-class ReplyPutHeader(Context):
-    '''
-    The reply context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    gateways = defines(Iterable)
-    
-class SolicitationGateways(Context):
-    '''
-    The persistence gateways reply context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    permissions = defines(Iterable)
-    provider = defines(Callable)
-    
-class ReplyGateways(Context):
-    '''
-    The persistence gateways reply context.
-    '''
-    # ---------------------------------------------------------------- Required
-    gateways = requires(Iterable)
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(Handler, name='gatewaysPersistenceFromPermissions')
-class GatewaysPersistenceFromPermissions(HandlerBranchingProceed, AuthenticatedUserConfigurations):
+@setup(Handler, name='userPersistenceForPermissions')
+class UserPersistenceForPermissions(HandlerProcessorProceed, AuthenticatedUserConfigurations):
     '''
-    Processor that places the authenticated put header on the persistence gateways.
+    Processor that places the authenticated put header on the persistence permissions.
     '''
-    
-    assemblyGatewaysFromPermissions = Assembly; wire.entity('assemblyGatewaysFromPermissions')
-    # The assembly used for creating the gateways from resource permissions.
     
     def __init__(self):
-        assert isinstance(self.assemblyGatewaysFromPermissions, Assembly), \
-        'Invalid assembly %s' % self.assemblyGatewaysFromPermissions
-        super().__init__(Included(self.assemblyGatewaysFromPermissions).
-                         using(solicitation=SolicitationGateways, reply=ReplyGateways))
+        HandlerProcessorProceed.__init__(self)
         AuthenticatedUserConfigurations.__init__(self)
     
-    def process(self, processing, Permission:PermissionWithAuthenticated, solicitation:SolicitationPutHeader,
-                reply:ReplyPutHeader, **keyargs):
+    def process(self, Permission:PermissionWithAuthenticated, solicitation:SolicitationPutHeader, **keyargs):
         '''
-        @see: HandlerBranchingProceed.process
+        @see: HandlerProcessorProceed.process
         
-        Populate the persistence gateways.
+        Populate the persistence permissions put headers.
         '''
-        assert isinstance(processing, Processing), 'Invalid processing %s' % processing
         assert issubclass(Permission, PermissionWithAuthenticated), 'Invalid permission class %s' % Permission
         assert isinstance(solicitation, SolicitationPutHeader), 'Invalid solicitation %s' % solicitation
-        assert isinstance(reply, ReplyPutHeader), 'Invalid reply %s' % reply
+        assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
         assert isinstance(solicitation.permissions, Iterable), 'Invalid permissions %s' % solicitation.permissions
         
-        authenticated, unprocessed = [], []
-        for permission in solicitation.permissions:
-            assert isinstance(permission, PermissionWithAuthenticated), 'Invalid permission %s' % permission
-            if PermissionWithAuthenticated.modelsAuthenticated not in permission:
-                # If there are no model filters then no need to process
-                unprocessed.append(permission)
-                continue
-        
-            assert isinstance(permission.modelsAuthenticated, set), \
-            'Invalid model authenticated %s' % permission.modelsAuthenticated
-            for propertyType in permission.modelsAuthenticated:
-                assert isinstance(propertyType, TypeProperty), 'Invalid property type %s' % propertyType
-                if propertyType.parent.clazz == User or issubclass(propertyType.parent.clazz, User):
-                    authenticated.append(permission)
-                    break
-        
-        solicitation.permissions = unprocessed
-        if not authenticated: return  # No authenticated permissions to put the header to
-        
-        solGateways = processing.ctx.solicitation()
-        assert isinstance(solGateways, SolicitationGateways)
-        
-        solGateways.permissions = authenticated
-        solGateways.provider = solicitation.provider
-        
-        chainGateways = Chain(processing)
-        chainGateways.process(**processing.fillIn(Permission=Permission, solicitation=solGateways, **keyargs)).doAll()
-        replyGateways = chainGateways.arg.reply
-        assert isinstance(replyGateways, ReplyGateways), 'Invalid reply %s' % replyGateways
-        if ReplyGateways.gateways not in replyGateways: return  # No gateways generated
-        
-        assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
-        headers = [self.separatorHeader.join((self.nameHeader, str(solicitation.userId)))]
-   
-        gateways = list(replyGateways.gateways)
-        for gateway in gateways:
-            assert isinstance(gateway, Gateway), 'Invalid gateway %s' % gateway
-            if Gateway.PutHeaders not in gateway: gateway.PutHeaders = list(headers)
-            else: gateway.PutHeaders.extend(headers)
-        
-        if ReplyPutHeader.gateways in reply:
-            reply.gateways = chain(reply.gateways, gateways)
-        else:
-            reply.gateways = gateways
+        solicitation.permissions = self.processPermissions(solicitation.permissions, str(solicitation.userId))
 
+    # ----------------------------------------------------------------
+    
+    def processPermissions(self, permissions, userId):
+        '''
+        Process the permissions user authenticated put headers.
+        '''
+        assert isinstance(userId, str), 'Invalid user id %s' % userId
+        for permission in permissions:
+            assert isinstance(permission, PermissionWithAuthenticated), 'Invalid permission %s' % permission
+            if permission.modelsAuthenticated is not None:
+                assert isinstance(permission.modelsAuthenticated, set), \
+                'Invalid model authenticated %s' % permission.modelsAuthenticated
+                for propertyType in permission.modelsAuthenticated:
+                    assert isinstance(propertyType, TypeProperty), 'Invalid property type %s' % propertyType
+                    if propertyType.parent.clazz == User or issubclass(propertyType.parent.clazz, User):
+                        if permission.putHeaders is None: permission.putHeaders = {}
+                        permission.putHeaders[self.nameHeader] = userId
+                        break
+                
+            yield permission
+    
 # --------------------------------------------------------------------
 
 class Request(Context):
@@ -195,6 +142,7 @@ class PermissionFilter(Context):
     The permission context.
     '''
     # ---------------------------------------------------------------- Required
+    path = requires(Path)
     filtersModels = requires(list)
 
 class ModelFilter(Context):
@@ -214,10 +162,6 @@ class SolicitationFilter(Context):
     userId = defines(int, doc='''
     @rtype: integer
     The id of the user to create gateways for.
-    ''')
-    node = defines(Node, doc='''
-    @rtype: Node
-    The node to get the permissions for.
     ''')
     method = defines(int, doc='''
     @rtype: integer
@@ -279,7 +223,6 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
         assert isinstance(solFilter, SolicitationFilter)
         
         solFilter.userId = userId
-        solFilter.node = request.path.node
         solFilter.method = request.invoker.method
         solFilter.types = self.acl.types
         
@@ -287,18 +230,16 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
         chainFilter.process(**processing.fillIn(solicitation=solFilter, **keyargs)).doAll()
         solFilter = chainFilter.arg.solicitation
         assert isinstance(solFilter, SolicitationFilter), 'Invalid solicitation %s' % solFilter
-        if SolicitationFilter.permissions not in solFilter: return  # No permissions available
+        if solFilter.permissions is None: return  # No permissions available
         
-        permissions = iter(solFilter.permissions)
-        try: permission = next(permissions)
-        except StopIteration: return  # There is no permission to filter by so nothing to do
-        assert isinstance(permission, PermissionWithModelFilters), 'Invalid permission %s' % permission
-        if __debug__:
-            permissions = list(permissions)
-            assert not permissions, 'To many permissions:\n%s\n, obtained beside:\n%s\n, for filtering' % \
-            ('\n'.join(str(perm) for perm in permissions), permission)
-        
-        if PermissionWithModelFilters.filtersModels not in permission: return  # There is no model filters o nothing to do
+        permissions = []
+        for permission in solFilter.permissions:
+            assert isinstance(permission, PermissionFilter), 'Invalid permission %s' % permission
+            if permission.path.node == request.path.node and permission.filtersModels:
+                permissions.append(permission)
+        if not permissions: return  # There is no permission to filter by so nothing to do
+        assert len(permissions > 1), 'To many permissions:\n%s\n, for filtering' % '\n'.join(str(perm) for perm in permissions)
+        permission = permissions[0]
         
         assert isinstance(permission.filtersModels, list), 'Invalid model filters %s' % permission.filtersModels
         for modelFilter in permission.filtersModels:

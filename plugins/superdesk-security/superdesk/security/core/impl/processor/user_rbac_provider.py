@@ -13,7 +13,7 @@ from ally.api.operator.type import TypeProperty
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.design.processor.attribute import defines, requires
+from ally.design.processor.attribute import defines, definesIf, requires
 from ally.design.processor.context import Context
 from ally.design.processor.execution import Chain
 from ally.design.processor.handler import HandlerProcessor, Handler
@@ -37,13 +37,7 @@ class Solicitation(Context):
     @rtype: integer
     The id of the rbac to create gateways for.
     ''')
-    
-class SolicitationWithProvider(Solicitation):
-    '''
-    The solicitation context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    provider = defines(Callable, doc='''
+    provider = definesIf(Callable, doc='''
     @rtype: callable(TypeProperty) -> string|None
     Callable used for getting the authenticated value.
     ''')
@@ -51,8 +45,8 @@ class SolicitationWithProvider(Solicitation):
 # --------------------------------------------------------------------
 
 @injected
-@setup(Handler, name='userRbac')
-class UserRbac(HandlerProcessor):
+@setup(Handler, name='userRbacProvider')
+class UserRbacProvider(HandlerProcessor):
     '''
     Provides the handler that extracts the rbac id for the user id.
     '''
@@ -73,30 +67,11 @@ class UserRbac(HandlerProcessor):
         assert isinstance(chain, Chain), 'Invalid chain %s' % chain
         assert isinstance(solicitation, Solicitation), 'Invalid solicitation %s' % solicitation
         assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
-
+        
         solicitation.rbacId = self.userRbacSupport.rbacIdFor(solicitation.userId)
         if solicitation.rbacId is None: return  # No rbac available so stopping the processing
-        
+        if Solicitation.provider in solicitation: solicitation.provider = UserProvider(str(solicitation.userId))
         chain.proceed()
-        return True
-
-@injected
-@setup(Handler, name='userRbacProvider')
-class UserRbacProvider(UserRbac):
-    '''
-    Provides the handler that extracts the rbac id for the user id.
-    '''
-    
-    def process(self, chain, solicitation:SolicitationWithProvider, **keyargs):
-        '''
-        @see: HandlerProcessor.process
-        
-        Populate the rbac id.
-        '''
-        assert isinstance(solicitation, SolicitationWithProvider), 'Invalid solicitation %s' % solicitation
-        assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
-        
-        if super().process(chain, solicitation, **keyargs): solicitation.provider = UserProvider(str(solicitation.userId))
 
 # --------------------------------------------------------------------
 
