@@ -4,6 +4,7 @@
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
     config.guiJs('livedesk', 'views/configure/themes'),
+    config.guiJs('livedesk', 'views/configure/api-keys'),
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
     'tmpl!livedesk>layouts/livedesk',
@@ -12,7 +13,7 @@
     'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages'
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, Action) {
+], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action ) {
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -34,7 +35,8 @@
                     Language: self.el.find('[name="Language"]').val(),
                     Type: self.el.find('[name="blogtypeselection"]:checked').val(),
                     EmbedConfig: JSON.stringify(EmbedConfig)
-                }
+                };
+            self.apiKeysView.save();
             self.model.set(data).sync();
         },
         saveClose: function(evt) {
@@ -48,6 +50,7 @@
                     Type: self.el.find('[name="blogtypeselection"]:checked').val(),
                     EmbedConfig: JSON.stringify(EmbedConfig)
                 }
+            self.apiKeysView.save();
             self.model.set(data).sync().done(function(){
                self.close(evt);
             });
@@ -113,6 +116,11 @@
                     _parent: self,
                     theBlog: self.theBlog,
                     tmplData: { selected: self.model.get('Type').get('Id') }
+                });
+                self.apiKeysView = new ApiKeysView({
+                    el: self.el.find('.api-keys'),
+                    _parent: self,
+                    theBlog: self.theBlog
                 });
                 themesData = {
                     el: self.el.find('.themes'),

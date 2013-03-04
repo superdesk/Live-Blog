@@ -33,6 +33,10 @@
                 <label class="control-label">_('Configure type of blog');</label>
                 <div class="controls blogtypes"></div>
               </div>
+              <div class="control-group">
+                <label class="control-label">_('Configure api keys');</label>
+                <div class="controls api-keys"></div>
+              </div>
 			</fieldset>
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
