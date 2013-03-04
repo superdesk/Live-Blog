@@ -39,6 +39,7 @@ support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
 support.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
 support.loadAllEntities(IMetaDataHandler, module=service)
+support.wireEntities(ThumbnailProcessorGM, ThumbnailProcessorFfmpeg, ThumbnailProcessorAVConv)
 
 # --------------------------------------------------------------------
 
