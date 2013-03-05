@@ -20,7 +20,7 @@ SERVICES = 'superdesk.*.api.**.I*Service'
 @ioc.entity
 def binders(): return [bindSuperdeskSession]
 @ioc.entity
-def bindersService(): return list(chain(binders(), (bindSuperdeskValidations,)))
+def bindersService(): return list(chain((bindSuperdeskValidations,), binders()))
 
 bind.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.*.impl.**.*')
