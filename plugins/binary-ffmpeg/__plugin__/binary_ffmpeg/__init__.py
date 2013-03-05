@@ -43,6 +43,6 @@ def deploy():
     if ffmpeg_dir_path():
         sys, rel, _ver, deployed = deployTool(join(pythonPath(), 'resources', 'ffmpeg'), ffmpeg_dir_path())
         if not deployed:
-            log.error('Unable to deply FFMpeg on %s %s!\n    You must install it manually '
+            log.error('Unable to deploy FFMpeg on %s %s!\n    You must install it manually '
                       'and set the proper path in the plugins.properties\n    file for the property '
                       'ffmpeg_path (e.g. /usr/bin/ffmpeg).' % (sys, rel))

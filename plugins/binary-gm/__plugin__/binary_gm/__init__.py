@@ -44,6 +44,6 @@ def deploy():
     if gm_dir_path():
         sys, rel, _ver, deployed = deployTool(join(pythonPath(), 'resources', 'gm'), gm_dir_path())
         if not deployed:
-            log.error('Unable to deply GraphicsMagic on %s %s!\n    You must install it manually '
+            log.error('Unable to deploy GraphicsMagic on %s %s!\n    You must install it manually '
                       'and set the proper path in the plugins.properties\n    file for the property '
                       'gm_path (e.g. /usr/bin/gm).' % (sys, rel))
