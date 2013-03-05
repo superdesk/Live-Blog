@@ -110,7 +110,7 @@ def queryIndexer() -> IQueryIndexer: return QueryIndexer()
 @ioc.config
 def thumnail_processor():
     ''' Specify which implementation will be used for thumbnail processor. Currently the following options are available: gm, ffmpeg, avconv '''
-    return 'gm'
+    return 'ffmpeg'
 
 @ioc.entity
 def thumbnailProcessor() -> IThumbnailProcessor: 
