@@ -43,6 +43,6 @@ def deploy():
     if exiv2_dir_path():
         sys, rel, _ver, deployed = deployTool(join(pythonPath(), 'resources', 'exiv2'), exiv2_dir_path())
         if not deployed:
-            log.error('Unable to deply Exiv2 on %s %s!\n    You must install it manually '
+            log.error('Unable to deploy Exiv2 on %s %s!\n    You must install it manually '
                       'and set the proper path in the plugins.properties\n    file for the property '
                       'metadata_extractor_path (e.g. /usr/bin/exiv2).' % (sys, rel))
