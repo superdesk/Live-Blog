@@ -113,21 +113,18 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         '''
         @see: IAuthenticationService.authenticate
         '''
-        # TODO: uncomment
-#        olderThan = self.session().query(current_timestamp()).scalar()
-#        olderThan -= self._sessionTimeOut
-#        sql = self.session().query(LoginMapped)
-#        sql = sql.filter(LoginMapped.Session == session)
-#        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
-#        try: login = sql.one()
-#        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
-#        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
-#        login.AccessedOn = current_timestamp()
-#        self.session().flush((login,))
-#        self.session().expunge(login)
-#        commitNow()
-        login = Login()
-        login.User = 1
+        olderThan = self.session().query(current_timestamp()).scalar()
+        olderThan -= self._sessionTimeOut
+        sql = self.session().query(LoginMapped)
+        sql = sql.filter(LoginMapped.Session == session)
+        sql = sql.filter(LoginMapped.AccessedOn > olderThan)
+        try: login = sql.one()
+        except NoResultFound: raise InputError(Ref(_('Invalid session'), ref=Login.Session))
+        assert isinstance(login, LoginMapped), 'Invalid login %s' % login
+        login.AccessedOn = current_timestamp()
+        self.session().flush((login,))
+        self.session().expunge(login)
+        commitNow()
         
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
