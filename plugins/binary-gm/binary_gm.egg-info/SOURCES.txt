@@ -13,14 +13,6 @@ resources/gm/Darwin/__init__.py
 resources/gm/Darwin/all/__init__.py
 resources/gm/Darwin/all/bin/__init__.py
 resources/gm/Darwin/all/libs/__init__.py
-resources/gm/Linux/__init__.py
-resources/gm/Linux/all/__init__.py
-resources/gm/Linux/all/bin/__init__.py
-resources/gm/Linux/all/lib/__init__.py
-resources/gm/Linux/x86_64/__init__.py
-resources/gm/Linux/x86_64/bin/__init__.py
-resources/gm/Linux/x86_64/lib/__init__.py
 resources/gm/Windows/__init__.py
 resources/gm/Windows/all/__init__.py
 resources/gm/Windows/all/bin/__init__.py
-resources/gm/all/__init__.py
