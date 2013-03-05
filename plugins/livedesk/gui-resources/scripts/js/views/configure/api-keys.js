@@ -6,6 +6,11 @@
     'tmpl!livedesk>configure/api-keys'
 ], function( $, Gizmo, ApyKeyView) {
    return Gizmo.View.extend({
+        accepted: [
+            'instagram',
+            'flickr',
+            'soundcloud'
+        ],
         init: function() {
             var self = this;
             self._views = [];
@@ -27,6 +32,7 @@
         addAll: function(evt, data) {
             data = this.collection._list;
             for( var i = 0, count = data.length; i < count; i++ ){
+                if(this.accepted.indexOf(data[i].get('Name')) !== -1 )
                 this.addOne(evt, data[i]);
             }
         },
