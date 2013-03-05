@@ -28,7 +28,7 @@
             <br/>    
 
         </div>
-        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+        <div style="position: absolute; bottom:0px;">
             <p class="attributes" >
                     <i class="source-icon">
                             <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
