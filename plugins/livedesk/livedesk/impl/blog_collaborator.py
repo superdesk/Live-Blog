@@ -121,7 +121,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
 
     def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qu=None, qs=None):
         '''
-        @see: IBlogCollaboratorService.getPotentialCollaborators
+        @see: IBlogCollaboratorService.getPotential
         '''
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)

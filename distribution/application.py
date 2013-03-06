@@ -27,7 +27,7 @@ def __deploy__():
         package_extender.PACKAGE_EXTENDER.addFreezedPackage('__deploy__.')
         from ally.container import aop, context
     except ImportError:
-        print('Corrupted or missing ally-utilites component, make sure that this component is not missing from python path '
+        print('Corrupted or missing ally component, make sure that this component is not missing from python path '
               'or components eggs', file=sys.stderr)
         sys.exit(1)
 
