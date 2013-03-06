@@ -160,7 +160,7 @@ define([
 				//console.log('read');
 				if(!self.rendered) {
 					var hashIndex, 
-						orderhash = window.location.href.split('#'),
+						orderhash = window.location.href.split('?'),
 						postPublished = self.model.get('PostPublished');
 						postPublished
 							.on('read readauto', self.render, self)
