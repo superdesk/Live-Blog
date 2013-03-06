@@ -7,33 +7,40 @@ Created on Feb 23, 2012
 @author: Mihai Balaceanu
 '''
 
+from ..acl import gui
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..acl import gui
 from ..superdesk_security.acl import filterAuthenticated
-from ally.container import ioc, app
+from acl.right_action import RightAction
+from ally.container import ioc, support
 from ally.internationalization import NC_
+from ally.support.util import ref
 from gui.action.api.action import Action
 from superdesk.user.api.user import IUserService
     
 # --------------------------------------------------------------------
 
+support.listenToEntities(Action, listeners=addAction)
+support.loadAllEntities(Action)
+
+# --------------------------------------------------------------------
+
 @ioc.entity   
-def menuAction():
+def menuAction() -> Action:
     return Action('user', Parent=defaults.menuAction(), Label=NC_('menu', 'Users'), NavBar='/users',
                   Script=publishedURI('superdesk/user/scripts/js/menu.js'))
 
 @ioc.entity   
-def modulesAction():
+def modulesAction() -> Action:
     return Action('user', Parent=defaults.modulesAction())
 
 @ioc.entity   
-def modulesUpdateAction():
+def modulesUpdateAction() -> Action:
     return Action('update', Parent=modulesAction(), Script=publishedURI('superdesk/user/scripts/js/modules-update.js'))
 
 @ioc.entity   
-def modulesListAction():
+def modulesListAction() -> Action:
     return Action('list', Parent=modulesAction(), Script=publishedURI('superdesk/user/scripts/js/list.js'))
 
 # @ioc.entity   
@@ -43,35 +50,30 @@ def modulesListAction():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def rightUserView():
+def rightUserView() -> RightAction:
     return gui.actionRight(NC_('security', 'Users view'), NC_('security', '''
     Allows read only access to users.'''))
 
 @ioc.entity
-def rightUserUpdate():
+def rightUserUpdate() -> RightAction:
     return gui.actionRight(NC_('security', 'Users update'), NC_('security', '''
     Allows the update of users.'''))
 
 # --------------------------------------------------------------------
 
-@app.deploy
-def registerActions():
-    addAction(menuAction())
-    addAction(modulesAction())
-    addAction(modulesUpdateAction())
-    addAction(modulesListAction())
-    # addAction(modulesAddAction())
-
 @gui.setup
 def registerAclUserView():
-    rightUserView().addActions(menuAction(), modulesAction(), modulesListAction())\
-    .allGet(IUserService)
+    r = rightUserView()
+    r.addActions(menuAction(), modulesAction(), modulesListAction())
+    r.allGet(IUserService)
     
 @gui.setup
 def registerAclUserUpdate():
-    rightUserUpdate().addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())\
-    .all(IUserService)
+    r = rightUserUpdate()
+    r.addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())
+    r.all(IUserService)
+    
+    # TODO: move this to the media archive plugin.
     try: from superdesk.media_archive.api.meta_data import IMetaDataUploadService
     except ImportError: pass
-    else:
-        rightUserUpdate().byName(IMetaDataUploadService, IMetaDataUploadService.insert, filter=filterAuthenticated())
+    else: r.add(ref(IMetaDataUploadService).insert, filter=filterAuthenticated())

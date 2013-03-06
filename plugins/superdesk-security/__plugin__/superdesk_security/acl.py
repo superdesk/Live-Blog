@@ -9,7 +9,7 @@ Created on Jan 15, 2013
 Provides the acl setup.
 '''
 
-from ..acl.acl import setupAlternate, alternate
+from ..acl import acl
 from ..acl.gui import defaultRight, updateDefault
 from acl.spec import Filter
 from ally.container import ioc, support
@@ -24,7 +24,7 @@ from superdesk.user.api.user import User, IUserService
 # --------------------------------------------------------------------
 
 @ioc.entity
-def filterAuthenticated():
+def filterAuthenticated() -> Filter:
     '''
     Provides filtering for the authenticated user.
     '''
@@ -40,6 +40,6 @@ def updateFilteredDefaults():
     # Provides read only access to the logged in user
     defaultRight().add(ref(IUserService).getById, filter=filterAuthenticated())
 
-@setupAlternate
+@acl.setupAlternate
 def updateAlternates():
-    alternate().add(ref(IActionManagerService).getAll, ref(IUserActionService).getAll)
+    acl.aclAlternate(ref(IActionManagerService).getAll, ref(IUserActionService).getAll)
