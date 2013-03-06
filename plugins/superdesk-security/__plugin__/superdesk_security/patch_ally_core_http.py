@@ -12,8 +12,9 @@ Provides the ally core http setup patch.
 from .service import assemblyGateways, userRbacProvider, rbacPopulateRights, \
     registerDefaultRights
 from ally.container import ioc, support
-from ally.container.support import nameInEntity
 from ally.design.processor.assembly import Assembly
+from ally.design.processor.handler import Handler
+from ally.design.processor.processor import restructure
 import logging
 
 # --------------------------------------------------------------------
@@ -28,18 +29,21 @@ else:
     ally_core_http = ally_core_http  # Just to avoid the import warning
     # ----------------------------------------------------------------
     
-    from . import patch_ally_core
     from .patch_ally_core import gatewaysFromPermissions, updateAssemblyGatewaysForResources, \
-        iterateResourcePermissions, modelFiltersForPermissions, alternateNavigationPermissions, userValueForFilter
-    from __setup__.ally_core_http.processor import root_uri_resources, assemblyResources
+        iterateResourcePermissions, modelFiltersForPermissions, alternateNavigationPermissions, userValueForFilter, \
+        alternateNavigationPermissions
+    from __setup__.ally_core_http.processor import assemblyResources, encoderPathResource
     from __setup__.ally_core.processor import invoking
-    from acl.core.impl.processor.resource_gateway import GatewayResourceSupport
     from superdesk.security.core.impl.processor import user_persistence_filter
     
     userPersistenceForPermissions = invokingFilter = support.notCreated  # Just to avoid errors
     support.createEntitySetup(user_persistence_filter)
     
     # --------------------------------------------------------------------
+    
+    @ioc.entity
+    def encoderPathGateway() -> Handler:
+        return restructure(encoderPathResource(), ('response', 'solicitation'), ('request', 'solicitation'))
     
     @ioc.entity
     def assemblyPermissions() -> Assembly:
@@ -54,17 +58,9 @@ else:
                                   userValueForFilter(), alternateNavigationPermissions(), modelFiltersForPermissions())
         
     @ioc.after(updateAssemblyGatewaysForResources)
-    def updateAssemblyGatewaysForPersistenceResources():
+    def updateAssemblyGatewaysForHTTPResources():
         assemblyGateways().add(userPersistenceForPermissions(), before=gatewaysFromPermissions())
-
-    root_uri = ioc.entityOf(nameInEntity(GatewayResourceSupport, 'root_uri_resources'), module=patch_ally_core)
-    ioc.doc(root_uri, '''
-        !Attention, this is automatically set to the server resources root. 
-        ''')
-    
-    @ioc.before(root_uri, auto=False)
-    def root_uri_force():
-        support.force(root_uri, root_uri_resources())
+        assemblyGateways().add(encoderPathGateway(), before=alternateNavigationPermissions())
     
     @ioc.start  # The update needs to be on start event since the resource assembly id from setup context 
     def updateAssemblyResourcesForInvokingFilter():
