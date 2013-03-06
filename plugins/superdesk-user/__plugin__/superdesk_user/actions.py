@@ -5,17 +5,17 @@ Created on Feb 23, 2012
 @copyright: 2011 Sourcefabric o.p.s.
 @license:  http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
+
+Actions and acl action setups.
 '''
 
 from ..acl import gui
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..superdesk_security.acl import filterAuthenticated
 from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
-from ally.support.util import ref
 from gui.action.api.action import Action
 from superdesk.user.api.user import IUserService
     
@@ -72,8 +72,3 @@ def registerAclUserUpdate():
     r = rightUserUpdate()
     r.addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())
     r.all(IUserService)
-    
-    # TODO: move this to the media archive plugin.
-    try: from superdesk.media_archive.api.meta_data import IMetaDataUploadService
-    except ImportError: pass
-    else: r.add(ref(IMetaDataUploadService).insert, filter=filterAuthenticated())

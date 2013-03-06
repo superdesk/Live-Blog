@@ -9,10 +9,10 @@ Created on Oct 1, 2012
 Contains the services setups for media audio archive.
 '''
 
-from ..cdm.local_cdm import contentDeliveryManager
+from ..cdm import contentDeliveryManager
+from ally.cdm.spec import ICDM
+from ally.cdm.support import ExtendPathCDM
 from ally.container import ioc
-from cdm.spec import ICDM
-from cdm.support import ExtendPathCDM
 
 # --------------------------------------------------------------------
 

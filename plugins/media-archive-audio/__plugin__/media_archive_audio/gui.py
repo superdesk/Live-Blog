@@ -9,12 +9,11 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
-from ..gui_core.gui_core import publishGui
-from distribution.container import app
+from ..gui_core.gui_core import publishGui, publish
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('media-archive-audio')
     

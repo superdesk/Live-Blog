@@ -9,14 +9,13 @@ Created on Apr 25, 2012
 Implementation for the image persistence API.
 '''
 
-from ally.container import wire
+from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
-from distribution.support import IPopulator
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
@@ -26,15 +25,15 @@ from superdesk.media_archive.core.spec import IMetaDataHandler, \
     IThumbnailManager
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
     ImageDataEntry
+from superdesk.media_archive.meta.image_info import ImageInfoMapped
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
-from superdesk.media_archive.meta.image_info import ImageInfoMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, IPopulator, name='imageDataHandler')
-class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
+@setup(IMetaDataHandler, name='imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
@@ -143,9 +142,10 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
     # ----------------------------------------------------------------
 
-    def doPopulate(self):
+    @app.populate
+    def populateThumbnail(self):
         '''
-        @see: IPopulator.doPopulate
+        Populates the thumbnail for images.
         '''
         self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'image.jpg')))

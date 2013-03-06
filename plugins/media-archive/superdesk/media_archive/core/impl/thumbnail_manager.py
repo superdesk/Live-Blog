@@ -10,12 +10,12 @@ Thumbnail manager class definition.
 '''
 # --------------------------------------------------------------------
 
+from ally.cdm.spec import ICDM, PathNotFound
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.util_io import timestampURI
-from cdm.spec import ICDM, PathNotFound
 from collections import OrderedDict
 from os.path import splitext
 from superdesk.media_archive.api.meta_data import MetaData

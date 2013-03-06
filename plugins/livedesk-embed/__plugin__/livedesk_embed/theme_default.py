@@ -9,9 +9,8 @@ Created on Jan 25, 2013
 Publish the theme files.
 '''
 
-from __plugin__.livedesk_embed.theme import theme_folder_format, getThemePath
-from __plugin__.plugin.registry import cdmGUI
-from distribution.container import app
+from ..gui_core.gui_core import cdmGUI, publish
+from .theme import theme_folder_format, getThemePath
 import logging
 
 # --------------------------------------------------------------------
@@ -30,6 +29,6 @@ def publishThemes(name):
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishDefaultThemes():
     publishThemes('livedesk-embed')

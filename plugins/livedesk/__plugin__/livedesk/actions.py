@@ -7,17 +7,18 @@ Created on May 3rd, 2012
 @author: Mihai Balaceanu
 '''
 
+from ..acl import gui
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..gui_security import acl
 from ..superdesk_security.acl import filterAuthenticated
 from .acl import filterCollaboratorBlog
 from .service import collaboratorSpecification
 from __plugin__.livedesk.acl import filterAdminBlog
-from ally.container import ioc
+from acl.right_action import RightAction
+from ally.container import ioc, support
 from ally.internationalization import NC_
-from distribution.container import app
+from ally.support.util import ref
 from gui.action.api.action import Action
 from livedesk.api.blog import IBlogService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
@@ -28,132 +29,116 @@ from livedesk.api.blog_type_post import IBlogTypePostService
 from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
+    
+# --------------------------------------------------------------------
+
+support.listenToEntities(Action, listeners=addAction)
+support.loadAllEntities(Action)
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def menuAction():
+def menuAction() -> Action:
     return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('menu', 'Live Blogs'))
 
 @ioc.entity
-def subMenuAction():
+def subMenuAction() -> Action:
     return Action('submenu', Parent=menuAction(), Script=publishedURI('livedesk/scripts/js/submenu-live-blogs.js'))
 
 @ioc.entity
-def modulesAction():
+def modulesAction() -> Action:
     return Action('livedesk', Parent=defaults.modulesAction())
 
 @ioc.entity
-def dashboardAction():
+def dashboardAction() -> Action:
     return Action('livedesk', Parent=defaults.modulesDashboardAction(), Script=publishedURI('livedesk/scripts/js/dashboard.js'))
 
 @ioc.entity
-def modulesAddAction():
+def modulesAddAction() -> Action:
     return Action('add', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/add-live-blogs.js'))
 
 @ioc.entity
-def modulesEditAction():  # TODO: change to view
+def modulesEditAction() -> Action:  # TODO: change to view
     return Action('edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.entity
-def modulesBlogEditAction():  # TODO: change to view
+def modulesBlogEditAction() -> Action:  # TODO: change to view
     return Action('blog-edit', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.entity
-def modulesBlogPublishAction():
+def modulesBlogPublishAction() -> Action:
     return Action('blog-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-publish.js'))
 
 @ioc.entity
-def modulesBlogPostPublishAction():
+def modulesBlogPostPublishAction() -> Action:
     return Action('blog-post-publish', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/blog-post-publish.js'))
 
 @ioc.entity
-def modulesConfigureAction():
+def modulesConfigureAction() -> Action:
     return Action('configure', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/configure-blog.js'))
 
 @ioc.entity
-def modulesManageCollaboratorsAction():
+def modulesManageCollaboratorsAction() -> Action:
     return Action('manage-collaborators', Parent=modulesAction(),
                   Script=publishedURI('livedesk/scripts/js/manage-collaborators.js'))
 
 @ioc.entity
-def modulesArchiveAction():
+def modulesArchiveAction() -> Action:
     return Action('archive', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/archive.js'))
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def rightLivedeskView():
-    return acl.actionRight(NC_('security', 'Livedesk view'), NC_('security', '''
+def rightLivedeskView() -> RightAction:
+    return gui.actionRight(NC_('security', 'Livedesk view'), NC_('security', '''
     Allows read only access to users for livedesk.'''))
 
 @ioc.entity
-def rightManageOwnPost():
-    return acl.actionRight(NC_('security', 'Manage own post'), NC_('security', '''
+def rightManageOwnPost() -> RightAction:
+    return gui.actionRight(NC_('security', 'Manage own post'), NC_('security', '''
     Allows the creation and management of own posts in livedesk.'''))
 
 @ioc.entity
-def rightBlogEdit():
-    return acl.actionRight(NC_('security', 'Blog edit'), NC_('security', '''
+def rightBlogEdit() -> RightAction:
+    return gui.actionRight(NC_('security', 'Blog edit'), NC_('security', '''
     Allows for editing the blog.'''))
 
 @ioc.entity
-def rightLivedeskUpdate():
-    return acl.actionRight(NC_('security', 'Livedesk edit'), NC_('security', '''
+def rightLivedeskUpdate() -> RightAction:
+    return gui.actionRight(NC_('security', 'Livedesk edit'), NC_('security', '''
     Allows edit access to users for livedesk.'''))
 
 # --------------------------------------------------------------------
 
-@app.deploy
-def registerActions():
-    addAction(menuAction())
-    addAction(subMenuAction())
-    addAction(modulesAction())
-    addAction(modulesAddAction())
-    addAction(modulesEditAction())
-    addAction(modulesConfigureAction())
-    addAction(modulesArchiveAction())
-    addAction(modulesManageCollaboratorsAction())
-    addAction(modulesBlogPublishAction())
-    addAction(modulesBlogPostPublishAction())
-    addAction(dashboardAction())
-    addAction(modulesBlogEditAction())
-
-@acl.setup
+@gui.setup
 def registerAclLivedeskView():
-    rightLivedeskView().addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())\
-    .allGet(IBlogService, filter=filterCollaboratorBlog())\
-    .byName(IBlogService, IBlogService.getAll, filter=filterAuthenticated())\
-    .allGet(IBlogPostService, filter=filterCollaboratorBlog())\
-    .allGet(IBlogCollaboratorService, filter=filterCollaboratorBlog())\
-    .allGet(IBlogTypeService)\
-    .allGet(IBlogTypePostService)\
-    .allGet(IPersonService).allGet(IPersonIconService)
+    r = rightLivedeskView()
+    r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())
+    r.allGet(IBlogTypeService, IBlogTypePostService, IPersonService, IPersonIconService)
+    r.allGet(IBlogService, IBlogCollaboratorService, IBlogPostService, filter=filterCollaboratorBlog())
+    r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
 
-@acl.setup
+@gui.setup
 def registerAclManageOwnPost():
-    rightManageOwnPost().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
-                                dashboardAction())\
-    .allGet(IBlogService, filter=filterCollaboratorBlog())
-
-    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.delete)
+    r = rightManageOwnPost()
+    r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction())
+    r.allGet(IBlogService, filter=filterCollaboratorBlog())
+    r.add(ref(IBlogPostService).delete)
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
-    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.insert, IBlogPostService.update,
-                                filter=filterCollaboratorBlog())
-    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.publish, IBlogPostService.insertAndPublish, IBlogPostService.unpublish, IBlogPostService.reorder,
-                                filter=filterAdminBlog())
-    rightManageOwnPost().byName(IBlogCollaboratorService, IBlogCollaboratorService.addCollaborator, IBlogCollaboratorService.addCollaboratorAsDefault,
-                                filter=filterAdminBlog())
-    rightManageOwnPost().byName(IBlogPostService, IBlogPostService.update)  # TODO: add: filter=filterOwnPost()
+    r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, filter=filterCollaboratorBlog())
+    r.add(ref(IBlogPostService).publish, ref(IBlogPostService).insertAndPublish, ref(IBlogPostService).unpublish,
+          ref(IBlogPostService).reorder, ref(IBlogCollaboratorService).addCollaborator,
+          ref(IBlogCollaboratorService).addCollaboratorAsDefault, filter=filterAdminBlog())
+    r.add(ref(IBlogPostService).update)  # TODO: add: filter=filterOwnPost()
 
-@acl.setup
+@gui.setup
 def registerAclLivedeskUpdate():
-    rightLivedeskUpdate().addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), \
-                                modulesBlogEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(), \
-                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction())\
-    .all(IBlogService).all(IBlogPostService).all(IBlogCollaboratorService)\
-    .all(IBlogThemeService).all(IBlogTypePostService).all(IBlogTypeService)\
-    .all(IPersonService).all(IPersonIconService)
+    r = rightLivedeskUpdate()
+    r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(),
+                 dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),
+                 modulesBlogPublishAction(), modulesBlogPostPublishAction())
+    r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
+          IPersonService, IPersonIconService)
 
 # --------------------------------------------------------------------
 
