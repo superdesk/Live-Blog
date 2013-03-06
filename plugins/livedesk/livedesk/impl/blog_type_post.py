@@ -32,7 +32,7 @@ from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
 UserPerson = aliased(PersonMapped)
 
 @injected
-@setup(IBlogTypePostService)
+@setup(IBlogTypePostService, name='blogTypePostService')
 class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
     '''
     Implementation for @see: IBlogPostService

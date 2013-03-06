@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IThumbnailManager)
+@setup(IThumbnailManager, name='thumbnailManager')
 class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     '''
     Implementation for @see: IThumbnailManager
@@ -106,7 +106,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             thumbPath = self.thumbnailPath(thumbnailFormatId, metaData, size)
             try: self.cdmThumbnail.remove(thumbPath)
             except PathNotFound: 
-                #the thumbnail for this size not generated yet
+                # the thumbnail for this size not generated yet
                 pass
     
     # ----------------------------------------------------------------        

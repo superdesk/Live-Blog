@@ -57,9 +57,9 @@ def blogRoleCollaboratorId():
 def populateCollaboratorRole():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
     roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
 
 @app.populate

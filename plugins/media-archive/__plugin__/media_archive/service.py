@@ -17,7 +17,7 @@ from ally.cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
     IDelivery
 from ally.cdm.spec import ICDM
 from ally.cdm.support import ExtendPathCDM
-from ally.container import ioc, support, bind, app
+from ally.container import ioc, support, bind, app, wire
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
 from superdesk.media_archive.core.impl.query_service_creator import \
@@ -44,7 +44,6 @@ bind.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=bin
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
 support.loadAllEntities(IMetaDataHandler, module=service)
-support.wireEntities(ThumbnailProcessorGM, ThumbnailProcessorFfmpeg, ThumbnailProcessorAVConv)
 
 # --------------------------------------------------------------------
 
@@ -115,9 +114,13 @@ def queryIndexer() -> IQueryIndexer: return QueryIndexer()
 
 @ioc.config
 def thumnail_processor():
-    ''' Specify which implementation will be used for thumbnail processor. Currently the following options are available: gm, ffmpeg, avconv '''
+    '''
+    Specify which implementation will be used for thumbnail processor. Currently the following options are available:
+        "gm", "ffmpeg", "avconv"
+    '''
     return 'gm'
 
+@wire.wire(ThumbnailProcessorFfmpeg, ThumbnailProcessorAVConv, ThumbnailProcessorGM)
 @ioc.entity
 def thumbnailProcessor() -> IThumbnailProcessor: 
     if thumnail_processor() == 'ffmpeg':

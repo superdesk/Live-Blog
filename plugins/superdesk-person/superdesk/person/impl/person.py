@@ -16,7 +16,7 @@ from ..meta.person import PersonMapped
 # --------------------------------------------------------------------
 
 @injected
-@setup(IPersonService)
+@setup(IPersonService, name='personService')
 class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     '''
     @see: IUserService
