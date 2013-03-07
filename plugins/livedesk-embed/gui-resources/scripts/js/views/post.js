@@ -181,7 +181,6 @@ define([
 							var i = 0;
 							$('.result-content img', self.el).each(function(){
 								var src = $(this).attr('src');
-								console.log(src);
 								fburl += '&p[images][' + i + ']=' + src;
 								i ++;
 							})
