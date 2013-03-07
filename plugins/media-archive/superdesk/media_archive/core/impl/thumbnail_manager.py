@@ -14,6 +14,8 @@ from ally.cdm.spec import ICDM, PathNotFound
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
+from ally.exception import InputError
+from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.util_io import timestampURI
 from collections import OrderedDict
@@ -36,7 +38,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     '''
     Implementation for @see: IThumbnailManager
     '''
-    original_name = 'original'; wire.config('original_name', doc='''
+    original_size = 'original'; wire.config('original_size', doc='''
     Provides the size name for the original sized images from which the thumbnails are created''')
     thumbnail_sizes = {'tiny' : [16, 16], 'small' : [32, 32], 'medium' : [64, 64],
                        'large' : [128, 128], 'huge' : [256, 256]}; wire.config('thumbnail_sizes', doc='''
@@ -50,7 +52,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     # ----------------------------------------------------------------
     
     def __init__(self):
-        assert isinstance(self.original_name, str), 'Invalid original name %s' % self.original_name
+        assert isinstance(self.original_size, str), 'Invalid original size %s' % self.original_size
         assert isinstance(self.thumbnail_sizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnail_sizes
         assert isinstance(self.thumbnailProcessor, IThumbnailProcessor), \
         'Invalid thumbnail processor %s' % self.thumbnailProcessor
@@ -126,8 +128,10 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)
             original = self.cdmThumbnail.getURI(original, 'file')
 
-            width, height = self.thumbnailSizes[size]
-            self.thumbnailProcessor.processThumbnail(original, self.cdmThumbnail.getURI(thumbPath, 'file'), width, height)
+            if size:
+                if size not in self.thumbnailSizes: raise InputError(_('Unknown size \'%s\'') % size)
+                width, height = self.thumbnailSizes[size]
+                self.thumbnailProcessor.processThumbnail(original, self.cdmThumbnail.getURI(thumbPath, 'file'), width, height)
 
         metaData.Thumbnail = self.cdmThumbnail.getURI(thumbPath, scheme)
         return metaData
@@ -144,7 +148,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             assert isinstance(thumbnailFormat, ThumbnailFormat), 'Invalid thumbnail format id %s' % thumbnailFormatId
             format = self._cache_thumbnail[thumbnailFormat.id] = thumbnailFormat.format
 
-        keys = dict(size=size or self.original_name)
+        keys = dict(size=size or self.original_size)
         if metaData is not None:
             assert isinstance(metaData, MetaData), 'Invalid meta data %s' % metaData
 
