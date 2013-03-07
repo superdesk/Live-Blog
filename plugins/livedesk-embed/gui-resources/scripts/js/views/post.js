@@ -171,11 +171,24 @@ define([
 							var myPerm = encodeURL(data.permalink);
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
 							var summary = encodeURL($('.result-content .result-text:last', self.el).text());
-							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
+							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=" + blogTitle;
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
 							var emailurl = "mailto:?to=&subject=" + _('Check out this Live Blog') + "&body=" + myPerm;
+							var fburl = "http://www.facebook.com/sharer.php?s=100";
+							fburl += '&p[title]=' + blogTitle;
+							fburl += '&p[summary]=' + summary;
+							fburl += '&p[url]=' + myPerm;
+							var i = 0;
+							$('.result-content img', self.el).each(function(){
+								var src = $(this).attr('src');
+								console.log(src);
+								fburl += '&p[images][' + i + ']=' + src;
+								i ++;
+							})
+							
+
 							var socialParams = {
-								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
+								'fbclick': "$.socialShareWindow('" + fburl + "',400,570); return false;",
 								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
 								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "&title=" +  blogTitle + "&summary=" + summary + "', 400, 570); return false;",
 								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
