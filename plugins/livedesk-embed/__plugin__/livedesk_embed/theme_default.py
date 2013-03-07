@@ -24,7 +24,7 @@ def publishThemes(name):
     Publishes themes files
     '''
     assert isinstance(name, str), 'Invalid name: %s' % name
-    log.info('published themes %s = %s', theme_folder_format() % name, getThemePath())
+    log.info('Published themes \'%s\'', theme_folder_format() % name)
     cdmGUI().publishFromDir(theme_folder_format() % name, getThemePath())
 
 # --------------------------------------------------------------------
