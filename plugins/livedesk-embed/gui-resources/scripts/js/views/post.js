@@ -84,7 +84,8 @@ define([
 		{
 			var self = this, 
 				data = self.model.feed(),
-				order = parseFloat(self.model.get('Order'));
+				order = parseFloat(self.model.get('Order')),
+				regexHash, newHash;
 			if ( !isNaN(self.order) && (order != self.order)) {
 				self.order = order;
 				self._parent.reorderOne(self);
@@ -108,7 +109,15 @@ define([
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
 			}
-			data.permalink = self._parent.location + '#' + self._parent.hashIdentifier + data.Order;			
+			newHash = self._parent.hashIdentifier + data.Order;
+			if(self._parent.location.indexOf('?') === -1) {
+				data.permalink = self._parent.location + '?' + newHash ;
+			} else if(self._parent.location.indexOf(self._parent.hashIdentifier) !== -1) {
+				regexHash = new RegExp(self._parent.hashIdentifier+'[^&]*');
+				data.permalink = self._parent.location.replace(regexHash,newHash);
+			} else {
+				data.permalink = self._parent.location + '&' + newHash;
+			}
 			if(data.Author.Source.Name !== 'internal') {
 				data.item = "source/"+data.Author.Source.Name;
 			}
@@ -126,7 +135,7 @@ define([
 					self.setElement(o);
 					var input = $('input[data-type="permalink"]',self.el);
 					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
-						//evt.preventDefault();
+						evt.preventDefault();
 						if(input.css('visibility') === 'visible') {
 							input.css('visibility', 'hidden' );
 						} else {

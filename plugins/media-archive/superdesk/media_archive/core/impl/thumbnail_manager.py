@@ -10,12 +10,12 @@ Thumbnail manager class definition.
 '''
 # --------------------------------------------------------------------
 
+from ally.cdm.spec import ICDM, PathNotFound
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.util_io import timestampURI
-from cdm.spec import ICDM, PathNotFound
 from collections import OrderedDict
 from os.path import splitext
 from superdesk.media_archive.api.meta_data import MetaData
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IThumbnailManager)
+@setup(IThumbnailManager, name='thumbnailManager')
 class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     '''
     Implementation for @see: IThumbnailManager
@@ -106,7 +106,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             thumbPath = self.thumbnailPath(thumbnailFormatId, metaData, size)
             try: self.cdmThumbnail.remove(thumbPath)
             except PathNotFound: 
-                #the thumbnail for this size not generated yet
+                # the thumbnail for this size not generated yet
                 pass
     
     # ----------------------------------------------------------------        

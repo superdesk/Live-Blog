@@ -10,6 +10,7 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import IBlogCollaboratorService
+from acl.api.filter import IAclFilter
 from acl.spec import Filter
 from ally.api.extension import IterPart
 from ally.container import wire
@@ -23,7 +24,6 @@ from livedesk.api.blog_collaborator import BlogCollaborator
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorEntry, BlogCollaboratorTypeMapped
-from security.acl.api.filter import IAclFilter
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import not_
@@ -121,7 +121,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
 
     def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qu=None, qs=None):
         '''
-        @see: IBlogCollaboratorService.getPotentialCollaborators
+        @see: IBlogCollaboratorService.getPotential
         '''
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)

@@ -21,7 +21,7 @@ from ally.support.sqlalchemy.util_service import buildLimits
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaTypeService)
+@setup(IMetaTypeService, name='metaTypeService')
 class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
     '''
     Implementation based on SQL alchemy for @see: IMetaTypeService

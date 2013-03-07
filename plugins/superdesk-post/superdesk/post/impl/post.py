@@ -32,7 +32,7 @@ from sqlalchemy.sql.functions import current_timestamp
 COPY_EXCLUDE = ('Type', 'IsModified', 'IsPublished', 'AuthorName')
 
 @injected
-@setup(IPostService)
+@setup(IPostService, name='postService')
 class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService

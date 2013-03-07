@@ -9,7 +9,7 @@ Created on Aug 23, 2012
 Implementation for the audio persistence API.
 '''
 
-from ally.container import wire
+from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
@@ -27,14 +27,13 @@ import re
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     META_TYPE_KEY
-from distribution.support import IPopulator
 from superdesk.media_archive.meta.audio_info import AudioInfoMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, IPopulator, name='audioDataHandler')
-class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
+@setup(IMetaDataHandler, name='audioDataHandler')
+class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the audio persistence @see: IAudioPersistanceService.
     '''
@@ -189,9 +188,10 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
     # ----------------------------------------------------------------
     
-    def doPopulate(self):
+    @app.populate
+    def populateThumbnail(self):
         '''
-        @see: IPopulator.doPopulate
+        Populates the thumbnail for audio.
         '''
         self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'audio.jpg')))

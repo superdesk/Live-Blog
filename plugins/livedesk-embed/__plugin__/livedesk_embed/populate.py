@@ -9,10 +9,10 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
+from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
-from ..plugin.registry import cdmGUI
+from ally.container import app
 from ally.container.support import entityFor
-from distribution.container import app
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
 import logging
 

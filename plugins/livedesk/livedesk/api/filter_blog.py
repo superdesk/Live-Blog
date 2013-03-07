@@ -9,10 +9,10 @@ Created on Jan 12, 2013
 The filter used to check if the authenticated user has access to a requested blog.
 '''
 
+from acl.api.domain_filter import aliasFilter
+from acl.api.filter import IsAllowed, IAclFilter
 from ally.api.config import service, call, GET
 from livedesk.api.blog import Blog
-from security.acl.api.filter import IsAllowed, IAclFilter
-from security.api.domain_security import aliasFilter
 from superdesk.security.api.filter_authenticated import Authenticated
 
 # --------------------------------------------------------------------

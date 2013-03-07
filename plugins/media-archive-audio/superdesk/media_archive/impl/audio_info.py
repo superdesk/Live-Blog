@@ -27,7 +27,7 @@ from superdesk.media_archive.core.impl.query_service_creator import ISearchProvi
 # --------------------------------------------------------------------
 
 @injected
-@setup(IAudioInfoService)
+@setup(IAudioInfoService, name='audioInfoService')
 class AudioInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IAudioInfoService):
     '''
     @see: IAudioInfoService

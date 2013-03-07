@@ -9,13 +9,12 @@ Created on Aug 23, 2012
 Implementation for the video persistence API.
 '''
 
-from ally.container import wire
+from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from distribution.support import IPopulator
 from os import remove
 from os.path import exists, splitext, abspath, join
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,14 +26,14 @@ from superdesk.media_archive.core.spec import IMetaDataHandler, \
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.video_data import META_TYPE_KEY, \
     VideoDataEntry
-import re
 from superdesk.media_archive.meta.video_info import VideoInfoMapped
+import re
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, IPopulator, name='videoDataHandler')
-class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
+@setup(IMetaDataHandler, name='videoDataHandler')
+class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the video persistence @see: IVideoPersistanceService.
     '''
@@ -156,9 +155,10 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
 
     # ----------------------------------------------------------------
     
-    def doPopulate(self):
+    @app.populate
+    def populateThumbnail(self):
         '''
-        @see: IPopulator.doPopulate
+        Populates the thumbnail for videos.
         '''
         self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'video.jpg')))

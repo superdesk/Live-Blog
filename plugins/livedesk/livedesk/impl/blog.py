@@ -27,7 +27,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 # --------------------------------------------------------------------
 
 @injected
-@setup(IBlogService)
+@setup(IBlogService, name='blogService')
 class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService

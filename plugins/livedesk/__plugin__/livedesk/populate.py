@@ -9,18 +9,17 @@ Created on Jan 26, 2013
 Contains the default data for the live desk plugin.
 '''
 
-from ..gui_security.acl import aclType
+from ..acl.security import rightId
 from ..livedesk.actions import rightLivedeskView, rightManageOwnPost
+from ..media_archive.actions import rightMediaArchiveView
 from ..security_rbac.populate import rootRoleId
-from ally.container import support, ioc
+from ally.container import support, ioc, app
 from ally.internationalization import NC_
-from distribution.container import app
 from security.api.right import IRightService, Right
 from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
-from __plugin__.media_archive.actions import rightMediaArchiveView
 
 # --------------------------------------------------------------------
 
@@ -58,11 +57,9 @@ def blogRoleCollaboratorId():
 def populateCollaboratorRole():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
-    rightService = support.entityFor(IRightService)
-    assert isinstance(rightService, IRightService)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightManageOwnPost().name).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightMediaArchiveView().name).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
     roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
 
 @app.populate

@@ -27,7 +27,7 @@ from ally.api.extension import IterPart
 # --------------------------------------------------------------------
 
 @injected
-@setup(ISourceService)
+@setup(ISourceService, name='sourceService')
 class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
     '''
     Implementation for @see: ISourceService

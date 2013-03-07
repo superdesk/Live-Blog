@@ -9,10 +9,9 @@ Created on Apr 19, 2012
 Provides the ffmpeg in the workspace tools.
 '''
 
-from ally.container import ioc
+from ally.container import ioc, app
 from ally.support.util_deploy import deploy as deployTool, MACHINE_ALL
 from ally.support.util_sys import pythonPath
-from distribution.container import app
 from os.path import join
 import logging
 

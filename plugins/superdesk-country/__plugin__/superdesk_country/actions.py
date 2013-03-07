@@ -5,26 +5,33 @@ Created on March 23, 2012
 @copyright: 2011 Sourcefabric o.p.s.
 @license:  http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
+
+Actions and acl action setups.
 '''
 
+from ..acl import gui
 from ..gui_action import defaults
 from ..gui_action.service import addAction
 from ..gui_core.gui_core import publishedURI
-from ..gui_security import acl
-from ally.container import ioc
+from acl.right_action import RightAction
+from ally.container import ioc, support
 from ally.internationalization import NC_
-from distribution.container import app
 from gui.action.api.action import Action
+    
+# --------------------------------------------------------------------
+
+support.listenToEntities(Action, listeners=addAction)
+support.loadAllEntities(Action)
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def menuAction():
+def menuAction() -> Action:
     return Action('country', Parent=defaults.menuAction(), Label=NC_('menu', 'Countries'),
                   Script=publishedURI('superdesk/country/scripts/js/menu.js'), NavBar='/country/list')
 
 @ioc.entity
-def modulesAction():
+def modulesAction() -> Action:
     return Action('country', Parent=defaults.modulesAction())
 
 # TODO: check with Billy about the country rights
@@ -33,7 +40,7 @@ def modulesAction():
 #    return Action('update', Parent=modulesAction(), Script=publishedURI('superdesk/country/scripts/js/update.js'))
 
 @ioc.entity
-def modulesListAction():
+def modulesListAction() -> Action:
     return Action('list', Parent=modulesAction(), Script=publishedURI('superdesk/country/scripts/js/list.js'))
 
 # @ioc.entity
@@ -43,8 +50,8 @@ def modulesListAction():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def rightCountryView():
-    return acl.actionRight(NC_('security', 'Countries view'), NC_('security', '''
+def rightCountryView() -> RightAction:
+    return gui.actionRight(NC_('security', 'Countries view'), NC_('security', '''
     Allows for the viewing of countries available in the application.'''))
 
 # @ioc.entity
@@ -54,20 +61,14 @@ def rightCountryView():
 
 # --------------------------------------------------------------------
 
-@app.deploy
-def registerActions():
-    addAction(menuAction())
-    addAction(modulesAction())
-    # addAction(modulesUpdateAction())
-    addAction(modulesListAction())
-    # addAction(modulesAddAction())
-
-# @acl.setup
+# @gui.setup
 # def registerAclCountryView():
-#    rightCountryView().addActions(menuAction(), modulesAction(), modulesListAction())\
-#    .allGet(ICountryService)
+#    r = rightCountryView()
+#    r.addActions(menuAction(), modulesAction(), modulesListAction())
+#    r.allGet(ICountryService)
 
-# @acl.setup
+# @gui.setup
 # def registerAclCountryModify():
-#    rightUserUpdate().addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())\
-#    .allGet(IUserService).allUpdate(IUserService)
+#    r = rightUserUpdate()
+#    r.addActions(menuAction(), modulesAction(), modulesListAction(), modulesUpdateAction())
+#    r.allGet(IUserService).allUpdate(IUserService)

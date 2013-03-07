@@ -106,7 +106,7 @@ define([
 					var total = self.model.get('PostPublished').total;
 					if(self._views.length >= total) {
 						self.flags.atEnd = true;
-						$("#liveblog-posts li#loading-more", self.el).hide();
+						$("#loading-more", self.el).hide();
 					}
 					self.flags.more = false;
 				});
@@ -160,7 +160,7 @@ define([
 				//console.log('read');
 				if(!self.rendered) {
 					var hashIndex, 
-						orderhash = window.location.href.split('#'),
+						orderhash = window.location.href.split('?'),
 						postPublished = self.model.get('PostPublished');
 						postPublished
 							.on('read readauto', self.render, self)
@@ -343,7 +343,7 @@ define([
 		markScroll: function()
 		{
 			var self = this;
-			self.scroll.element = $("#liveblog-posts li:not(#load-more)", self.el).first();
+			self.scroll.element = $("#liveblog-posts :not(#load-more)", self.el).first();
 			//console.log(self.scroll.element);
 			self.scroll.start = self.scroll.element.offset().top;		
 		},

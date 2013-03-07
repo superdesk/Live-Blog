@@ -9,10 +9,10 @@ Created on Oct 1, 2012
 SQL Alchemy based implementation for the audio data API. 
 '''
 
+from ally.cdm.spec import ICDM
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from cdm.spec import ICDM
 from superdesk.media_archive.api.audio_data import IAudioDataService, QAudioData
 from superdesk.media_archive.core.impl.meta_service_base import \
     MetaDataServiceBaseAlchemy

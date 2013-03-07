@@ -5,14 +5,15 @@ Created on May 3rd, 2012
 @copyright 2011 Sourcefabric o.p.s.
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
+
+Publish GUI files.
 '''
 
-from ..gui_core.gui_core import publishGui
-from distribution.container import app
+from ..gui_core.gui_core import publishGui, publish
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('livedesk')
     

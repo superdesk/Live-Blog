@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IBlogTypeService)
+@setup(IBlogTypeService, name='blogTypeService')
 class BlogTypeServiceAlchemy(EntityServiceAlchemy, IBlogTypeService):
     '''
     Implementation for @see: IBlogTypeService

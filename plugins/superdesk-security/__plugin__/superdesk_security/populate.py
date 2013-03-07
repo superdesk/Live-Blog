@@ -9,9 +9,9 @@ Created on Sep 9, 2012
 Contains the default data for the user plugin.
 '''
 
-from ..security_rbac.populate import rootRoleId
-from ally.container import support
-from distribution.container import app
+from ..security_rbac.populate import NAME_ROOT
+from ally.container import support, app
+from security.rbac.api.rbac import IRoleService
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
@@ -24,6 +24,8 @@ def populateRootUser():
     assert isinstance(userService, IUserService)
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
+    roleService = support.entityFor(IRoleService)
+    assert isinstance(roleService, IRoleService)
     
     users = userService.getAll(limit=1, q=QUser(name='Janet'))
     if not users:
@@ -33,4 +35,4 @@ def populateRootUser():
         user.Id = userService.insert(user)
     else: user = users[0]
     
-    userRbacService.assignRole(user.Id, rootRoleId())
+    userRbacService.assignRole(user.Id, roleService.getByName(NAME_ROOT).Id)

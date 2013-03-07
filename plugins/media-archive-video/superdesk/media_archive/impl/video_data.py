@@ -9,16 +9,16 @@ Created on Aug 23, 2012
 SQL Alchemy based implementation for the video data API. 
 '''
 
+from ally.cdm.spec import ICDM
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from cdm.spec import ICDM
 from superdesk.media_archive.api.video_data import IVideoDataService, QVideoData
 from superdesk.media_archive.core.impl.meta_service_base import \
     MetaDataServiceBaseAlchemy
-from superdesk.media_archive.core.spec import IMetaDataReferencer, IThumbnailManager
+from superdesk.media_archive.core.spec import IMetaDataReferencer, \
+    IThumbnailManager
 from superdesk.media_archive.meta.video_data import VideoDataMapped
-
 
 # --------------------------------------------------------------------
 

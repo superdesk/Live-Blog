@@ -19,7 +19,7 @@ from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, \
 # --------------------------------------------------------------------
 
 @injected
-@setup(IPostTypeService)
+@setup(IPostTypeService, name='postTypeService')
 class PostTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IPostTypeService):
     '''
     Implementation for @see: IPostTypeService

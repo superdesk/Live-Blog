@@ -40,7 +40,7 @@ from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 UserPerson = aliased(PersonMapped)
 
 @injected
-@setup(IBlogPostService)
+@setup(IBlogPostService, name='blogPostService')
 class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService

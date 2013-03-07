@@ -7,12 +7,11 @@ Created on Mar 23, 2012
 @author: Mihai Balaceanu
 '''
 
-from ..gui_core.gui_core import publishGui
-from distribution.container import app
+from ..gui_core.gui_core import publishGui, publish
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('superdesk/country')
     

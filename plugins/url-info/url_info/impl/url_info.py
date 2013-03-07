@@ -21,7 +21,7 @@ from ally.exception import InputError
 
 # --------------------------------------------------------------------
 
-@setup(IURLInfoService)
+@setup(IURLInfoService, name='urlInfoService')
 class URLInfoService(IURLInfoService):
     '''
     @see IURLInfoService
