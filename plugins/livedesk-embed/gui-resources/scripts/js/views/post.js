@@ -183,7 +183,7 @@ define([
 								var src = $(this).attr('src');
 								fburl += '&p[images][' + i + ']=' + src;
 								i ++;
-							})
+							});
 							
 
 							var socialParams = {
