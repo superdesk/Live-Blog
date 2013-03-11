@@ -3,7 +3,9 @@ setup.py
 __plugin__/__init__.py
 __plugin__/superdesk_security/__init__.py
 __plugin__/superdesk_security/acl.py
-__plugin__/superdesk_security/patch_service_security.py
+__plugin__/superdesk_security/patch_ally_core.py
+__plugin__/superdesk_security/patch_ally_core_http.py
+__plugin__/superdesk_security/patch_service_gateway.py
 __plugin__/superdesk_security/populate.py
 __plugin__/superdesk_security/service.py
 superdesk/__init__.py
@@ -15,6 +17,11 @@ superdesk/security/api/user_action.py
 superdesk/security/api/user_rbac.py
 superdesk/security/core/__init__.py
 superdesk/security/core/spec.py
+superdesk/security/core/impl/__init__.py
+superdesk/security/core/impl/processor/__init__.py
+superdesk/security/core/impl/processor/user_filter_value.py
+superdesk/security/core/impl/processor/user_persistence_filter.py
+superdesk/security/core/impl/processor/user_rbac_provider.py
 superdesk/security/impl/__init__.py
 superdesk/security/impl/authentication.py
 superdesk/security/impl/filter_authenticated.py
