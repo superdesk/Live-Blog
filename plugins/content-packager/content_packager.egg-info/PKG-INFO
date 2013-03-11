@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: content-packager
+Version: 1.0.dev
+Summary: Content packager plugin
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Mugur Rus
+Author-email: mugur.rus@sourcefabric.org
+License: GPL v3
+Description: Content packager functionality (model, service)
+Keywords: Ally REST framework plugin content
+Platform: all
