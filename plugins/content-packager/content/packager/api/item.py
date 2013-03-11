@@ -11,7 +11,7 @@ API specifications for item.
 
 from content.packager.api.domain_content import modelContent
 import datetime
-from ally.api.config import query
+from ally.api.config import query, service, call
 from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
 from ally.support.api.entity import Entity
 from content.packager.api.group import Group
@@ -35,8 +35,8 @@ class Item:
     Slugline = str
     Byline = str
     Creditline = str
-    FirstCreated = datetime
-    VersionCreated = datetime
+#    FirstCreated = datetime
+#    VersionCreated = datetime
 
 @modelContent
 class ItemGroup(Entity):
@@ -68,7 +68,23 @@ class QItem:
     slugline = AsLike
     byline = AsLike
     creditline = AsLike
-    firstCreated = AsDateOrdered
-    versionCreated = AsDateOrdered
+#    firstCreated = AsDateOrdered
+#    versionCreated = AsDateOrdered
 
 # --------------------------------------------------------------------
+
+# @service
+# class IItemService:
+#    '''
+#    Provides the service methods for the item.
+#    '''
+#
+#    @call
+#    def getById(self, guid:Item.Guid) -> Item:
+#        '''
+#        Provides the item based on the guid.
+#
+#        @param guid: string
+#            The id of the entity to find.
+#        @raise InputError: If the id is not valid.
+#        '''

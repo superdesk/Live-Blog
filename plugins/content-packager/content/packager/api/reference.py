@@ -10,7 +10,7 @@ API specifications for reference.
 '''
 
 from content.packager.api.domain_content import modelContent
-from ally.api.config import query
+from ally.api.config import query, service, call
 from ally.api.criteria import AsLike, AsRangeOrdered
 
 # --------------------------------------------------------------------
@@ -43,3 +43,19 @@ class QReference:
     format = AsLike
 
 # --------------------------------------------------------------------
+
+@service
+class IReferenceService:
+    '''
+    Provides the service methods for the item.
+    '''
+
+    @call
+    def getById(self, idref:Reference.Idref) -> Reference:
+        '''
+        Provides the reference based on the id.
+
+        @param idref: string
+            The id of the entity to find.
+        @raise InputError: If the id is not valid.
+        '''
