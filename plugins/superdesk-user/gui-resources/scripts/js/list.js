@@ -516,6 +516,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 model = $this.prop('model');
 
             $('#user-edit-modal figure.user-avatar img', this.el).attr('src', config.content_url+'/lib/core/images/default_profile_3_bigger.png');
+            $('.control-group').removeClass('error');
             
             var personModel = /*giz.Auth(*/new Person(model.hash().replace('User', 'Person').replace('my/', ''))/*)*/,
                 roleCollection = new RoleCollection({href: new giz.Url('HR/User/'+model.get('Id')+'/Role')});
