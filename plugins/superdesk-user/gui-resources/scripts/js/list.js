@@ -596,7 +596,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         updateUser: function()
         { 
             var data = {},
-                self = this;
+                self = this,
+                userItemView = $('#user-edit-modal', self.el).prop('view');
             if( !self.checkPass('#user-edit-modal') ) 
             {
                 $('#user-edit-modal .alert', self.el).removeClass('hide')
@@ -607,11 +608,19 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             {
                 var val = $(this).val(),
                     name = $(this).attr('name');
+                
                 if( $(this).is(':checkbox') && $(this).is(':not(:checked)') ) return true;
                 if( $(this).is(':checkbox') ) data[name] = true;
                 if( name && val != '' ) data[name] = val;
+                // deleted value
+                if( userItemView.model.get(name) && val == '' ) data[name] = '';
             });
             data['Role'] = $('#user-edit-modal form [data-input="role"] [data-selected-value]', self.el).attr('data-selected-value');
+            
+            /*
+             * for( var i in this.model.data )
+                if( i != 'Id' && this.model.data[i] && !data[i] ) data[i] = '';
+             */
             
             // checking email
             if( data.EMail && !self.checkEmail(data.EMail) )
@@ -620,7 +629,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 return false;
             }
             
-            $('#user-edit-modal', self.el).prop('view').update(data)
+            userItemView.update(data)
             .fail(function(data)
             {
                 eval('var data = '+data.responseText);
