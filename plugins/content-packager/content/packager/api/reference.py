@@ -10,8 +10,9 @@ API specifications for reference.
 '''
 
 from content.packager.api.domain_content import modelContent
-from ally.api.config import query, service, call
+from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsLike, AsRangeOrdered
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -58,4 +59,19 @@ class IReferenceService:
         @param idref: string
             The id of the entity to find.
         @raise InputError: If the id is not valid.
+        '''
+
+    @call
+    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QReference=None) -> Iter(Reference):
+        '''
+        Provides the references searched by the provided query.
+
+        @param offset: integer
+            The offset to retrieve the entities from.
+        @param limit: integer
+            The limit of entities to retrieve.
+        @param detailed: boolean
+            If true will present the total count, limit and offset for the partially returned collection.
+        @param q: QReference
+            The query to search by.
         '''

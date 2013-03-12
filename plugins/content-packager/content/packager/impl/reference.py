@@ -26,3 +26,9 @@ class ReferenceServiceAlchemy(IReferenceService):
         '''
         ref = Reference()
         return ref
+
+    def getAll(self, offset, limit, detailed, q):
+        '''
+        Implementation for @see: IReferenceService.getAll
+        '''
+        return []

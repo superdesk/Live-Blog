@@ -11,11 +11,12 @@ API specifications for item.
 
 from content.packager.api.domain_content import modelContent
 from datetime import datetime
-from ally.api.config import query, service, call
+from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
-from ally.support.api.entity import Entity
+from ally.support.api.entity import Entity, IEntityService
 from content.packager.api.group import Group
 from content.packager.api.content import Content
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -88,3 +89,30 @@ class IItemService:
             The id of the entity to find.
         @raise InputError: If the id is not valid.
         '''
+
+    @call
+    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QItem=None) -> Iter(Item):
+        '''
+        Provides the items searched by the provided query.
+
+        @param offset: integer
+            The offset to retrieve the entities from.
+        @param limit: integer
+            The limit of entities to retrieve.
+        @param detailed: boolean
+            If true will present the total count, limit and offset for the partially returned collection.
+        @param q: QItem
+            The query to search by.
+        '''
+
+@service((Entity, ItemGroup))
+class IItemGroupService(IEntityService):
+    '''
+    Provides the service methods for ItemGroup model.
+    '''
+
+@service((Entity, ItemContent))
+class IItemContentService(IEntityService):
+    '''
+    Provides the service methods for ItemContent model.
+    '''
