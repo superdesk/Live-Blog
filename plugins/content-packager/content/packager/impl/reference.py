@@ -6,13 +6,12 @@ Created on Mar 11, 2013
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Rus Mugurel
 
-API implementation for content.
+API implementation for reference.
 '''
 
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.api.reference import IReferenceService, Reference
-from ally.api.config import call
 
 # --------------------------------------------------------------------
 
@@ -22,12 +21,9 @@ class ReferenceServiceAlchemy(EntityServiceAlchemy, IReferenceService):
     Implementation for @see: IReferenceService
     '''
 
-    @call
-    def getById(self, idref:Reference.Idref) -> Reference:
+    def getById(self, idref):
         '''
-        Provides the item based on the id.
-
-        @param idref: string
-            The id of the entity to find.
-        @raise InputError: If the id is not valid.
+        Implementation for @see: IReferenceService.getById
         '''
+        ref = Reference()
+        return ref

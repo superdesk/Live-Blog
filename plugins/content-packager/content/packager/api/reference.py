@@ -47,7 +47,7 @@ class QReference:
 @service
 class IReferenceService:
     '''
-    Provides the service methods for the item.
+    Provides the service methods for Reference model.
     '''
 
     @call

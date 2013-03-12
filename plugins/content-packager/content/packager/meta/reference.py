@@ -6,7 +6,7 @@ Created on Mar 11, 2013
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Rus Mugurel
 
-Contains SQL alchemy meta for content API.
+Contains SQL alchemy meta for reference API.
 '''
 
 from ally.support.sqlalchemy.mapper import validate

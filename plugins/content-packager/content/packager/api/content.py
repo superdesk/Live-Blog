@@ -44,5 +44,5 @@ class QContent(QEntity):
 @service((Entity, Content))
 class IContentService(IEntityService):
     '''
-    Provides the service methods for the content.
+    Provides the service methods for Content model.
     '''
