@@ -10,31 +10,44 @@ API implementation for item.
 '''
 
 from ally.container.support import setup
-from content.packager.api.item import IItemService, Item, IItemGroupService, \
-    IItemContentService
-from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.packager.meta.item import ItemGroupMapped, ItemContentMapped
+from content.packager.api.item import IItemService, IItemGroupService, \
+    IItemContentService, QItem
+from sql_alchemy.impl.entity import EntityServiceAlchemy, EntitySupportAlchemy
+from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, \
+    ItemMapped
+from ally.exception import InputError, Ref
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
 @setup(IItemService, name='itemService')
-class ItemServiceAlchemy(IItemService):
+class ItemServiceAlchemy(EntitySupportAlchemy, IItemService):
     '''
     Implementation for @see: IItemService
     '''
+
+    def __init__(self):
+        '''
+        Construct the item service.
+        '''
+        EntitySupportAlchemy.__init__(self, ItemMapped, QItem)
 
     def getById(self, idref):
         '''
         Implementation for @see: IItemService.getById
         '''
-        item = Item()
+        item = self.session().query(ItemMapped).get(idref)
+        if not item: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.Guid))
         return item
 
     def getAll(self, offset, limit, detailed, q):
         '''
         Implementation for @see: IItemService.getAll
         '''
-        return []
+        if detailed:
+            items, total = self._getAllWithCount(None, q, offset, limit)
+            return IterPart(items, total, offset, limit)
+        return self._getAll(None, q, offset, limit)
 
 # --------------------------------------------------------------------
 
