@@ -25,10 +25,10 @@ class ItemMapped(Base, Item):
     '''
     Provides the mapping for Item.
     '''
-    __tablename__ = 'item'
+    __tablename__ = 'content_item'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Guid = Column('guid', String(255), primary_key=True)
+    Guid = Column('guid', String(190), primary_key=True)
     Version = Column('version', Integer(unsigned=True))
     ItemClass = Column('item_class', String(255))
     Urgency = Column('urgency', String(255))
@@ -46,7 +46,7 @@ class ItemGroupMapped(Base, ItemGroup):
     '''
     Provides the mapping for ItemGroup.
     '''
-    __tablename__ = 'item_group'
+    __tablename__ = 'content_item_group'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)

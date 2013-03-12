@@ -10,13 +10,12 @@ API implementation for reference.
 '''
 
 from ally.container.support import setup
-from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.api.reference import IReferenceService, Reference
 
 # --------------------------------------------------------------------
 
 @setup(IReferenceService, name='referenceService')
-class ReferenceServiceAlchemy(EntityServiceAlchemy, IReferenceService):
+class ReferenceServiceAlchemy(IReferenceService):
     '''
     Implementation for @see: IReferenceService
     '''

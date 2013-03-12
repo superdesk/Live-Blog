@@ -22,10 +22,10 @@ class ReferenceMapped(Base, Reference):
     '''
     Provides the mapping for Reference.
     '''
-    __tablename__ = 'reference'
+    __tablename__ = 'content_reference'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Idref = Column('idref', String(255), primary_key=True)
+    Idref = Column('idref', String(190), primary_key=True)
     ItemClass = Column('item_class', String(255))
     ResidRef = Column('resid_ref', String(1000))
     Href = Column('href', String(1000))

@@ -10,13 +10,12 @@ API implementation for item.
 '''
 
 from ally.container.support import setup
-from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.api.item import IItemService, Item
 
 # --------------------------------------------------------------------
 
 @setup(IItemService, name='itemService')
-class ReferenceServiceAlchemy(EntityServiceAlchemy, IItemService):
+class ItemServiceAlchemy(IItemService):
     '''
     Implementation for @see: IItemService
     '''

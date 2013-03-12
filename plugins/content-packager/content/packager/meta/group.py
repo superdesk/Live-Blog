@@ -24,7 +24,7 @@ class GroupMapped(Base, Group):
     '''
     Provides the mapping for Group.
     '''
-    __tablename__ = 'group'
+    __tablename__ = 'content_group'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
@@ -36,7 +36,7 @@ class GroupReferenceMapped(Base, GroupReference):
     '''
     Provides the mapping for GroupMapped.
     '''
-    __tablename__ = 'group_reference'
+    __tablename__ = 'content_group_reference'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
