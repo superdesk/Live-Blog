@@ -77,16 +77,16 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
             self.session().add(itemDb)
             self.session().flush((itemDb,))
         except SQLAlchemyError as e: handle(e, itemDb)
-        item.Id = itemDb.Id
-        return itemDb.Id
+        item.GUId = itemDb.GUId
+        return itemDb.GUId
 
     def update(self, item):
         '''
         @see: IItemService.update
         '''
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
-        assert isinstance(item.Id, int), 'Invalid item %s, with id %s' % (item, item.Id)
-        itemDb = self.session().query(ItemMapped).get(item.Id)
+        assert isinstance(item.GUId, int), 'Invalid item %s, with id %s' % (item, item.GUId)
+        itemDb = self.session().query(ItemMapped).get(item.GUId)
         if not itemDb: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         try: self.session().flush((copy(item, itemDb),))
         except SQLAlchemyError as e: handle(e, ItemMapped)
