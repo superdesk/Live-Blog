@@ -69,14 +69,14 @@ def createSourceType(key):
 
 
 SOURCES = {
-           'internal': (False, '', ''),
-           'advertisement': (False, '', ''),
-           'google': (False, 'www.google.com', 'xml'),
-           'twitter': (False, 'www.twitter.com', 'xml'),
-           'flickr': (False, 'www.flickr.com', 'xml'),
-           'youtube': (False, 'www.youtube.com', 'xml'),
-           'instagram': (False, 'www.instagram.com', 'xml'),
-           'soundcloud': (False, 'www.soundcloud.com', 'xml'),
+           'internal': (False, '', '', ''),
+           'advertisement': (False, '', '', ''),
+           'google': (False, 'www.google.com', 'xml', ''),
+           'twitter': (False, 'www.twitter.com', 'xml', ''),
+           'flickr': (False, 'www.flickr.com', 'xml', 'abf46ef4c670460e95d09cf368606b8a'),
+           'youtube': (False, 'www.youtube.com', 'xml', ''),
+           'instagram': (False, 'www.instagram.com', 'xml', 'daa5f588be7c4ce4b5771ec8653bcf44'),
+           'soundcloud': (False, 'www.soundcloud.com', 'xml', 'd98e8886a3f474440649a28ecf79b889'),
            }
 
 @ioc.entity
@@ -90,7 +90,7 @@ def getSourcesIds():
         else:
             src = Source()
             src.Name = name
-            src.IsModifiable, src.URI, src.Type = SOURCES[name]
+            src.IsModifiable, src.URI, src.Type, src.Key = SOURCES[name]
             createSourceType(src.Type)
             sources[name] = sourcesService.insert(src)
     return sources

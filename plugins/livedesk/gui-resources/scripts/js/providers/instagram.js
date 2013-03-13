@@ -14,7 +14,6 @@ define('providers/instagram', [
     'tmpl!livedesk>providers/loading'
     ], function( providers,  $, BlogAction ) {
        $.extend(providers.instagram, {
-            //cliend_id : '2bba61e66c8c4773b32c765955bd2b8d',
             cliend_id : '0',
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {

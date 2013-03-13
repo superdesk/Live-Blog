@@ -14,7 +14,6 @@ define('providers/soundcloud', [
     'tmpl!livedesk>providers/loading'
     ], function( providers, common, $, BlogAction) {
         $.extend(providers.soundcloud, common, {
-            //client_id : 'd913360f3cad924d67e1ad1887c00855',
             client_id : '0',
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {
