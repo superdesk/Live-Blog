@@ -14,10 +14,11 @@ define('providers/soundcloud', [
     'tmpl!livedesk>providers/loading'
     ], function( providers, common, $, BlogAction) {
         $.extend(providers.soundcloud, common, {
-            client_id : 'd913360f3cad924d67e1ad1887c00855',
+            //client_id : 'd913360f3cad924d67e1ad1887c00855',
+            client_id : '0',
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {
-                    this.render();
+                    this.adaptor._parent = this;
                     this.adaptor.init();
                 }
                 this.initialized = true;
@@ -44,8 +45,8 @@ define('providers/soundcloud', [
                 if ( query == '') {
                     self.data = [];
                     $('#soundcloud-sound-results').html('');
-                    query = 'https://api.soundcloud.com/tracks.json?client_id=' + self.client_id + '&q=' + encodeURIComponent(text) + '&callback=?';
-                } 
+                    query = 'https://api.soundcloud.com/tracks.json?client_id=' + encodeURIComponent(self.client_id) + '&q=' + encodeURIComponent(text) + '&callback=?';
+                }
                 self.showLoading('#soundcloud-sound-more');
                 $.jsonp({
                     url : query,

@@ -55,18 +55,25 @@ function(providers,str, $, Gizmo)
     {
         adaptor: 
         {
+            key: '0',
             author: 1,
             init: function() 
             {
                 var self = this;
                 new $.rest('Data/Collaborator/')
-                    .xfilter('Id')
+                    .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'flickr'}})
                     .done(function(collabs)
                     {
-                        if($.isDefined(collabs[0])) 
+                        if($.isDefined(collabs[0])) {
                             self.author = collabs[0].Id;
+                            self.key = collabs[0].Source.Key;
+                        }
+                        self._parent.apykey = self.key;
+                        self._parent.render();
+
                     });
+
             },
             universal: function(obj) 
             {

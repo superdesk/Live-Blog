@@ -16,12 +16,14 @@ define('providers/flickr', [
     'tmpl!livedesk>providers/flickr/licenses',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/generic-error',
     'tmpl!livedesk>providers/loading'
 ], function( providers,  $, BlogAction ) {
 $.extend(providers.flickr, {
         initialized: false,
         per_page : 8,
-	   apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
+        //apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
+	    apykey : '0',
         url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=%(per_page)s&page=%(start)s&license=%(license)s',
         licenseUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
         infoUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
@@ -29,8 +31,8 @@ $.extend(providers.flickr, {
 	init: function(){
                 //console.log('flickr main init');
 		if(!this.initialized || !this.el.children(":first").length) {
-			this.render();
-            this.adaptor.init();    
+            this.adaptor._parent = this;
+            this.adaptor.init();
 		}
 		this.initialized = true;
 	},
@@ -52,7 +54,15 @@ $.extend(providers.flickr, {
 		});	  
                 
                 //get license options
-                $.getJSON(str.format(this.licenseUrl,{apykey: this.apykey}), {}, function(data){
+                var licenseUrl = this.licenseUrl;
+                var formedLicenseUrl = str.format(this.licenseUrl,{apykey: encodeURIComponent(this.apykey)});
+                $.getJSON(formedLicenseUrl, {}, function(data){
+
+                        if ( data.code == 100 ) {
+                            self.showError(_('Invalid API Key (Key has invalid format)'));
+                            return;
+                        }
+
                         var licenses = {
                             licenses:data.licenses.license
                         }
@@ -95,7 +105,15 @@ $.extend(providers.flickr, {
             }
             return photos;
         },
-        doFlickerImage : function(start) {
+        showError: function(message) {
+            if (typeof message == 'undefined') {
+                message = '';
+            }
+            $.tmpl('livedesk>providers/generic-error', {message: message}, function(e,o) {
+                $('#flickr-image-results').append(o);
+            });
+        },
+        doFlickerImage: function(start) {
             var self = this, el;
             var text = $('#flickr-search-text').val();
             if (text.length < 1) {
@@ -111,10 +129,15 @@ $.extend(providers.flickr, {
             var license = $('#flickr-license').val();
             
             
-            var fullUrl = str.format(this.url,{start: start, text: text, apykey: this.apykey, license : license, per_page : this.per_page});
+            var fullUrl = str.format(this.url,{start: start, text: text, apykey: encodeURIComponent(this.apykey), license : license, per_page : this.per_page});
             this.showLoading('#flickr-image-more');
             $.getJSON(fullUrl, {}, function(data){
                     self.stopLoading('#flickr-image-more');
+                    if ( data.code == 100 ) {
+                        self.showError(_('Invalid API Key (Key has invalid format)'));
+                        return;
+                    }
+
                     self.data = self.data.concat(data.photos.photo);
                     data.photos.photos = data.photos.photo;
 

@@ -60,13 +60,18 @@ function(providers,str, $, Gizmo)
             {
                 var self = this;
                 new $.rest('Data/Collaborator/')
-                    .xfilter('Id')
+                    .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'soundcloud'}})
                     .done(function(collabs)
                     {
-                        if($.isDefined(collabs[0])) 
+                        if($.isDefined(collabs[0])) {
                             self.author = collabs[0].Id;
+                            self.key = collabs[0].Source.Key;    
+                        } 
+                        self._parent.client_id = self.key;
+                        self._parent.render();        
                     });
+                    
             },
             universal: function(obj) 
             {
