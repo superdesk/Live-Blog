@@ -30,6 +30,6 @@ class ContentMapped(Base, Content):
     ContentType = Column('content_type', String(255))
     Content = Column('content', String(10000), nullable=False)
     ResidRef = Column('resid_ref', String(1000))
-    Href = Column('href', String(1000))
+    HRef = Column('href', String(1000))
     Size = Column('size', Integer(unsigned=True))
     Rendition = Column('rendition', String(1000))

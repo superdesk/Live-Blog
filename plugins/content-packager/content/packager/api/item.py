@@ -33,9 +33,9 @@ class Item:
     ItemClass = str
     Urgency = str
     HeadLine = str
-    Slugline = str
+    SlugLine = str
     Byline = str
-    Creditline = str
+    CreditLine = str
     FirstCreated = datetime
     VersionCreated = datetime
 
@@ -65,10 +65,10 @@ class QItem:
     version = AsRangeOrdered
     itemClass = AsLike
     urgency = AsLike
-    headline = AsLike
-    slugline = AsLike
+    headLine = AsLike
+    slugLine = AsLike
     byline = AsLike
-    creditline = AsLike
+    creditLine = AsLike
     firstCreated = AsDateOrdered
     versionCreated = AsDateOrdered
 

@@ -13,8 +13,7 @@ from ally.container.support import setup
 from content.packager.api.item import IItemService, IItemGroupService, \
     IItemContentService, QItem
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, \
-    ItemMapped
+from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, ItemMapped
 from ally.exception import InputError, Ref
 from ally.api.extension import IterPart
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
@@ -23,6 +22,7 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from ally.api.type import typeFor
 from ally.support.sqlalchemy.session import SessionSupport
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
@@ -69,6 +69,10 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         '''
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
         itemDb = copy(item, ItemMapped())
+        assert isinstance(itemDb, ItemMapped)
+        # TODO: generate proper guid
+        itemDb.GUId = itemDb.HeadLine
+        itemDb.FirstCreated = current_timestamp()
         try:
             self.session().add(itemDb)
             self.session().flush((itemDb,))

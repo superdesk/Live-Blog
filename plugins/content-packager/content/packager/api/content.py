@@ -24,7 +24,7 @@ class Content(Entity):
     ContentType = str
     Content = str
     ResidRef = str
-    Href = str
+    HRef = str
     Size = int
     Rendition = str
 

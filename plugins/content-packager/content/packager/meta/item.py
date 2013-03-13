@@ -33,9 +33,9 @@ class ItemMapped(Base, Item):
     ItemClass = Column('item_class', String(255))
     Urgency = Column('urgency', String(255))
     HeadLine = Column('headline', String(255))
-    Slugline = Column('slugline', String(255))
+    SlugLine = Column('slugline', String(255))
     Byline = Column('byline', String(255))
-    Creditline = Column('creditline', String(255))
+    CreditLine = Column('creditline', String(255))
     FirstCreated = Column('first_created', DateTime)
     VersionCreated = Column('version_created', DateTime)
 

@@ -66,6 +66,9 @@ class ReferenceServiceAlchemy(SessionSupport, IReferenceService):
         '''
         assert self.modelType.isValid(reference), 'Invalid reference %s, expected %s' % (reference, self.Entity)
         referenceDb = copy(reference, self.Entity())
+        assert isinstance(referenceDb, ReferenceMapped)
+        # TODO: generate the reference id properly
+        referenceDb.Idref = referenceDb.ResidRef
         try:
             self.session().add(referenceDb)
             self.session().flush((referenceDb,))
