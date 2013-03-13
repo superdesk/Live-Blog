@@ -12,16 +12,26 @@ API implementation for item.
 from ally.container.support import setup
 from content.packager.api.item import IItemService, IItemGroupService, \
     IItemContentService, QItem
-from sql_alchemy.impl.entity import EntityServiceAlchemy, EntitySupportAlchemy
+from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, \
     ItemMapped
 from ally.exception import InputError, Ref
 from ally.api.extension import IterPart
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from ally.support.api.util_service import copy
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
+import logging
+from ally.api.type import typeFor
+from ally.support.sqlalchemy.session import SessionSupport
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
 @setup(IItemService, name='itemService')
-class ItemServiceAlchemy(EntitySupportAlchemy, IItemService):
+class ItemServiceAlchemy(SessionSupport, IItemService):
     '''
     Implementation for @see: IItemService
     '''
@@ -30,14 +40,18 @@ class ItemServiceAlchemy(EntitySupportAlchemy, IItemService):
         '''
         Construct the item service.
         '''
-        EntitySupportAlchemy.__init__(self, ItemMapped, QItem)
+        self.Entity = ItemMapped
+        self.QEntity = QItem
+        self.modelType = typeFor(self.Entity)
+        self.model = self.modelType.container
+        self.queryType = typeFor(QItem)
 
     def getById(self, idref):
         '''
         Implementation for @see: IItemService.getById
         '''
         item = self.session().query(ItemMapped).get(idref)
-        if not item: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.Guid))
+        if not item: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         return item
 
     def getAll(self, offset, limit, detailed, q):
@@ -48,6 +62,96 @@ class ItemServiceAlchemy(EntitySupportAlchemy, IItemService):
             items, total = self._getAllWithCount(None, q, offset, limit)
             return IterPart(items, total, offset, limit)
         return self._getAll(None, q, offset, limit)
+
+    def insert(self, item):
+        '''
+        @see: IItemService.insert
+        '''
+        assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
+        itemDb = copy(item, ItemMapped())
+        try:
+            self.session().add(itemDb)
+            self.session().flush((itemDb,))
+        except SQLAlchemyError as e: handle(e, itemDb)
+        item.Id = itemDb.Id
+        return itemDb.Id
+
+    def update(self, item):
+        '''
+        @see: IItemService.update
+        '''
+        assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
+        assert isinstance(item.Id, int), 'Invalid item %s, with id %s' % (item, item.Id)
+        itemDb = self.session().query(ItemMapped).get(item.Id)
+        if not itemDb: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
+        try: self.session().flush((copy(item, itemDb),))
+        except SQLAlchemyError as e: handle(e, ItemMapped)
+
+    def delete(self, guid):
+        '''
+        @see: IItemService.delete
+        '''
+        try:
+            return self.session().query(ItemMapped).filter(ItemMapped.GUId == guid).delete() > 0
+        except OperationalError:
+            assert log.debug('Could not delete item %s with id \'%s\'', ItemMapped, guid, exc_info=True) or True
+            raise InputError(Ref(_('Cannot delete because is in use'), model=self.model))
+
+# --------------------------------------------------------------------
+
+    def _getAll(self, filter=None, query=None, offset=None, limit=None, sql=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit. Also if query is known to the
+        service then also a query can be provided.
+
+        @param filter: SQL alchemy filtering|None
+            The sql alchemy conditions to filter by.
+        @param query: query
+            The REST query object to provide filtering on.
+        @param offset: integer|None
+            The offset to fetch elements from.
+        @param limit: integer|None
+            The limit of elements to get.
+        @param sql: SQL alchemy|None
+            The sql alchemy query to use.
+        @return: list
+            The list of all filtered and limited elements.
+        '''
+        if limit == 0: return []
+        sql = sql or self.session().query(ItemMapped)
+        if filter is not None: sql = sql.filter(filter)
+        if query:
+            assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, QItem)
+            sql = buildQuery(sql, query, ItemMapped)
+        sql = buildLimits(sql, offset, limit)
+        return sql.all()
+
+    def _getAllWithCount(self, filter=None, query=None, offset=None, limit=None, sql=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit and the total count. Also if query is
+        known to the service then also a query can be provided.
+
+        @param filter: SQL alchemy filtering|None
+            The sql alchemy conditions to filter by.
+        @param query: query
+            The REST query object to provide filtering on.
+        @param offset: integer|None
+            The offset to fetch elements from.
+        @param limit: integer|None
+            The limit of elements to get.
+        @param sql: SQL alchemy|None
+            The sql alchemy query to use.
+        @return: tuple(list, integer)
+            The list of all filtered and limited elements and the count of the total elements.
+        '''
+        sql = sql or self.session().query(ItemMapped)
+        if filter is not None: sql = sql.filter(filter)
+        if query:
+            assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, QItem)
+            sql = buildQuery(sql, query, ItemMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if limit == 0: return (), sql.count()
+        return sqlLimit.all(), sql.count()
 
 # --------------------------------------------------------------------
 

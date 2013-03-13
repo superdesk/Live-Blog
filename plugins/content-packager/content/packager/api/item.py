@@ -23,16 +23,16 @@ from ally.api.type import Iter
 CLASS_TEXT = 'icls:text'
 CLASS_PACKAGE = 'icls:composite'
 
-@modelContent(id='Guid')
+@modelContent(id='GUId')
 class Item:
     '''
     Provides the item model.
     '''
-    Guid = str
+    GUId = str
     Version = int
     ItemClass = str
     Urgency = str
-    Headline = str
+    HeadLine = str
     Slugline = str
     Byline = str
     Creditline = str
@@ -81,7 +81,7 @@ class IItemService:
     '''
 
     @call
-    def getById(self, guid:Item.Guid) -> Item:
+    def getById(self, guid:Item.GUId) -> Item:
         '''
         Provides the item based on the guid.
 
@@ -105,11 +105,47 @@ class IItemService:
             The query to search by.
         '''
 
+    @call
+    def insert(self, guid:Item) -> Item.GUId:
+        '''
+        Insert the item, also the item will have automatically assigned the GUId to it.
+
+        @param entity: Item
+            The item to be inserted.
+
+        @return: The id assigned to the item
+        @raise InputError: If the item is not valid.
+        '''
+
+    @call
+    def update(self, item:Item):
+        '''
+        Update the item.
+
+        @param item: Item
+            The item to be updated.
+        '''
+
+    @call
+    def delete(self, id:Item.GUId) -> bool:
+        '''
+        Delete the item for the provided id.
+
+        @param id: integer
+            The id of the item to be deleted.
+
+        @return: True if the delete is successful, false otherwise.
+        '''
+
+# --------------------------------------------------------------------
+
 @service((Entity, ItemGroup))
 class IItemGroupService(IEntityService):
     '''
     Provides the service methods for ItemGroup model.
     '''
+
+# --------------------------------------------------------------------
 
 @service((Entity, ItemContent))
 class IItemContentService(IEntityService):

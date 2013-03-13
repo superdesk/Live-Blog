@@ -57,7 +57,7 @@ class IReferenceService:
         Provides the reference based on the id.
 
         @param idref: string
-            The id of the entity to find.
+            The id of the reference to find.
         @raise InputError: If the id is not valid.
         '''
 
@@ -74,4 +74,36 @@ class IReferenceService:
             If true will present the total count, limit and offset for the partially returned collection.
         @param q: QReference
             The query to search by.
+        '''
+
+    @call
+    def insert(self, reference:Reference) -> Reference.Idref:
+        '''
+        Insert the reference, also the reference will have automatically assigned the Id to it.
+
+        @param reference: Reference
+            The reference to be inserted.
+
+        @return: The id assigned to the reference
+        @raise InputError: If the reference is not valid.
+        '''
+
+    @call
+    def update(self, reference:Reference):
+        '''
+        Update the reference.
+
+        @param reference: Reference
+            The reference to be updated.
+        '''
+
+    @call
+    def delete(self, id:Reference.Idref) -> bool:
+        '''
+        Delete the reference for the provided id.
+
+        @param id: integer
+            The id of the reference to be deleted.
+
+        @return: True if the delete is successful, false otherwise.
         '''

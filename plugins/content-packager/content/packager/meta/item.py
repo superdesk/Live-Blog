@@ -28,11 +28,11 @@ class ItemMapped(Base, Item):
     __tablename__ = 'content_item'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Guid = Column('guid', String(190), primary_key=True)
+    GUId = Column('guid', String(190), primary_key=True)
     Version = Column('version', Integer(unsigned=True))
     ItemClass = Column('item_class', String(255))
     Urgency = Column('urgency', String(255))
-    Headline = Column('headline', String(255))
+    HeadLine = Column('headline', String(255))
     Slugline = Column('slugline', String(255))
     Byline = Column('byline', String(255))
     Creditline = Column('creditline', String(255))
@@ -50,7 +50,7 @@ class ItemGroupMapped(Base, ItemGroup):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Item = Column('fk_item_id', ForeignKey(ItemMapped.Guid, ondelete='RESTRICT'), nullable=False)
+    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='RESTRICT'), nullable=False)
     Group = Column('fk_group_id', ForeignKey(GroupMapped.Id, ondelete='RESTRICT'), nullable=False)
 
 # --------------------------------------------------------------------
@@ -64,5 +64,5 @@ class ItemContentMapped(Base, ItemContent):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Item = Column('fk_item_id', ForeignKey(ItemMapped.Guid, ondelete='RESTRICT'), nullable=False)
+    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='RESTRICT'), nullable=False)
     Content = Column('fk_content_id', ForeignKey(ContentMapped.Id, ondelete='RESTRICT'), nullable=False)
