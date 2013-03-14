@@ -19,7 +19,7 @@ from content.packager.meta.reference import ReferenceMapped
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=['Id'])
 class GroupMapped(Base, Group):
     '''
     Provides the mapping for Group.
@@ -27,7 +27,7 @@ class GroupMapped(Base, Group):
     __tablename__ = 'content_group'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = Column('id', String(100), nullable=False, unique=True)
+    Id = Column('id', String(100), nullable=False, primary_key=True)
     Role = Column('role', String(255))
     Mode = Column('mode', String(255))
 

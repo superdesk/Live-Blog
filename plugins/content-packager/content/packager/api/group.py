@@ -18,7 +18,7 @@ from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@modelContent
+@modelContent(id='Id')
 class Group:
     '''
     Provides the group model.
@@ -79,11 +79,11 @@ class IGroupService:
         '''
 
     @call
-    def insert(self, id:Group) -> Group.Id:
+    def insert(self, group:Group) -> Group.Id:
         '''
         Insert the group, also the group will have automatically assigned the Id to it.
 
-        @param id: Group
+        @param group: Group
             The group to be inserted.
 
         @return: The id assigned to the group

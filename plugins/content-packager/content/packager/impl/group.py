@@ -21,6 +21,7 @@ from ally.api.extension import IterPart
 from ally.support.api.util_service import copy
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
+from ally.support.sqlalchemy.session import SessionSupport
 
 # --------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @setup(IGroupService, name='groupService')
-class GroupServiceAlchemy(IGroupService):
+class GroupServiceAlchemy(SessionSupport, IGroupService):
     '''
     Implementation for @see: IGroupService
     '''
@@ -44,46 +45,47 @@ class GroupServiceAlchemy(IGroupService):
         self.model = self.modelType.container
         self.queryType = typeFor(QGroup)
 
-    def getById(self, idref):
+    def getById(self, id):
         '''
         Implementation for @see: IItemService.getById
         '''
-        item = self.session().query(GroupMapped).get(idref)
-        if not item: raise InputError(Ref(_('Unknown id'), ref=GroupMapped.Id))
-        return item
+        group = self.session().query(GroupMapped).get(id)
+        if not group: raise InputError(Ref(_('Unknown id'), ref=GroupMapped.Id))
+        return group
 
     def getAll(self, offset, limit, detailed, q):
         '''
         Implementation for @see: IItemService.getAll
         '''
         if detailed:
-            items, total = self._getAllWithCount(None, q, offset, limit)
-            return IterPart(items, total, offset, limit)
+            groups, total = self._getAllWithCount(None, q, offset, limit)
+            return IterPart(groups, total, offset, limit)
         return self._getAll(None, q, offset, limit)
 
-    def insert(self, item):
+    def insert(self, group):
         '''
         @see: IItemService.insert
         '''
-        assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, GroupMapped)
-        itemDb = copy(item, GroupMapped())
-        assert isinstance(itemDb, GroupMapped)
+        assert self.modelType.isValid(group), 'Invalid group %s, expected %s' % (group, GroupMapped)
+        groupDb = copy(group, GroupMapped())
         try:
-            self.session().add(itemDb)
-            self.session().flush((itemDb,))
-        except SQLAlchemyError as e: handle(e, itemDb)
-        item.Id = itemDb.Id
-        return itemDb.Id
+            self.session().add(groupDb)
+            self.session().flush((groupDb,))
+        except SQLAlchemyError as e:
+            print(e)
+            handle(e, groupDb)
+        group.Id = groupDb.Id
+        return groupDb.Id
 
-    def update(self, item):
+    def update(self, group):
         '''
         @see: IItemService.update
         '''
-        assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, GroupMapped)
-        assert isinstance(item.Id, int), 'Invalid item %s, with id %s' % (item, item.Id)
-        itemDb = self.session().query(GroupMapped).get(item.Id)
-        if not itemDb: raise InputError(Ref(_('Unknown id'), ref=GroupMapped.Id))
-        try: self.session().flush((copy(item, itemDb),))
+        assert self.modelType.isValid(group), 'Invalid group %s, expected %s' % (group, GroupMapped)
+        assert isinstance(group.Id, str), 'Invalid group %s, with id %s' % (group, group.Id)
+        groupDb = self.session().query(GroupMapped).get(group.Id)
+        if not groupDb: raise InputError(Ref(_('Unknown id'), ref=GroupMapped.Id))
+        try: self.session().flush((copy(group, groupDb),))
         except SQLAlchemyError as e: handle(e, GroupMapped)
 
     def delete(self, guid):
@@ -93,7 +95,7 @@ class GroupServiceAlchemy(IGroupService):
         try:
             return self.session().query(GroupMapped).filter(GroupMapped.Id == guid).delete() > 0
         except OperationalError:
-            assert log.debug('Could not delete item %s with id \'%s\'', GroupMapped, guid, exc_info=True) or True
+            assert log.debug('Could not delete group %s with id \'%s\'', GroupMapped, guid, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'), model=self.model))
 
 # --------------------------------------------------------------------

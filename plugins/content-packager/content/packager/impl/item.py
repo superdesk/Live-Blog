@@ -96,7 +96,7 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         @see: IItemService.update
         '''
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
-        assert isinstance(item.GUId, int), 'Invalid item %s, with id %s' % (item, item.GUId)
+        assert isinstance(item.GUId, str), 'Invalid item %s, with id %s' % (item, item.GUId)
         itemDb = self.session().query(ItemMapped).get(item.GUId)
         if not itemDb: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         try: self.session().flush((copy(item, itemDb),))
