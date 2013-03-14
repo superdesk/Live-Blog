@@ -13,15 +13,16 @@ from content.packager.api.domain_content import modelContent
 from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsLike, AsRangeOrdered
 from ally.api.type import Iter
+from ally.support.api.entity import Entity, IEntityService
 
 # --------------------------------------------------------------------
 
-@modelContent(id='Idref')
-class Reference:
+@modelContent
+class Reference(Entity):
     '''
     Provides the reference model.
     '''
-    Idref = str
+    IdRef = str
     ItemClass = str
     ResidRef = str
     Href = str
@@ -37,6 +38,7 @@ class QReference:
     '''
     Provides the reference query.
     '''
+    idRef = AsLike
     itemClass = AsLike
     size = AsRangeOrdered
     rendition = AsLike
@@ -45,65 +47,8 @@ class QReference:
 
 # --------------------------------------------------------------------
 
-@service
-class IReferenceService:
+@service((Entity, Reference))
+class IReferenceService(IEntityService):
     '''
     Provides the service methods for Reference model.
     '''
-
-    @call
-    def getById(self, idref:Reference.Idref) -> Reference:
-        '''
-        Provides the reference based on the id.
-
-        @param idref: string
-            The id of the reference to find.
-        @raise InputError: If the id is not valid.
-        '''
-
-    @call
-    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QReference=None) -> Iter(Reference):
-        '''
-        Provides the references searched by the provided query.
-
-        @param offset: integer
-            The offset to retrieve the entities from.
-        @param limit: integer
-            The limit of entities to retrieve.
-        @param detailed: boolean
-            If true will present the total count, limit and offset for the partially returned collection.
-        @param q: QReference
-            The query to search by.
-        '''
-
-    @call
-    def insert(self, reference:Reference) -> Reference.Idref:
-        '''
-        Insert the reference, also the reference will have automatically assigned the Id to it.
-
-        @param reference: Reference
-            The reference to be inserted.
-
-        @return: The id assigned to the reference
-        @raise InputError: If the reference is not valid.
-        '''
-
-    @call
-    def update(self, reference:Reference):
-        '''
-        Update the reference.
-
-        @param reference: Reference
-            The reference to be updated.
-        '''
-
-    @call
-    def delete(self, id:Reference.Idref) -> bool:
-        '''
-        Delete the reference for the provided id.
-
-        @param id: integer
-            The id of the reference to be deleted.
-
-        @return: True if the delete is successful, false otherwise.
-        '''

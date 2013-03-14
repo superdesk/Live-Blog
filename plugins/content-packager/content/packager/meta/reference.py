@@ -12,7 +12,7 @@ Contains SQL alchemy meta for reference API.
 from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
 from sqlalchemy.schema import Column
-from sqlalchemy.types import String, Integer
+from sqlalchemy.types import String, Integer, INTEGER
 from content.packager.api.reference import Reference
 
 # --------------------------------------------------------------------
@@ -25,7 +25,8 @@ class ReferenceMapped(Base, Reference):
     __tablename__ = 'content_reference'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Idref = Column('idref', String(190), primary_key=True)
+    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    IdRef = Column('id_ref', String(190))
     ItemClass = Column('item_class', String(255))
     ResidRef = Column('resid_ref', String(1000))
     Href = Column('href', String(1000))

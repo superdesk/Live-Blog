@@ -41,4 +41,4 @@ class GroupReferenceMapped(Base, GroupReference):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Group = Column('fk_group_id', ForeignKey(GroupMapped.Id, ondelete='RESTRICT'), nullable=False)
-    Reference = Column('fk_reference_id', ForeignKey(ReferenceMapped.Idref, ondelete='RESTRICT'), nullable=False)
+    Reference = Column('fk_reference_id', ForeignKey(ReferenceMapped.Id, ondelete='RESTRICT'), nullable=False)
