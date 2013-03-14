@@ -17,6 +17,7 @@ from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
 from gui.action.api.action import Action
+from superdesk.user.api.user import IUserService
     
 # --------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ def modulesEditAction() -> Action:
 
 @ioc.entity   
 def modulesMainAction() -> Action:
-    return Action('main', Parent=modulesAction(), Script=publishedURI('content-article/scripts/js/list.js'))
+    return Action('list', Parent=modulesAction(), Script=publishedURI('content-article/scripts/js/list.js'))
 
 # --------------------------------------------------------------------
 
@@ -59,4 +60,5 @@ def rightArticleView() -> RightAction:
 def registerAclMediaArchiveView():
     r = rightArticleView()
     r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesEditAction())
-    #r.allGet(I...)
+    # @todo: article serivce here when it's gonna be available 
+    r.allGet(IUserService)

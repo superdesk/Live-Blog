@@ -1,0 +1,188 @@
+<div class="main-background-container">
+
+	<div class="subnav subnav-fixed">
+	
+		<h1 id="article-title-fixed" class="main-article-title">Ganz besonders, diese Elsasser</h1>
+
+		<a href="#" class="btn btn-medium btn-info pull-right">Save</a>
+		<a href="#" class="btn btn-medium pull-right">Close</a>
+
+		<a id="zen-mode" href="#" class="btn btn-medium pull-right mobile-hide">Zen mode</a>
+		<a id="live-edit" href="#" class="btn btn-medium pull-right mobile-hide">Live edit</a>
+
+	</div>
+
+	<!-- div class="editor-toolbar">
+
+	<div class="btn-toolbar">
+  		<div class="btn-group headings">
+    		<button title="Text Heading" rel="tooltip" class="btn currentHeading">Nothing</button>
+    		<button title="Change Heading" rel="tooltip" data-toggle="dropdown" class="btn dropdown-toggle">
+      			<span class="caret"></span>
+    		</button>
+    
+    		<ul class="dropdown-menu">
+      			<li><a data-tagname="p" class="action changeHeading" href="#">Normal Text</a></li>
+      			<li><a data-tagname="h1" class="action changeHeading" href="#">Heading</a></li>
+      			<li><a data-tagname="h2" class="action changeHeading" href="#">Subheading</a></li>
+      			<li><a data-tagname="h3" class="action changeHeading" href="#">SubSubHeading</a></li>
+    		</ul>
+  		</div>
+
+  		<div class="btn-group">
+    		<button title="Bold" rel="tooltip" class="btn  action strong"><i class="editoricon-bold"></i></button>
+    		<button title="Italics" rel="tooltip" class="btn  action emphasis"><i class="editoricon-italic"></i></button>
+    		<button title="Underline" rel="tooltip" class="btn  action underline"><i class="editoricon-underline"></i></button>
+  		</div>
+
+  		<div class="btn-group">
+    		<button title="Insert Link" rel="tooltip" class="btn  action insertLink"><i class="editoricon-link"></i></button>
+    		<button title="Insert Figure" rel="tooltip" class="btn  action insertImage-oer"><i class="editoricon-picture"></i></button>
+    		<button title="Insert Math" rel="tooltip" class="btn action insertMath">x<sup>2</sup></button>
+    		<button title="Insert Note" rel="tooltip" class="btn  action insertNote">!</button>
+  		</div>
+
+		<div class="btn-group">
+			<button title="Unordered List" rel="tooltip" class="btn action unorderedList"><i class="editoricon-list-ul"></i></button>
+			<button title="Ordered List" rel="tooltip" class="btn action orderedList"><i class="editoricon-list-ol"></i></button>
+			<button title="Indent List" rel="tooltip" class="btn action outdentList" disabled="disabled"><i class="editoricon-indent-left"></i></button>
+			<button title="Outdent List" rel="tooltip" class="btn action indentList" disabled="disabled"><i class="editoricon-indent-right"></i></button>
+		</div>
+
+	</div>
+
+	</div-->
+
+</div>
+
+	<div class="zen-buttons">
+		<a title="turn off zen" id="zen-close" href="#" class="btn pull-right zen-close"><i class="icon-remove"></i></a>
+		<a href="#" class="btn pull-right btn-info">Save</a>
+	</div>
+
+	<div class="sf-tooltip" id="tooltip">
+
+	</div>
+
+		<div id="switch_article_view" class="switch-article-view" style="left: 152px;">
+			<ul class="switch-view-tabs">
+				<li class="active-view" target-view="desktop"></li>
+				<li target-view="tablet"></li>
+				<li target-view="mobile"></li>
+				<li target-view="print"></li>
+			</ul>
+		</div>
+		
+		<article article-view="desktop" id="main-article" class="main-article-container" style="margin-left: 152px; margin-right: 152px; max-width: 960px;">
+			
+			<section class="article-section">
+				<header>
+					<span class="edit-label">Spitzmarke</span>
+				</header>
+				<div contenteditable="true" id="article-section" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+					<p>Das Elsass</p>
+				</div>
+			</section>
+
+			<section class="article-date">
+				<p>4. Mai 2012</p>
+			</section>
+
+			<section class="article-title">
+				<header>
+					<span class="edit-label">Kurztitel</span>
+					<span class="edit-words-info">30 von 30 Zeichen</span>	
+				</header>
+				<div contenteditable="true" id="article-title" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+					<p>Ganz besonders, diese Elsasser</p>
+				</div>
+			</section>
+
+			<section class="article-short-text">
+				<header>
+					<span class="edit-label">Lead</span>
+					<span class="edit-words-info">92 Zeichen / 15 Worter</span>	
+				</header>
+				<div contenteditable="true" id="article-short-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+					<p>Das Elass aus unseren Traumen gibt es nicht mehr. Ein Blick auf eine entschlummernde Regio</p>
+				</div>
+			</section>
+
+			<section class="article-full-text">
+				<header>
+					<span class="edit-label">Lauftext</span>
+					<span class="edit-words-info">2565 Zeichen / 414 Worter</span>	
+				</header>
+				<div contenteditable="true" id="article-full-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+					<p>In den ersten Konferenzen dagegen verstand ich nichts. Zwischen Zürichdeutsch und Baseldeutsch lägen noch einmal Welten, haben mich beide Seiten aufgeklärt (und beide meinen, ihr Dialekt sei der besser verständliche). Einmal bot ich grosszügig an: «Um die Operngeschichte kann ich mich kümmern.» «Oper?», fragte die Kollegin. «Wir sprechen über Nachbarschafts-Streit.» Schon bald drängte sich mir der Verdacht auf, dass meine Verwandten nie Schwiitzerdüütsch mit mir gesprochen haben. Das, was die Eidgenossen Schriftdeutsch nennen, klingt in meinen Ohren immer noch eigenartig fremd.</p>
+					<figure>
+						<img src="pictures/beautifullands.jpg">
+					</figure>
+					<p>
+					Zu echten Irritationen aber kam es, wo Schweizer gänzlich andere Vokabeln verwenden. «Schmeckt nach Curry», sagte eine Kollegin strahlend, nachdem ich sie zwei Minuten mit meinem Reisgericht allein gelassen hatte. Ganz schön übergriffig, fand ich, jemandes Essen zu probieren, den man erst zwei Tagen kennt. Auch, dass «Schmutz» nicht Dreck, sondern Kuss bedeutet, muss einem gesagt sein. Auf meinem Personalblatt habe ich bei «Natel» mein Geburtsdatum eingetragen. Ich habe den Begriff irgendwie mit «pränatal» in Verbindung gebracht.
+					</p>
+					<p>In den ersten Konferenzen dagegen verstand ich nichts. Zwischen Zürichdeutsch und Baseldeutsch lägen noch einmal Welten, haben mich beide Seiten aufgeklärt (und beide meinen, ihr Dialekt sei der besser verständliche). Einmal bot ich grosszügig an: «Um die Operngeschichte kann ich mich kümmern.» </p>
+					<p>
+					Zu echten Irritationen aber kam es, wo Schweizer gänzlich andere Vokabeln verwenden. «Schmeckt nach Curry», sagte eine Kollegin strahlend, nachdem ich sie zwei Minuten mit meinem Reisgericht allein gelassen hatte. Ganz schön übergriffig, fand ich, jemandes Essen zu probieren, den man erst zwei Tagen kennt. Auch, dass «Schmutz» nicht Dreck, sondern Kuss bedeutet, muss einem gesagt sein. Auf meinem Personalblatt habe ich bei «Natel» mein Geburtsdatum eingetragen. Ich habe den Begriff irgendwie mit «pränatal» in Verbindung gebracht. In den ersten Konferenzen dagegen verstand ich nichts. Zwischen Zürichdeutsch und Baseldeutsch lägen noch einmal Welten, haben mich beide Seiten aufgeklärt (und beide meinen, ihr Dialekt sei der besser verständliche). Einmal bot ich grosszügig an: «Um die Operngeschichte kann ich mich kümmern.» «Oper?», fragte die Kollegin. «Wir sprechen über Nachbarschafts-Streit.» 
+					</p>
+					<p>In den ersten Konferenzen dagegen verstand ich nichts.</p>
+					<p>
+					Zu echten Irritationen aber kam es, wo Schweizer gänzlich andere Vokabeln verwenden. «Schmeckt nach Curry», sagte eine Kollegin strahlend, nachdem ich sie zwei Minuten mit meinem Reisgericht allein gelassen hatte. Ganz schön übergriffig, fand ich, jemandes Essen zu probieren, den man erst zwei Tagen kennt. Auch, dass «Schmutz» nicht Dreck, sondern Kuss bedeutet, muss einem gesagt sein. Auf meinem Personalblatt habe ich bei «Natel» mein Geburtsdatum eingetragen. Ich habe den Begriff irgendwie mit «pränatal» in Verbindung gebracht.
+					</p>
+				</div>
+			</section>
+
+
+		</article>
+
+		<div tabcontent-area="right-tabpane" class="tablist right-tablist">
+			<ul class="navigation-tabs">
+								
+				<li tabname="chat"><a data-original-title="Chat" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#chat-tab"><i class="big-icon-chat"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="editorial-comments"><a data-original-title="Editorial comments" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#editorial-tab"><i class="big-icon-editorial"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="media"><a data-original-title="Media" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#media-tab"><i class="big-icon-media"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="switches"><a data-original-title="Switches" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#switches-tab"><i class="big-icon-switches"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="geolocation"><a data-original-title="Geolocation" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#geolocation-tab"><i class="big-icon-geolocation"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="comments"><a data-original-title="Comments" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#comments-tab"><i class="big-icon-comments"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="followup"><a data-original-title="Followup" data-placement="left" rel="tooltip" control="tab" draggable="true" href="#followup-tab"><i class="big-icon-followup"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+			</ul>
+		</div>
+		<div class="tabpane right-tabpane">
+			<section id="chat-tab" class="tabcontent temptabcont">
+				<h3>Chat Tab</h3>
+				<p>Internal editorial chat interface (e.g. via a Jabber server)</p>
+			</section>
+			<section id="editorial-tab" class="tabcontent temptabcont">
+				<h3>Editorial Comments Tab</h3>
+				<p>Inline editorial comments. Comments will be pegged to particular lines of text</p>
+			</section>
+			<section id="media-tab" class="tabcontent temptabcont">
+				<h3>Media Tab</h3>
+				<p>Add media assets to the article. (Browse the Integrated Asset Repository, access to Integrated Asset Management, Upload Media assets)</p>
+			</section>
+			<section id="switches-tab" class="tabcontent temptabcont">
+				<h3>Publishing controls tab</h3>
+				<p>Dissemination control parameters (Publish in output(s), schedule, relevant layout controls for each output, etc.)</p>
+			</section>
+			<section id="geolocation-tab" class="tabcontent temptabcont">
+				<h3>Geolocation Tab</h3>
+				<p>Geolocation interface</p>
+			</section>
+			<section id="comments-tab" class="tabcontent temptabcont">
+				<h3>Comments Tab</h3>
+				<p>Displays reader’s comments/feedback, if available</p>
+			</section>
+			<section id="followup-tab" class="tabcontent temptabcont">
+				<h3>Follow Up Tab</h3>
+				<p>Add article follow up to the Forward Planning calendar</p>
+			</section>
+		</div>
+		
+</div>

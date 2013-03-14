@@ -1,0 +1,7 @@
+<td>{Id}</td>
+<td>{Title}</td>
+<td>
+	<div class="tool-box-right">
+    	<a class="tool-box-button" href="javascript:void(0)" data-action="edit"><i class="icon-pencil"></i></a>
+	</div>
+</td>
