@@ -9,7 +9,25 @@ function($, giz)
 {
     var
     
-    MockModel = giz.Model.extend({}),
+    // custom editor plugins
+    editor = 
+    {
+        // add the fixed toolbar
+        fixedToolbar:
+        {
+            _create: function(elements)
+            {
+                var self = this;
+                $(elements).on('toolbar-created', function()
+                {
+                    $(editor.toolbarPlace).html('');
+                    self.plugins.toolbar.element.appendTo(editor.toolbarPlace); 
+                }); 
+            }
+        }
+    },
+    
+    MockModel = giz.Model.extend({url: new giz.Url('Content/Article')}),
     
     ArticleView = giz.View.extend
     ({
@@ -43,9 +61,20 @@ function($, giz)
             
         },
         */
-        init: function()
+        init: function(data)
         {
-            this.model = new MockModel;
+            //this.model = new MockModel(MockModel.prototype.url.get()+'/'+data.articleId);
+            //this.model.on('read update', this.render, this).sync();
+            this.model = new MockModel();
+            this.model.data = 
+            {
+                title: 
+                { 
+                    
+                },
+                lead: { },
+                body: { }
+            };
             this.render();
         },
         render: function()
@@ -54,7 +83,25 @@ function($, giz)
             $('#area-main').html(this.el);
             $(this.el).tmpl('superdesk/content-article>edit', this.model.feed(), function()
             {
-                $('#main-article section', this.el).texteditor({ plugins: { floatingToolbar: null }});
+                editor.toolbarPlace = $('.editor-toolbar', self.el);
+                $('#main-article section', this.el).texteditor
+                ({ 
+                    plugins: 
+                    { 
+                        floatingToolbar: null,
+                        draggableToolbar: null,
+                        fixedToolbar: editor.fixedToolbar,
+                        controlElements: 
+                        {
+                            bold: $('.editor-toolbar .strong', self.el),
+                            italic: $('.editor-toolbar .emphasis', self.el),
+                            underline: $('.editor-toolbar .underline', self.el),
+                            strike: null,
+                            link: $('.editor-toolbar .link', self.el),
+                            image: $('.editor-toolbar .insertImage-oer', self.el),
+                        }
+                    }
+                });
             });
         }
     });
