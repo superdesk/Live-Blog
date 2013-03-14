@@ -1,0 +1,32 @@
+'''
+Created on Mar 14, 2013
+
+@package: content article
+@copyright: 2013 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
+@author: Rus Mugurel
+
+Contains SQL alchemy meta for article API.
+'''
+
+from ally.support.sqlalchemy.mapper import validate
+from superdesk.meta.metadata_superdesk import Base
+from sqlalchemy.schema import Column
+from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.types import String, TEXT
+from content.article.api.article import Article
+
+# --------------------------------------------------------------------
+
+@validate
+class ArticleMapped(Base, Article):
+    '''
+    Provides the mapping for Article.
+    '''
+    __tablename__ = 'article'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Creator = Column('creator', String(150), nullable=False)
+    Author = Column('author', String(150), nullable=False)
+    Content = Column('content', TEXT, nullable=False)

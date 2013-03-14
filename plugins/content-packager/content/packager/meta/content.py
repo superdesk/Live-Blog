@@ -13,7 +13,7 @@ from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
 from sqlalchemy.schema import Column
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.types import String, Integer
+from sqlalchemy.types import String, Integer, TEXT
 from content.packager.api.content import Content
 
 # --------------------------------------------------------------------
@@ -28,7 +28,7 @@ class ContentMapped(Base, Content):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     ContentType = Column('content_type', String(255))
-    Content = Column('content', String(10000), nullable=False)
+    Content = Column('content', TEXT, nullable=False)
     ResidRef = Column('resid_ref', String(1000))
     HRef = Column('href', String(1000))
     Size = Column('size', Integer(unsigned=True))

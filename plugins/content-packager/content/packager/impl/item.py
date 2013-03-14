@@ -23,6 +23,9 @@ import logging
 from ally.api.type import typeFor
 from ally.support.sqlalchemy.session import SessionSupport
 from sqlalchemy.sql.functions import current_timestamp
+from ally.container.ioc import injected
+from ally.container import wire
+from datetime import date
 
 # --------------------------------------------------------------------
 
@@ -30,11 +33,18 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+@injected
 @setup(IItemService, name='itemService')
 class ItemServiceAlchemy(SessionSupport, IItemService):
     '''
     Implementation for @see: IItemService
     '''
+    guid_prefix = 'urn:newsml'; wire.config('guid_prefix', doc='''
+    The prefix to use in GUId generation''')
+    guid_provider = 'default'; wire.config('guid_provider', doc='''
+    The provider to use in GUId generation''')
+    guid_scheme = '%(prefix)s:%(provider)s:%(dateId)s:%(itemId)s'
+    wire.config('guid_scheme', doc='''The prefix to use in GUId generation''')
 
     def __init__(self):
         '''
@@ -70,8 +80,9 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
         itemDb = copy(item, ItemMapped())
         assert isinstance(itemDb, ItemMapped)
-        # TODO: generate proper guid
-        itemDb.GUId = itemDb.HeadLine
+        # TODO: generate proper guid: generate better itemId, externalise as a service
+        itemDb.GUId = self.guid_scheme % {'prefix':self.guid_prefix, 'provider':self.guid_provider,
+                                          'dateId':date.today().strftime('%Y%m%d'), 'itemId':itemDb.SlugLine}
         itemDb.FirstCreated = current_timestamp()
         try:
             self.session().add(itemDb)
