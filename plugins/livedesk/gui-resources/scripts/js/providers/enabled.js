@@ -1,5 +1,6 @@
 define('providers/enabled', [
-    'order!providers/edit/tab',
+    'order!providers/image/tab',
+    /*'order!providers/edit/tab',
     'order!providers/colabs/tab',
 	'order!providers/google/tab',
 	'order!providers/twitter/tab',
@@ -7,5 +8,5 @@ define('providers/enabled', [
     'order!providers/youtube/tab',
 	'order!providers/instagram/tab',
     'order!providers/soundcloud/tab',
-	'order!providers/ads/tab',
+	'order!providers/ads/tab',*/
 ], function(providers){ return providers; });
