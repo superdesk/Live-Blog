@@ -29,7 +29,7 @@ support.loadAllEntities(Action)
 @ioc.entity   
 def menuAction() -> Action:
     return Action('article', Parent=defaults.menuAction(), Label=NC_('menu', 'Article'), NavBar='/article',
-                  Script=publishedURI('content-article/scripts/js/menu.js'))
+                  Script=publishedURI('superdesk/content-article/scripts/js/menu.js'))
 
 @ioc.entity   
 def modulesAction() -> Action:
@@ -37,15 +37,15 @@ def modulesAction() -> Action:
 
 @ioc.entity   
 def modulesAddAction() -> Action:
-    return Action('add', Parent=modulesAction(), Script=publishedURI('content-article/scripts/js/add.js'))
+    return Action('add', Parent=modulesAction(), Script=publishedURI('superdesk/content-article/scripts/js/add.js'))
 
 @ioc.entity   
 def modulesEditAction() -> Action:
-    return Action('edit', Parent=modulesAction(), Script=publishedURI('content-article/scripts/js/edit.js'))
+    return Action('edit', Parent=modulesAction(), Script=publishedURI('superdesk/content-article/scripts/js/edit.js'))
 
 @ioc.entity   
 def modulesMainAction() -> Action:
-    return Action('list', Parent=modulesAction(), Script=publishedURI('content-article/scripts/js/list.js'))
+    return Action('list', Parent=modulesAction(), Script=publishedURI('superdesk/content-article/scripts/js/list.js'))
 
 # --------------------------------------------------------------------
 
