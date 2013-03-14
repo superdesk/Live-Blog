@@ -110,7 +110,7 @@ class IItemService:
         '''
         Insert the item, also the item will have automatically assigned the GUId to it.
 
-        @param entity: Item
+        @param guid: Item
             The item to be inserted.
 
         @return: The id assigned to the item
