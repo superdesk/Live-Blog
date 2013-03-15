@@ -11,9 +11,11 @@ API specifications for article.
 
 from content.packager.api.domain_content import modelContent
 from ally.support.api.entity import Entity, QEntity, IEntityService
-from ally.api.config import query, service
-from ally.api.criteria import AsLike
+from ally.api.config import query, service, call, UPDATE
+from ally.api.criteria import AsLike, AsDateOrdered
 from content.packager.api.item import Item
+from ally.api.type import Reference
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -26,6 +28,8 @@ class Article(Entity):
     Creator = str
     Author = str
     Content = str
+    PublishedOn = datetime
+    Preview = Reference
 
 # --------------------------------------------------------------------
 
@@ -36,6 +40,7 @@ class QArticle(QEntity):
     '''
     creator = AsLike
     author = AsLike
+    publishedOn = AsDateOrdered
 
 # --------------------------------------------------------------------
 
@@ -44,3 +49,12 @@ class IArticleService(IEntityService):
     '''
     Provides the service methods for Article model.
     '''
+
+    @call(method=UPDATE, webName="Publish")
+    def publish(self, id:Article.Id):
+        '''
+        Publish the article identified by the given id.
+
+        @param id: int
+            The article identifier
+        '''

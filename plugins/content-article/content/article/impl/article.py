@@ -19,6 +19,7 @@ from content.packager.api.item import IItemService, Item, IItemContentService, \
     ItemContent
 from ally.container import wire
 from content.packager.api.content import IContentService, Content
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
     Implementation for @see: IArticleService
     '''
 
-    preview_url = 'localhost/%(guid)s';  wire.config('preview_url', doc='''The article preview URL''')
+    preview_url = 'http://localhost:8000/article/%(guid)s';  wire.config('preview_url', doc='''The article preview URL''')
 
     itemService = IItemService; wire.entity('itemService')
     # item service used to convert article content to NewsML structure
@@ -44,17 +45,41 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         EntityServiceAlchemy.__init__(self, ArticleMapped)
 
+    def publish(self, id):
+        '''
+        Implementation of @see: IArticleService.publish
+        '''
+        article = EntityServiceAlchemy.getById(self, id)
+        assert isinstance(article, Article)
+        article.PublishedOn = current_timestamp()
+        EntityServiceAlchemy.update(self, article)
+
+    def getById(self, id):
+        '''
+        Implementation of @see: IArticleService.getById
+        '''
+        article = EntityServiceAlchemy.getById(self, id)
+        params = dict(guid=article.Item)
+        article.Preview = self.preview_url % params
+        return article
+
     def getAll(self, offset, limit, detailed, q):
+        '''
+        Implementation of @see: IArticleService.getAll
+        '''
         articles = EntityServiceAlchemy.getAll(self, offset, limit, detailed, q)
 
         for article in articles:
             assert isinstance(article, Article)
-            params = dict(guid=article.GUId)
+            params = dict(guid=article.Item)
             article.Preview = self.preview_url % params
 
         return articles
 
     def insert(self, article):
+        '''
+        Implementation of @see: IArticleService.publish
+        '''
         assert isinstance(article, Article)
         rawContent = JSONDecoder().decode(article.Content)
         item = Item()

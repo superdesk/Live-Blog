@@ -13,9 +13,10 @@ from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.types import String, TEXT
+from sqlalchemy.types import String, TEXT, DateTime
 from content.article.api.article import Article
 from content.packager.meta.item import ItemMapped
+from ally.container.binder_op import validateManaged
 
 # --------------------------------------------------------------------
 
@@ -32,3 +33,7 @@ class ArticleMapped(Base, Article):
     Creator = Column('creator', String(150), nullable=False)
     Author = Column('author', String(150), nullable=False)
     Content = Column('content', TEXT, nullable=False)
+    PublishedOn = Column('published_on', DateTime)
+
+validateManaged(ArticleMapped.Item)
+validateManaged(ArticleMapped.PublishedOn)
