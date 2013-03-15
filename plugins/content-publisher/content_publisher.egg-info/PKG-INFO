@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: content-publisher
+Version: 1.0.dev
+Summary: Content publisher plugin
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Mugur Rus
+Author-email: mugur.rus@sourcefabric.org
+License: GPL v3
+Description: Content publisher functionality (model, service)
+Keywords: Ally REST framework plugin content publisher
+Platform: all
