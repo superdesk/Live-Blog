@@ -20,6 +20,7 @@ from content.packager.api.item import IItemService, Item, IItemContentService, \
 from ally.container import wire
 from content.packager.api.content import IContentService, Content
 from sqlalchemy.sql.functions import current_timestamp
+from content.publisher.api.publisher import IContentPublisherService
 
 # --------------------------------------------------------------------
 
@@ -38,6 +39,8 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
     # item content service used to convert article content to NewsML structure
     contentService = IContentService; wire.entity('contentService')
     # content service used to convert article content to NewsML structure
+    contentPublisherService = IContentPublisherService; wire.entity('contentPublisherService')
+    # content service used to publish the article content to the web
 
     def __init__(self):
         '''
@@ -50,9 +53,22 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         Implementation of @see: IArticleService.publish
         '''
         article = EntityServiceAlchemy.getById(self, id)
-        assert isinstance(article, Article)
-        article.PublishedOn = current_timestamp()
-        EntityServiceAlchemy.update(self, article)
+        if article.PublishedOn is None:
+            assert isinstance(article, Article)
+            article.PublishedOn = current_timestamp()
+            EntityServiceAlchemy.update(self, article)
+            self.contentPublisherService.publish(article.Item)
+
+    def unpublish(self, id):
+        '''
+        Implementation of @see: IArticleService.unpublish
+        '''
+        article = EntityServiceAlchemy.getById(self, id)
+        if article.PublishedOn is not None:
+            assert isinstance(article, Article)
+            article.PublishedOn = None
+            EntityServiceAlchemy.update(self, article)
+            self.contentPublisherService.unpublish(article.Item)
 
     def getById(self, id):
         '''

@@ -43,13 +43,11 @@ class ContentPublisherService(IContentPublisherService):
         '''
         Construct the content publisher service.
         '''
-
         assert isinstance(self.mongodb_server, str), 'Invalid mongoDb server address %s' % self.mongodb_server
         assert isinstance(self.mongodb_port, int), 'Invalid mongoDb server port %s' % self.mongodb_port
         assert isinstance(self.mongodb_database, str), 'Invalid mongoDb database name %s' % self.mongodb_database
 
         mongoengine.connect(self.mongodb_database, host=self.mongodb_server, port=self.mongodb_port)
-
 
     def publish(self, guid):
         '''
@@ -70,7 +68,7 @@ class ContentPublisherService(IContentPublisherService):
         item.creditline = myItem.CreditLine
         item.firstCreated = myItem.FirstCreated
         item.versionCreated = myItem.VersionCreated
-        item.save(safe=True)
+        item.save(safe=False)
 
         q = QItemContent()
         q.item = myItem.GUId
@@ -80,13 +78,13 @@ class ContentPublisherService(IContentPublisherService):
             myContent = self.contentService.getById(c.Content)
             assert isinstance(myContent, MyContent)
             content = Content()
-            content.contenttype = c.ContentType
-            content.content = c.Content
-            content.residRef = c.ResidRef
-            content.href = c.HRef
-            content.size = c.Size
-            content.rendition = c.Rendition
-            self.contentService.insert(content)
+            content.contenttype = myContent.ContentType
+            content.content = myContent.Content
+            content.residRef = myContent.ResidRef
+            content.href = myContent.HRef
+            content.size = myContent.Size
+            content.rendition = myContent.Rendition
+            content.save(safe=False)
 
         return True
 

@@ -58,3 +58,12 @@ class IArticleService(IEntityService):
         @param id: int
             The article identifier
         '''
+
+    @call(method=UPDATE, webName="Unpublish")
+    def unpublish(self, id:Article.Id):
+        '''
+        Unpublish the article identified by the given id.
+
+        @param id: int
+            The article identifier
+        '''
