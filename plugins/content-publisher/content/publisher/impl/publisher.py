@@ -70,6 +70,6 @@ class ContentPublisherService(IContentPublisherService):
         Implementation for @see: IContentPublisherService.unpublish      
         ''' 
         #Test delete document
-        #Item.objects(pk=guid).delete(safe=True)
+        Item.objects(guid=guid).delete(safe=True)
         return True
         
