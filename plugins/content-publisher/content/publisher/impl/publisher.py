@@ -63,6 +63,8 @@ class ContentPublisherService(IContentPublisherService):
         
         item.save(safe=True)
         
+        print("Added doc with id=", str(item.id))
+        
         return True
            
     def unpublish(self, guid): 
