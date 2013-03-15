@@ -68,7 +68,6 @@ class ContentPublisherService(IContentPublisherService):
         item.creditline = myItem.CreditLine
         item.firstCreated = myItem.FirstCreated
         item.versionCreated = myItem.VersionCreated
-        item.save(safe=False)
 
         q = QItemContent()
         q.item = myItem.GUId
@@ -84,8 +83,9 @@ class ContentPublisherService(IContentPublisherService):
             content.href = myContent.HRef
             content.size = myContent.Size
             content.rendition = myContent.Rendition
-            content.save(safe=False)
+            item.contents.append(content)
 
+        item.save(safe=True)
         return True
 
     def unpublish(self, guid):

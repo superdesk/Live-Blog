@@ -11,7 +11,8 @@ API implementation for item.
 
 from ally.container.support import setup
 from content.packager.api.item import IItemService, IItemGroupService, \
-    IItemContentService, QItem, QItemGroup, QItemContent
+    IItemContentService, QItem, QItemGroup, QItemContent, Item, CLASS_TEXT, \
+    CLASS_PACKAGE
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, ItemMapped
 from ally.exception import InputError, Ref
@@ -78,6 +79,9 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         @see: IItemService.insert
         '''
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
+        assert isinstance(item, Item)
+        assert item.ItemClass == CLASS_TEXT or item.ItemClass == CLASS_PACKAGE, \
+            'Invalid item class %s, expected %s or %s' % (item.ItemClass, CLASS_TEXT, CLASS_PACKAGE)
         itemDb = copy(item, ItemMapped())
         assert isinstance(itemDb, ItemMapped)
         # TODO: generate proper guid: generate better itemId, externalise as a service

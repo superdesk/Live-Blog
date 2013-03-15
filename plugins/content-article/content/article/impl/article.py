@@ -16,7 +16,7 @@ from content.article.meta.article import ArticleMapped
 from json.decoder import JSONDecoder
 from ally.container.ioc import injected
 from content.packager.api.item import IItemService, Item, IItemContentService, \
-    ItemContent
+    ItemContent, CLASS_TEXT
 from ally.container import wire
 from content.packager.api.content import IContentService, Content
 from sqlalchemy.sql.functions import current_timestamp
@@ -99,6 +99,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(article, Article)
         rawContent = JSONDecoder().decode(article.Content)
         item = Item()
+        item.ItemClass = CLASS_TEXT
         item.HeadLine = rawContent['Title']
         item.SlugLine = '-'.join(item.HeadLine.split())
         item.Version = 1
