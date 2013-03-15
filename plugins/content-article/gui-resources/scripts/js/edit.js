@@ -2,32 +2,62 @@ define
 ([
     'jquery',
     'gizmo/superdesk',
+    config.guiJs('content-article', 'models/article'),
+    config.guiJs('media-archive', 'adv-upload'),
+    'gizmo/superdesk/action',
     'jqueryui/texteditor',
     'tmpl!superdesk/content-article>edit'
 ], 
-function($, giz)
+function($, giz, Article, Upload, Action)
 {
     var
+    
+    upload = new Upload,
+    uploadEditorCommand = function(command)
+    {
+        this.execute = function() 
+        {
+            upload.activate();
+            $(upload.el).addClass('modal hide fade').modal();
+        };
+        this.toggleState = $.noop;
+        this.queryState = $.noop;
+        this._elements = [];
+        this.addElement = function(elem)
+        {
+            this._elements.push(elem);
+        };
+        this.getElements = function()
+        {
+            return this._elements;
+        };
+        this.id = command;
+    },
+    texteditorUpload = function()
+    {
+        var element = this.plugins.controlElements.image || $('<a class="image" />').html(''),
+            command = $.ui.texteditor.prototype.plugins.lib.commandFactory(new uploadEditorCommand('image'), element);
+        $(upload).on('complete', function(){ console.log(uploadView.getRegisteredItems()); });
+        return command;
+    },
+    editorControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : texteditorUpload }),
     
     // custom editor plugins
     editor = 
     {
         // add the fixed toolbar
-        fixedToolbar:
+        fixedToolbar: function(place)
         {
-            _create: function(elements)
+            return { _create: function(elements)
             {
                 var self = this;
                 $(elements).on('toolbar-created', function()
                 {
-                    $(editor.toolbarPlace).html('');
-                    self.plugins.toolbar.element.appendTo(editor.toolbarPlace); 
+                    self.plugins.toolbar.element.appendTo(place); 
                 }); 
-            }
+            }};
         }
     },
-    
-    MockModel = giz.Model.extend({url: new giz.Url('Content/Article')}),
     
     ArticleView = giz.View.extend
     ({
@@ -61,50 +91,67 @@ function($, giz)
             
         },
         */
-        init: function(data)
+        init: function(hash)
         {
-            //this.model = new MockModel(MockModel.prototype.url.get()+'/'+data.articleId);
-            //this.model.on('read update', this.render, this).sync();
-            this.model = new MockModel();
-            this.model.data = 
-            {
-                title: 
-                { 
-                    
-                },
-                lead: { },
-                body: { }
-            };
-            this.render();
+            this.model = new Article(hash);
+            this.model.on('read update', this.render, this).sync();
         },
         render: function()
         {
-            var self = this;
+            var self = this,
+                feed = this.model.feed();
+            feed.Content = JSON.parse(feed.Content);
             $('#area-main').html(this.el);
-            $(this.el).tmpl('superdesk/content-article>edit', this.model.feed(), function()
+            $(this.el).tmpl('superdesk/content-article>edit', feed, function()
             {
                 editor.toolbarPlace = $('.editor-toolbar', self.el);
-                $('#main-article section', this.el).texteditor
+                $('#main-article section [contenteditable]', this.el).texteditor
                 ({ 
                     plugins: 
                     { 
+                        controls: editorControls,
                         floatingToolbar: null,
                         draggableToolbar: null,
-                        fixedToolbar: editor.fixedToolbar,
+                        fixedToolbar: editor.fixedToolbar($('.editor-toolbar-placeholder', self.el)),
                         controlElements: 
                         {
-                            bold: $('.editor-toolbar .strong', self.el),
-                            italic: $('.editor-toolbar .emphasis', self.el),
-                            underline: $('.editor-toolbar .underline', self.el),
-                            strike: null,
-                            link: $('.editor-toolbar .link', self.el),
-                            image: $('.editor-toolbar .insertImage-oer', self.el),
+                            bold: $('.editor-toolbar-stuff .strong', self.el),
+                            italic: $('.editor-toolbar-stuff .emphasis', self.el),
+                            underline: $('.editor-toolbar-stuff .underline', self.el),
+                            strike: $('.editor-toolbar-stuff .strike', self.el),
+                            link: $('.editor-toolbar-stuff .insertLink', self.el),
+                            image: $('.editor-toolbar-stuff .insertImage-oer', self.el),
                         }
                     }
                 });
+                $('.editor-toolbar-stuff', self.el).remove();
             });
+        },
+        
+        events:
+        {
+            "[data-action='add']": { 'click': 'add' },
+            "[data-action='save']": { 'click': 'save' }
+        },
+        /*!
+         * add a new article
+         */
+        add: function()
+        {
+            Action.initApp('modules.article.add');
+        },
+        
+        save: function()
+        {
+            var Content = {};
+            $('#main-article [data-content]', self.el).each(function()
+            {
+                Content[$(this).attr('data-content')] = $('[contenteditable]', $(this)).html();  
+            });
+            this.model.set({Content: JSON.stringify(Content)}).sync();
         }
+        
     });
     
-    return { init: function(id){ return new ArticleView({articleId: id}); }}; 
+    return { init: function(articleHash){ return new ArticleView(articleHash); }}; 
 });
