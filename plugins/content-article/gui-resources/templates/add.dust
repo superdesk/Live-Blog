@@ -14,5 +14,5 @@
 	</div>
 	<div class="modal-footer">
 		<a href="javascript:void(0)" class="btn" data-dismiss="modal">_("Cancel");</a>
-    	<a href="javascript:void(0)" class="btn save btn-primary" data-action="save">_("Save changes");</a>
+    	<a href="javascript:void(0)" class="btn save btn-primary"  data-dismiss="modal" data-action="save">_("Save changes");</a>
 	</div>

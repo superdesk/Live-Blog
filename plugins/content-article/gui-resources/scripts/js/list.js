@@ -39,8 +39,8 @@ function($, giz, gizList, Action, User)
             var dfd = new $.Deferred;
             if( !userCache.list[id] )
             {
-                var user = new User((new giz.Url('HR/User')).get()+'/'+id)
-                user.sync().done(function(){ userCache.list[user.get('Id')]; dfd.resolve(user); })
+                var user = new User((new giz.Url('HR/User')).get()+'/'+id);
+                user.sync().done(function(){ userCache.list[user.get('Id')]; dfd.resolve(user); });
             }
             else dfd.resolve(userCachelist[id]);
             return dfd;   
@@ -93,7 +93,8 @@ function($, giz, gizList, Action, User)
     }),
     listViewEvents = $.extend( true, gizList.ListView.prototype.events, 
     { 
-        "[data-action='multi-delete']": { "click": "multiDelete" } 
+        "[data-action='multi-delete']": { "click": "multiDelete" },
+        "[data-action='add']": { 'click': 'add' }
     }),
     ListView = gizList.ListView.extend
     ({
@@ -106,6 +107,10 @@ function($, giz, gizList, Action, User)
             return this.collection; 
         },
 
+        add: function()
+        {
+            Action.initApp('modules.article.add');
+        },
 
         /*!
          * delete all selected from list

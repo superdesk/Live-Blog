@@ -3,9 +3,10 @@ define
     'jquery',
     'gizmo/superdesk',
     config.guiJs('content-article', 'models/article'),
+    'gizmo/superdesk/action',
     'tmpl!superdesk/content-article>add'
 ],
-function($, giz, Article)
+function($, giz, Article, Action)
 {
     var
     AddView = giz.View.extend
@@ -40,7 +41,7 @@ function($, giz, Article)
                 .sync()
                 .done(function()
                 { 
-                    Action.initApp('modules.article.edit', article.getHash());
+                    Action.initApp('modules.article.edit', article.hash());
                 });
         }
     }),

@@ -6,10 +6,13 @@ html,body{
 </style>
 <div class="subnav subnav-fixed">
 	<input type="text" name="searchbar" class="searchbar-container" style="width:500px;">
-	<a class="btn btn-medium btn-info pull-right" href="#"><span class="medium-icon-add"></span>_('Add New Article')</a>
+	
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
-      <div class="btn-toolbar">
+     <div class="btn-toolbar">
+     <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add">
+		<span class="medium-icon-add"></span>_('Add New Article')
+	</a>
       	<!--
         <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
