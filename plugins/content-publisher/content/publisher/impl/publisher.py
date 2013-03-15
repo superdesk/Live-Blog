@@ -14,8 +14,10 @@ from content.publisher.api.publisher import IContentPublisherService
 from ally.container.ioc import injected
 from ally.container import wire
 import mongoengine
-from content.publisher.meta.publisher import Item
-import datetime
+from content.publisher.meta.publisher import Item, Content
+from content.packager.api.item import IItemService, IItemContentService, Item as MyItem, \
+    QItemContent, ItemContent
+from content.packager.api.content import IContentService, Content as MyContent
 
 # --------------------------------------------------------------------
 
@@ -28,50 +30,71 @@ class ContentPublisherService(IContentPublisherService):
 
     mongodb_server = 'localhost'; wire.config('mongodb_server', doc='''The address of the mongoDb server''')
     mongodb_port = 27017; wire.config('mongodb_port', doc='''The port of the mongoDb server''')
-    mongodb_database = 'superdesk'; wire.config('mongodb_database', doc='''The name of the mongoDb database''')
+    mongodb_database = 'mongodb'; wire.config('mongodb_database', doc='''The name of the mongoDb database''')
+
+    itemService = IItemService; wire.entity('itemService')
+    # item service used to convert article content to NewsML structure
+    itemContentService = IItemContentService; wire.entity('itemContentService')
+    # item content service used to convert article content to NewsML structure
+    contentService = IContentService; wire.entity('contentService')
+    # content service used to convert article content to NewsML structure
 
     def __init__(self):
         '''
         Construct the content publisher service.
         '''
-        
+
         assert isinstance(self.mongodb_server, str), 'Invalid mongoDb server address %s' % self.mongodb_server
         assert isinstance(self.mongodb_port, int), 'Invalid mongoDb server port %s' % self.mongodb_port
         assert isinstance(self.mongodb_database, str), 'Invalid mongoDb database name %s' % self.mongodb_database
-        
+
         mongoengine.connect(self.mongodb_database, host=self.mongodb_server, port=self.mongodb_port)
 
 
     def publish(self, guid):
         '''
-        Implementation for @see: IContentPublisherService.publish   
+        Implementation for @see: IContentPublisherService.publish
         '''
-        #Test add document
-        
+        # Test add document
+        myItem = self.itemService.getById(guid)
+        assert isinstance(myItem, MyItem)
+
         item = Item()
-        
-        item.guid = guid
-        item.version = 1
-        item.itemClass = Item.CLASS_TEXT
-        item.urgency = 'urgency'
-        item.headline = 'headline'
-        item.slugline = 'slugline'
-        item.byline = 'byline'
-        item.creditline = 'creditline'
-        item.firstCreated = datetime.datetime.now()
-        item.versionCreated = datetime.datetime.now()
-        
+        item.guid = myItem.GUId
+        item.version = myItem.Version
+        item.itemClass = myItem.ItemClass
+        item.urgency = myItem.Urgency
+        item.headline = myItem.HeadLine
+        item.slugline = myItem.SlugLine
+        item.byline = myItem.Byline
+        item.creditline = myItem.CreditLine
+        item.firstCreated = myItem.FirstCreated
+        item.versionCreated = myItem.VersionCreated
         item.save(safe=True)
-        
-        print("Added doc with id=", str(item.id))
-        
+
+        q = QItemContent()
+        q.item = myItem.GUId
+        contents = self.itemContentService.getAll(q=q)
+        for c in contents:
+            assert isinstance(c, ItemContent)
+            myContent = self.contentService.getById(c.Content)
+            assert isinstance(myContent, MyContent)
+            content = Content()
+            content.contenttype = c.ContentType
+            content.content = c.Content
+            content.residRef = c.ResidRef
+            content.href = c.HRef
+            content.size = c.Size
+            content.rendition = c.Rendition
+            self.contentService.insert(content)
+
         return True
-           
-    def unpublish(self, guid): 
+
+    def unpublish(self, guid):
         '''
-        Implementation for @see: IContentPublisherService.unpublish      
-        ''' 
-        #Test delete document
+        Implementation for @see: IContentPublisherService.unpublish
+        '''
+        # Test delete document
         Item.objects(guid=guid).delete(safe=True)
         return True
-        
+

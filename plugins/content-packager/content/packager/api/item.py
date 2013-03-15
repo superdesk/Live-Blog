@@ -13,7 +13,7 @@ from content.packager.api.domain_content import modelContent
 from datetime import datetime
 from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
-from ally.support.api.entity import Entity, IEntityService
+from ally.support.api.entity import Entity, IEntityService, QEntity
 from content.packager.api.group import Group
 from content.packager.api.content import Content
 from ally.api.type import Iter
@@ -72,6 +72,20 @@ class QItem:
     firstCreated = AsDateOrdered
     versionCreated = AsDateOrdered
 
+@query(ItemGroup)
+class QItemGroup(QEntity):
+    '''
+    Provides the item group query.
+    '''
+    item = AsLike
+
+@query(ItemContent)
+class QItemContent(QEntity):
+    '''
+    Provides the item content query.
+    '''
+    item = AsLike
+
 # --------------------------------------------------------------------
 
 @service
@@ -106,11 +120,11 @@ class IItemService:
         '''
 
     @call
-    def insert(self, guid:Item) -> Item.GUId:
+    def insert(self, item:Item) -> Item.GUId:
         '''
         Insert the item, also the item will have automatically assigned the GUId to it.
 
-        @param guid: Item
+        @param item: Item
             The item to be inserted.
 
         @return: The id assigned to the item

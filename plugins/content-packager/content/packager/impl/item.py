@@ -11,7 +11,7 @@ API implementation for item.
 
 from ally.container.support import setup
 from content.packager.api.item import IItemService, IItemGroupService, \
-    IItemContentService, QItem
+    IItemContentService, QItem, QItemGroup, QItemContent
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.packager.meta.item import ItemGroupMapped, ItemContentMapped, ItemMapped
 from ally.exception import InputError, Ref
@@ -180,7 +180,7 @@ class ItemGroupServiceAlchemy(EntityServiceAlchemy, IItemGroupService):
         '''
         Construct the item group service.
         '''
-        EntityServiceAlchemy.__init__(self, ItemGroupMapped)
+        EntityServiceAlchemy.__init__(self, ItemGroupMapped, QItemGroup)
 
 # --------------------------------------------------------------------
 
@@ -194,4 +194,4 @@ class ContentServiceAlchemy(EntityServiceAlchemy, IItemContentService):
         '''
         Construct the item content service.
         '''
-        EntityServiceAlchemy.__init__(self, ItemContentMapped)
+        EntityServiceAlchemy.__init__(self, ItemContentMapped, QItemContent)

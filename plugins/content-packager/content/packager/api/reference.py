@@ -10,10 +10,10 @@ API specifications for reference.
 '''
 
 from content.packager.api.domain_content import modelContent
-from ally.api.config import query, service, call, LIMIT_DEFAULT
+from ally.api.config import query, service
 from ally.api.criteria import AsLike, AsRangeOrdered
-from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityService
+from ally.api.type import Reference as ReferenceType
 
 # --------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ class Reference(Entity):
     IdRef = str
     ItemClass = str
     ResidRef = str
-    Href = str
+    HRef = ReferenceType
     Size = int
     Rendition = str
     ContentType = str

@@ -11,14 +11,15 @@ Contains SQL alchemy meta for article API.
 
 from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
-from sqlalchemy.schema import Column
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.types import String, TEXT
 from content.article.api.article import Article
+from content.packager.meta.item import ItemMapped
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=['Item'])
 class ArticleMapped(Base, Article):
     '''
     Provides the mapping for Article.
@@ -27,6 +28,7 @@ class ArticleMapped(Base, Article):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='RESTRICT'), nullable=False)
     Creator = Column('creator', String(150), nullable=False)
     Author = Column('author', String(150), nullable=False)
     Content = Column('content', TEXT, nullable=False)

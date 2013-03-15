@@ -29,7 +29,7 @@ class ReferenceMapped(Base, Reference):
     IdRef = Column('id_ref', String(190))
     ItemClass = Column('item_class', String(255))
     ResidRef = Column('resid_ref', String(1000))
-    Href = Column('href', String(1000))
+    HRef = Column('href', String(1000))
     Size = Column('size', Integer(unsigned=True))
     Rendition = Column('rendition', String(1000))
     ContentType = Column('content_type', String(255))
