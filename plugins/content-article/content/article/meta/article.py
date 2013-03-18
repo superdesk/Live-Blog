@@ -17,6 +17,7 @@ from sqlalchemy.types import String, TEXT, DateTime
 from content.article.api.article import Article
 from content.packager.meta.item import ItemMapped
 from ally.container.binder_op import validateManaged
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # --------------------------------------------------------------------
 
@@ -34,6 +35,12 @@ class ArticleMapped(Base, Article):
     Author = Column('author', String(150), nullable=False)
     Content = Column('content', TEXT, nullable=False)
     PublishedOn = Column('published_on', DateTime)
+    @hybrid_property
+    def IsPublished(self):
+        return self.PublishedOn is not None
+
+    # Expression for hybrid ------------------------------------
+    IsPublished.expression(lambda cls: cls.PublishedOn != None)
 
 validateManaged(ArticleMapped.Item)
 validateManaged(ArticleMapped.PublishedOn)

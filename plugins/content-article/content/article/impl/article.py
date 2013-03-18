@@ -124,8 +124,11 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
 
     def update(self, article):
         assert isinstance(article, Article)
-        self.delete(article.Id)
-        self.insert(article)
+        EntityServiceAlchemy.update(self, article)
+        self.itemService.delete(article.Item)
+        self.itemService.insert(article)
+        if article.PublishedOn is not None:
+            self.contentPublisherService.publish(article.Item)
 
     def delete(self, id):
         article = EntityServiceAlchemy.getById(self, id)

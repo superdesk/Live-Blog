@@ -29,6 +29,7 @@ class Article(Entity):
     Author = str
     Content = str
     PublishedOn = datetime
+    IsPublished = bool
     Preview = Reference
 
 # --------------------------------------------------------------------
