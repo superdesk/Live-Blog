@@ -6,7 +6,7 @@ define
     config.guiJs('media-archive', 'adv-upload'),
     'gizmo/superdesk/action',
     'jqueryui/texteditor',
-    'tmpl!superdesk/content-article>edit'
+    'tmpl!superdesk/superdesk/article>edit'
 ], 
 function($, giz, Article, Upload, Action)
 {
@@ -63,7 +63,19 @@ function($, giz, Article, Upload, Action)
     ({
         renderCallback: function()
         {
-            require({ context: 'aloha', baseUrl: config.cjs('aloha/src/lib')},
+            require
+            ({ 
+                context: 'aloha', 
+                baseUrl: config.cjs('aloha/src/lib'),
+                paths:
+                {
+                    "block": "../plugins/common/block/lib",
+                    "block/vendor": "../plugins/common/block/vendor",
+                    "block/css": "../plugins/common/block/css",
+                    "block/nls": "../plugins/common/block/nls",
+                    "block/res": "../plugins/common/block/res"
+                }
+            },
             ['aloha'],
             function(Aloha)
             { 
@@ -103,6 +115,7 @@ function($, giz, Article, Upload, Action)
             $('#area-main').html(this.el);
             $(this.el).tmpl('superdesk/content-article>edit', feed, function()
             {
+                self.renderCallback();
                 editor.toolbarPlace = $('.editor-toolbar', self.el);
                 $('#main-article section [contenteditable]', this.el).texteditor
                 ({ 
