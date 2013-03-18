@@ -6,8 +6,8 @@ define
     'gizmo/superdesk/action',
     config.guiJs('superdesk/article', 'models/article'),
     config.guiJs('superdesk/user', 'models/user'),
-    'tmpl!superdesk/superdesk/article>list',
-    'tmpl!superdesk/superdesk/article>list-item',
+    'tmpl!superdesk/article>list',
+    'tmpl!superdesk/article>list-item',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
     'tmpl!core>layouts/footer-dinamic'

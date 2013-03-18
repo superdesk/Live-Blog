@@ -6,7 +6,7 @@ define
     config.guiJs('media-archive', 'adv-upload'),
     'gizmo/superdesk/action',
     'jqueryui/texteditor',
-    'tmpl!superdesk/superdesk/article>edit'
+    'tmpl!superdesk/article>edit'
 ], 
 function($, giz, Article, Upload, Action)
 {
