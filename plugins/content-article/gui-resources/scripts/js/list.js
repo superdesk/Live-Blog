@@ -4,6 +4,7 @@ define
     'gizmo/superdesk',
     'gizmo/views/list',
     'gizmo/superdesk/action',
+    config.guiJs('superdesk/article', 'models/article'),
     config.guiJs('superdesk/user', 'models/user'),
     'tmpl!superdesk/content-article>list',
     'tmpl!superdesk/content-article>list-item',
@@ -12,24 +13,13 @@ define
     'tmpl!core>layouts/footer-dinamic'
 ],
 
-function($, giz, gizList, Action, User)
+function($, giz, gizList, Action, Article, User)
 {
     var
-    MockModel = giz.Model.extend({}),
-    MockCollection = giz.Collection.extend
+    ArticleCollection = giz.Collection.extend
     ({
-        model: MockModel,
-        href: new giz.Url('Content/Article'),
-        /*
-        sync: function()
-        {
-            var self = this,
-                dfd = new $.Deferred;
-            dfd.done(function(){ self._list = self._parse({AList:[{Title: 'Demo Article', Id: '1'}, {Title: 'Demo Hamster', Id: '2'}, {Title: 'Miau Hamster', Id: '3'}, {Title: 'Gorgeous Hamster', Id: '4'}]}); });
-            dfd.resolve();
-            return dfd;
-        }
-        */
+        model: Article,
+        href: Article.prototype.url
     }),
 
     userCache = {
@@ -88,7 +78,7 @@ function($, giz, gizList, Action, User)
         },
         edit: function()
         {
-            Action.initApp('modules.article.edit', this.model.get('Id'));
+            Action.initApp('modules.article.edit', this.model.hash());
         }
     }),
     listViewEvents = $.extend( true, gizList.ListView.prototype.events, 
@@ -103,7 +93,7 @@ function($, giz, gizList, Action, User)
         itemView: ItemView,
         getCollection: function()
         { 
-            if(!this.collection) this.collection = new MockCollection;
+            if(!this.collection) this.collection = new ArticleCollection;
             return this.collection; 
         },
 

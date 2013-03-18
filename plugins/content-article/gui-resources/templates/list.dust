@@ -74,7 +74,7 @@ html,body{
 
           <tr>
             <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td>
-            <td class="title_col"><a href="#">Liveblog-Test Baselland</a></td>
+            <td class="title_col"><a href="javascript:void(0)" data-action="edit">Liveblog-Test Baselland</a></td>
             <td>David Bauer</td>
             <td>2013-03-10 13:32:20</td>
             <td>Published</td>
@@ -82,10 +82,10 @@ html,body{
               <div class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Action <b class="caret"></b></a>
                 <ul class="dropdown-menu sf-dropdown-simple pull-right">
-                  <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
-                  <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
-                  <li><a href="#"><i class="icon-ban-circle"></i> Unpublish</a></li>
-                  <li><a href="#"><i class="icon-eye-open"></i> Preview</a></li>
+                  <li><a href="javascript:void(0)" data-action="edit"><i class="icon-pencil"></i> Edit</a></li>
+                  <li><a href="javascript:void(0)"><i class="icon-trash"></i> Delete</a></li>
+                  <li><a href="javascript:void(0)"><i class="icon-ban-circle"></i> Unpublish</a></li>
+                  <li><a href="javascript:void(0)"><i class="icon-eye-open"></i> Preview</a></li>
                 </ul>
               </div>
             </td>

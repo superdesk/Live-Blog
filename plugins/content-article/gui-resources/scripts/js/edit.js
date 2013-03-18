@@ -2,7 +2,7 @@ define
 ([
     'jquery',
     'gizmo/superdesk',
-    config.guiJs('content-article', 'models/article'),
+    config.guiJs('superdesk/article', 'models/article'),
     config.guiJs('media-archive', 'adv-upload'),
     'gizmo/superdesk/action',
     'jqueryui/texteditor',
@@ -61,7 +61,6 @@ function($, giz, Article, Upload, Action)
     
     ArticleView = giz.View.extend
     ({
-        /*
         renderCallback: function()
         {
             require({ context: 'aloha', baseUrl: config.cjs('aloha/src/lib')},
@@ -90,7 +89,7 @@ function($, giz, Article, Upload, Action)
             });
             
         },
-        */
+
         init: function(hash)
         {
             this.model = new Article(hash);

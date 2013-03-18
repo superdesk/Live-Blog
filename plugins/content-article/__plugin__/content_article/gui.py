@@ -15,6 +15,6 @@ from ..gui_core.gui_core import publishGui, publish
 
 @publish
 def publishJS():
-    publishGui('superdesk/content-article')
+    publishGui('superdesk/article')
     
     

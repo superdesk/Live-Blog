@@ -1,7 +1,7 @@
 
 <!-- <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td> -->
 <td>{Id}</td>
-<td class="title_col"><a href="#">{Content.Title}</a></td>
+<td class="title_col"><a href="javascript:void(0)" data-action="edit">{Content.Title}</a></td>
 <td><span data-article-id="{Id}"><span data-placeholder="Author"></span></span></td>
 <td>2013-03-10 13:32:20</td>
 <td>Published</td>
@@ -9,7 +9,7 @@
 	<div class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Action <b class="caret"></b></a>
 		<ul class="dropdown-menu sf-dropdown-simple pull-right">
-			<li data-action="edit"><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+			<li data-action="edit"><a href="javascript:void(0)" data-action="edit"><i class="icon-pencil"></i> Edit</a></li>
 			<li data-action="delete"><a href="#"><i class="icon-trash"></i> Delete</a></li>
 			<li data-action="unpublish"><a href="#"><i class="icon-ban-circle"></i> Unpublish</a></li>
 			<li data-action="preview"><a href="#"><i class="icon-eye-open"></i> Preview</a></li>
