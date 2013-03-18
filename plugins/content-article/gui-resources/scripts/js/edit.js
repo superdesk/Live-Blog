@@ -113,9 +113,9 @@ function($, giz, Article, Upload, Action)
                 feed = this.model.feed();
             feed.Content = JSON.parse(feed.Content);
             $('#area-main').html(this.el);
-            $(this.el).tmpl('superdesk/content-article>edit', feed, function()
+            $(this.el).tmpl('superdesk/article>edit', feed, function()
             {
-                self.renderCallback();
+                //self.renderCallback();
                 editor.toolbarPlace = $('.editor-toolbar', self.el);
                 $('#main-article section [contenteditable]', this.el).texteditor
                 ({ 

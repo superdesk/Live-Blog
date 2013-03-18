@@ -39,7 +39,7 @@ function($, giz, gizList, Action, Article, User)
 
     ItemView = gizList.ItemView.extend
     ({ 
-        tmpl: 'superdesk/content-article>list-item',
+        tmpl: 'superdesk/article>list-item',
         render: function()
         { 
             var self = this,
@@ -89,7 +89,7 @@ function($, giz, gizList, Action, Article, User)
     ListView = gizList.ListView.extend
     ({
         events: listViewEvents,
-        tmpl: 'superdesk/content-article>list',
+        tmpl: 'superdesk/article>list',
         itemView: ItemView,
         getCollection: function()
         { 

@@ -2,9 +2,9 @@ define
 ([
     'jquery',
     'gizmo/superdesk',
-    config.guiJs('content-article', 'models/article'),
+    config.guiJs('superdesk/article', 'models/article'),
     'gizmo/superdesk/action',
-    'tmpl!superdesk/content-article>add'
+    'tmpl!superdesk/article>add'
 ],
 function($, giz, Article, Action)
 {
@@ -13,6 +13,7 @@ function($, giz, Article, Action)
     ({
         events:
         {
+            "form": { 'submit': 'save' },
             "[data-action='save']": { 'click': 'save' }
         },
         activate: function()
@@ -26,10 +27,12 @@ function($, giz, Article, Action)
         render: function()
         {
             var self = this;
-            $(self.el).tmpl('superdesk/content-article>add');
+            $(self.el).tmpl('superdesk/article>add');
         },
-        save: function()
+        save: function(evt)
         {
+            evt.preventDefault();
+            this.el.modal('hide');
             var article = new Article;
             article
                 .set
