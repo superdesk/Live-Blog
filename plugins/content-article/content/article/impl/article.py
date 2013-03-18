@@ -123,7 +123,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         return EntityServiceAlchemy.insert(self, article)
 
     def update(self, article):
-        pass
+        assert isinstance(article, Article)
+        self.delete(article.Id)
+        self.insert(article)
 
     def delete(self, id):
-        pass
+        article = EntityServiceAlchemy.getById(self, id)
+        return self.itemService.delete(article.Item)
