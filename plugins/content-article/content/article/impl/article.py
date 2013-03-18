@@ -21,6 +21,7 @@ from ally.container import wire
 from content.packager.api.content import IContentService, Content
 from sqlalchemy.sql.functions import current_timestamp
 from content.publisher.api.publisher import IContentPublisherService
+from ally.api.config import LIMIT_DEFAULT
 
 # --------------------------------------------------------------------
 
@@ -70,6 +71,12 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             EntityServiceAlchemy.update(self, article)
             self.contentPublisherService.unpublish(article.Item)
 
+    def search(self, text):
+        '''
+        Implementation of @see: IArticleService.search
+        '''
+        return self.getAll()
+
     def getById(self, id):
         '''
         Implementation of @see: IArticleService.getById
@@ -79,7 +86,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         article.Preview = self.preview_url % params
         return article
 
-    def getAll(self, offset, limit, detailed, q):
+    def getAll(self, offset=None, limit=LIMIT_DEFAULT, detailed=False, q=None):
         '''
         Implementation of @see: IArticleService.getAll
         '''

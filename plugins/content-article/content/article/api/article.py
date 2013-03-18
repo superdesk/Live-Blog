@@ -11,10 +11,10 @@ API specifications for article.
 
 from content.packager.api.domain_content import modelContent
 from ally.support.api.entity import Entity, QEntity, IEntityService
-from ally.api.config import query, service, call, UPDATE
+from ally.api.config import query, service, call, UPDATE, GET
 from ally.api.criteria import AsLike, AsDateOrdered
 from content.packager.api.item import Item
-from ally.api.type import Reference
+from ally.api.type import Reference, Iter
 from datetime import datetime
 
 # --------------------------------------------------------------------
@@ -66,4 +66,14 @@ class IArticleService(IEntityService):
 
         @param id: int
             The article identifier
+        '''
+
+    @call(method=GET, webName='Search')
+    def search(self, text:str) -> Iter(Article):
+        '''
+        Perform a search on articles for the given text
+
+        @param text: str
+            The text to search for
+        @return: list of article entities
         '''
