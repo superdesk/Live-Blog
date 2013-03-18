@@ -16,12 +16,16 @@ from content.article.meta.article import ArticleMapped
 from json.decoder import JSONDecoder
 from ally.container.ioc import injected
 from content.packager.api.item import IItemService, Item, IItemContentService, \
-    ItemContent, CLASS_TEXT
+    ItemContent, CLASS_TEXT, QItemContent
 from ally.container import wire
 from content.packager.api.content import IContentService, Content
 from sqlalchemy.sql.functions import current_timestamp
 from content.publisher.api.publisher import IContentPublisherService
-from ally.api.config import LIMIT_DEFAULT
+from sqlalchemy.exc import SQLAlchemyError
+import json
+from ally.support.sqlalchemy.util_service import handle
+from ally.exception import InputError
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
@@ -53,22 +57,24 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Implementation of @see: IArticleService.publish
         '''
-        article = EntityServiceAlchemy.getById(self, id)
+        article = self.getById(id)
         if article.PublishedOn is None:
             assert isinstance(article, Article)
             article.PublishedOn = current_timestamp()
-            EntityServiceAlchemy.update(self, article)
+            try: self.session().flush(article)
+            except SQLAlchemyError as e: handle(e, article)
             self.contentPublisherService.publish(article.Item)
 
     def unpublish(self, id):
         '''
         Implementation of @see: IArticleService.unpublish
         '''
-        article = EntityServiceAlchemy.getById(self, id)
+        article = self.getById(id)
         if article.PublishedOn is not None:
             assert isinstance(article, Article)
             article.PublishedOn = None
-            EntityServiceAlchemy.update(self, article)
+            try: self.session().flush(article)
+            except SQLAlchemyError as e: handle(e, article)
             self.contentPublisherService.unpublish(article.Item)
 
     def search(self, text):
@@ -81,16 +87,16 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Implementation of @see: IArticleService.getById
         '''
-        article = EntityServiceAlchemy.getById(self, id)
+        article = super().getById(id)
         params = dict(guid=article.Item)
         article.Preview = self.preview_url % params
         return article
 
-    def getAll(self, offset=None, limit=LIMIT_DEFAULT, detailed=False, q=None):
+    def getAll(self, offset=None, limit=None, detailed=False, q=None):
         '''
         Implementation of @see: IArticleService.getAll
         '''
-        articles = EntityServiceAlchemy.getAll(self, offset, limit, detailed, q)
+        articles = super().getAll(offset, limit, detailed, q)
 
         for article in articles:
             assert isinstance(article, Article)
@@ -104,32 +110,62 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         Implementation of @see: IArticleService.publish
         '''
         assert isinstance(article, Article)
-        rawContent = JSONDecoder().decode(article.Content)
-        item = Item()
-        item.ItemClass = CLASS_TEXT
-        item.HeadLine = rawContent['Title']
-        item.SlugLine = '-'.join(item.HeadLine.split())
-        item.Version = 1
-        article.Item = self.itemService.insert(item)
-        for tag in ('Lead', 'Body'):
-            content = Content()
-            content.ResidRef = tag
-            content.Content = rawContent[tag]
-            id = self.contentService.insert(content)
-            itemContent = ItemContent()
-            itemContent.Item = item.GUId
-            itemContent.Content = content.Id
-            self.itemContentService.insert(itemContent)
-        return EntityServiceAlchemy.insert(self, article)
+        rawContent = json.loads(article.Content)
+        try:
+            item = Item()
+            item.ItemClass = CLASS_TEXT
+            item.HeadLine = rawContent['Title']
+            item.SlugLine = '-'.join(item.HeadLine.split())
+            item.Version = 1
+            article.Item = self.itemService.insert(item)
+            for tag in ('Lead', 'Body'):
+                content = Content()
+                content.ResidRef = tag
+                content.Content = rawContent[tag]
+                id = self.contentService.insert(content)
+
+                itemContent = ItemContent()
+                itemContent.Item = item.GUId
+                itemContent.Content = content.Id
+                self.itemContentService.insert(itemContent)
+        except KeyError as e:
+            raise InputError(_('Invalid article content: missing field %s' % e))
+        return super().insert(article)
 
     def update(self, article):
+        '''
+        Implementation of @see: IArticleService.update
+        '''
         assert isinstance(article, Article)
-        EntityServiceAlchemy.update(self, article)
-        self.itemService.delete(article.Item)
-        self.itemService.insert(article)
+        # update the article content
+        super().update(article)
+
+        # update the item content
+        item = self.itemService.getById(article.Item)
+        assert isinstance(item, Item)
+        rawContent = JSONDecoder().decode(article.Content)
+        item.HeadLine = rawContent['Title']
+        item.SlugLine = '-'.join(item.HeadLine.split())
+        item.Version += 1
+        self.itemService.update(item)
+        q = QItemContent()
+        q.item = article.Item
+        contents = self.itemContentService.getAll(q=q)
+        for c in contents:
+            assert isinstance(c, Content)
+            if rawContent.get(c.ResidRef):
+                c.Content = rawContent[c.ResidRef]
+                self.contentService.update(c)
+
+        # if article was published republish the changes
         if article.PublishedOn is not None:
             self.contentPublisherService.publish(article.Item)
 
     def delete(self, id):
-        article = EntityServiceAlchemy.getById(self, id)
-        return self.itemService.delete(article.Item)
+        '''
+        Implementation of @see: IArticleService.delete
+        '''
+        self.unpublish(id)
+        article = super().getById(id)
+        self.itemService.delete(article.Item)
+        return super().delete(id)
