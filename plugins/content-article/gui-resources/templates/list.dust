@@ -1,15 +1,15 @@
-<LINK href="http://uidesign.lab.sourcefabric.org/superdesk/assets/styles/css/bootstrap.css" rel="stylesheet" type="text/css">
+<!--<LINK href="http://uidesign.lab.sourcefabric.org/superdesk/assets/styles/css/bootstrap.css" rel="stylesheet" type="text/css">-->
 <style>
 html,body{
  overflow:auto;
  }
 </style>
 <div class="subnav subnav-fixed">
-	<input type="text" name="searchbar" class="searchbar-container" style="width:500px;">
 	
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
      <div class="btn-toolbar">
+     <input type="text" name="search" class="searchbar-container" style="width:500px;"> <button data-action="search">Search</button>
      <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add">
 		<span class="medium-icon-add"></span>_('Add New Article')
 	</a>
@@ -59,7 +59,7 @@ html,body{
       <table class="sf_table">
         <thead>
           <tr>
-            <th class="chckbx_col"><input type="checkbox" class="sf-checkbox" name="all"></th>
+            <th class="chckbx_col">#</th>
             <th class="title_col">_('Title')</th>
             <th>_('Author')</th>
             <th>_('Publish date')</th>
@@ -71,26 +71,6 @@ html,body{
           </tr>
         </thead>
         <tbody>
-
-          <tr>
-            <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td>
-            <td class="title_col"><a href="javascript:void(0)" data-action="edit">Liveblog-Test Baselland</a></td>
-            <td>David Bauer</td>
-            <td>2013-03-10 13:32:20</td>
-            <td>Published</td>
-            <td class="action_col">
-              <div class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Action <b class="caret"></b></a>
-                <ul class="dropdown-menu sf-dropdown-simple pull-right">
-                  <li><a href="javascript:void(0)" data-action="edit"><i class="icon-pencil"></i> Edit</a></li>
-                  <li><a href="javascript:void(0)"><i class="icon-trash"></i> Delete</a></li>
-                  <li><a href="javascript:void(0)"><i class="icon-ban-circle"></i> Unpublish</a></li>
-                  <li><a href="javascript:void(0)"><i class="icon-eye-open"></i> Preview</a></li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-
           
 
         </tbody>

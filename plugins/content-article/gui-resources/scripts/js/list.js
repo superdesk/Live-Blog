@@ -19,7 +19,15 @@ function($, giz, gizList, Action, Article, User)
     ArticleCollection = giz.Collection.extend
     ({
         model: Article,
-        href: Article.prototype.url
+        href: Article.prototype.url,
+        setSearchUrl: function()
+        {
+            this.href = new giz.Url('Content/Article/Search');
+        },
+        resetSearchUrl: function()
+        {
+            this.href = Article.prototype.url;
+        }
     }),
 
     userCache = {
@@ -61,17 +69,18 @@ function($, giz, gizList, Action, Article, User)
         '[data-action="delete"]': { "click": "destroy" },
         '[data-action="publish"]': { "click": "publish" },
         '[data-action="unpublish"]': { "click": "unpublish" },
-        '[data-action="preview"]': { "click": "preview" }
-        },
-        preview: function(){
-            console.log('preview');
         },
         destroy: function(){
             this.model.remove().sync();
             this.el.remove();
         },
         publish: function(){
-            console.log('publish');
+            //this.model.set({IsPublished: 'True'}).sync();
+            //this.model.get({id});
+            //model.set({ }).sync(new giz.Url('Content/Article/'+model.get('Id')+'/Publish'));
+            //var url = new giz.Url('Content/Article/'+ this.model.get('Id') +'/Publish');
+            var model_id = this.model.get('Id');
+            this.model.publishSync();
         },
         unpublish: function(){
             console.log('unpublish');
@@ -84,7 +93,8 @@ function($, giz, gizList, Action, Article, User)
     listViewEvents = $.extend( true, gizList.ListView.prototype.events, 
     { 
         "[data-action='multi-delete']": { "click": "multiDelete" },
-        "[data-action='add']": { 'click': 'add' }
+        "[data-action='add']": { 'click': 'add' },
+        "[data-action='search']": { 'click': 'searchData'}
     }),
     ListView = gizList.ListView.extend
     ({
@@ -92,9 +102,15 @@ function($, giz, gizList, Action, Article, User)
         tmpl: 'superdesk/article>list',
         itemView: ItemView,
         getCollection: function()
-        { 
+        {
             if(!this.collection) this.collection = new ArticleCollection;
             return this.collection; 
+        },
+        searchData: function(string) {
+            this.getCollection();
+            return {
+                text: string
+            }
         },
 
         add: function()
