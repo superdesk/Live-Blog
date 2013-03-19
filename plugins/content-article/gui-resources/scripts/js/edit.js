@@ -4,11 +4,13 @@ define
     'gizmo/superdesk',
     config.guiJs('superdesk/article', 'models/article'),
     config.guiJs('media-archive', 'adv-upload'),
+    config.guiJs('superdesk/article', 'edit-tabs'),
+    config.guiJs('superdesk/article', 'edit-plugins'),
     'gizmo/superdesk/action',
     'jqueryui/texteditor',
     'tmpl!superdesk/article>edit'
 ], 
-function($, giz, Article, Upload, Action)
+function($, giz, Article, Upload, tabs, plugins, Action)
 {
     var
     
@@ -37,7 +39,10 @@ function($, giz, Article, Upload, Action)
     {
         var element = this.plugins.controlElements.image || $('<a class="image" />').html(''),
             command = $.ui.texteditor.prototype.plugins.lib.commandFactory(new uploadEditorCommand('image'), element);
-        $(upload).on('complete', function(){ console.log(uploadView.getRegisteredItems()); });
+        $(upload).on('complete', function()
+        { 
+            console.log(upload.getRegisteredItems()); 
+        });
         return command;
     },
     editorControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : texteditorUpload }),
@@ -69,14 +74,29 @@ function($, giz, Article, Upload, Action)
                 baseUrl: config.cjs('aloha/src/lib'),
                 paths:
                 {
+                    "ui": "../plugins/common/ui/lib",
+                    "ui/vendor": "../plugins/common/ui/vendor",
+                    "ui/css": "../plugins/common/ui/css",
+                    "ui/nls": "../plugins/common/ui/nls",
+                    "ui/res": "../plugins/common/ui/res",
+                    "format": "../plugins/common/format/lib",
+                    "format/vendor": "../plugins/common/format/vendor",
+                    "format/css": "../plugins/common/format/css",
+                    "format/nls": "../plugins/common/format/nls",
+                    "format/res": "../plugins/common/format/res",
                     "block": "../plugins/common/block/lib",
                     "block/vendor": "../plugins/common/block/vendor",
                     "block/css": "../plugins/common/block/css",
                     "block/nls": "../plugins/common/block/nls",
-                    "block/res": "../plugins/common/block/res"
+                    "block/res": "../plugins/common/block/res",
+                    "paste": "../plugins/common/paste/lib",
+                    "paste/vendor": "../plugins/common/paste/vendor",
+                    "paste/css": "../plugins/common/paste/css",
+                    "paste/nls": "../plugins/common/paste/nls",
+                    "paste/res": "../plugins/common/paste/res"
                 }
             },
-            ['aloha'],
+            ['aloha', 'block/block'],
             function(Aloha)
             { 
                 Aloha.settings = 
@@ -93,6 +113,14 @@ function($, giz, Article, Upload, Action)
                                 // just bold and italic for the teaser
                                 '#teaser': [ 'b', 'i' ]
                             }
+                        },
+                        block:
+                        {
+                            defaults: 
+                            {
+                                '.foo': { 'aloha-block-type': 'MySpecialBlock' },
+                                '.bar': { 'aloha-block-type': 'DebugBlock' },
+                            }
                         }
                     }
                 };
@@ -101,20 +129,52 @@ function($, giz, Article, Upload, Action)
             });
             
         },
+        
+        events:
+        {
+            "[data-action='add-article']": { 'click': 'add' },
+            "[data-action='save']": { 'click': 'save' },
+        },
 
+        _tabs: [],
+        _plugins: [],
         init: function(hash)
         {
+            var self = this;
+            this._tabs = tabs;
+            this._plugins = plugins;
             this.model = new Article(hash);
-            this.model.on('read update', this.render, this).sync();
+            this.model.on('read update', function()
+            {
+                for(var i=0; i<self._plugins.length; i++)
+                    self._plugins[i].setArticle(this.model);
+                self.render();
+            })
+            .sync();
+            
+            
+            $(upload).on('complete', function()
+            { 
+                
+            });
         },
         render: function()
         {
             var self = this,
-                feed = this.model.feed();
+                feed = this.model.feed(),
+                tabFeed = [];
             feed.Content = JSON.parse(feed.Content);
+            
             $('#area-main').html(this.el);
-            $(this.el).tmpl('superdesk/article>edit', feed, function()
+            $(this.el).tmpl('superdesk/article>edit', {Article: feed}, function()
             {
+                // place tabs
+                for(var i=0; i<self._tabs.length; i++)
+                {
+                    $('[data-placeholder="tabs-right"]', self.el).append($('<li />').append(self._tabs[i].control.el));
+                    $('[data-placeholder="tab-content-right"]', self.el).append(self._tabs[i].content.el);
+                }
+                
                 //self.renderCallback();
                 editor.toolbarPlace = $('.editor-toolbar', self.el);
                 $('#main-article section [contenteditable]', this.el).texteditor
@@ -140,11 +200,6 @@ function($, giz, Article, Upload, Action)
             });
         },
         
-        events:
-        {
-            "[data-action='add']": { 'click': 'add' },
-            "[data-action='save']": { 'click': 'save' }
-        },
         /*!
          * add a new article
          */
@@ -162,6 +217,8 @@ function($, giz, Article, Upload, Action)
             });
             this.model.set({Content: JSON.stringify(Content)}).sync();
         }
+        
+        
         
     });
     

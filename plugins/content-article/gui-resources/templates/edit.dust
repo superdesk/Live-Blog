@@ -56,7 +56,6 @@ html, body
     position: fixed;
     top: 133px;
     transition: all 0.3s ease 0s;
-    width: 330px;
     z-index: 10;
 }
 .tabpane.left-tabpane 
@@ -69,7 +68,30 @@ html, body
 {
     border-width: 0 0 0 3px;
     box-shadow: -2px 0 8px 0 rgba(40, 50, 50, 0.35);
-    right: -330px;
+    right: 48px;
+    margin-right: -10px;
+}
+.tabpane .tabcontent
+{
+	-moz-box-sizing: border-box;
+    bottom: 0;
+    left: 1px;
+    overflow: hidden;
+    right: 1px;
+    top: 0;
+    width: 0px;
+    transition: all 0.3s ease 0s;
+}
+.tabpane .tabcontent.open
+{
+	width: 340px;
+	right: 1px;
+}
+
+.tabcontent section
+{
+	margin: 15px;
+	width: 300px;
 }
 .main-background-container
 {
@@ -178,7 +200,7 @@ html, body
 	
 		<h1 id="article-title-fixed" class="main-article-title">{Content.Title|s}</h1>
 
-		<a href="javascript:void(0)" data-action="add" class="btn btn-medium btn-info pull-right">_('Add')</a>
+		<a href="javascript:void(0)" data-action="add-article" class="btn btn-medium btn-info pull-right">_('Add')</a>
 		<a href="javascript:void(0)" data-action="save" class="btn btn-medium btn-info pull-right">Save</a>
 		<a href="javascript:void(0)" data-action="close" class="btn btn-medium pull-right">Close</a>
 
@@ -261,6 +283,7 @@ html, body
 		</ul>
 	</div>	
 
+	{#Article}
 	<article article-view="desktop" id="main-article" class="main-article-container" style="margin-left: 152px; margin-right: 152px; max-width: 960px;">
 			
 			<section class="article-section">
@@ -305,16 +328,22 @@ html, body
 					{Content.Body|s}
 				</div>
 			</section>
+			
+			<div data-content="Refs">
+				<ul>
+				{#Content}{#Refs}
+					<li><img src="{.}" /><a>&mult;</a></li>
+				{/Refs}{/Content}
+				</ul>
+			</div>
 
 
 		</article>
-
+		{/Article}
+		
 		<div tabcontent-area="right-tabpane" class="tablist right-tablist">
-			<ul class="navigation-tabs">
-			</ul>
+			<ul class="navigation-tabs" data-placeholder="tabs-right"></ul>
 		</div>
-		<div class="tabpane right-tabpane">
-			<section id="chat-tab" class="tabcontent temptabcont">
-			</section>
+		<div class="tabpane right-tabpane" data-placeholder="tab-content-right">
 		</div>
 </div>
