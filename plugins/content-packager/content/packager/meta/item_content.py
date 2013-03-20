@@ -11,22 +11,24 @@ Contains SQL alchemy meta for content API.
 
 from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
-from sqlalchemy.schema import Column
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.types import String, Integer, TEXT
-from content.packager.api.content import Content
+from content.packager.api.item_content import ItemContent
+from content.packager.meta.item import ItemMapped
 
 # --------------------------------------------------------------------
 
 @validate
-class ContentMapped(Base, Content):
+class ItemContentMapped(Base, ItemContent):
     '''
-    Provides the mapping for Content.
+    Provides the mapping for ItemContent.
     '''
-    __tablename__ = 'content'
+    __tablename__ = 'item_content'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='CASCADE'), nullable=False)
     ContentType = Column('content_type', String(255))
     Content = Column('content', TEXT, nullable=False)
     ResidRef = Column('resid_ref', String(1000))

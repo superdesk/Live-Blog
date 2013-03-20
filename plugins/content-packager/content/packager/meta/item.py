@@ -11,12 +11,9 @@ Contains SQL alchemy meta for item API.
 
 from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column
 from sqlalchemy.types import String, Integer, DateTime
-from content.packager.api.item import Item, ItemGroup, ItemContent
-from sqlalchemy.dialects.mysql.base import INTEGER
-from content.packager.meta.group import GroupMapped
-from content.packager.meta.content import ContentMapped
+from content.packager.api.item import Item
 
 # --------------------------------------------------------------------
 
@@ -25,7 +22,7 @@ class ItemMapped(Base, Item):
     '''
     Provides the mapping for Item.
     '''
-    __tablename__ = 'content_item'
+    __tablename__ = 'item'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     GUId = Column('guid', String(190), primary_key=True)
@@ -38,31 +35,3 @@ class ItemMapped(Base, Item):
     CreditLine = Column('credit_line', String(255))
     FirstCreated = Column('first_created', DateTime)
     VersionCreated = Column('version_created', DateTime)
-
-# --------------------------------------------------------------------
-
-@validate
-class ItemGroupMapped(Base, ItemGroup):
-    '''
-    Provides the mapping for ItemGroup.
-    '''
-    __tablename__ = 'content_item_group'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
-
-    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='RESTRICT'), nullable=False)
-    Group = Column('fk_group_id', ForeignKey(GroupMapped.Id, ondelete='RESTRICT'), nullable=False)
-
-# --------------------------------------------------------------------
-
-@validate
-class ItemContentMapped(Base, ItemContent):
-    '''
-    Provides the mapping for ItemContent.
-    '''
-    __tablename__ = 'item_content'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
-
-    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Item = Column('fk_item_id', ForeignKey(ItemMapped.GUId, ondelete='RESTRICT'), nullable=False)
-    Content = Column('fk_content_id', ForeignKey(ContentMapped.Id, ondelete='RESTRICT'), nullable=False)

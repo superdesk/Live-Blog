@@ -10,20 +10,20 @@ API implementation for content.
 '''
 
 from ally.container.support import setup
-from content.packager.api.content import IContentService
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.packager.meta.content import ContentMapped
+from content.packager.api.item_content import IItemContentService
+from content.packager.meta.item_content import ItemContentMapped
 
 # --------------------------------------------------------------------
 
-@setup(IContentService, name='contentService')
-class ContentServiceAlchemy(EntityServiceAlchemy, IContentService):
+@setup(IItemContentService, name='itemContentService')
+class ContentServiceAlchemy(EntityServiceAlchemy, IItemContentService):
     '''
     Implementation for @see: IContentService
     '''
 
     def __init__(self):
         '''
-        Construct the content service.
+        Construct the item content service.
         '''
-        EntityServiceAlchemy.__init__(self, ContentMapped)
+        EntityServiceAlchemy.__init__(self, ItemContentMapped)

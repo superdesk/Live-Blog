@@ -11,9 +11,10 @@ API specifications for reference.
 
 from content.packager.api.domain_content import modelContent
 from ally.api.config import query, service
-from ally.api.criteria import AsLike, AsRangeOrdered
+from ally.api.criteria import AsLike, AsRangeOrdered, AsEqual
 from ally.support.api.entity import Entity, IEntityService
-from ally.api.type import Reference as ReferenceType
+from ally.api import type
+from content.packager.api.item_group import ItemGroup
 
 # --------------------------------------------------------------------
 
@@ -22,10 +23,10 @@ class Reference(Entity):
     '''
     Provides the reference model.
     '''
-    IdRef = str
+    ItemGroup = ItemGroup
     ItemClass = str
     ResidRef = str
-    HRef = ReferenceType
+    HRef = type.Reference
     Size = int
     Rendition = str
     ContentType = str
@@ -38,7 +39,7 @@ class QReference:
     '''
     Provides the reference query.
     '''
-    idRef = AsLike
+    itemGroup = AsEqual
     itemClass = AsLike
     size = AsRangeOrdered
     rendition = AsLike

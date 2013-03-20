@@ -15,9 +15,10 @@ from ally.container.ioc import injected
 from ally.container import wire
 import mongoengine
 from content.publisher.meta.publisher import Item, Content
-from content.packager.api.item import IItemService, IItemContentService, Item as MyItem, \
-    QItemContent, ItemContent
-from content.packager.api.content import IContentService, Content as MyContent
+from content.packager.api.item import IItemService
+from content.packager.api.item_content import IItemContentService, QItemContent, \
+    ItemContent
+from content.packager.api import item
 
 # --------------------------------------------------------------------
 
@@ -36,8 +37,6 @@ class ContentPublisherService(IContentPublisherService):
     # item service used to convert article content to NewsML structure
     itemContentService = IItemContentService; wire.entity('itemContentService')
     # item content service used to convert article content to NewsML structure
-    contentService = IContentService; wire.entity('contentService')
-    # content service used to convert article content to NewsML structure
 
     def __init__(self):
         '''
@@ -55,7 +54,7 @@ class ContentPublisherService(IContentPublisherService):
         '''
         # Test add document
         myItem = self.itemService.getById(guid)
-        assert isinstance(myItem, MyItem)
+        assert isinstance(myItem, item.Item)
 
         item = Item()
         item.guid = myItem.GUId
@@ -74,15 +73,13 @@ class ContentPublisherService(IContentPublisherService):
         contents = self.itemContentService.getAll(q=q)
         for c in contents:
             assert isinstance(c, ItemContent)
-            myContent = self.contentService.getById(c.Content)
-            assert isinstance(myContent, MyContent)
             content = Content()
-            content.contenttype = myContent.ContentType
-            content.content = myContent.Content
-            content.residRef = myContent.ResidRef
-            content.href = myContent.HRef
-            content.size = myContent.Size
-            content.rendition = myContent.Rendition
+            content.contenttype = c.ContentType
+            content.content = c.Content
+            content.residRef = c.ResidRef
+            content.href = c.HRef
+            content.size = c.Size
+            content.rendition = c.Rendition
             item.contents.append(content)
 
         item.save(safe=True)

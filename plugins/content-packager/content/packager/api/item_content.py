@@ -12,16 +12,18 @@ API specifications for content.
 from content.packager.api.domain_content import modelContent
 from ally.support.api.entity import Entity, QEntity, IEntityService
 from ally.api.config import query, service
-from ally.api.criteria import AsLike, AsRangeOrdered
+from ally.api.criteria import AsLike, AsRangeOrdered, AsEqual
 from ally.api.type import Reference
+from content.packager.api.item import Item
 
 # --------------------------------------------------------------------
 
 @modelContent
-class Content(Entity):
+class ItemContent(Entity):
     '''
-    Provides the content model.
+    Provides the item content model.
     '''
+    Item = Item
     ContentType = str
     Content = str
     ResidRef = str
@@ -31,19 +33,21 @@ class Content(Entity):
 
 # --------------------------------------------------------------------
 
-@query(Content)
-class QContent(QEntity):
+@query(ItemContent)
+class QItemContent(QEntity):
     '''
-    Provides the content query.
+    Provides the item content query.
     '''
+    item = AsEqual
     contentType = AsLike
+    residRef = AsLike
     size = AsRangeOrdered
     rendition = AsLike
 
 # --------------------------------------------------------------------
 
-@service((Entity, Content))
-class IContentService(IEntityService):
+@service((Entity, ItemContent))
+class IItemContentService(IEntityService):
     '''
-    Provides the service methods for Content model.
+    Provides the service methods for ItemContent model.
     '''

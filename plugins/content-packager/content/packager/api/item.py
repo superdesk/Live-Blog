@@ -13,9 +13,6 @@ from content.packager.api.domain_content import modelContent
 from datetime import datetime
 from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
-from ally.support.api.entity import Entity, IEntityService, QEntity
-from content.packager.api.group import Group
-from content.packager.api.content import Content
 from ally.api.type import Iter
 
 # --------------------------------------------------------------------
@@ -39,22 +36,6 @@ class Item:
     FirstCreated = datetime
     VersionCreated = datetime
 
-@modelContent
-class ItemGroup(Entity):
-    '''
-    Provides the item group model.
-    '''
-    Item = Item
-    Group = Group
-
-@modelContent
-class ItemContent(Entity):
-    '''
-    Provides the item content model.
-    '''
-    Item = Item
-    Content = Content
-
 # --------------------------------------------------------------------
 
 @query(Item)
@@ -71,20 +52,6 @@ class QItem:
     creditLine = AsLike
     firstCreated = AsDateOrdered
     versionCreated = AsDateOrdered
-
-@query(ItemGroup)
-class QItemGroup(QEntity):
-    '''
-    Provides the item group query.
-    '''
-    item = AsLike
-
-@query(ItemContent)
-class QItemContent(QEntity):
-    '''
-    Provides the item content query.
-    '''
-    item = AsLike
 
 # --------------------------------------------------------------------
 
@@ -150,19 +117,3 @@ class IItemService:
 
         @return: True if the delete is successful, false otherwise.
         '''
-
-# --------------------------------------------------------------------
-
-@service((Entity, ItemGroup))
-class IItemGroupService(IEntityService):
-    '''
-    Provides the service methods for ItemGroup model.
-    '''
-
-# --------------------------------------------------------------------
-
-@service((Entity, ItemContent))
-class IItemContentService(IEntityService):
-    '''
-    Provides the service methods for ItemContent model.
-    '''
