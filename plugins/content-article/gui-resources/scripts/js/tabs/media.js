@@ -40,10 +40,12 @@ function($, giz)
         {
             if( $(this.el).hasClass('open') )
             {
+                this.deactivate();
                 $(this.el).removeClass('open');
                 return;
             }
             $(this.el).addClass('open');
+            this.activate();
         },
         deactivate: function()
         {

@@ -41,7 +41,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             '.add-button': { 'click': 'selectSelf' }
         },
-        tagName: 'span',
+        tagName: 'li',
         selectSelf: function(evt)
         {
             if( $(evt.currentTarget).hasClass("grid-selected") == true ) 
@@ -68,11 +68,10 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         getItemView: function(model)
         {
             var self = this,
-                el = $('<li />'),
-                iview = new ItemView({ model: model, el: el, parent: this });
+                iview = new ItemView({ model: model, parent: this });
             $(iview).on('selected', function(){ self.registerItem.apply(self, arguments); });
             iview.render();
-            return el;
+            return iview.el;
         },
         /*!
          * 
@@ -96,7 +95,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             $(this).triggerHandler('register-item', [model.getMetaData()]);
         }
     }),
-    listView = new ListView,
+    
     /*!
      * main upload view
      */
@@ -211,8 +210,9 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         init: function()
         {
             var self = this;
-            $(listView).on('register-item', function(){ self.registerItem.apply(self, arguments); });
-            listView._parent = this;
+            this.listView = new ListView,
+            $(this.listView).on('register-item', function(){ self.registerItem.apply(self, arguments); });
+            this.listView._parent = this;
             this.render();
         },
         /*!
@@ -221,7 +221,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         activate: function()
         {
             this.returnImageList = {};
-            listView.activate();
+            this.listView.activate();
         },
         /*!
          * renders stuff
@@ -231,9 +231,8 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             var self = this;
             $(self.el).tmpl('media-archive>adv-upload/main', {UploadAction: self.getUploadEndpoint()}, function()
             {
-                listView.renderPlaceholder = $('[data-placeholder="media-archive"]', self.el);
-                listView.itemsPlaceholder = '[data-placeholder="media-archive-items"]';
-                
+                self.listView.renderPlaceholder = $('[data-placeholder="media-archive"]', self.el);
+                self.listView.itemsPlaceholder = '[data-placeholder="media-archive-items"]';
             });
         },
         getUploadEndpoint: function()

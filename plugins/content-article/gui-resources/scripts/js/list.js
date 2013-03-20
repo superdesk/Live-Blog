@@ -90,7 +90,7 @@ function($, giz, gizList, Action, Article, User)
             Action.initApp('modules.article.edit', this.model.hash());
         }
     }),
-    listViewEvents = $.extend( true, gizList.ListView.prototype.events, 
+    listViewEvents = $.extend( true, {}, gizList.ListView.prototype.events, 
     { 
         "[data-action='multi-delete']": { "click": "multiDelete" },
         "[data-action='add']": { 'click': 'add' },
