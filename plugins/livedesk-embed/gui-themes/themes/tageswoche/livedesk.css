@@ -634,7 +634,7 @@ li.loading-more:hover{
 
 
 
-.liveblog-post-list li:hover .share,
+.liveblog-post-list li:hover .sf-share,
 .liveblog-post-list li:hover .reply,
 .liveblog-post-list li:hover .retweet,
 .liveblog-post-list li:hover .favorites {
