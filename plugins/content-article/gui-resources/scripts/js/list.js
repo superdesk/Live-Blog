@@ -37,11 +37,11 @@ function($, giz, gizList, Action, Article, User)
             var dfd = new $.Deferred;
             if( !userCache.list[id] )
             {
+                userCache.list[id] = dfd;
                 var user = new User((new giz.Url('HR/User')).get()+'/'+id);
-                user.sync().done(function(){ userCache.list[user.get('Id')]; dfd.resolve(user); });
+                user.sync().done(function(){ dfd.resolve(user); });
             }
-            else dfd.resolve(userCachelist[id]);
-            return dfd;   
+            return userCache.list[id];   
         }
     },
 
