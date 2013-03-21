@@ -144,14 +144,13 @@ function($, giz, Article, Upload, tabs, plugins, Action)
             this._tabs = tabs;
             this._plugins = plugins;
             this.model = new Article(hash);
-            this.model.one('read', function()
-            {
+            this.model.sync().done(function()
+            {                 
                 // pass article model to the plugins
                 for(var i=0; i<self._plugins.length; i++)
                     self._plugins[i].setArticle(self.model);
                 self.render();
-            })
-            .sync();
+            });
             
             // pass self to the plugins
             for(var i=0; i<self._plugins.length; i++)
