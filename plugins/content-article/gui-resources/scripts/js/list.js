@@ -74,11 +74,12 @@ function($, giz, gizList, Action, Article, User)
             this.model.remove().sync();
             this.el.remove();
         },
-        publish: function(){
+        publish: function(evt){
             //this.model.set({IsPublished: 'True'}).sync();
             //this.model.get({id});
             //model.set({ }).sync(new giz.Url('Content/Article/'+model.get('Id')+'/Publish'));
             //var url = new giz.Url('Content/Article/'+ this.model.get('Id') +'/Publish');
+            evt.preventDefault();
             var model_id = this.model.get('Id');
             this.model.publishSync();
         },
@@ -93,8 +94,7 @@ function($, giz, gizList, Action, Article, User)
     listViewEvents = $.extend( true, {}, gizList.ListView.prototype.events, 
     { 
         "[data-action='multi-delete']": { "click": "multiDelete" },
-        "[data-action='add']": { 'click': 'add' },
-        "[data-action='search']": { 'click': 'searchData'}
+        "[data-action='add']": { 'click': 'add' }
     }),
     ListView = gizList.ListView.extend
     ({
@@ -135,7 +135,7 @@ function($, giz, gizList, Action, Article, User)
         }
     }),
     listView = new ListView();
-    
+
     return function()
     { 
         listView.activate(); 
