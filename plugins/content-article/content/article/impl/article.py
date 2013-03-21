@@ -55,28 +55,28 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         Implementation of @see: IArticleService.publish
         '''
         article = self.getById(id)
-        if article.PublishedOn is None:
-            assert isinstance(article, Article)
-            # set article publish timestamp
-            article.PublishedOn = current_timestamp()
-            try: self.session().flush(article)
-            except SQLAlchemyError as e: handle(e, article)
-            # publish the article content through the content publisher service
-            self.contentPublisherService.publish(article.Item)
+        assert isinstance(article, Article)
+        # set article publish timestamp
+        article.PublishedOn = current_timestamp()
+        # TODO: uncomment and fix
+        try: self.session().flush((article,))
+        except SQLAlchemyError as e: handle(e, article)
+        # publish the article content through the content publisher service
+        self.contentPublisherService.publish(article.Item)
 
     def unpublish(self, id):
         '''
         Implementation of @see: IArticleService.unpublish
         '''
         article = self.getById(id)
-        if article.PublishedOn is not None:
-            assert isinstance(article, Article)
-            # unset article publish timestamp
-            article.PublishedOn = None
-            try: self.session().flush(article)
-            except SQLAlchemyError as e: handle(e, article)
-            # publish the article content through the content publisher service
-            self.contentPublisherService.unpublish(article.Item)
+        assert isinstance(article, Article)
+        # unset article publish timestamp
+        article.PublishedOn = None
+        # TODO: uncomment and fix
+        try: self.session().flush((article,))
+        except SQLAlchemyError as e: handle(e, article)
+        # publish the article content through the content publisher service
+        self.contentPublisherService.unpublish(article.Item)
 
     def search(self, text):
         '''
@@ -141,6 +141,11 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         Implementation of @see: IArticleService.update
         '''
         assert isinstance(article, Article)
+        origArt = super().getById(article.Id)
+        assert isinstance(origArt, Article)
+        article.Item = origArt.Item
+        article.PublishedOn = origArt.PublishedOn
+
         # update the article content
         super().update(article)
 
@@ -159,7 +164,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             assert isinstance(c, ItemContent)
             if rawContent.get(c.ResidRef):
                 c.Content = rawContent[c.ResidRef]
-                self.contentService.update(c)
+                self.itemContentService.update(c)
 
         # if article was published republish the changes
         if article.PublishedOn is not None:
@@ -172,9 +177,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         # unpublish the article from all outputs (e.g. web)
         self.unpublish(id)
 
-        # delete the corresponding item
         article = super().getById(id)
-        self.itemService.delete(article.Item)
-
         # delete the article
-        return super().delete(id)
+        if super().delete(id):
+            # delete the corresponding item
+            self.itemService.delete(article.Item)
+            return True
+        return False

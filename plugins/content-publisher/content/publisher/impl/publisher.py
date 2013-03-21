@@ -18,7 +18,7 @@ from content.publisher.meta.publisher import Item, Content
 from content.packager.api.item import IItemService
 from content.packager.api.item_content import IItemContentService, QItemContent, \
     ItemContent
-from content.packager.api import item
+from content.packager.api.item import Item as PackageItem
 
 # --------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ class ContentPublisherService(IContentPublisherService):
         '''
         # Test add document
         myItem = self.itemService.getById(guid)
-        assert isinstance(myItem, item.Item)
+        assert isinstance(myItem, PackageItem)
 
         item = Item()
         item.guid = myItem.GUId
@@ -82,6 +82,7 @@ class ContentPublisherService(IContentPublisherService):
             content.rendition = c.Rendition
             item.contents.append(content)
 
+        self.unpublish(item.guid)
         item.save(safe=True)
         return True
 

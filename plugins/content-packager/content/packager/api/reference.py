@@ -12,7 +12,7 @@ API specifications for reference.
 from content.packager.api.domain_content import modelContent
 from ally.api.config import query, service
 from ally.api.criteria import AsLike, AsRangeOrdered, AsEqual
-from ally.support.api.entity import Entity, IEntityService
+from ally.support.api.entity import Entity, IEntityService, QEntity
 from ally.api import type
 from content.packager.api.item_group import ItemGroup
 
@@ -35,7 +35,7 @@ class Reference(Entity):
 # --------------------------------------------------------------------
 
 @query(Reference)
-class QReference:
+class QReference(QEntity):
     '''
     Provides the reference query.
     '''

@@ -32,7 +32,7 @@ class ItemGroupServiceAlchemy(EntityServiceAlchemy, IItemGroupService):
         '''
         Construct the item group service.
         '''
-        EntityServiceAlchemy.__init__(self, ItemGroupMapped)
+        EntityServiceAlchemy.__init__(self, ItemGroupMapped, QItemGroup)
 
     def getItemGroups(self, item, offset, limit, detailed, q):
         '''

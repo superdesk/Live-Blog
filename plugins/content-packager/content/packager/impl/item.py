@@ -56,11 +56,11 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         self.model = self.modelType.container
         self.queryType = typeFor(QItem)
 
-    def getById(self, idref):
+    def getById(self, guid):
         '''
         Implementation for @see: IItemService.getById
         '''
-        item = self.session().query(ItemMapped).get(idref)
+        item = self.session().query(ItemMapped).get(guid)
         if not item: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         return item
 
@@ -83,6 +83,7 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
             'Invalid item class %s, expected %s or %s' % (item.ItemClass, CLASS_TEXT, CLASS_PACKAGE)
         itemDb = copy(item, ItemMapped())
         assert isinstance(itemDb, ItemMapped)
+
         # TODO: generate proper guid: generate better itemId, externalise as a service
         itemDb.GUId = self.guid_scheme % {'prefix':self.guid_prefix, 'provider':self.guid_provider,
                                           'dateId':date.today().strftime('%Y%m%d'), 'itemId':itemDb.SlugLine}
@@ -100,6 +101,7 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         '''
         assert self.modelType.isValid(item), 'Invalid item %s, expected %s' % (item, ItemMapped)
         assert isinstance(item.GUId, str), 'Invalid item %s, with id %s' % (item, item.GUId)
+
         itemDb = self.session().query(ItemMapped).get(item.GUId)
         if not itemDb: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         try: self.session().flush((copy(item, itemDb),))
