@@ -78,7 +78,7 @@ function($, giz, mediaTab, Upload, MA)
         addMedia: function()
         {
             upload.activate();
-            $(upload.el).addClass('modal hide fade').modal();
+            $(upload.el).addClass('modal hide fade responsive-popup').modal();
         },
         _addedItems: {},
         /*!
