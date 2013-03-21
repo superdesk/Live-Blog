@@ -21,7 +21,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 # --------------------------------------------------------------------
 
-@validate(exclude=['Item'])
+@validate(exclude=['Item', 'PublishedOn'])
 class ArticleMapped(Base, Article):
     '''
     Provides the mapping for Article.

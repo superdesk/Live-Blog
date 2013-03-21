@@ -144,6 +144,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         origArt = super().getById(article.Id)
         assert isinstance(origArt, Article)
         article.Item = origArt.Item
+        article.PublishedOn = origArt.PublishedOn
 
         # update the article content
         super().update(article)
@@ -176,9 +177,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         # unpublish the article from all outputs (e.g. web)
         self.unpublish(id)
 
-        # delete the corresponding item
         article = super().getById(id)
-        self.itemService.delete(article.Item)
-
         # delete the article
-        return super().delete(id)
+        if super().delete(id):
+            # delete the corresponding item
+            self.itemService.delete(article.Item)
+            return True
+        return False

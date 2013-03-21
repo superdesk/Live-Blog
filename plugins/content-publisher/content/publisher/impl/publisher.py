@@ -82,6 +82,7 @@ class ContentPublisherService(IContentPublisherService):
             content.rendition = c.Rendition
             item.contents.append(content)
 
+        self.unpublish(item.guid)
         item.save(safe=True)
         return True
 
