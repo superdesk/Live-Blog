@@ -19,7 +19,9 @@ function($, giz, gizList, Action, Article, User)
     ArticleCollection = giz.Collection.extend
     ({
         model: Article,
-        href: Article.prototype.url,
+        href: Article.prototype.url
+        /*
+        ,
         setSearchUrl: function()
         {
             this.href = new giz.Url('Content/Article/Search');
@@ -28,6 +30,7 @@ function($, giz, gizList, Action, Article, User)
         {
             this.href = Article.prototype.url;
         }
+        */
     }),
 
     userCache = {
@@ -112,7 +115,7 @@ function($, giz, gizList, Action, Article, User)
         },
         searchData: function(string) {
             return {
-                text: string
+                search.all: string
             }
         },
 
