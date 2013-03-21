@@ -33,4 +33,4 @@ class ArticleFileServiceAlchemy(EntityServiceAlchemy, IArticleFileService):
         '''
         Construct the article file service.
         '''
-        EntityServiceAlchemy.__init__(self, ArticleFileMapped, QArticleFile)
+        EntityServiceAlchemy.__init__(self, ArticleFileMapped) #, QArticleFile)

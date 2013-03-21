@@ -9,13 +9,31 @@ Created on Mar 14, 2013
 API specifications for article.
 '''
 
-from content.packager.api.domain_content import modelContent
+from ally.api.config import criteria, query, service, call, UPDATE
+from ally.api.criteria import AsLike, AsDateOrdered, AsOrdered
+from ally.api.type import Reference
 from ally.support.api.entity import Entity, QEntity, IEntityService
-from ally.api.config import query, service, call, UPDATE, GET
-from ally.api.criteria import AsLike, AsDateOrdered
+from content.packager.api.domain_content import modelContent
 from content.packager.api.item import Item
-from ally.api.type import Reference, Iter
 from datetime import datetime
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+
+# --------------------------------------------------------------------
+
+@criteria
+class AsLikeAll:
+    '''
+    Provides criteria that can apply like operator to multiple text columns
+    '''
+    all = str
+
+# --------------------------------------------------------------------
+
+@criteria
+class AsLikeAllOrdered(AsLikeAll, AsOrdered):
+    '''
+    Provides the like search and also the ordering and boolean expression functionality (see AsLikeAll).
+    '''
 
 # --------------------------------------------------------------------
 
@@ -42,6 +60,7 @@ class QArticle(QEntity):
     creator = AsLike
     author = AsLike
     publishedOn = AsDateOrdered
+    search = AsLikeAllOrdered
 
 # --------------------------------------------------------------------
 
@@ -67,14 +86,4 @@ class IArticleService(IEntityService):
 
         @param id: int
             The article identifier
-        '''
-
-    @call(method=GET, webName='Search')
-    def search(self, text:str) -> Iter(Article):
-        '''
-        Perform a search on articles for the given text
-
-        @param text: str
-            The text to search for
-        @return: list of article entities
         '''

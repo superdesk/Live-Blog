@@ -25,6 +25,7 @@ from ally.exception import InputError
 from ally.internationalization import _
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
+from content.article.api.search_provider import IArticleSearchProvider
 
 # --------------------------------------------------------------------
 
@@ -43,12 +44,14 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
     # item content service used to convert article content to NewsML structure
     contentPublisherService = IContentPublisherService; wire.entity('contentPublisherService')
     # content service used to publish the article content to the web
-
+    articleSearchProvider = IArticleSearchProvider; wire.entity('articleSearchProvider')
+    # the search provider used to search the article list
+    
     def __init__(self):
         '''
         Construct the article service.
         '''
-        EntityServiceAlchemy.__init__(self, ArticleMapped, QArticle)
+        super().__init__(ArticleMapped, QArticle)
 
     def publish(self, id):
         '''
@@ -78,12 +81,6 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         # publish the article content through the content publisher service
         self.contentPublisherService.unpublish(article.Item)
 
-    def search(self, text):
-        '''
-        Implementation of @see: IArticleService.search
-        '''
-        return self.getAll()
-
     def getById(self, id):
         '''
         Implementation of @see: IArticleService.getById
@@ -97,7 +94,8 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Implementation of @see: IArticleService.getAll
         '''
-        articles = super().getAll(offset, limit, detailed, q)
+        sql = self.articleSearchProvider.buildQuery(self.session(), offset, limit, q)
+        articles = sql.all()
 
         for article in articles:
             assert isinstance(article, Article)
@@ -105,7 +103,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             article.Preview = self.preview_url % params
 
         return articles
-
+    
     def insert(self, article):
         '''
         Implementation of @see: IArticleService.publish
@@ -134,7 +132,11 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             raise InputError(_('Invalid article content: missing field %s' % e))
 
         # insert the article content
-        return super().insert(article)
+        article = super().insert(article)
+        
+        self.articleSearchProvider.update(article)
+        
+        return article
 
     def update(self, article):
         '''
@@ -169,6 +171,9 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         # if article was published republish the changes
         if article.PublishedOn is not None:
             self.contentPublisherService.publish(article.Item)
+        
+        self.articleSearchProvider.update(article)
+            
 
     def delete(self, id):
         '''
@@ -176,6 +181,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         # unpublish the article from all outputs (e.g. web)
         self.unpublish(id)
+        self.searchArticleProvider.delete(id)
 
         article = super().getById(id)
         # delete the article
@@ -184,3 +190,4 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             self.itemService.delete(article.Item)
             return True
         return False
+
