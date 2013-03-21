@@ -53,7 +53,6 @@ function($, giz, gizList, Action, Article, User)
             var self = this,
                 feed = this.model.feed();
             feed.Content = JSON.parse(feed.Content);
-
             $(this.el).tmpl(this.tmpl, feed, function()
             {
                 userCache.get(feed.Author).done(function(data)
@@ -65,6 +64,13 @@ function($, giz, gizList, Action, Article, User)
             });
             return this;
         },
+        init: function() {
+            this.model.on('read update', this.render, this);
+        },
+        reRender: function() {
+            this.sync();
+            this.render();
+        },
         events: { '[data-action="edit"]': { "click": "edit" },
         '[data-action="delete"]': { "click": "destroy" },
         '[data-action="publish"]': { "click": "publish" },
@@ -75,16 +81,14 @@ function($, giz, gizList, Action, Article, User)
             this.el.remove();
         },
         publish: function(evt){
-            //this.model.set({IsPublished: 'True'}).sync();
-            //this.model.get({id});
-            //model.set({ }).sync(new giz.Url('Content/Article/'+model.get('Id')+'/Publish'));
-            //var url = new giz.Url('Content/Article/'+ this.model.get('Id') +'/Publish');
             evt.preventDefault();
             var model_id = this.model.get('Id');
             this.model.publishSync();
         },
-        unpublish: function(){
-            console.log('unpublish');
+        unpublish: function(evt){
+            evt.preventDefault();
+            var model_id = this.model.get('Id');
+            this.model.unpublishSync();
         },
         edit: function()
         {
@@ -107,7 +111,6 @@ function($, giz, gizList, Action, Article, User)
             return this.collection; 
         },
         searchData: function(string) {
-            this.getCollection();
             return {
                 text: string
             }

@@ -3,7 +3,7 @@
 <td>{Id}</td>
 <td class="title_col"><a href="javascript:void(0)" data-action="edit">{Content.Title}</a></td>
 <td><span data-article-id="{Id}"><span data-placeholder="Author"></span></span></td>
-<td>2013-03-10 13:32:20</td>
+<td>{#PublishedOn}{.}{:else}{/PublishedOn}</td>
 <td>
 	{@if cond="'{IsPublished}'=='True'"}
 	_('Published')
@@ -20,7 +20,7 @@
 			{@if cond="'{IsPublished}'=='True'"}
 			<li data-action="unpublish"><a href="#"><i class="icon-ban-circle"></i>_('Unpublish')</a></li>
 			{:else}
-			<li data-action="publish"><a href="#"><i class="icon-ban-circle"></i>_('Publish')</a></li>
+			<li data-action="publish"><a href="#"><i class="icon-ok-circle"></i>_('Publish')</a></li>
 			{/if}
 			<li data-action="preview"><a href="{Preview.href}" target="_blank"><i class="icon-eye-open"></i> Preview</a></li>
 		</ul>

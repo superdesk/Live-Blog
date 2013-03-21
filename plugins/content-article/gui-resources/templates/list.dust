@@ -1,4 +1,3 @@
-<!--<LINK href="http://uidesign.lab.sourcefabric.org/superdesk/assets/styles/css/bootstrap.css" rel="stylesheet" type="text/css">-->
 <style>
 html,body{
  overflow:auto;
@@ -9,7 +8,7 @@ html,body{
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
      <div class="btn-toolbar">
-     <input type="text" name="search" class="searchbar-container" style="width:500px;"> <button data-action="search">Search</button>
+     <input type="text" name="search" class="searchbar-container" style="width:500px;"> <button data-action="search" style="display:none"></button>
      <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add">
 		<span class="medium-icon-add"></span>_('Add New Article')
 	</a>
@@ -55,7 +54,7 @@ html,body{
       </div>
 
    </div>
-<div class="main-content-container" style="padding: 113px 20px 20px; overflow: auto">
+<div class="main-content-container" style="padding: 113px 20px 100px; overflow: auto">
       <table class="sf_table">
         <thead>
           <tr>
