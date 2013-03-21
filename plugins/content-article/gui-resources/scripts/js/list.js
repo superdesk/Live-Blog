@@ -115,7 +115,7 @@ function($, giz, gizList, Action, Article, User)
         },
         searchData: function(string) {
             return {
-                query: string
+                'search.all': string
             }
         },
 
