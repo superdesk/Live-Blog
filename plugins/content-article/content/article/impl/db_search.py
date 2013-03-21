@@ -21,7 +21,7 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
     Implementation  @see: IArticleSearchProvider
     '''
 
-    def update(self, metaInfo, metaData):
+    def update(self, Article):
         '''
         @see: IArticleSearchProvider.update()
         '''
@@ -30,7 +30,7 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
 
     # ----------------------------------------------------------------
 
-    def delete(self, idMetaInfo, metaType):
+    def delete(self, id):
         '''
         @see: IArticleSearchProvider.delete()
         '''
