@@ -329,15 +329,6 @@ html, body
 				</div>
 			</section>
 			
-			<div data-content="Refs">
-				<ul>
-				{#Content}{#Refs}
-					<li><img src="{.}" /><a>&mult;</a></li>
-				{/Refs}{/Content}
-				</ul>
-			</div>
-
-
 		</article>
 		{/Article}
 		

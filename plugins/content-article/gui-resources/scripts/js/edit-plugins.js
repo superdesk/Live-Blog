@@ -3,6 +3,8 @@
  * 
  * each plugin must contain a method setArticle( article )
  *  which is called by the edit view to pass the loaded article
+ * each plugin must contain a method setParent( editView )
+ *  which is called by the edit view to pass itself
  */
 define
 ([

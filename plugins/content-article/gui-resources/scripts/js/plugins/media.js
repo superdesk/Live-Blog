@@ -8,12 +8,20 @@ define
   config.guiJs('media-archive', 'adv-upload'),
   // use media archive items
   config.guiJs('media-archive', 'list'),
+  // 
+  config.guiJs('superdesk/article', 'models/article-file'),
   'tmpl!superdesk/article>plugins/media',
   'tmpl!superdesk/article>plugins/media/item'
 ], 
-function($, giz, mediaTab, Upload, MA)
+function($, giz, mediaTab, Upload, MA, ArticleFile)
 { 
     var 
+    ArticleFiles = giz.Collection.extend
+    ({ 
+        model: ArticleFile,
+        href: ArticleFile.prototype.url,
+    }),
+    
     upload = new Upload,
     MediaItem = MA.ItemView.extend
     ({ 
@@ -43,12 +51,28 @@ function($, giz, mediaTab, Upload, MA)
         {
             "[data-action='add']": { 'click': 'addMedia' }
         },
+        _articleFileCollection: null,
+        _attachedFiles: {},
         init: function()
         {
             var self = this;
             this.el.appendTo($('section', mediaTab.content.el));
             $(mediaTab.content).on('active', function(){ self.activate(); });
             $(upload).on('complete', function(){ self.addItems(upload.getRegisteredItems()); });
+            
+            // make files collection and bind events to set initial items
+            this._articleFileCollection = new ArticleFiles;
+            this._articleFileCollection.on('read update', function()
+            {
+                var metadatas = {};
+                self._articleFileCollection.each(function()
+                {
+                    var m = this.get('MetaData'); 
+                    metadatas[m.get('Id')] = m;
+                    self._attachedFiles[m.get('Id')] = this;
+                });
+                self.addItems(metadatas);
+            });
         },
         /*!
          * 
@@ -63,6 +87,7 @@ function($, giz, mediaTab, Upload, MA)
          */
         activate: function()
         {
+            this._articleFileCollection.xfilter('*').sync({data: { article: this._article.get('Id') }});
             !this._isRendered && this.render();
         },
         /*!
@@ -70,16 +95,45 @@ function($, giz, mediaTab, Upload, MA)
          */
         setArticle: function(article)
         {
-            this.article = article;
+            this._article = article;
         },
         /*!
-         * 
+         * store parent edit view
+         */
+        setParent: function(editView)
+        {
+            this._parent = editView;
+            var self = this;
+            
+            // bind action to save media resources to article
+            $(this._parent).on('save', function()
+            { 
+                // remove items
+                for( var i in self._removedItems ) self._removedItems[i].remove().sync();
+                self._removedItems = {};
+                
+                // insert new items
+                for( var i in self._addedItems)
+                {
+                    var file = new ArticleFile;
+                    file.set({MetaData: i, Article: self._article.get('Id')});
+                    file.sync(ArticleFile.prototype.url.get()).done(function(){ self._attachedFiles[file.get('MetaData').get('Id')] = file; });
+                }
+                self._addedItems = {};
+            });
+        },
+        /*!
+         * show upload and media archive screen
          */
         addMedia: function()
         {
             upload.activate();
             $(upload.el).addClass('modal hide fade responsive-popup').modal();
         },
+        /*!
+         * simple list of ids for metadatas added {Id: true, ...}
+         * used for article save
+         */
         _addedItems: {},
         /*!
          * add multiple items
@@ -99,22 +153,35 @@ function($, giz, mediaTab, Upload, MA)
             $('[data-placeholder="description"]', this.el).addClass('hide');
             var item = new MediaItem({ model: model, el: $('<div />'), parent: this }),
                 self = this;
-            this._addedItems[item.model.get('Id')] = true;
+            
+            // add items if not already in the attachment list
+            if(!this._attachedFiles[item.model.get('Id')])
+                this._addedItems[item.model.get('Id')] = true;
+            
             model.sync({data: {thumbSize: 'medium'}}).done(function()
             { 
                 $('[data-placeholder="media"]', self.el).append(item.render().el);
             });
         },
         /*!
-         * 
+         * used for article save
+         */
+        _removedItems: {},
+        /*!
+         * removes an item from the list,
+         * adds to removed items list for server sync if necessary 
          */
         removeItem: function(item)
         {
+            if(this._attachedFiles[item.model.get('Id')])
+                this._removedItems[item.model.get('Id')] = this._attachedFiles[item.model.get('Id')];
             delete this._addedItems[item.model.get('Id')];
-            $.isEmptyObject(this._addedItems.length) && $('[data-placeholder="description"]', this.el).removeClass('hide');
+            $.isEmptyObject(this._addedItems) && $('[data-placeholder="description"]', this.el).removeClass('hide');
         }
         
     });
     
-    return new MediaTabBoxPlugin;
+    var x = new MediaTabBoxPlugin;
+    window.x = x;
+    return x;
 });

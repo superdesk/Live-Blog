@@ -144,19 +144,19 @@ function($, giz, Article, Upload, tabs, plugins, Action)
             this._tabs = tabs;
             this._plugins = plugins;
             this.model = new Article(hash);
-            this.model.on('read update', function()
+            this.model.one('read', function()
             {
+                // pass article model to the plugins
                 for(var i=0; i<self._plugins.length; i++)
-                    self._plugins[i].setArticle(this.model);
+                    self._plugins[i].setArticle(self.model);
                 self.render();
             })
             .sync();
             
+            // pass self to the plugins
+            for(var i=0; i<self._plugins.length; i++)
+                self._plugins[i].setParent(this);
             
-            $(upload).on('complete', function()
-            { 
-                
-            });
         },
         render: function()
         {
@@ -165,7 +165,11 @@ function($, giz, Article, Upload, tabs, plugins, Action)
                 tabFeed = [];
             feed.Content = JSON.parse(feed.Content);
             
-            $('#area-main').html(this.el);
+            // place in view
+            // !$($.superdesk.layoutPlaceholder).find(this.el).length && 
+            $($.superdesk.layoutPlaceholder).html(this.el);
+            
+            // render
             $(this.el).tmpl('superdesk/article>edit', {Article: feed}, function()
             {
                 // place tabs
@@ -210,8 +214,10 @@ function($, giz, Article, Upload, tabs, plugins, Action)
         
         save: function()
         {
+            console.log(this.model);
             var Content = {};
-            $('#main-article [data-content]', self.el).each(function()
+            $(this).triggerHandler('save');
+            $('#main-article [data-content]', this.el).each(function()
             {
                 Content[$(this).attr('data-content')] = $('[contenteditable]', $(this)).html();  
             });
