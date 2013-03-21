@@ -48,7 +48,7 @@ class QReference(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Reference))
+@service((Entity, Reference), (QEntity, QReference))
 class IReferenceService(IEntityService):
     '''
     Provides the service methods for Reference model.

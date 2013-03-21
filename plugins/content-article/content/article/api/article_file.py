@@ -37,7 +37,7 @@ class QArticleFile(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, ArticleFile))
+@service((Entity, ArticleFile), (QEntity, QArticleFile))
 class IArticleFileService(IEntityService):
     '''
     Provides the service methods for ArticleFile model.

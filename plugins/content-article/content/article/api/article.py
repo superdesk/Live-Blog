@@ -45,7 +45,7 @@ class QArticle(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Article))
+@service((Entity, Article), (QEntity, QArticle))
 class IArticleService(IEntityService):
     '''
     Provides the service methods for Article model.

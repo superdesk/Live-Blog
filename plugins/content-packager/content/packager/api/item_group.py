@@ -42,7 +42,7 @@ class QItemGroup(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, ItemGroup))
+@service((Entity, ItemGroup), (QEntity, QItemGroup))
 class IItemGroupService(IEntityService):
     '''
     Provides the service methods for item group.

@@ -46,7 +46,7 @@ class QItemContent(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, ItemContent))
+@service((Entity, ItemContent), (QEntity, QItemContent))
 class IItemContentService(IEntityService):
     '''
     Provides the service methods for ItemContent model.

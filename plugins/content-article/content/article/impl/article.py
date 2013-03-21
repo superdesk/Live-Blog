@@ -11,7 +11,7 @@ API implementation for article.
 
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.article.api.article import IArticleService, Article
+from content.article.api.article import IArticleService, Article, QArticle
 from content.article.meta.article import ArticleMapped
 from ally.container.ioc import injected
 from content.packager.api.item import IItemService, Item, CLASS_TEXT
@@ -48,7 +48,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Construct the article service.
         '''
-        EntityServiceAlchemy.__init__(self, ArticleMapped)
+        EntityServiceAlchemy.__init__(self, ArticleMapped, QArticle)
 
     def publish(self, id):
         '''
