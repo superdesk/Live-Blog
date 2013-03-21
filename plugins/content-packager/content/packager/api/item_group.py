@@ -14,7 +14,7 @@ from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsLike, AsEqual
 from ally.api.type import Iter
 from content.packager.api.item import Item
-from ally.support.api.entity import Entity, IEntityService
+from ally.support.api.entity import Entity, IEntityService, QEntity
 
 # --------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ class ItemGroup(Entity):
 # --------------------------------------------------------------------
 
 @query(ItemGroup)
-class QItemGroup:
+class QItemGroup(QEntity):
     '''
     Provides the item group query.
     '''

@@ -10,7 +10,7 @@ API implementation for reference.
 '''
 
 from ally.container.support import setup
-from content.packager.api.reference import IReferenceService
+from content.packager.api.reference import IReferenceService, QReference
 from content.packager.meta.reference import ReferenceMapped
 import logging
 from sql_alchemy.impl.entity import EntityServiceAlchemy
@@ -31,4 +31,4 @@ class ReferenceServiceAlchemy(EntityServiceAlchemy, IReferenceService):
         '''
         Construct the reference service.
         '''
-        EntityServiceAlchemy.__init__(self, ReferenceMapped)
+        EntityServiceAlchemy.__init__(self, ReferenceMapped, QReference)

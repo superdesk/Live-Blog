@@ -11,7 +11,7 @@ API implementation for content.
 
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.packager.api.item_content import IItemContentService
+from content.packager.api.item_content import IItemContentService, QItemContent
 from content.packager.meta.item_content import ItemContentMapped
 
 # --------------------------------------------------------------------
@@ -26,4 +26,4 @@ class ContentServiceAlchemy(EntityServiceAlchemy, IItemContentService):
         '''
         Construct the item content service.
         '''
-        EntityServiceAlchemy.__init__(self, ItemContentMapped)
+        EntityServiceAlchemy.__init__(self, ItemContentMapped, QItemContent)

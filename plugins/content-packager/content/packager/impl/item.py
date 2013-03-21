@@ -56,11 +56,11 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         self.model = self.modelType.container
         self.queryType = typeFor(QItem)
 
-    def getById(self, idref):
+    def getById(self, guid):
         '''
         Implementation for @see: IItemService.getById
         '''
-        item = self.session().query(ItemMapped).get(idref)
+        item = self.session().query(ItemMapped).get(guid)
         if not item: raise InputError(Ref(_('Unknown id'), ref=ItemMapped.GUId))
         return item
 
