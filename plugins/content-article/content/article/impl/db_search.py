@@ -53,10 +53,12 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
             if QArticle.search in q:
                 all = processLike(q.search.all)
                 sql = sql.filter(or_(ArticleMapped.Author.like(all), ArticleMapped.Creator.like(all), ArticleMapped.Content.like(all)))   
+        
+        count = sql.count()
             
         sql = buildLimits(sql, offset, limit)
         
-        return sql
+        return (sql, count)
     
 #----------------------------------------------------------------
 

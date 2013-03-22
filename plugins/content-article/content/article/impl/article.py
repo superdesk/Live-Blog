@@ -26,6 +26,7 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.functions import current_timestamp
 import json
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -94,17 +95,15 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Implementation of @see: IArticleService.getAll
         '''
-        sql = self.articleSearchProvider.buildQuery(self.session(), offset, limit, q)
+        sql, count = self.articleSearchProvider.buildQuery(self.session(), offset, limit, q)
         articles = sql.all()
-        count = 0
         
         for article in articles:
             assert isinstance(article, Article)
             params = dict(guid=article.Item)
             article.Preview = self.preview_url % params
-            count = count + 1
 
-        return articles
+        return IterPart(articles, count, offset, limit) 
     
     def insert(self, article):
         '''

@@ -9,9 +9,9 @@ Created on Mar 14, 2013
 API specifications for article.
 '''
 
-from ally.api.config import criteria, query, service, call, UPDATE
+from ally.api.config import criteria, query, service, call, UPDATE, GET
 from ally.api.criteria import AsLike, AsDateOrdered, AsOrdered
-from ally.api.type import Reference
+from ally.api.type import Reference, Iter
 from ally.support.api.entity import Entity, QEntity, IEntityService
 from content.packager.api.domain_content import modelContent
 from content.packager.api.item import Item
