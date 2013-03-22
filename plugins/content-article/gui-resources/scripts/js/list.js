@@ -20,6 +20,16 @@ function($, giz, gizList, Action, Article, User)
     ({
         model: Article,
         href: Article.prototype.url
+        /*,
+        setSearchUrl: function()
+        {
+            this.href = new giz.Url('Content/Article/Search');
+        },
+        resetSearchUrl: function()
+        {
+            this.href = Article.prototype.url;
+        }
+        */
     }),
 
     userCache = {
@@ -108,7 +118,6 @@ function($, giz, gizList, Action, Article, User)
             return this.collection; 
         },
         searchData: function(string) {
-            console.log('search data');
             return {
                 'search.all': string
             }
