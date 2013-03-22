@@ -9,23 +9,23 @@ Created on Mar 14, 2013
 API implementation for article.
 '''
 
-from ally.container.support import setup
-from sql_alchemy.impl.entity import EntityServiceAlchemy
-from content.article.api.article import IArticleService, Article, QArticle
-from content.article.meta.article import ArticleMapped
-from ally.container.ioc import injected
-from content.packager.api.item import IItemService, Item, CLASS_TEXT
 from ally.container import wire
-from sqlalchemy.sql.functions import current_timestamp
-from content.publisher.api.publisher import IContentPublisherService
-from sqlalchemy.exc import SQLAlchemyError
-import json
-from ally.support.sqlalchemy.util_service import handle
+from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError
 from ally.internationalization import _
+from ally.support.sqlalchemy.util_service import handle
+from content.article.api.article import IArticleService, Article, QArticle
+from content.article.api.search_provider import IArticleSearchProvider
+from content.article.meta.article import ArticleMapped
+from content.packager.api.item import IItemService, Item, CLASS_TEXT
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
-from content.article.api.search_provider import IArticleSearchProvider
+from content.publisher.api.publisher import IContentPublisherService
+from sql_alchemy.impl.entity import EntityServiceAlchemy
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql.functions import current_timestamp
+import json
 
 # --------------------------------------------------------------------
 
@@ -96,11 +96,13 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         sql = self.articleSearchProvider.buildQuery(self.session(), offset, limit, q)
         articles = sql.all()
-
+        count = 0
+        
         for article in articles:
             assert isinstance(article, Article)
             params = dict(guid=article.Item)
             article.Preview = self.preview_url % params
+            count = count + 1
 
         return articles
     

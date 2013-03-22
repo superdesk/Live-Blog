@@ -12,6 +12,7 @@ from ally.container.ioc import injected
 from content.article.api.article import QArticle
 from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from content.article.meta.article import ArticleMapped
+from sqlalchemy.sql.expression import or_
 
 # --------------------------------------------------------------------
 
@@ -50,12 +51,25 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
             sql = buildQuery(sql, q, ArticleMapped)
             
             if QArticle.search in q:
-                all = q.search.all
-                print(all)
-                
+                all = processLike(q.search.all)
+                sql = sql.filter(or_(ArticleMapped.Author.like(all), ArticleMapped.Creator.like(all), ArticleMapped.Content.like(all)))   
             
         sql = buildLimits(sql, offset, limit)
         
-        #TODO: add all search
-        
         return sql
+    
+#----------------------------------------------------------------
+
+def processLike(value):
+    assert isinstance(value, str), 'Invalid like value %s' % value
+
+    if not value:
+        return '%'
+
+    if not value.endswith('%'):
+        value = value + '%'
+
+    if not value.startswith('%'):
+        value = '%' + value
+
+    return value   

@@ -16,7 +16,6 @@ from ally.support.api.entity import Entity, QEntity, IEntityService
 from content.packager.api.domain_content import modelContent
 from content.packager.api.item import Item
 from datetime import datetime
-from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 

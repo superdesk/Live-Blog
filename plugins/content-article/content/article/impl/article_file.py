@@ -14,7 +14,7 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from content.article.api.article import IArticleService
 from ally.container.ioc import injected
 from ally.container import wire
-from content.article.api.article_file import IArticleFileService, QArticleFile
+from content.article.api.article_file import IArticleFileService
 from content.article.meta.article_file import ArticleFileMapped
 
 # --------------------------------------------------------------------
