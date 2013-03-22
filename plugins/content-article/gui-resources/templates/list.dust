@@ -8,7 +8,7 @@ html,body{
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
      <div class="btn-toolbar">
-     <input type="text" name="search" class="searchbar-container" style="width:500px;"> <button data-action="search" style="display:none"></button>
+     <input type="text" name="search" class="searchbar-container" style="width:500px;" value="{src}"> <button data-action="search" style="display:none"></button>
      <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add">
 		<span class="medium-icon-add"></span>_('Add New Article')
 	</a>
