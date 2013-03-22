@@ -16,6 +16,8 @@ from ally.support.api.entity import Entity, QEntity, IEntityService
 from content.packager.api.domain_content import modelContent
 from content.packager.api.item import Item
 from datetime import datetime
+from superdesk.user.api.user import User
+from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
 
@@ -42,8 +44,8 @@ class Article(Entity):
     Provides the article model.
     '''
     Item = Item
-    Creator = str
-    Author = str
+    Creator = User
+    Author = Person
     Content = str
     PublishedOn = datetime
     IsPublished = bool

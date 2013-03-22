@@ -28,6 +28,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.functions import current_timestamp
 import json
 from ally.api.extension import IterPart
+from superdesk.user.api.user import IUserService
 
 # --------------------------------------------------------------------
 
@@ -48,6 +49,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
     # content service used to publish the article content to the web
     articleSearchProvider = IArticleSearchProvider; wire.entity('articleSearchProvider')
     # the search provider used to search the article list
+    userService = IUserService; wire.entity('userService')
+    # the user service used to set the creator
+    authorService = IUserService; wire.entity('authorService')
+    # the author service used to set the author
     
     def __init__(self):
         '''
@@ -119,6 +124,8 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             item.HeadLine = rawContent['Title']
             item.SlugLine = '-'.join(item.HeadLine.split())
             item.Version = 1
+            item.Byline = self.authorService.getById(article.Author).FullName
+            item.CreditLine = self.userService.getById(article.Creator).FullName
             article.Item = self.itemService.insert(item)
 
             # create the item content (@see IContentService, @see IItemContentService)
