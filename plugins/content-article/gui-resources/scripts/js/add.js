@@ -42,10 +42,14 @@ function($, giz, Article, Action)
                     Author: localStorage.getItem('superdesk.login.id'),
                     Content: JSON.stringify({Title: $('form [name="title"]', this.el).val(), Lead: '', Body: ''})
                 })
+                .xfilter('Id')
                 .sync()
                 .done(function()
                 { 
-                    Action.initApp('modules.article.edit', article.hash());
+                    $.superdesk.navigation.bind( 'article/'+article.get('Id'), function()
+                    {
+                        Action.initApp('modules.article.edit', article.hash());
+                    }, '' );
                 });
         }
     }),
