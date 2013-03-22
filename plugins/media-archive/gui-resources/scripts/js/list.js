@@ -478,7 +478,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
     ListView = gizList.ListView.extend
     ({
         users: null,
-        events: $.extend(gizList.ListView.prototype.events, 
+        events: $.extend( true, {}, gizList.ListView.prototype.events, 
         {
             '[data-action="add-media"]': { 'click' : 'add' },
             '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' },

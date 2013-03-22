@@ -17,9 +17,11 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
     FilterView = gizmo.View.extend
     ({
         tagName: 'span',
+        events: { '[name="search"]': { 'keypress': 'key2Search' } },
         init: function(){ this.render(); },
         render: function()
         {
+            var self = this; 
             $(this.el).tmpl('media-archive>adv-upload/archive-filter');
         },
         placeInView: function(el)
@@ -28,9 +30,18 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         },
         getSearch: function()
         {   
-            // all.inc=
-            var query = [];
-            return query;
+            return [{'all.inc': $('[name="search"]', this.el).val() }];
+        },
+        key2Search: function(evt)
+        {
+            switch(evt.keyCode)
+            {
+                case 27: $('[name="search"]', this.el).val('');
+                case 13: 
+                    $(this).triggerHandler('trigger-search'); 
+                    evt.preventDefault();
+                break;
+            }
         }
     }),
     // use custom item template
