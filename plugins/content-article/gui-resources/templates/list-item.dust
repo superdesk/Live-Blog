@@ -1,7 +1,7 @@
 
 <!-- <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td> -->
 <td>{Id}</td>
-<td class="title_col"><a href="javascript:void(0)" data-action="edit">{Content.Title}</a></td>
+<td class="title_col"><a data-action="edit" href="article/{Id}">{Content.Title}</a></td>
 <td><span data-article-id="{Id}"><span data-placeholder="Author"></span></span></td>
 <td>{#PublishedOn}{.}{:else}{/PublishedOn}</td>
 <td>

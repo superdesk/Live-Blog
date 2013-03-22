@@ -41,7 +41,6 @@ function($, giz, Article, Upload, tabs, plugins, Action)
             command = $.ui.texteditor.prototype.plugins.lib.commandFactory(new uploadEditorCommand('image'), element);
         $(upload).on('complete', function()
         { 
-            console.log(upload.getRegisteredItems()); 
         });
         return command;
     },
@@ -134,6 +133,7 @@ function($, giz, Article, Upload, tabs, plugins, Action)
         {
             "[data-action='add-article']": { 'click': 'add' },
             "[data-action='save']": { 'click': 'save' },
+            "[data-action='close']": { 'click': 'close' },
         },
 
         _tabs: [],
@@ -176,6 +176,9 @@ function($, giz, Article, Upload, tabs, plugins, Action)
                 {
                     $('[data-placeholder="tabs-right"]', self.el).append($('<li />').append(self._tabs[i].control.el));
                     $('[data-placeholder="tab-content-right"]', self.el).append(self._tabs[i].content.el);
+                    self._tabs[i].control.resetEvents();
+                    self._tabs[i].content.resetEvents();
+                    self._tabs[i].content.resetState && self._tabs[i].content.resetState();
                 }
                 
                 //self.renderCallback();
@@ -213,7 +216,6 @@ function($, giz, Article, Upload, tabs, plugins, Action)
         
         save: function()
         {
-            console.log(this.model);
             var Content = {};
             $(this).triggerHandler('save');
             $('#main-article [data-content]', this.el).each(function()
@@ -221,6 +223,16 @@ function($, giz, Article, Upload, tabs, plugins, Action)
                 Content[$(this).attr('data-content')] = $('[contenteditable]', $(this)).html();  
             });
             this.model.set({Content: JSON.stringify(Content)}).sync();
+        },
+        
+        close: function()
+        {
+            Action.get('modules.article.list')
+            .done(function(action)
+            {
+                if(action.get('Path') == 'modules.article.list' && action.get('Script'))
+                    $.superdesk.navigation.bind( 'article', function(){ require([action.get('Script').href], function(app){ app(); }); }, 'Articles' );
+            });
         }
         
         

@@ -36,6 +36,12 @@ function($, giz)
         {
             this.el.addClass('tabcontent temptabcont').attr('data-tab', "media").html('<section></section>');
         },
+        resetState: function()
+        {
+            this.deactivate();
+            $(this.el).removeClass('open');
+            return this;
+        },
         toggle: function()
         {
             if( $(this.el).hasClass('open') )

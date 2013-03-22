@@ -79,7 +79,8 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
          */
         render: function()
         {
-            $(this.el).tmpl('superdesk/article>plugins/media');
+            var self = this;
+            $(this.el).tmpl('superdesk/article>plugins/media', function(){ self._isRendered = true; });
         },
         _isRendered: false,
         /*!
@@ -89,6 +90,7 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
         {
             this._articleFileCollection.xfilter('*').sync({data: { article: this._article.get('Id') }});
             !this._isRendered && this.render();
+            this._isRendered && this.resetEvents();
         },
         /*!
          * 
@@ -181,7 +183,5 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
         
     });
     
-    var x = new MediaTabBoxPlugin;
-    window.x = x;
-    return x;
+    return new MediaTabBoxPlugin;
 });

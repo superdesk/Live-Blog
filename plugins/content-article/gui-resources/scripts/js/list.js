@@ -93,9 +93,14 @@ function($, giz, gizList, Action, Article, User)
             var model_id = this.model.get('Id');
             this.model.unpublishSync();
         },
-        edit: function()
+        edit: function(evt)
         {
-            Action.initApp('modules.article.edit', this.model.hash());
+            evt.preventDefault();
+            var self = this;
+            $.superdesk.navigation.bind( $(evt.currentTarget).attr('href'), function()
+            {
+                Action.initApp('modules.article.edit', self.model.hash());
+            }, $(evt.currentTarget).text() );
         }
     }),
     listViewEvents = $.extend( true, {}, gizList.ListView.prototype.events, 
@@ -145,5 +150,6 @@ function($, giz, gizList, Action, Article, User)
     return function()
     { 
         listView.activate(); 
+        listView.resetEvents();
     };
 });

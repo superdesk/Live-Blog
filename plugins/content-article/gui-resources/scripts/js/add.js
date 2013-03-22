@@ -19,6 +19,7 @@ function($, giz, Article, Action)
         activate: function()
         {
             this.el.addClass('modal modal-wide fade').modal();
+            $('input', this.el).val('');
         },
         init: function()
         {

@@ -200,7 +200,6 @@ html, body
 	
 		<h1 id="article-title-fixed" class="main-article-title">{Content.Title|s}</h1>
 
-		<a href="javascript:void(0)" data-action="add-article" class="btn btn-medium btn-info pull-right">_('Add')</a>
 		<a href="javascript:void(0)" data-action="save" class="btn btn-medium btn-info pull-right">Save</a>
 		<a href="javascript:void(0)" data-action="close" class="btn btn-medium pull-right">Close</a>
 
