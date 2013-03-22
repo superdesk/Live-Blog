@@ -192,6 +192,12 @@ html, body
     line-height: 20px;
 }
 
+.media-box-hover.image
+{
+	width: 100px;
+	position: static;
+	margin: 10px;
+}
 </style>
 
 <div class="main-background-container">
