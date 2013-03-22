@@ -23,7 +23,7 @@ from superdesk.person.meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
-@validate(exclude=['Item', 'PublishedOn'])
+@validate(exclude=['Item', 'PublishedOn', 'Creator', 'Author'])
 class ArticleMapped(Base, Article):
     '''
     Provides the mapping for Article.
@@ -46,3 +46,5 @@ class ArticleMapped(Base, Article):
 
 validateManaged(ArticleMapped.Item)
 validateManaged(ArticleMapped.PublishedOn)
+validateManaged(ArticleMapped.Creator)
+validateManaged(ArticleMapped.Author)
