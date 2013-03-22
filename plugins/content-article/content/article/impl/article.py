@@ -18,7 +18,8 @@ from ally.support.sqlalchemy.util_service import handle
 from content.article.api.article import IArticleService, Article, QArticle
 from content.article.api.search_provider import IArticleSearchProvider
 from content.article.meta.article import ArticleMapped
-from content.packager.api.item import IItemService, Item, CLASS_TEXT
+from content.packager.api.item import IItemService, Item, CLASS_TEXT,\
+    CLASS_PACKAGE
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
 from content.publisher.api.publisher import IContentPublisherService
@@ -62,7 +63,6 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(article, Article)
         # set article publish timestamp
         article.PublishedOn = current_timestamp()
-        # TODO: uncomment and fix
         try: self.session().flush((article,))
         except SQLAlchemyError as e: handle(e, article)
         # publish the article content through the content publisher service
@@ -76,7 +76,6 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(article, Article)
         # unset article publish timestamp
         article.PublishedOn = None
-        # TODO: uncomment and fix
         try: self.session().flush((article,))
         except SQLAlchemyError as e: handle(e, article)
         # publish the article content through the content publisher service
@@ -116,7 +115,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         try:
             # create the corresponding item (@see IItemService)
             item = Item()
-            item.ItemClass = CLASS_TEXT
+            item.ItemClass = CLASS_PACKAGE
             item.HeadLine = rawContent['Title']
             item.SlugLine = '-'.join(item.HeadLine.split())
             item.Version = 1
@@ -126,6 +125,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             for tag in ('Lead', 'Body'):
                 content = ItemContent()
                 content.Item = item.GUId
+                content.ContentType = 'text/html'
                 content.ResidRef = tag
                 content.Content = rawContent[tag]
                 id = self.itemContentService.insert(content)
@@ -182,7 +182,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         # unpublish the article from all outputs (e.g. web)
         self.unpublish(id)
-        self.searchArticleProvider.delete(id)
+        self.articleSearchProvider.delete(id)
 
         article = super().getById(id)
         # delete the article
