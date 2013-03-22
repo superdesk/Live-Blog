@@ -38,8 +38,6 @@ function($, giz, Article, Action)
             article
                 .set
                 ({
-                    Creator: localStorage.getItem('superdesk.login.id'),
-                    Author: localStorage.getItem('superdesk.login.id'),
                     Content: JSON.stringify({Title: $('form [name="title"]', this.el).val(), Lead: '', Body: ''})
                 })
                 .xfilter('Id')
