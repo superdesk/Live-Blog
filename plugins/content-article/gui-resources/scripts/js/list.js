@@ -57,7 +57,7 @@ function($, giz, gizList, Action, Article, User)
             feed.Content = JSON.parse(feed.Content);
             $(this.el).tmpl(this.tmpl, feed, function()
             {
-                userCache.get(feed.Author).done(function(data)
+                userCache.get(feed.Author.Id).done(function(data)
                 {
                     $('[data-article-id="'+feed.Id+'"] [data-placeholder="Author"]', self.el).text(data.get('Name')||data.get('FullName'));    
                 });

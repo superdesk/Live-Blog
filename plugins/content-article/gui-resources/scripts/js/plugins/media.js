@@ -59,9 +59,23 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
             this.el.appendTo($('section', mediaTab.content.el));
             $(mediaTab.content).on('active', function(){ self.activate(); });
             $(upload).on('complete', function(){ self.addItems(upload.getRegisteredItems()); });
-            
-            // make files collection and bind events to set initial items
+        },
+        /*!
+         * 
+         */
+        render: function()
+        {
+            var self = this;
+            $(this.el).tmpl('superdesk/article>plugins/media', function(){ self._isRendered = true; });
+        },
+        _isRendered: false,
+        
+        getNewFileCollection: function()
+        {
+            if( this._articleFileCollection ) delete this._articleFileCollection;
+            var self = this;
             this._articleFileCollection = new ArticleFiles;
+            // make files collection and bind events to set initial items
             this._articleFileCollection.on('read update', function()
             {
                 var metadatas = {};
@@ -73,23 +87,18 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
                 });
                 self.addItems(metadatas);
             });
+            return this._articleFileCollection;
         },
-        /*!
-         * 
-         */
-        render: function()
-        {
-            var self = this;
-            $(this.el).tmpl('superdesk/article>plugins/media', function(){ self._isRendered = true; });
-        },
-        _isRendered: false,
+        
         /*!
          * 
          */
         activate: function()
         {
-            this._articleFileCollection.xfilter('*').sync({data: { article: this._article.get('Id') }});
+            this.getNewFileCollection().xfilter('*').sync({data: { article: this._article.get('Id') }});
             !this._isRendered && this.render();
+            $('[data-placeholder="media"]', self.el).html('');
+            $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
         },
         /*!
