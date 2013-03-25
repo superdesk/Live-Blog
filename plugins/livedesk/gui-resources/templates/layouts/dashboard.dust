@@ -12,7 +12,7 @@
 	<div class="dashboard-content tab-pane active" id="active_blogs">
 
       	<div class="btn-group pull-left">
-        	<a class="btn" href="#"><i class="icon-settings"></i></a>
+        	<span class="btn-inactive"><i class="icon-settings"></i></span>
         	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
         		<ul class="dropdown-menu">
                     <li><a id="grid_view" href="#"><i class="icon-th"></i> _('Grid view')</a></li>
