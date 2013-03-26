@@ -37,6 +37,7 @@ class BlogCollaboratorGroupMember(Entity):
 
 # --------------------------------------------------------------------
 
+# TODO: review the API
 @service
 class IBlogCollaboratorGroupService:
     '''

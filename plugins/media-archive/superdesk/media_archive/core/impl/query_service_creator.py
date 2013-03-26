@@ -134,8 +134,6 @@ class QueryServiceAlchemy(SessionSupport):
         metaDataInfos = list()
         if count == 0:
             return IterPart(metaDataInfos, count, offset, limit)
-        
-        count = 0
 
         for row in sql.all():
             metaDataMapped = row[0]
@@ -171,6 +169,5 @@ class QueryServiceAlchemy(SessionSupport):
             metaDataInfos.append(metaDataInfo)
             
             indexDict[metaDataMapped.Id] = count
-            count = count + 1
             
         return IterPart(metaDataInfos, count, offset, limit)
