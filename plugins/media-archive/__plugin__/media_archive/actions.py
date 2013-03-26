@@ -51,7 +51,7 @@ def modulesAddAction() -> Action:
 @ioc.entity   
 def modulesMainAction() -> Action:
     return Action('main', Parent=modulesAction(),
-                  Script=publishedURI('media-archive/scripts/js/list.js'))
+                  Script=publishedURI('media-archive/scripts/js/main.js'))
 #TODO: check this action
 #@ioc.entity   
 #def modulesConfigureAction() -> Action:
