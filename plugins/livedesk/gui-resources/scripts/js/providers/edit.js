@@ -593,9 +593,11 @@ define('providers/edit', [
 			
 			this.postsView.savepost(data).fail(function(data){
 				var status = data.status;
+				var responseObj = jQuery.parseJSON( data.responseText );
+				var responseText = responseObj.details.model.Post.Content + _(' for text with HTML and formatting');
 				switch ( status ) {
 					case 400:
-						self.showMessage('error', _('Maximum post size is 3000 characters'), 5000);
+						self.showMessage('error', responseText, 5000);
 						break;
 				}
 			}).done(function(){
