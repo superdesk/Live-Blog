@@ -1,3 +1,0 @@
-test
-superdesk
-__plugin__
