@@ -1,15 +1,15 @@
 define(['providers'], function(providers) 
 {
-    providers.liveblog = 
+    providers.chain = 
     {
         className: 'big-icon-chain',       
         tooltip: _('Liveblogs'),
         init: function() 
         {
             var args = arguments;
-            require(['providers','providers/liveblog'], 
+            require(['providers','providers/chain'], 
                 function(providers){ 
-                    providers.liveblog.init.apply(providers.liveblog, args); 
+                    providers.chain.init.apply(providers.chain, args); 
                     $("[rel=tooltip]").tooltip();
                 });
         }
