@@ -34,24 +34,29 @@ function($, giz)
         tagName: 'div',
         init: function()
         {
-            this.el.addClass('tabcontent temptabcont').attr('data-tab', "media").html('<section></section>');
+            this.el.addClass('tabcontent').attr('data-tab', "media").html('<section></section>');
         },
         resetState: function()
         {
             this.deactivate();
-            $(this.el).removeClass('open');
+            $(this.el).hide();
+            $(this.el).parent().removeClass('open-tabpane');
             return this;
         },
         toggle: function()
         {
-            if( $(this.el).hasClass('open') )
+            var tabpane = $(this.el).parent();
+            if( tabpane.hasClass('open-tabpane') )
             {
+                $(this.el).hide();
                 this.deactivate();
-                $(this.el).removeClass('open');
+                tabpane.removeClass('open-tabpane');
                 return;
             }
-            $(this.el).addClass('open');
+            $(this.el).show();
+            tabpane.addClass('open-tabpane');
             this.activate();
+
         },
         deactivate: function()
         {

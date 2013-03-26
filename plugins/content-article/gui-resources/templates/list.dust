@@ -1,17 +1,12 @@
-<style>
-html,body{
- overflow:auto;
- }
-</style>
 <div class="subnav subnav-fixed">
+
+  <input type="text" name="search" class="searchbar-container" style="width:500px;" value="{src}"><button data-action="search" style="display:none"></button>
+  <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add"><span class="medium-icon-add"></span> _('Add New Article')</a>
 	
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
      <div class="btn-toolbar">
-     <input type="text" name="search" class="searchbar-container" style="width:500px;" value="{src}"> <button data-action="search" style="display:none"></button>
-     <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add">
-		<span class="medium-icon-add"></span>_('Add New Article')
-	</a>
+     
       	<!--
         <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -54,7 +49,7 @@ html,body{
       </div>
 
    </div>
-<div class="main-content-container" style="padding: 113px 20px 100px; overflow: auto">
+<div class="main-content-container">
       <table class="sf_table">
         <thead>
           <tr>
