@@ -1,3 +1,0 @@
-livedesk
-gui-resources
-__plugin__

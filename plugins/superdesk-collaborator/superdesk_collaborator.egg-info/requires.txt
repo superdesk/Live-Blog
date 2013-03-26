@@ -1,5 +1,0 @@
-ally_api >= 1.0
-ally_core_sqlalchemy >= 1.0
-superdesk >= 1.0
-superdesk_person >= 1.0
-superdesk_source >= 1.0

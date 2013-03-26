@@ -1,2 +1,0 @@
-url_info
-__plugin__
