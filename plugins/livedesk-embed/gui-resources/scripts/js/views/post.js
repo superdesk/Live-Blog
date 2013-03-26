@@ -86,7 +86,7 @@ define([
 			var self = this, 
 				data = self.model.feed(),
 				order = parseFloat(self.model.get('Order')),
-				regexHash, newHash;
+				regexHash, newHash, createdOn;
 			if ( !isNaN(self.order) && (order != self.order)) {
 				self.order = order;
 				self._parent.reorderOne(self);
@@ -125,7 +125,9 @@ define([
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				data.CreatedOn = (new Date(data.CreatedOn)).format(_('mm/dd/yyyy HH:MM'));
+				createdOn = new Date(data.CreatedOn);
+				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM'));
+				data.CreatedOnISO = createdOn.toISOString();
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
