@@ -7,7 +7,9 @@ define( 'providers/colabs', [
     config.guiJs('superdesk/user', 'models/person'),
    config.guiJs('livedesk', 'action'),
    'jquery/avatar',
-
+    config.guiJs('livedesk', 'providers-templates'),
+    'tmpl!livedesk>items/item',
+    'tmpl!livedesk>items/implementors/collaborators',
     'providers/colabs/adaptor',
     'tmpl!livedesk>providers/colabs',
     'tmpl!livedesk>providers/colabs/items' ],
@@ -49,10 +51,32 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 return;
             }
             var self = this,
-                posts = this.model.feed('json');
-            try{ posts.Meta = JSON.parse(posts.Meta); } catch(e){}
-
-            $.tmpl( 'livedesk>providers/colabs/items', posts, function(e, o)
+                posts = this.model.feed(true);
+                if($.type(posts.Meta) === 'string')
+                    posts.Meta = JSON.parse(posts.Meta);
+            $.tmpl('livedesk>items/item', { 
+                    Post: posts,
+                    Base: 'implementors/collaborators'
+                }, function(e,o) {
+                    self.setElement(o);
+                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                        self.el.hasClass('draggable') && self.el.draggable({
+                            addClasses: false,
+                            revert: 'invalid',
+                            containment:'document',
+                            helper: 'clone',
+                            appendTo: 'body',
+                            zIndex: 2700,
+                            clone: true,
+                            start: function(evt, ui) {
+                                $(this).data('post', self.model); 
+                            }
+                        });
+                    }).fail(function(){
+                        el.removeClass('draggable');
+                    });
+                });
+            /*$.tmpl( 'livedesk>providers/colabs/items', posts, function(e, o)
             {
                 self.setElement(o);
                 // make draggable
@@ -68,7 +92,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     self.el.removeClass('draggable');
                 })
                 addUserImages();
-            });
+            });*/
             return self;
         },
         remove: function()
@@ -96,7 +120,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
         {
             var colabId = $(this).attr('data-colab-id'),
                 posts = $(this).parents('.collaborators-header')
-                            .nextAll('.search-result-list').find('li[data-colab-id='+colabId+']');
+                            .nextAll('.post-list').find('li[data-colab-id='+colabId+']');
 
             if($(this).data('is-off'))
             {
@@ -137,7 +161,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             this.notifications.addClass('hide');
             localStorage.setItem('superdesk.config.providers.colabs.notify', 0);
             
-            $('.search-result-list', this.el).html('');
+            $('.post-list', this.el).html('');
 
             $(this.el).on('click', '.collaborators-header .feed-info .label', this.toggleHeader);
 
@@ -240,13 +264,13 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                             }
                             else
                             {
-                                $('.search-result-list', view.el).append( (new PostView({ model: this, colab: colab })).render().el );
+                                $('.post-list', view.el).append( (new PostView({ model: this, colab: colab })).render().el );
                                 break;
                             }
                         }
                     }
                     //if(this.get('IsPublished') !== 'True')
-                    //    $('.search-result-list', view.el).prepend( (new PostView({ model: this, colab: colab })).render().el );
+                    //    $('.post-list', view.el).prepend( (new PostView({ model: this, colab: colab })).render().el );
                 });
                 updateItemCount -= appendPosts.length;
             }, initColabHandle()]);
@@ -311,7 +335,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             updateInterval = setInterval(function()
             {
                 var cnfNotif = localStorage.getItem('superdesk.config.providers.colabs.notify');
-                if(!$('.search-result-list:visible', self.el).length && !parseFloat(cnfNotif)) 
+                if(!$('.post-list:visible', self.el).length && !parseFloat(cnfNotif)) 
                 {
                     clearInterval(updateInterval);
                     return;

@@ -1,0 +1,21 @@
+define([
+	'tmpl!livedesk>items/base',
+	'tmpl!livedesk>items/sources/base',
+	'tmpl!livedesk>items/sources/advertisement',
+	'tmpl!livedesk>items/sources/flickr',
+	'tmpl!livedesk>items/sources/google/base',
+	'tmpl!livedesk>items/sources/google/web',
+	'tmpl!livedesk>items/sources/google/news',
+	'tmpl!livedesk>items/sources/google/images',
+	'tmpl!livedesk>items/sources/instagram',
+	'tmpl!livedesk>items/sources/soundcloud',
+	'tmpl!livedesk>items/sources/twitter',
+	'tmpl!livedesk>items/sources/youtube',
+	'tmpl!livedesk>items/sources/instagram',
+	'tmpl!livedesk>items/types/base',
+	'tmpl!livedesk>items/types/link',
+	'tmpl!livedesk>items/types/normal',
+	'tmpl!livedesk>items/types/quote',
+	'tmpl!livedesk>items/types/wrapup',
+	'tmpl!livedesk>items/types/advertisement'
+]);

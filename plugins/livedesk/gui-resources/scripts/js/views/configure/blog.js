@@ -37,6 +37,7 @@
                     EmbedConfig: JSON.stringify(EmbedConfig)
                 };
             self.apiKeysView.save();
+			self.model.off('update');
             self.model.set(data).sync();
         },
         saveClose: function(evt) {

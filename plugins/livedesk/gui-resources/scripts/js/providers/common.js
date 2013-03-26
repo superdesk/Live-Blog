@@ -13,15 +13,6 @@ define('providers/common',[
             stopLoading : function(where) {
             	where = typeof where == 'undefined' ? '' : where;
                 $(where).html('');
-            },
-            crudeTrim : function(what, maxLen) {
-            	what = ( typeof what == 'undefined' || what == null ) ? '' : what;
-            	maxLen = typeof maxLen == 'undefined' ? 150 : maxLen;
-            	if (what.length > maxLen) {
-                    return what.substring(0, maxLen) + ' ...'
-                } else {
-                    return what;
-                }
             }
 		}
 		return hamster;

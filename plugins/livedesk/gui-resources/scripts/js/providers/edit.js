@@ -20,6 +20,8 @@ define('providers/edit', [
     'jquery/avatar',
 	'jqueryui/draggable',
     'jqueryui/texteditor',
+    'tmpl!livedesk>items/item',
+    'tmpl!livedesk>items/implementors/edit',
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
     'tmpl!livedesk>providers/edit/link',
@@ -197,33 +199,40 @@ define('providers/edit', [
 			});
 		},		
 		render: function(){			
-			var avatar = $.avatar.get($.superdesk.login.EMail);
-			var self = this;
-			if(!(this.model instanceof Gizmo.Register.Post))
-				this.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
-			
-			var post = this.model.feed();
+			var self = this,
+				rendered = false,
+				post = self.model.feed(true);
+			if(!(self.model instanceof Gizmo.Register.Post))
+				self.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
+			post = self.model.feed(true)
 			if ( typeof post.Meta === 'string') {
 				post.Meta = JSON.parse(post.Meta);
 			}
-			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
-				self.setElement( out );
+			$.tmpl('livedesk>items/item', { 
+				Base: 'implementors/edit',
+				Post: post
+			}, function(e, output) {
+				self.setElement(output);
 				BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
 					//if( !self.model.get('PublishedOn')) {
 						self.el.draggable({
+							addClasses: false,
 							revert: 'invalid',
-							containment:'document',
 							helper: 'clone',
 							appendTo: 'body',
-							zIndex: 2700
+							zIndex: 2700,
+							clone: true,
+							start: function(evt, ui) {
+								item = $(evt.currentTarget);;
+								$(ui.helper).css('width', item.width());
+							}
 						});
 					/*} else {
 						self.el.removeClass('draggable');
 					}*/
 				}).fail(function(){
 					self.el.removeClass('draggable');
-				});				
-				self.resetEvents();
+				});
 			});
 			return this;
 		},
@@ -307,7 +316,7 @@ define('providers/edit', [
 		{	
 			var self = this,
 			    PostTypes = Gizmo.Collection.extend({model: PostType});
-			
+			self.meta = {};
 			self.theBlog = self.blogUrl;
 			
 			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
@@ -376,8 +385,10 @@ define('providers/edit', [
 					title: siteData.Title,
 					description: siteData.Description,
 					thumbnail: myThumb,
-					favicon: favicon
+					favicon: favicon,
+					siteData: siteData
 				}
+				self.meta = data;
 				$.tmpl('livedesk>providers/edit/link' , data, function(e,o) {
 					self.el.find('article.editable').html(o)
 					self.el.find('.linkpost-editable').texteditor({
@@ -440,6 +451,7 @@ define('providers/edit', [
 		},
 		changetype: function(evt) {
 			var self = this;
+			self.meta = {};
 			self.enableSaveButtons();
 			var type = self.el.find('[name="type"]').val();
 			
@@ -587,6 +599,7 @@ define('providers/edit', [
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
+				Meta: JSON.stringify(self.meta),
 				Content: originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
@@ -601,6 +614,7 @@ define('providers/edit', [
 						break;
 				}
 			}).done(function(){
+				self.meta = {};
 				self.clear();
 			});
 		},
@@ -609,6 +623,7 @@ define('providers/edit', [
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
+				Meta: JSON.stringify(self.meta),
 				Content:  originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
@@ -621,6 +636,7 @@ define('providers/edit', [
 						break;
 				}
 			}).done(function(){
+				self.meta = {};
 				self.clear();
 			});			
 		}

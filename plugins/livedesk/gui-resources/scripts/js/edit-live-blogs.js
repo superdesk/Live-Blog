@@ -14,7 +14,11 @@ define
 	config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
     'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
-    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', config.guiJs('superdesk/user', 'jquery/avatar'),
+    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 
+    config.guiJs('superdesk/user', 'jquery/avatar'),
+    config.guiJs('livedesk', 'providers-templates'),
+    'tmpl!livedesk>items/item',
+    'tmpl!livedesk>items/implementors/timeline',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!core>layouts/footer',
@@ -22,7 +26,6 @@ define
     'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
-    'tmpl!livedesk>timeline-item',
 	'tmpl!livedesk>timeline-action-item',
     'tmpl!livedesk>provider-content',
     'tmpl!livedesk>provider-link',
@@ -380,23 +383,74 @@ function(providers, Gizmo, $, BlogAction)
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
 				
-				'.btn.cancel': {click: 'hideActions'},
-				'.btn.publish': {click: 'save'},
-				'.editable': { focusin: 'edit', click: 'showActions', focusout: 'hideActionsSlow'}
+				'.btn.cancel': {click: 'cancelActions', focusin: 'stopFocuseOut'},
+				'.btn.publish': {click: 'save', focusin: 'stopFocuseOut'},
+				'.editable': { focusin: 'edit'} //, focusout: 'focuseOut'}
 			},
 			showActions: function() {
 				var self = this;
 				self.el.find('.actions').removeClass('hide');
 			},
-			hideActionsSlow: function() {
-				var self = this;
-				setTimeout(function(){
-					self.hideActions();
-				},500)
+			stopFocuseOut: function(evt) {
+				console.log('stopFocuseOut');
+				var self = this,
+					actions = self.el.find('.actions');
+				actions.data('focuseout-stop',true);
 			},
-			hideActions: function() {
-				var self = this;
-				self.el.find('.actions').addClass('hide');
+			focuseOut: function(evt) {
+				var self = this,
+					actions = self.el.find('.actions');
+					setTimeout(function(){
+						if(!actions.data('focuseout-stop')) {
+							self.hideActions(evt, 1000);
+						}
+						actions.removeData('focuseout-stop');
+					}, 100);
+			},
+			hideActions: function(evt, duration) {
+				var self = this,
+					actions = self.el.find('.actions'),
+					duration = duration || 100;
+				actions.fadeOut(duration, function(){
+					self.el.find('.editable').html(function(){
+						return $(this).data('previous');
+					});
+				});
+			},
+			cancelActions: function(evt) {
+				this.stopFocuseOut(evt);
+				this.hideActions(evt);
+			},
+			/*!
+			 * subject to aop
+			 */
+			preData: $.noop,
+			save: function(evt)
+			{
+				var self = this,
+					actions = self.el.find('.actions'),
+					data = {
+						Meta: this.model.get('Meta'),
+						Content: $('.result-text.editable',this.el).html()
+				};
+				actions.data('focuseout-stop',true);
+				if( !data.Content )
+					delete data.Content;
+				if($.type(data.Meta) === 'string')
+					data.Meta = JSON.parse(data.Meta);
+				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
+				data.Meta = JSON.stringify(data.Meta);
+				this.model.updater = this;
+				this.model.set(data).sync();
+				this.el.find('.actions').stop().fadeOut(100, function(){
+					$('.editable').removeData('previous');
+				});
+			},	
+			edit: function(evt){
+				var el = $(evt.target);
+				this.el.find('.actions').stop(true).fadeTo(100, 1);
+				if(!el.data('previous'))
+					el.data('previous', el.html());
 			},
 			init: function()
 			{
@@ -454,21 +508,6 @@ function(providers, Gizmo, $, BlogAction)
 						 */
 					    if( self._parent.collection.isCollectionDeleted(self.model) )
 					    	return;
-					    /*!
-                         * conditionally handing over save functionality to provider if
-                         * model has source name in providers 
-                         */
-					    try
-					    {
-                            var src = this.get("Author").Source.Name;
-                            if( providers[src] && providers[src].timeline )
-                            {
-                                self.edit = providers[src].timeline.edit;
-                                self.save = providers[src].timeline.save;
-                            };
-					    }
-					    catch(e){ /*...*/ }
-                        
 						/*!
 						 * If the updater on the model is the current view don't update the view;
 						 */
@@ -539,8 +578,7 @@ function(providers, Gizmo, $, BlogAction)
 					self.render().el.fadeTo(500, '1');
 				});
 			},
-			
-			render: function()
+			reorder: function()
 			{
 				var self = this, order = parseFloat(this.model.get('Order'));
 				if(isNaN(order)) {
@@ -564,82 +602,39 @@ function(providers, Gizmo, $, BlogAction)
 				if(this.model.ordering === self)
 					delete this.model.ordering;
 				self.order = order;
-				self.id = this.model.get('Id');
-				
-				// pre parse data
-				var src = self.model.get("Author").Source.Name,
-				    rendered = false;
-				// pass functionallity to provider if exists
-				if( providers[src] && providers[src].timeline )
-				{
-				    providers[src].timeline.preData && providers[src].timeline.preData.call(self);
-				    if( providers[src].timeline.render ) 
-				    {
-				        providers[src].timeline.render.call(self, function()
-				        {
-				        	var that = this;
-				        	BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
-				            	$('.editable', that.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-				            }).fail(function(action){
-				            	self.el.find('.unpublish,.close').remove();
-				            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
-				            		self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-				            });
-				            $(self).triggerHandler('render');
-				        });
-				        rendered = true;
-				    }
+				self.id = this.model.get('Id');				
+			}, 
+			render: function()
+			{
+				var self = this,
+					rendered = false,
+					post = self.model.feed(true);
+				self.reorder();
+				if ( typeof post.Meta === 'string') {
+					post.Meta = JSON.parse(post.Meta);
 				}
-				var img = new Image,
-				    post = this.model.feed();
-				
+				var img = new Image;
 				img.src = $.avatar.get('AuthorPerson.EMail');
 				img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
 				img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
 				
 				post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
 				        '<img data-avatar-id="'+post['Id']+'" />';
-				!rendered &&
-				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
-				{
+				$.tmpl('livedesk>items/item', { 
+					Base: 'implementors/timeline',
+					Post: post
+				}, function(e, o) {
 					self.setElement(o);
-					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
-						self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-		            }).fail(function(action){
-		            	self.el.find('.unpublish,.close').remove();
-		            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
-							self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-					});
-					/*!
-                     * conditionally handing over some functionallity to provider if
-                     * model has source name in providers 
-                     */
-                    if( providers[src] && providers[src].timeline ) {
-						providers[src].timeline.init.call(self);
-					}
-                    
-                    $(self).triggerHandler('render');
-					
+						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
+							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+						}).fail(function(action){
+							self.el.find('.unpublish,.close').remove();
+							if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
+								self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+						});
 				});
-				
-				//this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf().addClass('first');
-				
 				return this;
-			},
-			
-			/*!
-			 * subject to aop
-			 */
-			preData: $.noop,
-			edit: $.noop,
-			save: function(evt)
-			{
-				if($(evt.target).data('linkCommandActive'))
-					return;
-				this.model.updater = this;
-				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
-				this.el.find('.actions').addClass('hide');
-			},		
+			},	
 			remove: function(evt)
 			{
 				//console.log('evt: ',evt);

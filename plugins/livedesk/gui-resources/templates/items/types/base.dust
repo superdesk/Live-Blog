@@ -1,0 +1,6 @@
+{>"livedesk>items/{Base}"/}
+{<ProviderClass}internal {+ProviderSubClass}{Post.Type.Key}{/ProviderSubClass}{/ProviderClass}
+{<SourceTime}{/SourceTime}
+{<TopAnnotation}{/TopAnnotation}
+{<BottomAnnotation}{/BottomAnnotation}
+{<ContainerIframe}{/ContainerIframe}

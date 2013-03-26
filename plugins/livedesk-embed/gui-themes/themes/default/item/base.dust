@@ -21,7 +21,9 @@ _('Share');
 		{+body_top}{/body_top}
 		{+body_content}<div class="result-text">{Content|s}</div>{/body_content}
 			{+reference}
-			<p class="attributes"><i class="source-icon"></i>{+reference_name}{/reference_name}</p>
+			<p class="attributes"><i class="source-icon"></i> 
+				{+reference_link}{+reference_name}{/reference_name}{/reference_link}
+			</p>
 			{/reference}
 		</div>
 		{+body_bottom}{/body_bottom}

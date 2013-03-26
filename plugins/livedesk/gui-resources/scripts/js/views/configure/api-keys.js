@@ -15,7 +15,7 @@
             var self = this;
             self._views = [];
             if( !self.collection ) {
-                self.collection = new Gizmo.Register.Sources();
+                self.collection = Gizmo.Auth(new Gizmo.Register.Sources());
             }
             self.collection
                 .on('read update', self.render, self)

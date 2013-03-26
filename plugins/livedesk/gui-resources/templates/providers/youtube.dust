@@ -15,18 +15,18 @@
 
 <!--search results for search -->
 <ul class="search-result-list scroller" id="ytb-src-holder" style="margin-top:37px">
-	<ul id="ytb-src-results" class="search-result-list" style=""></ul>
-	<ul id="ytb-src-more" style="padding-right:6px; margin-left:0px;"></ul>
+	<ul id="ytb-src-results" class="search-result-list clearfix" style=""></ul>
+	<ul id="ytb-src-more" class="sources-show-more"></ul>
 </ul>
 
 <!--search results for user's favorites search -->
 <ul class="search-result-list scroller" id="ytb-fav-holder" style="visibility: hidden">
-	<ul id="ytb-fav-results" class="search-result-list"></ul>
-	<ul id="ytb-fav-more" style="padding-right:6px; margin-left:0px;"></ul>
+	<ul id="ytb-fav-results" class="search-result-list clearfix"></ul>
+	<ul id="ytb-fav-more" class="sources-show-more"></ul>
 </ul>
 
 <!--search results for news search -->
 <ul class="search-result-list scroller" id="ytb-usr-holder" style="visibility: hidden;">
-	<ul id="ytb-usr-results" class="search-result-list"></ul>
-	<ul id="ytb-usr-more" style="padding-right:6px; margin-left:0px;"></ul>
+	<ul id="ytb-usr-results" class="search-result-list clearfix"></ul>
+	<ul id="ytb-usr-more" class="sources-show-more"></ul>
 </ul>

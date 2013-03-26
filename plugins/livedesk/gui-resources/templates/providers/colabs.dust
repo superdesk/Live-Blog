@@ -7,8 +7,4 @@
 	</p>
 	<span class="new-results label label-warning hide"></span>
 </div>
-
-<ul class="search-result-list scroller">
-
-</ul>
-          
+<ul class="post-list scroller collabs"></ul>

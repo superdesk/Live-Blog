@@ -29,6 +29,7 @@ from livedesk.api.blog_type_post import IBlogTypePostService
 from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
+from superdesk.source.api.source import ISourceService
     
 # --------------------------------------------------------------------
 
@@ -138,7 +139,7 @@ def registerAclLivedeskUpdate():
                  dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
     r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
-          IPersonService, IPersonIconService)
+          IPersonService, IPersonIconService, ISourceService)
 
 # --------------------------------------------------------------------
 

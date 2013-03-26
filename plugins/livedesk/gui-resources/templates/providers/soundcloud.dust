@@ -2,6 +2,6 @@
     <input type="text" placeholder="_('Search')" id="soundcloud-search-text" style="display:block">
 </div>
 <ul class="search-result-list scroller" id="soundcloud-sound-holder" style="margin-top:10px;">
-    <div id="soundcloud-sound-results"></div>
-    <div id="soundcloud-sound-more"></div>
+    <div id="soundcloud-sound-results" class="clearfix"></div>
+    <div id="soundcloud-sound-more" class="sources-show-more"></div>
 </ul>
