@@ -12,8 +12,7 @@ API specifications for posts.
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean
 from ally.api.type import Iter
-from ally.support.api.entity import Entity, IEntityGetCRUDService
-from ally.support.api.keyed import QEntity
+from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
 from superdesk.api.domain_superdesk import modelData
 from superdesk.collaborator.api.collaborator import Collaborator

@@ -1,8 +1,0 @@
-<div title="{Name}">
-	<dl class="dl-horizontal">
-        <dt>_("Country Code");</dt>
-        <dd>{Code}</dd>
-        <dt>_("Country Name");</dt>
-        <dd>{Name}</dd>
-	</dl>
-</div>
