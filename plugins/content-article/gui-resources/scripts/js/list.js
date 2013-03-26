@@ -52,6 +52,7 @@ function($, giz, gizList, Action, Article, User)
         tmpl: 'superdesk/article>list-item',
         render: function()
         { 
+
             var self = this,
                 feed = this.model.feed();
             feed.Content = JSON.parse(feed.Content);
@@ -64,6 +65,7 @@ function($, giz, gizList, Action, Article, User)
                 // add view to checkbox data, for use from list multi actions
                 $('[type="checkbox"]', self.el).data('view', self);
             });
+             $('body').attr("class","article-list");
             return this;
         },
         init: function() {

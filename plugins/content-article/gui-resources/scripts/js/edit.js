@@ -166,7 +166,9 @@ function($, giz, Article, Upload, tabs, plugins, Action)
             
             // place in view
             // !$($.superdesk.layoutPlaceholder).find(this.el).length && 
+           
             $($.superdesk.layoutPlaceholder).html(this.el);
+            $('body').attr("class","article-edit");
             
             // render
             $(this.el).tmpl('superdesk/article>edit', {Article: feed}, function()

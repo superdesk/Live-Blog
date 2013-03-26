@@ -1,8 +1,5 @@
 <style type="text/css">
-html, body
-{
-	overflow: auto;
-}
+
 .editor-toolbar-placeholder
 {
 	-moz-box-sizing: border-box;
@@ -25,6 +22,7 @@ html, body
     margin: 7px auto 0;
     background: none;
 }
+/*
 .tablist 
 {
     background: none repeat scroll 0 0 #A1A1A1;
@@ -107,6 +105,8 @@ html, body
 {
     padding: 10px;
 }
+
+*/
 .main-article-container
 {
 	-moz-box-sizing: border-box;
@@ -200,7 +200,7 @@ html, body
 }
 </style>
 
-<div class="main-background-container">
+
 
 	<div class="subnav subnav-fixed">
 	
@@ -258,7 +258,7 @@ html, body
 
 	</div>
 
-</div>
+
 
 	<!-- div class="zen-buttons">
 		<a title="turn off zen" id="zen-close" href="#" class="btn pull-right zen-close"><i class="icon-remove"></i></a>
@@ -342,4 +342,3 @@ html, body
 		</div>
 		<div class="tabpane right-tabpane" data-placeholder="tab-content-right">
 		</div>
-</div>
