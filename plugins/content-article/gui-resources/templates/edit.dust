@@ -19,7 +19,7 @@
     top: auto !important;
     max-width: 100%;
     width: 566px;
-    margin: 7px auto 0;
+    margin: 4px auto 0;
     background: none;
 }
 /*
@@ -219,6 +219,7 @@
 	<div class="editor-toolbar-stuff">
 
 		<div class="btn-toolbar">
+		
 	  		<div class="btn-group headings">
 	    		<button title="Text Heading" rel="tooltip" class="btn currentHeading">Nothing</button>
 	    		<button title="Change Heading" rel="tooltip" data-toggle="dropdown" class="btn dropdown-toggle">

@@ -1,4 +1,4 @@
-<a class="btn pull-right attach-media" href="#" id="add-media"><i class="icon-plus-sign"></i> _('Attach media')</a>
+<a class="btn pull-right attach-media" data-toggle="modal" data-action="add"><i class="icon-plus-sign"></i> _('Attach media')</a>
 
 
 <div class="media-tab">
