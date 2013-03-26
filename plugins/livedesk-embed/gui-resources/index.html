@@ -67,9 +67,6 @@
 				}
 			}
 			var livedesk = { 
-				'theme': {
-					'item/posttype/normal': '{>"theme/item/base"/}{<item_class}normal{/item_class}{<reference_name}thewebsiteyouwant.extension{/reference_name}'
-				},
 				'language': 'de',
 				'server': function(){ return config.api_url; },
 				'FrontendServer': config.api_url,
@@ -103,7 +100,8 @@
 		<div id="here"></div>
 		<script>
 			if(po !== undefined){
-				var html='<form  enctype="multipart/form-data" action="'+config.api_url+'/resources/Admin/Plugin/livedesk_embed/PO/'+po+'?X-HTTP-Method-Override=PUT" method="POST"><input name="source" type="file"/><input value="Load it" type="submit"/></form>';
+				var download = '<a href="'+config.api_url+'/resources/Admin/Plugin/livedesk_embed/PO/'+po+'">Download</a>',
+					html='<form  enctype="multipart/form-data" action="'+config.api_url+'/resources/Admin/Plugin/livedesk_embed/PO/'+po+'?X-HTTP-Method-Override=PUT" method="POST"><input name="source" type="file"/><br/><input value="Load it" type="submit"/></form><br/>'+download;
 				document.getElementById('here').innerHTML = html;
 			}
 		</script>

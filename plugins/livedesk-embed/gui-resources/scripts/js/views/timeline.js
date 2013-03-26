@@ -1,13 +1,18 @@
 define([
 	'jquery',
 	'gizmo/superdesk',
-	'livedesk-embed/views/post',	
+	'livedesk-embed/views/post',
+	'utils/date-format',
 	'jquery/tmpl',
 	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
 	'tmpl!theme/container',
 	'jquery/xdomainrequest'
-], function($, Gizmo, PostView) {
+], function($, Gizmo, PostView, dateFormat) {
+	dateFormat.i18n = {
+		dayNames: _("Sun,Mon,Tue,Wed,Thu,Fri,Sat,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday").toString().split(","),
+		monthNames: _("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,January,February,March,April,May,June,July,August,September,October,November,December").toString().split(",")
+	};
 	return Gizmo.View.extend({
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',
