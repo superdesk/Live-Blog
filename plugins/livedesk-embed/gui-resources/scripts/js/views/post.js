@@ -12,6 +12,7 @@ define([
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
 	'tmpl!theme/item/posttype/link',
+	'tmpl!theme/item/posttype/advertisement',	
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
@@ -105,6 +106,12 @@ define([
 						data.Meta.annotation = {
 							'before': $.trimTag(['<br>', '<br />'], aux[0]), 
 							'after': $.trimTag(['<br>', '<br />'], aux[1])
+						}
+					} else {
+						data.Meta.annotation = {
+							'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before), 
+							'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
+						}					
 						}
 					} else {
 						data.Meta.annotation = {
