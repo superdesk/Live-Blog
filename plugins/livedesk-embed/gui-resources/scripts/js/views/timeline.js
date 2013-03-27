@@ -1,8 +1,9 @@
 define([
 	'jquery',
-	'gizmo/superdesk',
+	'gizmo/view-events',
 	'livedesk-embed/views/post',
 	'utils/date-format',
+	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
@@ -327,7 +328,7 @@ define([
 			this.el.find('#liveblog-status').fadeOut(function(){
 				
 				$(this).find('#liveblog-status-time')
-					.attr('time',now.format())
+					.attr('data-date',now.toISOString())
 					.text(_('updated on %s').format(now.format(_('HH:MM')))).end().fadeIn();
 			});
 		},
@@ -392,7 +393,8 @@ define([
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
-			});	
+			});
+			$.dispatcher.triggerHandler('after-render',this);
 		},
 		renderedOn: function(){
 		   this.renderedTotal--;
