@@ -73,7 +73,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		},
 		start: function()
 		{
-			var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers:  { 'X-Filter': self._xfilter, 'X-Format-DateTime': 'M/dd/yyyy HH:mm:ss'}};
+			var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers:  { 'X-Filter': self._xfilter, 'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}}; // 
 			if(self._stats.lastCId === 0) delete requestOptions.data;
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{

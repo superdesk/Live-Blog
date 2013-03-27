@@ -139,10 +139,9 @@ define([
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				createdOn = new Date(data.CreatedOn);
-				console.log(createdOn,createdOn.toISOString());
+				createdOn = new Date(Date.parse(data.CreatedOn));
 				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM'));
-				data.CreatedOnISO = createdOn.toISOString();
+				data.CreatedOnISO = createdOn.getTime();
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
