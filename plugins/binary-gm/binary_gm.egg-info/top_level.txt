@@ -1,2 +1,0 @@
-resources
-__plugin__
