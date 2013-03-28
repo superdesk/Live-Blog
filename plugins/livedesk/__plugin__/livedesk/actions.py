@@ -82,7 +82,10 @@ def modulesConfigureAction() -> Action:
 def modulesManageCollaboratorsAction() -> Action:
     return Action('manage-collaborators', Parent=modulesAction(),
                   Script=publishedURI('livedesk/scripts/js/manage-collaborators.js'))
-
+@ioc.entity
+def modulesManageFeedsAction() -> Action:
+    return Action('manage-feeds', Parent=modulesAction(),
+                  Script=publishedURI('livedesk/scripts/js/manage-feeds.js'))
 @ioc.entity
 def modulesArchiveAction() -> Action:
     return Action('archive', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/archive.js'))
@@ -136,7 +139,7 @@ def registerAclManageOwnPost():
 def registerAclLivedeskUpdate():
     r = rightLivedeskUpdate()
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(),
-                 dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),
+                 dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), modulesManageFeedsAction(),
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
     r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
           IPersonService, IPersonIconService, ISourceService)
@@ -157,4 +160,4 @@ def updateCollaboratorSpecification():
                                          modulesArchiveAction(), dashboardAction(), modulesEditAction()]
     spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
-                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]
+                                modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]

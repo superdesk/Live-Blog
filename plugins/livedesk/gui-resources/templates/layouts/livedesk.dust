@@ -10,7 +10,8 @@
 		<li class="{ui.submenuActive1}"><a data-target="edit-blog" href="{BlogHref}">{Title|t}</a></li>
 		<li class="{ui.submenuActive2}"><a data-target="configure-blog" href="{BlogHref}">_("Configure Blog");</a></li>
 		<li class="{ui.submenuActive3}"><a data-target="manage-collaborators-blog" href="{BlogHref}">_("Manage collaborators");</a></li>
-		<!--<li class=""><a href="#">Manage feeds</a></li-->
+		{! @TODO: Remove this after Petr router integration works !}
+		<li class="for-ui-design"><a data-target="manage-feeds-blog" href="{BlogHref}">_("Manage feeds");</a></li>
 	{!/blog!}	
     </ul>
     
