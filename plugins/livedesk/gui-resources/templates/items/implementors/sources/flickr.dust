@@ -3,3 +3,5 @@
  	style="border:0px; height:80px; width:210px; margin-left:10px; margin-bottom:10px; display:inline; float:left;" data-id="{Meta.id}"
 {/AdditionalAttributes}
 {<Attributes}{/Attributes}
+{<ContainerDescriptionText}<span data-type="username" data-id="{Meta.id}"></span><br />
+<span data-type="posted" data-id="{Meta.id}"></span><br />{/ContainerDescriptionText}

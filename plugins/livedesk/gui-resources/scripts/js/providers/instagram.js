@@ -67,6 +67,8 @@ define('providers/instagram', [
                 }).done(function(data){
                     self.stopLoading('#instagram-image-more');
                     for( var posts = [], i = 0, item=data.data[i], count = data.data.length; i < count; item = data.data[++i] ){
+                        var myDate = new Date(item.created_time * 1000);
+                        item.created_time_iso = myDate.toLocaleDateString();
 						posts.push({ Meta: item});
                         self.data[item.id] = item;
                     }
