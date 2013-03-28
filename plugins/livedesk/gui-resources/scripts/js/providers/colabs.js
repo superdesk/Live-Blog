@@ -51,11 +51,18 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 return;
             }
             var self = this,
-                posts = this.model.feed(true);
-                if($.type(posts.Meta) === 'string')
-                    posts.Meta = JSON.parse(posts.Meta);
-            $.tmpl('livedesk>items/item', { 
-                    Post: posts,
+                post = this.model.feed(true),
+				img = new Image;
+			
+			img.src = $.avatar.get('AuthorPerson.EMail');
+			img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
+			img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
+			post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
+					'<img data-avatar-id="'+post['Id']+'" />';
+			if($.type(post.Meta) === 'string')
+				post.Meta = JSON.parse(post.Meta);
+			$.tmpl('livedesk>items/item', { 
+                    Post: post,
                     Base: 'implementors/collaborators'
                 }, function(e,o) {
                     self.setElement(o);

@@ -7,7 +7,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             size: 48,
             sizeText: 'large',
             metaDataKey: 'MetaData',
-            default: encodeURIComponent('images/avatar_default_collaborator.png'),
+            //default: encodeURIComponent('images/avatar_default_collaborator.png'),
             forcedefault: '',
             key: 'Avatar',
             needle: 'Person.EMail'
