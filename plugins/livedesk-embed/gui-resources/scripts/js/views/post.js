@@ -101,17 +101,10 @@ define([
 				}
 				if ( typeof data.Meta.annotation !== 'string') {
 					if(data.Meta.annotation[0]) {
-						console.log('annotation[0]');
 						var aux = data.Meta.annotation;
 						data.Meta.annotation = {
 							'before': $.trimTag(['<br>', '<br />'], aux[0]), 
 							'after': $.trimTag(['<br>', '<br />'], aux[1])
-						}
-					} else {
-						data.Meta.annotation = {
-							'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before), 
-							'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
-						}					
 						}
 					} else {
 						data.Meta.annotation = {
@@ -123,7 +116,6 @@ define([
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
 			}
-			console.log(data.Meta);
 			newHash = self._parent.hashIdentifier + data.Order;
 			if(self._parent.location.indexOf('?') === -1) {
 				data.permalink = self._parent.location + '?' + newHash ;
@@ -139,10 +131,9 @@ define([
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				createdOn = new Date(data.CreatedOn);
-				console.log(createdOn,createdOn.toISOString());
+				createdOn = new Date(Date.parse(data.CreatedOn));
 				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM'));
-				data.CreatedOnISO = createdOn.toISOString();
+				data.CreatedOnISO = createdOn.getTime();
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);

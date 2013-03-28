@@ -173,7 +173,7 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
-							.on('updateauto', self.updateStatus, self)
+							.on('updateauto readauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(postPublished._stats.limit);
@@ -324,12 +324,13 @@ define([
 		},
 		updateStatus: function()
 		{
-			var now = new Date();
+			var self = this,
+				now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
-				
+				var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
 				$(this).find('#liveblog-status-time')
-					.attr('data-date',now.toISOString())
-					.text(_('updated on %s').format(now.format(_('HH:MM')))).end().fadeIn();
+					.html(_('updated on %s').format([t])).end().fadeIn();
+				$.dispatcher.triggerHandler('after-render',self);
 			});
 		},
 		renderBlog: function()
