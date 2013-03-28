@@ -50,6 +50,7 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         if typeKey:
             sql = sql.join(SourceTypeMapped).filter(SourceTypeMapped.Key == typeKey)
         if q:
+            assert isinstance(q, QSource), 'Invalid source query %s' % q
             sql = buildQuery(sql, q, SourceMapped)
             if QSource.all in q:
                 filter = None
