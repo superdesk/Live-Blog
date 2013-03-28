@@ -1,4 +1,4 @@
 {>"livedesk>items/implementors/sources/base"/}
 {<AdditionalAttributes} style="border:0px; height:150px; width:150px; margin-left:10px; margin-bottom:10px; display:inline; float:left;" data-id="{Meta.id}"{/AdditionalAttributes}
-{<ContainerDescriptionText}{Meta.caption.text|trim50}{/ContainerDescriptionText}
+{<ContainerDescriptionText}{Meta.user.username}<br />{Meta.created_time_iso}<br />{Meta.caption.text}{/ContainerDescriptionText}
 {<Attributes}{/Attributes}
