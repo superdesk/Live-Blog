@@ -12,7 +12,7 @@ the content is received from the source.
 
 from .type import SourceType
 from ally.api.config import service, call, query, LIMIT_DEFAULT
-from ally.api.criteria import AsBoolean, AsLikeOrdered
+from ally.api.criteria import AsBoolean, AsLikeOrdered, AsLike, AsEqual
 from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
 from superdesk.api.domain_superdesk import modelData
@@ -29,6 +29,7 @@ class Source(Entity):
     URI = Reference
     Key = str
     IsModifiable = bool
+    Description = str
 
 # --------------------------------------------------------------------
 
@@ -39,6 +40,8 @@ class QSource(QEntity):
     '''
     name = AsLikeOrdered
     isModifiable = AsBoolean
+    all = AsLike
+    type = AsEqual
 
 # --------------------------------------------------------------------
 

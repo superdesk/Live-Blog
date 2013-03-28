@@ -13,7 +13,7 @@ from ..api.source import Source
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, Boolean
+from sqlalchemy.types import String, Boolean, Text
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -35,6 +35,7 @@ class SourceMapped(Base, Source):
     URI = Column('uri', String(255), nullable=False)
     Key = Column('key', String(1024), nullable=True)
     IsModifiable = Column('modifiable', Boolean, nullable=False)
+    Description = Column('description', Text, nullable=True)
     # Non REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(SourceTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     type = relationship(SourceTypeMapped, uselist=False, lazy='joined')
