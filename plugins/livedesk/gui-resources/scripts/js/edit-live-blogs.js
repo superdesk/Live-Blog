@@ -1236,6 +1236,17 @@ function(providers, Gizmo, $, BlogAction)
 					{
 						require([$.superdesk.apiUrl+action.get('ScriptPath')], function(EditApp){ EditApp(blogHref); });
 					});
+				})
+				.off(this.getEvent('click'), 'a[data-target="manage-feeds-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-feeds-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					BlogAction.get('modules.livedesk.manage-feeds')
+					.done(function(action)
+					{
+						require([action.get('Script').href], function(){});
+					});
 				});
 				// wrapup toggle
 				$(content)

@@ -117,7 +117,7 @@ class IBlogPostService:
         '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, offset:int=None, limit:int=None,
+    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, thumbSize:str=None, offset:int=None, limit:int=None,
                  q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have

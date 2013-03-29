@@ -7,3 +7,4 @@
 {<ContentImageLink}{Meta.images.standard_resolution.url}{/ContentImageLink}
 {<ContentImageUrl}{Meta.images.thumbnail.url}{/ContentImageUrl}
 {<ContainerIframe}{/ContainerIframe}
+{<ContainerDescriptionText}{/ContainerDescriptionText}

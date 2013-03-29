@@ -71,6 +71,7 @@ def createSourceType(key):
 SOURCES = {
            'internal': (False, '', '', ''),
            'advertisement': (False, '', '', ''),
+           'chained blog': (False, '', 'chained blog', ''),
            'google': (False, 'www.google.com', 'xml', ''),
            'twitter': (False, 'www.twitter.com', 'xml', ''),
            'flickr': (False, 'www.flickr.com', 'xml', 'abf46ef4c670460e95d09cf368606b8a'),

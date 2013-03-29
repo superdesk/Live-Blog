@@ -81,8 +81,9 @@ $.extend(providers.flickr, {
 			$(where).html('');
 		},
 		doOriginalUrl : function(data) {
-			for ( var i=0; i<data.photos.length; i++) {
-				var item = data.photos[i];
+			console.log('url ', data);
+			for ( var i=0; i<data.photo.length; i++) {
+				var item = data.photo[i];
 				var fullUrl = str.format(this.infoUrl,{id: item.id, secret: item.secret, apykey: this.apykey});
 				$.ajax({
 					url : fullUrl,
@@ -91,7 +92,10 @@ $.extend(providers.flickr, {
 						var url = data.photo.urls.url[0]
 						if (url.type == 'photopage') {
 							var id = data.photo.id;
-							$('[data-id="'+ id +'"]').attr('data-url',url._content);
+							var createdDate = new Date(data.photo.dates.posted * 1000);
+							//$('[data-id="'+ id +'"][data-type="realname"]').text(data.photo.owner.realname);
+							$('[data-id="'+ id +'"][data-type="username"]').text(data.photo.owner.username);
+							$('[data-id="'+ id +'"][data-type="posted"]').text(createdDate.toLocaleDateString());
 						}
 					},
 					error : function(){
@@ -158,7 +162,7 @@ $.extend(providers.flickr, {
 								/*!
 								 * Request aditional information for the image, not used for now
 								 */
-								//self.doOriginalUrl(data.photos);
+								self.doOriginalUrl(data.photos);
 							});		
 
 					//show the load more button
