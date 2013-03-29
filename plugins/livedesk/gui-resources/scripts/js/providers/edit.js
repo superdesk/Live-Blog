@@ -206,11 +206,7 @@ define('providers/edit', [
 			if(!(self.model instanceof Gizmo.Register.Post))
 				self.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
 			post = self.model.feed(true)
-			img.src = $.avatar.get('AuthorPerson.EMail');
-			img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
-			img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
-			post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
-					'<img data-avatar-id="'+post['Id']+'" />';
+			$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
 			if ( typeof post.Meta === 'string') {
 				post.Meta = JSON.parse(post.Meta);
 			}
