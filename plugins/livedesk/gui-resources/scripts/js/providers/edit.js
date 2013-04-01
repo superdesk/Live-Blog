@@ -13,6 +13,7 @@ define('providers/edit', [
     config.guiJs('media-archive', 'upload'),
     config.guiJs('livedesk', 'models/urlinfo'),
     config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('media-archive', 'adv-upload'),
     'jquery/utils',
     'jquery/rest',
     'jquery/superdesk',
@@ -27,11 +28,13 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/link',
     'tmpl!livedesk>providers/edit/urlinput',
     'tmpl!livedesk>providers/edit/image',
+    'tmpl!livedesk>providers/edit/image2',
     'tmpl!livedesk>providers/loading',
-    'tmpl!livedesk>providers/generic-error'
-], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo ) {
+    'tmpl!livedesk>providers/generic-error',
+    
+], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
 	var 
-	
+	uploadView = new UploadView,
 	ImagePostType = Gizmo.View.extend
 	({ 
 	    events:
@@ -308,6 +311,7 @@ define('providers/edit', [
 		}
 	}),
 	collections = {},
+    // uploadView = new UploadView,
 	EditView = Gizmo.View.extend({
 		postView: null,
 
@@ -316,15 +320,19 @@ define('providers/edit', [
 			'[ci="savepost"]': { 'click': 'savepost'},
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
-			'.insert-link' : {'focusout':'populateUrlInfo'}
+			'.insert-link' : {'focusout':'populateUrlInfo'},
+			"[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
 		},
 		init: function()
 		{	
+
 			var self = this,
 			    PostTypes = Gizmo.Collection.extend({model: PostType});
 			self.meta = {};
 			self.theBlog = self.blogUrl;
-			
+			$(uploadView).on('complete', function(){
+				var mizerie = uploadView.getRegisteredItems();
+			});
 			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
@@ -342,6 +350,10 @@ define('providers/edit', [
 
 			});
 			self.blog.sync();
+		},
+		openUploadScreen: function() {
+			uploadView.activate();
+            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
 		},
 		addBlogTypePosts: function(evt){
 			var self = this, 
@@ -473,7 +485,39 @@ define('providers/edit', [
                 this.lastType = type;
                 return;
             }*/
+
+            switch ( type ) {
+            	case 'link':
+            		self.clear();
+            		//inject template
+					$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
+						self.el.find('.url-input-holder').html(o);
+						self.el.find('article.editable').html('').css('height', '113px');
+						self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
+							var keyCode = event.keyCode;
+							if ( keyCode == 13 ) {
+								self.el.find('[ci="save"]').focus();
+
+							}
+						});
+
+					});
+					break;
+				case 'image':
+					//inject template
+					$.tmpl('livedesk>providers/edit/image2' , {}, function(e,o) {
+						self.el.find('.edit-area').css('display', 'none');
+						self.el.find('.image-edit-area').html(o).css('display', 'inline');
+					});
+				default: 
+					if ( this.lastType == 'link' || this.lastType == 'image') {
+						//clear article
+						self.clear();
+					}
+					break;
+            }
 			
+			/*
 			if ( type == 'link') {
 				//inject template
 				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
@@ -494,6 +538,7 @@ define('providers/edit', [
 					self.clear();
 				}
 			}
+			*/
 			if(!evt) {
 				evt = $.Event("change");
 				evt.target =  self.el.find('[name="type"]');
@@ -580,6 +625,8 @@ define('providers/edit', [
 		{
 			// this.el.find('[name="type"]').val('normal');
 			$('[name="type"] option:first').attr('selected', 'selected');
+			this.el.find('.image-edit-area').html('').css('display', 'none');
+			this.el.find('.edit-area').css('display', 'inline');
 			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
 			this.el.find('.url-input-holder').html('');
 		},

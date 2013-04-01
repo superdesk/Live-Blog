@@ -1,0 +1,30 @@
+<article class="imagepost-interface">
+
+	<div class="upload-image-container">
+		<figure class="uploaded-image">
+
+		</figure>
+	</div> 
+
+	<div class="form-row">
+		<div class="btn-group pull-left">
+			<button class="btn" data-toggle="modal-image">Image Upload <span class="caret"></span></button>
+			
+			<!-- <ul class="dropdown-menu">
+				<li><a href="#">From computer</a></li>
+				<li><a href="#">From Media archive</a></li>
+				<li><a href="#">Paste from URL</a></li>
+			</ul> -->
+		</div>
+		<input type="text" class="upload-url" placeholder="http://">
+	</div>
+
+	<div class="form-row">
+		<input type="text" class="input-mini-upload" placeholder="width"><span style="float:left; margin-left:10px">x</span><input type="text" class="input-mini-upload" placeholder="height" style="margin-left:10px;">
+	</div>
+
+	<div class="form-row">
+		<textarea class="upload-caption" placeholder="Image Caption" style="width:90%!important;"></textarea>
+	</div>
+
+</article>

@@ -10,12 +10,14 @@
 
 	<div class="form-row">
 		<div class="btn-group pull-left">
-			<button class="btn dropdown-toggle upload-dropdown" data-toggle="dropdown">_('Image Upload') <span class="caret"></span></button>
+			<button class="btn" data-toggle="modal-image">_('Image Upload') <span class="caret"></span></button>
+			<!--
 			<ul class="dropdown-menu" data-image-source="true">
 			  <li data-source="computer"><a href="javascript:void(0)">_('From computer')</a></li>
 			  <li data-source="media-archive"><a href="javascript:void(0)">_('From Media archive')</a></li>
 		      <li data-source="url"><a href="javascript:void(0)">_('Paste from URL')</a></li>
 			</ul>
+		-->
 		</div>
 		<input type="text" class="upload-url" placeholder="http://">
 	</div>
