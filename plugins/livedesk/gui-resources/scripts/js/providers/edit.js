@@ -206,7 +206,7 @@ define('providers/edit', [
 			if(!(self.model instanceof Gizmo.Register.Post))
 				self.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
 			post = self.model.feed(true)
-			$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
+			$.avatar.setImage(post, { needle: 'Creator.EMail', size: 36});
 			if ( typeof post.Meta === 'string') {
 				post.Meta = JSON.parse(post.Meta);
 			}
@@ -559,7 +559,7 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta,Creator.FullName, AuthorImage';
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta,Creator.FullName, Creator.EMail, AuthorImage';
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				collections.posts =  posts;
