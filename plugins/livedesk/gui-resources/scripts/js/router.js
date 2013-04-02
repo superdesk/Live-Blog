@@ -41,28 +41,28 @@ define
 
         liveBlogConfig: function(id) {
             var blogHref = this.getBlogHref(id);
-			BlogAction.
+            BlogAction.
                 get('modules.livedesk.configure').
                 done(function(action) {
-					require([action.get('Script').href], function(app){ new app(blogHref); });
-				});
+                    require([action.get('Script').href], function(app){ new app(blogHref); });
+                });
         },
 
         liveBlogCollaborators: function(id) {
-			var blogHref = this.getBlogHref(id);
-			BlogAction.
+            var blogHref = this.getBlogHref(id);
+            BlogAction.
                 get('modules.livedesk.manage-collaborators').
                 done(function(action) {
-					require([action.get('Script').href], function(app){ new app(blogHref); });
-				});
+                    require([action.get('Script').href], function(app){ new app(blogHref); });
+                });
         },
 
         liveBlogFeeds: function(id) {
-			var blogHref = this.getBlogHref(id);
-			BlogAction.get('modules.livedesk.manage-feeds').
+            var blogHref = this.getBlogHref(id);
+            BlogAction.get('modules.livedesk.manage-feeds').
                 done(function(action) {
-					require([action.get('Script').href], function(){});
-				});
+                    require([action.get('Script').href], function(){});
+                });
         },
 
         liveBlogArchive: function() {
