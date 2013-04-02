@@ -15,6 +15,7 @@ define([
 	'tmpl!livedesk>items/types/base',
 	'tmpl!livedesk>items/types/link',
 	'tmpl!livedesk>items/types/normal',
+	'tmpl!livedesk>items/types/image',
 	'tmpl!livedesk>items/types/quote',
 	'tmpl!livedesk>items/types/wrapup',
 	'tmpl!livedesk>items/types/advertisement'
