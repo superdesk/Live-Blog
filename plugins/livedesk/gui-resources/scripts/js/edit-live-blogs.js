@@ -1075,11 +1075,14 @@ function(providers, Gizmo, $, BlogAction)
 					embedConfig = JSON.parse(mfeed.EmbedConfig);
 
 				if(embedConfig.FrontendServer !== undefined)
-					embedConfig.FrontendServer = config.api_url
+					embedConfig.FrontendServer = config.api_url;
+
 				var
 				data = $.extend({}, this.model.feed(), 
 				{
-					BlogHref: self.theBlog,
+                    BlogHref: self.theBlog,
+                    BlogId: self.model.get('Id'),
+
 					FooterDinamic: true,
 					ui: 
 					{
@@ -1200,54 +1203,8 @@ function(providers, Gizmo, $, BlogAction)
 				/** text editor stop */
 				
 				
-				var 
-					topSubMenu = $(this.el).find('[is-submenu]'),
-					content = $(this.el).find('[is-content]');
-				$(topSubMenu)
-				.off('click'+this.getNamespace(), 'a[data-target="configure-blog"]')
-				.on('click'+this.getNamespace(), 'a[data-target="configure-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					BlogAction.get('modules.livedesk.configure')
-					.done(function(action)
-					{
-						require([action.get('Script').href], function(app){ new app(blogHref); });
-					});
-				})
-				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
-				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					BlogAction.get('modules.livedesk.manage-collaborators')
-					.done(function(action)
-					{
-						require([action.get('Script').href], function(app){ new app(blogHref); });
-					});
-				})
-				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')
-				.on('click'+this.getNamespace(), 'a[data-target="edit-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href');
-					BlogAction.get('modules.livedesk.edit')
-					.done(function(action)
-					{
-						require([$.superdesk.apiUrl+action.get('ScriptPath')], function(EditApp){ EditApp(blogHref); });
-					});
-				})
-				.off(this.getEvent('click'), 'a[data-target="manage-feeds-blog"]')
-				.on(this.getEvent('click'), 'a[data-target="manage-feeds-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					BlogAction.get('modules.livedesk.manage-feeds')
-					.done(function(action)
-					{
-						require([action.get('Script').href], function(){});
-					});
-				});
+				var content = $(this.el).find('[is-content]');
+
 				// wrapup toggle
 				$(content)
 				.off('click'+this.getNamespace())

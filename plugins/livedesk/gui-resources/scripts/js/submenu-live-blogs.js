@@ -8,13 +8,14 @@ define
 ([
   'jquery', 'jquery/superdesk',
   'gizmo/superdesk',
-    config.guiJs('livedesk', 'action'),
-    'gizmo/superdesk/action',
+  'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
+  config.guiJs('livedesk', 'router'),
+
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu',
   'tmpl!livedesk>error-notif'
-], function($, superdesk, Gizmo, BlogAction, Action, Blog)
+], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
         b = Gizmo.Auth(new Blogs());
@@ -25,37 +26,8 @@ define
         {
             this.model.on('read update', this.render, this);
             this.model.on('insert', this.refresh, this);
-            this.router = new Backbone.Router;
-            this.router.route('live-blog/:id', 'live-blog-edit', function(id) {
-                var blogUrl = '/resources/LiveDesk/Blog/' + id;
-                BlogAction.setBlogUrl(blogUrl);
-                BlogAction.get('modules.livedesk.edit').
-                    done(function(action) {
-                        superdesk.showLoader();
-                        if (!action) {
-                            return;
-                        }
 
-                        require([action.get('Script').href], function(EditApp){ EditApp(blogUrl); });
-                    }).
-                    fail(function() {
-                        $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o) {
-                            var o = $(o);
-                            $('#area-main').append(o);
-                            $('.close', o).on('click', function(){ $(o).remove(); });
-                            setTimeout(function(){ $(o).remove(); }, 3000);
-                        });
-                    });
-            });
-
-            this.router.route('liveblog-archive', 'liveblog-archive', function() {
-                superdesk.showLoader();
-                Action.
-                    get('modules.livedesk.archive').
-                    done(function(action) {
-                        require([action.get('Script').href], function(app){ new app(); });
-                    });
-            });
+            this.router = new LiveBlogRouter();
 
             // TODO: this must be called once menu is prepared and routers are set. but where?
             Backbone.history.start({root: "/content/lib/core/start.html"});
