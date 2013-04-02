@@ -20,11 +20,18 @@
             '[data-action="save-close"]': { 'click': 'saveClose' },
             '[data-action="cancel"]': { 'click': 'close' },
             '[name="Language"]': { change: 'changeLanguage' },
-            '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' }
+            '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
+			'[name="OutputLink"]': { click: 'selectOutputLink', focusIn: 'selectOutputLink' }
         },
         init: function() {
             
         },
+		selectOutputLink: function(evt) {
+			$(evt.target).select();
+		},
+		getOutputLink: function() {
+		
+		},
         save: function(evt){
             var self = this,
                 EmbedConfig = {
@@ -104,6 +111,7 @@
             if(!embedConfig.FrontendServer || embedConfig.FrontendServer == ''){
                 embedConfig.FrontendServer = config.api_url;
             }
+			data["OutputLink"] = this.model.href.replace(config.api_url, embedConfig.FrontendServer);
             $.superdesk.applyLayout('livedesk>configure', data, function() {
             //$.tmpl('livedesk>configure', self.model.feed(), function(e, o){
                 //self.el.html(o);

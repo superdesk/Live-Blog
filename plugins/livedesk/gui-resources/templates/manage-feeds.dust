@@ -1,1 +1,187 @@
-SOME MARKUP HERE
+{>"livedesk>layouts/livedesk"/}
+{<body}
+<section class="scroller main-section configure-blog" {ui.content}>
+	<header>
+		<h3>_('Managed feeds')</h3>
+	</header>
+	<div class="row-fluid">
+		<div class="span8">
+			<div class="manage-feeds-top">
+				<div class="sf-searchbox">
+					<input type="text" placeholder="Search"><a href="#"><i class="icon-remove"></i></a>
+				</div>
+				<a class="btn btn-info pull-right" data-toggle="modal" href="#AddSource"><span class="medium-icon-add"></span> Add New Source</a>
+			</div>
+			<ul class="manage-feeds">
+				<li class="chain-source">
+					<div class="chain-source-header">
+						<div class="chain-source-collapse"><a href="#"><i class="icon-chevron-down"></i><i class="icon-chevron-right"></i></a></div>
+						<h5>TagesWoche <span class="chain-source-count">3/5</span></h5>
+						<div class="dropdown">
+			                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+			                <ul class="dropdown-menu sf-dropdown-simple pull-right">
+			                  <li><a href="#"><i class="icon-blank"></i> Hide description</a></li>
+			                  <li><a href="#"><i class="icon-ok"></i> View all available Blogs</a></li>
+			                  <li><a href="#"><i class="icon-blank"></i> View only selected Blogs</a></li>
+			                  <li class="divider"></li>
+			                  <li><a href="#"><i class="icon-pencil"></i> Edit source</a></li>
+			                  <li><a href="#"><i class="icon-trash"></i> Remove source</a></li>
+			                </ul>
+			             </div>
+					</div>
+					<ul class="chain-source-content">
+
+						<li class="chain-blog">
+							<input type="checkbox" class="sf-checkbox" set-bg="1" name="lb654">
+							<div class="chain-blog-content">
+								<h6>Gaza ceasefire announced in Cairo</h6>
+								<div class="chain-blog-description">
+									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
+								</div>
+							</div>
+						</li>
+
+						<li class="chain-blog">
+							<input type="checkbox" class="sf-checkbox" set-bg="1" name="lb816">
+							<div class="chain-blog-content">
+								<h6>Eurozone crisis as it happened: Anger in Greece</h6>
+								<div class="chain-blog-description">
+									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
+								</div>
+							</div>
+						</li>
+
+						<li class="chain-blog">
+							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb088">
+							<div class="chain-blog-content">
+								<h6>Slow pace of carbon cuts. Catastrophic climate change</h6>
+								<div class="chain-blog-description">
+									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
+								</div>
+							</div>
+						</li>
+
+					</ul>
+				</li>
+
+
+
+
+				<li class="chain-source chain-compact">
+					<div class="chain-source-header">
+						<div class="chain-source-collapse"><a href="#"><i class="icon-chevron-down"></i><i class="icon-chevron-right"></i></a></div>
+						<h5>BBC <span class="chain-source-count">3/5</span></h5>
+						<div class="dropdown">
+			                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+			                <ul class="dropdown-menu sf-dropdown-simple pull-right">
+			                  <li><a href="#"><i class="icon-ok"></i> Hide description</a></li>
+			                  <li><a href="#"><i class="icon-ok"></i> View all available Blogs</a></li>
+			                  <li><a href="#"><i class="icon-blank"></i> View only selected Blogs</a></li>
+			                  <li class="divider"></li>
+			                  <li><a href="#"><i class="icon-pencil"></i> Edit source</a></li>
+			                  <li><a href="#"><i class="icon-trash"></i> Remove source</a></li>
+			                </ul>
+			             </div>
+					</div>
+					<ul class="chain-source-content">
+
+						<li class="chain-blog">
+							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb654">
+							<div class="chain-blog-content">
+								<h6>Gaza ceasefire announced in Cairo</h6>
+								<div class="chain-blog-description">
+									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
+								</div>
+							</div>
+						</li>
+
+						<li class="chain-blog">
+							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb816">
+							<div class="chain-blog-content">
+								<h6>Eurozone crisis as it happened: Anger in Greece</h6>
+								<div class="chain-blog-description">
+									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
+								</div>
+							</div>
+						</li>
+
+					</ul>
+				</li>
+
+
+			</ul>
+
+      </div>
+    </div>
+   
+
+</section>
+
+
+<div class="modal hide fade" id="AddSource">
+  <div class="modal-header">
+    <a href="#" class="close" data-dismiss="modal" aria-hidden="true">×</a>
+    <h3>Add Source</h3>
+  </div>
+  <div class="modal-body">
+   
+
+        <input type="text" placeholder="Blog Source URL" value="" class="fullwidth-input">        
+
+        <label style="margin-top:20px;font-size:18px;">Avilable sources</label>
+
+        <label >You can select you chained Blogs here or do this at a later point</label>
+
+		<!--
+        <div class="dropdown">
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+	        <ul class="dropdown-menu sf-dropdown-simple pull-right">
+	          <li><a href="#"><i class="icon-ok"></i> Hide description</a></li>
+	        </ul>
+	    </div>
+	    -->
+	    
+          <ul class="checklist-selection bordered-selection" style="height:250px;">
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb1"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb2"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb3"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb4"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb5"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb6"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb7"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb8"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb9"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb10"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb11"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb12"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb13"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb14"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb15"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb16"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb17"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb18"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb19"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb20"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb21"> Curabitur vel sem malesuada Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb22"> Lorem Ipsum Blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb23"> Dolor sit amet blog</li>
+            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="lb24"> Curabitur vel sem malesuada Blog</li>
+
+          </ul>
+
+        <div style="margin:20px 0 10px">
+        	<input type="checkbox" class="sf-checkbox" name="lbavailable"> Make this source available for other Blogs
+        </div>
+
+
+
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+    <a href="#" class="btn btn-primary">Save</a>
+  </div>
+</div>
+
+
+
+{/body}
