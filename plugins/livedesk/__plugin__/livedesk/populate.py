@@ -10,12 +10,13 @@ Contains the default data for the live desk plugin.
 '''
 
 from ..acl.security import rightId
+from ..administration.actions import rightRequestsInspection
 from ..livedesk.actions import rightLivedeskView, rightManageOwnPost
 from ..media_archive.actions import rightMediaArchiveView
 from ..security_rbac.populate import rootRoleId
 from ally.container import support, ioc, app
 from ally.internationalization import NC_
-from security.api.right import IRightService, Right
+from security.api.right import IRightService, Right, QRight
 from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
@@ -70,8 +71,14 @@ def populateBlogAdministratorRole():
     assert isinstance(rightService, IRightService)
     for right in rightService.getAll():
         assert isinstance(right, Right)
+        if right.Name == rightRequestsInspection().name: continue
         roleService.assignRight(blogRoleAdministratorId(), right.Id)
     roleService.assignRole(rootRoleId(), blogRoleAdministratorId())
+    q = QRight()
+    q.name = rightRequestsInspection().name
+    for right in rightService.getAll(q=q):
+        assert isinstance(right, Right)
+        roleService.assignRight(rootRoleId(), right.Id)
 
 # --------------------------------------------------------------------
 

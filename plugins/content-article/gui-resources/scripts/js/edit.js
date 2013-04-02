@@ -7,10 +7,11 @@ define
     config.guiJs('superdesk/article', 'edit-tabs'),
     config.guiJs('superdesk/article', 'edit-plugins'),
     'gizmo/superdesk/action',
+    'loadaloha',
     'jqueryui/texteditor',
     'tmpl!superdesk/article>edit'
 ], 
-function($, giz, Article, Upload, tabs, plugins, Action)
+function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
 {
     var
     
@@ -65,68 +66,36 @@ function($, giz, Article, Upload, tabs, plugins, Action)
     
     ArticleView = giz.View.extend
     ({
+        /*!
+         * init aloha
+         */
         renderCallback: function()
         {
-            require
-            ({ 
-                context: 'aloha', 
-                baseUrl: config.cjs('aloha/src/lib'),
-                paths:
+            loadAloha
+            ({
+                plugins: 
                 {
-                    "ui": "../plugins/common/ui/lib",
-                    "ui/vendor": "../plugins/common/ui/vendor",
-                    "ui/css": "../plugins/common/ui/css",
-                    "ui/nls": "../plugins/common/ui/nls",
-                    "ui/res": "../plugins/common/ui/res",
-                    "format": "../plugins/common/format/lib",
-                    "format/vendor": "../plugins/common/format/vendor",
-                    "format/css": "../plugins/common/format/css",
-                    "format/nls": "../plugins/common/format/nls",
-                    "format/res": "../plugins/common/format/res",
-                    "block": "../plugins/common/block/lib",
-                    "block/vendor": "../plugins/common/block/vendor",
-                    "block/css": "../plugins/common/block/css",
-                    "block/nls": "../plugins/common/block/nls",
-                    "block/res": "../plugins/common/block/res",
-                    "paste": "../plugins/common/paste/lib",
-                    "paste/vendor": "../plugins/common/paste/vendor",
-                    "paste/css": "../plugins/common/paste/css",
-                    "paste/nls": "../plugins/common/paste/nls",
-                    "paste/res": "../plugins/common/paste/res"
-                }
-            },
-            ['aloha', 'block/block'],
-            function(Aloha)
-            { 
-                Aloha.settings = 
-                { 
-                    plugins: 
+                    load: "oer/toolbar, common/ui, common/format, common/paste, common/block, common/list, common/table",
+                    format: 
+                    { 
+                        config: [  'b', 'i', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
+                    },
+                    block:
                     {
-                        format: 
+                        rootTags: ['div', 'span', 'section'],
+                        defaults: 
                         {
-                            // all elements with no specific configuration get this configuration
-                            config: [  'b', 'i', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ],
-                            editables: {
-                                // no formatting allowed for title
-                                '#title': [],
-                                // just bold and italic for the teaser
-                                '#teaser': [ 'b', 'i' ]
-                            }
-                        },
-                        block:
-                        {
-                            defaults: 
-                            {
-                                '.foo': { 'aloha-block-type': 'MySpecialBlock' },
-                                '.bar': { 'aloha-block-type': 'DebugBlock' },
-                            }
+                            '[data-element]': { 'aloha-block-type': 'DefaultBlock' }
                         }
                     }
-                };
-                Aloha.bind('aloha-ready', function(){ console.log('mda'); });
-                Aloha.init();
+                } 
+            })
+            .done(function()
+            {
+                Aloha.jQuery('.aloha-editable').aloha();
+                // h4xx
+                Aloha.jQuery('.editor-toolbar-placeholder').load(config.content_url+'/lib/superdesk/article/cnx-toolbar.html').children().unwrap();
             });
-            
         },
         
         events:
@@ -183,9 +152,9 @@ function($, giz, Article, Upload, tabs, plugins, Action)
                     self._tabs[i].content.resetState && self._tabs[i].content.resetState();
                 }
                 
-                //self.renderCallback();
-                editor.toolbarPlace = $('.editor-toolbar', self.el);
-                $('#main-article section [contenteditable]', this.el).texteditor
+                self.renderCallback();
+                //editor.toolbarPlace = $('.editor-toolbar', self.el);
+                /*$('#main-article section [contenteditable]', this.el).texteditor
                 ({ 
                     plugins: 
                     { 
@@ -203,7 +172,7 @@ function($, giz, Article, Upload, tabs, plugins, Action)
                             image: $('.editor-toolbar-stuff .insertImage-oer', self.el),
                         }
                     }
-                });
+                });*/
                 $('.editor-toolbar-stuff', self.el).remove();
             });
         },
