@@ -28,7 +28,8 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/link',
     'tmpl!livedesk>providers/edit/urlinput',
     'tmpl!livedesk>providers/edit/image',
-    'tmpl!livedesk>providers/edit/image2',
+    'tmpl!livedesk>providers/edit/imageposttype',
+    'tmpl!livedesk>providers/edit/imagelink',
     'tmpl!livedesk>providers/loading',
     'tmpl!livedesk>providers/generic-error',
     
@@ -331,8 +332,9 @@ define('providers/edit', [
 			self.meta = {};
 			self.theBlog = self.blogUrl;
 			$(uploadView).on('complete', function(){
-				var mizerie = uploadView.getRegisteredItems();
+				self.handleImageUpload();
 			});
+
 			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
@@ -350,6 +352,26 @@ define('providers/edit', [
 
 			});
 			self.blog.sync();
+		},
+		handleImageUpload: function() {
+			var self = this;
+			var imgData = uploadView.getRegisteredItems();
+			var myData = false;
+			for ( var propName in imgData) {
+				myData = imgData[propName].data;
+				break;
+			}
+			if ( myData ) {
+				self.el.find('.upload-url').val(myData.Content.href);
+				$.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
+					self.el.find('.upload-image-container .uploaded-image').html(o);
+					self.el.find('.edit-block article.editable').html(o);
+				});
+				var myMeta = myData;
+				delete myMeta.MetaInfo;
+				self.meta = myMeta;
+			}
+
 		},
 		openUploadScreen: function() {
 			uploadView.activate();
@@ -505,7 +527,7 @@ define('providers/edit', [
 					break;
 				case 'image':
 					//inject template
-					$.tmpl('livedesk>providers/edit/image2' , {}, function(e,o) {
+					$.tmpl('livedesk>providers/edit/imageposttype' , {}, function(e,o) {
 						self.el.find('.edit-area').css('display', 'none');
 						self.el.find('.image-edit-area').html(o).css('display', 'inline');
 					});
@@ -647,8 +669,22 @@ define('providers/edit', [
 				},timeout)
 			});
 		},
+		preSave: function() {
+			var self = this;
+			if ( this.el.find('[name="type"]').val() == 'image' ) {
+				var height = $('.input-mini-upload[data-type="image-height"]').val();
+				var width = $('.input-mini-upload[data-type="image-width"]').val();
+				var caption = $('.upload-caption').val();
+				self.meta = $.extend({}, self.meta, {
+					'height': height,
+					'width': width,
+					'caption': caption
+				});
+			}
+		},
 		savepost: function(evt){
 			var self = this;
+			self.preSave();
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
@@ -673,6 +709,7 @@ define('providers/edit', [
 		},
 		save: function(evt){
 			var self = this;
+			self.preSave();
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
