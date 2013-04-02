@@ -93,8 +93,10 @@ define([
 				self._parent.reorderOne(self);
 			}
 			data.HashIdentifier = self._parent.hashIdentifier;
-			if(data.Meta && data.Meta.annotation) {
+			if(data.Meta) {
 				data.Meta = JSON.parse(data.Meta);
+			}
+			if(data.Meta && data.Meta.annotation) {
 				if(data.Meta.annotation[1] === null) {
 					data.Meta.annotation = data.Meta.annotation[0];
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
@@ -138,7 +140,7 @@ define([
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
 			}
-			//console.log(data.Author.Source.Name,data.item);
+			//console.log(data);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
 					self.setElement(o);
