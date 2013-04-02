@@ -11,5 +11,5 @@
 	<a id="submenu-liveblogs-create"><i class="icon-plus-sign icon-white" href="#"></i> _('Create live blog')</a>
 </li>
 <li>
-	<a href="#liveblog-archive">_('Archive')</a>
+	<a href="#live-blog-archive">_('Archive')</a>
 </li>

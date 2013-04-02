@@ -10,7 +10,8 @@ define
             'live-blog/:id': 'liveBlogEdit',
             'live-blog/:id/config': 'liveBlogConfig',
             'live-blog/:id/collaborators': 'liveBlogCollaborators',
-            'live-blog/:id/feeds': 'liveBlogFeeds'
+            'live-blog/:id/feeds': 'liveBlogFeeds',
+            'live-blog-archive': 'liveBlogArchive'
         },
 
         getBlogHref: function(id) {
