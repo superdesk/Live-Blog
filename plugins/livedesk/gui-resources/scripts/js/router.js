@@ -60,9 +60,12 @@ define
 
         liveBlogFeeds: function(id) {
             var blogHref = this.getBlogHref(id);
-            BlogAction.get('modules.livedesk.manage-feeds').
+            BlogAction.
+                get('modules.livedesk.manage-feeds').
                 done(function(action) {
-                    require([action.get('Script').href], function(){});
+                    require([action.get('Script').href], function(app) {
+                        app(blogHref);
+                    });
                 });
         },
 
