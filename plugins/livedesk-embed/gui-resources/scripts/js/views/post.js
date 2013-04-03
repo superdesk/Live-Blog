@@ -9,6 +9,7 @@ define([
 	'tmpl!theme/item/annotated',
 	'tmpl!theme/item/social-share',
 	'tmpl!theme/item/posttype/normal',
+	'tmpl!theme/item/posttype/image',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
 	'tmpl!theme/item/posttype/link',
