@@ -24,7 +24,6 @@
 			'[name="OutputLink"]': { click: 'selectOutputLink', focusIn: 'selectOutputLink' }
         },
         init: function() {
-            
         },
 		selectOutputLink: function(evt) {
 			$(evt.target).select();
@@ -60,12 +59,11 @@
                 }
             self.apiKeysView.save();
             self.model.set(data).sync().done(function(){
-               self.close(evt);
+               self.close();
             });
         },
-        close:  function(evt) {
-            var self = this;
-            $(self.el).find('a[data-target="edit-blog"]').click();
+        close: function() {
+            Backbone.history.navigate('live-blog/' + this.model.get('Id'), true);
         },
         refresh: function() {
             var self = this;

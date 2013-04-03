@@ -16,7 +16,7 @@
 <ul class="archive-blogs clearfix">			
 	{#archive}
 	<li>
-		<span class="archive-blogs-title"><a href="live-blog/{Id}" data-blog-link="{href}" class="archive-blog-link">{Title}</a></span>
+		<span class="archive-blogs-title"><a href="#live-blog/{Id}" data-blog-link="{href}" class="archive-blog-link">{Title}</a></span>
 		<span class="archive-blogs-date">{CreatedOn}</span>
 	</li>
 	{:else}
