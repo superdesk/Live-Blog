@@ -18,8 +18,15 @@ define([
         },
 
         render: function() {
-            var view = this;
             var data = this.model.feed();
+            data.ui = {
+                content: 'is-content=1',
+                side: 'is-side=1',
+                submenu: 'is-submenu',
+                submenuActive4: 'active'
+            };
+
+            var view = this;
 	        $.tmpl('livedesk>manage-feeds', data, function(e,o){
 		        $(view.el).html(o);
 

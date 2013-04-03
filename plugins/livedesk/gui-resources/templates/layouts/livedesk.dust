@@ -10,7 +10,7 @@
 		<li class="{ui.submenuActive1}"><a href="#live-blog/{Id}">{Title|t}</a></li>
 		<li class="{ui.submenuActive2}"><a href="#live-blog/{Id}/config">_("Configure Blog");</a></li>
 		<li class="{ui.submenuActive3}"><a href="#live-blog/{Id}/collaborators">_("Manage collaborators");</a></li>
-		<li class="for-ui-design"><a href="#live-blog/{Id}/feeds">_("Manage feeds");</a></li>
+		<li class="{ui.submenuActive4}"><a href="#live-blog/{Id}/feeds">_("Manage feeds");</a></li>
 	{!/blog!}	
     </ul>
     
