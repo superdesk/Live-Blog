@@ -16,10 +16,7 @@
             </ul>
       </div>
     </div>
-   
-
 </section>
-
 
 <div class="modal hide fade" id="AddSource">
   <div class="modal-header">
@@ -37,5 +34,4 @@
     <a href="#" class="btn btn-primary" id="add-provider-save">Save</a>
   </div>
 </div>
-
 {/body}

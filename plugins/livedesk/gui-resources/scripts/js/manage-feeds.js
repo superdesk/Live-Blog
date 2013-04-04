@@ -7,9 +7,40 @@ define([
     'tmpl!core>layouts/footer-static',
 	'tmpl!livedesk>manage-feeds',
 	'tmpl!livedesk>manage-feeds-provider',
+	'tmpl!livedesk>manage-feeds-external-blog',
 ], function ($, Gizmo) {
-    var BlogProvider = Gizmo.Model.extend({});
 
+    /**
+     * External Blog
+     */
+    var ExternalBlog = Gizmo.Model.extend({
+    });
+
+    /**
+     * External Blog Collection holds blogs from single provider
+     */
+    var ExternalBlogCollection = Gizmo.Collection.extend({
+        model: ExternalBlog
+    });
+
+    /**
+     * External Blog Provider
+     */
+    var BlogProvider = Gizmo.Model.extend({
+        blogs: null,
+
+        getBlogs: function() {
+            if (this.blogs === null) {
+                this.blogs = new ExternalBlogCollection({href: this.get('URL').href});
+            }
+
+            return this.blogs;
+        }
+    });
+
+    /**
+     * Global External Blog Provider Collection
+     */
     var BlogProviderCollection = Gizmo.Collection.extend({
         model: BlogProvider,
 
@@ -23,6 +54,56 @@ define([
         }
     });
 
+    /**
+     * Single External Blog View - a list item.
+     */
+    var ExternalBlogView = Gizmo.View.extend({
+        tagName: 'li',
+        render: function() {
+            var data = this.model.feed();
+            data.cid = this.model._clientId;
+            $(this.el).
+                tmpl('livedesk>manage-feeds-external-blog', data).
+                addClass('chain-blog');
+            return this;
+        }
+    });
+
+    /**
+     * List of external blogs view for single provider.
+     */
+    var ExternalBlogListView = Gizmo.View.extend({
+        init: function() {
+            // TODO using synced.done because of not rendering anything after re-navigating
+            // this.collection.on('read', this.render, this);
+        },
+
+        render: function() {
+            var list = $(this.el);
+            list.empty();
+
+            this.collection.each(function() {
+                var model = this;
+                var view = new ExternalBlogView({model: model});
+                list.append(view.render().el);
+            });
+
+            return this;
+        },
+
+        renderError: function(e) {
+            $(this.el).empty();
+            $('<li />').
+                text(_("Ups! Can't fetch external blogs from '%s'.").format([this.collection.href])). // not working
+                text("Ups! Can't fetch external blogs from '" + this.collection.href + "'.").
+                addClass('err chain-blog').
+                appendTo($(this.el));
+        }
+    });
+
+    /**
+     * Single provider view.
+     */
     var BlogProviderView = Gizmo.View.extend({
         tagName: 'li class="chain-source"',
 
@@ -36,11 +117,11 @@ define([
         },
 
         render: function() {
-            var $el = $(this.el);
             var data = this.model.feed();
-            $.tmpl('livedesk>manage-feeds-provider', data, function(e, o) {
-                $el.html(o);
-            });
+            $(this.el).
+                tmpl('livedesk>manage-feeds-provider', data).
+                addClass('chain-source');
+            this.renderBlogs();
             return this;
         },
 
@@ -52,9 +133,46 @@ define([
         _edit: function(e) {
             e.preventDefault();
             console.log('edit', this.model);
+        },
+
+        renderBlogs: function() {
+            var blogs = this.model.getBlogs();
+            var view = new ExternalBlogListView({collection: blogs, el: $(this.el).find('.chain-source-content')});
+            blogs.xfilter('Title', 'Description').sync().
+                done(function() { view.render(); }).
+                fail(function(e) { view.renderError(e); });
         }
     });
 
+    /**
+     * List of providers view.
+     */
+    var ListBlogProviderView = Gizmo.View.extend({
+        init: function() {
+            this.collection.on('read', this.render, this);
+            this.collection.on('add', this.render, this);
+        },
+
+        render: function() {
+            var list = $(this.el);
+
+            list.empty();
+            this.collection.each(function() {
+                var modelView = new BlogProviderView({model: this});
+                list.append(modelView.render().el);
+            });
+
+            if (!this.collection.count()) {
+                list.append($('<li />').text(_("So far there are no providers. Start with Add New Source button.")));
+            }
+
+            return this;
+        }
+    });
+
+    /**
+     * Add provider popup view.
+     */
     var AddBlogProviderView = Gizmo.View.extend({
         data: {},
 
@@ -82,31 +200,8 @@ define([
         }
     });
 
-    var ListBlogProviderView = Gizmo.View.extend({
-        init: function() {
-            this.collection.on('read', this.render, this);
-            this.collection.on('add', this.render, this);
-        },
-
-        render: function() {
-            var list = $(this.el);
-
-            list.empty();
-            this.collection.each(function() {
-                var modelView = new BlogProviderView({model: this});
-                list.append(modelView.render().el);
-            });
-
-            if (!this.collection.count()) {
-                list.append($('<li />').text(_("So far there are no providers. Start with Add New Source button.")));
-            }
-
-            return this;
-        }
-    });
-
     /**
-     * Manage Feeds Main View
+     * Main view.
      */
     var ManageFeedsView = Gizmo.View.extend({
         el: '#area-main',
@@ -170,7 +265,7 @@ define([
 
         renderList: function() {
             var list = new ListBlogProviderView({collection: this.collection, el: '#provider-list'});
-            this.collection.xfilter('Title').sync();
+            this.collection.xfilter('Id', 'Title', 'URL').sync();
         },
 
         renderAdd: function() {
