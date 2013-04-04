@@ -425,6 +425,20 @@ function(providers, Gizmo, $, BlogAction)
 			 * subject to aop
 			 */
 			preData: $.noop,
+			handleError: function(data) {
+				var self = this;
+				var status = data.status;
+				var responseObj = jQuery.parseJSON( data.responseText );
+				var responseText = responseObj.details.model.Post.Meta + _(' characters for text with HTML and formatting');
+				switch ( status ) {
+					case 400:
+						self.showErrorMessage(responseText);
+						break;
+				}
+			},
+			showErrorMessage: function(responseText) {
+				this.el.find('.message-error').html(responseText).css('display', 'inline');
+			},
 			save: function(evt)
 			{
 				var self = this,
@@ -441,7 +455,12 @@ function(providers, Gizmo, $, BlogAction)
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
-				this.model.set(data).sync();
+				this.model.set(data).sync().done(function(){
+					//handle done
+				}).fail(function(data){
+					//handle fail
+					self.handleError(data);
+				});
 				this.el.find('.actions').stop().fadeOut(100, function(){
 					$('.editable').removeData('previous');
 				});
@@ -856,17 +875,31 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this,
 					post = Gizmo.Auth(new this.collection.model(data))
 				this.collection.xfilter('CId,Order').insert(post).done(function(){
-				    
 				    post.href = post.data.href;
 				    
 					self.collection.model.triggerHandler('publish', post);
 					self.addOne(post);		
+					if(view) {
+						view.el.remove();
+					}	
+				}).fail(function(data){
+
+					self.handleError(data, view);
 				});
-				if(view) {
-					view.el.remove();
-				}				
+							
 			},
-			
+			handleError: function(data, view) {
+				var self = this;
+				var status = data.status;
+				var responseObj = jQuery.parseJSON( data.responseText );
+				var responseText = responseObj.details.model.Post.Meta + _(' characters for text with HTML and formatting');
+
+				switch ( status ) {
+					case 400:
+						$('.message-error', view.el).html(responseText).css('display', 'inline');
+						break;
+				}
+			},
 			publish: function(post)
 			{
 				if(post instanceof this.collection.model) 
