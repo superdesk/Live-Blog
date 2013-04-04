@@ -1,0 +1,145 @@
+<div class="modal fade split-popup" id="AddAssignment">
+  <div class="modal-header">
+    <a href="#" class="close" data-dismiss="modal" aria-hidden="true">×</a>
+    <input type="text" placeholder="Assignment title" class="assignment-title" >
+  </div>
+  <div class="modal-body">
+    <div class="modal-left-pane">
+        <div class="taskmodal-header">
+        	<div class="parent-task-info">
+        		<span>Parent task: <a href="#">Elit dignissim, ut elementum enim, enim pid vel pulvinar penatibus</a></span>
+        	</div>
+        	<ul class="assign-labels clearfix">
+				<li class="critical"><i class="icon-desk-time icon-white"></i> Today at 12:45</li>
+				<li><i class="icon-desk-subtask icon-white"></i> 3 Subtasks</li>
+			</ul>
+        </div>
+        <div class="taskmodal-content">
+        	<div class="taskmodal-description">
+        		Turpis hac pulvinar tempor auctor in lorem cum et, dolor, nunc, turpis odio, a mus, auctor ut ac, eros, tincidunt enim quis augue? Parturient a dignissim cursus aliquam. Platea? Placerat placerat, pulvinar turpis tincidunt porttitor aenean, sed pulvinar!
+        	</div>    
+        	<section class="modal-mainpane-module">
+        		<header>Subtasks</header>
+        		<ul class="subtask-list-view clearfix">
+        			<li>
+        				<h6>Turpis hac pulvinar tempor auctor in lorem cum et</h6>
+        				<p>
+        					Pid elementum et ut parturient platea duis ut lectus magnis, sit et aliquet lorem, in porta penatibus sit integer mattis, eros elementum dapibus nec aenean pulvinar
+        				</p>
+        				<span class="assign-label critical"><i class="icon-desk-time icon-white"></i> Today at 11:10</span>
+        				<a href="#">Open details</a>
+        			</li>
+        			<li>
+        				<h6>Parturient a dignissim cursus aliquam.</h6>
+        				<p>
+        					Odio nec turpis purus mid cras hac, elementum a, odio est. Aenean tortor urna penatibus. Ut ultrices, duis purus nunc.
+        				</p>
+        				<span class="assign-label done"><i class="icon-desk-time icon-white"></i> Today at 11:30</span>
+        				<a href="#">Open details</a>
+        			</li>
+        			<li>
+        				<h6>Tempor, scelerisque parturient elementum. Arcu risus ut placerat turpis</h6>
+        				<p>
+        					Purus elementum eros montes! Amet sociis ridiculus, ridiculus enim cum! Ut quis, risus cursus. Pid elementum et ut parturient platea duis ut lectus magnis, sit et aliquet lorem.
+        				</p>
+        				<span class="assign-label"><i class="icon-desk-time icon-white"></i> Today at 11:50</span>
+        				<a href="#">Open details</a>
+        			</li>
+        		</ul>
+        	</section>    
+        	<section class="modal-mainpane-module">
+        		<header>Comments</header>
+        		<div class="add-comment-box">
+        			<textarea placeholder="Write a comment"></textarea>
+        		</div>
+        		<ul class="comment-list">
+        			<li>
+        				<div class="comment-info">
+		    				<figure><img src="pictures/avatar0.png" /></figure>
+		    				<b>Vladimir Stefanovic</b>
+		    				<time>Today at 08:41</time>
+		    			</div>
+		    			<p class="comment-text">Nisi in nisi arcu vel. Est amet adipiscing odio, enim turpis? Tincidunt massa quis urna elementum ut tempor odio? Aenean, mus dolor, scelerisque, dapibus, nisi aliquam risus non integer, mattis integer scelerisque pid, penatibus?</p>
+		    			<div class="action-menu">
+		    				<a href="#"><i class="icon-pencil"></i> Edit</a>
+		    				<a href="#"><i class="icon-trash"></i> Delete</a>
+		    			</div>
+        			</li>
+
+        			<li>
+        				<div class="comment-info">
+		    				<figure><img src="pictures/avatar6.png" /></figure>
+		    				<b>Gideon Lehman</b>
+		    				<time>Today at 09:03</time>
+		    			</div>
+		    			<p class="comment-text">Et vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
+		    			<div class="action-menu">
+		    				<a href="#"><i class="icon-pencil"></i> Edit</a>
+		    				<a href="#"><i class="icon-trash"></i> Delete</a>
+		    			</div>
+        			</li>
+
+        			<li>
+        				<div class="comment-info">
+		    				<figure><img src="pictures/avatar2.png" /></figure>
+		    				<b>Nikola Nikolic</b>
+		    				<time>Today at 09:09</time>
+		    			</div>
+		    			<p class="comment-text">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum </p>
+		    			<div class="action-menu">
+		    				<a href="#"><i class="icon-pencil"></i> Edit</a>
+		    				<a href="#"><i class="icon-trash"></i> Delete</a>
+		    			</div>
+        			</li>
+
+        		</ul>
+        	</section>    	
+        </div>
+    </div>
+    <div class="modal-right-pane">
+    	<section class="modal-sidepane-module clearfix">
+    		<header>Assignee</header>
+    		<div class="module-sidepane-module-content">
+    			<div class="assignee-info">
+    				<figure><img src="pictures/avatar0.png" /></figure>
+    				<b>Vladimir Stefanovic</b>
+    				<time>Today at 09:30</time>
+    			</div>
+    			<div class="btn-group">
+				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+				    <i class="icon-plus-sign"></i> Assign
+				    <span class="caret"></span>
+				  </a>
+				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+			            <li>Mihai Nistor</li>
+			            <li>Sava Tatic</li>
+			            <li>Mugur Rus</li>
+			            <li>Nikola Nikolic</li>
+			            <li>Adam Thomas</li>
+				  </ul>
+				</div>
+    		</div>
+    	</section>
+    	<section class="modal-sidepane-module clearfix">
+    		<header>Status</header>
+    		<div class="module-sidepane-module-content">
+    			<div class="task-status todo-status">To Do</div>
+    		</div>
+    	</section>
+    	<section class="modal-sidepane-module clearfix">
+    		<header>Action</header>
+    		<div class="module-sidepane-module-content">
+    			<a class="btn" href="#"><i class="icon-desk-time"></i> Due Date</a>
+    			<a class="btn" href="#"><i class="icon-desk-subtask"></i> Add Subtask</a>
+    			<a class="btn" href="#"><i class="icon-arrow-right"></i> Start Progress</a>
+    			<a class="btn" href="#"><i class="icon-ok"></i> Finish Task</a>
+    			<a class="btn" href="#" style="margin-top:30px;"><i class="icon-trash"></i> Delete Task</a>
+    		</div>
+    	</section>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+    <a href="#" class="btn btn-primary">Save Changes</a>
+  </div>
+</div>

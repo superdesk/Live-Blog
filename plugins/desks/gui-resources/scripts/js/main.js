@@ -2,12 +2,12 @@ define
 ([
     'jquery',
     'gizmo/superdesk',
-    config.guiJs('superdesk/sandbox', 'aloha-init'),
+    'gizmo/superdesk/action',
     'tmpl!superdesk/desks>singledesk',
 ], 
-function($, giz)
+function($, giz, Action)
 {    
     
-    return { init: function(){ return bingalinga }}; 
+    return { init: function(){ Action.initApp('modules.desks.tasks.add'); }}; 
     
 });

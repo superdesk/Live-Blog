@@ -38,6 +38,14 @@ def modulesAction() -> Action:
 def modulesMainAction() -> Action:
     return Action('main', Parent=modulesAction(), Script=publishedURI('superdesk/desks/scripts/js/main.js'))
 
+@ioc.entity   
+def modulesTasksAction() -> Action:
+    return Action('tasks', Parent=modulesAction())
+
+@ioc.entity   
+def modulesAddTaskAction() -> Action:
+    return Action('add', Parent=modulesTasksAction(), Script=publishedURI('superdesk/desks/scripts/js/task/add.js'))
+
 # --------------------------------------------------------------------
 
 @ioc.entity
@@ -47,7 +55,7 @@ def rightDesksView() -> RightAction:
 # --------------------------------------------------------------------
     
 @gui.setup
-def registerAclMediaArchiveView():
+def registerAclDesksView():
     r = rightDesksView()
-    r.addActions(menuAction(), modulesAction(), modulesMainAction())
+    r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesTasksAction(), modulesAddTaskAction())
     r.allGet(IDesksService)
