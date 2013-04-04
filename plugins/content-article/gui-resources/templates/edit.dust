@@ -18,7 +18,7 @@
     position: relative !important;
     top: auto !important;
     max-width: 100%;
-    width: 566px;
+    width: 600px;
     margin: 4px auto 0;
     background: none;
 }
@@ -249,10 +249,10 @@
 			
 			<section class="article-section">
 				<header>
-					<span class="edit-label">_('.')</span>
+					<span class="edit-label">_('Date')</span>
 				</header>
 				<div contenteditable="true" id="article-section" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
-					????
+					{?PublishedOn}{PublishedOn}{:else}_('Not published'){/PublishedOn}
 				</div>
 			</section>
 
