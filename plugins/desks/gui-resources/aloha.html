@@ -1,0 +1,19 @@
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Getting Started with Aloha Editor</title>
+    <!-- Load Aloha Editor css and js -->
+    <link rel="stylesheet" href="//localhost:8080/content/lib/core/scripts/js/aloha/src/css/aloha.css" type="text/css">
+    <script src="//localhost:8080/content/lib/core/scripts/js/aloha/src/lib/require.js"></script>
+    <script src="//localhost:8080/content/lib/core/scripts/js/aloha/src/lib/aloha.js"></script>
+</head>
+<body>
+    <div id="main">
+        <div id="content"><p>Getting started with Aloha Editor!</p></div>
+    </div>
+    <script type="text/javascript">
+    	console.log('page')
+        Aloha.ready( function() {
+            Aloha.jQuery('#content').aloha();
+        });
+    </script>
+</body>
