@@ -22,6 +22,8 @@ from ally.support.sqlalchemy.mapper import validate
 from ally.container.binder_op import validateManaged
 from livedesk.meta.blog_type import BlogTypeMapped
 from sqlalchemy.ext.hybrid import hybrid_property
+from livedesk.api.blog import BlogSource
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -61,3 +63,17 @@ validateManaged(BlogMapped.CreatedOn)
 from livedesk.meta.blog_post import BlogPostMapped
 BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn)]).
                                        where(BlogPostMapped.Blog == BlogMapped.Id))
+
+# --------------------------------------------------------------------
+
+@validate
+class BlogSourceMapped(Base, BlogSource):
+    '''
+    Provides the mapping for BlogSource.
+    '''
+    __tablename__ = 'livedesk_blog_source'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Blog = Column('fk_blog', ForeignKey(BlogMapped.Id), nullable=False)
+    Source = Column('fk_source', ForeignKey(SourceMapped.Id), nullable=False)
