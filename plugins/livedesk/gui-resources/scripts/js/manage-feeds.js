@@ -29,12 +29,27 @@ define([
     var BlogProvider = Gizmo.Model.extend({
         blogs: null,
 
-        getBlogs: function() {
-            if (this.blogs === null) {
-                this.blogs = new ExternalBlogCollection({href: this.get('URL').href});
+        /**
+         * Get url for both object with href or just string
+         *
+         * @return {string}
+         */
+        getUrl: function() {
+            var url = this.get('URL');
+            if (typeof url === 'object') {
+                url = url.href;
             }
 
-            return this.blogs;
+            return url;
+        },
+
+        /**
+         * Get external blogs collection
+         *
+         * @return {ExternalBlogCollection}
+         */
+        getBlogs: function() {
+            return new ExternalBlogCollection({href: this.getUrl()});
         }
     });
 
@@ -51,6 +66,12 @@ define([
             this.model.on('insert', function(model) {
                 collection.trigger('add');
             });
+        },
+
+        // @todo this doesn't work
+        sortBy: function(model) {
+            console.log('sort', model);
+            return -1 * model.get('Id');
         }
     });
 
@@ -65,6 +86,26 @@ define([
             $(this.el).
                 tmpl('livedesk>manage-feeds-external-blog', data).
                 addClass('chain-blog');
+
+            $(this.el).find('.sf-checkbox').each(function(i, val) {
+                $(val).after('<span class="sf-checkbox-custom" target-checkbox="' + $(val).attr('name') +'"></span>');
+                $(val).hide();
+            });
+
+            $(this.el).find('.sf-checkbox-custom').click(function(e) {
+                e.preventDefault();
+                $(this).toggleClass('sf-checked');
+                var own_box = $('input[name="' + $(this).attr("target-checkbox") + '"]');
+
+                //set active class
+                var set_bg = own_box.attr("set-bg"); 
+                if (typeof set_bg !== undefined && set_bg) {
+                    $(this).parents().eq(set_bg-1).toggleClass('active-bg');
+                }
+        
+                own_box.prop('checked', ! own_box.prop('checked'));
+            });
+
             return this;
         }
     });
@@ -74,7 +115,7 @@ define([
      */
     var ExternalBlogListView = Gizmo.View.extend({
         init: function() {
-            // TODO using synced.done because of not rendering anything after re-navigating
+            // @todo using synced.done because of not rendering anything after re-navigating
             // this.collection.on('read', this.render, this);
         },
 
@@ -83,8 +124,7 @@ define([
             list.empty();
 
             this.collection.each(function() {
-                var model = this;
-                var view = new ExternalBlogView({model: model});
+                var view = new ExternalBlogView({model: this});
                 list.append(view.render().el);
             });
 
@@ -114,6 +154,7 @@ define([
 
         init: function() {
             this.model.on('delete', this.remove, this);
+            this.model.on('update', this.render, this);
         },
 
         render: function() {
@@ -121,6 +162,11 @@ define([
             $(this.el).
                 tmpl('livedesk>manage-feeds-provider', data).
                 addClass('chain-source');
+
+            $(this.el).find(".chain-source-collapse a").click(function(e){
+       		    $(this).parents().eq(2).toggleClass("chain-collapsed");
+            });
+
             this.renderBlogs();
             return this;
         },
@@ -132,13 +178,14 @@ define([
 
         _edit: function(e) {
             e.preventDefault();
-            console.log('edit', this.model);
+            new EditBlogProviderView({model: this.model});
         },
 
         renderBlogs: function() {
             var blogs = this.model.getBlogs();
             var view = new ExternalBlogListView({collection: blogs, el: $(this.el).find('.chain-source-content')});
-            blogs.xfilter('Title', 'Description').sync().
+            blogs.xfilter('Title', 'Description').
+                sync().
                 done(function() { view.render(); }).
                 fail(function(e) { view.renderError(e); });
         }
@@ -171,32 +218,62 @@ define([
     });
 
     /**
-     * Add provider popup view.
+     * Edit provider popup view.
      */
-    var AddBlogProviderView = Gizmo.View.extend({
-        data: {},
+    var EditBlogProviderView = Gizmo.View.extend({
+        el: '#AddSource',
 
-        events: {
-            '#add-provider-save': {click: 'save'},
-            'input:text[name="URL"]': {change: 'setData'},
-            'input:text[name="Title"]': {change: 'setData'}
+        init: function() {
+            this.title = $(this.el).find('#edit-provider-title');
+            this.url = $(this.el).find('#edit-provider-url');
+
+            // render on init
+            this.render();
         },
 
-        setData: function(e) {
-            var target = $(e.target);
-            this.data[target.attr('name')] = target.val();
+        render: function() {
+            if (this.model) {
+                this.title.val(this.model.get('Title'));
+                this.url.val(this.model.getUrl());
+                $(this.el).find('h3').text(_('Edit Provider ' + this.model.get('Title')));
+            } else {
+                $(this.el).find('h3').text(_('Add Provider'));
+            }
+
+            $(this.el).modal('show');
+        },
+
+        events: {
+            '#edit-provider-save': {click: 'save'},
+            '#edit-provider-cancel': {click: 'cancel'},
+            '.close': {click: 'cancel'}
         },
 
         save: function(e) {
             e.preventDefault();
-            this.collection.insert(this.data);
-            this.reset();
-            $(this.el).modal('hide');
+
+            var data = {
+                Title: this.title.val(),
+                URL: this.url.val()
+            }
+
+            if (this.model) {
+                this.model.set(data).sync();
+            } else {
+                this.collection.insert(data);
+            }
+
+            this.close();
         },
 
-        reset: function() {
+        cancel: function(e) {
+            e.preventDefault();
+            this.close();
+        },
+
+        close: function() {
             $(this.el).find('input:text').val('');
-            this.data = {};
+            $(this.el).modal('hide');
         }
     });
 
@@ -223,43 +300,8 @@ define([
                 submenuActive4: 'active'
             };
 
-            var view = this;
-	        $.tmpl('livedesk>manage-feeds', data, function(e,o){
-		        $(view.el).html(o);
-
-                $('.sf-checkbox').each(function(i,val){
-                    $(val).after('<span class="sf-checkbox-custom" target-checkbox="' + $(val).attr('name') +'"></span>');
-                    $(val).hide();
-                });
-
-                $('.sf-checkbox-custom').click(function(e){
-                    e.preventDefault();
-                    $(this).toggleClass('sf-checked');
-                    var own_box = $('input[name="' + $(this).attr("target-checkbox") + '"]');
-                    //set active class
-
-                    var set_bg = own_box.attr("set-bg"); 
-                    if (typeof set_bg !== undefined && set_bg !== false) {
-                    $(this).parents().eq(set_bg-1).toggleClass('active-bg');
-                    }
-        
-        
-                    if (own_box.prop('checked')==true) { 
-                    own_box.prop('checked',false); 
-                    }
-                    else { 
-                    own_box.prop('checked',true); 
-                    }
-                    return false;
-                    
-                });
-
-                $(".chain-source-collapse a").click(function(e){
-       		            $(this).parents().eq(2).toggleClass("chain-collapsed");
-                });
-
-                view.renderList();
-            });
+	        $(this.el).tmpl('livedesk>manage-feeds', data);
+            this.renderList();
             return this;
         },
 
@@ -268,8 +310,9 @@ define([
             this.collection.xfilter('Id', 'Title', 'URL').sync();
         },
 
-        renderAdd: function() {
-            var addView = new AddBlogProviderView({collection: this.collection, el: '#AddSource'});
+        renderAdd: function(e) {
+            e.preventDefault();
+            new EditBlogProviderView({collection: this.collection});
         }
     });
 
