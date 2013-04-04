@@ -164,6 +164,9 @@
 				<button class="btn btn-mini cancel">_("Cancel");</button>
 				<button class="btn btn-mini btn-primary publish">_("Publish");</button>
 			</div>
+			<div class="message-error">
+				_("There an error saving the post!");
+			</div>
 		{/ImportantActionsPrepublish}
 	{/ImportantActions}
 </li>

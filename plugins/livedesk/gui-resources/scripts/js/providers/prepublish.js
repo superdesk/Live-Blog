@@ -24,7 +24,7 @@ define([
             self.data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
             self.data.Meta = JSON.stringify(self.data.Meta);
             self.parent.insert(self.data, self);
-            $('.actions', self.el).addClass('hide');            
+            //$('.actions', self.el).addClass('hide');            
         },
         close: function(evt) {
             var self = this;
