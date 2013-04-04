@@ -95,6 +95,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                 Aloha.jQuery('.aloha-editable').aloha();
                 // h4xx
                 Aloha.jQuery('.editor-toolbar-placeholder').load(config.content_url+'/lib/superdesk/article/cnx-toolbar.html').children().unwrap();
+                $('.dropdown-toggle').dropdown();
             });
         },
         
