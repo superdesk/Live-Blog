@@ -139,7 +139,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
            
             $($.superdesk.layoutPlaceholder).html(this.el);
             $('body').attr("class","article-edit");
-            
+            $(this.el).css("height","100%");
             // render
             $(this.el).tmpl('superdesk/article>edit', {Article: feed}, function()
             {
