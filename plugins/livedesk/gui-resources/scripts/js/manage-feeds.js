@@ -10,10 +10,90 @@ define([
 	'tmpl!livedesk>manage-feeds-external-blog',
 ], function ($, Gizmo) {
 
+    var BlogSource = Gizmo.Model.extend({});
+
+    var BlogSourceCollection = Gizmo.Collection.extend({
+        model: BlogSource,
+
+        /**
+         * Test if source is active for blog
+         *
+         * @param {ExternalBlog} source
+         * @return {boolean}
+         */
+        hasSource: function(source) {
+            return this.findSource(source) !== undefined;
+        },
+
+        /**
+         * Add given source to blog sources
+         *
+         * @param {ExternalBlog} source
+         */
+        addSource: function(source) {
+            this.insert({
+                Name: source.get('Title'),
+                URI: source.href,
+                Type: 'chained blog',
+                IsModifiable: false
+            });
+        },
+
+        /**
+         * Remove given source from blog sources
+         *
+         * @param {ExternalBlog} source
+         */
+        removeSource: function(source) {
+            var model = this.findSource(source);
+            if (model) {
+                model.destroy();
+            }
+        },
+
+        /**
+         * Find model for given source
+         *
+         * @param {ExternalBlog} source
+         * @return {BlogSource}
+         */
+        findSource: function(source) {
+            var list = this.getList();
+            for (i in list) {
+                if (list[i].href === source.href) {
+                    return list[i];
+                }
+            }
+        }
+    });
+
+    var blogSources = null; // set later for scope
+
     /**
      * External Blog
      */
     var ExternalBlog = Gizmo.Model.extend({
+        active: null,
+
+        isActive: function() {
+            return blogSources.hasSource(this);
+        },
+
+        activate: function() {
+            if (this.isActive()) {
+                return;
+            }
+
+            blogSources.addSource(this);
+        },
+
+        deactivate: function() {
+            if (!this.isActive()) {
+                return;
+            }
+
+            blogSources.removeSource(this);
+        }
     });
 
     /**
@@ -80,6 +160,12 @@ define([
      */
     var ExternalBlogView = Gizmo.View.extend({
         tagName: 'li',
+        
+        events: {
+            'input:checkbox': {change: 'change'},
+            '.sf-checkbox-custom': {click: 'toggleCheckbox'}
+        },
+
         render: function() {
             var data = this.model.feed();
             data.cid = this.model._clientId;
@@ -92,21 +178,45 @@ define([
                 $(val).hide();
             });
 
-            $(this.el).find('.sf-checkbox-custom').click(function(e) {
-                e.preventDefault();
-                $(this).toggleClass('sf-checked');
-                var own_box = $('input[name="' + $(this).attr("target-checkbox") + '"]');
-
-                //set active class
-                var set_bg = own_box.attr("set-bg"); 
-                if (typeof set_bg !== undefined && set_bg) {
-                    $(this).parents().eq(set_bg-1).toggleClass('active-bg');
-                }
-        
-                own_box.prop('checked', ! own_box.prop('checked'));
-            });
+            var $box = $(this.el).find('input:checkbox');
+            $box.prop('checked', this.model.isActive());
+            $box.change();
 
             return this;
+        },
+
+        change: function(e) {
+            var checked = $(e.target).prop('checked');
+
+            if (checked) {
+                this.model.activate();
+            } else {
+                this.model.deactivate();
+            }
+
+            this.renderCheckbox(checked);
+        },
+
+        renderCheckbox: function(checked) {
+            var $li = $(this.el);
+            var $box = $(this.el).find('.sf-checkbox-custom');
+
+            if (checked) {
+                $li.addClass('active-bg');
+                $box.addClass('sf-checked');
+            } else {
+                $li.removeClass('active-bg');
+                $box.removeClass('sf-checked');
+            }
+        },
+
+        /**
+         * Change value and trigger change event
+         */
+        toggleCheckbox: function(e) {
+            $input = $(this.el).find('input:checkbox');
+            $input.prop('checked', ! $input.prop('checked'));
+            $input.change();
         }
     });
 
@@ -129,15 +239,6 @@ define([
             });
 
             return this;
-        },
-
-        renderError: function(e) {
-            $(this.el).empty();
-            $('<li />').
-                text(_("Ups! Can't fetch external blogs from '%s'.").format([this.collection.href])). // not working
-                text("Ups! Can't fetch external blogs from '" + this.collection.href + "'.").
-                addClass('err chain-blog').
-                appendTo($(this.el));
         }
     });
 
@@ -158,16 +259,26 @@ define([
         },
 
         render: function() {
-            var data = this.model.feed();
-            $(this.el).
-                tmpl('livedesk>manage-feeds-provider', data).
-                addClass('chain-source');
+            var blogs = this.model.getBlogs();
+            var provider = this.model;
+            var $el = $(this.el);
+            var view = this;
 
-            $(this.el).find(".chain-source-collapse a").click(function(e){
-       		    $(this).parents().eq(2).toggleClass("chain-collapsed");
-            });
+            blogs.xfilter('Title', 'Description').sync().
+                done(function() {
+                    var data = provider.feed();
+                    data.BlogCount = blogs.count();
 
-            this.renderBlogs();
+                    $el.tmpl('livedesk>manage-feeds-provider', data).addClass('chain-source');
+                    var list = new ExternalBlogListView({collection: blogs, el: $el.find('.chain-source-content')});
+                    list.render();
+                }).
+                fail(function(e) {
+                    var data = provider.feed();
+                    data.Title = "Sorry, but can't reach '" + data.Title + "'.";
+                    $el.tmpl('livedesk>manage-feeds-provider', data).addClass('chain-source');
+                    $el.find('h5').css('color', '#cc0000');
+                });
             return this;
         },
 
@@ -179,15 +290,6 @@ define([
         _edit: function(e) {
             e.preventDefault();
             new EditBlogProviderView({model: this.model});
-        },
-
-        renderBlogs: function() {
-            var blogs = this.model.getBlogs();
-            var view = new ExternalBlogListView({collection: blogs, el: $(this.el).find('.chain-source-content')});
-            blogs.xfilter('Title', 'Description').
-                sync().
-                done(function() { view.render(); }).
-                fail(function(e) { view.renderError(e); });
         }
     });
 
@@ -288,7 +390,7 @@ define([
         },
 
         init: function() {
-            this.model.one('read', this.render, this);
+            this.collection = new BlogProviderCollection();
         },
 
         render: function() {
@@ -317,11 +419,13 @@ define([
     });
 
     return function(blogHref) {
-        main = new ManageFeedsView({
-            model: Gizmo.Auth(new Gizmo.Register.Blog(blogHref)),
-            collection: new BlogProviderCollection()
+        var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
+        blog.sync().done(function() {
+            blogSources = new BlogSourceCollection({href: blog.get('Source').href});
+            blogSources.xfilter().sync().done(function() {
+                var view = new ManageFeedsView({model: blog});
+                view.render();
+            });
         });
-
-        main.model.sync();
     }
 });
