@@ -55,14 +55,14 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         tagName: 'li',
         selectSelf: function(evt)
         {
-            if( $(evt.currentTarget).hasClass("grid-selected") == true ) 
+            if( $(evt.currentTarget.parentNode).hasClass("grid-selected") == true ) 
             {
-                $(evt.currentTarget).removeClass("grid-selected");
+                $(evt.currentTarget.parentNode).removeClass("grid-selected");
                 $(evt.currentTarget).find("i").attr("class","icon-plus icon-white");
             }
             else 
             {
-                $(evt.currentTarget).addClass("grid-selected");
+                $(evt.currentTarget.parentNode).addClass("grid-selected");
                 $(evt.currentTarget).find("i").attr("class","icon-minus icon-white");
             }
             $(this).triggerHandler('selected', [this.model]);

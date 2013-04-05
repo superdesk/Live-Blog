@@ -1,52 +1,24 @@
 <a class="btn pull-right attach-media" data-toggle="modal" data-action="add" rel="tooltip" data-placement="top" data-original-title="Add images from your computer or Media Archive"><i class="icon-plus-sign"></i> _('Attach media')</a>
 
 
-<div class="media-tab">
+<div class="media-tab" >
 
+	<ul class="media-items media-images" id="media-images" data-placeholder="media">
 
-	<!-- IMAGES, list all images here -->
-	<ul class="media-items media-images" id="media-images">
-
-		<!-- image item -->
-		<li class="media-image">
-
-			<!-- action menu for every image -->
-			<div class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
-                <ul class="dropdown-menu sf-dropdown-simple pull-right">
-                  <li><a href="#"><i class="icon-eye-open"></i> View metadata</a></li>
-                  <li><a href="#"><i class="icon-ok"></i> Place image</a></li>
-                  <li><a href="#"><i class="icon-ban-circle"></i> Forbid</a></li>
-                  <li><a href="#"><i class="icon-download-alt"></i> Download</a></li>
-                  <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
-                </ul>
-            </div>
-
-            <!-- action menu -->
-			<figure>
-				<img src="http://uidesign.lab.sourcefabric.org/superdesk/article-edit/pictures/media1.jpg" />
-			</figure>
-
-			<!--description -->
-			<div class="media-description approved"> <!-- if image is approved put class "approved", else put class "unapproved" -->
-				Das Kleinbasel: auf der Sonnenseite des Lebens und der Stadt.
-				<span class="size-info">2000 x 1500</span>  <!-- image size info -->
-			</div>
-
-		</li>
 	</ul>
-
-
 
 </div>
 
-
 <!--
+
 <button data-toggle="modal" data-action="add" class="btn pull-right"><i class="icon-picture"></i> _('Add Image')</button>
 <h3>Media Tab</h3> 
 <span data-placeholder="description">
 		<p>_('Add media assets to the article. Browse the Integrated Asset Repository, access to Integrated Asset Management, Upload Media assets')</p>
 </span>
--->
+
+
 <span data-placeholder="media">
 </span>
+
+-->
