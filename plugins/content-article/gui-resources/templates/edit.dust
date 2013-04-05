@@ -251,7 +251,7 @@
 				<header>
 					<span class="edit-label">_('Date')</span>
 				</header>
-				<div contenteditable="true" id="article-section" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+				<div id="article-section" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
 					{?PublishedOn}{PublishedOn}{:else}_('Not published'){/PublishedOn}
 				</div>
 			</section>
