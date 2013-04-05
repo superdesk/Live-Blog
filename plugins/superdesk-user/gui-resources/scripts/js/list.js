@@ -82,7 +82,9 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             icon.sync({data: { thumbSize: 'small'}}).done(function()
             { 
                 $('figure img', self.el).attr('src', icon.get('Thumbnail').href);
-            });
+            }).fail(function(){
+				$('figure img', self.el).attr('src', $.avatar.get(self.model.get("EMail")));
+			});
             // ---
             
             delete this.model.data['Password'];
