@@ -60,7 +60,7 @@ define([
         findSource: function(source) {
             var list = this.getList();
             for (i in list) {
-                if (list[i].href === source.href) {
+                if (list[i].get('URI').href === source.href) {
                     return list[i];
                 }
             }
@@ -422,7 +422,7 @@ define([
         var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
         blog.sync().done(function() {
             blogSources = new BlogSourceCollection({href: blog.get('Source').href});
-            blogSources.xfilter().sync().done(function() {
+            blogSources.xfilter('URI').sync().done(function(data) {
                 var view = new ManageFeedsView({model: blog});
                 view.render();
             });
