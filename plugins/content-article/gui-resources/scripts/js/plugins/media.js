@@ -67,6 +67,7 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
         {
             var self = this;
             $(this.el).tmpl('superdesk/article>plugins/media', function(){ self._isRendered = true; });
+            $("#attachmedia").tooltip();
         },
         _isRendered: false,
         
