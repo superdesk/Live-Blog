@@ -27,7 +27,7 @@ from ally.api.criteria import AsLike
 
 # --------------------------------------------------------------------
 
-ALL_NAMES = (SourceMapped.Name, SourceMapped.Description, SourceMapped.URI)
+ALL_NAMES = (SourceMapped.Name, SourceMapped.URI)
 
 @injected
 @setup(ISourceService, name='sourceService')
@@ -40,7 +40,7 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         '''
         Construct the source service.
         '''
-        EntityGetCRUDServiceAlchemy.__init__(self, SourceMapped)
+        EntityGetCRUDServiceAlchemy.__init__(self, SourceMapped, QSource)
 
     def getAll(self, typeKey=None, offset=None, limit=None, detailed=False, q=None):
         '''

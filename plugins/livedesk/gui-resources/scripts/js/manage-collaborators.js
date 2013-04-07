@@ -94,7 +94,7 @@ define([
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
-                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                meta.sync({data:{ thumbSize: 'small' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
                     self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
@@ -242,12 +242,15 @@ define([
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
-                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                meta.sync({data:{ thumbSize: 'small' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
                     self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
-                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
-                });
+                        .html('<img src="'+meta.get('Thumbnail').href+'" style="height: 25px;" />');
+                }).fail(function(){
+                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
+                        .html('<img src="'+$.avatar.get(self.model.get('User').get('EMail'), {size: 25})+'" style="height: 25px;"/>');				
+				});
             })
             .sync();
 			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed('', true), function(){
