@@ -7,7 +7,7 @@ define([
     'tmpl!core>layouts/footer-static',
 	'tmpl!livedesk>manage-feeds',
 	'tmpl!livedesk>manage-feeds-provider',
-	'tmpl!livedesk>manage-feeds-external-blog',
+	'tmpl!livedesk>manage-feeds-external-blog'
 ], function ($, Gizmo) {
 
     var BlogSource = Gizmo.Model.extend({});
@@ -59,7 +59,7 @@ define([
          */
         findSource: function(source) {
             var list = this.getList();
-            for (i in list) {
+            for (var i in list) {
                 if (list[i].get('URI').href === source.href) {
                     return list[i];
                 }
@@ -357,7 +357,7 @@ define([
             var data = {
                 Title: this.title.val(),
                 URL: this.url.val()
-            }
+            };
 
             if (this.model) {
                 this.model.set(data).sync();
@@ -402,7 +402,7 @@ define([
                 submenuActive4: 'active'
             };
 
-	        $(this.el).tmpl('livedesk>manage-feeds', data);
+            $(this.el).tmpl('livedesk>manage-feeds', data);
             this.renderList();
             return this;
         },
@@ -427,5 +427,5 @@ define([
                 view.render();
             });
         });
-    }
+    };
 });
