@@ -50,7 +50,7 @@ class Provider(Source):
     '''
 
 # --------------------------------------------------------------------
-
+# TODO: Mugur: No need to map a relation between models with API, remove this.
 @modelLiveDesk
 class BlogSource(Entity):
     '''
@@ -117,16 +117,16 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(method=INSERT)
-    def addSource(self, blogId:Blog.Id, source:Source, providerId:Provider.Id=None) -> Source.Id:
+    def addSource(self, blogId:Blog.Id, providerId:Provider.Id, source:Source) -> Source.Id:
         '''
         Adds a source to a blog.
 
         @param blogId: Blog.Id
             The blog identifier
-        @param source: Source
-            The source model
         @param providerId: Provider.Id
             The provider identifier
+        @param source: Source
+            The source model
         @raise InputError: on invalid source id
         '''
 

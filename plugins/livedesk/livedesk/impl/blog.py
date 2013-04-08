@@ -106,10 +106,11 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = self.session().query(SourceMapped)
         return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.Source).filter(BlogMapped.Id == blogId).all()
 
-    def addSource(self, blogId, source, providerId=None):
+    def addSource(self, blogId, providerId, source):
         '''
         @see: IBlogService.addSource
         '''
+        #TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert providerId is None or isinstance(providerId, int), 'Invalid provider identifier %s' % providerId
         assert isinstance(source, Source), 'Invalid source %s' % source

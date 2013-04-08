@@ -10,7 +10,7 @@ Populates sample data for the services.
 '''
 
 from ..superdesk.db_superdesk import alchemySessionCreator
-from __plugin__.livedesk.populate import populateDefaultUsers
+from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
 from ally.container import ioc, app
 from ally.container.support import entityFor
@@ -70,8 +70,8 @@ def createSourceType(key):
 
 @app.populate
 def createSourceTypes():
-    createSourceType('chained blog')
     createSourceType('blog provider')
+    createSourceType('chained blog')
 
 
 SOURCES = {
