@@ -27,7 +27,9 @@ from superdesk.source.meta.source import SourceMapped
 from livedesk.meta.blog import BlogSourceMapped
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
-from livedesk.api.blog import BlogSource
+from livedesk.api.blog import BlogSource, SourceChained
+from superdesk.source.api.source import ISourceService
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -41,6 +43,9 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
     '''
+
+    sourceService = ISourceService; wire.entity('sourceService')
+    # The source service used to manage all operations on sources
 
     def __init__(self):
         '''
@@ -98,21 +103,29 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         @see: IBlogService.getSources
         '''
-        return self.session().query(SourceMapped).join(BlogSourceMapped).filter(BlogMapped.Id == blogId).all()
+        sql = self.session().query(SourceMapped)
+        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.Source).filter(BlogMapped.Id == blogId).all()
 
-    def addSource(self, blogId, sourceId):
+    def addSource(self, blogId, source):
         '''
         @see: IBlogService.addSource
         '''
+        # TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
-        assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
+        assert isinstance(source, SourceChained), 'Invalid source %s' % source
+        if source.Provider is None: raise InputError(Ref(_('Missing chained blog source provider', ref=SourceChained.Provider)))
+        
+        source.Type = 'chained blog'  # TODO: Mugur: Externalize the chained blog type.
+        sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
         ent.Blog = blogId
         ent.Source = sourceId
+        ent.Provider = source.Provider
         try:
             self.session().add(ent)
             self.session().flush((ent,))
         except SQLAlchemyError as e: handle(e, ent)
+        return sourceId
 
     def deleteSource(self, blogId, sourceId):
         '''
@@ -121,7 +134,9 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
         try:
-            return self.session().query(BlogSourceMapped).filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId).delete() > 0
+            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId).delete() > 0
+            self.sourceService.delete(sourceId)
+            return res
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'), model=BlogSource))

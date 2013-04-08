@@ -14,7 +14,8 @@ from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call, UPDATE, DELETE
+from ally.api.config import query, service, call, UPDATE, DELETE, alias, INSERT, \
+    model
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
@@ -43,6 +44,15 @@ class Blog(Entity):
 
 # --------------------------------------------------------------------
 
+@model(name=Source)
+class SourceChained(Source):
+    '''
+    Provider concept implemented also through the source model.
+    '''
+    Provider = Source  # The source provider
+
+# --------------------------------------------------------------------
+# TODO: Mugur: No need to map a relation between models with API, remove this.
 @modelLiveDesk
 class BlogSource(Entity):
     '''
@@ -50,6 +60,7 @@ class BlogSource(Entity):
     '''
     Blog = Blog
     Source = Source
+    Provider = Source
 
 # --------------------------------------------------------------------
 
@@ -107,15 +118,15 @@ class IBlogService(IEntityCRUDService):
             The blog identifier
         '''
 
-    @call(method=UPDATE)
-    def addSource(self, blogId:Blog.Id, sourceId:Source.Id):
+    @call(method=INSERT)
+    def addSource(self, blogId:Blog.Id, source:SourceChained) -> Source.Id:
         '''
         Adds a source to a blog.
 
         @param blogId: Blog.Id
             The blog identifier
-        @param sourceId: Source.Id
-            The source identifier
+        @param source: SourceChained
+            The source model
         @raise InputError: on invalid source id
         '''
 
