@@ -27,8 +27,8 @@ from superdesk.source.meta.source import SourceMapped
 from livedesk.meta.blog import BlogSourceMapped
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
-from livedesk.api.blog import BlogSource
-from superdesk.source.api.source import ISourceService, Source
+from livedesk.api.blog import BlogSource, SourceChained
+from superdesk.source.api.source import ISourceService
 from ally.container import wire
 
 # --------------------------------------------------------------------
@@ -106,19 +106,21 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = self.session().query(SourceMapped)
         return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.Source).filter(BlogMapped.Id == blogId).all()
 
-    def addSource(self, blogId, providerId, source):
+    def addSource(self, blogId, source):
         '''
         @see: IBlogService.addSource
         '''
-        #TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
+        # TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
-        assert providerId is None or isinstance(providerId, int), 'Invalid provider identifier %s' % providerId
-        assert isinstance(source, Source), 'Invalid source %s' % source
+        assert isinstance(source, SourceChained), 'Invalid source %s' % source
+        if source.Provider is None: raise InputError(Ref(_('Missing chained blog source provider', ref=SourceChained.Provider)))
+        
+        source.Type = 'chained blog'  # TODO: Mugur: Externalize the chained blog type.
         sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
         ent.Blog = blogId
         ent.Source = sourceId
-        ent.Provider = providerId
+        ent.Provider = source.Provider
         try:
             self.session().add(ent)
             self.session().flush((ent,))
