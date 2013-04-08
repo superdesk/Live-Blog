@@ -19,22 +19,12 @@ define([
             self.parent = null;
             self.el.remove();
         },
-        firstTime: true,
-        metaBk: {},
         publish: function(evt) {
             var self = this;
-            var before = $('.annotation.top', self.el).html();
-            var after = $('..annotation.bottom', self.el).html();
-
-            if ( self.firstTime ) {
-                self.metaBk = self.data.Meta;
-                self.firstTime = false;
-            } else {
-                //not the first time
-            }
-
-            self.metaBk.annotation = { before: before, after: after };
-            self.data.Meta = JSON.stringify(self.metaBk);
+            if($.type(self.data.Meta) === 'string')
+                self.data.Meta = JSON.parse(self.data.Meta);
+            self.data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
+            self.data.Meta = JSON.stringify(self.data.Meta);
             self.parent.insert(self.data, self);
             //$('.actions', self.el).addClass('hide');            
         },
