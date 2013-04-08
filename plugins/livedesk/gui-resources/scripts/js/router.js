@@ -1,10 +1,35 @@
-define
-([
-  'jquery', 'jquery/superdesk',
-  config.guiJs('livedesk', 'action'),
-  'gizmo/superdesk/action'
-], function($, superdesk, BlogAction, Action)
-{
+define([
+    'jquery',
+    'jquery/superdesk',
+    config.guiJs('livedesk', 'action')
+], function($, superdesk, BlogAction) {
+
+    /**
+     * Get blog href for given blog id
+     *
+     * @param {number} blogId
+     * @return {string}
+     */
+    function getBlogHref(blogId) {
+        return '/resources/LiveDesk/Blog/' + blogId;
+    }
+
+    /**
+     * Call blog action for given blog
+     *
+     * @param {string} actionId
+     * @param {number} blogId
+     * @return {function}
+     */
+    function callAction(actionId, blogId) {
+        BlogAction.
+            get(actionId).
+            done(function(action) {
+                var blogHref = getBlogHref(blogId);
+                require([action.get('Script').href], function(app){ app(blogHref); });
+            });
+    }
+
     return Backbone.Router.extend({
         routes: {
             'live-blog/:id': 'liveBlogEdit',
@@ -14,12 +39,8 @@ define
             'live-blog-archive': 'liveBlogArchive'
         },
 
-        getBlogHref: function(id) {
-            return '/resources/LiveDesk/Blog/' + id;
-        },
-
         liveBlogEdit: function(id) {
-            var blogHref = this.getBlogHref(id);
+            var blogHref = getBlogHref(id);
             BlogAction.setBlogUrl(blogHref);
             BlogAction.
                 get('modules.livedesk.edit').
@@ -41,41 +62,20 @@ define
         },
 
         liveBlogConfig: function(id) {
-            var blogHref = this.getBlogHref(id);
-            BlogAction.
-                get('modules.livedesk.configure').
-                done(function(action) {
-                    require([action.get('Script').href], function(app){ new app(blogHref); });
-                });
+            callAction('modules.livedesk.configure', id);
         },
 
         liveBlogCollaborators: function(id) {
-            var blogHref = this.getBlogHref(id);
-            BlogAction.
-                get('modules.livedesk.manage-collaborators').
-                done(function(action) {
-                    require([action.get('Script').href], function(app){ new app(blogHref); });
-                });
+            callAction('modules.livedesk.manage-collaborators', id);
         },
 
         liveBlogFeeds: function(id) {
-            var blogHref = this.getBlogHref(id);
-            BlogAction.
-                get('modules.livedesk.manage-feeds').
-                done(function(action) {
-                    require([action.get('Script').href], function(app) {
-                        app(blogHref);
-                    });
-                });
+            callAction('modules.livedesk.manage-feeds', id);
         },
 
         liveBlogArchive: function() {
             superdesk.showLoader();
-            Action.
-                get('modules.livedesk.archive').
-                done(function(action) {
-                    require([action.get('Script').href], function(app){ new app(); });
-                });
+            callAction('modules.livedesk.archive');
         }
     });
 });
