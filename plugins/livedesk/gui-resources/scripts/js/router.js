@@ -1,7 +1,10 @@
 define([
     'jquery',
     'jquery/superdesk',
-    config.guiJs('livedesk', 'action')
+    config.guiJs('livedesk', 'action'),
+
+    'jquery/tmpl',
+    'tmpl!livedesk>error-notif'
 ], function($, superdesk, BlogAction) {
 
     /**

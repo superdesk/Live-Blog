@@ -13,8 +13,7 @@ define
   config.guiJs('livedesk', 'router'),
 
   'jquery/tmpl', 'jquery/rest',
-  'tmpl!livedesk>submenu',
-  'tmpl!livedesk>error-notif'
+  'tmpl!livedesk>submenu'
 ], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
