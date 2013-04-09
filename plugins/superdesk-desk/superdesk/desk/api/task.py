@@ -47,6 +47,7 @@ class QTask(QEntity):
     description = AsLikeOrdered
     startDate = AsDateTimeOrdered
     dueDate = AsDateTimeOrdered
+    status = AsEqual
     rootOnly = AsBoolean
 
 # --------------------------------------------------------------------
