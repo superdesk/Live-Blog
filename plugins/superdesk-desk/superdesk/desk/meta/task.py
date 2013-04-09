@@ -62,4 +62,6 @@ class TaskNestMapped(Base):
     group = Column('group', INTEGER, nullable=False)
     upperBar = Column('upper_bar', INTEGER, nullable=False)
     lowerBar = Column('lower_bar', INTEGER, nullable=False)
+    # the search on one level down is better with the depth information
+    depth = Column('depth', INTEGER, nullable=False)
 
