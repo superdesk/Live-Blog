@@ -112,7 +112,7 @@
           </ul>
         </div>
         
-        <a class="btn" href="#" name="addnewposttype">
+        <a class="btn" href="javascript:void(0)" name="addnewposttype">
           <i class="icon-plus-sign">
           </i>
           Add New Post Type
@@ -125,11 +125,11 @@
     
     <div class="modal-footer">
       
-      <a href="#" class="btn" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn" data-dismiss="modal">
         Cancel
       </a>
       
-      <a href="#" class="btn btn-primary" data-dismiss="modal" name="save-changes-modal">
+      <a href="javascript:void(0)" class="btn btn-primary" data-dismiss="modal" name="save-changes-modal">
         Save changes
       </a>
       
@@ -183,11 +183,11 @@
     
     <div class="modal-footer">
       
-      <a href="#" class="btn" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn" data-dismiss="modal">
         Cancel
       </a>
       
-      <a href="#" class="btn btn-primary" name="wizard-next">
+      <a href="javascript:void(0)" class="btn btn-primary" name="wizard-next">
         Next
       </a>
       
@@ -252,15 +252,15 @@
     
     <div class="modal-footer">
       
-      <a href="#" class="btn pull-left" name="wizard-back">
+      <a href="javascript:void(0)" class="btn pull-left" name="wizard-back">
         Back
       </a>
       
-      <a href="#" class="btn" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn" data-dismiss="modal">
         Cancel
       </a>
       
-      <a href="#" class="btn btn-primary" name="wizard-next">
+      <a href="javascript:void(0)" class="btn btn-primary" name="wizard-next">
         Next
       </a>
       
@@ -394,15 +394,15 @@
         </select>
         <div class="btn-toolbar">
           <div class="btn-group" data-toggle="buttons-checkbox">
-            <a class="btn" href="#" name="posttypetext-bold">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-bold">
               <i class="icon-bold">
               </i>
             </a>
-            <a class="btn" href="#" name="posttypetext-italic">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-italic">
               <i class="icon-italic">
               </i>
             </a>
-            <a class="btn" href="#" name="posttypetext-underline">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-underline">
               <i class="icon-underline">
               </i>
             </a>
@@ -410,15 +410,15 @@
         </div>
         <div class="btn-toolbar" >
           <div class="btn-group" data-toggle="buttons-radio">
-            <a class="btn" href="#" name="posttypetext-align" align="left">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-align" align="left">
               <i class="icon-align-left">
               </i>
             </a>
-            <a class="btn" href="#" name="posttypetext-align" align="center">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-align" align="center">
               <i class="icon-align-center">
               </i>
             </a>
-            <a class="btn" href="#" name="posttypetext-align" align="right">
+            <a class="btn" href="javascript:void(0)" name="posttypetext-align" align="right">
               <i class="icon-align-right">
               </i>
             </a>
@@ -475,15 +475,15 @@
     
     <div class="modal-footer">
       
-      <a href="#" class="btn pull-left" name="wizard-back">
+      <a href="javascript:void(0)" class="btn pull-left" name="wizard-back">
         Back
       </a>
       
-      <a href="#" class="btn" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn" data-dismiss="modal">
         Cancel
       </a>
       
-      <a href="#" class="btn btn-primary" name="wizard-next">
+      <a href="javascript:void(0)" class="btn btn-primary" name="wizard-next">
         Next
       </a>
       
@@ -651,15 +651,15 @@
     
     <div class="modal-footer">
       
-      <a href="#" class="btn pull-left" name="wizard-back">
+      <a href="javascript:void(0)" class="btn pull-left" name="wizard-back">
         Back
       </a>
       
-      <a href="#" class="btn" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn" data-dismiss="modal">
         Cancel
       </a>
       
-      <a href="#" class="btn btn-primary" name="save-posttype" data-dismiss="modal">
+      <a href="javascript:void(0)" class="btn btn-primary" name="save-posttype" data-dismiss="modal">
         Save
       </a>
       

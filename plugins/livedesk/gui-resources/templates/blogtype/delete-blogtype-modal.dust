@@ -6,7 +6,7 @@
   <p>_("Are you sure you want to delete the blogtype") <strong id="blogtype-name"></strong>?</p>
   </div>
   <div class="modal-footer">
-    <a data-dismiss="modal" class="no btn" href="#">_("No")</a>
-    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes")</a>
+    <a data-dismiss="modal" class="no btn" href="javascript:void(0)">_("No")</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="javascript:void(0)">_("Yes")</a>
   </div>
 </div>
