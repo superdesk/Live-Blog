@@ -204,11 +204,17 @@ $.extend(providers.twitter, {
                 }
             
             },
+            replaceURLWithHTMLLinks: function(text) {
+                var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
+            },
             adaptUserData : function(data) {
+                var self = this;
                 for ( var i = 0; i < data.length; i ++) {
                     data[i].profile_image_url = data[i].user.profile_image_url;
                     data[i].from_user_name = data[i].user.name;
                     data[i].from_user = data[i].user.screen_name;
+                    data[i].text = self.replaceURLWithHTMLLinks(data[i].text);
                 }
                 return data;
             },
@@ -573,9 +579,28 @@ $.extend(providers.twitter, {
                 }
             })
         },
-        doWeb : function(qstring, refresh) {
-            var skip = qstring || false;
-                refresh = refresh || false;
+        makeClickableLinks: function(results) {
+            var self = this;
+            for ( var i = 0; i < results.length; i++) {
+                results[i].text = self.replaceURLWithHTMLLinks(results[i].text);
+                /*
+                var urls = results[i].entities.urls;
+                for ( var j = 0; j < urls.length; j ++ ) {
+                    var url = urls[j];
+                    results[i].text = results[i].text.replace(url.url, "<a href='" + url.expanded_url + "' target='_blank'>" + url.display_url + "</a>");
+                }
+                */
+
+            }
+            return results;
+        },
+        doWeb : function(qstring) {
+            
+            var skip = false;
+            if ( typeof qstring == 'undefined' ) {
+                skip = true;
+            }
+            
             var self = this;
             var twtVal = $('#twitter-search-web').val();
             if ( twtVal.length < 1  ) {
@@ -610,17 +635,13 @@ $.extend(providers.twitter, {
                     
                     self.data.web = self.data.web.concat(data.results);
                     self.stopLoading('#twt-web-more');
-                    var 
-                        posts = [],
-                        page = parseInt(data.page - 1),
-                        ipp = parseInt(data.results_per_page);
-                    for( var item, i = 0, count = data.results.length; i < count; i++ ){
-                        item = data.results[i];
-                        item.type = 'natural'
-                        item.created_at_formated = item.created_at;
-                        posts.push({ Meta: item });
-                    }
-                    if (page == 0 && posts.length > 0) {
+                    var res = {
+                        results : self.makeClickableLinks(data.results),
+                        page : parseInt(data.page - 1),
+                        ipp : parseInt(data.results_per_page)
+                    };
+                    
+                    if (res.page == 0 && data.results.length > 0) {
                             self.lastWeb = data.results[0];
                             self.iidWeb = setInterval(function(){
                               self.autoRefreshWeb(url);  
