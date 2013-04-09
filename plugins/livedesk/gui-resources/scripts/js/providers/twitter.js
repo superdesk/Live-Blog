@@ -203,11 +203,17 @@ $.extend(providers.twitter, {
                 }
             
             },
+            replaceURLWithHTMLLinks: function(text) {
+                var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
+            },
             adaptUserData : function(data) {
+                var self = this;
                 for ( var i = 0; i < data.length; i ++) {
                     data[i].profile_image_url = data[i].user.profile_image_url;
                     data[i].from_user_name = data[i].user.name;
                     data[i].from_user = data[i].user.screen_name;
+                    data[i].text = self.replaceURLWithHTMLLinks(data[i].text);
                 }
                 return data;
             },
@@ -517,6 +523,21 @@ $.extend(providers.twitter, {
                 }
             })
         },
+        makeClickableLinks: function(results) {
+            var self = this;
+            for ( var i = 0; i < results.length; i++) {
+                results[i].text = self.replaceURLWithHTMLLinks(results[i].text);
+                /*
+                var urls = results[i].entities.urls;
+                for ( var j = 0; j < urls.length; j ++ ) {
+                    var url = urls[j];
+                    results[i].text = results[i].text.replace(url.url, "<a href='" + url.expanded_url + "' target='_blank'>" + url.display_url + "</a>");
+                }
+                */
+
+            }
+            return results;
+        },
         doWeb : function(qstring) {
             
             var skip = false;
@@ -559,7 +580,7 @@ $.extend(providers.twitter, {
                     self.data.web = self.data.web.concat(data.results);
                     self.stopLoading('#twt-web-more');
                     var res = {
-                        results : data.results,
+                        results : self.makeClickableLinks(data.results),
                         page : parseInt(data.page - 1),
                         ipp : parseInt(data.results_per_page)
                     };
