@@ -11,8 +11,8 @@
 
     <td style="width:50px !important;">
     	<div class="tool-box-right">
-    		<a class="tool-box-button" href="#" data-action="delete"><i class="icon-remove"></i></a>
-    		<a class="tool-box-button" href="#" data-action="edit"><i class="icon-pencil"></i></a>
+    		<a class="tool-box-button" href="javascript:void(0)" data-action="delete"><i class="icon-remove"></i></a>
+    		<a class="tool-box-button" href="javascript:void(0)" data-action="edit"><i class="icon-pencil"></i></a>
     	</div>
     </td>
 
