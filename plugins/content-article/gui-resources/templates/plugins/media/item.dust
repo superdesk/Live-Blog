@@ -1,72 +1,29 @@
 {#Item}
 
-<!-- old implementation 
-<div class="media-box-hover {Type}">
+	<li class="media-image clearfix">
 
-  	<figure>
-  	{+body}
-  		<img src="{Thumbnail.href}" />
-        <div class="media-box-button top right">
-        	<a href="javascript:void(0)" id="additionalInfo" rel="popover" 
-        		data-content="{Description}" data-additional="info" 
-		        data-original-title="{?Title}{Title}{:else}{Name}{/Title}"><i class="icon-info-sign"></i>
-		    </a>
-        </div>
-    {/body}
-    {+side}
-        <div class="media-box-button bottom right">
-	        <ul class="nav nav-pills">
-	          	<li class="dropdown">
-	            	<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)"><b class="caret"></b></a>
-	            	<ul class="dropdown-menu pull-right">
-						<li>
-	  						<a data-action="delete" href="javascript:void(0)"><i class="icon-remove"></i> _('Detach')</a>
-	  					</li>
-						<li>
-	  						<a data-action="view" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
-	  					</li>
-					</ul>
-	          	</li>
-	        </ul>
-		</div>
-	{/side}
-    </figure>
-    {+title}
-    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
-    {/title}
-</div>
+	{+side}
+	<div class="dropdown">
+    	<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
+        <ul class="dropdown-menu sf-dropdown-simple pull-right">
+        	<li><a data-action="view" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a></li>
+            <li><a data-action="delete" href="javascript:void(0)"><i class="icon-trash"></i> _('Detach')</a></li>
+        </ul>
+    </div>
+    {/side}
+  
+	{+body}
+	<figure>
+		<img src="{Thumbnail.href}" />
+	</figure>
+	{/body}
 
--->
+	<div class="media-description approved"> <!-- if image is approved put class "approved", else put class "unapproved" -->
+		{+title}{?Title}{Title}{:else}{Name}{/Title}{/title}
+		<!-- <span class="size-info">2000 x 1500</span>  -->
+	</div>
 
-
-
-		<li class="media-image clearfix">
-
-			{+side}
-				<div class="dropdown">
-	                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
-	                <ul class="dropdown-menu sf-dropdown-simple pull-right">
-	                  <li><a data-action="view" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a></li>
-	                  <li><a data-action="delete" href="javascript:void(0)"><i class="icon-trash"></i> _('Detach')</a></li>
-	                </ul>
-	            </div>
-            {/side}
-    
-    		{+body}
-				<figure>
-					<img src="{Thumbnail.href}" />
-				</figure>
-			{/body}
-
-			<div class="media-description approved"> <!-- if image is approved put class "approved", else put class "unapproved" -->
-				{+title}
-    				{?Title}{Title}{:else}{Name}{/Title}
-    			{/title}
-    			<!-- image size info -->
-				<!-- <span class="size-info">2000 x 1500</span>  -->
-			</div>
-
-		</li>
+</li>
 
 
 {/Item}

@@ -172,8 +172,12 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
             
             model.sync({data: {thumbSize: 'medium'}}).done(function()
             { 
-                $('[data-placeholder="media"]', self.el).append(item.render().el);
+               self.appendItem(item.render());
             });
+        },
+        appendItem: function(item)
+        {
+            $('[data-placeholder="media"][data-type="'+item.model.get('Type')+'"]', this.el).removeClass('hide').append(item.el);
         },
         /*!
          * used for article save
