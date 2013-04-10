@@ -1,5 +1,5 @@
 <div class="chain-source-header">
-	<h5>{Title}<span class="chain-source-count">{BlogCount}</span></h5>
+	<h5>{Name}<span class="chain-source-count">0</span></h5>
 	<div class="dropdown">
 	    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
 		<ul class="dropdown-menu sf-dropdown-simple pull-right">

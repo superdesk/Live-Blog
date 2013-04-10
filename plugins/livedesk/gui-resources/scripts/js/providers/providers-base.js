@@ -1,2 +1,1 @@
-define('providers-base', 
-)
+define('providers-base', undefined);
