@@ -72,8 +72,8 @@ class ITaskService(IEntityService):
         '''
 
     @call(method=GET, webName='Task')
-    def listSubtasks(self, taskId:Task.Id, orderBy:str=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-                     q:QTask=None) -> Iter(Task):
+    def listSubtasks(self, taskId:Task.Id, statusLabel:TaskStatus.Key=None, wholeSubtree:bool=False, orderBy:str=None,
+                     offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides direct subtasks of a task.
         '''

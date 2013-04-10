@@ -93,28 +93,101 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
     def update(self, task):
         '''
         @see: ITaskService.update
+        dealing with status part
         '''
-        return False
+        assert isinstance(task, Task), 'Invalid task %s' % task
+        taskDb = self.session().query(TaskMapped).get(task.Id)
+        if not taskDb: raise InputError(Ref(_('Unknown task id'), ref=Task.Id))
+        if Task.Status in task: taskDb.statusId = self._statusId(task.Status)
 
-    def delete(self, id):
+        try:
+            self.session().flush((copy(task, taskDb, exclude=('Status',)),))
+        except SQLAlchemyError as e: handle(e, TaskMapped)
+
+    def delete(self, taskId):
         '''
         @see: ITaskService.delete
+        dealing with nested_sets part
         '''
-        return False
+
+        taskDb = self.session().query(TaskMapped).get(taskId)
+        if not taskDb: raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
+        task_nestDb = None
+        try:
+            task_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == taskId).one()
+        except NoResultFound:
+            raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
+
+        if (task_nestDb.upperBar + 1) != task_nestDb.lowerBar:
+            raise InputError(Ref(_('Task %(task)d has subtasks') % dict(task=taskId), ref=Task.Id))
+
+        self._detach(task_nestDb)
+
+        self.session().delete(task_nestDb)
+        self.session().delete(taskDb)
+
+        return True
 
     def listAncestors(self, taskId, ascending=True):
         '''
         @see: ITaskService.listAncestors
         '''
 
-        return ()
+        taskDb = self.session().query(TaskMapped).get(taskId)
+        if not taskDb: raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
+        task_nestDb = None
+        try:
+            task_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == taskId).one()
+        except NoResultFound:
+            raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
 
-    def listSubtasks(self, taskId, orderBy=None, offset=None, limit=None, detailed=False, q=None):
+        sql = self.session().query(TaskMapped).join(TaskNestMapped)
+        sql = sql.filter(TaskNestMapped.group == taskId)
+        sql = sql.filter(TaskNestMapped.upperBar < task_nestDb.upperBar)
+        sql = sql.filter(TaskNestMapped.lowerBar > task_nestDb.lowerBar)
+
+        if ascending:
+            sql = sql.order_by(TaskNestMapped.lowerBar)
+        else:
+            sql = sql.order(TaskNestMapped.upperBar)
+
+        return sql.all()
+
+    def listSubtasks(self, taskId, statusLabel=None, wholeSubtree=False, orderBy=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ITaskService.listSubtasks
         '''
 
-        return ()
+        taskDb = self.session().query(TaskMapped).get(taskId)
+        if not taskDb: raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
+        task_nestDb = None
+        try:
+            task_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == taskId).one()
+        except NoResultFound:
+            raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskId),))
+
+        sql = self.session().query(TaskMapped)
+
+        if statusLabel:
+            sql = sql.join(TaskStatusMapped).filter(TaskStatusMapped.Key == statusLabel)
+        if q:
+            sql = buildQuery(sql, q, TaskMapped)
+            if QTask.rootOnly.value in q:
+                if q.rootOnly.value:
+                    sql = sql.filter(TaskMapped.isRoot == True)
+
+        sql = sql.join(TaskNestMapped)
+        sql = sql.filter(TaskNestMapped.group == taskId)
+        sql = sql.filter(TaskNestMapped.upperBar > task_nestDb.upperBar)
+        sql = sql.filter(TaskNestMapped.lowerBar < task_nestDb.lowerBar)
+
+        if not wholeSubtree:
+            subLevel = task_nestDb.depth + 1
+            sql = sql.filter(TaskNestMapped.depth == subLevel)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def attachSubtree(self, taskId, subtaskId):
         '''
@@ -147,5 +220,4 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
 
     def _detach(self, task_nest):
         return
-
 
