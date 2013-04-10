@@ -14,7 +14,7 @@ from ..meta.desk import DeskMapped
 from ..meta.task_status import TaskStatusMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, Text, DateTime, Enum, Boolean
+from sqlalchemy.types import String, Text, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.meta.metadata_superdesk import Base
