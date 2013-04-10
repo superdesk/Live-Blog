@@ -84,8 +84,8 @@ class ITaskService(IEntityService):
         Joins two task trees.
         '''
 
-    @call(method=DELETE, webName='Task')
-    def detachSubtree(self, subtaskId:Task.Id) -> bool:
+    @call(method=DELETE)
+    def detachSubtree(self, taskId:Task.Id, subtaskId:Task.Id) -> bool:
         '''
         Splits a task tree.
         '''

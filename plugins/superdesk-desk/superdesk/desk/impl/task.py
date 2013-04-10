@@ -196,7 +196,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
 
         return False
 
-    def detachSubtree(self, subtaskId):
+    def detachSubtree(self, taskId, subtaskId):
         '''
         @see ITaskService.detachSubtree
         '''
