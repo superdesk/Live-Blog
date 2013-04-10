@@ -5,9 +5,9 @@ define([
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
-	'tmpl!livedesk>manage-feeds',
-	'tmpl!livedesk>manage-feeds-provider',
-	'tmpl!livedesk>manage-feeds-external-blog',
+    'tmpl!livedesk>manage-feeds',
+    'tmpl!livedesk>manage-feeds-provider',
+    'tmpl!livedesk>manage-feeds-external-blog',
     'tmpl!livedesk>manage-feeds-edit'
 ], function ($, Gizmo) {
 
@@ -75,52 +75,52 @@ define([
         /**
          * Test if source is active for blog
          *
-         * @param {ExternalBlog} source
+         * @param {ExternalBlog} blog
          * @return {boolean}
          */
-        hasSource: function(source) {
-            return this.findSource(source) !== undefined;
+        hasBlog: function(blog) {
+            return this.findBlog(blog) !== undefined;
         },
 
         /**
          * Add given source to blog sources
          *
-         * @param {ExternalBlog} source
+         * @param {ExternalBlog} blog
          */
-        addSource: function(source) {
-            var model = this.findSource(source);
-            if (model) {
+        addBlog: function(blog) {
+            var source = this.findBlog(blog);
+            if (source) {
                 return;
             }
 
             this.create({
-                Name: source.get('Title'),
-                URI: source.get('href'),
-                Provider: source.provider
+                Name: blog.get('Title'),
+                URI: blog.get('href'),
+                Provider: blog.provider
             });
         },
 
         /**
          * Remove given source from blog sources
          *
-         * @param {ExternalBlog} source
+         * @param {ExternalBlog} blog
          */
-        removeSource: function(source) {
-            var model = this.findSource(source);
-            if (model) {
-                this.remove(model);
-                model.destroy();
+        removeBlog: function(blog) {
+            var source = this.findBlog(blog);
+            if (source) {
+                this.remove(source);
+                source.destroy();
             }
         },
 
         /**
          * Find model for given source
          *
-         * @param {ExternalBlog} source
+         * @param {ExternalBlog} blog
          * @return {BlogSource}
          */
-        findSource: function(source) {
-            return this.findWhere({URI: source.get('href')});
+        findBlog: function(blog) {
+            return this.findWhere({URI: blog.get('href')});
         },
 
         parse: function(response) {
@@ -179,15 +179,15 @@ define([
      */
     var ExternalBlog = Backbone.Model.extend({
         isActive: function() {
-            return sources.hasSource(this);
+            return sources.hasBlog(this);
         },
 
         activate: function() {
-            sources.addSource(this);
+            sources.addBlog(this);
         },
 
         deactivate: function() {
-            sources.removeSource(this);
+            sources.removeBlog(this);
         }
     });
 
@@ -338,7 +338,7 @@ define([
     /**
      * List of providers view.
      */
-    var ListBlogProviderView = Backbone.View.extend({
+    var ListProviderView = Backbone.View.extend({
         initialize: function() {
             this.collection.on('add', this.render, this);
             this.collection.on('reset', this.render, this);
@@ -449,7 +449,7 @@ define([
         },
 
         renderList: function() {
-            var list = new ListBlogProviderView({collection: this.collection, el: '#provider-list'});
+            var list = new ListProviderView({collection: this.collection, el: '#provider-list'});
             list.render();
         },
 
