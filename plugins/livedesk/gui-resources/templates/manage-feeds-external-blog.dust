@@ -1,0 +1,5 @@
+<input type="checkbox" class="sf-checkbox" name="subscribed[{Id}]" value="1" id="_check-{cid}">
+<div class="chain-blog-content">
+    <h6><label for="_check-{cid}">{Title}</label></h6>
+	<div class="chain-blog-description">{Description}</div>
+</div>

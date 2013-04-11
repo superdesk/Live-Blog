@@ -23,7 +23,7 @@
 		<ul class="active-blogs clearfix">
 			{#live}
 			<li class="clearfix">
-				<div class="active-blogs-title"><a href="live-blog/{Id}" data-blog-link="{href}" class="active-blog-link">{Title}</a></div>
+				<div class="active-blogs-title"><a href="#live-blog/{Id}" data-blog-link="{href}" class="active-blog-link">{Title}</a></div>
 				<ul class="active-blogs-info clearfix" >
 					<li>{LiveOn}</li>
 					<li>{Creator.data.FullName}</li>
