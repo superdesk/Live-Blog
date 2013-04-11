@@ -1,6 +1,7 @@
 define([
     'jquery',
     'gizmo/superdesk',
+    config.guiJs('livedesk', 'views/provider-edit'),
 
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
@@ -8,8 +9,7 @@ define([
     'tmpl!livedesk>manage-feeds',
     'tmpl!livedesk>manage-feeds-provider',
     'tmpl!livedesk>manage-feeds-external-blog',
-    'tmpl!livedesk>manage-feeds-edit'
-], function ($, Gizmo) {
+], function ($, Gizmo, EditProviderView) {
 
     var PROVIDER_TYPE = 'blog provider';
     var BLOG_TYPE = 'chained blog';
@@ -51,6 +51,10 @@ define([
         },
 
         parse: function(response) {
+            if (!response) {
+                return;
+            }
+
             if ('href' in response) {
                 this.url = response.href;
                 this.id = parseId(this.url);
@@ -268,151 +272,58 @@ define([
     });
 
     /**
-     * List of external blogs view for single provider.
-     */
-    var ExternalBlogListView = Backbone.View.extend({
-        initialize: function() {
-            // @todo using synced.done because of not rendering anything after re-navigating
-            // this.collection.on('read', this.render, this);
-        },
-
-        render: function() {
-            var list = $(this.el);
-            list.empty();
-
-            var provider = this.model;
-            this.collection.each(function(model) {
-                model.provider = provider.id;
-                var view = new ExternalBlogView({model: model});
-                list.append(view.render().el);
-            });
-
-            return this;
-        }
-    });
-
-    /**
      * Provider View
      */
     var ProviderView = Backbone.View.extend({
-        tagName: 'li class="chain-source"',
+        tagName: 'li',
 
         events: {
-            'click .remove': '_remove',
-            'click .edit': '_edit'
+            'click .remove': 'delete',
+            'click .edit': 'edit'
         },
 
         initialize: function() {
             this.model.on('change', this.render, this);
+            this.collection = this.model.getBlogs();
+            this.collection.on('reset', this.renderBlogs, this);
         },
 
         render: function() {
+            this.renderProvider();
+            this.fetchBlogs();
+            return this;
+        },
+
+        renderProvider: function() {
             var data = {Name: this.model.get('Name')};
             this.$el.tmpl('livedesk>manage-feeds-provider', data).addClass('chain-source');
+        },
 
-            this.collection = this.model.getBlogs();
-            this.collection.on('reset', this.renderCollection, this);
+        fetchBlogs: function() {
             this.collection.fetch({headers: {'X-Filter': 'Title, Description'}, reset: true});
-            return this;
         },
 
-        renderCollection: function() {
+        renderBlogs: function() {
             this.$el.find('.chain-source-count').text(this.collection.length);
-            var list = new ExternalBlogListView({collection: this.collection, model: this.model, el: this.$el.find('.chain-source-content')});
-            list.render();
-            return this;
+            var list = $(this.el).find('.chain-source-content').empty();
+            var provider = this.model;
+
+            this.collection.each(function(blog) {
+                blog.provider = provider.id;
+                var view = new ExternalBlogView({model: blog});
+                list.append(view.render().el);
+            });
         },
 
-        _remove: function(e) {
+        delete: function(e) {
             e.preventDefault();
             this.remove();
             this.model.destroy();
         },
 
-        _edit: function(e) {
+        edit: function(e) {
             e.preventDefault();
-            new EditProviderView({model: this.model});
-        }
-    });
-
-    /**
-     * List of providers view.
-     */
-    var ListProviderView = Backbone.View.extend({
-        initialize: function() {
-            this.collection.on('add', this.render, this);
-            this.collection.on('reset', this.render, this);
-        },
-
-        render: function() {
-            var list = $(this.el);
-            list.empty();
-
-            this.collection.each(function(model) {
-                var view = new ProviderView({model: model});
-                list.append(view.render().el);
-            });
-
-            if (!this.collection.length) {
-                list.append($('<li />').text(_("So far there are no providers. Start with Add New Source button.")));
-            }
-
-            return this;
-        }
-    });
-
-    /**
-     * Edit Provider View
-     */
-    var EditProviderView = Backbone.View.extend({
-        events: {
-            'click #edit-provider-save': 'save',
-            'click #edit-provider-cancel': 'close',
-            'click .close': 'close'
-        },
-
-        initialize: function() {
-            this.render();
-        },
-
-        render: function() {
-            $(this.el).tmpl('livedesk>manage-feeds-edit');
-            this.title = $(this.el).find('#edit-provider-title');
-            this.url = $(this.el).find('#edit-provider-url');
-            this.modal = $(this.el).find('.modal');
-
-            if (this.model) {
-                this.title.val(this.model.get('Name'));
-                this.url.val(this.model.get('URI'));
-                $(this.el).find('h3').text(_('Edit Provider ' + this.model.get('Name')));
-            } else {
-                $(this.el).find('h3').text(_('Add Provider'));
-            }
-
-            $('#area-main').append(this.el);
-            this.modal.modal('show');
-            return this;
-        },
-
-        save: function() {
-            var data = {
-                Name: this.title.val(),
-                URI: this.url.val()
-            };
-
-            if (!this.model) {
-                this.collection.create(data);
-            } else {
-                this.model.save(data);
-            }
-
-            return this.close();
-        },
-
-        close: function() {
-            this.modal.modal('hide');
-            this.remove();
-            return false;
+            new EditProviderView({model: this.model, target: this.$el.closest('#area-main')});
         }
     });
 
@@ -420,14 +331,15 @@ define([
      * Main View
      */
     var MainView = Backbone.View.extend({
-        el: '#area-main',
-
         events: {
-            'click a[href="#AddSource"]': 'renderAdd'
+            'click a[href="#AddSource"]': 'renderAdd',
+            'change .sf-searchbox > input': 'search',
+            'click .sf-searchbox > a': 'clearSearch'
         },
 
         initialize: function() {
             this.collection.on('reset', this.render, this);
+            this.collection.on('add', this.renderList, this);
         },
 
         render: function() {
@@ -449,22 +361,51 @@ define([
         },
 
         renderList: function() {
-            var list = new ListProviderView({collection: this.collection, el: '#provider-list'});
-            list.render();
+            var list = $(this.el).find('#provider-list').empty();
+
+            this.collection.each(function(provider) {
+                var view = new ProviderView({model: provider});
+                list.append(view.render().el);
+            });
+
+            if (!this.collection.length) {
+                list.append($('<li />').text(_("So far there are no providers. Start with Add New Source button.")));
+            }
+
+            return this;
         },
 
         renderAdd: function(e) {
             e.preventDefault();
-            new EditProviderView({collection: this.collection});
+            new EditProviderView({collection: this.collection, target: this.$el});
+        },
+
+        search: function(e) {
+            var q = $(e.target).val();
+            var sources = $(this.el).find('.chain-blog').each(function() {
+                var show = true;
+                if (q.length) {
+                    var text = $(this).text();
+                    var reg = new RegExp(q, 'i');
+                    show = reg.test(text);
+                }
+
+                if (show) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        },
+
+        clearSearch: function(e) {
+            e.preventDefault();
+            $(this.el).find('.sf-searchbox > input').val('').change();
         }
     });
 
     // blog sources
     var sources = new SourceCollection();
-
-    // blog providers
-    var providers = new ProviderCollection();
-    providers.url = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source');
 
     return function(blogHref) {
         var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
@@ -472,9 +413,12 @@ define([
             // we need blog specific sources
             sources.url = blog.get('Source').href;
 
-            // we need sources for rendering providers, so define rendering providers when sources are fetched
+            // we need sources before rendering providers, so start rendering when sources are ready
             sources.on('reset', function() {
-                new MainView({model: blog, collection: providers});
+                var providers = new ProviderCollection();
+                providers.url = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source');
+
+                new MainView({model: blog, collection: providers, el: '#area-main'});
                 providers.fetch(fetchOptions);
             });
 
