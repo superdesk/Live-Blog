@@ -209,6 +209,11 @@
 		<a href="javascript:void(0)" data-action="save" class="btn btn-medium btn-info pull-right">Save</a>
 		<a href="javascript:void(0)" data-action="close" class="btn btn-medium pull-right">Close</a>
 
+		<div class="alert alert-success pull-right hide"> 
+			<a class="close" data-dismiss="alert">&times;</a> 
+			<span data-placeholder="alert-message"></span> 
+		</div>
+
 		<!-- a id="zen-mode" href="#" class="btn btn-medium pull-right mobile-hide">Zen mode</a>
 		<a id="live-edit" href="#" class="btn btn-medium pull-right mobile-hide">Live edit</a -->
 
