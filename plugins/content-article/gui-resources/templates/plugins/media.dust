@@ -21,16 +21,3 @@
 
 </div>
 
-<!--
-
-<button data-toggle="modal" data-action="add" class="btn pull-right"><i class="icon-picture"></i> _('Add Image')</button>
-<h3>Media Tab</h3> 
-<span data-placeholder="description">
-		<p>_('Add media assets to the article. Browse the Integrated Asset Repository, access to Integrated Asset Management, Upload Media assets')</p>
-</span>
-
-
-<span data-placeholder="media">
-</span>
-
--->
