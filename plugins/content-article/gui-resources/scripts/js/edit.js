@@ -188,13 +188,19 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
         
         save: function()
         {
-            var Content = {};
+            var Content = {},
+                self = this;
             $(this).triggerHandler('save');
             $('#main-article [data-content]', this.el).each(function()
             {
                 Content[$(this).attr('data-content')] = $('[contenteditable]', $(this)).html();  
             });
-            this.model.set({Content: JSON.stringify(Content)}).sync();
+            this.model.set({Content: JSON.stringify(Content)}).sync()
+                .done(function()
+                { 
+                    $('.alert-success', self.el).removeClass('hide').find('[data-placeholder="alert-message"]').text(_('Saved'));
+                    setTimeout(function(){ $('.alert-success', self.el).addClass('hide'); }, 3000);
+                });
         },
         
         close: function()
