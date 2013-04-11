@@ -52,6 +52,7 @@ define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], f
             var path = parentRequire.toUrl(name + '.dust');
             fetchText(path, function (text) {
                 text = i18n_parse(text);
+                //console.log(text);
 				//Do dust transform.
                 try {
                   text = "define(['dust'],function(dust){"+dust.compile(text, name)+" return {render: function(context, callback) {return dust.render('"+name+"', context, callback)}}})";
