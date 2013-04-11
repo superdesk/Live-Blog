@@ -59,7 +59,7 @@ class TaskNestMapped(Base):
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     # can not cascade removal, since it would damage the nested sets structure
     task = Column('fk_task_id', ForeignKey(TaskMapped.Id, ondelete='SET NULL'), nullable=False)
-    group = Column('group', INTEGER, nullable=False, key='Group')
+    group = Column('group', INTEGER, nullable=False)
     upperBar = Column('upper_bar', INTEGER, nullable=False)
     lowerBar = Column('lower_bar', INTEGER, nullable=False)
     # the search on one level down is better with the depth information
