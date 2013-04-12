@@ -1,8 +1,9 @@
 define([
 	'jquery',
-	'gizmo/superdesk',
+	'gizmo/view-events',
 	'livedesk-embed/views/post',
 	'utils/date-format',
+	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
@@ -172,7 +173,7 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
-							.on('updateauto', self.updateStatus, self)
+							.on('updateauto readauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(postPublished._stats.limit);
@@ -323,12 +324,13 @@ define([
 		},
 		updateStatus: function()
 		{
-			var now = new Date();
+			var self = this,
+				now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
-				
+				var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
 				$(this).find('#liveblog-status-time')
-					.attr('time',now.format())
-					.text(_('updated on %s').format(now.format(_('HH:MM')))).end().fadeIn();
+					.html(_('updated on %s').format([t])).end().fadeIn();
+				$.dispatcher.triggerHandler('after-render',self);
 			});
 		},
 		renderBlog: function()
@@ -392,7 +394,8 @@ define([
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
-			});	
+			});
+			$.dispatcher.triggerHandler('after-render',this);
 		},
 		renderedOn: function(){
 		   this.renderedTotal--;

@@ -10,24 +10,13 @@
 
 define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], function($, dust, i18n_parse) {
     'use strict';
-    var fs, getXhr,
-        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
+    var 
         fetchText = function () {
             throw new Error('Environment unsupported.');
         },
         buildMap = {};
     
-    dust || (dust = exports);
-
-    if (typeof process !== "undefined" &&
-               process.versions &&
-               !!process.versions.node) {
-        //Using special require.nodeRequire, something added by r.js.
-        fs = require.nodeRequire('fs');
-        fetchText = function (path, callback) {
-            callback(fs.readFileSync(path, 'utf8'));
-        };
-    } else if ((typeof window !== "undefined" && window.navigator && window.document) || typeof importScripts !== "undefined") {
+    if ((typeof window !== "undefined" && window.navigator && window.document) || typeof importScripts !== "undefined") {
         fetchText = function (url, callback) {
             /*!
              * If dataType is requested as text then it fails due to some cdm issues with ie
@@ -48,47 +37,10 @@ define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], f
             });
         };
         // end browser.js adapters
-    } else if (typeof Packages !== 'undefined') {
-        //Why Java, why is this so awkward?
-        fetchText = function (path, callback) {
-            var encoding = "utf-8",
-                file = new java.io.File(path),
-                lineSeparator = java.lang.System.getProperty("line.separator"),
-                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-                stringBuffer, line,
-                content = '';
-            try {
-                stringBuffer = new java.lang.StringBuffer();
-                line = input.readLine();
-
-                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
-                // http://www.unicode.org/faq/utf_bom.html
-
-                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
-                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-                if (line && line.length() && line.charAt(0) === 0xfeff) {
-                    // Eat the BOM, since we've already found the encoding on this file,
-                    // and we plan to concatenating this buffer with others; the BOM should
-                    // only appear at the top of a file.
-                    line = line.substring(1);
-                }
-
-                stringBuffer.append(line);
-
-                while ((line = input.readLine()) !== null) {
-                    stringBuffer.append(lineSeparator);
-                    stringBuffer.append(line);
-                }
-                //Make sure we return a JavaScript string and not a Java string.
-                content = String(stringBuffer.toString()); //String
-            } finally {
-                input.close();
-            }
-            callback(content);
-        };
-    }
+    } 
 
     return {
+        pluginBuilder: 'tmpl-build',
         write: function (pluginName, name, write) {
             if (buildMap.hasOwnProperty(name)) {
                 var text = buildMap[name];

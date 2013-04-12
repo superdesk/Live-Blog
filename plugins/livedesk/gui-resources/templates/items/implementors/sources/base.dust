@@ -1,0 +1,6 @@
+{>"livedesk>items/base"/}
+{<FastActions}{/FastActions}
+{<ImportantActions}{/ImportantActions}
+{<ItemInfo}{/ItemInfo}
+{<TopAnnotation}{/TopAnnotation}
+{<BottomAnnotation}{/BottomAnnotation}

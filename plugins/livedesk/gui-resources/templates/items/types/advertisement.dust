@@ -1,0 +1,12 @@
+{>"livedesk>items/types/base"/}
+{<TopAnnotation}{/TopAnnotation}
+{<BottomAnnotation}{/BottomAnnotation}
+{<ContainerDescription}{/ContainerDescription}
+{<ContainerTitle}{/ContainerTitle}
+{<FastActionsUnPublish}{/FastActionsUnPublish}
+{<ImportantActionsPublish}{/ImportantActionsPublish}
+{<EditableClass}{/EditableClass}
+{<EditableAttribute}{/EditableAttribute}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}
+{<ContainerAdditional}{/ContainerAdditional}
+{<Attributes}{/Attributes}

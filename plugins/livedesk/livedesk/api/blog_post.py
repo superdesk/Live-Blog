@@ -21,6 +21,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
+from content.article.api.article import AsLikeAllOrdered
 
 # --------------------------------------------------------------------
 
@@ -44,6 +45,7 @@ class QWithCId:
     Provides the query for cId.
     '''
     cId = AsRangeOrdered
+    search = AsLikeAllOrdered
 
 @query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):
@@ -117,7 +119,7 @@ class IBlogPostService:
         '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, offset:int=None, limit:int=None,
+    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, thumbSize:str=None, offset:int=None, limit:int=None,
                  q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have

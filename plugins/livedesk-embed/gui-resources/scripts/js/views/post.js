@@ -9,9 +9,11 @@ define([
 	'tmpl!theme/item/annotated',
 	'tmpl!theme/item/social-share',
 	'tmpl!theme/item/posttype/normal',
+	'tmpl!theme/item/posttype/image',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
 	'tmpl!theme/item/posttype/link',
+	'tmpl!theme/item/posttype/advertisement',	
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
@@ -86,25 +88,32 @@ define([
 			var self = this, 
 				data = self.model.feed(),
 				order = parseFloat(self.model.get('Order')),
-				regexHash, newHash;
+				regexHash, newHash, createdOn;
 			if ( !isNaN(self.order) && (order != self.order)) {
 				self.order = order;
 				self._parent.reorderOne(self);
 			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
-
 				data.Meta = JSON.parse(data.Meta);
+			}
+			if(data.Meta && data.Meta.annotation) {
 				if(data.Meta.annotation[1] === null) {
 					data.Meta.annotation = data.Meta.annotation[0];
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
-
 				if ( typeof data.Meta.annotation !== 'string') {
-					var aux = data.Meta.annotation;
-					data.Meta.annotation = {
-						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-						'after': $.trimTag(['<br>', '<br />'], aux[1])
+					if(data.Meta.annotation[0]) {
+						var aux = data.Meta.annotation;
+						data.Meta.annotation = {
+							'before': $.trimTag(['<br>', '<br />'], aux[0]), 
+							'after': $.trimTag(['<br>', '<br />'], aux[1])
+						}
+					} else {
+						data.Meta.annotation = {
+							'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before), 
+							'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
+						}					
 					}
 				} else {
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
@@ -125,12 +134,14 @@ define([
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				data.CreatedOn = (new Date(data.CreatedOn)).format(_('mm/dd/yyyy HH:MM'));
+				createdOn = new Date(Date.parse(data.CreatedOn));
+				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM'));
+				data.CreatedOnISO = createdOn.getTime();
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
 			}
-			//console.log(data.Author.Source.Name,data.item);
+			//console.log(data);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
 					self.setElement(o);

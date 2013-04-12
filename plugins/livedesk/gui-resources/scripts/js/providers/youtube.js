@@ -12,6 +12,10 @@ define('providers/youtube', [
     'jqueryui/draggable',
     'providers/youtube/adaptor',
     'tmpl!livedesk>providers/youtube',
+    config.guiJs('livedesk', 'providers-templates'),
+    'tmpl!livedesk>items/item',
+    'tmpl!livedesk>items/implementors/sources/base',
+    'tmpl!livedesk>items/implementors/sources/youtube',
     'tmpl!livedesk>providers/youtube/clip-item',
     'tmpl!livedesk>providers/youtube/favorite-item',
     'tmpl!livedesk>providers/google-more',
@@ -152,35 +156,48 @@ define('providers/youtube', [
                     dataType: 'json',
                     success : function(myData){
                         self.stopLoading('#ytb-src-more');
-                        var myJson = myData;
-                        var results = myJson.data.items;
-                        var total = myJson.data.totalItems;
-                        var ipp = myJson.data.itemsPerPage;
-                        var start = myJson.data.startIndex;
-                        
+                        var myJson = myData,
+                            results = myJson.data.items,
+                            total = myJson.data.totalItems,
+                            ipp = myJson.data.itemsPerPage,
+                            start = myJson.data.startIndex;
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-src-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
-                                el = $('#ytb-src-results').append(o).find('.youtube')
-                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        revert: 'invalid',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10);
-                                            $(this).data('data', self.adaptor.universal( results[idx] ));
-                                        }   
+                            for( var item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
+                                item = myJson.data.items[i];
+                                item.type = 'search';
+                                item.description_trimed = self.trimDesc(item.description);
+                                item.time_formated = item.updated;
+                                posts.push({ Meta: item });
+                                self.data[item.id] = item;
+                            }
+                            $.tmpl('livedesk>items/item', { 
+                                    Post: posts,
+                                    Base: 'implementors/sources/youtube',
+                                    Item: 'sources/youtube'
+                                }, function(e,o) {
+                                    el = $('#ytb-src-results').append(o).find('.youtube'); 
+                                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                        el.draggable({
+                                            addClasses: false,
+                                            revert: 'invalid',
+                                            containment:'document',
+                                            helper: 'clone',
+                                            appendTo: 'body',
+                                            zIndex: 2700,
+                                            clone: true,
+                                            start: function(evt, ui) {
+                                                item = $(evt.currentTarget);
+                                                $(ui.helper).css('width', item.width());
+                                                var itemNo = $(this).attr('data-id');
+                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            }
+                                        });
+                                    }).fail(function(){
+                                        el.removeClass('draggable');
                                     });
-                                }).fail(function(){
-                                    el.removeClass('draggable');
                                 });
-                            });
                         }
                         
                         
@@ -221,37 +238,48 @@ define('providers/youtube', [
                     dataType: 'json',
                     success : function(myData){
                         self.stopLoading('#ytb-fav-more');
-                        var myJson = myData;
-                        var results = myJson.data.items;
-                        var total = myJson.data.totalItems;
-                        var ipp = myJson.data.itemsPerPage;
-                        var start = myJson.data.startIndex;
-                        
+                        var myJson = myData,
+                            results = myJson.data.items,
+                            total = myJson.data.totalItems,
+                            ipp = myJson.data.itemsPerPage,
+                            start = myJson.data.startIndex;                       
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-fav-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/favorite-item', {results : self.cleanContent(results)}, function(e,o) {
-                                el = $('#ytb-fav-results').append(o).find('.youtube');
-                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        revert: 'invalid',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10);
-                                            results[idx].id = results[idx].video.id;
-                                            results[idx].uploaded = results[idx].video.uploaded;
-                                            $(this).data('data', self.adaptor.universal( results[idx] ));
-                                        }   
+                            for( var item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
+                                item = myJson.data.items[i].video;
+                                item.type = 'favorites';
+                                item.time_formated = item.uploaded;
+                                item.description_trimed = self.trimDesc(item.description);
+                                posts.push({ Meta: item });
+                                self.data[item.id] = item;
+                            }
+                            $.tmpl('livedesk>items/item', { 
+                                    Post: posts,
+                                    Base: 'implementors/sources/youtube',
+                                    Item: 'sources/youtube'
+                                }, function(e,o) {
+                                    el = $('#ytb-fav-results').append(o).find('.youtube'); 
+                                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                        el.draggable({
+                                            addClasses: false,
+                                            revert: 'invalid',
+                                            containment:'document',
+                                            helper: 'clone',
+                                            appendTo: 'body',
+                                            zIndex: 2700,
+                                            clone: true,
+                                            start: function(evt, ui) {
+                                                item = $(evt.currentTarget);
+                                                $(ui.helper).css('width', item.width());
+                                                var itemNo = $(this).attr('data-id');
+                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            }
+                                        });
+                                    }).fail(function(){
+                                        el.removeClass('draggable');
                                     });
-                                }).fail(function(){
-                                    el.removeClass('draggable');
                                 });
-                            });
                         }
                         if (parseInt(start + ipp) < total) {
                             $('#ytb-fav-more').tmpl('livedesk>providers/load-more', {
@@ -290,35 +318,50 @@ define('providers/youtube', [
                     dataType: 'json',
                     success : function(myData){
                         self.stopLoading('#ytb-usr-more');
-                        var myJson = myData;
-                        var results = myJson.data.items;
-                        var total = myJson.data.totalItems;
-                        var ipp = myJson.data.itemsPerPage;
-                        var start = myJson.data.startIndex;
-                        
+                        var myJson = myData,
+                            results = myJson.data.items,
+                            total = myJson.data.totalItems,
+                            ipp = myJson.data.itemsPerPage,
+                            start = myJson.data.startIndex;
+
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-usr-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
-                                el = $('#ytb-usr-results').append(o).find('.youtube');
-                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        revert: 'invalid',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10);
-                                            $(this).data('data', self.adaptor.universal( results[idx] ));
-                                        }   
+                            for( var updated, item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
+                                item = myJson.data.items[i];
+                                item.type = 'user';
+                                
+                                item.time_formated = new Date(item.updated).format(_('ddd mmm dd yyyy HH:MM:ss'));
+                                item.description_trimed = self.trimDesc(item.description);
+                                posts.push({ Meta: item });
+                                self.data[item.id] = item;
+                            }
+                            $.tmpl('livedesk>items/item', { 
+                                    Post: posts,
+                                    Base: 'implementors/sources/youtube',
+                                    Item: 'sources/youtube'
+                                }, function(e,o) {
+                                    el = $('#ytb-usr-results').append(o).find('.youtube'); 
+                                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                        el.draggable({
+                                            addClasses: false,
+                                            revert: 'invalid',
+                                            containment:'document',
+                                            helper: 'clone',
+                                            appendTo: 'body',
+                                            zIndex: 2700,
+                                            clone: true,
+                                            start: function(evt, ui) {
+                                                item = $(evt.currentTarget);
+                                                $(ui.helper).css('width', item.width());
+                                                var itemNo = $(this).attr('data-id');
+                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                            }
+                                        });
+                                    }).fail(function(){
+                                        el.removeClass('draggable');
                                     });
-                                }).fail(function(){
-                                    el.removeClass('draggable');
                                 });
-                            });
                         }
                         
                         if (parseInt(start + ipp) < total) {

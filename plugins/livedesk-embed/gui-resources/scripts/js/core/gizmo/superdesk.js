@@ -54,7 +54,7 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
         if( !this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
         this._xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
 		this.syncAdapter.options.headers['X-Filter'] = this._xfilter;
-		this.syncAdapter.options.headers['X-Format-DateTime'] = 'M/dd/yyyy HH:mm:ss';
+		this.syncAdapter.options.headers['X-Format-DateTime'] = "yyyy-MM-ddTHH:mm:ss'Z'";
         return this;
     },
     param = function(value, key)

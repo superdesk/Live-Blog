@@ -1,0 +1,13 @@
+{>"livedesk>items/sources/google/base"/}
+{<ProviderSubClass}googleimage{/ProviderSubClass}
+{<TopAnnotation}{/TopAnnotation}
+{<SourceLink}{Meta.originalContextUrl|s}{/SourceLink}
+{<AuthorLink}{Meta.originalContextUrl|s}{/AuthorLink}
+{<AuthorShowed}{Meta.visibleUrl}{/AuthorShowed}
+
+{<ContentImageLink}{Meta.url}{/ContentImageLink}
+{<ContentImageUrl}{Meta.tbUrl}{/ContentImageUrl}
+{<ContainerTitleLink}{Meta.originalContextUrl}{/ContainerTitleLink}
+{<ContainerTitleName}{Meta.title|s}{/ContainerTitleName}
+{<ContainerDescriptionText}{Meta.content|s}{/ContainerDescriptionText}
+{<Container}{/Container}

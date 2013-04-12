@@ -2,6 +2,7 @@ require(['livedesk-embed/concat.min'], function(){
 	require([
 		'jquery',
 		'livedesk-embed/views/timeline',
+		'livedesk-embed/plugins',
 		'jquery/cookie',
 		'i18n!livedesk_embed'
 	], function( $, TimelineView ){

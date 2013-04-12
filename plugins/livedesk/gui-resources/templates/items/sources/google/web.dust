@@ -1,0 +1,10 @@
+{>"livedesk>items/sources/google/base"/}
+{<ProviderSubClass}googlelink{/ProviderSubClass}
+{<SourceLink}{Meta.url}{/SourceLink}
+{<SourceTime}{/SourceTime}
+{<AuthorLink}{Meta.unescapedUrl|s}{/AuthorLink}
+{<AuthorShowed}{Meta.visibleUrl}{/AuthorShowed}
+{<ContainerTitleName}{Meta.title|s}{/ContainerTitleName}
+{<ContainerTitleLink}{Meta.url|s}{/ContainerTitleLink}
+{<ContainerDescriptionText}{Meta.content|s}{/ContainerDescriptionText}
+{<Container}{/Container}

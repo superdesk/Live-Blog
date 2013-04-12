@@ -18,7 +18,7 @@ _('Reply');
 			<span class="twitter-name">(@{Meta.from_user})</span>		<!-- twitter username -->
 		</h3>
 
-		<div class="result-text">{Content|twitter_all|s}</div>
+		<div class="result-text">{Meta.text|twitter_all|s}</div>
 		<div class="twitter-controls"> <!-- twitter buttons -->
 			<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>
 			<a href="http://twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank" class="twitter-button retweet">_('Retweet');</a>

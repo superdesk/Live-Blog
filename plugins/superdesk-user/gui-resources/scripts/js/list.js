@@ -432,7 +432,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             }
             
             // hashing password
-            newModel.get('Password').length && newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
+            var pass = newModel.get('Password');
+            pass && pass.length && newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
 
             newModel.on('insert', function()
             {

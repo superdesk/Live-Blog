@@ -8,12 +8,15 @@ define
   config.guiJs('media-archive', 'adv-upload'),
   // use media archive items
   config.guiJs('media-archive', 'list'),
+  config.guiJs('media-archive', 'types/_default/common'),
   // 
   config.guiJs('superdesk/article', 'models/article-file'),
   'tmpl!superdesk/article>plugins/media',
-  'tmpl!superdesk/article>plugins/media/item'
+  'tmpl!superdesk/article>plugins/media/item',
+  'tmpl!media-archive>types/_default/view',
+  'tmpl!superdesk/article>plugins/media/item-details',
 ], 
-function($, giz, mediaTab, Upload, MA, ArticleFile)
+function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
 { 
     var 
     ArticleFiles = giz.Collection.extend
@@ -23,18 +26,28 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
     }),
     
     upload = new Upload,
+    ViewDetails = MACommon.view.extend({ tmpl: 'superdesk/article>plugins/media/item-details' }),
     MediaItem = MA.ItemView.extend
     ({ 
         tmpl: 'superdesk/article>plugins/media/item',
         events: 
         {
-            '[data-action="view-meta"]': { 'click': 'viewMeta' },
+            '[data-action="view-meta"]': { 'click': 'viewDetails' },
             '[data-action="delete"]': { 'click': 'remove' }
         },
         tagName: 'span',
-        viewMeta: function()
+        viewClass: ViewDetails,
+        viewDetailsView: false, // the instance
+        getViewDetails: function()
         {
-            
+            return !this.viewDetailsView ? (this.viewDetailsView = new (this.viewClass)({ model: this.model, parentView: this})) : this.viewDetailsView;
+        },
+        /*!
+         * show "view details" modal
+         */
+        viewDetails: function()
+        {
+            this.getViewDetails().refresh().activate();
         },
         remove: function()
         {
@@ -67,6 +80,7 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
         {
             var self = this;
             $(this.el).tmpl('superdesk/article>plugins/media', function(){ self._isRendered = true; });
+            $("#attachmedia").tooltip();
         },
         _isRendered: false,
         
@@ -171,8 +185,12 @@ function($, giz, mediaTab, Upload, MA, ArticleFile)
             
             model.sync({data: {thumbSize: 'medium'}}).done(function()
             { 
-                $('[data-placeholder="media"]', self.el).append(item.render().el);
+               self.appendItem(item.render());
             });
+        },
+        appendItem: function(item)
+        {
+            $('[data-placeholder="media"][data-type="'+item.model.get('Type')+'"]', this.el).removeClass('hide').append(item.el);
         },
         /*!
          * used for article save
