@@ -67,8 +67,13 @@ function($, giz, Action, Desk, Task, TaskStatus)
         save: function(evt)
         {
             var task = new Task;
-            task.set({Title: $('[data-task-info="title"]', this.el).val(), Description: $('[data-task-info="description"]', this.el).html()});
-            console.log(task);
+            task.set
+            ({
+                Title: $('[data-task-info="title"]', this.el).val(), 
+                Description: $('[data-task-info="description"]', this.el).html(),
+                Status: this.statuses._list[0].get('Key') 
+            });
+            task.sync();
             evt.preventDefault();
             this.el.modal('hide');
         }
