@@ -1,0 +1,135 @@
+
+/* 
+ ==========================================
+ Manage feeds 
+ ==========================================
+ */
+.manage-feeds-top {
+	height: 30px;
+	margin-bottom: 30px;
+	
+	.sf-searchbox {
+		float: left;
+		width: 60%;
+	}
+}
+
+ .manage-feeds {
+ 	list-style-type : none;
+ 	margin:0;
+
+ 	.chain-source {
+ 		border-top: 1px solid #e1e1e1;
+ 		margin-bottom: 20px;
+ 		padding-top: 20px;
+
+ 		.chain-source-header {
+ 			margin-top: -30px;
+ 			height: 20px;
+
+ 			.chain-source-collapse {
+ 				position: absolute;
+ 				.icon-chevron-right {
+	 				display: none;
+	 			}
+ 			}
+ 			
+ 			h5 {
+ 				background: #fff;
+ 				padding: 0 10px 0 25px;
+ 				margin-bottom: 10px;
+ 				font-size: 16px;
+ 				color:#444;
+ 				float: left;
+
+ 				.chain-source-count {
+ 					color: #fff;
+ 					background: #959595;
+ 					margin-left: 20px; 
+ 					font-size: 11px;
+ 					font-weight: normal;
+ 					padding: 1px 3px;
+ 					border-radius:3px;
+ 					-moz-border-radius:3px;
+ 					-o-border-radius:3px;
+ 					-webkit-border-radius:3px;
+ 				}
+ 			}
+
+ 			.dropdown {
+ 				float: right;
+ 				background: #fff;
+ 			}
+ 		}
+
+
+
+ 		.chain-source-content {
+	 		list-style-type: none;
+	 		margin: 0;
+
+	 		.chain-blog {
+	 			margin-bottom: 5px;
+	 			padding: 5px 30px 5px 10px;
+	 			clear: both;
+
+	 			.sf-checkbox-custom, input[type="checkbox"] {
+	 				float: left;
+	 			}
+
+	 			.chain-blog-content {
+		 			padding-left: 30px;
+
+		 			h6 {
+		 				font-weight: normal;
+		 				font-size: 15px;
+		 				color: #333;
+		 				text-transform: none;
+		 				margin-bottom: 5px;
+		 				margin-top: -1px;
+		 			}
+
+		 			.chain-blog-description {
+		 				font-size: 13px;
+		 				color: #6c6a6a;
+		 			}
+		 		}
+	 		}
+	 		
+	 	}
+
+	 	&.chain-compact {
+	 		.chain-blog {
+	 			margin-bottom: 3px;
+	 			padding: 4px 30px 2px 10px;
+	 			.chain-blog-content {
+		 			h6 {
+		 				margin-bottom: 0 !important;
+		 			}
+		 			.chain-blog-description {
+		 				display: none;
+		 			}
+		 		}
+	 		}
+	 		
+	 	}
+
+	 	&.chain-collapsed {
+	 		.icon-chevron-down {
+	 			display: none;
+	 		}
+	 		.icon-chevron-right {
+	 			display: inline-block !important;
+	 		}
+	 		.chain-source-content {
+	 			display: none;
+	 		}
+	 	}
+
+ 	}
+
+ 	
+
+ 	
+ 
+ }

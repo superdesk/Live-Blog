@@ -1,0 +1,10 @@
+{<footer}
+<div id="footer" class="footer">
+  <div class="footer-logo">
+    Sourcefabric o.p.s
+  </div>
+  <div class="footer-text">
+    Powered by <a href="https://www.sourcefabric.org/en/superdesk" title="Sourcefabric Superdesk">Superdesk</a> technology
+  </div>
+</div>
+{/footer}
