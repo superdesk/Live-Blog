@@ -53,7 +53,10 @@
 				attributes = path.split('?')[1],
 				objd,
 				id = 1,
-				po;	
+				po,
+				theme = 'default',
+				plugins = 'pretty-date',
+				language = 'en';	
 			if(attributes) {
 				var parts = attributes.split('&');
 				for( var i = 0, count = parts.length; i < count; i++ ){
@@ -61,13 +64,24 @@
 					if(objd[0].toLowerCase() === 'id') {
 						id = objd[1];
 					}
+					if(objd[0].toLowerCase() === 'theme') {
+						theme = objd[1];
+					}
+					if(objd[0].toLowerCase() === 'language') {
+						language = objd[1];
+					}
+					if(objd[0].toLowerCase() === 'plugins') {
+						plugins = objd[1];
+					}
 					if(objd[0].toLowerCase() === 'po') {
 						po = objd[1];
 					}
 				}
 			}
-			var livedesk = { 
-				'language': 'de',
+			console.log(po,theme, plugins, language);
+			var livedesk = {
+				'plugins': plugins, 
+				'language': language,
 				'server': function(){ return config.api_url; },
 				'FrontendServer': config.api_url,
 				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
@@ -80,7 +94,8 @@
 		}
 		.container {
 			height: auto;
-			width: 500px;
+			width: 620px;
+			margin: 20px 0 0 20px;
 		}
 		</style>
 		<script>
@@ -90,13 +105,12 @@
 			    if (d.getElementById(id)) return;
 			    js = d.createElement(s);
 			    js.id = id;
-			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/default');
+			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/'+theme);
 			    js.src = config.coreScripts('require.js');
 			    fjs.parentNode.insertBefore(js, fjs);
 			}(document, "script", "livedesk-jssdk"));
 		}
 		</script>
-		<!--<script data-main="//{server_url}/{gui}/livedesk-embed/scripts/js/theme/default" src="//{server_url}/{lib_core}/scripts/js/require.js"></script>-->
 		<div id="here"></div>
 		<script>
 			if(po !== undefined){
