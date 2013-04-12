@@ -64,17 +64,20 @@ define(['gizmo/superdesk'], function(Gizmo) {
 			});
 		},			
 		destroy: function(){ this.stop(); },
-		auto: function(fn)
+		auto: function(params)
 		{
 			var self = this;
-			ret = this.stop().start();
-			this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
+			ret = this.stop().start(params);
+			this._idInterval = setInterval(function(){
+				self.start(params);
+			}, this._timeInterval);
 			return ret;
 		},
-		start: function(requestOptions)
+		start: function(params)
 		{
-			var self = this, 
-				requestOptions = {
+			var self = this,
+				params = params || {},
+				requestOptions = $.extend(true, {
 					data: {
 						'cId.since': this._stats.lastCId, 
 						'order.start': this._stats.fistOrder
@@ -83,7 +86,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 						'X-Filter': self._xfilter,
 						'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"
 					}
-				}; // 
+				},params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
 				delete requestOptions.data['order.start'];
