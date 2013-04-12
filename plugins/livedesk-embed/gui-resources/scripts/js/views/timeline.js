@@ -56,7 +56,7 @@ define([
 			postPublished
 				.limit(postPublished._stats.limit)
 				.offset(postPublished._stats.offset)
-				.auto();
+				.auto({ data: { thumbSize: 'medium'} });
 			$(this).hide();			
 		},
 		showLiner: function()
@@ -82,7 +82,7 @@ define([
 				.xfilter(self.xfilter)
 				.limit(postPublished._stats.limit)
 				.offset(postPublished._stats.offset)
-				.sync().done(function(data){				
+				.sync({ data: { thumbSize: 'medium'} }).done(function(data){				
 					var total = self.model.get('PostPublished').total;
 					self.toggleMoreVisibility();
 					if(self._views.length >= total) {
@@ -183,11 +183,11 @@ define([
 						postPublished
 							.one('rendered', self.showLiner, self)
 							.end(order, 'order')
-							.sync();
+							.sync({ data: { thumbSize: 'medium'} });
 					} else {
 							postPublished
 								.offset(postPublished._stats.offset)
-								.auto();
+								.auto({ data: { thumbSize: 'medium'} });
 					}
 				}
 				self.rendered = true;

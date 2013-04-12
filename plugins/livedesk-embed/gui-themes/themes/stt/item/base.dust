@@ -10,7 +10,7 @@ _('Share');
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>
 			<figure>
 				{?AuthorImage}
-				<img src="{AuthorImage.href}">
+				<img src="{AuthorImage.href}" height="48" width="48">
 				{/AuthorImage}
 			</figure>
 			<p rel="author">{Creator.FullName}</p>
