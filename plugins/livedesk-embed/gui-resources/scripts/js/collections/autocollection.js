@@ -71,10 +71,23 @@ define(['gizmo/superdesk'], function(Gizmo) {
 			this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
 			return ret;
 		},
-		start: function()
+		start: function(requestOptions)
 		{
-			var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers:  { 'X-Filter': self._xfilter, 'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}}; // 
-			if(self._stats.lastCId === 0) delete requestOptions.data;
+			var self = this, 
+				requestOptions = {
+					data: {
+						'cId.since': this._stats.lastCId, 
+						'order.start': this._stats.fistOrder
+					}, 
+					headers:  {
+						'X-Filter': self._xfilter,
+						'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"
+					}
+				}; // 
+			if(self._stats.lastCId === 0) {
+				delete requestOptions.data['cId.since'];
+				delete requestOptions.data['order.start'];
+			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();

@@ -159,7 +159,7 @@ define([
 			if($.type(self.url) === 'string')
 				self.model = new Gizmo.Register.Blog(self.url.replace('my/',''));				
 			self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName';
+							   'AuthorImage, AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName';
 			//self.xfilter = 'CId';								   
 			self.model.on('read', function()
 			{
@@ -335,9 +335,9 @@ define([
 		},
 		renderBlog: function()
 		{
-			//$(this.el).find('article')
-				//.find('h2').html(this.model.get('Title')).end()
-				//.find('p').html(this.model.get('Description'));
+			$(this.el)
+				.find('[gimme="blog.title"]').html(this.model.get('Title')).end()
+				.find('[gimme="blog.description"]').html(this.model.get('Description'));
 		},
 		toggleMoreVisibility: function()
 		{	
