@@ -44,6 +44,8 @@ class IDeskService(IEntityService):
     Provides the service methods for the desk.
     '''
 
+    # TODO: Martin: the method should be named getUsers, this way you don't need to specify the method=GET for call.
+    # TODO: Martin: the "orderBy" needs to be removed, the ordering should be based on QDesk, see how is made for IUserService
     @call(method=GET)
     def listUsers(self, deskId:Desk.Id, orderBy:str=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(User):
         '''

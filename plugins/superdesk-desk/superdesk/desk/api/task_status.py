@@ -20,7 +20,7 @@ class TaskStatus(Entity):
     '''
     Provides the task status model.
     '''
-    Key = str
+    Key = str  # TODO: Martin: the "Key" is inherited from "Entity"
     IsOn = bool
 
 # --------------------------------------------------------------------

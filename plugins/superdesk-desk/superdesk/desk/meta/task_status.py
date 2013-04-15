@@ -24,7 +24,7 @@ class TaskStatusMapped(Base, TaskStatus):
     __tablename__ = 'desk_task_status'
     __table_args__ = dict(mysql_engine='InnoDB')
 
-    Key = Column('key_label', String(255), nullable=False, unique=True)
+    Key = Column('key_label', String(255), nullable=False, unique=True)  # TODO: Martin:the column name should be "key", why "key_label"?
     IsOn = Column('is_on', Boolean, nullable=False, default=True)
     # None REST model attribute --------------------------------------
     id = Column('id', INTEGER(unsigned=True), primary_key=True)

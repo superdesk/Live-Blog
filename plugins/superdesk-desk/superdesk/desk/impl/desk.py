@@ -51,6 +51,8 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         return entities
 
     def attachUser(self, deskId, userId):
+        # TODO: Martin: the UPDATE function are not mandatory to return something, so you can remove the bool and just not return anything,
+        # thus you avoid the return True.
         '''
         @see IDeskService.attachUser
         '''
@@ -76,6 +78,6 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         sql = sql.filter(DeskUserMapped.desk == deskId)
         sql = sql.filter(DeskUserMapped.user == userId)
         sql.delete()
-
+        # TODO: Martin: should be sql.delete() > 0 in order to validate if something has been deleted.
         return True
 

@@ -44,6 +44,9 @@ class TaskMapped(Base, Task):
     # Non REST model attribute ---------------------------------------
     statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(TaskStatusMapped, uselist=False, lazy='joined')
+
+    # TODO: Martin: no need for this column, it's easy to find the root tasks: task id = group id
+    #
     # without a 'parent' link, it is harder to find the root tasks
     isRoot = Column('is_root', Boolean, nullable=False, default=True, key='Root')
 
@@ -62,6 +65,9 @@ class TaskNestMapped(Base):
     group = Column('group', INTEGER, nullable=False)
     upperBar = Column('upper_bar', INTEGER, nullable=False)
     lowerBar = Column('lower_bar', INTEGER, nullable=False)
+
+    # TODO: Martin: no need to cache the depth, there are queries that can return the nodes of any depth
+    #
     # the search on one level down is better with the depth information
     depth = Column('depth', INTEGER, nullable=False)
 
