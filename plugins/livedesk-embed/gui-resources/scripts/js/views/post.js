@@ -17,6 +17,7 @@ define([
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
+	'tmpl!theme/item/source/facebook',
 	'tmpl!theme/item/source/youtube',
 	'tmpl!theme/item/source/flickr',
 	'tmpl!theme/item/source/soundcloud',
