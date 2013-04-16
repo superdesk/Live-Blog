@@ -151,10 +151,13 @@
 				self.chainBlogLinkViews = [];
 				self.chainBlogContentViews = [];
 				if($.type(self.sourceBlogs) === 'undefined') {
-					self.sourceBlogs = new Gizmo.Register.Sources;
-					self.sourceBlogs.sync();
+					self.sourceBlogs = new Gizmo.Register.Sources();
+					self.sourceBlogs.url = new Gizmo.Url('Data/SourceType/chained%20blog/Source/');
+					self.sourceBlogs
+						.on('read', this.render, this)
+						.xfilter('URI,Name,Id')
+						.sync();
 				}
-				this.render();
 			},
 			search: function(what){
 				var self = this;
@@ -194,7 +197,7 @@
 					self.sourceBlogs.each(function(id,sourceBlog){
 						chainBlog = new Gizmo.Register.Blog();
 						chainBlog.defaults.PostPublished = Gizmo.Register.AutoPosts;
-						chainBlog.setHref(sourceBlog.get('URI'));
+						chainBlog.setHref(sourceBlog.get('URI').href);
 						chainBlog.sync();
 						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
 						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
