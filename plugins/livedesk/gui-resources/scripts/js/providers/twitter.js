@@ -417,9 +417,9 @@ $.extend(providers.twitter, {
                                 });
                         });   	
                         
-                        if (data.length > 19) {
-                            $('#twt-user-more').tmpl('livedesk>providers/load-more', {name : 'twitter-user-load-more'}, function(){
-                                $(this).find('[name="twitter-user-load-more"]').on('click', function(){
+                        if (data.paging) {
+                            $('#fbk-post-more').tmpl('livedesk>providers/load-more', {name : 'fbk-post-load-more'}, function(){
+                                $(this).find('[name="fbk-post-load-more"]').on('click', function(){
                                     self.doUser(parseInt(page + 1))
                                 });
                             });
