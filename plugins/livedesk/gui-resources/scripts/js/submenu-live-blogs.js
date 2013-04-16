@@ -27,9 +27,7 @@ define
             this.model.on('insert', this.refresh, this);
 
             this.router = new LiveBlogRouter();
-
-            // TODO: this must be called once menu is prepared and routers are set. but where?
-            Backbone.history.start({root: "/content/lib/core/start.html"});
+            Backbone.history.loadUrl();
         },
 
         refresh: function()
