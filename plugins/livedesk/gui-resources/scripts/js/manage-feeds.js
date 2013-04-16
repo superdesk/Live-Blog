@@ -369,7 +369,7 @@ define([
             });
 
             if (!this.collection.length) {
-                list.append($('<li />').text(_("So far there are no providers. Start with Add New Source button.")));
+                list.append($('<li />').text(_("So far there are no providers. Start with Add New Provider button.")));
             }
 
             return this;
