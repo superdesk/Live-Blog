@@ -132,8 +132,11 @@ $.extend(providers.google, {
                             }, function(e,o) {
                                 el = $('#ggl-web-results').append(o).find('.google');
                                 BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        addClasses: false,
+									el.draggable({
+                                        scroll: true,
+										//snap: true,
+										//containment: 'document',
+										addClasses: false,
                                         revert: 'invalid',
                                         helper: 'clone',
                                         appendTo: 'body',
