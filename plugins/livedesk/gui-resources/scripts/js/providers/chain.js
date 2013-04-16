@@ -152,10 +152,7 @@
 				self.chainBlogContentViews = [];
 				if($.type(self.sourceBlogs) === 'undefined') {
 					self.sourceBlogs = new Gizmo.Register.Sources;
-					self.sourceBlogs.reset([
-						{ Id: 10, URI: 'http://localhost:8081/resources/LiveDesk/Blog/1' },
-						{ Id: 11, URI: 'http://localhost:8081/resources/LiveDesk/Blog/2' }
-					]);
+					self.sourceBlogs.sync();
 				}
 				this.render();
 			},
