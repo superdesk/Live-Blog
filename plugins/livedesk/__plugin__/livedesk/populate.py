@@ -95,7 +95,7 @@ def populateDefaultUsers():
         user.FirstName = 'Janet'
         user.LastName = 'Editor'
         user.EMail = 'Janet.Editor@email.addr'
-        user.Name = 'Janet'
+        user.Name = 'admin'
         user.Password = hashlib.sha512(b'a').hexdigest()
         user.Id = userService.insert(user)
     else: user = next(iter(users))
@@ -108,7 +108,7 @@ def populateDefaultUsers():
             user.FirstName = name[0]
             user.LastName = name[1]
             user.EMail = '%s.%s@email.addr' % name
-            user.Name = name[0]
+            user.Name = name[1].lower()
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
         else: user = next(iter(users))

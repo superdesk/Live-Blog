@@ -188,8 +188,8 @@ def createPostTypes():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'Janet', 'Janet', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'Janet', 'Janet', 'Conclusion', 'To summarize, this is the conclusion...',)
+                   ('default', 'normal', 'admin', 'admin', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'admin', 'admin', 'Conclusion', 'To summarize, this is the conclusion...',)
                    ]
 
 @ioc.after(populateDefaultUsers, createPostTypes)
@@ -244,8 +244,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'Andrew': 'Election Night 2013',
-                      'Christine': 'Election Night 2013',
+                      'reporter': 'Election Night 2013',
+                      'journalist': 'Election Night 2013',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -262,7 +262,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'Janet': 'Election Night 2013',
+               'admin': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)
