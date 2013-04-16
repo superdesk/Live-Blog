@@ -6,6 +6,7 @@
   <div class="modal-body">
     <form name="add">
         <input type="text" id="edit-provider-title" name="Title" placeholder="_('Blog Provider Title');" value="" class="fullwidth-input">
+        <label></label>
         <input type="text" id="edit-provider-url" name="URL" placeholder="_('Blog Provider URL');" value="" class="fullwidth-input">
     </form>
   </div>
