@@ -29,7 +29,6 @@ class Source(Entity):
     URI = Reference
     Key = str
     IsModifiable = bool
-    Description = str
 
 # --------------------------------------------------------------------
 
@@ -45,7 +44,7 @@ class QSource(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Source))
+@service((Entity, Source), (QEntity, QSource))
 class ISourceService(IEntityGetCRUDService):
     '''
     Provides the service methods for the source.
@@ -58,3 +57,14 @@ class ISourceService(IEntityGetCRUDService):
         Provides all the available sources.
         '''
 
+    @call
+    def insert(self, source:Source) -> Source.Id:
+        '''
+        Insert the source, also the source will have automatically assigned the Id to it.
+
+        @param source: Source
+            The source to be inserted.
+
+        @return: The id assigned to the source
+        @raise InputError: If the source is not valid.
+        '''

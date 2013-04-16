@@ -51,16 +51,10 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 return;
             }
             var self = this,
-                post = this.model.feed(true),
-				img = new Image;
-			
-			img.src = $.avatar.get('AuthorPerson.EMail');
-			img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
-			img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
-			post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
-					'<img data-avatar-id="'+post['Id']+'" />';
+                post = this.model.feed(true);
 			if($.type(post.Meta) === 'string')
-				post.Meta = JSON.parse(post.Meta);
+				post.Meta = JSON.parse(post.Meta);			
+			$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
 			$.tmpl('livedesk>items/item', { 
                     Post: post,
                     Base: 'implementors/collaborators'

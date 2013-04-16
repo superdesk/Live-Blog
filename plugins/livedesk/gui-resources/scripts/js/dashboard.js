@@ -28,8 +28,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         ipp: 15,
         events: 
         { 
-            '.active-blog-link': { 'click': 'loadBlog' },
-            '.archive-blog-link': { 'click': 'loadBlog' },
             '#grid_view': { 'click' : 'switchViewType' },
             '#list_view': { 'click' : 'switchViewType' },
             '#welcome-screen-create-liveblog': { 'click': 'createBlog' },
@@ -211,37 +209,6 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             var key = $('#search-archive-text').val();
             var order = $('.archive-sort').val();
             this.searchArchive(key, this.page.maxpage, order);
-        },
-        
-        /*!
-         * loads the selected blog
-         */
-        loadBlog: function(event)
-        {
-            var theBlog = $(event.currentTarget).attr('data-blog-link');
-            BlogAction.setBlogUrl(theBlog);
-            BlogAction.get('modules.livedesk.edit')
-            .done(function(action)
-            {
-                superdesk.showLoader();
-                if(!action) return;
-                var callback = function()
-                { 
-                    require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
-                };
-                action.get('Script') && superdesk.navigation.bind( $(event.currentTarget).attr('href'), callback, $(event.currentTarget).text() );
-            })
-            .fail(function()
-            { 
-                $.tmpl('livedesk>error-notif', {Error: _('You cannot perform this action')}, function(e, o)
-                {
-                    var o = $(o);
-                    $('#area-main').append(o);
-                    $('.close', o).on('click', function(){ $(o).remove(); });
-                    setTimeout(function(){ $(o).remove(); }, 3000);
-                });
-            });
-            event.preventDefault();
         },
         
         /*!

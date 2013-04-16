@@ -1,1 +1,1 @@
-define(['livedesk-embed/plugins/pretty-date'], function(){});
+//define(['livedesk-embed/plugins/pretty-date'], function(){});

@@ -210,11 +210,7 @@ define('providers/edit', [
 			if(!(self.model instanceof Gizmo.Register.Post))
 				self.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
 			post = self.model.feed(true)
-			img.src = $.avatar.get('AuthorPerson.EMail');
-			img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
-			img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
-			post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
-					'<img data-avatar-id="'+post['Id']+'" />';
+			$.avatar.setImage(post, { needle: 'Creator.EMail', size: 36});
 			if ( typeof post.Meta === 'string') {
 				post.Meta = JSON.parse(post.Meta);
 			}
@@ -630,7 +626,7 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta,Creator.FullName, AuthorImage';
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta,Creator.FullName, Creator.EMail, AuthorImage';
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				collections.posts =  posts;

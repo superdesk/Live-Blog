@@ -135,7 +135,7 @@ define([
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
 				createdOn = new Date(Date.parse(data.CreatedOn));
-				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM'));
+				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));
 				data.CreatedOnISO = createdOn.getTime();
 			}
 			if(data.Content) {

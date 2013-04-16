@@ -8,112 +8,13 @@
 		<div class="span8">
 			<div class="manage-feeds-top">
 				<div class="sf-searchbox">
-					<input type="text" placeholder="Search"><a href="#"><i class="icon-remove"></i></a>
+					<input type="text" placeholder="Search">
+                    <a href="#"><i class="icon-remove"></i></a>
 				</div>
-				<a class="btn btn-info pull-right" href="#"><span class="medium-icon-add"></span> Add New Source</a>
+				<a class="btn btn-info pull-right" href="#AddSource"><span class="medium-icon-add"></span> Add New Source</a>
 			</div>
-			<ul class="manage-feeds">
-				<li class="chain-source">
-					<div class="chain-source-header">
-						<div class="chain-source-collapse"><a href="#"><i class="icon-chevron-down"></i><i class="icon-chevron-right"></i></a></div>
-						<h5>TagesWoche <span class="chain-source-count">3/5</span></h5>
-						<div class="dropdown">
-			                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
-			                <ul class="dropdown-menu sf-dropdown-simple pull-right">
-			                  <li><a href="#"> Hide description</a></li>
-			                  <li><a href="#"><i class="icon-ok"></i> View all available Blogs</a></li>
-			                  <li><a href="#"> View only selected Blogs</a></li>
-			                  <li class="divider"></li>
-			                  <li><a href="#"><i class="icon-pencil"></i> Edit source</a></li>
-			                  <li><a href="#"><i class="icon-trash"></i> Remove source</a></li>
-			                </ul>
-			             </div>
-					</div>
-					<ul class="chain-source-content">
-
-						<li class="chain-blog">
-							<input type="checkbox" class="sf-checkbox" set-bg="1" name="lb654">
-							<div class="chain-blog-content">
-								<h6>Gaza ceasefire announced in Cairo</h6>
-								<div class="chain-blog-description">
-									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
-								</div>
-							</div>
-						</li>
-
-						<li class="chain-blog">
-							<input type="checkbox" class="sf-checkbox" set-bg="1" name="lb816">
-							<div class="chain-blog-content">
-								<h6>Eurozone crisis as it happened: Anger in Greece</h6>
-								<div class="chain-blog-description">
-									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
-								</div>
-							</div>
-						</li>
-
-						<li class="chain-blog">
-							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb088">
-							<div class="chain-blog-content">
-								<h6>Slow pace of carbon cuts. Catastrophic climate change</h6>
-								<div class="chain-blog-description">
-									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
-								</div>
-							</div>
-						</li>
-
-					</ul>
-				</li>
-
-
-
-
-				<li class="chain-source chain-compact">
-					<div class="chain-source-header">
-						<div class="chain-source-collapse"><a href="#"><i class="icon-chevron-down"></i><i class="icon-chevron-right"></i></a></div>
-						<h5>BBC <span class="chain-source-count">3/5</span></h5>
-						<div class="dropdown">
-			                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
-			                <ul class="dropdown-menu sf-dropdown-simple pull-right">
-			                  <li><a href="#"> Hide description</a></li>
-			                  <li><a href="#"><i class="icon-ok"></i> View all available Blogs</a></li>
-			                  <li><a href="#"> View only selected Blogs</a></li>
-			                  <li class="divider"></li>
-			                  <li><a href="#"><i class="icon-pencil"></i> Edit source</a></li>
-			                  <li><a href="#"><i class="icon-trash"></i> Remove source</a></li>
-			                </ul>
-			             </div>
-					</div>
-					<ul class="chain-source-content">
-
-						<li class="chain-blog">
-							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb654">
-							<div class="chain-blog-content">
-								<h6>Gaza ceasefire announced in Cairo</h6>
-								<div class="chain-blog-description">
-									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
-								</div>
-							</div>
-						</li>
-
-						<li class="chain-blog">
-							<input type="checkbox" class="sf-checkbox"  set-bg="1" name="lb816">
-							<div class="chain-blog-content">
-								<h6>Eurozone crisis as it happened: Anger in Greece</h6>
-								<div class="chain-blog-description">
-									Facilisis placerat integer tincidunt, penatibus in ultricies! Penatibus ut rhoncus cum adipiscing mauris parturient, integer scelerisque. Odio platea proin. Elementum sed dapibus! Non pulvinar! Odio porttitor tempor, dignissim in turpis!
-								</div>
-							</div>
-						</li>
-
-					</ul>
-				</li>
-
-
-			</ul>
-
+			<ul class="manage-feeds" id="provider-list"></ul>
       </div>
     </div>
-   
-
 </section>
 {/body}
