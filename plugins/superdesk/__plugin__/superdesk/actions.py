@@ -12,7 +12,6 @@ from superdesk.desks.api.desks import IDesksService
 support.listenToEntities(Action, listeners=addAction)
 support.loadAllEntities(Action)
 
-
 @ioc.entity
 def menuAction() -> Action:
     return Action('config', Parent=defaults.menuAction(), Label=NC_('menu', 'Configure'), NavBar='/config')
@@ -25,4 +24,4 @@ def configView() -> RightAction:
 def registerConfigView():
     r = configView()
     r.addActions(menuAction())
-    r.allGet(IDesksService)
+    r.allGet(IDesksService) # TODO it must be binded to a service, but there is none
