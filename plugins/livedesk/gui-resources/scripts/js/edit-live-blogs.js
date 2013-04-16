@@ -757,14 +757,43 @@ function(providers, Gizmo, $, BlogAction)
 				'[is-content] section header h2': { focusout: 'save' },
 				'[is-content] #blog-intro' : { focusout: 'save' },
 				'#toggle-status': { click: 'toggleStatus' },
-				//, '.live-blog-content': { drop: 'drop'}
 				'#put-live .btn-primary': { click : 'putLive' },
-				'#more': { click: 'more'}
+				'#more': { click: 'more'},
+				'#tabmove-down': { click: 'tabMoveDown'},
+				'#tabmove-up': { click: 'tabMoveUp'}
 			},
 			more: function(evnt)
 			{
 				this.timelineView.more(evnt);
-			},			
+			},
+			tabMoveDown: function(evt) {
+				evt.preventDefault();
+				var tabs = $(".side-tab-container .nav-tabs", this.el),
+					top_pos = parseInt(tabs.css('top'));
+				if ((top_pos + tabs.height()) > 90)
+					tabs.css('top',top_pos-56+'px');
+			},
+			tabMoveUp: function(evt) {
+				evt.preventDefault();
+				var tabs = $(".side-tab-container .nav-tabs", this.el),
+					top_pos = parseInt(tabs.css('top'));
+				if (top_pos < 35) 
+					tabs.css('top',top_pos+56+'px');				
+			},
+			responsiveTabs: function() {
+				var cont = $(".side-tab-container", this.el),
+					tabs = $(".side-tab-container .nav-tabs", this.el);
+				if (cont.height() < tabs.height() ) {
+					if (!cont.hasClass("compact-tabs")) {
+						cont.addClass("compact-tabs");
+						tabs.css('top','35px');
+					}
+				}
+				else { 
+					cont.removeClass("compact-tabs");
+					tabs.css('top','0');
+				}				
+			},	
 			postInit: function()
 			{
 				var self = this;
@@ -776,36 +805,6 @@ function(providers, Gizmo, $, BlogAction)
 				    {
 				        self.render();
 				    });
-			},
-			/*!
-			 * TODO description
-			 */
-			drop: function(event, ui)
-			{
-				var self = this,
-					data = ui.draggable.data('data'),
-					post = ui.draggable.data('post'),
-					
-					either = data || post;
-				console.log(either);
-				if( either instanceof Gizmo.View)
-				{
-				    either.parent = self.timelineView;
-				    either.render();
-				    $('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
-				    $('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
-				}
-				else if(data !== undefined) {
-					self.timelineView.insert(data);
-				}
-				else if(post !== undefined)
-				{
-					self.timelineView.publish(post);
-					// stupid bug in jqueryui you can make draggable desstroy
-					setTimeout(function(){
-						$(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
-					},1);
-				}
 			},
 			/*!
              * Save description and title changes for the current model blog
@@ -978,7 +977,12 @@ function(providers, Gizmo, $, BlogAction)
 						dockKey: 'Z',   // Alt-Shift-Z in FF/IE
 						accessKey: 'I'  // Alt-Shift-I in FF/IE
 					});
-					
+					$(window)
+						.off(self.getNamespace())
+						.on(self.getEvent('resize'), function(){
+							self.responsiveTabs();
+						});
+					self.responsiveTabs();
 					$.superdesk.hideLoader();
 					
 				});
