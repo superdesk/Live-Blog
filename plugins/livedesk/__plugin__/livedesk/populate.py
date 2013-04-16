@@ -21,6 +21,7 @@ from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
+from __plugin__.media_archive.actions import rightMediaArchiveUpload
 
 # --------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ def populateCollaboratorRole():
     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveUpload()))
     roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
 
 @app.populate
