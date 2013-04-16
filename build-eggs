@@ -2,9 +2,7 @@
 
 python_cli=python3
 
-ally_py_dir=..
-
-dirs="$ally_py_dir/components $ally_py_dir/plugins plugins"
+dirs="components plugins"
 
 export PYTHONPATH=distribution/tools/distribute-0.6.27-py3.2.egg
 
