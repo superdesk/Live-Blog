@@ -13,6 +13,8 @@ from content.article.api.article import QArticle
 from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from content.article.meta.article import ArticleMapped
 from sqlalchemy.sql.expression import or_
+from superdesk.person.meta.person import PersonMapped
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -44,22 +46,24 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
         '''
         @see: IArticleSearchProvider.buildQuery()
         '''
-        
+
         sql = session.query(ArticleMapped)
-        
+
         if q:
             sql = buildQuery(sql, q, ArticleMapped)
-            
+            sql = sql.join(PersonMapped, ArticleMapped.Author == PersonMapped.Id)
+            sql = sql.join(UserMapped, ArticleMapped.Creator == UserMapped.Id)
+
             if QArticle.search in q:
                 all = processLike(q.search.all)
-                sql = sql.filter(or_(ArticleMapped.Author.like(all), ArticleMapped.Creator.like(all), ArticleMapped.Content.like(all)))   
-        
+                sql = sql.filter(or_(PersonMapped.FullName.like(all), UserMapped.FullName.like(all), ArticleMapped.Content.like(all)))
+
         count = sql.count()
-            
+
         sql = buildLimits(sql, offset, limit)
-        
+
         return (sql, count)
-    
+
 #----------------------------------------------------------------
 
 def processLike(value):
@@ -74,4 +78,4 @@ def processLike(value):
     if not value.startswith('%'):
         value = '%' + value
 
-    return value   
+    return value
