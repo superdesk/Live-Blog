@@ -1,5 +1,5 @@
 from ally.container import ioc, support
-from ally.internationalization import NC_
+from ally.internationalization import NC_ as _
 from ally.api.config import service, model
 from ally.support.api.entity import Entity, IEntityGetService
 from acl.right_action import RightAction
@@ -15,11 +15,12 @@ support.loadAllEntities(Action)
 
 @ioc.entity
 def menuAction() -> Action:
-    return Action('desks', Parent=superdesk.menuAction(), Label=NC_('menu', 'Desks'), NavBar='/config/desks', Script=publishedURI('superdesk-desk/scripts/configmenu.js'))
+    script=publishedURI('superdesk-desk/scripts/configmenu.js')
+    return Action('desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), Script=script)
 
 @ioc.entity
 def blogConfigView() -> RightAction:
-    return gui.actionRight(NC_('security', 'Blog Config View'), NC_('security', 'Allows desks configurationt.'))
+    return gui.actionRight(_('security', 'Blog Config View'), _('security', 'Allows desks configurationt.'))
 
 @model
 class Menu(Entity):

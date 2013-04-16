@@ -14,7 +14,7 @@ support.loadAllEntities(Action)
 
 @ioc.entity
 def menuAction() -> Action:
-    return Action('config', Parent=defaults.menuAction(), Label=NC_('menu', 'Configure'), NavBar='/config')
+    return Action('config', Parent=defaults.menuAction(), Label=NC_('menu', 'Configure'))
 
 @ioc.entity
 def configView() -> RightAction:

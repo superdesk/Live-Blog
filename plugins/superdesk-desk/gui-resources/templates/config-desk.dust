@@ -1,0 +1,207 @@
+				<div class="desk-header">
+					<div class="toggle-desk">
+						<i class="icon-chevron-down toggle-desk-close"></i>
+						<i class="icon-chevron-right toggle-desk-open"></i>
+					</div>
+                    {Name}
+				</div>
+
+				<div class="desk-config-tab member-tab">
+					<div class="desk-subheader subnav">
+						<ul class="nav nav-pills pull-left">
+					      <li class="active"><a href="#">Desk members</a></li>
+					      <li><a href="#">Desk boards</a></li>
+					    </ul>
+					    <a class="btn btn-info pull-right" href="#addMember" data-toggle="modal" ><span class="icon-plus-sign icon-white"></span> Add Member</a>
+					</div>
+					<div class="desk-config-tab-content">
+						<ul class="plain-table">
+		                    <li>
+		                      
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >Ana Nedic</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid1Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                      
+		                    </li>
+
+		                    <li>
+		                      
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >Billy Bragg</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Editor <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid2editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid2Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid2photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+
+		                    <li>
+		                     
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >Majed Abusalama</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid3editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid3Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid3photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+
+		                    <li>
+		                     
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >Matina Stevis</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid4editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid4Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid4photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+
+		                    <li>
+		                     
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large">Paco González</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid5editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid5Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid5photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+
+		                    <li>
+		                     
+		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >April O'Neil</a>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Editor,Journalist <b class="caret"></b></a>
+		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid6editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid6Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid6photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+
+
+
+
+		                  </ul>
+					</div>
+				</div>
+
+				<div class="desk-config-tab board-tab">
+					<div class="desk-subheader subnav">
+						<ul class="nav nav-pills pull-left">
+					      <li><a href="#">Desk members</a></li>
+					      <li class="active"><a href="#">Desk boards</a></li>
+					    </ul>
+					    <a class="btn btn-info pull-right" href="#addBoard" data-toggle="modal"><span class="icon-plus-sign icon-white"></span> Add Board</a>
+					</div>
+					<div class="desk-config-tab-content">
+						<ul class="plain-table">
+		                    <li class="boardcolor-1">
+		                     <span class="board-name">To Do</span>
+		                     <span class="board-limit">10</span>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                          	<li class="no-bg item-border">
+		                          		Choose color: 
+		                          		<ul class="simple-color-list clearfix">
+		                          			<li class="picked"><span class="color boardcolor-1"></span></li>
+		                          			<li><span class="color boardcolor-2"></span></li>
+		                          			<li><span class="color boardcolor-3"></span></li>
+		                          			<li><span class="color boardcolor-4"></span></li>
+		                          			<li><span class="color boardcolor-5"></span></li>
+		                          			<li><span class="color boardcolor-6"></span></li>
+		                          			<li><span class="color boardcolor-7"></span></li>
+		                          			<li><span class="color boardcolor-8"></span></li>
+		                          			<li><span class="color boardcolor-9"></span></li>
+		                          			<li><span class="color boardcolor-10"></span></li>
+		                          		</ul>
+		                          	</li>
+		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;"></li>
+		                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+		                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+		                          </ul>
+		                      </div>
+		                    </li>
+		                    <li class="boardcolor-2">
+		                     <span class="board-name">In progress</span>
+		                     <span class="board-limit">3</span>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                          	<li class="no-bg item-border">
+		                          		Choose color: 
+		                          		<ul class="simple-color-list clearfix">
+		                          			<li><span class="color boardcolor-1"></span></li>
+		                          			<li class="picked"><span class="color boardcolor-2"></span></li>
+		                          			<li><span class="color boardcolor-3"></span></li>
+		                          			<li><span class="color boardcolor-4"></span></li>
+		                          			<li><span class="color boardcolor-5"></span></li>
+		                          			<li><span class="color boardcolor-6"></span></li>
+		                          			<li><span class="color boardcolor-7"></span></li>
+		                          			<li><span class="color boardcolor-8"></span></li>
+		                          			<li><span class="color boardcolor-9"></span></li>
+		                          			<li><span class="color boardcolor-10"></span></li>
+		                          		</ul>
+		                          	</li>
+		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;"></li>
+		                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+		                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+		                          </ul>
+		                      </div>
+		                    </li>
+		                    <li class="boardcolor-3">
+		                     <span class="board-name">Done</span>
+		                     <span class="board-limit">50</span>
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                          	<li class="no-bg item-border">
+		                          		Choose color: 
+		                          		<ul class="simple-color-list clearfix">
+		                          			<li><span class="color boardcolor-1"></span></li>
+		                          			<li><span class="color boardcolor-2"></span></li>
+		                          			<li class="picked"><span class="color boardcolor-3"></span></li>
+		                          			<li><span class="color boardcolor-4"></span></li>
+		                          			<li><span class="color boardcolor-5"></span></li>
+		                          			<li><span class="color boardcolor-6"></span></li>
+		                          			<li><span class="color boardcolor-7"></span></li>
+		                          			<li><span class="color boardcolor-8"></span></li>
+		                          			<li><span class="color boardcolor-9"></span></li>
+		                          			<li><span class="color boardcolor-10"></span></li>
+		                          		</ul>
+		                          	</li>
+		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;"></li>
+		                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+		                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+		                          </ul>
+		                      </div>
+		                    </li>
+		                </ul>
+					</div>
+				</div>
+
+				
+			</div>
