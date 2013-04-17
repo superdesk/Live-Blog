@@ -16,6 +16,9 @@ define
 function($, giz, gizList, Action, Article, User)
 {
     var
+    
+    router = new Backbone.Router,
+    
     ArticleCollection = giz.Collection.extend
     ({
         model: Article,
@@ -52,10 +55,10 @@ function($, giz, gizList, Action, Article, User)
         tmpl: 'superdesk/article>list-item',
         render: function()
         { 
-
             var self = this,
                 feed = this.model.feed();
             feed.Content = JSON.parse(feed.Content);
+            
             $(this.el).tmpl(this.tmpl, feed, function()
             {
                 userCache.get(feed.Author.Id).done(function(data)
@@ -75,33 +78,28 @@ function($, giz, gizList, Action, Article, User)
             this.sync();
             this.render();
         },
-        events: { '[data-action="edit"]': { "click": "edit" },
-        '[data-action="delete"]': { "click": "destroy" },
-        '[data-action="publish"]': { "click": "publish" },
-        '[data-action="unpublish"]': { "click": "unpublish" },
+        events: 
+        { 
+            '[data-action="delete"]': { "click": "destroy" },
+            '[data-action="publish"]': { "click": "publish" },
+            '[data-action="unpublish"]': { "click": "unpublish" }
         },
-        destroy: function(){
+        destroy: function()
+        {
             this.model.remove().sync();
             this.el.remove();
         },
-        publish: function(evt){
+        publish: function(evt)
+        {
             evt.preventDefault();
             var model_id = this.model.get('Id');
             this.model.publishSync();
         },
-        unpublish: function(evt){
+        unpublish: function(evt)
+        {
             evt.preventDefault();
             var model_id = this.model.get('Id');
             this.model.unpublishSync();
-        },
-        edit: function(evt)
-        {
-            evt.preventDefault();
-            var self = this;
-            $.superdesk.navigation.bind( $(evt.currentTarget).attr('href'), function()
-            {
-                Action.initApp('modules.article.edit', self.model.hash());
-            }, $(evt.currentTarget).text() );
         }
     }),
     listViewEvents = $.extend( true, {}, gizList.ListView.prototype.events, 
@@ -119,12 +117,7 @@ function($, giz, gizList, Action, Article, User)
             if(!this.collection) this.collection = new ArticleCollection;
             return this.collection; 
         },
-        searchData: function(string) {
-            return {
-                'search.all': string
-            }
-        },
-
+        searchData: function(string){ return { 'search.all': string }; },
         add: function()
         {
             Action.initApp('modules.article.add');
@@ -144,10 +137,24 @@ function($, giz, gizList, Action, Article, User)
                 $(this).data('view').delete();
                 */
             });
+        },
+        /*!
+         * edit article handler
+         */
+        editArticle: function(id)
+        {
+            this.collection.get(id).done(function(model)
+            {
+                document.title = _('Edit article: ')+JSON.parse(model.get('Content')).Title;
+                Action.initApp('modules.article.edit', model.hash()); 
+            });
         }
     }),
     listView = new ListView();
 
+    // navigate to edit article
+    router.route('article/:id', function(id){ listView.editArticle(id); });
+    
     return function()
     { 
         listView.activate(); 
