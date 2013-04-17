@@ -43,7 +43,6 @@ define([
             if ( typeof this.data.Meta.annotation == 'undefined' ) {
                 this.data.Meta.annotation = "<br />";
             }
-            console.log(this.sourceTemplate);
             $.tmpl('livedesk>items/item', {
                     Base: 'implementors/prepublish',
                     Item: this.sourceTemplate,
