@@ -1,9 +1,10 @@
 <div class="main-background-container">
+    <div id="modal-placeholder"></div>
 
 	<div class="subnav subnav-fixed">
 
 		<h1 class="config-page-title pull-left">_("Desk managment");</h1> 
-		<a class="btn btn-medium btn-info pull-right" href="#addDesk" data-toggle="modal"><span class="medium-icon-add"></span> _("New Desk");</a>
+		<a class="btn btn-medium btn-info pull-right" id="add-desk" href="#addDesk" data-toggle="modal"><span class="medium-icon-add"></span> _("New Desk");</a>
 	</div>
 
 

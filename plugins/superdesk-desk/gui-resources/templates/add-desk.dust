@@ -1,0 +1,30 @@
+<div class="modal hide fade modal-wide" id="addDesk">
+	<div class="modal-header"> <a class="close cancel">×</a>
+		<h3>_("Add New Desk");</h3>
+	</div>
+	<div class="modalscreen" id="general-screen" style="display:block";>
+
+		<div class="modal-body modal-body-min">
+
+            {!
+			<div class="popup-subnav subnav">
+				<ul class="nav nav-pills pull-left">
+					<li class="active"><a href="#general-screen">General</a></li>
+					<li ><a href="#members-screen">Desk members</a></li>
+					<li ><a href="#boards-screen">Desk boards</a></li>
+				</ul>
+			</div>
+            !}
+
+			<form>
+				<label for="desk-name">_("Desk Name:");</label>
+				<input id="desk-name" name="name" type="text" placeholder="Enter Desk name" class="fullwidth-input">
+			</form>
+		</div>
+		
+	</div>
+	<div class="modal-footer"> 
+	  	<a href="#" class="btn cancel">Cancel</a> 
+	  	<a href="#" class="btn btn-primary save">Save</a>
+    </div>
+</div>
