@@ -7,7 +7,5 @@ define
 ], 
 function($, giz, Action)
 {    
-    
     return { init: function(){ Action.initApp('modules.desks.tasks.add'); }}; 
-    
 });

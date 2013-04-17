@@ -7,7 +7,13 @@
     <div class="modal-left-pane">
         <div class="taskmodal-header">
         	<div class="parent-task-info">
-        		<span data-info="parent-task">{?Parent}_('Parent task:') <a href="javascript:void(0)">{Parent.Title}</a>{/Parent}</span>
+        		<span data-info="parent-task">
+        			_('Parent task:') 
+        			<a href="javascript:void(0)" data-toggle="dropdown">{?Parent}{Parent.Title}{:else}_('None'){/Parent}</a>
+        		</span>
+        		<ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="parent-task">
+        		
+        		</ul>
         	</div>
         	<ul class="assign-labels clearfix">
 				<li class="critical">

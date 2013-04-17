@@ -11,12 +11,31 @@ define
 function($, giz, Action, Desk, Task, TaskStatus)
 {
     var
+    DeskTasks = giz.Collection.extend({model: Task, url: new giz.Url('Desk/Task')}),
+    deskTasks = new DeskTasks,
     AddView = giz.View.extend
     ({
         events:
         {
             "form": { 'submit': 'save' },
             "[data-action='save']": { 'click': 'save' }
+        },
+        
+        refreshUIData: function()
+        {
+            this.refreshTaskList();
+            this.refreshAsigneeList();
+        },
+        refreshTaskList: function()
+        {
+            var self = this;
+            deskTasks.xfilter('*').sync({data: { desk: this.desk.get('id') }}).done(function()
+            { 
+                $('[data-list="parent-task"]', this.el).html('');
+                deskTasks.each(function(){ $('[data-list="parent-task"]', self.el)
+                    .append('<li value="'+this.get('Id')+'">'+this.get('Title')+'</li>'); }); 
+                
+            });
         },
         refreshAsigneeList: function()
         {
@@ -35,8 +54,8 @@ function($, giz, Action, Desk, Task, TaskStatus)
             {
                 this.desk = desk;
                 desk.off('read.task').off('update.task')
-                    .on('read.task', this.refreshAsigneeList, this)
-                    .on('update.task', this.refreshAsigneeList, this)
+                    .on('read.task', this.refreshUIData, this)
+                    .on('update.task', this.refreshUIData, this)
                     .sync();
             }
             
