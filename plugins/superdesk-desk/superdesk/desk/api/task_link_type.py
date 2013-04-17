@@ -1,12 +1,12 @@
 '''
-Created on Apr 8, 2013
+Created on Apr 15, 2013
 
 @package: superdesk desk
 @copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Martin Saturka
 
-API specifications for task statuses.
+API specifications for task link types.
 '''
 
 from ally.api.config import service
@@ -16,9 +16,9 @@ from superdesk.api.domain_superdesk import modelDesk
 # --------------------------------------------------------------------
 
 @modelDesk
-class TaskStatus(Entity):
+class TaskLinkType(Entity):
     '''
-    Provides the task status model.
+    Provides the task link type model.
     '''
     IsOn = bool
 
@@ -26,8 +26,8 @@ class TaskStatus(Entity):
 # No query
 # --------------------------------------------------------------------
 
-@service((Entity, TaskStatus))
-class ITaskStatusService(IEntityGetService, IEntityFindService):
+@service((Entity, TaskLinkType))
+class ITaskLinkTypeService(IEntityGetService, IEntityFindService):
     '''
-    Provides the service methods for the task statuses.
+    Provides the service methods for the task link types.
     '''

@@ -14,7 +14,7 @@ from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelDesk
-from superdesk.user.api.user import User
+from superdesk.user.api.user import User, QUser
 
 # --------------------------------------------------------------------
 
@@ -44,16 +44,15 @@ class IDeskService(IEntityService):
     Provides the service methods for the desk.
     '''
 
-    # TODO: Martin: the method should be named getUsers, this way you don't need to specify the method=GET for call.
-    # TODO: Martin: the "orderBy" needs to be removed, the ordering should be based on QDesk, see how is made for IUserService
     @call(method=GET)
-    def listUsers(self, deskId:Desk.Id, orderBy:str=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(User):
+    def getUsers(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
+                  q:QUser=None) -> Iter(User):
         '''
         Provides all users of a desk.
         '''
 
     @call(method=UPDATE)
-    def attachUser(self, deskId:Desk.Id, userId:User.Id) -> bool:
+    def attachUser(self, deskId:Desk.Id, userId:User.Id):
         '''
         Puts a user into a desk.
         '''

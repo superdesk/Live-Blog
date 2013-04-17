@@ -14,7 +14,7 @@ from ..meta.desk import DeskMapped
 from ..meta.task_status import TaskStatusMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, Text, DateTime, Boolean
+from sqlalchemy.types import String, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.meta.metadata_superdesk import Base
@@ -23,15 +23,18 @@ from ally.support.sqlalchemy.mapper import validate
 
 # --------------------------------------------------------------------
 
+TASK_TABLE_NAME = 'desk_task'
+
 @validate(exclude=('Status',))
 class TaskMapped(Base, Task):
     '''
     Provides the mapping for Task.
     '''
-    __tablename__ = 'desk_task'
+    __tablename__ = TASK_TABLE_NAME
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Parent = Column('fk_parent_id', ForeignKey(TASK_TABLE_NAME+'.id', ondelete='RESTRICT'), nullable=True)
     # can not set ondelete='CASCADE', since we need to manually preserve the nested sets structure
     # therefore we have the nullable=True as well
     Desk = Column('fk_desk_id', ForeignKey(DeskMapped.Id, ondelete='SET NULL'), nullable=True)
@@ -44,11 +47,6 @@ class TaskMapped(Base, Task):
     # Non REST model attribute ---------------------------------------
     statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(TaskStatusMapped, uselist=False, lazy='joined')
-
-    # TODO: Martin: no need for this column, it's easy to find the root tasks: task id = group id
-    #
-    # without a 'parent' link, it is harder to find the root tasks
-    isRoot = Column('is_root', Boolean, nullable=False, default=True, key='Root')
 
 # --------------------------------------------------------------------
 
@@ -65,9 +63,4 @@ class TaskNestMapped(Base):
     group = Column('group', INTEGER, nullable=False)
     upperBar = Column('upper_bar', INTEGER, nullable=False)
     lowerBar = Column('lower_bar', INTEGER, nullable=False)
-
-    # TODO: Martin: no need to cache the depth, there are queries that can return the nodes of any depth
-    #
-    # the search on one level down is better with the depth information
-    depth = Column('depth', INTEGER, nullable=False)
 

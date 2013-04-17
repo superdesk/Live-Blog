@@ -33,17 +33,15 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         '''
         EntityServiceAlchemy.__init__(self, DeskMapped)
 
-    def listUsers(self, deskId, orderBy=None, offset=None, limit=None, detailed=False):
+    def getUsers(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
-        @see: IDeskService.listUsers
+        @see: IDeskService.getUsers
         '''
 
         sql = self.session().query(UserMapped).join(DeskUserMapped)
         sql = sql.filter(DeskUserMapped.desk == deskId)
-        if orderBy == 'name':
-            sql = sql.order_by(UserMapped.Name)
-        if orderBy == 'id':
-            sql = sql.order_by(UserMapped.Id)
+        if q:
+            sql = buildQuery(sql, q, UserMapped)
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
@@ -51,15 +49,13 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         return entities
 
     def attachUser(self, deskId, userId):
-        # TODO: Martin: the UPDATE function are not mandatory to return something, so you can remove the bool and just not return anything,
-        # thus you avoid the return True.
         '''
         @see IDeskService.attachUser
         '''
         sql = self.session().query(DeskUserMapped)
         sql = sql.filter(DeskUserMapped.desk == deskId)
         sql = sql.filter(DeskUserMapped.user == userId)
-        if sql.count() == 1: return True
+        if sql.count() == 1: return
 
         desk_user = DeskUserMapped()
         desk_user.desk = deskId
@@ -68,8 +64,6 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         self.session().add(desk_user)
         self.session().flush((desk_user,))
 
-        return True
-
     def detachUser(self, deskId, userId):
         '''
         @see IDeskService.detachUser
@@ -77,7 +71,7 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         sql = self.session().query(DeskUserMapped)
         sql = sql.filter(DeskUserMapped.desk == deskId)
         sql = sql.filter(DeskUserMapped.user == userId)
-        sql.delete()
-        # TODO: Martin: should be sql.delete() > 0 in order to validate if something has been deleted.
-        return True
+        count_del = sql.delete()
+
+        return (0 < count_del)
 
