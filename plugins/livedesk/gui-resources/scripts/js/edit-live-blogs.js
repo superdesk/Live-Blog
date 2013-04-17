@@ -661,7 +661,10 @@ function(providers, Gizmo, $, BlogAction)
 			    });
 				*/
 				var self = this,
-					post = Gizmo.Auth(new this.collection.model(data))
+					post = Gizmo.Auth(new this.collection.model());
+				delete data._parsed;
+				post._new = true;
+				post.set(data);
 				this.collection.xfilter('CId,Order').insert(post).done(function(){
 				    post.href = post.data.href;
 				    
@@ -793,7 +796,7 @@ function(providers, Gizmo, $, BlogAction)
 					cont.removeClass("compact-tabs");
 					tabs.css('top','0');
 				}				
-			},	
+			},
 			postInit: function()
 			{
 				var self = this;
@@ -805,6 +808,35 @@ function(providers, Gizmo, $, BlogAction)
 				    {
 				        self.render();
 				    });
+			},
+			/*
+			 * TODO description
+			 */
+			drop: function(event, ui)
+			{
+				var self = this,
+					data = ui.draggable.data('data'),
+					post = ui.draggable.data('post'),
+					
+					either = data || post;
+				if( either instanceof Gizmo.View)
+				{
+					either.parent = self.timelineView;
+					either.render();
+					$('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
+					$('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				}
+				else if(data !== undefined) {
+					self.timelineView.insert(data);
+				}
+				else if(post !== undefined)
+				{
+					self.timelineView.publish(post);
+					// stupid bug in jqueryui you can make draggable desstroy
+					setTimeout(function(){
+						$(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
+					},1);
+				}
 			},
 			/*!
              * Save description and title changes for the current model blog
