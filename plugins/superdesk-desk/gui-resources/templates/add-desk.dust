@@ -1,4 +1,4 @@
-<div class="modal hide fade modal-wide" id="addDesk">
+<div class="modal fade modal-wide" id="addDesk">
 	<div class="modal-header"> <a class="close cancel">×</a>
 		<h3>_("Add New Desk");</h3>
 	</div>

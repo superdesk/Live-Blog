@@ -9,105 +9,19 @@
 				<div class="desk-config-tab member-tab">
 					<div class="desk-subheader subnav">
 						<ul class="nav nav-pills pull-left">
-					      <li class="active"><a href="#">Desk members</a></li>
-					      <li><a href="#">Desk boards</a></li>
+					      <li class="active"><a href="#">_("Desk members");</a></li>
+					      {! not yet <li><a href="#">_("Desk boards");</a></li>!}
 					    </ul>
-					    <a class="btn btn-info pull-right" href="#addMember" data-toggle="modal" ><span class="icon-plus-sign icon-white"></span> Add Member</a>
+					    <a class="btn btn-info pull-right edit-members" data-toggle="modal" href="#addMember"><span class="icon-plus-sign icon-white"></span> _("Edit Members");</a>
 					</div>
 					<div class="desk-config-tab-content">
-						<ul class="plain-table">
-		                    <li>
-		                      
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large" >Ana Nedic</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
-		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid1Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                      
-		                    </li>
-
-		                    <li>
-		                      
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large" >Billy Bragg</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Editor <b class="caret"></b></a>
-		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid2editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid2Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid2photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                    </li>
-
-		                    <li>
-		                     
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large" >Majed Abusalama</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
-		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid3editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid3Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid3photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                    </li>
-
-		                    <li>
-		                     
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large" >Matina Stevis</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
-		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid4editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid4Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid4photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                    </li>
-
-		                    <li>
-		                     
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large">Paco González</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
-		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid5editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid5Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid5photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                    </li>
-
-		                    <li>
-		                     
-		                      <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
-		                      <a class="collaborator-name-large" >April O'Neil</a>
-		                       <div class="dropdown dropdown-simple">
-		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Editor,Journalist <b class="caret"></b></a>
-		                           <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid6editor"> Editor</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid6Journalist"> Journalist</li>
-		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid6photographer"> Photographer</li>
-		                        </ul>
-		                      </div>
-		                    </li>
-
-
-
-
+						<ul class="plain-table user-list">
+                            <li>_("Loading Members...");</li>
 		                  </ul>
 					</div>
 				</div>
 
+                {! not yet
 				<div class="desk-config-tab board-tab">
 					<div class="desk-subheader subnav">
 						<ul class="nav nav-pills pull-left">
@@ -202,6 +116,7 @@
 		                </ul>
 					</div>
 				</div>
+                !}
 
 				
 			</div>
