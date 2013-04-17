@@ -18,14 +18,20 @@ function($, giz, Action, Desk, Task, TaskStatus)
         events:
         {
             "form": { 'submit': 'save' },
-            "[data-action='save']": { 'click': 'save' }
+            "[data-action='save']": { 'click': 'save' },
+            "[data-list='users'] li": { 'click': 'assign' }
         },
-        
+        /*!
+         * refresh data on UI
+         */
         refreshUIData: function()
         {
             this.refreshTaskList();
             this.refreshAsigneeList();
         },
+        /*!
+         * 
+         */
         refreshTaskList: function()
         {
             var self = this;
@@ -34,9 +40,11 @@ function($, giz, Action, Desk, Task, TaskStatus)
                 $('[data-list="parent-task"]', this.el).html('');
                 deskTasks.each(function(){ $('[data-list="parent-task"]', self.el)
                     .append('<li value="'+this.get('Id')+'">'+this.get('Title')+'</li>'); }); 
-                
             });
         },
+        /*!
+         * 
+         */
         refreshAsigneeList: function()
         {
             var users = this.desk.get('User'),
@@ -48,18 +56,43 @@ function($, giz, Action, Desk, Task, TaskStatus)
                     .append('<li value="'+this.get('Id')+'">'+this.get('Name')+'</li>'); }); 
             });
         },
-        activate: function(desk)
+        _assigned: false,
+        /*!
+         * assign user to task
+         */
+        assign: function(evt)
         {
-            if( desk )
-            {
-                this.desk = desk;
-                desk.off('read.task').off('update.task')
-                    .on('read.task', this.refreshUIData, this)
-                    .on('update.task', this.refreshUIData, this)
-                    .sync();
-            }
-            
-            
+            var userId = $(evt.currentTarget).attr('value'),
+                self = this;
+            $('[data-task-info="assignee-image"]', self.el).html('');
+            this.desk.get('User').get(userId).done(function(user)
+            { 
+                self._assigned = user;
+                user.xfilter().sync().done(function()
+                { 
+                    $('[data-task-info="assignee"]', self.el).removeClass('hide');
+                    $('[data-task-info="assignee-name"]', self.el).text(user.get('Name'));
+                    user.get('MetaDataIcon').sync({data:{ thumbSize: 'large'}})
+                    .done(function()
+                    { 
+                        $('[data-task-info="assignee-image"]', self.el).html('<img src="'+user.get('MetaDataIcon').get('Thumbnail').href+'" />');
+                    })
+                    .fail(function(){  }); 
+                }); 
+            });
+            return this;
+        },
+        setDesk: function(desk)
+        {
+            this.desk = desk;
+            desk.off('read.task').off('update.task')
+                .on('read.task', this.refreshUIData, this)
+                .on('update.task', this.refreshUIData, this)
+                .sync();
+            return this;
+        },
+        activate: function()
+        {
             $(this.el).appendTo($.superdesk.layoutPlaceholder);
             $('.modal', this.el).modal();
             $('input', this.el).val('');
@@ -81,26 +114,47 @@ function($, giz, Action, Desk, Task, TaskStatus)
         render: function()
         {
             var self = this;
-            $(self.el).tmpl('superdesk/desks>task/add', function(){  });
+            $(self.el).tmpl('superdesk/desks>task/add');
         },
         save: function(evt)
         {
-            var task = new Task;
-            task.set
-            ({
-                Title: $('[data-task-info="title"]', this.el).val(), 
-                Description: $('[data-task-info="description"]', this.el).html(),
-                Status: this.statuses._list[0].get('Key') 
+            var task = new Task,
+                data = 
+                {
+                    Title: $('[data-task-info="title"]', this.el).val(), 
+                    Description: $('[data-task-info="description"]', this.el).html(),
+                    Status: $('[data-task-info="status"]', this.el).text(),
+                    Desk: this.desk
+                };
+            if( this._assigned ) data.User = this._assigned;
+            task.set(data);
+            task.sync().done(function()
+            { 
+                //console.log(task);
             });
-            task.sync();
+            $('.modal', this.el).modal('hide');
             evt.preventDefault();
-            this.el.modal('hide');
         }
     }),
     
-    addView = new AddView;
+    EditView = AddView.extend
+    ({ 
+        setTask: function(task)
+        {
+            var self = this;
+            this.task = task;
+            this.task.sync().done(function(){ self.setDesk(self.task.get('Desk')); });
+            return this; 
+            // data-task-info="title"
+        }
+    }),
     
-    var desk = new Desk('http://localhost:8080/resources/Desk/Desk/1');
+    addView = new AddView,
+    editView = new EditView;
     
-    return { init: function(){ addView.activate(desk); }};
+    var desk = new Desk('http://localhost:8080/resources/Desk/Desk/1'),
+        task = new Task('http://localhost:8080/resources/Desk/Task/1');
+    
+    //return { init: function(){ addView.setDesk(desk).activate(); }};
+    return { init: function(){ editView.setTask(task).activate(); }};
 });

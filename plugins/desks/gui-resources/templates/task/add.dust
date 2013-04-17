@@ -1,6 +1,6 @@
 <div class="modal fade split-popup" id="AddAssignment">
   <div class="modal-header">
-    <a href="javascript:void(0)" class="close" data-dismiss="modal" aria-hidden="true">×</a>
+    <a href="javascript:void(0)" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
     <input type="text" placeholder="Assignment title" class="assignment-title" data-task-info="title" />
   </div>
   <div class="modal-body">
@@ -73,14 +73,12 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Assignee')</header>
     		<div class="module-sidepane-module-content">
-    			<div class="assignee-info">
-    				{#Assignee}
-    					<figure>
+    			<div class="assignee-info {^Assignee}hide{/Assignee}" data-task-info="assignee">
+   					<figure data-task-info="assignee-image">
     					
-    					</figure>
-    					<b>{Name}</b>
-    					<time>{Date}</time>
-    				{/Assignee}
+   					</figure>
+   					<b data-task-info="assignee-name">{Name}</b>
+   					<time>{Date}</time>
     			</div>
     			<div class="btn-group">
 				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
