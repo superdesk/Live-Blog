@@ -9,7 +9,7 @@ Created on Apr 27, 2012
 Base SQL Alchemy implementation to support meta type services.
 '''
 
-from ally.cdm.spec import ICDM
+from ally.cdm.spec import ICDM, PathNotFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
@@ -96,7 +96,8 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         metaData = self.session().query(self.MetaData).filter(self.MetaData.Id == id).one()
         
         #delete file from CDM
-        self.cdmArchive.remove(metaData.content)
+        try: self.cdmArchive.remove(metaData.content)
+        except PathNotFound: pass
         #delete the thumbnails
         self.thumbnailManager.deleteThumbnail(metaData.thumbnailFormatId, metaData)
         
