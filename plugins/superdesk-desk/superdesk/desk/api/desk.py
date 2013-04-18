@@ -51,6 +51,13 @@ class IDeskService(IEntityService):
         Provides all users of a desk.
         '''
 
+    @call(method=GET, webName="Unassigned")
+    def getUnassignedUsers(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
+                           q:QUser=None) -> Iter(User):
+        '''
+        Returns a list of users that are not assigned to the given desk.
+        '''
+
     @call(method=UPDATE)
     def attachUser(self, deskId:Desk.Id, userId:User.Id):
         '''
