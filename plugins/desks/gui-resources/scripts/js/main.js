@@ -3,7 +3,7 @@ define
     'jquery',
     'gizmo/superdesk',
     'gizmo/superdesk/action',
-    'tmpl!superdesk/desks>singledesk',
+    //'tmpl!superdesk/desks>singledesk',
 ], 
 function($, giz, Action)
 {    

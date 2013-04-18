@@ -1,11 +1,12 @@
 define([
     'jquery',
+    'backbone',
     'jquery/superdesk',
     config.guiJs('livedesk', 'action'),
 
     'jquery/tmpl',
     'tmpl!livedesk>error-notif'
-], function($, superdesk, BlogAction) {
+], function($, Backbone, superdesk, BlogAction) {
 
     /**
      * Get blog href for given blog id
