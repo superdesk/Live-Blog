@@ -1,15 +1,18 @@
 requirejs.config({
     paths: {
-        'config/views': config.gui('superdesk/scripts/views'),
-        'desks/views': config.gui('superdesk-desk/scripts/views')
+        'superdesk/views': config.gui('superdesk/scripts/views'),
+        'superdesk/models': config.gui('superdesk/scripts/models'),
+        'desk/views': config.gui('superdesk-desk/scripts/views'),
+        'desk/models': config.gui('superdesk-desk/scripts/models'),
+        'desk/utils': config.gui('superdesk-desk/scripts/utils')
     }
 });
 
 define([
     'jquery',
     'backbone',
-    'desks/views/config',
-    'config/views/menu'
+    'desk/views/config',
+    'superdesk/views/menu'
 ], function($, Backbone, configView, menuView) {
     return {
         init: function(submenu, menu, data) {
@@ -24,5 +27,5 @@ define([
 
             Backbone.history.loadUrl();
         }
-    }
+    };
 });

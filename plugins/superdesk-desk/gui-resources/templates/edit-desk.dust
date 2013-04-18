@@ -18,13 +18,13 @@
 
 			<form>
 				<label for="desk-name">_("Desk Name:");</label>
-				<input id="desk-name" name="name" type="text" placeholder="Enter Desk name" class="fullwidth-input">
+				<input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input">
 			</form>
 		</div>
 		
 	</div>
 	<div class="modal-footer"> 
-	  	<a href="#" class="btn cancel">Cancel</a> 
-	  	<a href="#" class="btn btn-primary save">Save</a>
+	  	<a href="#" class="btn cancel">_("Cancel");</a> 
+	  	<a href="#" class="btn btn-primary save">_("Save");</a>
     </div>
 </div>

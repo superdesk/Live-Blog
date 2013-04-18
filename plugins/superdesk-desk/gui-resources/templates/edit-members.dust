@@ -20,7 +20,7 @@
       </form>
   </div>
   <div class="modal-footer"> 
-  	<a href="#" class="btn cancel">Cancel</a> 
-  	<a href="#" class="btn btn-primary save">Save changes</a> </div>
+  	<a href="#" class="btn cancel">_("Cancel");</a> 
+  	<a href="#" class="btn btn-primary save">_("Save");</a> </div>
 </div>
 
