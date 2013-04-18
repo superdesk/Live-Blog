@@ -6,6 +6,7 @@ define
     config.guiJs('superdesk/desks', 'models/desk'),
     config.guiJs('superdesk/desks', 'models/task'),
     config.guiJs('superdesk/desks', 'models/task-status'),
+    'jqueryui/datepicker',
     'tmpl!superdesk/desks>task/add'
 ],
 function($, giz, Action, Desk, Task, TaskStatus)
@@ -118,7 +119,7 @@ function($, giz, Action, Desk, Task, TaskStatus)
         },
         save: function(evt)
         {
-            var task = new Task,
+            var task = this.task || new Task,
                 data = 
                 {
                     Title: $('[data-task-info="title"]', this.el).val(), 
@@ -139,6 +140,23 @@ function($, giz, Action, Desk, Task, TaskStatus)
     
     EditView = AddView.extend
     ({ 
+        /*!
+         * refresh data on UI
+         */
+        refreshUIData: function()
+        {
+            this.refreshTaskInfo();
+            this.refreshTaskList();
+            this.refreshAsigneeList();
+        },
+        /*!
+         * 
+         */
+        refreshTaskInfo: function()
+        {
+            $('[data-task-info="title"]', this.el).val(this.task.get('Title'));
+            $('[data-task-info="description"]', this.el).html(this.task.get('Description'));
+        },
         setTask: function(task)
         {
             var self = this;

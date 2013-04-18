@@ -43,7 +43,7 @@
         			{/Subtasks}
         		</ul>
         	</section>    
-        	<section class="modal-mainpane-module">
+        	<!-- section class="modal-mainpane-module">
         		<header>Comments</header>
         		<div class="add-comment-box">
         			<textarea placeholder="Write a comment"></textarea>
@@ -66,7 +66,7 @@
         			</li>
 					{/Comments}
         		</ul>
-        	</section>    	
+        	</section -->    	
         </div>
     </div>
     <div class="modal-right-pane">
