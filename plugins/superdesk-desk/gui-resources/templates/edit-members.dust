@@ -8,7 +8,7 @@
 
       <form class="form-horizontal row-fluid" style="margin-top:10px;">
 
-        <label class="checkbox select-all-colaborator" >
+        <label class="checkbox select-all-colaborator">
           <input type="checkbox" name="selectAllMembers" class="toggle-all">
           Select all
         </label>

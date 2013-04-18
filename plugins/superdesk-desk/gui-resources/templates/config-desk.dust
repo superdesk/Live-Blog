@@ -12,7 +12,7 @@
 					      <li class="active"><a href="#">_("Desk members");</a></li>
 					      {! not yet <li><a href="#">_("Desk boards");</a></li>!}
 					    </ul>
-					    <a class="btn btn-info pull-right edit-members" data-toggle="modal" href="#addMember"><span class="icon-plus-sign icon-white"></span> _("Edit Members");</a>
+					    <a class="btn btn-info pull-right edit-members" data-toggle="modal" href="#addMember"><span class="icon-plus-sign icon-white"></span> _("Add Member");</a>
 					</div>
 					<div class="desk-config-tab-content">
 						<ul class="plain-table user-list">

@@ -13,7 +13,6 @@ define([
         idAttribute: 'Id'
     });
 
-    var userHeaders = {'X-Filter': 'Id, FullName, Name, EMail'};
     var User = Model.extend({
         getData: function() {
             return {
@@ -46,6 +45,7 @@ define([
     var UserCollection = Backbone.Collection.extend({
         model: User,
         url: url.get(),
+        xfilter: {'X-Filter': 'Id, FullName, Name, EMail'},
 
         parse: function(response) {
             return response.UserList;
@@ -55,8 +55,6 @@ define([
             return user.getName().toLowerCase();
         }
     });
-
-    var deskHeaders = {'X-Filter': 'Id, Name, User'};
 
     var Desk = Model.extend({
         parse: function(response) {
@@ -69,6 +67,8 @@ define([
     var DeskCollection = Backbone.Collection.extend({
         model: Desk,
         url: url.get(),
+        xfilter: {'X-Filter': 'Id, Name, User'},
+
 
         parse: function(response) {
             return response.DeskList;
@@ -78,13 +78,21 @@ define([
     var UserView = Backbone.View.extend({
         tagName: 'li',
 
-        initialize: function() {
-            this.model.on('destroy', this.remove, this);
+        events: {
+            'click .remove': 'destroy'
         },
 
         render: function() {
             $(this.el).tmpl('superdesk-desk>list-user', this.model.getData());
             return this;
+        },
+
+        destroy: function(e) {
+            e.preventDefault();
+            if (confirm(_("Are you sure you want to remove member?"))) {
+                this.model.destroy();
+                this.remove();
+            }
         }
     });
 
@@ -93,6 +101,10 @@ define([
 
         events: {
             'change input:checkbox': 'toggle'
+        },
+
+        initialize: function() {
+            this.model.on('change', this.render, this);
         },
 
         render: function() {
@@ -105,32 +117,35 @@ define([
         }
     });
 
-    var EditMembersView = Backbone.View.extend({
+    var AddMembersView = Backbone.View.extend({
         events: {
             'click .save': 'save',
             'click .cancel': 'close',
-            'change .toggle-all': 'toggleAll'
+            'change .toggle-all': 'toggleAll',
+            'change input[name="search"]': 'search',
+            'blur input[name="search"]': 'search'
         },
 
         initialize: function() {
             this.users = new UserCollection();
             this.users.on('reset', this.renderUsers, this);
+            this.users.on('change', this.updateToggle, this);
+            this.usersUrl = this.users.url;
         },
 
         render: function() {
             $(this.el).tmpl('superdesk-desk>edit-members');
-            this.users.fetch({reset: true, headers: userHeaders});
+            this.fetchUsers();
             return this;
         },
 
+        fetchUsers: function() {
+            this.users.fetch({reset: true, headers: this.users.xfilter});
+        },
+
         renderUsers: function() {
-            var selected = this.collection;
             var list = $(this.el).find('.internal-collaborators').empty();
             this.users.each(function(user) {
-                if (selected.findWhere({'Id': user.id})) {
-                    user.set('selected', true);
-                }
-
                 var view = new SelectUserView({model: user});
                 list.append(view.render().el);
             });
@@ -139,15 +154,6 @@ define([
         save: function(e) {
             var selected = new UserCollection(this.users.where({'selected': true}));
             var members = this.collection;
-
-            console.log('selected', selected.pluck('Id'));
-            console.log('members', members.pluck('Id'));
-
-            members.each(function(user) {
-                if (!selected.findWhere({Id: user.id})) {
-                    user.destroy({wait: true});
-                }
-            });
 
             selected.each(function(user) {
                 members.create(user.getResource());
@@ -161,6 +167,30 @@ define([
             $(this.el).find('#addMember').modal('hide', function() {
                 view.remove();
             });
+        },
+
+        toggleAll: function(e) {
+            var checked = $(e.target).prop('checked');
+            this.users.each(function(user) {
+                user.set('selected', checked);
+            });
+        },
+
+        updateToggle: function() {
+            var checkbox = $(this.el).find('.toggle-all');
+            checkbox.prop('checked', this.users.length == this.users.where({'selected': true}).length);
+        },
+
+        search: function(e) {
+            var query = $(e.target).val();
+
+            if (query.length) {
+                this.users.url = this.usersUrl + '?all=' + query;
+            } else {
+                this.users.url = this.usersUrl;
+            }
+
+            this.fetchUsers();
         }
     });
 
@@ -186,7 +216,7 @@ define([
         },
 
         fetchUsers: function() {
-            this.model.users.fetch({headers: userHeaders, reset: true});
+            this.model.users.fetch({headers: this.model.users.xfilter, reset: true});
         },
 
         renderMembers: function() {
@@ -199,7 +229,7 @@ define([
 
         editMembers: function(e) {
             e.preventDefault();
-            var view = new EditMembersView({collection: this.model.users});
+            var view = new AddMembersView({collection: this.model.users});
             $('#modal-placeholder').html(view.render().el);
             $(this.el).find('#addMember').modal('show');
         }
@@ -221,7 +251,7 @@ define([
                 'Name': $(this.el).find('#desk-name').val()
             };
 
-            this.collection.create(data, {headers: deskHeaders});
+            this.collection.create(data, {headers: this.collection.xfilter});
             this.close(e);
         },
 
@@ -257,7 +287,7 @@ define([
         },
 
         fetchCollection: function() {
-            this.collection.fetch({headers: deskHeaders, reset: true});
+            this.collection.fetch({headers: this.collection.xfilter, reset: true});
         },
 
         addDesk: function(e) {
