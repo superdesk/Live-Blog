@@ -17,7 +17,7 @@
         	</div>
         	<ul class="assign-labels clearfix">
 				<li class="critical">
-					<i class="icon-desk-time icon-white"></i> <span data-info="due-date">{DueDate}</span>
+					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{DueDate}</span>
 				</li>
 				<li>
 					<i class="icon-desk-subtask icon-white"></i> <span data-info="subtask-count">{SubtaskCount} _('Subtasks')</span>
@@ -102,8 +102,9 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Action')</header>
     		<div class="module-sidepane-module-content">
-    			<a class="btn" href="javascript:void(0)"><i class="icon-desk-time"></i> _('Due Date')</a>
-    			<a class="btn" href="javascript:void(0)"><i class="icon-desk-subtask"></i>_('Add Subtask')</a>
+    			<input data-task-info="due-date" class="hide" />
+    			<a class="btn" href="javascript:void(0)" data-ctrl="due-date-proxy"><i class="icon-desk-time"></i> _('Due Date')</a>
+    			<a class="btn" href="javascript:void(0)" data-ctrl="add-subtask"><i class="icon-desk-subtask"></i>_('Add Subtask')</a>
     			<a class="btn" href="javascript:void(0)"><i class="icon-arrow-right"></i> _('Start Progress')</a>
     			<a class="btn" href="javascript:void(0)"><i class="icon-ok"></i> _('Finish Task')</a>
     			<a class="btn" href="javascript:void(0)" style="margin-top:30px;"><i class="icon-trash"></i> _('Delete Task')</a>
