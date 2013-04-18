@@ -46,6 +46,10 @@ def modulesTasksAction() -> Action:
 def modulesAddTaskAction() -> Action:
     return Action('add', Parent=modulesTasksAction(), Script=publishedURI('superdesk/desks/scripts/js/task/add.js'))
 
+@ioc.entity   
+def modulesSingleDeskAction() -> Action:
+    return Action('single', Parent=modulesAction(), Script=publishedURI('superdesk/desks/scripts/js/desk/single.js'))
+
 # --------------------------------------------------------------------
 
 @ioc.entity
@@ -57,5 +61,5 @@ def rightDesksView() -> RightAction:
 @gui.setup
 def registerAclDesksView():
     r = rightDesksView()
-    r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesTasksAction(), modulesAddTaskAction())
+    r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesTasksAction(), modulesAddTaskAction(),modulesSingleDeskAction() )
     r.allGet(IDesksService)
