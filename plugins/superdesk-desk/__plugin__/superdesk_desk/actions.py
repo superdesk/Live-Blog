@@ -15,12 +15,12 @@ support.loadAllEntities(Action)
 
 @ioc.entity
 def menuAction() -> Action:
-    script=publishedURI('superdesk-desk/scripts/configmenu.js')
-    return Action('desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), Script=script)
+    script=publishedURI('superdesk-desk/scripts/config-menu.js')
+    return Action('desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
 
 @ioc.entity
 def blogConfigView() -> RightAction:
-    return gui.actionRight(_('security', 'Blog Config View'), _('security', 'Allows desks configurationt.'))
+    return gui.actionRight(_('security', 'Blog Config View'), _('security', 'Allows desks configuration.'))
 
 @model
 class Menu(Entity):

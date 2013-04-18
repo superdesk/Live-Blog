@@ -69,7 +69,6 @@ define([
         url: url.get(),
         xfilter: {'X-Filter': 'Id, Name, User'},
 
-
         parse: function(response) {
             return response.DeskList;
         }
@@ -247,11 +246,8 @@ define([
         },
 
         save: function(e) {
-            var data = {
-                'Name': $(this.el).find('#desk-name').val()
-            };
-
-            this.collection.create(data, {headers: this.collection.xfilter});
+            var data = {Name: $(this.el).find('#desk-name').val()};
+            this.collection.create(data, {headers: this.collection.xfilter, wait: true});
             this.close(e);
         },
 
