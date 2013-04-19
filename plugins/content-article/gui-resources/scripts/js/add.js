@@ -9,6 +9,8 @@ define
 function($, giz, Article, Action)
 {
     var
+    router = new Backbone.Router,
+    
     AddView = giz.View.extend
     ({
         events:
@@ -42,19 +44,14 @@ function($, giz, Article, Action)
                 	Author: localStorage.getItem('superdesk.login.id'),
                     Content: JSON.stringify({Title: $('form [name="title"]', this.el).val(), Lead: '', Body: ''})
                 })
-                .xfilter('Id')
-                .sync()
-                .done(function()
-                { 
-                    $.superdesk.navigation.bind( 'article/'+article.get('Id'), function()
-                    {
-                        Action.initApp('modules.article.edit', article.hash());
-                    }, '' );
-                });
-        }
+                .xfilter('Id');
+            
+            this.list.insert(article).done(function(){ router.navigate('//article/'+article.get('Id')); })
+        },
+        setList: function(list){ this.list = list; return this; }
     }),
     
     addView = new AddView;
     
-    return { init: function(){ addView.activate(); }};
+    return { init: function(list){ addView.setList(list).activate(); }};
 });
