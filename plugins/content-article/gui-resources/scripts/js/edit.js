@@ -14,7 +14,7 @@ define
 function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
 {
     var
-    
+    router = new Backbone.Router,
     upload = new Upload,
     uploadEditorCommand = function(command)
     {
@@ -208,8 +208,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             Action.get('modules.article.list')
             .done(function(action)
             {
-                if(action.get('Path') == 'modules.article.list' && action.get('Script'))
-                    $.superdesk.navigation.bind( 'article', function(){ require([action.get('Script').href], function(app){ app(); }); }, 'Articles' );
+                router.navigate('//article');
             });
         }
         

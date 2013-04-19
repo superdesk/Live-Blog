@@ -46,7 +46,7 @@ function($, giz, Article, Action)
                 })
                 .xfilter('Id');
             
-            this.list.insert(article).done(function(){ router.navigate('//article/'+article.get('Id')); })
+            this.list.insert(article).done(function(){ router.navigate('//article/'+article.get('Id')); });
         },
         setList: function(list){ this.list = list; return this; }
     }),
