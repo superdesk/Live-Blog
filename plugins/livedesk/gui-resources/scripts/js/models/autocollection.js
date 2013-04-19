@@ -72,7 +72,7 @@ define([
 			params = params || {};
 			requestOptions = $.extend(true, {
 				data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, 
-				headers: { 'X-Filter': 'CId, Order, IsPublished'}
+				headers: { 'X-Filter': 'CId, Order, IsPublished, DeletedOn'}
 			},params);
 			if(self._stats.lastCId === 0) delete requestOptions.data;
 			if(!this.keep && self.view && !self.view.checkElement()) 

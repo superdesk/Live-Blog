@@ -40,7 +40,8 @@ define('providers/youtube', [
                 this.el.tmpl('livedesk>providers/youtube', {}, function(){
                     $(self.el)
                     .off('click.livedesk')
-                    .on('click.livedesk', '#ytb-search-controls>li', function(ev){
+                    .on('click.livedesk', '#ytb-search-controls>li', function(evt){
+                        evt.preventDefault();
                         $(this).siblings().removeClass('active') .end()
                         .addClass('active');			  
                         var myArr = $(this).attr('id').split('-');
