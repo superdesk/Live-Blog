@@ -120,8 +120,8 @@
 .flickrservice .attributes .source-icon {
     background-image: url("img/flickr-16px.png");
 }
-.facebook .attributes .source-icon {
-    background-image: url("img/facebook-16px.png");
+.facebookservice .attributes .source-icon {
+    background-image: url("img/fb-16px.png");
 }
 .youtubeservice .attributes .source-icon {
     background-image: url("img/youtube-16px.png");
@@ -137,9 +137,10 @@
     background-image: url("img/instagram.png");
 }  
 
-.linkpost h3,
+.link h3,
 .googleservice h3, 
-.twitterservice h3 {
+.twitterservice h3,
+.facebookservice h3 {
     color:#a0a0a0;
     font-size: 11px;
     font-weight: normal;
@@ -148,20 +149,20 @@
     margin-top: -3px;
 }
 
-
+.facebookservice h3 a,
 .twitterservice h3 a,
 .googleservice h3 a,
-.linkpost h3 a {
+.link h3 a {
     color:#2d6aaf;
     text-decoration: none;
     font-size: 13px;
     font-weight: bold;
     padding-right: 5px;
 }
-
+.facebookservice h3 a:hover,
 .twitterservice h3 a:hover,
 .googleservice h3 a:hover,
-.linkpost h3 a:hover {
+.link h3 a:hover {
     color:#484848;
 }
 
@@ -190,12 +191,12 @@
 }
 
 
-.linkpost .attributes a  {
+.link .attributes a  {
     color:#666;
 }
-
+.facebookservice figure.profile-thumbnail,
 .twitterservice figure.profile-thumbnail,
-.linkpost figure.link-thumbnail {
+.link figure.link-thumbnail {
     max-width: 48px;
     max-height: 48px;
     margin: 0 10px 0 0;
@@ -203,24 +204,29 @@
     float:left;
 }
 
+.facebookservice figure.profile-thumbnail img,
 .twitterservice figure.profile-thumbnail img,
-.linkpost figure.link-thumbnail img {
+.link figure.link-thumbnail img {
     max-width: 48px;
     max-height: 48px;
 }
+.facebookservice figure + h3 + .result-text,
 .twitterservice figure + h3 + .result-text,
-.linkpost figure + h3 + .result-text {
+.link figure + h3 + .result-text {
     padding-left: 60px;
     padding-top: 3px;
+    margin: 0px;
 }
-.twitterservice figure + h3 + .result-text + .twitter-controls + p,
-.linkpost figure + h3 + .result-text + p {
+
+.facebookservice .result-text + .attributes,
+.twitterservice .result-text + .attributes,
+.link figure + h3 + .result-text + p {
     padding-left: 60px;
 }
 
-
+.facebookservice .result-content,
 .twitterservice .result-content,
-.linkpost .result-content,
+.link .result-content,
 .googleservice .result-content {
     border: 1px solid #e5e5e5;
     padding: 10px !important;
@@ -229,13 +235,15 @@
     margin: 0 -5px 5px;
 }
 
+.facebookservice .result-content,
 .twitterservice .result-content {
     border-radius: 2px;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
 }
 
-.linkpost .result-text,
+.facebookservice .result-text,
+.link .result-text,
 .twitterservice .result-text,
 .googleservice .result-text {
     font-size: 12px !important;
