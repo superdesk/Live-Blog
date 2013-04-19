@@ -1115,7 +1115,7 @@ function(providers, Gizmo, $, BlogAction)
 						delete providers["ads"];
 						delete providers["facebook"];
 						delete providers["chain"];
-						delete providers["image"];
+						//delete providers["image"];
 					});
 	    BlogAction.setBlogUrl(theBlog);
 	    // stop autoupdate if any
