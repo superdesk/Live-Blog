@@ -6,10 +6,14 @@ define([
     return Backbone.Collection.extend({
         model: Desk,
         url: utils.getResourceUrl('Desk/Desk'),
-        xfilter: {'X-Filter': 'Id, Name, User, UserUnassigned'},
+        xfilter: {'X-Filter': '*,User'},
 
         parse: function(response) {
             return response.DeskList;
+        },
+
+        comparator: function(desk) {
+            return -1 * desk.get('Id');
         }
     });
 });

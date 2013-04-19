@@ -13,10 +13,11 @@ define([
 
         initialize: function() {
             this.collection.on('reset', this.render, this);
-            this.collection.on('add', this.render, this);
+            this.collection.on('sort', this.render, this);
+            this.collection.on('add', this.fetchAndSort, this);
         },
 
-        render: function() {
+        render: function(e) {
             $(this.el).tmpl('superdesk-desk>config', {});
 
             var list = $(this.el).find('.config-page-container').empty();
@@ -36,6 +37,13 @@ define([
             e.preventDefault();
             var view = new EditDeskView({collection: this.collection});
             $('#modal-placeholder').html(view.render().el);
+        },
+
+        // workaround for missing x-filter fields on POST
+        fetchAndSort: function(model, collection) {
+            model.fetch({headers: collection.xfilter, success: function(model) {
+                model.collection.sort();
+            }});
         }
     });
 

@@ -12,7 +12,7 @@ define(['backbone', 'tmpl!superdesk-desk>edit-desk'], function(Backbone) {
 
         save: function(e) {
             var data = {Name: $(this.el).find('#desk-name').val()};
-            this.collection.create(data, {headers: this.collection.xfilter, wait: true});
+            this.collection.create(data, {headers: {'X-Filter': 'Id'}, wait: true});
             this.close(e);
         },
 
