@@ -6,7 +6,7 @@ define([
     return Backbone.Collection.extend({
         model: Desk,
         url: utils.getResourceUrl('Desk/Desk'),
-        xfilter: {'X-Filter': 'Id, Name, User'},
+        xfilter: {'X-Filter': 'Id, Name, User, UserUnassigned'},
 
         parse: function(response) {
             return response.DeskList;

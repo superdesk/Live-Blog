@@ -5,6 +5,7 @@ define([
     return Model.extend({
         parse: function(response) {
             this.users = new UserCollection([], {url: response.User.href});
+            this.unassignedUsers = new UserCollection([], {url: response.UserUnassigned.href});
             return response;
         }
     });

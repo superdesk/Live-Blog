@@ -40,7 +40,7 @@ define([
 
         editMembers: function(e) {
             e.preventDefault();
-            var view = new AddMembersView({collection: this.model.users});
+            var view = new AddMembersView({model: this.model});
             $('#modal-placeholder').html(view.render().el);
             $(this.el).find('#addMember').modal('show');
         }

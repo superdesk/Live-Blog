@@ -1,10 +1,9 @@
 define([
     'backbone',
-    'desk/models/user-collection',
     'desk/views/select-user',
 
     'tmpl!superdesk-desk>edit-members'
-], function(Backbone, UserCollection, SelectUserView) {
+], function(Backbone, SelectUserView) {
     return Backbone.View.extend({
         events: {
             'click .save': 'save',
@@ -15,7 +14,7 @@ define([
         },
 
         initialize: function() {
-            this.users = new UserCollection();
+            this.users = this.model.unassignedUsers;
             this.users.on('reset', this.renderUsers, this);
             this.users.on('change', this.updateToggle, this);
             this.usersUrl = this.users.url;
@@ -40,8 +39,8 @@ define([
         },
 
         save: function(e) {
-            var selected = new UserCollection(this.users.where({'selected': true}));
-            var members = this.collection;
+            var selected = new Backbone.Collection(this.users.where({'selected': true}));
+            var members = this.model.users;
 
             selected.each(function(user) {
                 members.create(user.getResource());
@@ -73,7 +72,7 @@ define([
             var query = $(e.target).val();
 
             if (query.length) {
-                this.users.url = this.usersUrl + '?all=' + query;
+                this.users.url = this.usersUrl + '?name=' + query;
             } else {
                 this.users.url = this.usersUrl;
             }
