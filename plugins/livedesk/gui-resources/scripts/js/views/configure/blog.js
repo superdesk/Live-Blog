@@ -21,15 +21,13 @@
             '[data-action="cancel"]': { 'click': 'close' },
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
-			'[name="OutputLink"]': { click: 'selectOutputLink', focusIn: 'selectOutputLink' }
+			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
         },
         init: function() {
         },
-		selectOutputLink: function(evt) {
+		selectInput: function(evt) {
 			$(evt.target).select();
-		},
-		getOutputLink: function() {
-		
 		},
         save: function(evt){
             var self = this,
@@ -97,8 +95,7 @@
                 data = $.extend({}, self.model.feed(), {
                     BlogHref: self.theBlog,
                     BlogId: self.model.get('Id'),
-                    ui: 
-                    {
+                    ui: {
                         content: 'is-content=1',
                         side: 'is-side=1',
                         submenu: 'is-submenu',
@@ -109,7 +106,13 @@
             if(!embedConfig.FrontendServer || embedConfig.FrontendServer == ''){
                 embedConfig.FrontendServer = config.api_url;
             }
-			data["OutputLink"] = this.model.href.replace(config.api_url, embedConfig.FrontendServer);
+            if(this.model.href.indexOf(config.api_url) !== -1 ) {
+                data["OutputLink"] = this.model.href.replace(config.api_url, embedConfig.FrontendServer);
+            }
+            else {
+                data["OutputLink"] = embedConfig.FrontendServer + this.model.href;
+            }
+            data["ProviderLink"] = data["OutputLink"].split('/').slice(0,-1).join('/');
             $.superdesk.applyLayout('livedesk>configure', data, function() {
             //$.tmpl('livedesk>configure', self.model.feed(), function(e, o){
                 //self.el.html(o);
