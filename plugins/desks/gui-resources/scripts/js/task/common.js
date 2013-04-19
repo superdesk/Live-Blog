@@ -2,6 +2,7 @@ define
 ([
     'jquery',
     'gizmo/superdesk',
+    'moment',
     'gizmo/superdesk/action',
     config.guiJs('superdesk/desks', 'models/desk'),
     config.guiJs('superdesk/desks', 'models/task'),
@@ -11,7 +12,27 @@ define
 ],
 function($, giz, Action, Desk, Task, TaskStatus)
 {
-    var
+    var dpH4xx = $.datepicker._updateDatepicker;
+    $.datepicker._updateDatepicker = function()
+    {
+        dpH4xx.apply(this, arguments);
+        if( !this.dpDiv.find('[data-dp="time"]').length )
+        {
+            this.dpDiv.append
+            ('<div data-dp="time">'+
+                '<div class="input-append pull-left">'+
+                    '<input class="span1" data-dp="hours" type="text" />'+
+                    '<span class="add-on">hours</span>'+
+                '</div>'+
+                '<div class="input-append pull-left">'+
+                    '<input class="span1" data-dp="minutes" type="text" />'+
+                    '<span class="add-on">minutes</span>'+
+                '</div>'+
+            '</div>');
+        }
+    };
+    
+    var 
     DeskTasks = giz.Collection.extend({model: Task, url: new giz.Url('Desk/Task')}),
     deskTasks = new DeskTasks,
     AddView = giz.View.extend
@@ -21,11 +42,11 @@ function($, giz, Action, Desk, Task, TaskStatus)
             "form": { 'submit': 'save' },
             "[data-action='save']": { 'click': 'save' },
             "[data-list='users'] li": { 'click': 'assign' },
-            "[data-ctrl='due-date-proxy']": { 'click': 'duedate' },
+            "[data-ctrl='due-date-proxy']": { 'click': 'dueDate' },
             "[data-ctrl='add-subtask']": { 'click': 'save' }
         },
         
-        duedate: function()
+        dueDate: function()
         {
             $("input[data-task-info='due-date']", this.el).trigger('focus');
         },
@@ -126,7 +147,18 @@ function($, giz, Action, Desk, Task, TaskStatus)
             var self = this;
             $(self.el).tmpl('superdesk/desks>task/add-edit', function()
             {
-                $("input[data-task-info='due-date']", self.el).datepicker({ dateFormat: "yy-mm-dd" }); 
+                $("input[data-task-info='due-date']", self.el).datepicker
+                ({ 
+                    dateFormat: "yy-mm-dd",
+                    onClose: function(dateText, inst)
+                    {
+                        dateText += " "
+                            +($('[data-dp="hours"]', $(inst.dpDiv)).val()||'00')+':'
+                            +($('[data-dp="minutes"]', $(inst.dpDiv)).val()||'00')+':00';
+                        $(this).val(moment(dateText).calendar());
+                        $('[data-task-info="'+$(this).attr('data-task-info')+'"]', self.el).text($(this).val());
+                    }
+                }); 
             });
         },
         save: function(evt)
@@ -137,7 +169,8 @@ function($, giz, Action, Desk, Task, TaskStatus)
                     Title: $('[data-task-info="title"]', this.el).val(), 
                     Description: $('[data-task-info="description"]', this.el).html(),
                     Status: $('[data-task-info="status"]', this.el).text(),
-                    Desk: this.desk.get('Id')
+                    Desk: this.desk.get('Id'),
+                    DueDate: $("input[data-task-info='due-date']", this.el).val()
                 };
             if( this._assigned ) data.User = this._assigned;
             task.set(data);

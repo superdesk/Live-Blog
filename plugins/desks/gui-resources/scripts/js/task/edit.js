@@ -1,7 +1,7 @@
 define
 ([
     config.guiJs('superdesk/desks', 'task/common'),
-    confit.guiJs('superdesk/desks', 'models/task')
+    config.guiJs('superdesk/desks', 'models/task')
 ], 
 function(CommonViews, Task)
 {

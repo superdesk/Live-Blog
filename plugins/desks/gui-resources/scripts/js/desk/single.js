@@ -4,14 +4,16 @@ define
     'backbone',
     'gizmo/superdesk',
     'gizmo/superdesk/action',
+    config.guiJs('superdesk/desks', 'router'),
     config.guiJs('superdesk/desks', 'models/desk'),
     config.guiJs('superdesk/desks', 'models/task'),
     config.guiJs('superdesk/desks', 'models/task-status'),
     'tmpl!superdesk/desks>desk/single'
 ],
-function($, Backbone, Gizmo)
+function($, Backbone, Gizmo, Action, Router)
 {
-    var optionsStatus = {headers: {'X-Filter': 'Key, IsOn'}, reset: true};
+    var optionsStatus = {headers: {'X-Filter': 'Key, IsOn'}, reset: true},
+        router = new Router;
 
     /**
      * Get gizmo url for given path
@@ -100,6 +102,8 @@ function($, Backbone, Gizmo)
                     el: self.$el.find('.single-desk'),
                     collection: statusCollection
                 });
+                
+                router.navigate('//desks/task/edit');
             });
         }
     }),
