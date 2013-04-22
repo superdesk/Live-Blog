@@ -117,7 +117,7 @@ function($, giz, gizList, Action, Article, User)
             if(!this.collection) this.collection = new ArticleCollection;
             return this.collection; 
         },
-        searchData: function(string){ return { 'search.all': string }; },
+        searchData: function(string){ return { 'search': string }; },
         add: function()
         {
             Action.initApp('modules.article.add', this.collection);
