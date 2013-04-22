@@ -26,14 +26,13 @@ class TaskPrototype(Entity):
     '''
     Provides the desk task prototype model.
     '''
-    Id = int
+    Status = TaskStatus
     Desk = Desk
     User = User
     Title = str
     Description = str
     StartDate = datetime
     DueDate = datetime
-    Status = TaskStatus
 
 # --------------------------------------------------------------------
 

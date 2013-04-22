@@ -64,49 +64,40 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         @see: ITaskService.insert
         dealing with status, parent and nested_sets parts
         '''
-
         assert isinstance(task, Task), 'Invalid task %s' % task
         taskDb = TaskMapped()
         taskDb.statusId = self._statusId(task.Status)
         copy(task, taskDb, exclude=('Status', 'Parent',))
 
-        to_attach = False
-        parentDb = None
-        taskDb.Parent = None
-        if Task.Parent in task:
-            if not task.Parent == '':
-                parentDb = self.session().query(TaskMapped).get(task.Parent)
-                if not parentDb: raise InputError(Ref(_('Unknown parent task id'), ref=Task.Parent))
-                to_attach = True
-                taskDb.Parent = parentDb.Id
-
         # putting into nested sets
-        task_nestDb = TaskNestMapped()
-        task_nestDb.upperBar = 1
-        task_nestDb.lowerBar = 2
+        nestDb = TaskNestMapped()
+        nestDb.upperBar = 1
+        nestDb.lowerBar = 2
 
-        parent_nestDb = None
-        if to_attach:
-            try:
-                parent_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == parentDb.Id).one()
-            except NoResultFound:
-                raise InputError(Ref(_('Unknown parent task %(task)d') % dict(task=parentDb.Id),))
+        taskDb.Parent = None
+        if task.Parent is not None:
+            parentDb = self.session().query(TaskMapped).get(task.Parent)
+            if not parentDb: raise InputError(Ref(_('Unknown parent task id'), ref=Task.Parent))
+            taskDb.Parent = parentDb.Id
+            nestDbParent = self.session().query(TaskNestMapped).get(parentDb.Id)
+            if not nestDbParent: raise InputError(Ref(_('Unknown parent task %(task)d') % dict(task=parentDb.Id),))
+        else:
+            nestDbParent = None
 
         try:
             self.session().add(taskDb)
             self.session().flush((taskDb,))
 
-            task_nestDb.task = taskDb.Id
-            task_nestDb.group = taskDb.Id
+            nestDb.task = taskDb.Id
+            nestDb.group = taskDb.Id
 
-            self.session().add(task_nestDb)
-            self.session().flush((task_nestDb,))
+            self.session().add(nestDb)
+            self.session().flush((nestDb,))
 
         except SQLAlchemyError as e:
             handle(e, taskDb)
 
-        if to_attach:
-            self._attach(parent_nestDb, task_nestDb)
+        if nestDbParent: self._attach(nestDbParent, nestDb)
 
         task.Id = taskDb.Id
         return task.Id
@@ -121,56 +112,32 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         if not taskDb: raise InputError(Ref(_('Unknown task id'), ref=Task.Id))
         if Task.Status in task: taskDb.statusId = self._statusId(task.Status)
 
-        to_attach = False
-        to_detach = False
-        parentDb = None
         if Task.Parent in task:
-            if task.Parent is None:
-                if taskDb.Parent:
-                    to_detach = True
-                taskDb.Parent = None
-            else:
-                parentDb = self.session().query(TaskMapped).get(task.Parent)
-                if not parentDb: raise InputError(Ref(_('Unknown parent task id'), ref=Task.Parent))
-                if taskDb.Parent != parentDb.Id:
-                    to_attach = True
-                    if taskDb.Parent:
-                        to_detach = True
-                    taskDb.Parent = parentDb.Id
+            if taskDb.Parent != task.Parent:
+                nestDb = self.session().query(TaskNestMapped).get(taskDb.Id)
+                if not nestDb: raise InputError(Ref(_('Unknown task'), ref=Task.Id))
+                
+                if task.Parent is None:
+                    self._detach(nestDb)
+                    taskDb.Parent = None
+                    
+                elif taskDb.Parent != task.Parent:
+                    nestDbParent = self.session().query(TaskNestMapped).get(task.Parent)
+                    if not nestDbParent: raise InputError(Ref(_('Unknown parent task id'), ref=Task.Parent))
+                    taskDb.Parent = task.Parent
 
-        task_nestDb = None
-        parent_nestDb = None
-
-        if to_detach or to_attach:
-            try:
-                task_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == taskDb.Id).one()
-            except NoResultFound:
-                raise InputError(Ref(_('Unknown task %(task)d') % dict(task=taskDb.Id),))
-
-        if to_attach:
-            if taskDb.Id == parentDb.Id:
-                raise InputError(Ref(_('Can not attach task to itself'), ref=Task.Parent))
-
-            try:
-                parent_nestDb = self.session().query(TaskNestMapped).filter(TaskNestMapped.task == parentDb.Id).one()
-            except NoResultFound:
-                raise InputError(Ref(_('Unknown parent task %(task)d') % dict(task=parentDb.Id),))
-
-            # check whether the subtree_node is not an ancestor of the parent_node
-            if task_nestDb.group == parent_nestDb.group:
-                if task_nestDb.upperBar <= parent_nestDb.upperBar:
-                    if task_nestDb.lowerBar >= parent_nestDb.lowerBar:
-                        raise InputError(Ref(_('Parent task %(parent)d is subtask of %(task)d') % dict(parent=parentDb.Id, task=taskDb.Id),))
+                    # check whether the subtree_node is not an ancestor of the parent_node
+                    if nestDb.group == nestDbParent.group and nestDb.upperBar <= nestDbParent.upperBar and \
+                    nestDb.lowerBar >= nestDbParent.lowerBar:
+                        raise InputError(Ref(_('Parent task %(parent)d is subtask of %(task)d') % dict(parent=task.Parent, task=taskDb.Id),))
+                    
+                    self._detach(nestDb)
+                    self._attach(nestDbParent, nestDb)
 
         try:
-            self.session().flush((copy(task, taskDb, exclude=('Status','Parent')),))
+            self.session().flush((copy(task, taskDb, exclude=('Status', 'Parent')),))
         except SQLAlchemyError as e: handle(e, TaskMapped)
 
-        if to_detach:
-            self._detach(task_nestDb)
-
-        if to_attach:
-            self._attach(parent_nestDb, task_nestDb)
 
     def delete(self, taskId):
         '''
@@ -311,7 +278,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         s_upper = subtask_nestDb.upperBar
         s_lower = subtask_nestDb.lowerBar
         s_width = 1 + s_lower - s_upper
-        s_lift = s_upper -1
+        s_lift = s_upper - 1
 
         # setting new group id for the sub-tree
         sql = self.session().query(TaskNestMapped).filter(TaskNestMapped.group == t_group)

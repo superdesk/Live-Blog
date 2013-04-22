@@ -26,8 +26,8 @@ class TaskLink(Entity):
     '''
     Head = Task
     Tail = Task
-    Description = str
     Type = TaskLinkType
+    Description = str
 
 # --------------------------------------------------------------------
 

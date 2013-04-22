@@ -51,9 +51,8 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
 
     def getUnassignedUsers(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
-        @see: IDeskService.getUsers
+        @see: IDeskService.getUnassignedUsers
         '''
-
         sql = self.session().query(UserMapped)
         sql = sql.filter(not_(UserMapped.Id.in_(self.session().query(DeskUserMapped.user).filter(DeskUserMapped.desk == deskId).subquery())))
         if q:

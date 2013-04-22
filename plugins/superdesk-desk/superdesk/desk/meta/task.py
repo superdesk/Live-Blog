@@ -23,18 +23,16 @@ from ally.support.sqlalchemy.mapper import validate
 
 # --------------------------------------------------------------------
 
-TASK_TABLE_NAME = 'desk_task'
-
 @validate(exclude=('Status',))
 class TaskMapped(Base, Task):
     '''
     Provides the mapping for Task.
     '''
-    __tablename__ = TASK_TABLE_NAME
+    __tablename__ = 'desk_task'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Parent = Column('fk_parent_id', ForeignKey(TASK_TABLE_NAME+'.id', ondelete='RESTRICT'), nullable=True)
+    Parent = Column('fk_parent_id', ForeignKey('desk_task.id', ondelete='RESTRICT'), nullable=True)
     # can not set ondelete='CASCADE', since we need to manually preserve the nested sets structure
     # therefore we have the nullable=True as well
     Desk = Column('fk_desk_id', ForeignKey(DeskMapped.Id, ondelete='SET NULL'), nullable=True)
@@ -60,7 +58,7 @@ class TaskNestMapped(Base):
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     # can not cascade removal, since it would damage the nested sets structure
     task = Column('fk_task_id', ForeignKey(TaskMapped.Id, ondelete='SET NULL'), nullable=True)
-    group = Column('group', INTEGER, nullable=False)
+    group = Column('fk_group_id', ForeignKey(TaskMapped.Id), nullable=False)
     upperBar = Column('upper_bar', INTEGER, nullable=False)
     lowerBar = Column('lower_bar', INTEGER, nullable=False)
 
