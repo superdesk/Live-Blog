@@ -25,7 +25,7 @@ class TaskLinkTypeMapped(Base, TaskLinkType):
     __table_args__ = dict(mysql_engine='InnoDB')
 
     Key = Column('key', String(255), nullable=False, unique=True)
-    IsOn = Column('is_on', Boolean, nullable=False, default=True)
+    Active = Column('active', Boolean, nullable=False, default=True)
     # None REST model attribute --------------------------------------
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
 

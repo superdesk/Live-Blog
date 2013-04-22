@@ -72,12 +72,12 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         sql = sql.filter(DeskUserMapped.user == userId)
         if sql.count() == 1: return
 
-        desk_user = DeskUserMapped()
-        desk_user.desk = deskId
-        desk_user.user = userId
+        deskUser = DeskUserMapped()
+        deskUser.desk = deskId
+        deskUser.user = userId
 
-        self.session().add(desk_user)
-        self.session().flush((desk_user,))
+        self.session().add(deskUser)
+        self.session().flush((deskUser,))
 
     def detachUser(self, deskId, userId):
         '''

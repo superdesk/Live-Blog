@@ -20,7 +20,7 @@ class TaskLinkType(Entity):
     '''
     Provides the task link type model.
     '''
-    IsOn = bool
+    Active = bool
 
 # --------------------------------------------------------------------
 # No query

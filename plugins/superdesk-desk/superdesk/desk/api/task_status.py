@@ -20,7 +20,7 @@ class TaskStatus(Entity):
     '''
     Provides the task status model.
     '''
-    IsOn = bool
+    Active = bool
 
 # --------------------------------------------------------------------
 # No query
