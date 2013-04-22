@@ -1,2 +1,280 @@
-<h1>single desk</h1>
-<a href="#/desks/task/edit">add</a>
+<div class="subnav subnav-fixed">
+
+		<div class="btn-group pull-left" id="desk-select">
+	        
+	    </div>
+
+
+		
+      	<div class="btn-group pull-right">
+	        <button class="btn btn-medium dropdown-toggle" data-toggle="dropdown"><i class="icon-settings"></i> <span class="caret"></span></button>
+	        <ul class="dropdown-menu tabconfig-dropdown sf-dropdown sf-dropdown-right">
+	        	<h5 class="dropdown-title">Sidetab view configuration</h5>
+                <li class="tabconfig" target-tab="ingest">
+                   	<input type="checkbox" class="sf-checkbox" name="show_tab1" checked="checked"><i class="small-icon-ingest"></i>Ingest feed
+                	<div class="switch switched-left"><input type="checkbox"><div class="switch-inner"></div></div>
+                </li>
+                <li class="tabconfig" target-tab="chat">
+                   <input type="checkbox" class="sf-checkbox" name="show_tab2" checked="checked"><i class="small-icon-chat"></i>Chat
+                	<div class="switch"><input type="checkbox"><div class="switch-inner"></div></div>
+                </li>
+                <li class="tabconfig" target-tab="editorial-comments">
+                   	<input type="checkbox" class="sf-checkbox" name="show_tab3" checked="checked"><i class="small-icon-editorial"></i>Editorial comments
+                	<div class="switch"><input type="checkbox"><div class="switch-inner"></div></div>
+                </li>            	
+          	</ul>
+	    </div>
+
+
+
+	</div>
+
+
+	<div class="subnav subnav-level2 subnav-fixed">
+      
+      <div class="btn-toolbar desk-toolbar">
+
+    	<a class="btn btn-info pull-right" href="#"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+
+
+        <ul class="nav nav-pills pull-left">
+	      <li class="active"><a href="#">Desk assignments</a></li>
+	      <li class=""><a href="#">My assignments</a></li>
+	    </ul>
+
+	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
+	      <li><a href="#" id="list-view"><i class="icon-th-list"></i></a></li>
+	      <li class="active" ><a href="#" id="grid-view"><i class="icon-th"></i></a></li>
+	    </ul>
+
+	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px">Compact view</a>
+      </div>
+
+   </div>
+
+
+	<div id="tooltip" class="sf-tooltip">
+
+	</div>
+
+		<div class="tablist left-tablist" tabcontent-area="left-tabpane">
+			<ul class="navigation-tabs">
+				
+				<li tabname="ingest"><a href="#ingest-tab" draggable="true" control="tab" rel="tooltip" data-placement="right" data-original-title="Sources"><i class="big-icon-sources"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				
+			</ul>
+
+		</div>
+		<div class="tabpane left-tabpane">
+			<section class="tabcontent" id="ingest-tab">
+				<header class="ingest-header shadow-target" shadow-id="1">
+					<div class="sf-searchbox">
+						<input type="text" placeholder="Search" >
+						<a href="#"><i class="icon-remove"></i></a>
+					</div>
+					<div class="ingest-nav">
+						<span class="ingest-label">Feeds: </span>
+						<div class="dropdown dropdown-simple" style="display:inline-block;">
+	                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">All <b class="caret"></b></a>
+	                        <ul class="dropdown-menu sf-dropdown-simple bottom-up sf-dropdown-left">
+	                            <li><a href="#">All</a></li>
+	                            <li><a href="#">Agence France-Presse</a></li>
+	                            <li><a href="#">BBC</a></li>
+	                            <li><a href="#">Reuters</a></li>
+	                            <li><a href="#">Local</a></li>
+	                            <li><a href="#">Other sources</a></li>
+	                        </ul>
+                    	</div>
+
+                    	<span class="ingest-label" style="margin-left:20px;">Status: </span>
+						<div class="dropdown dropdown-simple" style="display:inline-block;">
+	                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">All <b class="caret"></b></a>
+	                        <ul class="dropdown-menu bottom-up sf-dropdown-simple sf-dropdown-left" style="min-width:auto;">
+	                            <li><a href="#">Confirmed</a></li>
+	                            <li><a href="#">Unconfirmed</a></li>
+	                        </ul>
+                    	</div>
+
+					</div>
+				</header>
+				<ul class="ingest-feed shadow-source" shadow-id="1">
+
+					<li class="source-bbc">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">BBC</span>
+							<time>01.03.2012 at 22:15:06</time>
+						</div>
+					</li>
+
+
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 22:13:29</time>
+						</div>
+					</li>
+
+
+					<li class="source-local unconfirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 22:02:50</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li  class="source-afp">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">AFP</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local unconfirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local unconfirmed"> 
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-bbc">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">BBC</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+				</ul>
+			</section>
+		</div>
+		
+		<div class="hidden-tab-container">
+
+		</div>
+		
+
+
+
+		<div class="main-desk-container" id="main-desk" style="max-width:870px;">
+			<div class="desk-content-container single-desk" style="">
+				<div class="desk-horizontal-scroll" style="width:870px;" id="statuses-list">
+
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="tablist right-tablist" tabcontent-area="right-tabpane">
+			<ul class="navigation-tabs">
+								
+				<li tabname="chat"><a href="#chat-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Chat"><i class="big-icon-chat"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="editorial-comments"><a href="#editorial-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Editorial comments"><i class="big-icon-editorial"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				
+
+			</ul>
+		</div>
+		<div class="tabpane right-tabpane" >
+			<section class="tabcontent temptabcont" id="chat-tab">
+				<h3>Chat Tab</h3>
+				<p>Internal editorial chat interface (e.g. via a Jabber server)</p>
+			</section>
+			<section class="tabcontent temptabcont" id="editorial-tab">
+				<h3>Editorial Comments Tab</h3>
+				<p>Inline editorial comments. Comments will be pegged to particular lines of text</p>
+			</section>
+
+		</div>
