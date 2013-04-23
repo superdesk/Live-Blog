@@ -24,6 +24,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
 from ally.api.extension import IterPart
+from superdesk.person_icon.api.person_icon import IPersonIconService
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -34,13 +36,15 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
     Implementation for @see: ITaskService
     '''
 
+    personIconService = IPersonIconService; wire.entity('personIconService')
+
     def __init__(self):
         '''
         Construct the desk task service.
         '''
         EntityServiceAlchemy.__init__(self, TaskMapped)
 
-    def getAll(self, deskId=None, userId=None, statusKey=None, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, deskId=None, userId=None, statusKey=None, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ITaskService.getAll
         dealing with status part
@@ -56,7 +60,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         if q:
             sql = buildQuery(sql, q, TaskMapped)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        if detailed: return IterPart(self._addImages(sqlLimit.all(), thumbSize), sql.count(), offset, limit)
         return sqlLimit.all()
 
     def insert(self, task):
@@ -171,17 +175,17 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
 
         return True
 
-    def getSubtasks(self, taskId, statusKey=None, offset=None, limit=None, detailed=False, q=None):
+    def getSubtasks(self, taskId, statusKey=None, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ITaskService.getSubtasks
         '''
-        return self._getSubnodes(taskId, False, statusKey, offset, limit, detailed, q)
+        return self._addImages(self._getSubnodes(taskId, False, statusKey, offset, limit, detailed, q), thumbSize)
 
-    def getSubtree(self, taskId, statusKey=None, offset=None, limit=None, detailed=False, q=None):
+    def getSubtree(self, taskId, statusKey=None, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ITaskService.getSubtree
         '''
-        return self._getSubnodes(taskId, True, statusKey, offset, limit, detailed, q)
+        return self._addImages(self._getSubnodes(taskId, True, statusKey, offset, limit, detailed, q), thumbSize)
 
     # ----------------------------------------------------------------
 
@@ -207,7 +211,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         if q:
             sql = buildQuery(sql, q, TaskMapped)
 
-        sql = sql.join(TaskNestMapped)
+        sql = sql.join(TaskNestMapped, TaskMapped.Id == TaskNestMapped.task)
         sql = sql.filter(TaskNestMapped.group == nestDb.group)
         sql = sql.filter(TaskNestMapped.upperBar > nestDb.upperBar)
         sql = sql.filter(TaskNestMapped.lowerBar < nestDb.lowerBar)
@@ -301,3 +305,21 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
 
         return True
 
+    # TODO: implement a proper solution
+    def _addImage(self, task, thumbSize='medium'):
+        '''
+        Takes the image for the user and adds the thumbnail to the response
+        '''
+        assert isinstance(task, Task)
+
+        try:
+            if task.User is not None:
+                task.UserImage = self.personIconService.getByPersonId(id=task.User, thumbSize=thumbSize).Thumbnail
+        except: pass
+
+        return task
+
+    def _addImages(self, tasks, thumbSize='medium'):
+        for task in tasks:
+            task = self._addImage(task, thumbSize)
+            yield task

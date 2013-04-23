@@ -11,7 +11,7 @@ API specifications for desk task.
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT, GET
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered
-from ally.api.type import Iter
+from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelDesk
 from superdesk.user.api.user import User
@@ -33,6 +33,7 @@ class TaskPrototype(Entity):
     Description = str
     StartDate = datetime
     DueDate = datetime
+    UserImage = Reference
 
 # --------------------------------------------------------------------
 
@@ -64,21 +65,21 @@ class ITaskService(IEntityService):
     '''
 
     @call(method=GET)
-    def getAll(self, deskId:Desk.Id=None, userId:User.Id=None, statusKey:TaskStatus.Key=None,
+    def getAll(self, deskId:Desk.Id=None, userId:User.Id=None, statusKey:TaskStatus.Key=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides all the available tasks.
         '''
 
     @call(method=GET, webName='Task')
-    def getSubtasks(self, taskId:Task.Id, statusKey:TaskStatus.Key=None,
+    def getSubtasks(self, taskId:Task.Id, statusKey:TaskStatus.Key=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides the direct subtasks of a task.
         '''
 
     @call(method=GET, webName='Tree')
-    def getSubtree(self, taskId:Task.Id, statusKey:TaskStatus.Key=None,
+    def getSubtree(self, taskId:Task.Id, statusKey:TaskStatus.Key=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides the whole subtree available tasks.
