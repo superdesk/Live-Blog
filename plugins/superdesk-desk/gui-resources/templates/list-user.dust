@@ -1,6 +1,9 @@
 <figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
 <a class="collaborator-name-large" >{name}</a>
-<a href="#" class="tool-box-button remove"><i class="icon-remove"></i></a>
+
+<div class="table-buttons">
+    <a href="#" class="remove"><i class="icon-remove"></i></a>
+</div>
 
 {! requires roles refactoring
 <div class="dropdown dropdown-simple">
