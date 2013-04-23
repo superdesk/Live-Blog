@@ -1,16 +1,16 @@
 <div class="modal fade split-popup" id="AddAssignment">
   <div class="modal-header">
     <a href="javascript:void(0)" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-    <input type="text" placeholder="Assignment title" class="assignment-title" data-task-info="title" />
+    <input type="text" placeholder="Assignment title" class="assignment-title" data-task-info="title" value="{Title}" />
   </div>
   <div class="modal-body">
     <div class="modal-left-pane">
         <div class="taskmodal-header">
         	<div class="parent-task-info">
-        		<span data-info="parent-task">
-        			_('Parent task:') 
-        			<a href="javascript:void(0)" data-toggle="dropdown">{?Parent}{Parent.Title}{:else}_('None'){/Parent}</a>
-        		</span>
+        		_('Parent task:') 
+       			<a href="javascript:void(0)" data-toggle="dropdown">
+       				<span data-task-info="parent">{?Parent}{Parent.Title}{:else}_('None'){/Parent}</span>
+       			</a>
         		<ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="parent-task">
         		
         		</ul>
@@ -20,7 +20,7 @@
 					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{DueDate}</span>
 				</li>
 				<li>
-					<i class="icon-desk-subtask icon-white"></i> <span data-info="subtask-count">{SubtaskCount} _('Subtasks')</span>
+					<i class="icon-desk-subtask icon-white"></i> <span data-task-info="subtask-count">{SubtaskCount}</span> _('Subtasks')
 				</li>
 			</ul>
         </div>
@@ -30,7 +30,7 @@
         	</div>    
         	<section class="modal-mainpane-module">
         		<header>_('Subtasks')</header>
-        		<ul class="subtask-list-view clearfix">
+        		<ul class="subtask-list-view clearfix" data-list="subtasks">
         			{#Subtasks}
         			<li>
         				<h6>{Title}</h6>
@@ -96,7 +96,7 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Status')</header>
     		<div class="module-sidepane-module-content">
-    			<div class="task-status todo-status" data-task-info="status">{Status}</div>
+    			<div class="task-status {Status.Key|strps}-status" data-task-info="status">{Status.Key}</div>
     		</div>
     	</section>
     	<section class="modal-sidepane-module clearfix">

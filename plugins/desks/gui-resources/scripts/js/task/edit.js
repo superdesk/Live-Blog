@@ -5,7 +5,7 @@ define
 ], 
 function(CommonViews, Task)
 {
-    var task = new Task('http://localhost:8080/resources/Desk/Task/1'),
+    var task = new Task('http://localhost:8080/resources/Desk/Task/18'),
         editView = new CommonViews.edit;
         
     return {init: function(){ editView.setTask(task).activate(); }};
