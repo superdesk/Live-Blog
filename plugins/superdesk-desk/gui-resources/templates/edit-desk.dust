@@ -24,7 +24,7 @@
 		
 	</div>
 	<div class="modal-footer"> 
-	  	<a href="#" class="btn cancel">_("Cancel");</a> 
-	  	<a href="#" class="btn btn-primary save">_("Save");</a>
+        <button class="btn cancel">_("Cancel");</button>
+        <button class="btn btn-primary save">_("Save");</button>
     </div>
 </div>

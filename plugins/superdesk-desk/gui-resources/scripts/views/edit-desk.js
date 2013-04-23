@@ -2,7 +2,8 @@ define(['backbone', 'tmpl!superdesk-desk>edit-desk'], function(Backbone) {
     return Backbone.View.extend({
         events: {
             'click .save': 'save',
-            'click .cancel': 'close'
+            'click .cancel': 'close',
+            'submit form': 'save'
         },
 
         render: function() {
