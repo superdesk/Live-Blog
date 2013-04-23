@@ -18,7 +18,7 @@ define('providers/edit', [
     'jquery/rest',
     'jquery/superdesk',
     'jquery/tmpl',
-    'jquery/avatar',
+    config.guiJs('superdesk/user', 'jquery/avatar'),
 	'jqueryui/draggable',
     'jqueryui/texteditor',
     'tmpl!livedesk>items/item',
