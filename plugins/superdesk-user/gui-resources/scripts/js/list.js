@@ -292,7 +292,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          * passing along view prop
          */
         showDeleteUser: function(evt)
-        { 
+        {
+            evt.preventDefault();
             $('#user-delete-modal', this.el).prop('view', $(evt.currentTarget).prop('view')); 
             $('#user-delete-modal', this.el).modal(); 
         },
@@ -515,6 +516,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          */
         showUpdateUser: function(evt)
         {
+            evt.preventDefault();
             var $this = $(evt.currentTarget),
                 model = $this.prop('model');
 
