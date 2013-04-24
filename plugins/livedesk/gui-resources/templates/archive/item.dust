@@ -7,7 +7,7 @@
 	<td>{CreatedOn}</td>
 	<td>    
 		<div class="btn-group">
-    		<a class="btn view" href="#live-blog/{Id}" data-blog-title="{Title}" data-blog-link="{href}">_('View')</a>
+    		<a class="btn view" href="#live-blog/{Id}" data-blog-title="{Title}" data-blog-link="{href}">_('View');</a>
     	</div>
     </td>
 {/User}

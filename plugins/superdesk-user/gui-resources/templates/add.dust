@@ -2,7 +2,7 @@
 <div class="modal hide fade large-modal" id="user-add-modal">
 
 	<div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
-    	<h3>_('Add user')</h3>
+    	<h3>_('Add user');</h3>
 	</div>
   
 	<div class="modal-body">
@@ -10,17 +10,17 @@
       
       	<figure class="user-avatar">
              <img src="images/default_profile_3_bigger.png" width="128" height="128" alt="" />
-             <div class="avatar-upload" id="avatar-upload-add">_('ADD AVATAR')</div>
+             <div class="avatar-upload" id="avatar-upload-add">_('ADD AVATAR');</div>
 		</figure>
 		
 		<div class="popover fade bottom in avatar-upload-popover" id="avatar-upload-popover-add">
 			<div class="popover-inner">
             	<a class="close">×</a>
-            	<h3 class="popover-title">_('Add avatar image')</h3>
+            	<h3 class="popover-title">_('Add avatar image');</h3>
             	<div class="popover-content">
-              		<a class="btn" id="fileselectbutton2" style="width:176px;margin-bottom:5px;" data-action="browse"><i class="icon-picture"></i> _('upload from computer')</a>
+              		<a class="btn" id="fileselectbutton2" style="width:176px;margin-bottom:5px;" data-action="browse"><i class="icon-picture"></i> _('upload from computer');</a>
               		<input type="text" class="input disabled" style="width:188px;" readonly data-value="upload-filename" />
-              		<a class="btn disabled" id="confirmupload2" data-action="confirm-upload">_('OK')</a>
+              		<a class="btn disabled" id="confirmupload2" data-action="confirm-upload">_('OK');</a>
               		<input class="input-file" type="file" data-action="upload" />
             	</div>
 			</div>
@@ -29,37 +29,37 @@
         <div class="user-details">
             <fieldset>
 				<div class="control-group">
-					<label class="control-label" for="inputFName">_('First Name')</label>
+					<label class="control-label" for="inputFName">_('First Name');</label>
 					<div class="controls">
-						<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name')" class="input-xlarge" />
+						<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name');" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputName">_('Last Name')</label>
+					<label class="control-label" for="inputName">_('Last Name');</label>
 					<div class="controls">
-						<input type="text" name="LastName" id="inputName" placeholder="_('Last Name')" class="input-xlarge" />
+						<input type="text" name="LastName" id="inputName" placeholder="_('Last Name');" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputName">_('Login')</label>
+					<label class="control-label" for="inputName">_('Login');</label>
 					<div class="controls">
-						<input type="text" name="Name" id="inputLogin" placeholder="_('Login Name')" class="input-xlarge" />
+						<input type="text" name="Name" id="inputLogin" placeholder="_('Login Name');" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputEmail">_('E-Mail')</label>
+					<label class="control-label" for="inputEmail">_('E-Mail');</label>
 					<div class="controls">
-						<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" class="input-xlarge" />
+						<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail');" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputAddress">_('Address')</label>
+					<label class="control-label" for="inputAddress">_('Address');</label>
 					<div class="controls">
-						<input type="text" name="Address" id="inputAddress" placeholder="_('Address')" class="input-xlarge" />
+						<input type="text" name="Address" id="inputAddress" placeholder="_('Address');" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-		        	<label class="control-label" for="collaborator-role">_('Role')</label>
+		        	<label class="control-label" for="collaborator-role">_('Role');</label>
 		            <div class="controls">
 		            	<div class="btn-group" data-input="role">
 		                	<button class="btn" type="button" data-selected-value="">&nbsp;</button>
@@ -71,13 +71,13 @@
 		            </div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputPass">_('Password')</label>
+					<label class="control-label" for="inputPass">_('Password');</label>
 					<div class="controls">
 						<input type="password" name="Password" id="inputPass" class="input-xlarge" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputPass">_('Confirm Password')</label>
+					<label class="control-label" for="inputPass">_('Confirm Password');</label>
 					<div class="controls">
 						<input type="password" id="inputPassConfirm" class="input-xlarge" />
 					</div>
@@ -89,8 +89,8 @@
 	</div>
     <div class="modal-footer">
     	<p class="alert alert-error hide pull-left" style="margin-bottom:0"></p>
-    	<button class="btn" data-action="close">_('Cancel')</button>
-    	<button class="btn btn-primary" data-action="save">_('Add User')</button>
+    	<button class="btn" data-action="close">_('Cancel');</button>
+    	<button class="btn btn-primary" data-action="save">_('Add User');</button>
     </div>
 </div>
 

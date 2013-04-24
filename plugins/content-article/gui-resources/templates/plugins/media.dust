@@ -1,4 +1,4 @@
-<a class="btn pull-right attach-media" id="attachmedia" data-toggle="modal" data-action="add" rel="tooltip" data-placement="top" data-original-title="Add images from your computer or Media Archive"><i class="icon-plus-sign"></i> _('Attach media')</a>
+<a class="btn pull-right attach-media" id="attachmedia" data-toggle="modal" data-action="add" rel="tooltip" data-placement="top" data-original-title="Add images from your computer or Media Archive"><i class="icon-plus-sign"></i> _('Attach media');</a>
 
 
 <div class="media-tab" >

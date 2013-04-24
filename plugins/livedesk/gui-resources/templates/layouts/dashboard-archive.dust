@@ -11,7 +11,7 @@
 	</select>
 </div>
 {#searchkey}
-<div class="searchphrase">_('Displaying results for'): <span>"{searchkey}"</span></div>
+<div class="searchphrase">_('Displaying results for');: <span>"{searchkey}"</span></div>
 {/searchkey}
 <ul class="archive-blogs clearfix">			
 	{#archive}
@@ -21,7 +21,7 @@
 	</li>
 	{:else}
 	<li class="no-results-msg" >
-		<span class="archive-blogs-title"><a href="#">_('No Blogs found')</a></span>
+		<span class="archive-blogs-title"><a href="#">_('No Blogs found');</a></span>
 	</li>
 	{/archive}
 </ul>

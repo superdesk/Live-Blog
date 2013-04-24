@@ -4,8 +4,8 @@
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="tool-box-right">
-       	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
-       	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+       	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete');">x</a>
+       	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
        </div>
        <div class="wrapup-content">
             {Content|s}
@@ -93,8 +93,8 @@
 	    {@if cond="'{Author.Source.Name}'=='advertisement'"}
 		<li class="{Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 	        <div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
-	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete');">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
 	        	
 	        </div>
 	        <div class="result-content">
@@ -113,8 +113,8 @@
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete')">x</a>
-	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+	        	<a href="#delete-post" class="close image" data-toggle="modal" title="_('Delete');">x</a>
+	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
 	        </div>
 	        <figure>
 	        	{Avatar|s}
@@ -147,10 +147,10 @@
 		   	</div>		
         {/if}
 			<div class="message-error">
-				_("There an error updating the post!")
+				_("There an error updating the post!");
 			</div>
 			<div class="message-success">
-				_("Post has been updated!")
+				_("Post has been updated!");
 			</div>
 			<div class="clear"></div>
 		</li>

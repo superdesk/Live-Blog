@@ -1,26 +1,1 @@
-<div class="search-header">
-	<ul class="search-controls" id="ggl-search-controls">
-	  <li class="active" id="ggl-web-tab"><a href="#ggl-web-tab">_("Web")</a></li>
-	  <li id="ggl-news-tab"><a href="#ggl-news-tab">_("News")</a></li>
-	  <li id="ggl-images-tab"><a href="#ggl-images-tab">_("Images")</a></li>
-	</ul>
-	<input type="text" placeholder="_('Search')" id="google-search-text">
-</div>
-
-<!--search results for web search -->
-<ul class="search-result-list scroller" id="ggl-web-holder" style="">
-	<ul id="ggl-web-results" class="search-result-list clearfix"></ul>
-	<ul id="ggl-web-more" class="sources-show-more"></ul>
-</ul>
-
-<!--search results for news search -->
-<ul class="search-result-list scroller" id="ggl-news-holder" style="visibility: hidden">
-	<ul id="ggl-news-results" class="search-result-list clearfix"></ul>
-	<ul id="ggl-news-more" class="sources-show-more"></ul>
-</ul>
-
-<!--search results for news search -->
-<ul class="search-result-list scroller" id="ggl-images-holder" style="visibility: hidden;">
-	<ul id="ggl-images-results" class="search-result-list clearfix"></ul>
-	<ul id="ggl-images-more" class="sources-show-more"></ul>
-</ul>
+<div class="search-header">	<ul class="search-controls" id="ggl-search-controls">	  <li class="active" id="ggl-web-tab"><a href="#ggl-web-tab">_("Web");</a></li>	  <li id="ggl-news-tab"><a href="#ggl-news-tab">_("News");</a></li>	  <li id="ggl-images-tab"><a href="#ggl-images-tab">_("Images");</a></li>	</ul>	<input type="text" placeholder="_('Search');" id="google-search-text"></div><!--search results for web search --><ul class="search-result-list scroller" id="ggl-web-holder" style="">	<ul id="ggl-web-results" class="search-result-list clearfix"></ul>	<ul id="ggl-web-more" class="sources-show-more"></ul></ul><!--search results for news search --><ul class="search-result-list scroller" id="ggl-news-holder" style="visibility: hidden">	<ul id="ggl-news-results" class="search-result-list clearfix"></ul>	<ul id="ggl-news-more" class="sources-show-more"></ul></ul><!--search results for news search --><ul class="search-result-list scroller" id="ggl-images-holder" style="visibility: hidden;">	<ul id="ggl-images-results" class="search-result-list clearfix"></ul>	<ul id="ggl-images-more" class="sources-show-more"></ul></ul>

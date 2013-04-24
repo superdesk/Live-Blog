@@ -4,12 +4,12 @@
 		<li><a href="#live-blog/{Id}">{Title|t}</a></li>
 	{/Blogs}
 {:else}
-	<li><a>No blogs yet!</a></li>
+	<li><a>_('No blogs yet!');</a></li>
 {/Blogs}
 <li class="divider"></li>
 <li>
-	<a id="submenu-liveblogs-create"><i class="icon-plus-sign icon-white" href="#"></i> _('Create live blog')</a>
+	<a id="submenu-liveblogs-create"><i class="icon-plus-sign icon-white" href="#"></i> _('Create live blog');</a>
 </li>
 <li>
-	<a href="#live-blog-archive">_('Archive')</a>
+	<a href="#live-blog-archive">_('Archive');</a>
 </li>
