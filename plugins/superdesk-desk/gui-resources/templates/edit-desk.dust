@@ -1,6 +1,6 @@
-<div class="modal fade modal-wide" id="addDesk">
+<div class="modal fade modal-wide" id="editDesk">
 	<div class="modal-header"> <a class="close cancel">×</a>
-		<h3>_("Add New Desk");</h3>
+		{?id}<h3>_("Edit Desk");</h3>{:else}<h3>_("Add New Desk");</h3>{/id}
 	</div>
 	<div class="modalscreen" id="general-screen" style="display:block";>
 
@@ -18,7 +18,7 @@
 
 			<form>
 				<label for="desk-name">_("Desk Name:");</label>
-				<input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input">
+				<input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" value="{name}">
 			</form>
 		</div>
 		

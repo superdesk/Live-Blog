@@ -1,27 +1,26 @@
 define([
     'backbone',
-    'desk/views/config-desk-user',
+    'desk/views/member',
     'desk/views/add-members',
+    'desk/views/edit-desk',
 
     'tmpl!superdesk-desk>config-desk'
-], function(Backbone, UserView, AddMembersView) {
+], function(Backbone, MemberView, AddMembersView, EditDeskView) {
     return Backbone.View.extend({
         events: {
-            'click .edit-members': 'editMembers'
+            'click .edit-members': 'editMembers',
+            'click [data-click="delete"]': 'destroy',
+            'click [data-click="edit"]': 'edit'
         },
 
         initialize: function() {
             this.model.users.on('reset', this.renderMembers, this);
             this.model.users.on('add', this.renderMembers, this);
+            this.model.on('change', this.render, this);
         },
 
         render: function() {
-            var data = {
-                Name: this.model.get('Name')
-            };
-
-            $(this.el).tmpl('superdesk-desk>config-desk', data).addClass('desk-config');
-
+            $(this.el).tmpl('superdesk-desk>config-desk', this.model.getView()).addClass('desk-config');
             this.fetchUsers();
             return this;
         },
@@ -33,7 +32,7 @@ define([
         renderMembers: function() {
             var list = $(this.el).find('.user-list').empty();
             this.model.users.each(function(user) {
-                var view = new UserView({model: user});
+                var view = new MemberView({model: user});
                 list.append(view.render().el);
             });
         },
@@ -43,6 +42,20 @@ define([
             var view = new AddMembersView({model: this.model});
             $('#modal-placeholder').html(view.render().el);
             $(this.el).find('#addMember').modal('show');
+        },
+
+        destroy: function(e) {
+            e.preventDefault();
+            if (confirm(_("Are you sure you want to remove this desk?"))) {
+                this.model.destroy();
+                this.remove();
+            }
+        },
+
+        edit: function(e) {
+            e.preventDefault();
+            var view = new EditDeskView({model: this.model});
+            $('#modal-placeholder').html(view.render().el);
         }
     });
 });

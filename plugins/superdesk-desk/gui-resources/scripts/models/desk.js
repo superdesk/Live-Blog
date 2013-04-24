@@ -3,8 +3,13 @@ define([
     'desk/models/user-collection'
 ], function(Model, UserCollection) {
     return Model.extend({
+        getView: function() {
+            return {id: this.id, name: this.get('Name')};
+        },
+
         parse: function(response) {
             this.url = response.href;
+            delete response.href;
 
             try {
                 this.users = new UserCollection([], {url: response.User.href});

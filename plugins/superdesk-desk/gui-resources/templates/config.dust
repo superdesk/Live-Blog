@@ -1,6 +1,4 @@
 <div class="main-background-container">
-    <div id="modal-placeholder"></div>
-
 	<div class="subnav subnav-fixed">
 
 		<h1 class="config-page-title pull-left">_("Desk managment");</h1> 
@@ -10,4 +8,6 @@
 
 		<div class="config-page-container">
 		</div>
+    
+    <div id="modal-placeholder"></div>
 </div><!--/.main-backround-container-->
