@@ -235,6 +235,7 @@ define([
 		init: function(){
 			this.render();
 		},
+		tagName: 'li',
 		render: function(){
 			var self = this;
 			
