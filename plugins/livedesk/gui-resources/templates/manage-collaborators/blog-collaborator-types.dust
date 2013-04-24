@@ -4,7 +4,7 @@
 <ul class="dropdown-menu bottom-up pull-right">
   {#BlogCollaaboratorTypes}
   <li>
-    <a href="#" data-name="{Name}">{Name}</a>
+    <a href="javascript:void(0)" data-name="{Name}">{Name}</a>
   </li>
   {/BlogCollaaboratorTypes}
 </ul>
