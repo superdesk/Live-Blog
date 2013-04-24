@@ -19,8 +19,11 @@
 	{/body}
 
 	<div class="media-description approved"> <!-- if image is approved put class "approved", else put class "unapproved" -->
-		{+title}{?Title}{Title}{:else}{Name}{/Title}{/title}
-		<!-- <span class="size-info">2000 x 1500</span>  -->
+		{+title}
+		{?Title}{Title}{/Title}
+		<span class="size-info">{Name}</span>
+		{/title}
+		
 	</div>
 
 </li>
