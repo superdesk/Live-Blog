@@ -1,1 +1,5 @@
-<div class="search-header"></div><!--search results for web search --><ul class="search-result-list scroller">	<ul id="ggl-web-results" class="search-result-list clearfix"></ul></ul>
+<div class="search-header"></div>
+<!--search results for web search -->
+<ul class="search-result-list scroller">
+	<ul id="ggl-web-results" class="search-result-list clearfix"></ul>
+</ul>
