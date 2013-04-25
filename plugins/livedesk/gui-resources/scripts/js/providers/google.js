@@ -44,8 +44,9 @@ $.extend(providers.google, {
 		this.el.tmpl('livedesk>providers/google', {}, function(){
 			$(self.el)
             .off('click.livedesk')
-            .on('click.livedesk', '#ggl-search-controls>li', function(ev){
-			  $(this).siblings().removeClass('active') .end()
+            .on('click.livedesk', '#ggl-search-controls>li', function(evt) {
+              evt.preventDefault();
+              $(this).siblings().removeClass('active') .end()
 					 .addClass('active');			  
 			  var myArr = $(this).attr('id').split('-');
 			  

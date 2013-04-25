@@ -91,8 +91,7 @@ define([
 				order = parseFloat(self.model.get('Order')),
 				regexHash, newHash, createdOn;
 			if ( !isNaN(self.order) && (order != self.order)) {
-				self.order = order;
-				self._parent.reorderOne(self);
+				self._parent.orderOne(self);
 			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {

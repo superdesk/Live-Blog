@@ -10,6 +10,12 @@
         	<fieldset>
         		<legend>General</legend>
 				<div class="control-group">
+					<label class="control-label">_('Provider link');</label>
+					<div class="controls output-link">
+						<input readonly="readonly" name="ProviderLink" style="width:600px;height:auto;" value="{ProviderLink}"/>
+					</div>
+				</div>
+				<div class="control-group">
 					<label class="control-label">_('Output link');</label>
 					<div class="controls output-link">
 						<input readonly="readonly" name="OutputLink" style="width:600px;height:auto;" value="{OutputLink}"/>

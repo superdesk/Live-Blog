@@ -11,10 +11,11 @@ define
   'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   config.guiJs('livedesk', 'router'),
+  'router',
 
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
-], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter)
+], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter, router)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
         b = Gizmo.Auth(new Blogs());
@@ -26,10 +27,8 @@ define
             this.model.on('read update', this.render, this);
             this.model.on('insert', this.refresh, this);
 
-            this.router = new LiveBlogRouter();
-
-            // TODO: this must be called once menu is prepared and routers are set. but where?
-            Backbone.history.start({root: "/content/lib/core/start.html"});
+            new LiveBlogRouter();
+            router.start();
         },
 
         refresh: function()

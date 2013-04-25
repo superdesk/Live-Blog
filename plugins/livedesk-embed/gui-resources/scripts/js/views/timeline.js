@@ -212,52 +212,62 @@ define([
 			}
 			return self;
 		},
-		reorderOne: function(view) {
-			var self = this;
-			self._views.sort(function(a,b){
-				return a.order - b.order;
-			});
-			pos = self._views.indexOf(view);
-			if(pos === 0) {
-				view.el.insertAfter(self._views[1].el);
-			} else {
-				view.el.insertBefore(self._views[pos>0? pos-1: 1].el);
+		/*!
+		 * Order given view in timeline
+		 * If the view is the first one the it's added after #load-more selector
+		 * returns the given view.
+		 */
+		orderOne: function(view) {
+			var pos = this._views.indexOf(view);
+			/*!
+			 * View property order need to be set here
+			 *   because could be multiple updates and 
+			 *   orderOne only works for one update.
+			 */
+			view.order = parseFloat(view.model.get('Order'));
+			/*!
+			 * If the view isn't in the _views vector
+			 *   add it.
+			 */
+			if ( pos === -1 ) {
+				this._views.push(view);
 			}
+			/*!
+			 * Sort the _view vector descendent by view property order.
+			 */
+			this._views.sort(function(a,b){
+				return b.order - a.order;
+			});
+			/*!
+			 * Search it again in find the new position.
+			 */
+			pos = this._views.indexOf(view);
+			if( pos === 0 ){
+				/*!
+				 * If the view is the first one the it's added after #load-more selector.
+				 *   else
+				 *   Reposition the dom element before the old (postion 1) first element.
+				 */
+				if( this._views.length === 1) {
+					this.el.find('#load-more').after(view.el);
+				} else {
+					view.el.insertBefore(this._views[1].el);
+				}
+			} else {
+				/*!
+				 * Reposition the dom element after the previous element.
+				 */
+				view.el.insertAfter(this._views[pos-1].el);
+			}
+			for( var order = [], data = this._views, i = 0, item = data[i], count = data.length; i < count; item = data[++i] ){
+				order.push(item.order);
+			}
+			console.log(order.join(','));
+			return view;
 		},
 		addOne: function(model)
 		{
-			var self = this,
-				current = new PostView({model: model, _parent: self}),
-				count = self._views.length;
-			model.postview = current;
-			current.order =  parseFloat(model.get('Order'));
-			if(!count) {
-				this.el.find('#load-more').after(current.el);
-				self._views = [current];
-			} else {
-				var next, prev;
-				for(i=0; i<count; i++) {
-					if(current.order>self._views[i].order) {
-						next = self._views[i];
-						nextIndex = i;
-					} else if(current.order<self._views[i].order) {
-						prev = self._views[i];
-						prevIndex = i;
-						break;
-					}						
-				}
-				//console.log(prev && prev.order,'<<',current.order, '>>',next && next.order);
-				if(prev) {
-					//console.log('next');
-					current.el.insertAfter(prev.el);
-					self._views.splice(prevIndex, 0, current);					
-				} else if(next) {
-					//console.log('prev');
-					current.el.insertBefore(next.el);
-					self._views.splice(nextIndex+1, 0, current);
-				}
-			}
-			return current;
+			return this.orderOne(new PostView({model: model, _parent: this}));
 		},
 		toggleStatusCount: function()
 		{
