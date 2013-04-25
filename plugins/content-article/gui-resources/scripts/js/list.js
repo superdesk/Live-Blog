@@ -117,10 +117,10 @@ function($, giz, gizList, Action, Article, User)
             if(!this.collection) this.collection = new ArticleCollection;
             return this.collection; 
         },
-        searchData: function(string){ return { 'search.all': string }; },
+        searchData: function(string){ return { 'search': string }; },
         add: function()
         {
-            Action.initApp('modules.article.add');
+            Action.initApp('modules.article.add', this.collection);
         },
 
         /*!
@@ -153,7 +153,7 @@ function($, giz, gizList, Action, Article, User)
     listView = new ListView();
 
     // navigate to edit article
-    router.route('article/:id', function(id){ listView.editArticle(id); });
+    router.route('article/:id', function(id){ console.log(listView); listView.editArticle(id); });
     
     return function()
     { 

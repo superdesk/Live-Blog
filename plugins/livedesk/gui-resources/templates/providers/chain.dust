@@ -6,7 +6,7 @@
 			<span>Autopublish:</span><input type="checkbox" class="sf-toggle on-off">
 		</div>
 		<div class="sf-searchbox">
-			<input type="text" placeholder="Search">
+			<input type="text" placeholder="_('Search');">
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>

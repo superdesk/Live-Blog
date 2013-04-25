@@ -55,7 +55,7 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
             sql = sql.join(UserMapped, ArticleMapped.Creator == UserMapped.Id)
 
             if QArticle.search in q:
-                all = processLike(q.search.all)
+                all = processLike(q.search.ilike) if q.search.ilike is not None else processLike(q.search.like)
                 sql = sql.filter(or_(PersonMapped.FullName.like(all), UserMapped.FullName.like(all), ArticleMapped.Content.like(all)))
 
         count = sql.count()

@@ -148,68 +148,24 @@ define
                          */
                         if( self._parent.collection.isCollectionDeleted(self.model) )
                             return;
+                        if(data['Order'] && data['Order'] != self.order) {
+                            self._parent.orderOne(self);
+                        }
                         /*!
                          * If the updater on the model is the current view don't update the view;
                          */
                         if(self.model.updater === self) {
                             delete self.model.updater; return;
                         }
-                        if(data['Order'])
-                            self.order = parseFloat(data['Order']);
                         /*!
                          * If the Change Id is received, then sync the hole model;
                          */                      
-                        if(isOnly(data, ['CId','Order'])) {
-                            self.model.xfilter(self.xfilter).sync();
-                        }
-                        else {
-                            self.rerender();
-                        }
+                        self.rerender();
                         //; self.model.xfilter(xfilter).sync();
                         
                     })
                     .xfilter(self.xfilter);//.sync({data: {thumbSize: 'medium'}});
                     this.render();
-            },
-            
-            reorder: function(evt, ui)
-            {
-                var self = this, next = $(ui.item).next('li'), prev = $(ui.item).prev('li'), id, order, newPrev = undefined, newNext = undefined;
-                if(next.length) {
-                    var nextView = next.data('view');
-                    nextView.prev = self;
-                    newNext = nextView;
-                    id = nextView.id;
-                    order = 'true';
-                }
-                if(prev.length){
-                    var prevView = prev.data('view');
-                    prevView.next = self;
-                    newPrev = prevView;
-                    id = prevView.id;
-                    order = 'false';
-                }
-                self.tightkNots();
-                self.prev = newPrev;
-                self.next = newNext;
-                self.model.orderSync(id, order);
-                self.model.ordering = self;
-                self.model.xfilter(self.xfilter).sync().done(function(data){
-                    self.model.Class.triggerHandler('reorder', self.model);
-                });
-            },
-            /**
-             * Method used to remake connection in the post list ( dubled linked list )
-             *   when the post is removed from that position
-             */         
-            tightkNots: function()
-            {
-                if(this.next !== undefined) {
-                    this.next.prev = this.prev;
-                }
-                if(this.prev !== undefined) {
-                    this.prev.next = this.next;             
-                }
             },
             
             rerender: function()
@@ -218,39 +174,12 @@ define
                 self.el.fadeTo(500, '0.1', function(){
                     self.render().el.fadeTo(500, '1');
                 });
-            },
-            reorder: function()
-            {
-                var self = this, order = parseFloat(this.model.get('Order'));
-                if(isNaN(order)) {
-                    order = 0.0;
-                }
-                if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
-                    var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
-                    for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
-                        (cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
-                        cursor = cursor[dir]
-                    );
-                    var other = cursor[dir];
-                    if(other !== undefined)
-                        other[anti[dir]] = self;
-                    cursor[dir] = self;
-                    self.tightkNots();
-                    self[dir] = other;
-                    self[anti[dir]] = cursor;
-                    self.el[actions[dir]](cursor.el);
-                }
-                if(this.model.ordering === self)
-                    delete this.model.ordering;
-                self.order = order;
-                self.id = this.model.get('Id');             
             }, 
             render: function()
             {
                 var self = this,
                     rendered = false,
                     post = self.model.feed(true);
-                self.reorder();
                 if ( typeof post.Meta === 'string') {
                     post.Meta = JSON.parse(post.Meta);
                 }
@@ -273,7 +202,6 @@ define
                  */
                 //self.model.off('delete unpublish read update set');
                 self._parent.removeOne(self);
-                self.tightkNots();
                 $(this.el).fadeTo(500, '0.1', function(){
                     self.el.remove();
                 });

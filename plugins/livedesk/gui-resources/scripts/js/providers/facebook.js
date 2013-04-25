@@ -30,7 +30,8 @@ define('providers/facebook', [
             render: function() {
                 console.log('render');
                 var self = this;
-                self.el.on('click', '#fbk-search-controls>li', function(ev){
+                self.el.on('click', '#fbk-search-controls>li', function(evt){
+                    evt.preventDefault();
                   $(this).siblings().removeClass('active') .end().addClass('active');             
                   var selected = $(this).attr('data-fbktab');
                       self.el.find('[data-fbkholder]').css('display', 'none');
