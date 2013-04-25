@@ -30,7 +30,7 @@ def createTaskStatus(key):
     except NoResultFound:
         status = TaskStatusMapped()
         status.Key = key
-        status.IsOn = True
+        status.Active = True
         session.add(status)
 
     session.commit()
@@ -45,7 +45,7 @@ def createTaskLinkType(key):
     except NoResultFound:
         link_type = TaskLinkTypeMapped()
         link_type.Key = key
-        link_type.IsOn = True
+        link_type.Active = True
         session.add(link_type)
 
     session.commit()
