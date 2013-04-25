@@ -21,6 +21,7 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
+from superdesk.desk.api.task_comment import QTaskComment
 
 # --------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ class TaskCommentServiceAlchemy(EntityServiceAlchemy, ITaskCommentService):
         '''
         Construct the desk task comment service.
         '''
-        EntityServiceAlchemy.__init__(self, TaskCommentMapped)
+        EntityServiceAlchemy.__init__(self, TaskCommentMapped, QTaskComment)
 
     def getAll(self, taskId, userId=None, offset=None, limit=None, detailed=False, q=None):
         '''

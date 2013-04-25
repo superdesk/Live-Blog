@@ -44,7 +44,7 @@ class QTaskComment(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, TaskComment))
+@service((Entity, TaskComment), (QEntity, QTaskComment))
 class ITaskCommentService(IEntityService):
     '''
     Provides the service methods for the desk task comment.
