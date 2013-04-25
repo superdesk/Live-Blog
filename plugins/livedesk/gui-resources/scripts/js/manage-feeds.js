@@ -60,6 +60,10 @@ define([
                 delete response.href
             }
 
+            if ('URI' in response) {
+                response.URI = response.URI.href;
+            }
+
             return response;
         }
     });
