@@ -147,8 +147,14 @@ define([
             }
         },
 
+        getBlogs: function() {
+            return new ExternalBlogCollection([], {url: this.get('URI')});
+        },
+
         parse: function(response) {
-            this.blogs = new ExternalBlogCollection([], {url: response.URI.href});
+            if (response === null) {
+                return;
+            }
 
             if ('URI' in response) {
                 response.URI = response.URI.href;
@@ -289,8 +295,6 @@ define([
 
         initialize: function() {
             this.model.on('change', this.render, this);
-            this.collection = this.model.blogs;
-            this.collection.on('reset', this.renderBlogs, this);
         },
 
         render: function() {
