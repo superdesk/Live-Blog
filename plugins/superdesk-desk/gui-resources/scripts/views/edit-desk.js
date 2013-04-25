@@ -9,6 +9,7 @@ define(['backbone', 'tmpl!superdesk-desk>edit-desk'], function(Backbone) {
         initialize: function() {
             if (!this.model) {
                 this.model = new this.collection.model();
+                this.model.url = this.collection.url;
             }
         },
 
@@ -19,14 +20,30 @@ define(['backbone', 'tmpl!superdesk-desk>edit-desk'], function(Backbone) {
         },
 
         save: function(e) {
-            var data = {Name: $(this.el).find('#desk-name').val()};
-            if (this.model.isNew()) {
-                this.collection.create(data, {headers: {'X-Filter': 'Id'}, wait: true, sort: false});
-            } else {
-                this.model.save(data, {patch: true});
-            }
+            e.preventDefault();
 
-            this.close(e);
+            var view = this;
+            var data = {Name: $(this.el).find('#desk-name').val()};
+            var isNew = this.model.isNew();
+            this.model.save(data, {
+                patch: !isNew,
+                success: function(model) {
+                    if (isNew) {
+                        // workaround for missing x-filter fields on POST
+                        model.fetch({
+                            headers: view.collection.xfilter,
+                            success: function(model) {
+                                view.collection.add(model);
+                            }
+                        });
+                    }
+                    view.close(e);
+                },
+                error: function(model, response) {
+                    var input = $(view.el).find('#desk-name').first();
+                    input.closest('.control-group').addClass('error');
+                }
+            });
         },
 
         close: function(e) {

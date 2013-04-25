@@ -13,8 +13,7 @@ define([
 
         initialize: function() {
             this.collection.on('reset', this.render, this);
-            this.collection.on('sort', this.render, this);
-            this.collection.on('add', this.fetchAndSort, this);
+            this.collection.on('add', this.render, this);
         },
 
         render: function(e) {
@@ -37,13 +36,6 @@ define([
             e.preventDefault();
             var view = new EditDeskView({collection: this.collection});
             $('#modal-placeholder').html(view.render().el);
-        },
-
-        // workaround for missing x-filter fields on POST
-        fetchAndSort: function(model, collection) {
-            model.fetch({headers: collection.xfilter, success: function(model) {
-                model.collection.sort();
-            }});
         }
     });
 

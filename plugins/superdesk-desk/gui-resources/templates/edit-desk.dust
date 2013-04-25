@@ -17,8 +17,12 @@
             !}
 
 			<form>
-				<label for="desk-name">_("Desk Name:");</label>
-				<input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" value="{name}">
+                <div class="control-group">
+				    <label class="control-label" for="desk-name">_("Desk Name:");</label>
+                    <div class="controls">
+				        <input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" value="{name}" required>
+                    </div>
+                </div>
 			</form>
 		</div>
 		
