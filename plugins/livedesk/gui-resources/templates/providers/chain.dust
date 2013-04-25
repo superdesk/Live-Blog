@@ -1,5 +1,5 @@
 <div class="chain-header">
-	<p>_("Select liveblogs:")</p>
+	<p>_("Select liveblogs:");</p>
 	<p class="feed-info"><button class="btn btn-mini btn-yellow" data-toggle="button">Tageswoche</button></p>
 	<div class="chain-search">
 		<div class="autopublish">
