@@ -186,7 +186,6 @@ function(providers, Gizmo, $, BlogAction)
 				self.el.find('.actions').removeClass('hide');
 			},
 			stopFocuseOut: function(evt) {
-				console.log('stopFocuseOut');
 				var self = this,
 					actions = self.el.find('.actions');
 				actions.data('focuseout-stop',true);
@@ -327,8 +326,6 @@ function(providers, Gizmo, $, BlogAction)
 						if(self.model.updater === self) {
 							delete self.model.updater; return;
 						}
-						if(data['Order'])
-							self.order = parseFloat(data['Order']);
 						/*!
 						 * If the Change Id is received, then sync the hole model;
 						 */						 
@@ -346,7 +343,13 @@ function(providers, Gizmo, $, BlogAction)
 			
 			reorder: function(evt, ui)
 			{
-				var self = this, next = $(ui.item).next('li'), prev = $(ui.item).prev('li'), id, order, newPrev = undefined, newNext = undefined;
+				var self = this, 
+					next = $(ui.item).next('li'), 
+					prev = $(ui.item).prev('li'), 
+					id, 
+					order, 
+					newPrev = undefined, 
+					newNext = undefined;
 				if(next.length) {
 					var nextView = next.data('view');
 					nextView.prev = self;
@@ -391,14 +394,17 @@ function(providers, Gizmo, $, BlogAction)
 					self.render().el.fadeTo(500, '1');
 				});
 			},
-			reorder: function()
+			renderReorder: function()
 			{
-				var self = this, order = parseFloat(this.model.get('Order'));
+				var self = this, 
+					order = parseFloat(self.model.get('Order'));
 				if(isNaN(order)) {
 					order = 0.0;
 				}
-				if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
-					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
+				if ( !isNaN(self.order) && (order != self.order) && self.model.ordering !== self) {
+					var actions = { prev: 'insertBefore', next: 'insertAfter' }, 
+						ways = { prev: 1, next: -1}, 
+						anti = { prev: 'next', next: 'prev'};
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
 						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
@@ -422,7 +428,7 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this,
 					rendered = false,
 					post = self.model.feed(true);
-				self.reorder();
+				self.renderReorder();
 				if ( typeof post.Meta === 'string') {
 					post.Meta = JSON.parse(post.Meta);
 				}
@@ -501,7 +507,7 @@ function(providers, Gizmo, $, BlogAction)
 						self.render();
 						self.toggleMoreVisibility();
 					})
-					.on('update updateauto', function(evt, data)
+					.on('addingsauto', function(evt, data)
 					{
 						//console.log('update collection: ',evt.type, data);
 						self.addAll(data);
