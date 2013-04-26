@@ -18,7 +18,7 @@ support.loadAllEntities(Action)
 @ioc.entity
 def menuAction() -> Action:
     script=publishedURI('superdesk-desk/scripts/config.js')
-    return Action('desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
+    return Action('desks', Parent=defaults.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
 
 @ioc.entity
 def blogConfigView() -> RightAction:
