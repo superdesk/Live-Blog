@@ -28,6 +28,10 @@ define([
 			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
             var urlCached = req.toUrl(nameCached);//+'&t='+(new Date()).getTime(),
                 url = req.toUrl(name);//+'&t='+(new Date()).getTime();
+                //@TODO clear this when requirejs will fix this https://github.com/jrburke/requirejs/issues/614
+                if ( url.substr(url.length - 4) == '.fak') {
+                    url = url.substr(0, url.length - 4);
+                }
                 /*!
                  * Use the same options for the internationalization ajax request
                  *   url key need to be supplied in options
