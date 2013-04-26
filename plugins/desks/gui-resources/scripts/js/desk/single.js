@@ -15,7 +15,7 @@ define
 ],
 function($, Backbone, Gizmo, Action, Router)
 {
-    var optionsStatus = {headers: {'X-Filter': 'Key, IsOn'}, reset: true};
+    var optionsStatus = {headers: {'X-Filter': 'Key'}, reset: true};
     var optionsTask = {headers: {'X-Filter': 'Id, Description, Title, StartDate, Status.Key'}, reset: true};
     var optionsDesk = {headers: {'X-Filter': 'Id, Description, Name'}, reset: true};
 
@@ -178,7 +178,8 @@ function($, Backbone, Gizmo, Action, Router)
                 for ( var i = 0; i < fCollection.length; i ++) {
                     var task = fCollection[ i ];
                     var taskView = new TaskView({model:task});
-                    self.$el.find('.assignments').append(taskView.render().el);
+                    var tviewel = taskView.render().el;
+                    self.$el.find('.' + containerClass + ' .assignments').append(tviewel);
                 }
             });
         }
@@ -220,24 +221,20 @@ function($, Backbone, Gizmo, Action, Router)
             });
         },
         setGridView: function(evt) {
-            var target = $(evt.target);
-            if (!target.parent().hasClass('active')) {
-                target.parent().addClass('active');
-                $("#list-view").parent().removeClass('active');
+            if (!$('#li-grid-view').hasClass('active')) {
+                $('#li-grid-view').addClass('active');
+                $("#li-list-view").removeClass('active');
                 $(".desk-content-container").removeClass('desk-list');
             }
             return false;
         },
         setListView: function(evt) {
-            var target = $(evt.target);
-            if (!target.hasClass('active')) {
-                target.parent().addClass('active');
+            if (!$('#li-list-view').hasClass('active')) {
+                $('#li-list-view').addClass('active');
                 $("#grid-view").parent().removeClass('active');
                 $(".desk-content-container").addClass('desk-list');
             }
-
             return false;
-
         },
         render: function(deskId) {
             var self = this;
@@ -256,7 +253,6 @@ function($, Backbone, Gizmo, Action, Router)
         init: function() {
             var mainView = new MainView( { el: $('#area-main')} );
             mainView.render();
-           
         }
     }
 });
