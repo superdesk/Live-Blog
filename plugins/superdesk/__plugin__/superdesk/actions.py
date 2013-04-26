@@ -7,7 +7,7 @@ from gui.action.api.action import Action
 from __plugin__.acl import gui
 from __plugin__.gui_action import defaults
 from __plugin__.gui_action.service import addAction
-from superdesk.desks.api.desks import IDesksService
+from superdesk.api.mock import IMockService 
 
 support.listenToEntities(Action, listeners=addAction)
 support.loadAllEntities(Action)
@@ -24,4 +24,4 @@ def configView() -> RightAction:
 def registerConfigView():
     r = configView()
     r.addActions(menuAction())
-    r.allGet(IDesksService) # TODO it must be binded to a service, but there is none
+    r.allGet(IMockService) # TODO it must be binded to a service, but there is none
