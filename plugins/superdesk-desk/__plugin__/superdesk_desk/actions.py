@@ -6,9 +6,8 @@ from acl.right_action import RightAction
 from gui.action.api.action import Action
 from __plugin__.acl import gui
 from __plugin__.gui_core.gui_core import publishedURI
-from ..gui_action import defaults
-from ..gui_action.service import addAction
-from ..superdesk import actions as superdeskActions
+from __plugin__.gui_action import defaults
+from __plugin__.gui_action.service import addAction
 import __plugin__.superdesk.actions as superdesk
 from superdesk.desk.api.desk import IDeskService
 
@@ -16,48 +15,35 @@ support.listenToEntities(Action, listeners=addAction)
 support.loadAllEntities(Action)
 
 @ioc.entity
+def desksMenuAction() -> Action:
+    return Action('desks', Parent=defaults.menuAction(), Label=_('menu', 'Desks'))
+
+@ioc.entity
+def desksListMenuAction() -> Action:
+    script = publishedURI('superdesk-desk/scripts/actions/desks.js')
+    return Action('desks:list', Parent=desksMenuAction(), Script=script)
+
+@ioc.entity
 def configMenuAction() -> Action:
-    script=publishedURI('superdesk-desk/scripts/config.js')
-    return Action('desks', Parent=superdeskActions.configAction(), Label=_('menu', 'Desks'), NavBar='/config/desks', Script=script)
+    script = publishedURI('superdesk-desk/scripts/actions/config.js')
+    return Action('config:desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
+
+@ioc.entity
+def deskView() -> RightAction:
+    return gui.actionRight(_('security', 'Desk View'), _('security', 'Allows desks view.'))
 
 @ioc.entity
 def deskConfigView() -> RightAction:
     return gui.actionRight(_('security', 'Desk Config View'), _('security', 'Allows desks configuration.'))
 
-@ioc.entity   
-def modulesAction() -> Action:
-    return Action('desks', Parent=defaults.modulesAction())
-
-@ioc.entity   
-def modulesMainAction() -> Action:
-    return Action('main', Parent=modulesAction(), Script=publishedURI('superdesk/desks/scripts/js/main.js'))
-
-@ioc.entity   
-def modulesTasksAction() -> Action:
-    return Action('tasks', Parent=modulesAction())
-
-@ioc.entity   
-def modulesAddTaskAction() -> Action:
-    return Action('add', Parent=modulesTasksAction(), Script=publishedURI('superdesk/desks/scripts/js/task/add.js'))
-
-@ioc.entity   
-def modulesEditTaskAction() -> Action:
-    return Action('edit', Parent=modulesTasksAction(), Script=publishedURI('superdesk/desks/scripts/js/task/edit.js'))
-
-@ioc.entity   
-def modulesSingleDeskAction() -> Action:
-    return Action('single', Parent=modulesAction(), Script=publishedURI('superdesk/desks/scripts/js/desk/single.js'))
-
-# --------------------------------------------------------------------
-
-@ioc.entity
-def rightDesksView() -> RightAction:
-    return gui.actionRight(NC_('security', 'Desks'), NC_('security', ''''''))
-
-# --------------------------------------------------------------------
-    
 @gui.setup
 def registerConfigView():
     r = deskConfigView()
     r.addActions(configMenuAction())
+    r.allGet(IDeskService)
+
+@gui.setup
+def registerDeskView():
+    r = deskView()
+    r.addActions(desksMenuAction(), desksListMenuAction())
     r.allGet(IDeskService)
