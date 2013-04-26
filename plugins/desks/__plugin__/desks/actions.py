@@ -16,7 +16,7 @@ from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
 from gui.action.api.action import Action
-from superdesk.desks.api.desks import IDesksService
+from superdesk.desk.api.desk import IDeskService
     
 # --------------------------------------------------------------------
 
@@ -66,4 +66,4 @@ def rightDesksView() -> RightAction:
 def registerAclDesksView():
     r = rightDesksView()
     r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesTasksAction(), modulesAddTaskAction(), modulesEditTaskAction(), modulesSingleDeskAction())
-    r.allGet(IDesksService)
+    r.allGet(IDeskService)
