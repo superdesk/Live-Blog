@@ -5,6 +5,7 @@ from gui.action.api.action import Action
 from __plugin__.acl import gui
 from __plugin__.gui_action import defaults
 from __plugin__.gui_action.service import addAction
+from superdesk.desk.api.desk import IDeskService
 
 # -------------------------------------------------------------------
 
@@ -24,4 +25,5 @@ def configView() -> RightAction:
 @gui.setup
 def registerConfigView():
     r = configView()
-    r.addActions(menuConfigAction())
+    r.addActions(menuAction())
+    r.allGet(IDeskService) # TODO it must be binded to a service, but there is none
