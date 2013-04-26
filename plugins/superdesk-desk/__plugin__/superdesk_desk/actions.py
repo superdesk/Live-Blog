@@ -11,19 +11,18 @@ from ..gui_action.service import addAction
 from ..superdesk import actions as superdeskActions
 import __plugin__.superdesk.actions as superdesk
 from superdesk.desk.api.desk import IDeskService
-from ally.internationalization import NC_
 
 support.listenToEntities(Action, listeners=addAction)
 support.loadAllEntities(Action)
 
 @ioc.entity
-def menuAction() -> Action:
+def configMenuAction() -> Action:
     script=publishedURI('superdesk-desk/scripts/config.js')
     return Action('desks', Parent=superdeskActions.configAction(), Label=_('menu', 'Desks'), NavBar='/config/desks', Script=script)
 
 @ioc.entity
-def blogConfigView() -> RightAction:
-    return gui.actionRight(_('security', 'Blog Config View'), _('security', 'Allows desks configuration.'))
+def deskConfigView() -> RightAction:
+    return gui.actionRight(_('security', 'Desk Config View'), _('security', 'Allows desks configuration.'))
 
 @ioc.entity   
 def modulesAction() -> Action:
@@ -58,7 +57,7 @@ def rightDesksView() -> RightAction:
 # --------------------------------------------------------------------
     
 @gui.setup
-def registerAclDesksView():
-    r = rightDesksView()
-    r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesTasksAction(), modulesAddTaskAction(), modulesEditTaskAction(), modulesSingleDeskAction())
+def registerConfigView():
+    r = deskConfigView()
+    r.addActions(configMenuAction())
     r.allGet(IDeskService)

@@ -2,9 +2,10 @@ from ally.container import ioc, support
 from ally.internationalization import NC_
 from acl.right_action import RightAction
 from gui.action.api.action import Action
-from ..acl import gui
-from ..gui_action import defaults
-from ..gui_action.service import addAction
+from __plugin__.acl import gui
+from __plugin__.gui_action import defaults
+from __plugin__.gui_action.service import addAction
+from superdesk.desk.api.desk import IDeskService
 
 # -------------------------------------------------------------------
 
@@ -24,4 +25,5 @@ def configView() -> RightAction:
 @gui.setup
 def registerConfigView():
     r = configView()
-    r.addActions(configAction())
+    r.addActions(menuAction())
+    r.allGet(IDeskService) # TODO it must be binded to a service, but there is none
