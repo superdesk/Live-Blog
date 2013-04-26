@@ -12,7 +12,7 @@
       
       <div class="tool-box-right">
         <a class="tool-box-button"><i class="icon-remove"></i></a>
-        <a class="tool-box-button" name="openmodal" href="#"><i class="icon-pencil"></i></a>
+        <a class="tool-box-button" name="openmodal" href="javascript:void(0)"><i class="icon-pencil"></i></a>
       </div>
       <h3>{Name}</h3>
     </div>

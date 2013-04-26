@@ -24,5 +24,5 @@ function( Gizmo ) {
                 ret = dataAdapter(typeHref).update();
             return ret;
         },
-    }, { register: 'Collaborator' } );
+    }, { register: 'Collaborator' });
 });

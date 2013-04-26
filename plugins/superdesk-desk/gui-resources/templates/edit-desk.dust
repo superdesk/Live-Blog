@@ -1,0 +1,34 @@
+<div class="modal fade modal-wide" id="editDesk">
+	<div class="modal-header"> <a class="close cancel">×</a>
+		{?id}<h3>_("Edit Desk");</h3>{:else}<h3>_("Add New Desk");</h3>{/id}
+	</div>
+	<div class="modalscreen" id="general-screen" style="display:block";>
+
+		<div class="modal-body modal-body-min">
+
+            {!
+			<div class="popup-subnav subnav">
+				<ul class="nav nav-pills pull-left">
+					<li class="active"><a href="#general-screen">General</a></li>
+					<li ><a href="#members-screen">Desk members</a></li>
+					<li ><a href="#boards-screen">Desk boards</a></li>
+				</ul>
+			</div>
+            !}
+
+			<form>
+                <div class="control-group">
+				    <label class="control-label" for="desk-name">_("Desk Name:");</label>
+                    <div class="controls">
+				        <input id="desk-name" name="name" type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" value="{name}" required>
+                    </div>
+                </div>
+			</form>
+		</div>
+		
+	</div>
+	<div class="modal-footer"> 
+        <button class="btn cancel">_("Cancel");</button>
+        <button class="btn btn-primary save">_("Save");</button>
+    </div>
+</div>

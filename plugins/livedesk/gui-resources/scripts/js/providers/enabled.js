@@ -1,5 +1,4 @@
 define('providers/enabled', [
-    //'order!providers/image/tab',
     'order!providers/edit/tab',
     'order!providers/colabs/tab',
 	'order!providers/google/tab',

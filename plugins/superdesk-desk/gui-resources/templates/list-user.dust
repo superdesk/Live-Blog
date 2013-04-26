@@ -1,0 +1,17 @@
+<figure><img src="../assets/images/avatar_default_collaborator.png" width="22" height="22"></figure>
+<a class="collaborator-name-large" >{name}</a>
+
+<div class="table-buttons">
+    <a href="#" class="remove"><i class="icon-remove"></i></a>
+</div>
+
+{! requires roles refactoring
+<div class="dropdown dropdown-simple">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+	<ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	    <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1editor"> Editor</li>
+		<li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid1Journalist"> Journalist</li>
+	    <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1photographer"> Photographer</li>
+	</ul>
+</div>
+!}

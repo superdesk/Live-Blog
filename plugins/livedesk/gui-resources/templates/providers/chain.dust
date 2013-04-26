@@ -1,9 +1,9 @@
 <div class="chain-header">
-	<p>_("Select liveblogs:");</p>
+	<p>_("Select liveblogs:")</p>
 	<p class="feed-info"></p>
 	<div class="chain-search">
 		<div class="sf-searchbox">
-			<input type="text" placeholder="_('Search');">
+			<input type="text" placeholder="Search">
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>

@@ -259,6 +259,10 @@ define([
 				 */
 				view.el.insertAfter(this._views[pos-1].el);
 			}
+			for( var order = [], data = this._views, i = 0, item = data[i], count = data.length; i < count; item = data[++i] ){
+				order.push(item.order);
+			}
+			console.log(order.join(','));
 			return view;
 		},
 		addOne: function(model)

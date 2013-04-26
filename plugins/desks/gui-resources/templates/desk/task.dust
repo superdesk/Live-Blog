@@ -1,0 +1,12 @@
+	<figure class="assign-avatar">
+		<img src="<!-- pictures/avatar2.png -->" />
+	</figure>
+	<div class="assign-description">
+		{Description}
+	</div>
+	<ul class="assign-labels clearfix">
+		<li ><i class="icon-desk-time icon-white"></i>{StartDate}</li>
+		<li><i class="icon-desk-task icon-white"></i> 3/3</li>
+		<li><i class="icon-desk-comments icon-white"></i> 8</li>
+	</ul>
+	

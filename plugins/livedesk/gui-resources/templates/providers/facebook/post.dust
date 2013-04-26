@@ -1,8 +1,8 @@
 <li class="facebook draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
     <div class="drag-bar"></div>
     <div class="tool-box-right" style="z-index: 1000">
-    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete');">x</a>
-        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
     </div>
     <div class="editable annotation">
             {Meta.annotation.before|s}

@@ -321,7 +321,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         if isinstance(q, QWithCId) and QWithCId.search in q:
-            all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
+            all = self._processLike(q.search.all)
             sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)

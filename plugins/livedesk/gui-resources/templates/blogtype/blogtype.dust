@@ -8,7 +8,7 @@
     {^add}
     <div class="tool-box-right">
       <a class="tool-box-button" data-toggle="modal" href="#delete-blogtype" name="remove-blogtype"><i class="icon-remove"></i></a>
-      <a class="tool-box-button" name="edit-blogtype" href="#"><i class="icon-pencil"></i></a>
+      <a class="tool-box-button" name="edit-blogtype" href="javascript:void(0)"><i class="icon-pencil"></i></a>
     </div>
     {/add}
     <h3>{Name}</h3>
