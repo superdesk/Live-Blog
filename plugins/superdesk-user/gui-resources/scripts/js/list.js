@@ -378,8 +378,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         },
         checkPass: function(modal)
         {
-            var pass = $(modal+' form input#inputPass', self.el).val();
-            if( pass.length > 0 && $(modal+' form input#inputPassConfirm', self.el).val() !== pass ) return false;
+            var pass = $(modal+' form input#inputPass', this.el).val();
+            if( pass.length > 0 && $(modal+' form input#inputPassConfirm', this.el).val() !== pass ) return false;
             return true;
         },
         checkEmail: function(email)
