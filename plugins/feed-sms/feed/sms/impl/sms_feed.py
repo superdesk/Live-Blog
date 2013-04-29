@@ -23,6 +23,14 @@ from sqlalchemy.orm.exc import NoResultFound
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
 from ally.api.criteria import AsLike
+from superdesk.post.api.post import IPostService, Post
+from superdesk.collaborator.api.collaborator import Collaborator
+from superdesk.post.api.type import PostType
+from superdesk.user.api.user import User
+from datetime import datetime
+from ally.container import wire
+from superdesk.user.api.user import IUserService
+from livedesk.impl.blog_collaborator import CollaboratorSpecification
 
 # --------------------------------------------------------------------
 
@@ -33,10 +41,19 @@ class SMSFeedServiceAlchemy(EntityServiceAlchemy, ISMSFeedService):
     Implementation for @see: ISMSFeedService
     '''
 
+    postService = IPostService; wire.entity('postService')
+    collaboratorSpecification = CollaboratorSpecification; wire.entity('collaboratorSpecification')
+    # the search provider used to search the article list
+    userService = IUserService; wire.entity('userService')
+    # the user service used to set the creator
+    authorService = IUserService; wire.entity('authorService')
+    # the author service used to set the author
+
     def __init__(self):
         '''
         Construct the sms feed service.
         '''
+        assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
         EntityServiceAlchemy.__init__(self, SMSFeedMapped)
 
     def getAll(self, typeKey=None, offset=None, limit=None, detailed=False, q=None):
@@ -76,6 +93,22 @@ class SMSFeedServiceAlchemy(EntityServiceAlchemy, ISMSFeedService):
 
         except SQLAlchemyError as e:
             handle(e, smsFeedDb)
+
+        post = Post()
+        post.Type = PostType('SMS').Key
+        post.Creator = User().Id
+        post.Author = Collaborator().Id
+        post.IsModified = False
+        post.IsPublished = False
+        post.Meta = smsFeedDb.PhoneNumber
+        post.ContentPlain = smsFeedDb.MessageText
+        post.Content = smsFeedDb.MessageText
+        post.CreatedOn = datetime.now()
+        post.PublishedOn = None
+        post.UpdatedOn = None
+        post.DeletedOn = None
+        post.AuthorName = ''
+        blogPostId=self.postService.insert(post)
 
         return (smsFeedDb,)
 
