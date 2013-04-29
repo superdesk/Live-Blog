@@ -9,6 +9,7 @@ define
     config.guiJs('superdesk/desks', 'models/task-status'),
     'tmpl!superdesk/desks>desk/single',
     'tmpl!superdesk/desks>desk/task',
+    'tmpl!superdesk/desks>desk/desk',
     'tmpl!superdesk/desks>desk/desk-select',
     'tmpl!superdesk/desks>desk/desk-select-option',
     'tmpl!superdesk/desks>desk/status'
@@ -184,6 +185,42 @@ function($, Backbone, Gizmo, Action, Router)
             });
         }
     }),
+    DeskView = Backbone.View.extend({
+        model: Desk,
+        render: function(){
+            var self = this;
+            console.log(this.model.toJSON());
+            $.tmpl('superdesk/desks>desk/desk', this.model.toJSON(), function(e, o) {
+                self.$el.append(o);
+                statusCollection = new StatusCollection;
+                statusCollection.url = getGizmoUrl('Desk/TaskStatus');
+                statusCollection.fetch(optionsStatus).done(function(){
+                    var models = statusCollection.models;
+                    for ( var i = 0; i < models.length; i++ ) {
+                        var status = models[i];
+                        
+                    }
+                });
+            });
+            return this;
+        }
+    }),
+    NewsroomView = Backbone.View.extend({
+        initialize: function(){
+            this.listenTo(this.collection,'reset', this.render);
+        },
+        render: function(){
+            var self = this;
+            this.collection.each(function(desk){
+                self.addOne(desk);
+            });
+            return this;
+        },
+        addOne: function(desk) {
+            var self = this;
+            self.$el.append(new DeskView({model: desk}).render().el);
+        }
+    }),
     MainView = Backbone.View.extend({
         events: {
             
@@ -242,10 +279,12 @@ function($, Backbone, Gizmo, Action, Router)
 
                 var deskSelect = new SelectDeskCollectionView;
                 self.$el.find('#desk-select').html(deskSelect.render().el);
-                
+                var newsroomView = new NewsroomView({collection: deskCollection, el: self.$el.find('.desk-horizontal-scroll')});
             });
         }
     }),
+
+    
    
     deskCollection = new DeskCollection;
 
