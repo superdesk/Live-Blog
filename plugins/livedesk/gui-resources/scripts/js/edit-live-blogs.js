@@ -274,6 +274,7 @@ function(providers, Gizmo, $, BlogAction)
 				this.model
 				    .on('delete', this.remove, this)
 				    .off('unpublish').on('unpublish', function(evt) {
+				    	//console.log('unpublish');
 				    	self.remove(evt);
 						 /*
 						 * @TODO: remove this
@@ -313,7 +314,7 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update', function(evt, data)
 					{
-						//console.log('update model: ',data);
+						//console.log('update model: ',evt);
 						/**
 						 * Quickfix.
 						 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
@@ -502,14 +503,15 @@ function(providers, Gizmo, $, BlogAction)
 				});
 				self.xfilter = 'CId, Order, IsPublished';
 				self.collection
-					.on('read readauto', function()
+					.on('read readauto', function(evt)
 					{
+						//console.log('read: ',evt.type);
 						self.render();
 						self.toggleMoreVisibility();
 					})
 					.on('addingsauto', function(evt, data)
 					{
-						//console.log('update collection: ',evt.type, data);
+						//console.log('addingsauto: ',evt.type, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
@@ -1111,6 +1113,9 @@ function(providers, Gizmo, $, BlogAction)
 						delete providers["instagram"];
 						delete providers["soundcloud"];
 						delete providers["ads"];
+						delete providers["facebook"];
+						delete providers["chain"];
+						//delete providers["image"];
 					});
 	    BlogAction.setBlogUrl(theBlog);
 	    // stop autoupdate if any

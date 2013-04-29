@@ -21,7 +21,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
-from content.article.api.article import AsLikeAllOrdered
+from ally.api.criteria import AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ class QWithCId:
     Provides the query for cId.
     '''
     cId = AsRangeOrdered
-    search = AsLikeAllOrdered
+    search = AsLikeOrdered
 
 @query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):

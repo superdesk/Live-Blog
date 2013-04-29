@@ -8,14 +8,14 @@
     <div class="main-content" id="main-content">
     	<div class="main-content-topnav">
         	<a class="toggle-sidebar-button" href="javascript:void(0)"></a>
-            <span class="title">_('Search results') </span>
+            <span class="title">_('Search results'); </span>
             <span class="info">({#pagination}{total}{/pagination})</span>
             
         
         	<div class="btn-toolbar pull-right" style="margin:0">
         		<div class="btn-group">
         			<a href="javascript:void(0)" class="btn btn-info pull-right"
-					data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
+					data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media');</a>
 				</div>
 	            <div class="btn-group">
             
@@ -23,11 +23,11 @@
             	<a href="javascript:void(0)" data-toggle="dropdown" class="btn dropdown-toggle"><span class="caret"></span></a>
             		<ul class="dropdown-menu">
                 		
-                		<li><a href="#"><i class="icon-eye-open"></i> _('View/Hide details')</a></li>
+                		<li><a href="#"><i class="icon-eye-open"></i> _('View/Hide details');</a></li>
                         <li class="divider"></li>
                         {#pagination}
                         {#ipp}
-							<li class="{isipp} ipp"><a href="javascript:void(0)" data-ipp="{.}"><i class="icon-th-large"></i> {.} _('items per page')</a></li>
+							<li class="{isipp} ipp"><a href="javascript:void(0)" data-ipp="{.}"><i class="icon-th-large"></i> {.} _('items per page');</a></li>
 						{/ipp}
 						{/pagination}
                         <li class="divider"></li>
@@ -38,12 +38,12 @@
           	</div>
             
    			<!--div style="margin-right:10px;" class="btn-group pull-right">
-            	<a href="#" class="btn btn-info">_('Action')</a>
+            	<a href="#" class="btn btn-info">_('Action');</a>
             	<a href="#" data-toggle="dropdown" class="btn btn-info dropdown-toggle"><span class="caret"></span></a>
             		<ul class="dropdown-menu">
                 		<li><a href="#" id="add-to-scratchpad-many"><i class="icon-scratchpad"></i> Add to scratchpad</a></li>
-                        <li><a href="#"><i class="icon-download-alt"></i> _('Download')</a></li>
-                		<li><a href="#"><i class="icon-trash"></i> _('Delete')</a></li>
+                        <li><a href="#"><i class="icon-download-alt"></i> _('Download');</a></li>
+                		<li><a href="#"><i class="icon-trash"></i> _('Delete');</a></li>
               		</ul>
           	</div-->
         </div>
@@ -52,15 +52,15 @@
 			<div class="pagination" style="margin-top:0">
 			{?currentpages}
 			<ul class="{className}">
-				<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>
-				<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous')">&larr;</a> </li> 
+				<li> <a href="javascript:void(0)" data-pagination="first" title="_('First');">&#8676;</a> </li>
+				<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous');">&larr;</a> </li> 
 				{#currentpages}
 				<li class="{className}"> 
-					<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page') {page}" data-offset="{offset}">{page}</a> 
+					<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page'); {page}" data-offset="{offset}">{page}</a> 
 				</li>	
 				{/currentpages}
-				<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next')">&rarr;</a> </li>
-				<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last')">&#8677;</a> </li>
+				<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next');">&rarr;</a> </li>
+				<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last');">&#8677;</a> </li>
 			</ul>
 			{/currentpages}
 			</div>

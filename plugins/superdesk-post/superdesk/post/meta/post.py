@@ -41,7 +41,7 @@ class PostMapped(Base, Post):
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Meta = Column('meta', String(10000))
     ContentPlain = Column('content_plain', String(3000))
-    Content = Column('content', String(3000), nullable=False)
+    Content = Column('content', String(3000))
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)

@@ -9,32 +9,15 @@ Created on Mar 14, 2013
 API specifications for article.
 '''
 
-from ally.api.config import criteria, query, service, call, UPDATE, GET
-from ally.api.criteria import AsLike, AsDateOrdered, AsOrdered
-from ally.api.type import Reference, Iter
+from ally.api.config import query, service, call, UPDATE
+from ally.api.criteria import AsLike, AsDateOrdered
+from ally.api.type import Reference
 from ally.support.api.entity import Entity, QEntity, IEntityService
 from content.packager.api.domain_content import modelContent
 from content.packager.api.item import Item
 from datetime import datetime
 from superdesk.user.api.user import User
 from superdesk.person.api.person import Person
-
-# --------------------------------------------------------------------
-
-@criteria
-class AsLikeAll:
-    '''
-    Provides criteria that can apply like operator to multiple text columns
-    '''
-    all = str
-
-# --------------------------------------------------------------------
-
-@criteria
-class AsLikeAllOrdered(AsLikeAll, AsOrdered):
-    '''
-    Provides the like search and also the ordering and boolean expression functionality (see AsLikeAll).
-    '''
 
 # --------------------------------------------------------------------
 
@@ -61,7 +44,7 @@ class QArticle(QEntity):
     creator = AsLike
     author = AsLike
     publishedOn = AsDateOrdered
-    search = AsLikeAllOrdered
+    search = AsLike
 
 # --------------------------------------------------------------------
 

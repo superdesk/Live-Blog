@@ -123,7 +123,8 @@ $.extend(providers.twitter, {
 	render: function() {
 		var self = this;
 		this.el.tmpl('livedesk>providers/twitter', {}, function(){
-			self.el.on('click', '#twt-search-controls>li', function(ev){
+			self.el.on('click', '#twt-search-controls>li', function(evt){
+              evt.preventDefault();
 			  $(this).siblings().removeClass('active') .end().addClass('active');			  
 			  var myArr = $(this).attr('id').split('-');
 			  //hide all ggl result holders

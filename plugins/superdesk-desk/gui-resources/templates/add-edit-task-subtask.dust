@@ -1,0 +1,4 @@
+<h6>{Title}</h6>
+<p>{Description}</p>
+<span class="assign-label {Status.Key|strps}"><i class="icon-desk-time icon-white"></i> <span data-subtask-info="due-date">{DueDate}</span></span>
+<a href="desk/task/edit/{Id}">_('Open details')</a>

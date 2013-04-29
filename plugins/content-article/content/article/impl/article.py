@@ -18,8 +18,7 @@ from ally.support.sqlalchemy.util_service import handle
 from content.article.api.article import IArticleService, Article, QArticle
 from content.article.api.search_provider import IArticleSearchProvider
 from content.article.meta.article import ArticleMapped
-from content.packager.api.item import IItemService, Item, CLASS_TEXT,\
-    CLASS_PACKAGE
+from content.packager.api.item import IItemService, Item, CLASS_PACKAGE
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
 from content.publisher.api.publisher import IContentPublisherService
@@ -29,6 +28,7 @@ from sqlalchemy.sql.functions import current_timestamp
 import json
 from ally.api.extension import IterPart
 from superdesk.user.api.user import IUserService
+from urllib.parse import quote
 
 # --------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         Implementation of @see: IArticleService.getById
         '''
         article = super().getById(id)
-        params = dict(guid=article.Item)
+        params = dict(guid=quote(article.Item, safe=''))
         article.Preview = self.preview_url % params
         return article
 
@@ -104,7 +104,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         
         for article in articles:
             assert isinstance(article, Article)
-            params = dict(guid=article.Item)
+            params = dict(guid=quote(article.Item, safe=''))
             article.Preview = self.preview_url % params
 
         return IterPart(articles, count, offset, limit) 

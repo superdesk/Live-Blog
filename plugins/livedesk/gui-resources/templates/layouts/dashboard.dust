@@ -2,10 +2,10 @@
 {<body}
 <div class="content-topnav" style="margin-top:40px;">
 	<ul class="nav nav-tabs dashboard-tabs" id="myTab">
-	  <li class="active"><a href="#active_blogs" data-toggle="tab">_('Active blogs')</a></li>
-	  <li><a href="#archive_blogs" data-toggle="tab">_('Archive blogs')</a></li>
+	  <li class="active"><a href="#active_blogs" data-toggle="tab">_('Active blogs');</a></li>
+	  <li><a href="#archive_blogs" data-toggle="tab">_('Archive blogs');</a></li>
 	</ul>
-	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog" style="display:none"><i class="icon-white icon-plus-sign"></i> _('Create live blog')</a>
+	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog" style="display:none"><i class="icon-white icon-plus-sign"></i> _('Create live blog');</a>
 </div>
 <div class="tab-content">
 
@@ -15,8 +15,8 @@
         	<span class="btn-inactive"><i class="icon-settings"></i></span>
         	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
         		<ul class="dropdown-menu">
-                    <li><a id="grid_view" href="#"><i class="icon-th"></i> _('Grid view')</a></li>
-            		<li><a id="list_view" href="#"><i class="icon-th-list"></i> _('List view')</a></li>
+                    <li><a id="grid_view" href="#"><i class="icon-th"></i> _('Grid view');</a></li>
+            		<li><a id="list_view" href="#"><i class="icon-th-list"></i> _('List view');</a></li>
           		</ul>
       	</div>
 
@@ -40,7 +40,7 @@
 			</li>
 			{:else}
 			<li class="no-results-msg" >
-				<span class="archive-blogs-title"><a href="#">_('No Blogs found')</a></span>
+				<span class="archive-blogs-title"><a href="#">_('No Blogs found');</a></span>
 			</li>
 			{/live}
 

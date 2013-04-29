@@ -1,8 +1,8 @@
 <div class="search-header">
-    <input type="text" placeholder="_('Search')" id="flickr-search-text" style="display:block">
-    _('License')&nbsp;
+    <input type="text" placeholder="_('Search');" id="flickr-search-text" style="display:block">
+    _('License');&nbsp;
     <select id="flickr-license">
-        <option value=''>Any</option>
+        <option value=''>_('Any');</option>
     </select>
 
 </div>
