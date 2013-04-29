@@ -8,6 +8,7 @@ from __plugin__.acl import gui
 from __plugin__.gui_core.gui_core import publishedURI
 from ..gui_action import defaults
 from ..gui_action.service import addAction
+from ..superdesk import actions as superdeskActions
 import __plugin__.superdesk.actions as superdesk
 from superdesk.desk.api.desk import IDeskService
 from ally.internationalization import NC_
@@ -18,7 +19,7 @@ support.loadAllEntities(Action)
 @ioc.entity
 def menuAction() -> Action:
     script=publishedURI('superdesk-desk/scripts/config.js')
-    return Action('desks', Parent=defaults.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
+    return Action('desks', Parent=superdeskActions.configAction(), Label=_('menu', 'Desks'), NavBar='/config/desks', Script=script)
 
 @ioc.entity
 def blogConfigView() -> RightAction:
