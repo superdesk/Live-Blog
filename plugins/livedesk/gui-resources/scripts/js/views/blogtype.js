@@ -22,9 +22,11 @@
         init: function(){
             var self = this;
             self.model.on('delete', self.remove, self);
+            self.model.on('update', self.render, self);
             self.render();
         },
         editBlogType: function(evt) {
+            evt.preventDefault();
             var self = this;
             self._parent.configBlogType.model = self.model;
             self._parent.configBlogType.render();
