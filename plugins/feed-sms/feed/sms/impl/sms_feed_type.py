@@ -13,14 +13,13 @@ from ..api.sms_feed_type import ISMSFeedTypeService
 from ..meta.sms_feed_type import SMSFeedTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, \
-    EntityFindServiceAlchemy
+from sql_alchemy.impl.keyed import EntityServiceAlchemy
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ISMSFeedTypeService, name='smsFeedTypeService')
-class SMSFeedTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, ISMSFeedTypeService):
+class SMSFeedTypeServiceAlchemy(EntityServiceAlchemy, ISMSFeedTypeService):
     '''
     Implementation for @see: ISMSFeedTypeService
     '''
@@ -29,4 +28,4 @@ class SMSFeedTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchem
         '''
         Construct the sms feed type service.
         '''
-        EntityGetServiceAlchemy.__init__(self, SMSFeedTypeMapped)
+        EntityServiceAlchemy.__init__(self, SMSFeedTypeMapped)

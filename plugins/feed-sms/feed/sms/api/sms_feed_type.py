@@ -10,7 +10,7 @@ API specifications for sms feed types.
 '''
 
 from ally.api.config import service
-from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
+from ally.support.api.keyed import Entity, IEntityService
 from feed.api.domain_feed import modelFeed
 
 # --------------------------------------------------------------------
@@ -27,7 +27,7 @@ class SMSFeedType(Entity):
 # --------------------------------------------------------------------
 
 @service((Entity, SMSFeedType))
-class ISMSFeedTypeService(IEntityGetService, IEntityFindService):
+class ISMSFeedTypeService(IEntityService):
     '''
     Provides the service methods for the task link types.
     '''

@@ -9,7 +9,7 @@ Created on April 24, 2013
 Contains the SQL alchemy implementation for sms feed API.
 '''
 
-from ..api.sms_feed import ISMSFeedService, SMSFeed
+from ..api.sms_feed import ISMSFeedService, QSMSFeed
 from ..meta.sms_feed import SMSFeedMapped
 from ..meta.sms_feed_type import SMSFeedTypeMapped
 from ally.container.ioc import injected
@@ -22,6 +22,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
+from ally.api.criteria import AsLike
 
 # --------------------------------------------------------------------
 
@@ -61,10 +62,10 @@ class SMSFeedServiceAlchemy(EntityServiceAlchemy, ISMSFeedService):
         smsFeedDb.ReceivedOn = current_timestamp()
 
         if q:
-            if SMSFeed.phoneNumber in q and q.phoneNumber:
-                smsFeedDb.PhoneNumber = q.phoneNumber
-            if SMSFeed.messageText in q and q.messageText:
-                smsFeedDb.MessageText = q.messageText
+            if (QSMSFeed.phoneNumber in q) and (AsLike.like in q.phoneNumber):
+                smsFeedDb.PhoneNumber = q.phoneNumber.like
+            if (QSMSFeed.messageText in q) and (AsLike.like in q.messageText):
+                smsFeedDb.MessageText = q.messageText.like
 
         if not smsFeedDb.PhoneNumber:
             raise InputError(Ref(_('Not enough info for a message'),))
