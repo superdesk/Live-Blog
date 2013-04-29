@@ -388,19 +388,19 @@ define([
 				$("#liveblog-posts",self.el).scrollTop(0);
 			});
 			self.markScroll();
-			$("#liveblog-posts", self.el).scroll(function() {
-				if( !self.flags.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
+			$("#liveblog-posts", self.el).scroll(function(e) {
+				if ( !self.flags.atEnd && ($(this).outerHeight() + 1 >= ($(this).get(0).scrollHeight - $(this).scrollTop()))) {
 					self.more();
+                }
+
 				if (self.scroll.element.offset().top < self.scroll.start) {
 					self.autoRender = false;
 					$("#liveblog-status", self.el).addClass("shadow")
-				}
-				else {
+				} else {
 					self.autoRender = true;
 					self.addAllPending();
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
-
 			});
 			$.dispatcher.triggerHandler('after-render',this);
 		},
