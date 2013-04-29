@@ -1,10 +1,56 @@
 <div class="chain-header">
-	<p>_("Select liveblogs:")</p>
-	<p class="feed-info"></p>
+	<p>_("Select liveblogs:");</p>
+	<p class="feed-info"><button class="btn btn-mini btn-yellow" data-toggle="button">Tageswoche</button></p>
 	<div class="chain-search">
+		<div class="autopublish">
+			<span>Autopublish:</span><input type="checkbox" class="sf-toggle on-off">
+		</div>
 		<div class="sf-searchbox">
-			<input type="text" placeholder="Search">
+			<input type="text" placeholder="_('Search');">
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
 </div>
+<div class="alert fade in" style="margin-top:145px;margin-right:12px;">
+	<a class="popup-close" data-dismiss="alert">x</a>
+	<strong>This feed is set to autopublish </strong>- all posts are published automatically.
+</div>
+
+<script type="text/javascript">
+
+	      /* sf-toggle*/
+	      $('.sf-toggle').each(function(i,val){
+	      	var additional_class="";
+	      	if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
+	      	if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
+	      	if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
+	        $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
+	        $(val).hide();
+	      });
+	      
+	      $('.sf-toggle-custom').click(function(e){
+	        e.preventDefault();
+
+	        if (!$(this).hasClass("sf-disable")) {
+
+	        	$(this).toggleClass('sf-checked');
+		        var own_box = $(this).find(".sf-toggle");        
+		        
+		        if (own_box.prop('checked')==true) 
+		        	{ own_box.prop('checked',false); }
+		        else 
+		        	{ own_box.prop('checked',true); }
+		       
+		        own_box.click();
+		        
+		        if (own_box.prop('checked')==true) 
+		        	{ own_box.prop('checked',false); }
+		        else 
+		        	{ own_box.prop('checked',true); }
+	        }
+	       
+	        return false;
+	        
+	      });
+
+</script>

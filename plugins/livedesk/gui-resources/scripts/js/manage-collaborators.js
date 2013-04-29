@@ -5,7 +5,7 @@ define([
     config.guiJs('livedesk', 'action'),
 	'jquery/rest',
 	'jquery/superdesk',
-	'jquery/avatar',
+    config.guiJs('superdesk/user', 'jquery/avatar'),
 	config.guiJs('livedesk', 'models/collaborators'),
 	config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/collaborator'),
@@ -235,6 +235,7 @@ define([
 		init: function(){
 			this.render();
 		},
+		tagName: 'li',
 		render: function(){
 			var self = this;
 			

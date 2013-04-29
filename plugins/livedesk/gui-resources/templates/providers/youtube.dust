@@ -1,15 +1,15 @@
 <div class="search-header">
 	<ul class="search-controls" id="ytb-search-controls">
-	  <li class="active" id="ytb-src-tab"><a href="#">_("Search")</a></li>
-	  <li id="ytb-fav-tab"><a href="#">_("User's favorites")</a></li>
-	  <li id="ytb-usr-tab"><a href="#">_("User's videos")</a></li>
+	  <li class="active" id="ytb-src-tab"><a href="#">_("Search");</a></li>
+	  <li id="ytb-fav-tab"><a href="#">_("User's favorites");</a></li>
+	  <li id="ytb-usr-tab"><a href="#">_("User's videos");</a></li>
 	</ul>
-	<input type="text" placeholder="_('Search')" id="youtube-search-text">
+	<input type="text" placeholder="_('Search');" id="youtube-search-text">
         <select id="ytb-order-by">
-            <option value='relevance'>_('Relevance')</option>
-            <option value='published'>_('Published')</option>
-            <option value='viewCount'>_('Views')</option>
-            <option value='rating'>_('Rating')</option>
+            <option value='relevance'>_('Relevance');</option>
+            <option value='published'>_('Published');</option>
+            <option value='viewCount'>_('Views');</option>
+            <option value='rating'>_('Rating');</option>
         </select>
 </div>
 
