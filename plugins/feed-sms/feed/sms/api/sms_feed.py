@@ -13,7 +13,7 @@ from ally.api.config import service, call, query, LIMIT_DEFAULT, GET
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityService, QEntity
-from ..api.domain_feed import modelFeed
+from feed.api.domain_feed import modelFeed
 from ..api.sms_feed_type import SMSFeedType
 from datetime import datetime
 

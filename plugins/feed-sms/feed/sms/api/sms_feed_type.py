@@ -11,7 +11,7 @@ API specifications for sms feed types.
 
 from ally.api.config import service
 from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
-from ..api.domain_feed import modelFeed
+from feed.api.domain_feed import modelFeed
 
 # --------------------------------------------------------------------
 

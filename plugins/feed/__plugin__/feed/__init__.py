@@ -1,20 +1,17 @@
 '''
-Created on April 24, 2013
+Created on April 29, 2013
 
-@package: superdesk sms
+@package: feed
 @copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Martin Saturka
 
-Contains the sms feed setup files.
+Contains feed setup files.
 '''
 
 # --------------------------------------------------------------------
 
-NAME = 'SMS feed support'
+NAME = 'Feed core'
 GROUP = 'Feed'
 VERSION = '1.0'
-DESCRIPTION = \
-'''
-Provides the support for sms feeds.
-'''
+DESCRIPTION = 'Provides the the Feed setups and database configurations'
