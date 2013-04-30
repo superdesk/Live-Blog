@@ -1,12 +1,14 @@
 from ally.container import ioc, support
 from ally.internationalization import NC_ as _
+from ally.api.config import service, model
+from ally.support.api.entity import Entity, IEntityGetService
 from acl.right_action import RightAction
 from gui.action.api.action import Action
-from __plugin__.acl import gui
-from __plugin__.gui_core.gui_core import publishedURI
-from __plugin__.gui_action import defaults
-from __plugin__.gui_action.service import addAction
-import __plugin__.superdesk.actions as superdesk
+from ..acl import gui
+from ..gui_core.gui_core import publishedURI
+from ..gui_action import defaults
+from ..gui_action.service import addAction
+from ..superdesk import actions as superdeskActions
 from superdesk.desk.api.desk import IDeskService
 
 support.listenToEntities(Action, listeners=addAction)
@@ -23,8 +25,8 @@ def desksListMenuAction() -> Action:
 
 @ioc.entity
 def configMenuAction() -> Action:
-    script = publishedURI('superdesk-desk/scripts/actions/config.js')
-    return Action('config:desks', Parent=superdesk.menuAction(), Label=_('menu', 'Desks'), NavBar='config/desks', Script=script)
+    return Action('config:desks', Parent=superdeskActions.menuConfigAction(), Label=_('menu', 'Desks'),\
+                  NavBar='config/desks', Script=publishedURI('superdesk-desk/scripts/actions/config.js'))
 
 @ioc.entity
 def deskView() -> RightAction:
