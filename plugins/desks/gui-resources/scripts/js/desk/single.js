@@ -9,13 +9,14 @@ define
     config.guiJs('superdesk/desks', 'models/task-status'),
     'tmpl!superdesk/desks>desk/single',
     'tmpl!superdesk/desks>desk/task',
+    'tmpl!superdesk/desks>desk/desk',
     'tmpl!superdesk/desks>desk/desk-select',
     'tmpl!superdesk/desks>desk/desk-select-option',
     'tmpl!superdesk/desks>desk/status'
 ],
 function($, Backbone, Gizmo, Action, Router)
 {
-    var optionsStatus = {headers: {'X-Filter': 'Key, IsOn'}, reset: true};
+    var optionsStatus = {headers: {'X-Filter': 'Key'}, reset: true};
     var optionsTask = {headers: {'X-Filter': 'Id, Description, Title, StartDate, Status.Key'}, reset: true};
     var optionsDesk = {headers: {'X-Filter': 'Id, Description, Name'}, reset: true};
 
@@ -178,9 +179,46 @@ function($, Backbone, Gizmo, Action, Router)
                 for ( var i = 0; i < fCollection.length; i ++) {
                     var task = fCollection[ i ];
                     var taskView = new TaskView({model:task});
-                    self.$el.find('.assignments').append(taskView.render().el);
+                    var tviewel = taskView.render().el;
+                    self.$el.find('.' + containerClass + ' .assignments').append(tviewel);
                 }
             });
+        }
+    }),
+    DeskView = Backbone.View.extend({
+        model: Desk,
+        render: function(){
+            var self = this;
+            console.log(this.model.toJSON());
+            $.tmpl('superdesk/desks>desk/desk', this.model.toJSON(), function(e, o) {
+                self.$el.append(o);
+                statusCollection = new StatusCollection;
+                statusCollection.url = getGizmoUrl('Desk/TaskStatus');
+                statusCollection.fetch(optionsStatus).done(function(){
+                    var models = statusCollection.models;
+                    for ( var i = 0; i < models.length; i++ ) {
+                        var status = models[i];
+                        
+                    }
+                });
+            });
+            return this;
+        }
+    }),
+    NewsroomView = Backbone.View.extend({
+        initialize: function(){
+            this.listenTo(this.collection,'reset', this.render);
+        },
+        render: function(){
+            var self = this;
+            this.collection.each(function(desk){
+                self.addOne(desk);
+            });
+            return this;
+        },
+        addOne: function(desk) {
+            var self = this;
+            self.$el.append(new DeskView({model: desk}).render().el);
         }
     }),
     MainView = Backbone.View.extend({
@@ -220,24 +258,20 @@ function($, Backbone, Gizmo, Action, Router)
             });
         },
         setGridView: function(evt) {
-            var target = $(evt.target);
-            if (!target.parent().hasClass('active')) {
-                target.parent().addClass('active');
-                $("#list-view").parent().removeClass('active');
+            if (!$('#li-grid-view').hasClass('active')) {
+                $('#li-grid-view').addClass('active');
+                $("#li-list-view").removeClass('active');
                 $(".desk-content-container").removeClass('desk-list');
             }
             return false;
         },
         setListView: function(evt) {
-            var target = $(evt.target);
-            if (!target.hasClass('active')) {
-                target.parent().addClass('active');
+            if (!$('#li-list-view').hasClass('active')) {
+                $('#li-list-view').addClass('active');
                 $("#grid-view").parent().removeClass('active');
                 $(".desk-content-container").addClass('desk-list');
             }
-
             return false;
-
         },
         render: function(deskId) {
             var self = this;
@@ -245,10 +279,12 @@ function($, Backbone, Gizmo, Action, Router)
 
                 var deskSelect = new SelectDeskCollectionView;
                 self.$el.find('#desk-select').html(deskSelect.render().el);
-                
+                var newsroomView = new NewsroomView({collection: deskCollection, el: self.$el.find('.desk-horizontal-scroll')});
             });
         }
     }),
+
+    
    
     deskCollection = new DeskCollection;
 
@@ -256,7 +292,6 @@ function($, Backbone, Gizmo, Action, Router)
         init: function() {
             var mainView = new MainView( { el: $('#area-main')} );
             mainView.render();
-           
         }
     }
 });
