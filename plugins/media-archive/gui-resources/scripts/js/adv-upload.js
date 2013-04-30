@@ -103,7 +103,9 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         registerItem: function(evt, model)
         {
-            $(this).triggerHandler('register-item', [model.getMetaData()]);
+            var meta = model.getMetaData(),
+                self = this;
+            meta.sync().done(function(){ $(self).triggerHandler('register-item', [meta]); });
         }
     }),
     
