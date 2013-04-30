@@ -379,8 +379,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         checkPass: function(modal, required)
         {
             var pass = $(modal+' form input#inputPass', this.el).val();
-            if( pass.length > 0 ) return $(modal+' form input#inputPassConfirm', this.el).val() === pass;
-            return !required;
+            return !(pass.length > 0) || $(modal+' form input#inputPassConfirm', this.el).val() === pass;
         },
         checkEmail: function(email)
         {
