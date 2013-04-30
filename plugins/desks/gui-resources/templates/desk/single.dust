@@ -246,10 +246,10 @@
 
 
 
-		<div class="main-desk-container" id="main-desk" style="max-width:870px;">
+		<div class="main-desk-container" id="main-desk" style="max-width:1440px;">
 			<div class="desk-content-container single-desk" style="">
-				<div class="desk-horizontal-scroll" style="width:870px;" id="statuses-list">
-
+				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
+					
 				</div>
 			</div>
 		</div>
