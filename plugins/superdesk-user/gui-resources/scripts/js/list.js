@@ -376,10 +376,11 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             $('#user-delete-modal', this.el).modal('hide'); 
             this.refresh();
         },
-        checkPass: function(modal)
+        checkPass: function(modal, required)
         {
             var pass = $(modal+' form input#inputPass', this.el).val();
-            return pass.length > 0 && $(modal+' form input#inputPassConfirm', this.el).val() === pass;
+            if( pass.length > 0 ) return $(modal+' form input#inputPassConfirm', this.el).val() === pass;
+            return !required;
         },
         checkEmail: function(email)
         {
@@ -413,7 +414,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             var self = this,
                 newModel = giz.Auth(new self.users.model());
             
-            if( !self.checkPass('#user-add-modal') ) 
+            if( !self.checkPass('#user-add-modal', true) ) 
             {
                 $('#user-add-modal .alert', self.el).removeClass('hide')
                     .html(_('Password mismatch!')+'');
