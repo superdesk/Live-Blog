@@ -18,8 +18,8 @@
 				</figure>
 				{/content}
 				<dl class="line-borders">
-            		<dt>_('File name')</dt><dd>{Name}</dd>
-                    <dt>_('File size')</dt><dd>{Size}</dd>
+            		<dt>_('File name');</dt><dd>{Name}</dd>
+                    <dt>_('File size');</dt><dd>{Size}</dd>
 				</dl>
 			</div>
 			{/Item}
@@ -33,11 +33,11 @@
 							{Languages|s}
 						</div>
 				    	<dl id="data-shadow" class="metadata-details clearfix shadow-source">
-							<dt>_('Title')</dt>
+							<dt>_('Title');</dt>
 				            <dd>{Title}</dd>
-							<dt>_('Description')</dt>
+							<dt>_('Description');</dt>
 				            <dd>{Description}</dd>
-							<dt>_('Caption')</dt>
+							<dt>_('Caption');</dt>
 				            <dd>{Caption}</dd>
 				        </dl>
 				    </fieldset>
@@ -49,7 +49,7 @@
 	</div>
     <div class="modal-footer">
     	{+footer}
-    	<a class="btn" href="javascript:void(0)" data-action="edit"><i class="icon-list-alt"></i>_('Edit metadata')</a>
+    	<a class="btn" href="javascript:void(0)" data-action="edit"><i class="icon-list-alt"></i>_('Edit metadata');</a>
     	{/footer}
     </div>
 </div>

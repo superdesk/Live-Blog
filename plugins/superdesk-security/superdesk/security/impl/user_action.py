@@ -100,7 +100,10 @@ class IUserActionServiceAlchemy(IUserActionService):
                 assert isinstance(aclRight, RightAction)
                 for action in aclRight.actions():
                     assert isinstance(action, Action)
-                    actionPaths.add(action.Path)
+                    interPath = []
+                    for item in action.Path.split('.'):
+                        interPath.append(item)
+                        actionPaths.add('.'.join(interPath))
         
         actions = []
         for action in self.actionManagerService.getAll(path):

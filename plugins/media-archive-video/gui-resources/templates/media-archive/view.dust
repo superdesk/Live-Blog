@@ -12,9 +12,9 @@
 
 	{#Meta}
 		<dl>
-			<dt>_('Title')</dt><dd>{Title}</dd>
-            <dt>_('Description')</dt><dd>{Description}</dd>
-            <dt>_('Caption')</dt><dd>{Caption}</dd>
+			<dt>_('Title');</dt><dd>{Title}</dd>
+            <dt>_('Description');</dt><dd>{Description}</dd>
+            <dt>_('Caption');</dt><dd>{Caption}</dd>
         </dl>
 	{/Meta}
 
