@@ -1,11 +1,23 @@
 define([
+    'backbone',
     'superdesk/models/model',
     'desk/models/user-collection',
     'desk/models/task-collection',
     'desk/utils'
-], function(Model, UserCollection, TaskCollection, utils) {
+], function(Backbone, Model, UserCollection, TaskCollection, utils) {
+    // TODO this should be per desk collection
+    var boards = new Backbone.Collection([
+            {Id: 'todo', Key: 'to do', Name: _('To Do')},
+            {Id: 'inprogress', Key: 'in progress', Name: _('In Progress')},
+            {Id: 'done', Key: 'done', Name: _('Done')}
+        ]);
+
     return Model.extend({
         urlRoot: utils.getResourceUrl('Desk/Desk'),
+
+        initialize: function() {
+            this.boards = boards;
+        },
 
         getView: function() {
             return {id: this.id, name: this.get('Name')};
