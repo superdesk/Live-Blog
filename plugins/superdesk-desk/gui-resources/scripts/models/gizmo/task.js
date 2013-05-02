@@ -2,8 +2,8 @@ define
 ([
     'gizmo/superdesk',
     config.guiJs('superdesk/user', 'models/user'),
-    config.guiJs('superdesk/desks', 'models/desk'),
-    config.guiJs('superdesk/desks', 'models/task-status')
+    'desk/models/gizmo/desk',
+    'desk/models/gizmo/task-status'
 ], 
 function(giz, User, Desk, Status)
 { 

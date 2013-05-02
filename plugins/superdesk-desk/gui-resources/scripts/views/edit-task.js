@@ -1,12 +1,57 @@
-define
-([
-    config.guiJs('superdesk/desks', 'task/common'),
-    config.guiJs('superdesk/desks', 'models/task')
-], 
-function(CommonViews, Task)
-{
-    var task = new Task('http://localhost:8080/resources/Desk/Task/18'),
-        editView = new CommonViews.edit;
-        
-    return {init: function(){ editView.setTask(task).activate(); }};
+define([
+    'backbone',
+    'desk/models/task',
+    'tmpl!superdesk-desk>edit-task'
+], function(Backbone, Task) {
+    return Backbone.View.extend({
+        events: {
+            'click [data-action="close"]': 'close',
+            'click [data-action="save"]': 'save'
+        },
+
+        initialize: function() {
+            if (!this.model) {
+                this.model = new Task();
+                this.model.set('Desk', this.options.desk.id);
+            }
+
+            this.render();
+        },
+
+        render: function() {
+            $(this.el).tmpl('superdesk-desk>edit-task', this.model.getView());
+            $(this.el).appendTo($.superdesk.layoutPlaceholder);
+            $(this.el).find('.modal').modal('show');
+            return this;
+        },
+
+        save: function(e) {
+            var data = {
+                Title: $(this.el).find('[data-task-info="title"]').val()
+            };
+
+            var view = this;
+            var isNew = this.model.isNew();
+            var tasks = this.options.desk ? this.options.desk.tasks : null;
+            this.model.save(data, {wait: true, patch: true,
+                success: function(model) {
+                    if (isNew) {
+                        model.fetch({success: function(model) {
+                            tasks.add(model);
+                        }});
+                    }
+                    view.close(e);
+                },
+                error: function(model, xhr) {
+                    throw xhr;
+                }
+            });
+        },
+
+        close: function(e) {
+            e.preventDefault();
+            $(this.el).find('.modal').modal('hide');
+            this.remove();
+        }
+    });
 });

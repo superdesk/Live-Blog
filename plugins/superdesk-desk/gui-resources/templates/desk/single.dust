@@ -34,7 +34,7 @@
       
       <div class="btn-toolbar desk-toolbar">
 
-    	<a class="btn btn-info pull-right" href="#"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+    	<button type="button" class="btn btn-info pull-right" id="add-task"><span class="icon-plus-sign icon-white"></span> New Assignment</button>
 
 
         <ul class="nav nav-pills pull-left">
