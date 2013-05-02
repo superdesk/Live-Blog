@@ -35,12 +35,12 @@ define([
             var tasks = this.options.desk ? this.options.desk.tasks : null;
             this.model.save(data, {wait: true, patch: true,
                 success: function(model) {
+                    view.close(e);
                     if (isNew) {
                         model.fetch({success: function(model) {
                             tasks.add(model);
                         }});
                     }
-                    view.close(e);
                 },
                 error: function(model, xhr) {
                     throw xhr;
