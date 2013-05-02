@@ -23,7 +23,7 @@ define([
 
         renderBoards: function() {
             var list = $(this.el).find('.desk-horizontal-scroll').empty();
-            this.collection.each(function(board) {
+            this.model.boards.each(function(board) {
                 var view = new BoardView({model: board, collection: this.model.tasks, desk: this.model});
                 list.append(view.render().el);
             }, this);

@@ -4,9 +4,8 @@ define([
     'router',
     'desk/models/desk',
     'desk/models/desk-collection',
-    'desk/models/task-status-collection',
     'desk/views/single-desk'
-],function($, Backbone, router, Desk, DeskCollection, TaskStatusCollection, SingleDeskView) {
+],function($, Backbone, router, Desk, DeskCollection, DeskBoardsView) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -30,20 +29,14 @@ define([
         }
     });
 
-    var boards = new TaskStatusCollection([
-            {Id: 'todo', Key: 'to do', Name: _('To Do')},
-            {Id: 'inprogress', Key: 'in progress', Name: _('In Progress')},
-            {Id: 'done', Key: 'done', Name: _('Done')}
-        ]);
-
     router.route('desks/:id', 'desk', function singleDesk(id) {
         var desk = new Desk({Id: id});
-        var view = new SingleDeskView({collection: boards, model: desk, el: '#area-main'});
+        var view = new DeskBoardsView({model: desk, el: '#area-main'});
         desk.fetch();
     });
 
     router.route('desks', 'desks', function allDesks() {
-        alert('all');
+        // noop
     });
 
     return {
