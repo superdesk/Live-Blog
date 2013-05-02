@@ -14,7 +14,7 @@ define([
             var list = $(this.el).find('.assignments').empty();
             this.collection.each(function(task) {
                 if (task.get('Status').Key === this.model.get('Key')) {
-                    var view = new TaskView({model: task, desk: this.options.desk});
+                    var view = new TaskView({model: task});
                     list.append(view.render().el);
                 }
             }, this);
