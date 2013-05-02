@@ -1,8 +1,12 @@
 define([
     'superdesk/models/model',
-    'desk/models/user-collection'
-], function(Model, UserCollection) {
+    'desk/models/user-collection',
+    'desk/models/task-collection',
+    'desk/utils'
+], function(Model, UserCollection, TaskCollection, utils) {
     return Model.extend({
+        urlRoot: utils.getResourceUrl('Desk/Desk'),
+
         getView: function() {
             return {id: this.id, name: this.get('Name')};
         },
@@ -25,7 +29,13 @@ define([
 
             try {
                 this.users = new UserCollection([], {url: response.User.href});
+                delete response.User;
+
                 this.unassignedUsers = new UserCollection([], {url: response.UserUnassigned.href});
+                delete response.UserUnassigned;
+
+                this.tasks = new TaskCollection([], {url: response.Task.href});
+                delete response.Task;
             } catch(err) {
                 // TODO fix xfilter for POST requests
                 if (err instanceof TypeError) {
