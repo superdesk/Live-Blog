@@ -43,11 +43,11 @@
 	    </ul>
 
 	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
-	      <li><a href="#" id="list-view"><i class="icon-th-list"></i></a></li>
-	      <li class="active" ><a href="#" id="grid-view"><i class="icon-th"></i></a></li>
+	      <li{?view.list} class="active"{/view.list}><a href="#" id="list-view"><i class="icon-th-list"></i></a></li>
+	      <li{^view.list} class="active"{/view.list}><a href="#" id="grid-view"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px">Compact view</a>
+	    <button type="button" class="btn pull-left{?view.compact} active{/view.compact}" data-toggle="button" id="compact-view" style="margin-left:10px">_("Compact view");</button>
       </div>
 
    </div>
@@ -246,8 +246,8 @@
 
 
 
-		<div class="main-desk-container" id="main-desk" style="max-width:1440px;">
-			<div class="desk-content-container single-desk" style="">
+		<div class="main-desk-container{?view.compact} compact-desk{/view.compact}" id="main-desk" style="max-width:1440px;">
+			<div class="desk-content-container single-desk {view.list}" style="">
 				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
 					
 				</div>
