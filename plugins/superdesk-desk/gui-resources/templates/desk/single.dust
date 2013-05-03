@@ -34,7 +34,7 @@
       
       <div class="btn-toolbar desk-toolbar">
 
-    	<button type="button" class="btn btn-info pull-right" id="add-task"><span class="icon-plus-sign icon-white"></span> New Assignment</button>
+    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="editTask()"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
 
 
         <ul class="nav nav-pills pull-left">
@@ -43,11 +43,11 @@
 	    </ul>
 
 	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
-	      <li{?view.list} class="active"{/view.list}><a href="#" id="list-view"><i class="icon-th-list"></i></a></li>
-	      <li{^view.list} class="active"{/view.list}><a href="#" id="grid-view"><i class="icon-th"></i></a></li>
+	      <li ng-class="{active: list}"><a href="" id="list-view" ng-click="list=true"><i class="icon-th-list"></i></a></li>
+	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <button type="button" class="btn pull-left{?view.compact} active{/view.compact}" data-toggle="button" id="compact-view" style="margin-left:10px">_("Compact view");</button>
+	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view");</button>
       </div>
 
    </div>
@@ -246,10 +246,33 @@
 
 
 
-		<div class="main-desk-container{?view.compact} compact-desk{/view.compact}" id="main-desk" style="max-width:1440px;">
-			<div class="desk-content-container single-desk {view.list}" style="">
+		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="max-width:1440px;">
+			<div class="desk-content-container single-desk" ng-class="{'desk-list': list}" style="">
 				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
-					
+                    <div class="desk-container {~lb}{~lb}board.id{~rb}{~rb}-container" ng-repeat="board in boards">
+	                    <div class="desk-header">
+		                    {~lb}{~lb}board.name{~rb}{~rb}
+	                    </div>
+	                    <div class="desk">
+		                    <div class="desk-content">
+			                    <ul class="assignments">
+                                    <li ng-repeat="task in tasks | filter:{'Status.Key': board.key}">
+                                        <figure class="assign-avatar">
+	                                        <img src="" />
+                                        </figure>
+                                        <div class="assign-description">
+                                            <a href="#AddAssignment" ng-click="editTask(task, $index)" data-toggle="modal">{~lb}{~lb}task.Title{~rb}{~rb}</a>
+                                        </div>
+                                        <ul class="assign-labels clearfix">
+	                                        <li><i class="icon-desk-time icon-white"></i>{~lb}{~lb}task.DueDate{~rb}{~rb}</li>
+	                                        <li><i class="icon-desk-task icon-white"></i> 3/3</li>
+	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+		                    </div>
+	                    </div>
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -278,3 +301,123 @@
 			</section>
 
 		</div>
+
+<div class="modal fade split-popup" id="AddAssignment" style="display:none">
+  <div class="modal-header">
+    <a href="#" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+    <input type="text" placeholder="_('Assignment title');" class="assignment-title" data-task-info="title" value="{Title}" ng-model="task.Title" />
+  </div>
+  <div class="modal-body">
+    <div class="modal-left-pane">
+        <div class="taskmodal-header">
+        	<div class="parent-task-info">
+        		_('Parent task:');
+       			<a href="javascript:void(0)" data-toggle="dropdown">
+       				<span data-task-info="parent">{?Parent}{Parent.Title}{:else}_('None');{/Parent}</span>
+       			</a>
+        		<ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="parent-task">
+        		
+        		</ul>
+        	</div>
+        	<ul class="assign-labels clearfix">
+				<li class="critical">
+					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{DueDate}</span>
+				</li>
+				<li>
+					<i class="icon-desk-subtask icon-white"></i> <span data-task-info="subtask-count">{SubtaskCount}</span> _('Subtasks');
+				</li>
+			</ul>
+        </div>
+        <div class="taskmodal-content">
+        	<div class="taskmodal-description" data-task-info="description" contenteditable="true">
+        		{Description}
+        	</div>    
+        	<section class="modal-mainpane-module">
+        		<header>_('Subtasks');</header>
+        		<ul class="subtask-list-view clearfix" data-list="subtasks">
+        			{#Subtasks}
+        			<li>
+        				<h6>{Title}</h6>
+        				<p>
+        					{Description}
+        				</p>
+        				<span class="assign-label critical"><i class="icon-desk-time icon-white"></i> {DueDate}</span>
+        				<a href="javascript:void(0)">_('Open details')</a>
+        			</li>
+        			{/Subtasks}
+        		</ul>
+        	</section>    
+        	<!-- section class="modal-mainpane-module">
+        		<header>Comments</header>
+        		<div class="add-comment-box">
+        			<textarea placeholder="Write a comment"></textarea>
+        		</div>
+        		<ul class="comment-list">
+        			{#Comments}
+        			<li>
+        				<div class="comment-info">
+		    				<figure>
+		    					
+		    				</figure>
+		    				<b>{User.Name}</b>
+		    				<time>{Date}</time>
+		    			</div>
+		    			<p class="comment-text">{Content}</p>
+		    			<div class="action-menu">
+		    				<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
+		    				<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
+		    			</div>
+        			</li>
+					{/Comments}
+        		</ul>
+        	</section -->    	
+        </div>
+    </div>
+    <div class="modal-right-pane">
+    	<section class="modal-sidepane-module clearfix">
+    		<header>_('Assignee');</header>
+    		<div class="module-sidepane-module-content">
+    			<div class="assignee-info {^Assignee}hide{/Assignee}" data-task-info="assignee">
+   					<figure data-task-info="assignee-image">
+    					
+   					</figure>
+   					<b data-task-info="assignee-name">{Name}</b>
+   					<time>{Date}</time>
+    			</div>
+    			<div class="btn-group">
+				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
+				    <i class="icon-plus-sign"></i> _('Assign');
+				    <span class="caret"></span>
+				  </a>
+				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
+				  	{#Users}
+						<li value="{Id}">{Name}</li>
+					{/Users}
+				  </ul>
+				</div>
+    		</div>
+    	</section>
+    	<section class="modal-sidepane-module clearfix">
+    		<header>_('Status');</header>
+    		<div class="module-sidepane-module-content">
+    			<div class="task-status {Status.Key|strps}-status" data-task-info="status">{Status.Key}</div>
+    		</div>
+    	</section>
+    	<section class="modal-sidepane-module clearfix">
+    		<header>_('Action');</header>
+    		<div class="module-sidepane-module-content">
+    			<input data-task-info="due-date" class="hide" />
+    			<a class="btn" href="javascript:void(0)" data-ctrl="due-date-proxy"><i class="icon-desk-time"></i> _('Due Date');</a>
+    			<a class="btn" href="javascript:void(0)" data-ctrl="add-subtask"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
+    			<a class="btn" href="" ng-click="task.Status='in progress'"><i class="icon-arrow-right"></i> _('Start Progress');</a>
+    			<a class="btn" href="" ng-click="task.Status='done'"><i class="icon-ok"></i> _('Finish Task');</a>
+    			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask()" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
+    		</div>
+    	</section>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" data-dismiss="modal">_('Cancel');</button>
+    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()">_('Save Changes');</button>
+  </div>
+</div>
