@@ -2,9 +2,7 @@ requirejs.config({
     paths: {
         'superdesk/views': config.gui('superdesk/scripts/views'),
         'superdesk/models': config.gui('superdesk/scripts/models'),
-        'desk/views': config.gui('superdesk-desk/scripts/views'),
-        'desk/models': config.gui('superdesk-desk/scripts/models'),
-        'desk/utils': config.gui('superdesk-desk/scripts/utils')
+        'desk': config.gui('superdesk-desk/scripts')
     }
 });
 
