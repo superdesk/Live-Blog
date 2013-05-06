@@ -6,7 +6,7 @@ define([
     return Backbone.Collection.extend({
         model: TaskComment,
         url: utils.getResourceUrl('TaskComment/TaskComment'),
-        xfilter: {'X-Filter': 'Id, *'},
+        xfilter: {'X-Filter': 'Id, *, User.*'},
 
         parse: function(response) {
             return response.TaskCommentList;

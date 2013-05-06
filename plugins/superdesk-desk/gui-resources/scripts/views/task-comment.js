@@ -1,14 +1,48 @@
-define(['backbone', 'tmpl!superdesk-desk>list-task-comment'], function(Backbone) {
+define(['backbone', 'desk/models/task-comment', 'tmpl!superdesk-desk>list-task-comment'], function(Backbone, TaskComment) {
     return Backbone.View.extend({
         tagName: 'li',
 
         events: {
-            'click [data-action="delete"]': 'destroy',
+            'click [data-action="edit"]': 'edit',
+            'click [data-action="edit-save-comment"]': 'saveComment',
+            'click [data-action="edit-discard-comment"]': 'discardComment',
+            'click [data-action="delete"]': 'destroy'
         },
 
         render: function() {
             $(this.el).tmpl('superdesk-desk>list-task-comment', this.model.getView());
             return this;
+        },
+
+        // TODO
+        edit: function(e) {
+            $(this.el).find('.comment-text').hide();
+            $(this.el).find('.action-menu').hide();
+            $(this.el).find('.edit-comment-box').show();
+        },
+
+        // TODO
+        saveComment: function(e) {
+            var self = this;
+
+            var data = {'Text': $(this.el).find('[data-task-info="edit-comment"]').val()};
+
+            this.model.save(data, {wait: true, patch: true,
+                success: function(model) {
+                    $(self.el).find('.comment-text').html(data.Text);
+                    self.discardComment();
+                },
+                error: function(model, xhr) {
+                    throw xhr;
+                }
+            });
+        },
+
+        // TODO
+        discardComment: function(e) {
+            $(this.el).find('.comment-text').show();
+            $(this.el).find('.action-menu').show();
+            $(this.el).find('.edit-comment-box').hide();
         },
 
         destroy: function(e) {
