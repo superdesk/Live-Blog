@@ -23,6 +23,8 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from datetime import datetime
 from ally.container import wire
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 
 SMS_SYSTEM_PERSON_ID = 1
 SMS_SOURCE_TYPE_KEY = 'FrontlineSMS'
@@ -49,10 +51,16 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
         assert isinstance(self.sourceService, ISourceService), 'Invalid source service %s' % self.sourceService
         assert isinstance(self.collaboratorService, ICollaboratorService), 'Invalid collaborator service %s' % self.collaboratorService
 
-    def pushMessage(self, typeKey, phoneNumber, messageText, timeStamp=None):
+    def pushMessage(self, typeKey, phoneNumber=None, messageText=None, timeStamp=None):
         '''
         @see: ISMSService.pushMessage
         '''
+        # checking the necessary info: phone number and message text
+        if (phoneNumber is None) or (phoneNumber == ''):
+            raise InputError(Ref(_('No value for the mandatory phoneNumber parameter'),))
+        if (messageText is None) or (messageText == ''):
+            raise InputError(Ref(_('No value for the mandatory messageText parameter'),))
+
         # make the source (for inlet type) part of collaborator
         sql = self.session().query(SourceMapped).join(SourceTypeMapped)
         sql = sql.filter(SourceTypeMapped.Key == SMS_SOURCE_TYPE_KEY).filter(SourceMapped.Name == typeKey)
