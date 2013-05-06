@@ -5,6 +5,7 @@ define([
 ], function(Backbone, Task, utils) {
     return Backbone.Collection.extend({
         model: Task,
+        url: utils.getResourceUrl('Task/Task'),
         xfilter: {'X-Filter': 'Id, *'},
 
         parse: function(response) {

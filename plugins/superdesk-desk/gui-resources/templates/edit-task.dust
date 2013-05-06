@@ -43,30 +43,16 @@
         			{/Subtasks}
         		</ul>
         	</section>    
-        	<!-- section class="modal-mainpane-module">
+        	<section class="modal-mainpane-module">
         		<header>Comments</header>
         		<div class="add-comment-box">
-        			<textarea placeholder="Write a comment"></textarea>
+        			<textarea placeholder="Write a comment" data-task-info="comment"></textarea>
+                    <button type="button" class="btn btn-info" data-action="save-comment">_('Save Comment');</button>
         		</div>
         		<ul class="comment-list">
-        			{#Comments}
-        			<li>
-        				<div class="comment-info">
-		    				<figure>
-		    					
-		    				</figure>
-		    				<b>{User.Name}</b>
-		    				<time>{Date}</time>
-		    			</div>
-		    			<p class="comment-text">{Content}</p>
-		    			<div class="action-menu">
-		    				<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
-		    				<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
-		    			</div>
-        			</li>
-					{/Comments}
+        			
         		</ul>
-        	</section -->    	
+        	</section>
         </div>
     </div>
     <div class="modal-right-pane">
