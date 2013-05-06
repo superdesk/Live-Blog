@@ -2,7 +2,9 @@ define(['backbone', 'tmpl!superdesk-desk>list-task-comment'], function(Backbone)
     return Backbone.View.extend({
         tagName: 'li',
 
-        events: {},
+        events: {
+            'click [data-action="delete"]': 'destroy',
+        },
 
         render: function() {
             $(this.el).tmpl('superdesk-desk>list-task-comment', this.model.getView());
@@ -10,7 +12,11 @@ define(['backbone', 'tmpl!superdesk-desk>list-task-comment'], function(Backbone)
         },
 
         destroy: function(e) {
-            
+            var self = this;
+
+            this.model.destroy({success: function(model, response){
+                self.el.remove();
+            }});
         }
     });
 });

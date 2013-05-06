@@ -8,5 +8,5 @@
 <p class="comment-text">{Text}</p>
 <div class="action-menu">
     <a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit');</a>
-    <a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete');</a>
+    <a href="javascript:void(0)" data-action="delete"><i class="icon-trash"></i> _('Delete');</a>
 </div>
