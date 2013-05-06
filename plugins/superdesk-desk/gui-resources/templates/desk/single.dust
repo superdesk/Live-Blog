@@ -1,10 +1,10 @@
 <div class="subnav subnav-fixed">
-
 		<div class="btn-group pull-left" id="desk-select">
-	        
+            <a href="" data-toggle="dropdown" class="btn dropdown-toggle" ng-repeat="desk in desks | filter:{Id: deskId}">{~lb}{~lb}desk.Name{~rb}{~rb}</a>
+            <ul class="dropdown-menu sf-dropdown">
+                <li ng-repeat="desk in desks"><a href="#desks/{~lb}{~lb}desk.Id{~rb}{~rb}">{~lb}{~lb}desk.Name{~rb}{~rb}</a></li>
+            </ul>
 	    </div>
-
-
 		
       	<div class="btn-group pull-right">
 	        <button class="btn btn-medium dropdown-toggle" data-toggle="dropdown"><i class="icon-settings"></i> <span class="caret"></span></button>
@@ -34,12 +34,12 @@
       
       <div class="btn-toolbar desk-toolbar">
 
-    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="editTask()"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="addTask()"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
 
 
         <ul class="nav nav-pills pull-left">
-	      <li class="active"><a href="#">Desk assignments</a></li>
-	      <li class=""><a href="#">My assignments</a></li>
+	      <li class="active"><a href="">_("Desk assignments");</a></li>
+	      <li class=""><a href="">_("My assignments");</a></li>
 	    </ul>
 
 	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
@@ -261,7 +261,7 @@
 	                                        <img src="" />
                                         </figure>
                                         <div class="assign-description">
-                                            <a href="#AddAssignment" ng-click="editTask(task, $index)" data-toggle="modal">{~lb}{~lb}task.Title{~rb}{~rb}</a>
+                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{~lb}{~lb}task.Title{~rb}{~rb}</a>
                                         </div>
                                         <ul class="assign-labels clearfix">
 	                                        <li><i class="icon-desk-time icon-white"></i>{~lb}{~lb}task.DueDate{~rb}{~rb}</li>
