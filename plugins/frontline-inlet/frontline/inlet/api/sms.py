@@ -36,7 +36,7 @@ class ISMSService():
     '''
 
     @call(method=GET, webName='Push')
-    def pushMessage(self, typeKey:Inlet.Key, phoneNumber:str, messageText:str) -> Iter(Post):
+    def pushMessage(self, typeKey:Inlet.Key, phoneNumber:str, messageText:str, timeStamp:str=None) -> Iter(Post):
         '''
         Inserts a new message.
         TODO: this is a temporary solution, since we do not support the format of FrontlineSMS POST messages

@@ -49,7 +49,7 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
         assert isinstance(self.sourceService, ISourceService), 'Invalid source service %s' % self.sourceService
         assert isinstance(self.collaboratorService, ICollaboratorService), 'Invalid collaborator service %s' % self.collaboratorService
 
-    def pushMessage(self, typeKey, phoneNumber, messageText):
+    def pushMessage(self, typeKey, phoneNumber, messageText, timeStamp=None):
         '''
         @see: ISMSService.pushMessage
         '''
@@ -88,13 +88,24 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
             collab.User = userId
             collabId = self.collaboratorService.insert(collab)
 
+        # take / make time stamp
+        if timeStamp:
+            try:
+                timeStamp = datetime.strptime(timeStamp, '%Y-%m-%d %H:%M:%S.%f')
+            except:
+                timeStamp = None
+
+        if not timeStamp:
+            timeStamp = datetime.now()
+
         # create post request
         post = Post()
         post.Type = SMS_POST_TYPE_KEY
         post.Creator = SMS_SYSTEM_PERSON_ID
         post.Author = collabId
+        post.Meta = phoneNumber
         post.Content = messageText
-        post.CreatedOn = datetime.now()
+        post.CreatedOn = timeStamp
 
         # insert the post
         postId = self.postService.insert(post)
