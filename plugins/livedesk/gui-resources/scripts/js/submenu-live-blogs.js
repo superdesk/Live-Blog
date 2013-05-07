@@ -1,9 +1,12 @@
 requirejs.config({
-	paths: { 
-		'providers': config.gui('livedesk/scripts/js/providers'), 
-		'livedesk/models': config.gui('lib/livedesk/scripts/js/models'), 
-		'livedesk/collections': config.gui('lib/livedesk/scripts/js/collections/') 
-} });
+	paths: {
+        'providers': config.guiJs('livedesk', 'providers'),
+        'livedesk/models': config.guiJs('livedesk', 'models'),
+        'livedesk/collections': config.guiJs('livedesk', 'collections'),
+        'livedesk/views': config.guiJs('livedesk', 'views')
+    }
+});
+
 define
 ([
   'jquery', 'jquery/superdesk',
@@ -11,10 +14,10 @@ define
   'gizmo/superdesk/action',
   config.guiJs('livedesk', 'models/blog'),
   config.guiJs('livedesk', 'router'),
-
+  'router',
   'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
-], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter)
+], function($, superdesk, Gizmo, Action, Blog, LiveBlogRouter, router)
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(localStorage.getItem('superdesk.login.selfHref')+'/Blog') }), 
         b = Gizmo.Auth(new Blogs());
@@ -29,7 +32,8 @@ define
             this.router = new LiveBlogRouter();
 
             // TODO: this must be called once menu is prepared and routers are set. but where?
-            Backbone.history.start({root: "/content/lib/core/start.html"});
+            //Backbone.history.start({root: "/content/lib/core/start.html"});
+            router.start();
         },
 
         refresh: function()
