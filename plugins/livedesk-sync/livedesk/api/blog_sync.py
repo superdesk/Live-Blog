@@ -15,15 +15,17 @@ from datetime import datetime
 from livedesk.api.domain_livedesk import modelLiveDesk
 from ally.api.config import query, service
 from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean
+from superdesk.source.api.source import Source
 
 # --------------------------------------------------------------------
 
 @modelLiveDesk(name='Sync')
 class BlogSync(Entity):
     '''
-    Provides the blog source model.
+    Provides the blog sync model.
     '''
     Blog = Blog
+    Source = Source
     CId = int
     SyncStart = datetime
     Auto = bool
