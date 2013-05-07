@@ -1,8 +1,26 @@
+requirejs.config({
+    paths: {
+        'angular': 'https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular',
+        'angular-resource': 'http://code.angularjs.org/1.0.6/angular-resource'
+    },
+    shim: {
+        'angular': {exports: 'angular'},
+        'angular-resource': {deps: ['angular']}
+    }
+});
+
 define([
     'jquery',
     'backbone',
-    'desk/models/desk-collection'
-],function($, Backbone, DeskCollection) {
+    'router',
+    'desk/models/desk-collection',
+    'desk/views/single-desk',
+    'angular',
+    'desk/controllers/desks',
+    'desk/resources',
+    'desk/directives'
+],
+function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -26,13 +44,27 @@ define([
         }
     });
 
+    router.route('desks/:id', 'desk', function singleDesk(deskId) {
+        $('#area-main').tmpl('superdesk-desk>desk/single').
+            attr('ng-controller', 'TasksController');
+
+        angular.module('desks', ['resources', 'directives']).
+            value('routeParams', {deskId: deskId}).
+            controller('TasksController', ['$scope', 'routeParams', 'Desk', 'TaskList', 'Task', TasksController]);
+
+        angular.bootstrap('#area-main', ['desks']);
+    });
+
+    router.route('desks', 'desks', function allDesks() {
+    });
+
     return {
         init: function(submenu, menu, data) {
             var desks = new DeskCollection();
             var menu = new MenuView({el: submenu, collection: desks});
             var timeout = 5000;
 
-            var fetchDesks = function() {
+            var fetchDesks = function fetchDesks() {
                 desks.fetch({reset: true, headers: desks.xfilter});
                 setTimeout(fetchDesks, timeout);
             };

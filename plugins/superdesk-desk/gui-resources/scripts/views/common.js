@@ -3,13 +3,13 @@ define
     'jquery',
     'gizmo/superdesk',
     'gizmo/superdesk/action',
-    config.guiJs('superdesk-desks', 'models/gizmo/desk'),
-    config.guiJs('superdesk-desks', 'models/gizmo/task'),
-    config.guiJs('superdesk-desks', 'models/gizmo/task-status'),
+    'desk/models/gizmo/desk',
+    'desk/models/gizmo/task',
+    'desk/models/gizmo/task-status',
     'moment',
     'jqueryui/datepicker',
-    'tmpl!superdesk/desks>task/add-edit-task',
-    'tmpl!superdesk/desks>task/add-edit-task-subtask'
+    'tmpl!superdesk-desk>task/add-edit',
+    'tmpl!superdesk-desk>task/subtask'
 ],
 function($, giz, Action, Desk, Task, TaskStatus)
 {
@@ -137,12 +137,6 @@ function($, giz, Action, Desk, Task, TaskStatus)
         setDesk: function(desk)
         {
             this.desk = desk;
-            var self = this;
-            desk.off('read.task').off('update.task')
-                .on('read.task', this.refreshUIData, this)
-                .on('update.task', this.refreshUIData, this)
-                .sync()
-                .done(function(){ self.render(); });
             return this;
         },
         /*!
@@ -167,6 +161,7 @@ function($, giz, Action, Desk, Task, TaskStatus)
         _renderShouldOpenModal: false,
         activate: function()
         {
+            this.render();
             $(this.el).appendTo($.superdesk.layoutPlaceholder);
             $('.modal', this.el).length && $('.modal', this.el).modal();
             if( !$('.modal', this.el).length ) this._renderShouldOpenModal = true;
@@ -203,7 +198,7 @@ function($, giz, Action, Desk, Task, TaskStatus)
         render: function()
         {
             var self = this;
-            $(self.el).tmpl('superdesk/desks>task/add-edit', this.templateData(), function()
+            $(self.el).tmpl('superdesk-desk>task/add-edit', this.templateData(), function()
             {
                 // functionality for due date 
                 $("input[data-task-info='due-date']", self.el).datepicker
@@ -284,18 +279,12 @@ function($, giz, Action, Desk, Task, TaskStatus)
         },
         setTask: function(task)
         {
-            var self = this;
             this.task = task;
-            this.task.xfilter('Parent.*').sync().done(function()
-            {
-                self.setDesk(self.task.get('Desk'));
-                self.subTasks();
-            });
             return this; 
         },
         templateData: function()
         {
-            return this.task.feed();
+            return this.task.attributes;
         }
     });
     
