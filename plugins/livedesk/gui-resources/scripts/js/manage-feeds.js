@@ -341,8 +341,10 @@ define([
 
         delete: function(e) {
             e.preventDefault();
-            this.model.destroy();
-            this.remove();
+            if (confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?"))) {
+                this.model.destroy();
+                this.remove();
+            }
         },
 
         edit: function(e) {
