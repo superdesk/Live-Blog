@@ -21,7 +21,7 @@ function(angular) {
 
         $scope.editTask = function(task, index) {
             $scope.orig = task;
-            $scope.task = {Title: task.Title, Status: task.Status.Key, Id: task.Id};
+            $scope.task = {Title: task.Title, Status: task.Status.Key, Id: task.Id, DueDate: task.DueDate};
         };
 
         $scope.saveTask = function() {
