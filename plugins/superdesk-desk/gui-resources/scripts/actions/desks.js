@@ -17,7 +17,8 @@ define([
     'desk/views/single-desk',
     'angular',
     'desk/controllers/desks',
-    'desk/services/resource'
+    'desk/resources',
+    'desk/directives'
 ],
 function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController) {
     var DeskMenuView = Backbone.View.extend({
@@ -47,7 +48,7 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
         $('#area-main').tmpl('superdesk-desk>desk/single').
             attr('ng-controller', 'TasksController');
 
-        angular.module('desks', ['resources']).
+        angular.module('desks', ['resources', 'directives']).
             value('routeParams', {deskId: deskId}).
             controller('TasksController', ['$scope', 'routeParams', 'Desk', 'TaskList', 'Task', TasksController]);
 

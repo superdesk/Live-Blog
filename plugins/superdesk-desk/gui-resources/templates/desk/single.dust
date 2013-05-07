@@ -400,15 +400,15 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Status');</header>
     		<div class="module-sidepane-module-content">
-    			<div class="task-status {Status.Key|strps}-status" data-task-info="status">{Status.Key}</div>
+    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{~lb}{~lb}task.Status{~rb}{~rb}</div>
     		</div>
     	</section>
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Action');</header>
     		<div class="module-sidepane-module-content">
-    			<input data-task-info="due-date" class="hide" />
-    			<a class="btn" href="javascript:void(0)" data-ctrl="due-date-proxy"><i class="icon-desk-time"></i> _('Due Date');</a>
-    			<a class="btn" href="javascript:void(0)" data-ctrl="add-subtask"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
+    			<input type="text" ng-model="task.DueDate" sd-datepicker />
+    			<a class="btn" href="" data-toggle="datepicker"><i class="icon-desk-time"></i> _('Due Date');</a>
+    			<a class="btn" href="" data-ctrl="add-subtask"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
     			<a class="btn" href="" ng-click="task.Status='in progress'"><i class="icon-arrow-right"></i> _('Start Progress');</a>
     			<a class="btn" href="" ng-click="task.Status='done'"><i class="icon-ok"></i> _('Finish Task');</a>
     			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask()" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
