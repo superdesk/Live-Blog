@@ -19,7 +19,7 @@ setup(
     packages=find_packages(),
     install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'superdesk >= 1.0',
                       'superdesk-collaborator >= 1.0', 'superdesk-post >= 1.0', 'superdesk-source >= 1.0',
-                      'superdesk-user >= 1.0', 'frontline >= 1.0'],
+                      'superdesk-user >= 1.0', 'frontline >= 1.0', 'internationalization >= 1.0'],
     platforms=['all'],
     zip_safe=True,
 
