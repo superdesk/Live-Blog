@@ -3,6 +3,7 @@ define([
 	'gizmo/view-events',
 	'livedesk-embed/views/post',
 	'utils/date-format',
+	'utils/ie-polyfill',
 	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',

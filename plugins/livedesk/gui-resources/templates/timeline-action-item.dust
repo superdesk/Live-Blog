@@ -1,4 +1,4 @@
 <li><a href="javascript:void(0)" data-value="all">_("Show all");</a></li>
 {#PostTypes}
-	<li><a href="javascript:void(0)" data-value="{Key}">_("Show") {Key} _("posts")</option>
+	<li><a href="javascript:void(0)" data-value="{Key}">_("Show %(Type)s posts").format({ "Type": "{Key}"});</option>
 {/PostTypes}
