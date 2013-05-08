@@ -110,6 +110,17 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call
+    def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> SourceChained:
+        '''
+        Auxiliary method for detting the right URL on chained-blog URLs
+
+        @param blogId: Blog.Id
+            The blog identifier
+        @param source: Source
+            The source model
+        '''
+
+    @call
     def getSources(self, blogId:Blog.Id) -> Iter(Source):
         '''
         Returns a list of blog sources
@@ -119,7 +130,7 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(method=INSERT)
-    def addSource(self, blogId:Blog.Id, source:SourceChained) -> Source.Id:
+    def addSource(self, blogId:Blog.Id, source:SourceChained) -> SourceChained.Id:
         '''
         Adds a source to a blog.
 

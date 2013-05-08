@@ -9,7 +9,7 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog
+from ..api.blog import IBlogService, QBlog, Blog, BlogSource, SourceChained
 from ..meta.blog import BlogMapped
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
@@ -27,7 +27,6 @@ from superdesk.source.meta.source import SourceMapped
 from livedesk.meta.blog import BlogSourceMapped
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
-from livedesk.api.blog import BlogSource, SourceChained
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
 
@@ -98,6 +97,17 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         if blog.CreatedOn is None: blog.CreatedOn = current_timestamp()
         return super().insert(blog)
+
+    def getSource(self, blogId, sourceId):
+        '''
+        @see: IBlogService.getSource
+        '''
+        source = self.session().query(SourceMapped).get(sourceId)
+        sql = self.session().query(BlogSourceMapped)
+        sql = sql.filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId)
+        blogSource = sql.all()[0]
+        source.Provider = blogSource.Provider
+        return source
 
     def getSources(self, blogId):
         '''
