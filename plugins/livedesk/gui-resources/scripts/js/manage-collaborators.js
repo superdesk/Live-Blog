@@ -215,7 +215,7 @@ define([
 		render: function(){
 			var self = this,
 				data = { 
-					Selected: self.model.get("Type"),
+					Selected: self.model.get("Type").Name,
 					BlogCollaaboratorTypes: self.collection.feed()
 				};
 			self.el.tmpl("livedesk>manage-collaborators/blog-collaborator-types",data);
