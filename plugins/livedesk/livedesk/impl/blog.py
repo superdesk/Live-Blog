@@ -103,10 +103,16 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         @see: IBlogService.getSource
         '''
         source = self.session().query(SourceMapped).get(sourceId)
+        if not source:
+            raise InputError(Ref(_('Unknown source'),))
         sql = self.session().query(BlogSourceMapped)
         sql = sql.filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId)
-        blogSource = sql.all()[0]
-        source.Provider = blogSource.Provider
+        try:
+            blogSource = sql.all()[0]
+            source.Provider = blogSource.Provider
+        except:
+            raise InputError(Ref(_('Unknown chained blog source provider'),))
+
         return source
 
     def getSources(self, blogId):

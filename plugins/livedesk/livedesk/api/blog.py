@@ -110,9 +110,10 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call
-    def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> SourceChained:
+    def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> Source:
         '''
-        Auxiliary method for detting the right URL on chained-blog URLs
+        Gets source for source chained.
+        This methods is necessary for getting the right URLs on chained-blog sources.
 
         @param blogId: Blog.Id
             The blog identifier
