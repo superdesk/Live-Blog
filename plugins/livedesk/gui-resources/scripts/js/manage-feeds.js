@@ -1,7 +1,7 @@
 define([
     'jquery',
     'gizmo/superdesk',
-    config.guiJs('livedesk', 'views/provider-edit'),
+    'livedesk/views/provider-edit',
 
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
@@ -51,22 +51,20 @@ define([
         },
 
         parse: function(response) {
-            if (!response) {
+            if (response === null) {
                 return;
             }
 
             if ('href' in response) {
                 this.url = response.href;
-                this.id = parseId(this.url);
+                delete response.href
             }
 
-            if ('Id' in response) {
-                return {
-                    'Id': response.Id,
-                    'Name': response.Name,
-                    'URI': response.URI.href
-                };
+            if ('URI' in response) {
+                response.URI = response.URI.href;
             }
+
+            return response;
         }
     });
 
@@ -143,23 +141,47 @@ define([
             IsModifiable: 'True'
         },
 
-        /**
-         * Get external blogs collection
-         *
-         * @return {ExternalBlogCollection}
-         */
+        validate: function(attributes) {
+            var errors = [];
+            if (!attributes.Name) {
+                errors.push('Name');
+            }
+
+            if (!this.isUrl(attributes.URI)) {
+                errors.push('URI');
+            }
+
+            if (errors.length) {
+                throw errors;
+            }
+        },
+
+        isUrl: function(url) {
+            return url && url.match(/^https?:\/\/[a-z]/);
+        },
+
         getBlogs: function() {
             return new ExternalBlogCollection([], {url: this.get('URI')});
         },
 
-        validate: function(attributes) {
-            if (!attributes.Name.length) {
-                return 'Please set the Name';
+        parse: function(response) {
+            if (response === null) {
+                return;
             }
 
-            if (!attributes.URI.length) {
-                return 'Please set the URL';
+            if ('URI' in response) {
+                response.URI = response.URI.href;
             }
+
+            return response;
+        },
+
+        render: function() {
+            return {
+                id: this.id,
+                name: this.get('Name'),
+                uri: this.get('URI')
+            };
         }
     });
 
@@ -169,7 +191,9 @@ define([
     var ProviderCollection = Backbone.Collection.extend({
         model: Provider,
 
-        sortBy: function(model) {
+        xfilter: {'X-Filter': 'Id, Name, URI'},
+
+        comparator: function(model) {
             return -1 * model.get('Id');
         },
 
@@ -283,9 +307,7 @@ define([
         },
 
         initialize: function() {
-            this.model.on('change', this.render, this);
-            this.collection = this.model.getBlogs();
-            this.collection.on('reset', this.renderBlogs, this);
+            this.listenTo(this.model, 'change', this.render);
         },
 
         render: function() {
@@ -300,6 +322,8 @@ define([
         },
 
         fetchBlogs: function() {
+            this.collection = this.model.getBlogs();
+            this.collection.on('reset', this.renderBlogs, this);
             this.collection.fetch({headers: {'X-Filter': 'Title, Description'}, reset: true});
         },
 
@@ -317,13 +341,16 @@ define([
 
         delete: function(e) {
             e.preventDefault();
-            this.remove();
-            this.model.destroy();
+            if (confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?"))) {
+                this.model.destroy();
+                this.remove();
+            }
         },
 
         edit: function(e) {
             e.preventDefault();
-            new EditProviderView({model: this.model, target: this.$el.closest('#area-main')});
+            var view = new EditProviderView({model: this.model});
+            this.$el.closest('#area-main').append(view.render().el);
         }
     });
 
@@ -377,7 +404,8 @@ define([
 
         renderAdd: function(e) {
             e.preventDefault();
-            new EditProviderView({collection: this.collection, target: this.$el});
+            var view = new EditProviderView({collection: this.collection});
+            this.$el.append(view.render().el);
         },
 
         search: function(e) {
