@@ -4,17 +4,130 @@
 	<header>
 		<h3>_('Managed feeds');</h3>
 	</header>
-	<div class="row-fluid">
-		<div class="span8">
-			<div class="manage-feeds-top">
-				<div class="sf-searchbox">
-					<input type="text" placeholder="_('Search');">
-                    <a href="#"><i class="icon-remove"></i></a>
-				</div>
-				<a class="btn btn-info pull-right" href="#AddSource"><span class="medium-icon-add"></span> _('Add New Provider');</a>
-			</div>
-			<ul class="manage-feeds" id="provider-list"></ul>
-      </div>
-    </div>
+
+	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
+		<li class="active"><a href="#feed">Feeds</a></li>
+		<li><a href="#chainblog">Chained Blogs</a></li>
+	</ul>
+ 
+	<div class="tab-content">
+		<div class="tab-pane active" id="feed">
+		
+			<!-- Chain blog tab content -->
+		
+			<div class="row-fluid">
+				<div class="span8">
+					<div class="manage-feeds-top">
+						<div class="sf-searchbox">
+							<input type="text" placeholder="Search">
+		                    <a href="#"><i class="icon-remove"></i></a>
+						</div>
+						<a class="btn btn-info pull-right" data-toggle="modal" href="#AddFeed"><span class="medium-icon-add"></span> Add new Feed</a>
+					</div>
+					<ul class="feeds-list" id="feed-list">
+						<li>
+							<input type="checkbox" class="sf-checkbox" set-bg="1" name="f1"> <label>Google<label>
+						</li>
+						<li>
+							<input type="checkbox" class="sf-checkbox" set-bg="1" name="f2"> <label>Facebook<label>
+						</li>
+						<li>
+							<input type="checkbox" class="sf-checkbox" set-bg="1" name="f3"> <label>Twitter<label>
+						</li>
+					</ul>
+		      </div>
+		    </div>
+
+		    <!-- end of chain blog tab content -->
+
+
+		</div>
+		<div class="tab-pane" id="chainblog">
+
+			<!-- Chain blog tab content -->
+
+			<div class="row-fluid">
+				<div class="span8">
+					<div class="manage-feeds-top">
+						<div class="sf-searchbox">
+							<input type="text" placeholder="Search">
+		                    <a href="#"><i class="icon-remove"></i></a>
+						</div>
+						<a class="btn btn-info pull-right" href="#AddSource"><span class="medium-icon-add"></span> Add New Provider</a>
+					</div>
+					<ul class="manage-feeds" id="provider-list"></ul>
+		      </div>
+		    </div>
+
+		    <!-- end of chain blog tab content -->
+
+		</div>
+	</div>
+ 
+	<script>
+		$('#feedTabs a').click(function (e) {
+			e.preventDefault();
+			$(this).tab('show');
+		});
+
+
+		$(function () {
+			$('#feedTabs a:first').tab('show');
+		});
+
+	</script>
+
+
+	<script type="text/javascript"> 
+    $(document).ready(function(){
+      
+      $('.sf-checkbox').each(function(i,val){
+        $(val).after('<span class="sf-checkbox-custom" target-checkbox="' + $(val).attr('name') +'"></span>');
+        $(val).hide();
+      });
+      $('.sf-checkbox-custom').click(function(e){
+        e.preventDefault();
+        $(this).toggleClass('sf-checked');
+        var own_box = $('input[name="' + $(this).attr("target-checkbox") + '"]');
+	
+        var set_bg = own_box.attr("set-bg"); 
+        if (typeof set_bg !== undefined && set_bg !== false) {
+          $(this).parents().eq(set_bg-1).toggleClass('active-bg');
+        }
+        
+        
+        if (own_box.prop('checked')==true) { 
+          own_box.prop('checked',false); 
+        }
+        else { 
+          own_box.prop('checked',true); 
+        }
+
+        return false;
+        
+      });
+
+    });
+  </script>
 </section>
+
+<div class="modal hide fade" id="AddFeed">
+  <div class="modal-header">
+    <a href="#" class="close" aria-hidden="true" data-dismiss="modal">×</a>
+    <h3>_("Add New Feed");</h3>
+  </div>
+  <div class="modal-body">
+    <form name="add">
+        <input type="text" id="add-feed-url" name="URL" placeholder="_('Feed URL');" value="" class="fullwidth-input">
+        <label class="or-label">or</label>
+        <input type="text" id="add-feed-apikey" name="apikey" placeholder="_('API key');" value="" class="fullwidth-input">
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" id="add-feed-cancel" data-dismiss="modal">Cancel</a>
+    <a href="#" class="btn btn-primary" id="add-feed-save">Save</a>
+  </div>
+</div>
+
+
 {/body}

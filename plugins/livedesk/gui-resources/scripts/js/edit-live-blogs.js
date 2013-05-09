@@ -506,13 +506,11 @@ function(providers, Gizmo, $, BlogAction)
 				self.collection
 					.on('read readauto', function(evt)
 					{
-						//console.log('read: ',evt.type);
 						self.render();
 						self.toggleMoreVisibility();
 					})
-					.on('addingsauto', function(evt, data)
+					.on('addingsauto update', function(evt, data)
 					{
-						//console.log('addingsauto: ',evt.type, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
@@ -544,11 +542,10 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			more: function(evnt, ui)
 			{
-				var self = this;
-				self.collection
-					.xfilter(self.xfilter)
-					.limit(self.collection._stats.limit)
-					.offset(self.collection._stats.offset)
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
 					.desc('order')
 					.sync();
 			},
@@ -649,7 +646,7 @@ function(providers, Gizmo, $, BlogAction)
 							.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
 						self.addAll(self.collection.getList());
 					});
-				}
+                }
 			},
 			
 			/*!
@@ -1112,6 +1109,7 @@ function(providers, Gizmo, $, BlogAction)
 	
 	return function(theBlog)
 	{
+	    BlogAction.clearCache();
 		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
 						delete providers["google"];
 						delete providers["colabs"];
