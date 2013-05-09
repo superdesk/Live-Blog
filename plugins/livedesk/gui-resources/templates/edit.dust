@@ -4,7 +4,7 @@
 <div {ui.content} class="live-blog-content">
 	<section class="title-page">
         <header>
-        	<a class="pull-right collapse-button" href="#">
+        	<a class="pull-right collapse-button" href="javascript:void(0)">
         		<i class="icon-chevron-down"></i> <span class="button-text collapse-title-page">_("Collapse");</span>
         	</a>
             <h2>{Title|s}</h2>

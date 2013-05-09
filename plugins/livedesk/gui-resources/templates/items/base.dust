@@ -169,8 +169,8 @@
 			</div>
 		{/ImportantActionsPrepublish}
 	{/ImportantActions}
-		<div class="saveonly">
+		<!--  div class="saveonly">
 			<button class="btn btn-small btn-primary" type="submit">Save</button>
-		</div>
+		</div -->
 </li>
 {/Post}
