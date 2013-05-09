@@ -1,6 +1,10 @@
 <div class="comment-info">
     <figure>
-        
+        {?User.Avatar}
+            <img src="{User.Avatar}" />
+        {:else}
+            <img src="images/avatar_default_collaborator.png" />
+        {/User.Avatar}
     </figure>
     <b>{User.Name}</b>
     <time>{Date}</time>

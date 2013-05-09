@@ -9,7 +9,7 @@ define([
 
         defaults: {},
 
-        getView: function() {
+        getData: function() {
             return {
                 'Id': this.get('Id'),
                 'Text': this.get('Text'),

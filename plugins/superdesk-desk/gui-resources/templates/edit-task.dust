@@ -47,7 +47,7 @@
         		<header>Comments</header>
         		<div class="add-comment-box">
         			<textarea placeholder="Write a comment" data-task-info="comment"></textarea>
-                    <button type="button" class="btn btn-info" data-action="save-comment">_('Save Comment');</button>
+                    <button type="button" class="btn btn-primary btn-mini" data-action="save-comment">_('Save Comment');</button>
         		</div>
         		<ul class="comment-list">
         			

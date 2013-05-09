@@ -74,6 +74,7 @@ define([
             var self = this;
 
             var data = {
+                User: localStorage.getItem('superdesk.login.id'),
                 Task: this.model.get('Id'),
                 Text: $(this.el).find('[data-task-info="comment"]').val()
             };

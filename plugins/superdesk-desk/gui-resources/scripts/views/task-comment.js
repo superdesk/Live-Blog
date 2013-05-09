@@ -1,4 +1,9 @@
-define(['backbone', 'desk/models/task-comment', 'tmpl!superdesk-desk>list-task-comment'], function(Backbone, TaskComment) {
+define([
+    'backbone',
+    'desk/models/task-comment',
+    config.guiJs('superdesk/user', 'jquery/avatar'),
+    'tmpl!superdesk-desk>list-task-comment'
+], function(Backbone, TaskComment) {
     return Backbone.View.extend({
         tagName: 'li',
 
@@ -10,7 +15,9 @@ define(['backbone', 'desk/models/task-comment', 'tmpl!superdesk-desk>list-task-c
         },
 
         render: function() {
-            $(this.el).tmpl('superdesk-desk>list-task-comment', this.model.getView());
+            var data = this.model.getData();
+            //$.avatar.setImage(data, {needle: 'User.EMail', size: 36});
+            $(this.el).tmpl('superdesk-desk>list-task-comment', data);
             return this;
         },
 
