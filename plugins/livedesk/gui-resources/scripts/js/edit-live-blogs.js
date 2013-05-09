@@ -1104,6 +1104,7 @@ function(providers, Gizmo, $, BlogAction)
 	
 	return function(theBlog)
 	{
+	    BlogAction.clearCache();
 		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
 						delete providers["google"];
 						delete providers["colabs"];
