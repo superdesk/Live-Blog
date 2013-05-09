@@ -24,10 +24,11 @@ define([
             // support 
             $.support.cors = true;
             // Append '.json' if no filename given:
-            nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
+            var nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
 			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
             var urlCached = req.toUrl(nameCached);//+'&t='+(new Date()).getTime(),
-                url = req.toUrl(name);//+'&t='+(new Date()).getTime();
+            var url = req.toUrl(name);//+'&t='+(new Date()).getTime();
+
                 //@TODO clear this when requirejs will fix this https://github.com/jrburke/requirejs/issues/614
                 if ( url.substr(url.length - 4) == '.fak') {
                     url = url.substr(0, url.length - 4);
@@ -89,8 +90,8 @@ define([
                         options.error =  this.errorTimeout;
                         $.ajax(options);
                     }
-                }
-                options.url = urlCached;
+                };
+                options.url = url;
                 $.ajax(options);
         },
 
