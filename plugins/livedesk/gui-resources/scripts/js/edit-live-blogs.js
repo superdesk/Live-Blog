@@ -765,7 +765,7 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			update: function(e) {
 				var element = e.currentTarget;
-				$(element).parent().parent().prev().children().html($(element).html());
+				$('[data-info="filter"]').html($(element).html());
 			}
 		}),
 		EditView = Gizmo.View.extend
