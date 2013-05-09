@@ -35,7 +35,7 @@
             		<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you won't get disturbed by new incoming posts");'>_("Pin");</button>
             	</span>
 
-                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span>_("All posts");</span></button>
+                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span></button>
                 <ul class="dropdown-menu filter-posts"><!-- List is populated from another template --></ul>
             </div>
         	
