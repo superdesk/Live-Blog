@@ -429,6 +429,7 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this,
 					rendered = false,
 					post = self.model.feed(true);
+
 				self.renderReorder();
 				if ( typeof post.Meta === 'string') {
 					post.Meta = JSON.parse(post.Meta);
@@ -744,6 +745,9 @@ function(providers, Gizmo, $, BlogAction)
 		}),
 		ActionsView = Gizmo.View.extend
 		({
+			events: {
+				'[data-action="update"]': { "click": "update" }
+			},
 			init: function() {
 				var self = this,
 					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
@@ -758,6 +762,10 @@ function(providers, Gizmo, $, BlogAction)
 				this.el.tmpl('livedesk>timeline-action-item', { PostTypes: PostTypes }, function(){				
 					var self = this;
 				});
+			},
+			update: function(e) {
+				var element = e.currentTarget;
+				$(element).parent().parent().prev().children().html($(element).html());
 			}
 		}),
 		EditView = Gizmo.View.extend
@@ -971,7 +979,7 @@ function(providers, Gizmo, $, BlogAction)
 				    
 					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
-					
+
 					self.timelineView = new TimelineView
 					({
 						el: $('#timeline-view .results-placeholder', self.el),
