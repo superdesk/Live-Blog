@@ -17,7 +17,8 @@ define( 'providers/colabs', [
 function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 {
     var config = { updateInterval: 10 },
-        colabsList = [], 
+        colabsList = [],
+        colabsHidden = {},
         updateInterval = 0,
         intervalRunning = false,
         updateItemCount = 0,
@@ -42,26 +43,39 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
         },
         render: function(evt)
         {
-            /**
+            /*!
              * @TODO implement this with IsCollectionDeleted Method
              * Ugly hack to remove published posts.
              */
-            if(this.model.get('PublishedOn') || (this.model.get('IsPublished') === 'True')) {
+            if(this.model.get('PublishedOn') || (this.model.get('IsPublished') === 'True')) 
+            {
                 this.remove();
                 return;
             }
+            
             var self = this,
                 post = this.model.feed(true);
 			if($.type(post.Meta) === 'string')
 				post.Meta = JSON.parse(post.Meta);			
 			$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
-			$.tmpl('livedesk>items/item', { 
-                    Post: post,
-                    Base: 'implementors/collaborators'
-                }, function(e,o) {
+
+			$.tmpl('livedesk>items/item', { Post: post, Base: 'implementors/collaborators' }, 
+                function(e,o) 
+                {
                     self.setElement(o);
-                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                        self.el.hasClass('draggable') && self.el.draggable({
+                    
+                    /*!
+                     * need to check if collaborator was previously hidden 
+                     * because update events are triggered from all over the place and will
+                     * render this again and show the element regardless of prev. status
+                     */
+                    if( colabsHidden[parseInt(post.Creator.Id)] ) self.el.addClass('hide');
+                    
+                    BlogAction.get('modules.livedesk.blog-post-publish')
+                    .done(function(action) 
+                    {
+                        self.el.hasClass('draggable') && self.el.draggable
+                        ({
                             addClasses: false,
                             revert: 'invalid',
                             containment:'document',
@@ -69,33 +83,15 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                             appendTo: 'body',
                             zIndex: 2700,
                             clone: true,
-                            start: function(evt, ui) {
-                                $(this).data('post', self.model); 
-                            }
+                            start: function(evt, ui) { $(this).data('post', self.model); }
                         });
-                    }).fail(function(){
-                        el.removeClass('draggable');
-                    });
+                    })
+                    .fail(function(){ el.removeClass('draggable'); });
                 });
-            /*$.tmpl( 'livedesk>providers/colabs/items', posts, function(e, o)
-            {
-                self.setElement(o);
-                // make draggable
-                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                    self.el.hasClass('draggable') && self.el.draggable
-                    ({
-                        helper: 'clone',
-                        appendTo: 'body',
-                        zIndex: 2700,
-                        start: function(){ $(this).data('post', self.model); }
-                    });
-                }).fail(function(){
-                    self.el.removeClass('draggable');
-                })
-                addUserImages();
-            });*/
+			
             return self;
         },
+        
         remove: function()
         {
             var pos = this.colab.get('PostUnpublished')._list.indexOf(this.model),
@@ -122,15 +118,17 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             var colabId = $(this).attr('data-colab-id'),
                 posts = $(this).parents('.collaborators-header')
                             .nextAll('.post-list').find('li[data-colab-id='+colabId+']');
-
+            
             if($(this).data('is-off'))
             {
-                posts.show();
+                delete colabsHidden[colabId];
+                posts.removeClass('hide');
                 $(this).addClass('label-info').data('is-off', false);
             }
             else
             {
-                posts.hide(); 
+                colabsHidden[parseInt(colabId)] = true;
+                posts.addClass('hide'); 
                 $(this).removeClass('label-info').data('is-off', true);
             }
         },
