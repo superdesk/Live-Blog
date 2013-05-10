@@ -264,7 +264,9 @@ define([
 		},
 		addOne: function(model)
 		{
-			return this.orderOne(new PostView({model: model, _parent: this}));
+			var view = new PostView({model: model, _parent: this});
+            model.postView = view;
+			return this.orderOne(view);
 		},
 		toggleStatusCount: function()
 		{
@@ -277,13 +279,13 @@ define([
 		},
 		removeAllAutoupdate: function(evt, data)
 		{
-			var self = this;
-			for( var i = 0, count = data.length; i < count; i++ ) {
-				if(data[i].postview) {
-					data[i].postview.remove();
+			for (var i in data) {
+                if ('postView' in data[i]) {
+					data[i].postView.remove();
 				}
 			}
-			self.markScroll();
+
+			this.markScroll();
 		},
 		addAllAutoupdate: function(evt, data)
 		{
@@ -366,7 +368,7 @@ define([
 			var self = this,
 				data,
 				auxView,
-				postPublished = self.model.get('PostPublished');;
+				postPublished = self.model.get('PostPublished');
 			self.el.tmpl('theme/container');
 			self.renderBlog();
 			self.ensureStatus();
