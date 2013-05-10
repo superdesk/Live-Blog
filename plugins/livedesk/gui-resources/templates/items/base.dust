@@ -138,8 +138,6 @@
 		<div class="bottom editable annotation" contenteditable="true">
 			{?Meta.annotation.after}
 				{Meta.annotation.after}
-			{:else}
-				<br/>
 			{/Meta.annotation.after}
 		</div>
 		{/BottomAnnotation}
