@@ -180,6 +180,7 @@ define
                 var self = this,
                     rendered = false,
                     post = self.model.feed(true);
+
                 if ( typeof post.Meta === 'string') {
                     post.Meta = JSON.parse(post.Meta);
                 }
