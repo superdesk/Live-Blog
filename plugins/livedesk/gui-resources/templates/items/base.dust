@@ -137,7 +137,7 @@
 		<!-- BOTTOM ANNOTATION - Displays for twitter provider posts, and NEVER for internal posts -->
 		<div class="bottom editable annotation" contenteditable="true">
 			{?Meta.annotation.after}
-				{Meta.annotation.after}
+				{Meta.annotation.after|s}
 			{/Meta.annotation.after}
 		</div>
 		{/BottomAnnotation}
