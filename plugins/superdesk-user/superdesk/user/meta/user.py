@@ -29,7 +29,6 @@ class UserMapped(PersonMapped, User):
     Name = Column('name', String(150), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     DeletedOn = Column('deleted_on', DateTime)
-    PhoneNumber = Column('phone_number', String(255), nullable=True, unique=True)
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
     password = Column('password', String(255), nullable=False)

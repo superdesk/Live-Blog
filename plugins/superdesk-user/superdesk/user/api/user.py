@@ -27,7 +27,6 @@ class User(Person):
     CreatedOn = datetime
     DeletedOn = datetime
     Password = str
-    PhoneNumber = str
 
 @modelHR
 class Password:
@@ -47,7 +46,6 @@ class QUser(QPerson):
     name = AsLikeOrdered
     all = AsLike
     createdOn = AsDateTimeOrdered
-    phoneNumber = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
