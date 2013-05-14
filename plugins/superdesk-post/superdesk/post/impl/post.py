@@ -23,8 +23,9 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.post.api.post import Post, QPostUnpublished, QPost
+from superdesk.post.api.post import Post, QPostUnpublished, QPost, QPostPublished
 from superdesk.source.meta.source import SourceMapped
+from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
@@ -76,6 +77,88 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getUnpublishedBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getUnpublishedBySource
+        '''
+        assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySource(sourceId)
+        sql = sql.filter(PostMapped.PublishedOn == None)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getUnpublishedBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getUnpublishedBySourceType
+        '''
+        assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySourceType(sourceTypeKey)
+        sql = sql.filter(PostMapped.PublishedOn == None)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getPublishedBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getPublishedBySource
+        '''
+        assert q is None or isinstance(q, QPostPublished), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySource(sourceId)
+        sql = sql.filter(PostMapped.PublishedOn != None)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getPublishedBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getPublishedBySourceType
+        '''
+        assert q is None or isinstance(q, QPostPublished), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySourceType(sourceTypeKey)
+        sql = sql.filter(PostMapped.PublishedOn != None)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getAllBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getAllBySource
+        '''
+        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySource(sourceId)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    def getAllBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IPostService.getAllBySourceType
+        '''
+        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
+
+        sql = self._buildQueryBySourceType(sourceTypeKey)
+
+        if q: sql = buildQuery(sql, q, PostMapped)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -162,3 +245,17 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
             return sql.one()[0]
         except NoResultFound:
             raise InputError(Ref(_('Invalid post type %(type)s') % dict(type=key), ref=Post.Type))
+
+    def _buildQueryBySource(self, sourceId):
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped, PostMapped.Author == CollaboratorMapped.Id)
+        sql = sql.filter(CollaboratorMapped.Source == sourceId)
+        return sql
+
+    def _buildQueryBySourceType(self, sourceTypeKey):
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped, PostMapped.Author == CollaboratorMapped.Id)
+        sql = sql.join(SourceMapped, CollaboratorMapped.Source == SourceMapped.Id)
+        sql = sql.join(SourceTypeMapped, SourceMapped.typeId == SourceTypeMapped.id)
+        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        return sql

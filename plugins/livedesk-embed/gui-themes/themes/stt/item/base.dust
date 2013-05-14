@@ -8,11 +8,13 @@ _('Share');
 	<div class="result-header">
 		<div class="post_info">
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>
-			<figure>
 				{?AuthorImage}
-				<img src="{AuthorImage.href}" height="48" width="48">
+				<figure style="background:none">
+					<img src="{AuthorImage.href}" height="48" style="max-width:150px">
+				</figure>
+				{:else}
+				<figure></figure>
 				{/AuthorImage}
-			</figure>
 			<p rel="author">{Creator.FullName}</p>
 			<a href="#" class="sf-share">_('Share');</a>
 			<a href="{permalink}" rel="bookmark">#</a>
