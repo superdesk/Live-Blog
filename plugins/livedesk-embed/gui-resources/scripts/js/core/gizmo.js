@@ -594,16 +594,16 @@ define(['jquery', 'utils/class'], function($,Class)
         _events: {},
 		getList: function(){return this._list;},
 		count: function(){return this._list.length;},
-		_construct: function()
-		{
+		_construct: function() {
+
 			if( !this.model ) this.model = Model;
 			this._list = [];
             this._events = {};
 			this.desynced = true;
 			var buildData = buildOptions = function(){void(0);},
 				self = this;
-			for( var i in arguments )
-			{
+			for( var i = 0, count = arguments.length; i < count; i++ ) {
+				
 				switch( $.type(arguments[i]) )
 				{
 					case 'function': // a model

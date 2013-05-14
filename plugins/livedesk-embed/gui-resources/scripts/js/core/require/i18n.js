@@ -35,8 +35,8 @@ define([
                  */
                 options = {
                         dataType: 'json',
-                        timeout : 1000,
-                        processTime: 300,
+                        //timeout : 2500,
+                        processTime: 400,
                         tryCount : 0,
                         retryLimit : 2,
                         statusCode: {

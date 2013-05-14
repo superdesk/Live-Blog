@@ -37,7 +37,7 @@ if (root.XDomainRequest) {
 		  if(s.processTime) {
 		  	processTime = s.processTime;
 		  } else {
-		  	processTime = (count++)*30;
+		  	processTime = (count++)*80;
 		  }
 		  //console.log(previousTime);
 		  xdr.onload = function(e1, e2) {
