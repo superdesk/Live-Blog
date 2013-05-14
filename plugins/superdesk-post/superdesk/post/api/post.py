@@ -18,6 +18,8 @@ from superdesk.api.domain_superdesk import modelData
 from superdesk.collaborator.api.collaborator import Collaborator
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
+from superdesk.source.api.source import Source
+from superdesk.source.api.type import SourceType
 
 # --------------------------------------------------------------------
 
@@ -93,4 +95,46 @@ class IPostService(IEntityGetCRUDService):
                detailed:bool=True, q:QPost=None) -> Iter(Post):
         '''
         Provides all the posts.
+        '''
+
+    @call(webName='Unpublished')
+    def getUnpublishedBySource(self, sourceId:Source.Id, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPostUnpublished=None) -> Iter(Post):
+        '''
+        Provides unpublished posts of a source.
+        '''
+
+    @call(webName='Unpublished')
+    def getUnpublishedBySourceType(self, sourceTypeKey:SourceType.Key, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPostUnpublished=None) -> Iter(Post):
+        '''
+        Provides unpublished posts of a source type.
+        '''
+
+    @call(webName='Published')
+    def getPublishedBySource(self, sourceId:Source.Id, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPostPublished=None) -> Iter(Post):
+        '''
+        Provides all posts of a source.
+        '''
+
+    @call(webName='Published')
+    def getPublishedBySourceType(self, sourceTypeKey:SourceType.Key, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPostPublished=None) -> Iter(Post):
+        '''
+        Provides published posts of a source type.
+        '''
+
+    @call
+    def getAllBySource(self, sourceId:Source.Id, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPost=None) -> Iter(Post):
+        '''
+        Provides published posts of a source.
+        '''
+
+    @call
+    def getAllBySourceType(self, sourceTypeKey:SourceType.Key, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPost=None) -> Iter(Post):
+        '''
+        Provides all posts of a source type.
         '''
