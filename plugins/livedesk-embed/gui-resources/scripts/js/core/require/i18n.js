@@ -24,14 +24,10 @@ define([
             // support 
             $.support.cors = true;
             // Append '.json' if no filename given:
-            nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
+            var nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
 			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
             var urlCached = req.toUrl(nameCached);//+'&t='+(new Date()).getTime(),
-                url = req.toUrl(name);//+'&t='+(new Date()).getTime();
-                //@TODO clear this when requirejs will fix this https://github.com/jrburke/requirejs/issues/614
-                if ( url.substr(url.length - 4) == '.fak') {
-                    url = url.substr(0, url.length - 4);
-                }
+            var url = req.toUrl(name);//+'&t='+(new Date()).getTime();
                 /*!
                  * Use the same options for the internationalization ajax request
                  *   url key need to be supplied in options
@@ -39,8 +35,8 @@ define([
                  */
                 options = {
                         dataType: 'json',
-                        timeout : 1000,
-                        processTime: 300,
+                        //timeout : 2500,
+                        processTime: 400,
                         tryCount : 0,
                         retryLimit : 2,
                         statusCode: {
@@ -89,8 +85,8 @@ define([
                         options.error =  this.errorTimeout;
                         $.ajax(options);
                     }
-                }
-                options.url = urlCached;
+                };
+                options.url = url;
                 $.ajax(options);
         },
 
