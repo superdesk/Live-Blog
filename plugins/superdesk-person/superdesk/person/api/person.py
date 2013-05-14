@@ -26,6 +26,7 @@ class Person(Entity):
     FullName = str
     Address = str
     EMail = str
+    PhoneNumber = str
 
 # --------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ class QPerson(QEntity):
     firstName = AsLikeOrdered
     lastName = AsLikeOrdered
     email = AsLikeOrdered
+    phoneNumber = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
