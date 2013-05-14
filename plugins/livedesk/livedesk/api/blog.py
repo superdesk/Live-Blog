@@ -43,15 +43,6 @@ class Blog(Entity):
     UpdatedOn = datetime
 
 # --------------------------------------------------------------------
-
-@model(name=Source)
-class SourceChained(Source):
-    '''
-    Provider concept implemented also through the source model.
-    '''
-    Provider = Source  # The source provider
-
-# --------------------------------------------------------------------
 # TODO: Mugur: No need to map a relation between models with API, remove this.
 @modelLiveDesk
 class BlogSource(Entity):
@@ -60,7 +51,6 @@ class BlogSource(Entity):
     '''
     Blog = Blog
     Source = Source
-    Provider = Source
 
 # --------------------------------------------------------------------
 
@@ -131,13 +121,13 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(method=INSERT)
-    def addSource(self, blogId:Blog.Id, source:SourceChained) -> SourceChained.Id:
+    def addSource(self, blogId:Blog.Id, source:Source) -> Source.Id:
         '''
         Adds a source to a blog.
 
         @param blogId: Blog.Id
             The blog identifier
-        @param source: SourceChained
+        @param source: Source
             The source model
         @raise InputError: on invalid source id
         '''

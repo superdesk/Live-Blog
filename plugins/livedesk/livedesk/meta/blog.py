@@ -78,4 +78,3 @@ class BlogSourceMapped(Base, BlogSource):
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Blog = Column('fk_blog', ForeignKey(BlogMapped.Id), nullable=False)
     Source = Column('fk_source', ForeignKey(SourceMapped.Id, ondelete='CASCADE'), nullable=False)
-    Provider = Column('fk_provider', ForeignKey(SourceMapped.Id, ondelete='CASCADE'), nullable=True)
