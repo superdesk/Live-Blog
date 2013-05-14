@@ -35,17 +35,6 @@ define
 function(providers, Gizmo, $, BlogAction) 
 {
 		
-    // TODO rethink cause this is very ugly
-    var AuthApp;
-    // force homepage
-    require([config.cjs('views/auth.js')], function(a)
-    {
-        AuthApp = a;
-        $(AuthApp).on('logout', function()
-        {
-            window.location.reload();
-        });
-    });
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -1105,29 +1094,47 @@ function(providers, Gizmo, $, BlogAction)
 				self.textToggleStatus();
 			}
 		});	
-	var editView = new EditView({el: '#area-main'});
 	
-	return function(theBlog)
+	var 
+	
+	editView = new EditView({el: '#area-main'}),
+	currentBlogHref = '',
+	
+	providerSets = 
 	{
+	    'full': $.extend({}, {edit: providers.edit}),
+	    'partial': $.extend({}, {edit: providers.edit})
+	},
+	
+	load = function(theBlog)
+	{
+	    currentBlogHref = theBlog;
 	    BlogAction.clearCache();
-		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
-						delete providers["google"];
-						delete providers["colabs"];
-						delete providers["twitter"];
-						delete providers["flickr"];
-						delete providers["youtube"];
-						delete providers["instagram"];
-						delete providers["soundcloud"];
-						delete providers["ads"];
-						delete providers["facebook"];
-						delete providers["chain"];
-						//delete providers["image"];
-					});
 	    BlogAction.setBlogUrl(theBlog);
-	    // stop autoupdate if any
-	    editView.timelineView && editView.timelineView.collection.stop();
-	    
-	    editView.theBlog = theBlog;
-	    editView.postInit();
+		BlogAction.get('modules.livedesk.blog-publish')
+		    .done(function(){ providers = providerSets['full'] })
+		    .fail(function(action){ providers = providerSets['partial'] })
+		    .always(function()
+		    { 
+		        // stop autoupdate if any
+		        editView.timelineView && editView.timelineView.collection.stop();
+		        editView.theBlog = theBlog;
+		        editView.postInit();
+		    });
 	}
+	
+    var AuthApp;
+    require([config.cjs('views/auth.js')], function(a)
+    {
+        AuthApp = a;
+        $(AuthApp)
+        .off('.livedesks')
+        .on('login.livedesk', function()
+        {
+            load(currentBlogHref);
+        });
+    });
+    
+    
+	return load;
 });

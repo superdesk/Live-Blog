@@ -8,15 +8,23 @@ define
 function($, Action, Actions) 
 {
     var newActions = new Actions();
-    newActions.href = $.extend(true, {},newActions.href);
-    return $.extend(true, {}, Action, {
+    
+    newActions.href = $.extend(true, {}, newActions.href),
+    blogId = null;
+    return $.extend(true, {}, Action, 
+    {
     	actions: newActions,
-    	setBlogUrl: function(theBlog){
-			var self = this,
-	            blogArray = theBlog.split('/'),
-	            blogId = blogArray[blogArray.length - 1];
-                self.actions.href.set('/Blog/'+blogId+'/Action');
-                self.clearCache();
+    	setBlogUrl: function(theBlog)
+    	{
+    	    blogArray = theBlog.split('/'),
+	        blogId = blogArray[blogArray.length - 1];
+    	    this.actions.href.data.url = '/Blog/'+blogId+'/Action';
+    	    this.clearCache();
+    	},
+    	get: function(path, url)
+    	{
+    	    this.actions.href.data.root = localStorage.getItem('superdesk.login.selfHref');
+    	    return Action.get.apply(this, arguments)
     	}
     });
 });
