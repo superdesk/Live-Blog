@@ -14,6 +14,7 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from ally.container.support import setup
 from livedesk.meta.blog_sync import BlogSyncMapped
 from sqlalchemy.sql.functions import current_timestamp
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 
 # --------------------------------------------------------------------
 
@@ -28,6 +29,12 @@ class BlogSyncService(EntityServiceAlchemy, IBlogSyncService):
         Construct the blog sync service.
         '''
         EntityServiceAlchemy.__init__(self, BlogSyncMapped, QBlogSync)
+
+    def getBlogSync(self, blog, offset, limit, detailed, q):
+        sql = self.session().query(BlogSyncMapped).filter(BlogSyncMapped.Blog == blog)
+        if q: sql = buildQuery(sql, q, BlogSyncMapped)
+        sql = buildLimits(sql, offset, limit)
+        return sql.all()
 
     def insert(self, blogSync):
         '''
