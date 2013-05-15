@@ -99,6 +99,10 @@ class IBlogService(IEntityCRUDService):
         @raise InputError: on invalid credentials or blog id 
         '''
 
+# --------------------------------------------------------------------
+
+@service((Entity, BlogSource))
+class IBlogSourceService():
     @call
     def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> Source:
         '''
