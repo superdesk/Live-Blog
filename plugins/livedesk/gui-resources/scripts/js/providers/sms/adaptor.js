@@ -22,10 +22,10 @@ define([
                 delete meta['$idx'];
                 delete meta['$len'];
                 return new PrepublishView({
-                    sourceTemplate: 'sources/sms/'+meta.type,
+                    sourceTemplate: 'sources/sms',
                     data: {
                         Creator: localStorage.getItem('superdesk.login.id'),
-                        Content: obj.content,
+                        Content: obj.message,
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
