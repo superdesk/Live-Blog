@@ -130,8 +130,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                                         return false;
                                     } else {
                                         newCollaborator = new Collaborator;
-                                        newCollaborator.setHref(collaboratorList.data.CollaboratorList[0].href).sync().done(function(){});
-                                        newCollaborator.sync();
+                                        newCollaborator.setHref(collaboratorList.data.CollaboratorList[0].href).sync();
                                         return false;
                                     }
                                 });
