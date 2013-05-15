@@ -17,6 +17,7 @@ from ally.api.config import query, service, LIMIT_DEFAULT, call
 from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean
 from superdesk.source.api.source import Source
 from ally.api.type import Iter
+from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
 
@@ -30,6 +31,7 @@ class BlogSync(Entity):
     CId = int
     SyncStart = datetime
     Auto = bool
+    Creator = User
 
 # --------------------------------------------------------------------
 

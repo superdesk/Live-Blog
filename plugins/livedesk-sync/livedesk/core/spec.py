@@ -19,7 +19,7 @@ class IBlogSync(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractclassmethod
-    def syncBlog(self):
+    def syncBlogs(self):
         '''
         Sync the blogs on automatic publishing.
         '''
