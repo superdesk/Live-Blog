@@ -22,24 +22,49 @@ define(['jquery', 'backbone', 'tmpl!livedesk>manage-feeds-edit'], function($, Ba
 
         save: function(e) {
             e.preventDefault();
-            var data = {
-                Name: $(this.el).find('#edit-provider-title').val(),
-                URI: $(this.el).find('#edit-provider-url').val()
-            };
 
-            if (this.model.isNew()) {
-                this.collection.create(data, {headers: this.collection.xfilter, wait: true});
-            } else {
-                this.model.save(data, {patch: true});
+            var data = this.getData();
+
+            try {
+                if (this.model.isNew()) {
+                    this.collection.create(data, {headers: this.collection.xfilter, wait: true});
+                } else {
+                    this.model.save(data, {patch: true, wait: true});
+                }
+
+                return this.close(e);
+            } catch (errors) {
+                this.renderErrors(errors);
             }
-
-            return this.close(e);
         },
 
         close: function(e) {
             e.preventDefault();
             var view = this;
             this.modal.modal('hide', function() { view.remove(); });
+        },
+
+        getData: function() {
+            var data = {};
+
+            $(this.el).find('input[data-field]').each(function() {
+                data[$(this).attr('data-field')] = $(this).val();
+            });
+
+            return data;
+        },
+
+        renderErrors: function(errors) {
+            $(this.el).find('input[data-field]').each(function() {
+                var $input = $(this);
+                if (errors.indexOf($input.attr('data-field')) !== -1) {
+                    $input.closest('.control-group').addClass('error');
+                    $input.next('span').show();
+                } else {
+                    $input.closest('.control-group').removeClass('error');
+                    $input.next('span').hide();
+                }
+            });
         }
     });
 });
