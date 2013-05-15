@@ -1,0 +1,9 @@
+{>"theme/item/base"/}
+{<item_class}smspost{/item_class}
+{<reference}{/reference}
+{<TimeInfo}
+	<time>{Meta.CreatedOn}</time>
+{/TimeInfo}
+{<AuthorInfo}
+<p rel="author">_('by'); {Meta.Creator.Name}</p>
+{/AuthorInfo}
