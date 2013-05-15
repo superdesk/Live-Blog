@@ -1102,7 +1102,7 @@ function(providers, Gizmo, $, BlogAction)
 	
 	providerSets = 
 	{
-	    'full': $.extend({}, {edit: providers.edit}),
+	    'full': providers,
 	    'partial': $.extend({}, {edit: providers.edit})
 	},
 	
