@@ -162,7 +162,6 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
         
-        source.Type = self.blogLinkedSourceType
         sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
         ent.Blog = blogId
