@@ -9,10 +9,11 @@ Created on May 3, 2012
 Contains the SQL alchemy implementation for post API.
 '''
 
-from ..api.post import IPostService
+from ..api.post import IPostService, QWithCId
 from ..meta.post import PostMapped
 from ..meta.type import PostTypeMapped
 from ally.api.extension import IterPart
+from ally.api.criteria import AsRange
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -90,7 +91,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = self._buildQueryBySource(sourceId)
         sql = sql.filter(PostMapped.PublishedOn == None)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -104,7 +105,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = self._buildQueryBySourceType(sourceTypeKey)
         sql = sql.filter(PostMapped.PublishedOn == None)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -118,7 +119,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = self._buildQueryBySource(sourceId)
         sql = sql.filter(PostMapped.PublishedOn != None)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -132,7 +133,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = self._buildQueryBySourceType(sourceTypeKey)
         sql = sql.filter(PostMapped.PublishedOn != None)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -145,7 +146,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
 
         sql = self._buildQueryBySource(sourceId)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -158,7 +159,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
 
         sql = self._buildQueryBySourceType(sourceTypeKey)
 
-        if q: sql = buildQuery(sql, q, PostMapped)
+        sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -258,4 +259,18 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = sql.join(SourceMapped, CollaboratorMapped.Source == SourceMapped.Id)
         sql = sql.join(SourceTypeMapped, SourceMapped.typeId == SourceTypeMapped.id)
         sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        return sql
+
+    def _buildQueryWithCId(self, q, sql):
+        if q:
+            if QWithCId.cId in q and q.cId:
+                if AsRange.start in q.cId:
+                    sql = sql.filter(PostMapped.Id >= q.cId.start)
+                if AsRange.since in q.cId:
+                    sql = sql.filter(PostMapped.Id > q.cId.since)
+                if AsRange.end in q.cId:
+                    sql = sql.filter(PostMapped.Id <= q.cId.end)
+                if AsRange.until in q.cId:
+                    sql = sql.filter(PostMapped.Id < q.cId.until)
+            sql = buildQuery(sql, q, PostMapped)
         return sql
