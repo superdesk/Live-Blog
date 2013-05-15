@@ -57,6 +57,11 @@
 			},
 			activate: function(){
 				var self = this;
+			    var data = {thumbSize: 'medium'};
+                if (autoSources.isPaused(this.sourceId)) {
+                    data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
+                }
+
 				this.collection
 					.on('read update readauto updateauto', function(){
 						self.el.find('.chainblogs').show();
@@ -64,7 +69,7 @@
 					.auto({
 						headers: { 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, IsModified, ' +
 							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName' },
-						data: { thumbSize: 'medium'}
+                        data: data
 					});
 			},
 			deactivate: function(){
@@ -208,12 +213,12 @@
 			},
 			activate: function() {
 				this.active = true;
-				this.timelineView.activate();
 
                 var isAuto = autoSources.isAuto(this.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
+                isAuto ? this.timelineView.deactivate() : this.timelineView.activate();
 			},
 			render: function(){
 				var self = this;
@@ -221,7 +226,8 @@
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el, 
-							collection: self.model.get('PostPublished') 
+							collection: self.model.get('PostPublished'),
+                            sourceId: self.model.sourceId
 					});
 				});
 			}
@@ -315,9 +321,9 @@
                     } else {
                         autoSources.create({Blog: this.blog.get('Id'), Source: view.model.sourceId, Auto: autopublish ? 'True' : 'False'}, {headers: autoSources.xfilter});
                     }
-                }
 
-                $('#automod-info').toggle(autopublish);
+                    view.model.chainBlogContentView.activate();
+                }
             }
 		});
 

@@ -15,6 +15,16 @@ function(Backbone, Gizmo, SyncModel) {
         isAuto: function(sourceId) {
             var sync = this.findSource(sourceId);
             return Boolean(sync) && sync.get('Auto') === 'True';
+        },
+
+        isPaused: function(sourceId) {
+            var sync = this.findSource(sourceId);
+            return Boolean(sync) && sync.get('Auto') === 'False';
+        },
+
+        getLastSyncId: function(sourceId) {
+            var sync = this.findSource(sourceId);
+            return sync && sync.get('CId');
         }
     });
 });
