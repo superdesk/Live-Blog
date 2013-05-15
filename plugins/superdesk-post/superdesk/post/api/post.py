@@ -10,7 +10,7 @@ API specifications for posts.
 '''
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
-from ally.api.criteria import AsDateTimeOrdered, AsBoolean
+from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsRange
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
@@ -45,7 +45,14 @@ class Post(Entity):
 # --------------------------------------------------------------------
 
 @query(Post)
-class QPostUnpublished(QEntity):
+class QWithCId:
+    '''
+    Provides the query for cId.
+    '''
+    cId = AsRange
+
+@query(Post)
+class QPostUnpublished(QEntity, QWithCId):
     '''
     Provides the post message query.
     '''
