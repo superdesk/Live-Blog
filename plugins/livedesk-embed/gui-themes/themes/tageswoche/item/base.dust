@@ -7,8 +7,12 @@ _('Share');
 	{+head}
 	<div class="result-header">
 		<div class="post_info">
+			{+TimeInfo}
 			<time >{CreatedOn}</time>
+			{/TimeInfo}
+			{+AuthorInfo}
 			<p rel="author">_('by'); {Creator.FullName}</p>
+			{/AuthorInfo}
 			<a href="#" class="sf-share">_('Share');</a>
 			<a href="{permalink}" rel="bookmark">#</a>
 			<input type="text" data-type="permalink" style="visibility:hidden" value="{permalink}">
