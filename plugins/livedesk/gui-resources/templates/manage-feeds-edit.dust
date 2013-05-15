@@ -5,9 +5,18 @@
   </div>
   <div class="modal-body">
     <form>
-        <input type="text" id="edit-provider-title" name="Title" placeholder="_('Blog Provider Title');" value="{name}" class="fullwidth-input" required>
-        <label></label>
-        <input type="text" id="edit-provider-url" name="URL" placeholder="_('Blog Provider URL');" value="{uri}" class="fullwidth-input" required>
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="Title" placeholder="_('Blog Provider Title');" value="{name}" class="fullwidth-input" required data-field="Name">
+                <span class="help-inline hide">_("Please provide a Name");</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="URL" placeholder="http://" value="{uri}" class="fullwidth-input" required data-field="URI">
+                <span class="help-inline hide">_("Please provide a valid URL");</span>
+            </div>
+        </div>
     </form>
   </div>
   <div class="modal-footer">
