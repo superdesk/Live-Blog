@@ -5,5 +5,5 @@
 	<time>{Meta.CreatedOn}</time>
 {/TimeInfo}
 {<AuthorInfo}
-<p rel="author">_('by'); {Meta.Creator.Name}</p>
+<p rel="author">_('by'); {Meta.Creator.FullName}</p>
 {/AuthorInfo}
