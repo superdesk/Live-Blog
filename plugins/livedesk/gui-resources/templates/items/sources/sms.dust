@@ -6,7 +6,7 @@
 		<img src="">
 	</figure>
 	<div class="post-info">
-		<p rel="author">{Meta.Creator.Name}</p> <!-- User full name -->
+		<p rel="author">{Meta.Creator.PhoneNumber} {Meta.Creator.FullName}</p> <!-- User full name -->
 		<time>{Meta.CreatedOn}</time> <!-- time of the post -->
 	</div>
 {/ItemInfo}
