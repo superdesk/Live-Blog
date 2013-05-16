@@ -36,7 +36,7 @@ $.extend(providers.sms, {
     getAllSmss: function() {
         var self = this;
         var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Post');
-        myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*';
+        myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*&limit=1000';
         self.data.sms = [];
         var cleanUrl = 'http:' + url.get();
         $.ajax({
