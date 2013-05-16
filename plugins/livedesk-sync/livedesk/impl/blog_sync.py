@@ -19,7 +19,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 # --------------------------------------------------------------------
 
 @setup(IBlogSyncService, name='blogSyncService')
-class BlogSyncService(EntityServiceAlchemy, IBlogSyncService):
+class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
     '''
     Implementation for @see IBlogSyncService
     '''
@@ -42,8 +42,8 @@ class BlogSyncService(EntityServiceAlchemy, IBlogSyncService):
         '''
         assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
 
-        if blogSync.Auto and blogSync.SyncStart is None:
-            blogSync.SyncStart = current_timestamp()
+#        if blogSync.Auto and blogSync.SyncStart is None:
+#            blogSync.SyncStart = current_timestamp()
         return super().insert(blogSync)
 
     def update(self, blogSync):
