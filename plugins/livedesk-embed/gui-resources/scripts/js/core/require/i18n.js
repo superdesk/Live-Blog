@@ -86,7 +86,7 @@ define([
                         $.ajax(options);
                     }
                 };
-                options.url = url;
+                options.url = urlCached;
                 $.ajax(options);
         },
 
