@@ -11,6 +11,10 @@ Provides the gateway service setup patch.
 
 from ally.container import ioc
 import logging
+from superdesk.security.api.authentication import Login
+from ally.support.api.util_service import nameForModel
+from security.api.domain_security import DOMAIN
+from gateway.api.gateway import Gateway
 
 # --------------------------------------------------------------------
 
@@ -35,4 +39,4 @@ else:
         '''
         The authenticated user base access root URI.
         '''
-        return root_uri_resources() % 'Security/Login/%s/Gateway'
+        return root_uri_resources() % '/'.join((DOMAIN + nameForModel(Login), '%s', nameForModel(Gateway)))

@@ -18,7 +18,7 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.design.processor.attribute import requires, defines
 from ally.design.processor.context import Context
-from ally.design.processor.handler import HandlerProcessorProceed, Handler
+from ally.design.processor.handler import HandlerProcessor, Handler
 from collections import Iterable
 from inspect import isclass
 import logging
@@ -53,7 +53,7 @@ class Solicitation(Context):
 
 @injected
 @setup(Handler, name='userValueForFilter')
-class UserValueForFilter(HandlerProcessorProceed):
+class UserValueForFilter(HandlerProcessor):
     '''
     Processor that provides the user value for filters that consider the authenticated user is to be valid if equal with the
     resource user id.
@@ -74,9 +74,9 @@ class UserValueForFilter(HandlerProcessorProceed):
                 assert issubclass(clazz, IAclFilter), 'Invalid filter class %s' % clazz
         super().__init__()
     
-    def process(self, Permission:PermissionFilters, solicitation:Solicitation, **keyargs):
+    def process(self, chain, Permission:PermissionFilters, solicitation:Solicitation, **keyargs):
         '''
-        @see: HandlerProcessorProceed.process
+        @see: HandlerProcessor.process
         
         Process permission static user filters.
         '''

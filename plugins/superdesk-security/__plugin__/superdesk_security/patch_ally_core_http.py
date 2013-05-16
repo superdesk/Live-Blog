@@ -13,8 +13,7 @@ from .service import assemblyGateways, userRbacProvider, rbacPopulateRights, \
     registerDefaultRights
 from ally.container import ioc, support
 from ally.design.processor.assembly import Assembly
-from ally.design.processor.handler import Handler
-from ally.design.processor.processor import restructure
+from ally.design.processor.handler import Handler, HandlerRenamer
 import logging
 
 # --------------------------------------------------------------------
@@ -33,7 +32,7 @@ else:
         iterateResourcePermissions, modelFiltersForPermissions, alternateNavigationPermissions, userValueForFilter, \
         alternateNavigationPermissions
     from __setup__.ally_core_http.processor import assemblyResources, encoderPathResource
-    from __setup__.ally_core.processor import invoking
+    from __setup__.ally_core.processor import invoking 
     from superdesk.security.core.impl.processor import user_persistence_filter
     
     userPersistenceForPermissions = invokingFilter = support.notCreated  # Just to avoid errors
@@ -43,7 +42,7 @@ else:
     
     @ioc.entity
     def encoderPathGateway() -> Handler:
-        return restructure(encoderPathResource(), ('response', 'solicitation'), ('request', 'solicitation'))
+        return HandlerRenamer(encoderPathResource(), ('response', 'solicitation'), ('request', 'solicitation'))
     
     @ioc.entity
     def assemblyPermissions() -> Assembly:
@@ -62,6 +61,6 @@ else:
         assemblyGateways().add(userPersistenceForPermissions(), before=gatewaysFromPermissions())
         assemblyGateways().add(encoderPathGateway(), before=alternateNavigationPermissions())
     
-    @ioc.start  # The update needs to be on start event since the resource assembly id from setup context 
+    @ioc.start  # The update needs to be on start event since the resource assembly is from setup context 
     def updateAssemblyResourcesForInvokingFilter():
         assemblyResources().add(invokingFilter(), before=invoking())

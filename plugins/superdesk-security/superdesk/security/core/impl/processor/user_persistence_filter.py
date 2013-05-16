@@ -18,13 +18,13 @@ from ally.container.support import setup
 from ally.core.spec.resources import Invoker, Path
 from ally.design.processor.assembly import Assembly
 from ally.design.processor.attribute import requires, defines
+from ally.design.processor.branch import Branch
 from ally.design.processor.context import Context
-from ally.design.processor.execution import Processing, Chain
-from ally.design.processor.handler import Handler, HandlerBranchingProceed, \
-    HandlerProcessorProceed
-from ally.design.processor.processor import Using
-from ally.http.spec.codes import HEADER_ERROR, FORBIDDEN_ACCESS
-from ally.http.spec.server import IDecoderHeader
+from ally.design.processor.execution import Processing
+from ally.design.processor.handler import Handler, HandlerBranching, \
+    HandlerProcessor
+from ally.http.spec.codes import HEADER_ERROR, FORBIDDEN_ACCESS, CodedHTTP
+from ally.http.spec.headers import HeaderRaw, HeadersRequire
 from collections import Iterable
 from superdesk.user.api.user import User
 import logging
@@ -33,18 +33,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------
-
-class AuthenticatedUserConfigurations:
-    '''
-    Provides the common header configurations to be used for persist filtering.
-    '''
-    
-    nameHeader = 'X-Authenticated-User'
-    # The header name used for placing the authenticated user into.
-    
-    def __init__(self):
-        assert isinstance(self.nameHeader, str), 'Invalid header name %s' % self.nameHeader
+AUTHENTICATED_USER = HeaderRaw('X-Authenticated-User')
+# The header used for placing the authenticated user into.
 
 # --------------------------------------------------------------------
 
@@ -72,18 +62,14 @@ class SolicitationPutHeader(Context):
 
 @injected
 @setup(Handler, name='userPersistenceForPermissions')
-class UserPersistenceForPermissions(HandlerProcessorProceed, AuthenticatedUserConfigurations):
+class UserPersistenceForPermissions(HandlerProcessor):
     '''
     Processor that places the authenticated put header on the persistence permissions.
     '''
     
-    def __init__(self):
-        HandlerProcessorProceed.__init__(self)
-        AuthenticatedUserConfigurations.__init__(self)
-    
-    def process(self, Permission:PermissionWithAuthenticated, solicitation:SolicitationPutHeader, **keyargs):
+    def process(self, chain, Permission:PermissionWithAuthenticated, solicitation:SolicitationPutHeader, **keyargs):
         '''
-        @see: HandlerProcessorProceed.process
+        @see: HandlerProcessor.process
         
         Populate the persistence permissions put headers.
         '''
@@ -93,7 +79,7 @@ class UserPersistenceForPermissions(HandlerProcessorProceed, AuthenticatedUserCo
         assert isinstance(solicitation.permissions, Iterable), 'Invalid permissions %s' % solicitation.permissions
         
         solicitation.permissions = self.processPermissions(solicitation.permissions, str(solicitation.userId))
-
+        
     # ----------------------------------------------------------------
     
     def processPermissions(self, permissions, userId):
@@ -110,31 +96,26 @@ class UserPersistenceForPermissions(HandlerProcessorProceed, AuthenticatedUserCo
                     assert isinstance(propertyType, TypeProperty), 'Invalid property type %s' % propertyType
                     if propertyType.parent.clazz == User or issubclass(propertyType.parent.clazz, User):
                         if permission.putHeaders is None: permission.putHeaders = {}
-                        permission.putHeaders[self.nameHeader] = userId
+                        AUTHENTICATED_USER.put(permission.putHeaders, userId)
                         break
-                
             yield permission
     
 # --------------------------------------------------------------------
 
-class Request(Context):
+class Request(HeadersRequire):
     '''
     The request context.
     '''
     # ---------------------------------------------------------------- Required
-    decoderHeader = requires(IDecoderHeader)
     path = requires(Path)
     invoker = requires(Invoker)
     arguments = requires(dict)
 
-class Response(Context):
+class Response(CodedHTTP):
     '''
     The response context.
     '''
     # ---------------------------------------------------------------- Defined
-    code = defines(str)
-    status = defines(int)
-    isSuccess = defines(bool)
     text = defines(str)
 
 class PermissionFilter(Context):
@@ -178,7 +159,7 @@ class SolicitationFilter(Context):
 
 @injected
 @setup(Handler, name='invokingFilter')
-class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurations):
+class InvokingFilterHandler(HandlerBranching):
     '''
     Processor that provides the model filtering.
     '''
@@ -191,13 +172,12 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
     def __init__(self):
         assert isinstance(self.acl, Acl), 'Invalid acl repository %s' % self.acl
         assert isinstance(self.assemblyPermissions, Assembly), 'Invalid assembly %s' % self.assemblyPermissions
-        HandlerBranchingProceed.__init__(self, Using(self.assemblyPermissions, Permission=PermissionFilter,
-                                                     ModelFilter=ModelFilter, solicitation=SolicitationFilter))
-        AuthenticatedUserConfigurations.__init__(self)
+        HandlerBranching.__init__(self, Branch(self.assemblyPermissions).
+                                  using(Permission=PermissionFilter, ModelFilter=ModelFilter, solicitation=SolicitationFilter))
 
-    def process(self, processing, request:Request, response:Response, **keyargs):
+    def process(self, chain, processing, request:Request, response:Response, **keyargs):
         '''
-        @see: HandlerBranchingProceed.process
+        @see: HandlerBranching.process
         
         Filter the invoking if is the case.
         '''
@@ -206,13 +186,12 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
         assert isinstance(response, Response), 'Invalid response %s' % response
         if response.isSuccess is False: return  # Skip in case the response is in error
         
-        assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
-        authenticated = request.decoderHeader.retrieve(self.nameHeader)
+        authenticated = AUTHENTICATED_USER.fetch(request)
         if not authenticated: return  # Skip if no authenticated header is provided
         
         try: userId = int(authenticated)
         except ValueError:
-            response.code, response.status, response.isSuccess = HEADER_ERROR
+            HEADER_ERROR.set(response)
             response.text = 'Invalid value for \'%s\'' % self.nameHeader
             return
         assert isinstance(request.path, Path), 'Invalid path %s' % request.path
@@ -226,9 +205,7 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
         solFilter.method = request.invoker.method
         solFilter.types = self.acl.types
         
-        chainFilter = Chain(processing)
-        chainFilter.process(**processing.fillIn(solicitation=solFilter, **keyargs)).doAll()
-        solFilter = chainFilter.arg.solicitation
+        solFilter = processing.executeWithAll(solicitation=solFilter, **keyargs).solicitation
         assert isinstance(solFilter, SolicitationFilter), 'Invalid solicitation %s' % solFilter
         if solFilter.permissions is None: return  # No permissions available
         
@@ -256,6 +233,4 @@ class InvokingFilterHandler(HandlerBranchingProceed, AuthenticatedUserConfigurat
                 assert isinstance(filterAcl.authenticated, TypeProperty), 'Invalid authenticated %s' % filterAcl.authenticated
                 clazz = filterAcl.authenticated.parent.clazz
                 if clazz != User and not issubclass(clazz, User): continue  # Not a user authenticated type
-                if not filterAcl.filter.isAllowed(userId, propertyObj):
-                    response.code, response.status, response.isSuccess = FORBIDDEN_ACCESS
-                    return
+                if not filterAcl.filter.isAllowed(userId, propertyObj): return FORBIDDEN_ACCESS.set(response)

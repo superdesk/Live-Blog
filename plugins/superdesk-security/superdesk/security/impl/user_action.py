@@ -17,7 +17,7 @@ from ally.container.support import setup
 from ally.design.processor.assembly import Assembly
 from ally.design.processor.attribute import defines, requires
 from ally.design.processor.context import Context
-from ally.design.processor.execution import Processing, Chain
+from ally.design.processor.execution import Processing
 from collections import Iterable
 from gui.action.api.action import IActionManagerService, Action
 from gui.action.impl.action import processChildCount
@@ -87,10 +87,7 @@ class IUserActionServiceAlchemy(IUserActionService):
         solicitation.userId = userId
         solicitation.types = (self.actionType,)
         
-        chain = Chain(proc)
-        chain.process(solicitation=solicitation, reply=proc.ctx.reply()).doAll()
-        
-        reply = chain.arg.reply
+        reply = proc.executeWithAll(solicitation=solicitation).reply
         assert isinstance(reply, Reply), 'Invalid reply %s' % reply
         if Reply.rightsAvailable not in reply: return ()
         

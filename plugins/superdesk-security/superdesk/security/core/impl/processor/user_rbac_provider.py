@@ -69,9 +69,11 @@ class UserRbacProvider(HandlerProcessor):
         assert isinstance(solicitation.userId, int), 'Invalid solicitation user id %s' % solicitation.userId
         
         solicitation.rbacId = self.userRbacSupport.rbacIdFor(solicitation.userId)
-        if solicitation.rbacId is None: return  # No rbac available so stopping the processing
+        if solicitation.rbacId is None:
+            # No rbac available so stopping the processing
+            chain.cancel()
+            return
         if Solicitation.provider in solicitation: solicitation.provider = UserProvider(str(solicitation.userId))
-        chain.proceed()
 
 # --------------------------------------------------------------------
 
