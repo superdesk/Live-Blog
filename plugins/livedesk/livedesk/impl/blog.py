@@ -113,7 +113,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         # TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, SourceChained), 'Invalid source %s' % source
-        if source.Provider is None: raise InputError(Ref(_('Missing chained blog source provider', ref=SourceChained.Provider)))
+        if source.Provider is None: raise InputError(Ref(_('Missing chained blog source provider'), ref=SourceChained.Provider))
         
         source.Type = 'chained blog'  # TODO: Mugur: Externalize the chained blog type.
         sourceId = self.sourceService.insert(source)
