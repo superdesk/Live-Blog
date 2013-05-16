@@ -59,6 +59,12 @@
 					</div>
 				</div>
 				<div class="control-group">
+					<label class="control-label" for="inputAddress">_('Phone Number');</label>
+					<div class="controls">
+						<input type="text" name="PhoneNumber" id="inputPhoneNumber" placeholder="_('Phone Number');" class="input-xlarge" />
+					</div>
+				</div>
+				<div class="control-group">
 		        	<label class="control-label" for="collaborator-role">_('Role');</label>
 		            <div class="controls">
 		            	<div class="btn-group" data-input="role">
