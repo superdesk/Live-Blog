@@ -235,6 +235,7 @@ define(['jquery', 'utils/class'], function($,Class)
 					self._clientHash = null;
 					self.triggerHandler('insert')
 						.Class.triggerHandler('insert', self);
+					self.triggerHandler('synced');
 				});
 			}
 
@@ -246,6 +247,7 @@ define(['jquery', 'utils/class'], function($,Class)
 							.done(function()
 					{
 						self.triggerHandler('update', self.changeset).clearChangeset();
+						self.triggerHandler('synced');
 					}));
 				}
 			}
@@ -253,6 +255,7 @@ define(['jquery', 'utils/class'], function($,Class)
 				if( !(arguments[0] && arguments[0].force) && this.exTime && (  this.exTime > new Date) ) {
 					if(!self.isDeleted()){
 						self.triggerHandler('update');
+						self.triggerHandler('synced');
 					}
 				}
 				else { 
@@ -277,6 +280,7 @@ define(['jquery', 'utils/class'], function($,Class)
 						//console.log('pull read');
 						self.clearChangeset().triggerHandler('read');
 					}
+					self.triggerHandler('synced');
 				}));
 				}
 			}
