@@ -1,8 +1,8 @@
 <div class="subnav subnav-fixed">
 		<div class="btn-group pull-left" id="desk-select">
-            <a href="" data-toggle="dropdown" class="btn dropdown-toggle" ng-repeat="desk in desks | filter:{Id: deskId}">{~lb}{~lb}desk.Name{~rb}{~rb}</a>
+            <a href="" data-toggle="dropdown" class="btn dropdown-toggle" ng-repeat="desk in desks | filter:{Id: deskId}">{{desk.Name}}</a>
             <ul class="dropdown-menu sf-dropdown">
-                <li ng-repeat="desk in desks"><a href="#desks/{~lb}{~lb}desk.Id{~rb}{~rb}">{~lb}{~lb}desk.Name{~rb}{~rb}</a></li>
+                <li ng-repeat="desk in desks"><a ng-href="#desks/{{desk.Id}}">{{desk.Name}}</a></li>
             </ul>
 	    </div>
 		
@@ -24,22 +24,18 @@
                 </li>            	
           	</ul>
 	    </div>
-
-
-
 	</div>
 
 
 	<div class="subnav subnav-level2 subnav-fixed">
-      
       <div class="btn-toolbar desk-toolbar">
 
     	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="addTask()"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
 
 
         <ul class="nav nav-pills pull-left">
-	      <li class="active"><a href="">_("Desk assignments");</a></li>
-	      <li class=""><a href="">_("My assignments");</a></li>
+	      <li class="active"><a href="">_("Desk assignments")</a></li>
+	      <li class=""><a href="">_("My assignments")</a></li>
 	    </ul>
 
 	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
@@ -47,7 +43,7 @@
 	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view");</button>
+	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view")</button>
       </div>
 
    </div>
@@ -249,9 +245,9 @@
 		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="max-width:1440px;">
 			<div class="desk-content-container single-desk" ng-class="{'desk-list': list}" style="">
 				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
-                    <div class="desk-container {~lb}{~lb}board.id{~rb}{~rb}-container" ng-repeat="board in boards">
+                    <div class="desk-container {{board.id}}-container" ng-repeat="board in boards">
 	                    <div class="desk-header">
-		                    {~lb}{~lb}board.name{~rb}{~rb}
+		                    {{board.name}}
 	                    </div>
 	                    <div class="desk">
 		                    <div class="desk-content">
@@ -261,10 +257,10 @@
 	                                        <img src="" />
                                         </figure>
                                         <div class="assign-description">
-                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{~lb}{~lb}task.Title{~rb}{~rb}</a>
+                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{task.Title}}</a>
                                         </div>
                                         <ul class="assign-labels clearfix">
-	                                        <li><i class="icon-desk-time icon-white"></i>{~lb}{~lb}task.DueDate{~rb}{~rb}</li>
+	                                        <li><i class="icon-desk-time icon-white"></i> {{task.DueDate|date}}</li>
 	                                        <li><i class="icon-desk-task icon-white"></i> 3/3</li>
 	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
                                         </ul>
@@ -400,7 +396,7 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Status');</header>
     		<div class="module-sidepane-module-content">
-    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{~lb}{~lb}task.Status{~rb}{~rb}</div>
+    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{{task.Status}}</div>
     		</div>
     	</section>
     	<section class="modal-sidepane-module clearfix">

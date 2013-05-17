@@ -1,7 +1,7 @@
 requirejs.config({
     paths: {
-        'angular': 'https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular',
-        'angular-resource': 'http://code.angularjs.org/1.0.6/angular-resource'
+        'angular': 'http://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular',
+        'angular-resource': 'http://code.angularjs.org/1.1.4/angular-resource'
     },
     shim: {
         'angular': {exports: 'angular'},
@@ -45,14 +45,29 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
     });
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
-        $('#area-main').tmpl('superdesk-desk>desk/single').
-            attr('ng-controller', 'TasksController');
+        //$('#area-main').tmpl('superdesk-desk>desk/single').
+            //attr('ng-controller', 'TasksController');
 
         angular.module('desks', ['resources', 'directives']).
-            value('routeParams', {deskId: deskId}).
-            controller('TasksController', ['$scope', 'routeParams', 'Desk', 'TaskList', 'Task', TasksController]);
+            controller('TasksController', ['$scope', '$routeParams', 'desks', 'tasks', 'Task', TasksController]).
+            config(['$routeProvider', function($routeProvider) {
+                $routeProvider.
+                    when('/desks/:deskId', {
+                        controller: 'TasksController',
+                        templateUrl: '/content/lib/superdesk-desk/templates/desk/single.dust',
+                        resolve: {
+                            desks: function(DeskLoader) {
+                                return DeskLoader();
+                            },
+                            tasks: function(TaskLoader) {
+                                return TaskLoader();
+                            }
+                        }
+                    });
+            }]);
 
-        angular.bootstrap('#area-main', ['desks']);
+        $('#area-main').attr('ng-view', '');
+        angular.bootstrap('body', ['desks']);
     });
 
     router.route('desks', 'desks', function allDesks() {
