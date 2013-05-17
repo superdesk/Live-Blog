@@ -1,5 +1,5 @@
-define([ 'jquery','jquery/superdesk', 'gizmo/superdesk/action' ],
-function($, superdesk, Action)
+define([ 'jquery','jquery/superdesk', 'gizmo/superdesk/action', 'router' ],
+function($, superdesk, Action, router)
 {
     return { init: function() 
     {
