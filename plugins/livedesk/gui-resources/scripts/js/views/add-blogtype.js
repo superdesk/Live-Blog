@@ -12,7 +12,6 @@
         _bgimage: false,
         _post_settings: {},
         events: {
-            '#save-add-blogtype': { 'click': 'save' },
             'a[name="save-post"]': { 'click': 'savePost' },
             'a[name="save-post-close"]': { 'click': 'savePostClose' },
             'a[name="addnewpost"]': { 'click': 'addPost' },
@@ -29,7 +28,8 @@
             '#colorpicker2 ul li span': { 'click': 'selectColorPicker2'},
             'input[name="post-addbgimage"]': { 'click': 'showBgImages'},
             '.wizard-picture-selection ul li': { 'click': 'selectBgImage'},
-            '[name="wizard-start"]': { 'click': 'wizardStart' }
+            '[name="wizard-start"]': { 'click': 'wizardStart' },
+            '[name="add-blog-type"]': {'submit': 'save'}
         },
         restBlog: function() {
             this.el.find('[name="blogtypename"]').val('');
@@ -59,6 +59,7 @@
             //self.switchModal(evt, 0);
         },
         save: function(evt) {
+            evt.preventDefault();
             var self = this;
             var postspost = self.model.data['Post'];
             delete self.model.data['Post'];
@@ -67,9 +68,11 @@
                 .done(function(){
                     self.model.data['Post'] = postspost;
                     self.model.get('Post').savePending(self.model.href+'/Post');
+                    self.el.find('[name="blogtypename"]').removeClass('alert-error');
+                    self.el.find('.modal').modal('hide');
                 })
                 .fail(function(){
-                    evt.preventDefault();
+                    self.el.find('[name="blogtypename"]').addClass('alert-error');
                 });
             self.model.data['Post'] = postspost;
         },

@@ -141,7 +141,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         
         reply = chain.arg.reply
         assert isinstance(reply, Reply), 'Invalid reply %s' % reply
-        if Reply.gateways not in reply: return ()
+        if reply.gateways is None: return ()
         
         return sorted(reply.gateways, key=lambda gateway: (gateway.Pattern, gateway.Methods))
         

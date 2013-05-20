@@ -1,56 +1,70 @@
 define(['jquery', 'backbone', 'tmpl!livedesk>manage-feeds-edit'], function($, Backbone) {
-    /**
-     * Edit provider view
-     */
     return Backbone.View.extend({
         events: {
             'click #edit-provider-save': 'save',
             'click #edit-provider-cancel': 'close',
-            'click .close': 'close'
+            'click .close': 'close',
+            'submit form': 'save'
         },
 
         initialize: function() {
-            this.render(); // render on init
+            if (!this.model) {
+                this.model = new this.collection.model();
+            }
         },
 
         render: function() {
-            $(this.el).tmpl('livedesk>manage-feeds-edit');
-            this.title = $(this.el).find('#edit-provider-title');
-            this.url = $(this.el).find('#edit-provider-url');
+            $(this.el).tmpl('livedesk>manage-feeds-edit', this.model.render());
             this.modal = $(this.el).find('.modal');
-
-            if (this.model) {
-                this.title.val(this.model.get('Name'));
-                this.url.val(this.model.get('URI'));
-                $(this.el).find('h3').text(_('Edit Provider ' + this.model.get('Name')));
-            } else {
-                $(this.el).find('h3').text(_('Add Provider'));
-            }
-
-            this.options.target.append(this.el);
             this.modal.modal('show');
             return this;
         },
 
-        save: function() {
-            var data = {
-                Name: this.title.val(),
-                URI: this.url.val()
-            };
+        save: function(e) {
+            e.preventDefault();
 
-            if (!this.model) {
-                this.collection.create(data);
-            } else {
-                this.model.save(data);
+            var data = this.getData();
+
+            try {
+                if (this.model.isNew()) {
+                    this.collection.create(data, {headers: this.collection.xfilter, wait: true});
+                } else {
+                    this.model.save(data, {patch: true, wait: true});
+                }
+
+                return this.close(e);
+            } catch (errors) {
+                this.renderErrors(errors);
             }
-
-            return this.close();
         },
 
-        close: function() {
-            this.modal.modal('hide');
-            this.remove();
-            return false;
+        close: function(e) {
+            e.preventDefault();
+            var view = this;
+            this.modal.modal('hide', function() { view.remove(); });
+        },
+
+        getData: function() {
+            var data = {};
+
+            $(this.el).find('input[data-field]').each(function() {
+                data[$(this).attr('data-field')] = $(this).val();
+            });
+
+            return data;
+        },
+
+        renderErrors: function(errors) {
+            $(this.el).find('input[data-field]').each(function() {
+                var $input = $(this);
+                if (errors.indexOf($input.attr('data-field')) !== -1) {
+                    $input.closest('.control-group').addClass('error');
+                    $input.next('span').show();
+                } else {
+                    $input.closest('.control-group').removeClass('error');
+                    $input.next('span').hide();
+                }
+            });
         }
     });
 });

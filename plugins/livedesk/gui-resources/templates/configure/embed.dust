@@ -1,5 +1,5 @@
 <div id="livedesk-root"></div>
-<script>
+<script type="text/javascript">
 var livedesk = {
 	'server': function(){ return "{ApiUrl}"; },
 	{?Language}
@@ -9,4 +9,4 @@ var livedesk = {
 	'FrontendServer': '{FrontendServer}'
 };
 </script>
-<script data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>
+<script type="text/javascript" data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>

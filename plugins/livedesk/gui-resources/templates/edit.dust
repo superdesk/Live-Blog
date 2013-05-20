@@ -4,7 +4,7 @@
 <div {ui.content} class="live-blog-content">
 	<section class="title-page">
         <header>
-        	<a class="pull-right collapse-button" href="#">
+        	<a class="pull-right collapse-button" href="javascript:void(0)">
         		<i class="icon-chevron-down"></i> <span class="button-text collapse-title-page">_("Collapse");</span>
         	</a>
             <h2>{Title|s}</h2>
@@ -30,17 +30,14 @@
         </div>
         <div class="pull-right">
 
-			<span class="timeline-controls">
-        		<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you won't get disturbed by new incoming posts");'>_("Pin");</button>
-        	</span>
+            <div class="btn-group">
+                <span class="timeline-controls">
+            		<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you won't get disturbed by new incoming posts");'>_("Pin");</button>
+            	</span>
 
-			<button data-toggle="dropdown" class="btn dropdown-toggle">_("Action"); <span class="caret"></span></button>
-			<ul class="dropdown-menu filter-posts">
-    			<li><a href="javascript:void(0)" data-value="all">_("Show all");</a></li>
-				{#PostTypes}
-					<li><a href="javascript:void(0)" data-value="{Key}">_("Show %(Key)s posts").format({Key: '{Key}'});</option>
-				{/PostTypes}
-  			</ul>
+                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span></button>
+                <ul class="dropdown-menu filter-posts"><!-- List is populated from another template --></ul>
+            </div>
         	
 		</div>
         <ul class="nav nav-tabs">

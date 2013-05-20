@@ -103,7 +103,9 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         registerItem: function(evt, model)
         {
-            $(this).triggerHandler('register-item', [model.getMetaData()]);
+            var meta = model.getMetaData(),
+                self = this;
+            meta.sync().done(function(){ $(self).triggerHandler('register-item', [meta]); });
         }
     }),
     
@@ -174,9 +176,9 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         },
         cancelUpload: function()
         {
-            $('form', self.el).removeClass('hide');
-            $('[data-placeholder="preview-area"]', self.el).addClass('hide');
-            $('[data-placeholder="preview"]', self.el).html('');
+            $('form', this.el).removeClass('hide');
+            $('[data-placeholder="preview-area"]', this.el).addClass('hide');
+            $('[data-placeholder="preview"]', this.el).html('');
             delete this.returnImageList[this.lastUpload];
         },
         /*!
@@ -231,6 +233,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         activate: function()
         {
+            this.cancelUpload();
             this.returnImageList = {};
             this.listView.activate();
         },
