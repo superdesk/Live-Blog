@@ -19,7 +19,6 @@ from sched import scheduler
 from threading import Thread
 from urllib.request import urlopen, Request
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
-from http.client import HTTPResponse
 from datetime import datetime
 from livedesk.api.blog_sync import IBlogSyncService, QBlogSync, BlogSync
 from superdesk.source.api.source import ISourceService, Source, QSource
@@ -31,6 +30,7 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
+from urllib.error import HTTPError
 
 # --------------------------------------------------------------------
 
@@ -63,11 +63,13 @@ class BlogSyncProcess:
     The number of seconds to perform sync for blogs.''')
     date_time_format = '%Y-%m-%d %H:%M:%S'; wire.config('date_time_format', doc='''
     The date time format used in REST requests.''')
-    accept_header = 'Accept'; wire.config('accept_header', doc='''
-    The header used to specify accepted data format.''')
+    published_posts_path = 'Post/Published'; wire.config('published_posts_path', doc='''
+    The partial path used to construct the URL for published posts retrieval''')
 
-    nameAcceptCharset = 'Accept-Charset'
-    # The name for the accept character sets header
+    acceptType = 'text/json'
+    # mime type accepted for response from remote blog
+    encodingType = 'UTF-8'
+    # character encoding type accepted for response from remove blog
 
     @app.deploy
     def startSyncThread(self):
@@ -112,15 +114,18 @@ class BlogSyncProcess:
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
         if blogSync.SyncStart is not None:
             q.append(('updatedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
-        url = urlunparse((scheme, netloc, path + '/Post/Published', params, urlencode(q), fragment))
-        req = Request(url, headers={self.accept_header : 'JSON', self.nameAcceptCharset : 'UTF-8'})
+        url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
+        req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
         try: resp = urlopen(req)
+        except HTTPError as e:
+            log.error('Error connecting to %s: %s' % (source.URI, e))
+            return
         except socket.error as e:
             if e.errno == 111: log.error('Connection refused by %s' % source.URI)
             else: log.error('Error connecting to %s: %s' % (source.URI, e.strerror))
             return
 
-        msg = json.load(codecs.getreader('UTF-8')(resp))
+        msg = json.load(codecs.getreader(self.encodingType)(resp))
         try: blogSync.CId = msg['lastCId']
         except KeyError as e:
             log.error('Missing change identifier from source %s' % source.URI)
@@ -159,20 +164,19 @@ class BlogSyncProcess:
             The author data in JSON decoded format
         @param source: Source
             The source from which the blog synchronization is done
-        @return: int
+        @return: integer
             The collaborator identifier.
         '''
         assert isinstance(source, Source)
         try:
             uJSON = author['User']
             u = User()
-            u.Name = sha1((uJSON.get('Name', '') + source.URI).encode('utf-8')).hexdigest()
+            u.Name = sha1((uJSON.get('Name', '') + source.URI).encode(self.encodingType)).hexdigest()
             u.FirstName, u.LastName = uJSON.get('FirstName', ''), uJSON.get('LastName', '')
             u.EMail, u.Password = uJSON.get('EMail', ''), '*'
             try: userId = self.userService.insert(u)
             except InputError:
-                q = QUser()
-                q.name = u.Name
+                q = QUser(name=u.Name)
                 localUser = self.userService.getAll(q=q)
                 userId = localUser[0].Id
             c = Collaborator()
@@ -182,8 +186,7 @@ class BlogSyncProcess:
                 collabs = self.collaboratorService.getAll(userId, source.Id)
                 return collabs[0].Id
         except KeyError:
-            q = QSource()
-            q.name, q.isModifiable = author['Source']['Name'], False
+            q = QSource(name=author['Source']['Name'], isModifiable=False)
             sources = self.sourceService.getAll(q=q)
             if not sources: raise Exception('Invalid source %s' % q.name)
             collabs = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
