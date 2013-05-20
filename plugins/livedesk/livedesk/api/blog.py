@@ -43,16 +43,6 @@ class Blog(Entity):
     UpdatedOn = datetime
 
 # --------------------------------------------------------------------
-# TODO: Mugur: No need to map a relation between models with API, remove this.
-@modelLiveDesk
-class BlogSource(Entity):
-    '''
-    Provides the blog source model.
-    '''
-    Blog = Blog
-    Source = Source
-
-# --------------------------------------------------------------------
 
 @query(Blog)
 class QBlog(Entity):
@@ -101,8 +91,8 @@ class IBlogService(IEntityCRUDService):
 
 # --------------------------------------------------------------------
 
-@service((Entity, BlogSource))
-class IBlogSourceService():
+@service
+class IBlogSourceService:
     @call
     def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> Source:
         '''

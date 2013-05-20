@@ -9,7 +9,7 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog, BlogSource, IBlogSourceService
+from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService
 from ..meta.blog import BlogMapped
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
@@ -32,8 +32,6 @@ import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
 
-SOURCES_AUTO_DELETE = ('chained blog',)
-
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
@@ -46,7 +44,6 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
     '''
-
     def __init__(self):
         '''
         Construct the blog service.
@@ -122,10 +119,12 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
 
 @injected
 @setup(IBlogSourceService, name='blogSourceService')
-class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
+class BlogSourceServiceAlchemy(IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
+    sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
+    List of source types for sources that should be deleted under deleting all of their usage''')
 
     sourceService = ISourceService; wire.entity('sourceService')
     # The source service used to manage all operations on sources
@@ -143,7 +142,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         if not source:
             raise InputError(Ref(_('Unknown source'),))
         sql = self.session().query(BlogSourceMapped)
-        sql = sql.filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId)
+        sql = sql.filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId)
         return source
 
     def getSources(self, blogId):
@@ -151,7 +150,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.Source).filter(BlogMapped.Id == blogId).all()
+        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId).all()
 
     def addSource(self, blogId, source):
         '''
@@ -179,14 +178,13 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
         try:
-            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId).delete() > 0
+            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId).delete() > 0
             if res:
-                sourceType = self.session().query(SourceTypeMapped).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
-                if sourceType and (sourceType.Key in SOURCES_AUTO_DELETE):
-                    if self.session().query(CollaboratorMapped).filter(CollaboratorMapped.Source == sourceId).count() == 0:
-                        self.sourceService.delete(sourceId)
+                sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
+                if sourceTypeKey in self.sources_auto_delete:
+                    self.sourceService.delete(sourceId)
             return res
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
-            raise InputError(Ref(_('Cannot delete because is in use'), model=BlogSource))
+            raise InputError(Ref(_('Cannot delete because is in use'),))
 
