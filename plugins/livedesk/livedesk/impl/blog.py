@@ -119,7 +119,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
 
 @injected
 @setup(IBlogSourceService, name='blogSourceService')
-class BlogSourceServiceAlchemy(IBlogSourceService):
+class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
