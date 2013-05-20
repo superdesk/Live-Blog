@@ -18,6 +18,8 @@ from ally.api.extension import IterPart
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from superdesk.user.meta.user import UserMapped
 from sqlalchemy.sql.expression import not_
+from superdesk.desk.meta.task_type import TaskTypeMapped
+from superdesk.desk.meta.desk import DeskTaskTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -90,3 +92,59 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
 
         return (0 < count_del)
 
+    def getTaskTypes(self, deskId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IDeskService.getTaskTypes
+        '''
+
+        sql = self.session().query(TaskTypeMapped).join(DeskTaskTypeMapped)
+        sql = sql.filter(DeskTaskTypeMapped.desk == deskId)
+        if q:
+            sql = buildQuery(sql, q, TaskTypeMapped)
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+    
+    def getUnassignedTaskTypes(self, deskId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IDeskService.getUnassignedTaskTypes
+        '''
+        sql = self.session().query(TaskTypeMapped)
+        sql = sql.filter(not_(TaskTypeMapped.Id.in_(self.session().query(DeskTaskTypeMapped.taskType).filter(DeskTaskTypeMapped.desk == deskId).subquery())))
+        if q:
+            sql = buildQuery(sql, q, TaskTypeMapped)
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+    
+    def attachTaskType(self, deskId, taskTypeId):
+        '''
+        @see IDeskService.attachTaskType
+        '''
+        sql = self.session().query(DeskTaskTypeMapped)
+        sql = sql.filter(DeskTaskTypeMapped.desk == deskId)
+        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeId)
+        if sql.count() == 1: return
+
+        deskTaskType = DeskTaskTypeMapped()
+        deskTaskType.desk = deskId
+        deskTaskType.taskType = taskTypeId
+
+        self.session().add(deskTaskType)
+        self.session().flush((deskTaskType,))
+
+
+    def detachTaskType(self, deskId, taskTypeId):
+        '''
+        @see IDeskService.detachUser
+        '''
+        sql = self.session().query(DeskTaskTypeMapped)
+        sql = sql.filter(DeskTaskTypeMapped.desk == deskId)
+        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeId)
+        count_del = sql.delete()
+
+        return (0 < count_del)

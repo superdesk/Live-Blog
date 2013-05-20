@@ -70,7 +70,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         '''
         assert isinstance(task, Task), 'Invalid task %s' % task
         taskDb = TaskMapped()
-        taskDb.statusId = self._statusId(task.Status)
+        #taskDb.statusId = self._statusId(task.Status)
         copy(task, taskDb, exclude=('Status', 'Parent',))
 
         # putting into nested sets
@@ -114,7 +114,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         assert isinstance(task, Task), 'Invalid task %s' % task
         taskDb = self.session().query(TaskMapped).get(task.Id)
         if not taskDb: raise InputError(Ref(_('Unknown task'), ref=Task.Id))
-        if Task.Status in task: taskDb.statusId = self._statusId(task.Status)
+        #if Task.Status in task: taskDb.statusId = self._statusId(task.Status)
 
         if Task.Parent in task:
             if taskDb.Parent != task.Parent:
@@ -220,15 +220,15 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    def _statusId(self, key):
-        '''
-        Provides the task status id that has the provided key.
-        '''
-        try:
-            sql = self.session().query(TaskStatusMapped.id).filter(TaskStatusMapped.Key == key)
-            return sql.one()[0]
-        except NoResultFound:
-            raise InputError(Ref(_('Invalid task status %(status)s') % dict(status=key), ref=Task.Status))
+#     def _statusId(self, key):
+#         '''
+#         Provides the task status id that has the provided key.
+#         '''
+#         try:
+#             sql = self.session().query(TaskStatusMapped.id).filter(TaskStatusMapped.Key == key)
+#             return sql.one()[0]
+#         except NoResultFound:
+#             raise InputError(Ref(_('Invalid task status %(status)s') % dict(status=key), ref=Task.Status))
 
     def _attach(self, nestDb, nestDbSubtask):
         '''

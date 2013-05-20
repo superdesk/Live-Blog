@@ -65,21 +65,21 @@ class ITaskService(IEntityService):
     '''
 
     @call(method=GET)
-    def getAll(self, deskId:Desk.Id=None, userId:User.Id=None, statusKey:TaskStatus.Key=None, thumbSize:str=None,
+    def getAll(self, deskId:Desk.Id=None, userId:User.Id=None, statusKey:TaskStatus.Id=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides all the available tasks.
         '''
 
     @call(method=GET, webName='Task')
-    def getSubtasks(self, taskId:Task.Id, statusKey:TaskStatus.Key=None, thumbSize:str=None,
+    def getSubtasks(self, taskId:Task.Id, statusKey:TaskStatus.Id=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides the direct subtasks of a task.
         '''
 
     @call(method=GET, webName='Tree')
-    def getSubtree(self, taskId:Task.Id, statusKey:TaskStatus.Key=None, thumbSize:str=None,
+    def getSubtree(self, taskId:Task.Id, statusKey:TaskStatus.Id=None, thumbSize:str=None,
                offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QTask=None) -> Iter(Task):
         '''
         Provides the whole subtree available tasks.
