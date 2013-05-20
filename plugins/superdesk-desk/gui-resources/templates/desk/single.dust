@@ -252,7 +252,7 @@
 	                    <div class="desk">
 		                    <div class="desk-content">
 			                    <ul class="assignments">
-                                    <li ng-repeat="task in tasks | filter:taskFilter(board)">
+                                    <li ng-repeat="task in tasks | filter:isUserBoardTask(board)">
                                         <figure class="assign-avatar">
 	                                        <img src="" />
                                         </figure>
@@ -300,49 +300,39 @@
 		</div>
 
 <div class="modal fade split-popup" id="AddAssignment" style="display:none">
+  <form name="task">
   <div class="modal-header">
     <a href="#" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-    <input type="text" placeholder="_('Assignment title')" class="assignment-title" data-task-info="title" ng-model="task.Title" />
+    <input type="text" placeholder="_('Assignment title');" class="assignment-title" data-task-info="title" ng-model="task.Title" required />
   </div>
   <div class="modal-body">
     <div class="modal-left-pane">
         <div class="taskmodal-header">
-        	<div class="parent-task-info">
-        		_('Parent task:');
-       			<a href="javascript:void(0)" data-toggle="dropdown">
-       				<span data-task-info="parent">{?Parent}{Parent.Title}{:else}_('None');{/Parent}</span>
-       			</a>
-        		<ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="parent-task">
-        		
-        		</ul>
+        	<div class="parent-task-info" ng-show="parentTask.Title">
+        		_('Parent task:'); <a href=""><span data-task-info="parent">{{ parentTask.Title }}</span></a>
         	</div>
         	<ul class="assign-labels clearfix">
-				<li class="critical">
+				<li class="critical" ng-show="task.DueDate">
 					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{{ task.DueDate|date }}</span>
 				</li>
-				<li>
-					<i class="icon-desk-subtask icon-white"></i> <span data-task-info="subtask-count">{SubtaskCount}</span> _('Subtasks');
+				<li ng-show="task.Id">
+					<i class="icon-desk-subtask icon-white"></i> <span>{{ subtasks.length }}</span> <span ng-pluralize count="subtasks.length" when="{'one': '_("Subtask");', 'other': '_("Subtasks");'}"></span> 
 				</li>
 			</ul>
         </div>
         <div class="taskmodal-content">
-        	<textarea class="taskmodal-description" data-task-info="description" ng-model="task.Description"></textarea>
-        	<section class="modal-mainpane-module">
+        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" rows="5" cols="60"></textarea>
+        	<section class="modal-mainpane-module" ng-show="task.Id">
         		<header>_('Subtasks');</header>
-        		<ul class="subtask-list-view clearfix" data-list="subtasks">
-        			{#Subtasks}
-        			<li>
-        				<h6>{Title}</h6>
-        				<p>
-        					{Description}
-        				</p>
-        				<span class="assign-label critical"><i class="icon-desk-time icon-white"></i> {DueDate}</span>
-        				<a href="javascript:void(0)">_('Open details')</a>
+        		<ul class="subtask-list-view clearfix">
+        			<li ng-repeat="subtask in subtasks">
+        				<h6><a href="" ng-click="editTask(subtask, task)">{{ subtask.Title }}</a></h6>
+        				<p>{{ subtask.Description }}</p>
+        				<span class="assign-label critical" ng-show="subtask.DueDate"><i class="icon-desk-time icon-white"></i> {{ subtask.DueDate }}</span>
         			</li>
-        			{/Subtasks}
         		</ul>
         	</section>    
-        	<!-- section class="modal-mainpane-module">
+        	<section class="modal-mainpane-module" ng-show="task.Id">
         		<header>Comments</header>
         		<div class="add-comment-box">
         			<textarea placeholder="Write a comment"></textarea>
@@ -365,7 +355,7 @@
         			</li>
 					{/Comments}
         		</ul>
-        	</section -->    	
+        	</section>    	
         </div>
     </div>
     <div class="modal-right-pane">
@@ -382,7 +372,7 @@
 				    <span class="caret"></span>
 				  </a>
 				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
-					<li ng-repeat="user in users" ng-click="setUser(user)">{{ user.Name }}</li>
+					<li ng-repeat="user in users" ng-click="task.User=user">{{ user.Name }}</li>
 				  </ul>
 				</div>
     		</div>
@@ -398,7 +388,7 @@
     		<div class="module-sidepane-module-content">
     			<input type="text" ng-model="task.DueDate" sd-datepicker />
     			<a class="btn" href="" data-toggle="datepicker"><i class="icon-desk-time"></i> _('Due Date');</a>
-    			<a class="btn" href="" data-ctrl="add-subtask"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
+    			<a class="btn" href="" ng-click="addTask(task)" ng-show="task.Id"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
     			<a class="btn" href="" ng-click="task.Status='in progress'"><i class="icon-arrow-right"></i> _('Start Progress');</a>
     			<a class="btn" href="" ng-click="task.Status='done'"><i class="icon-ok"></i> _('Finish Task');</a>
     			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask()" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
@@ -410,4 +400,5 @@
     <button type="button" class="btn" data-dismiss="modal">_('Cancel');</button>
     <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()">_('Save Changes');</button>
   </div>
+  </form>
 </div>
