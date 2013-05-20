@@ -59,6 +59,9 @@ class BlogSyncProcess:
 
     userService = IUserService; wire.entity('userService')
 
+    syncThreads = {}
+    # dictionary of threads that perform synchronization
+
     sync_interval = 10; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for blogs.''')
     date_time_format = '%Y-%m-%d %H:%M:%S'; wire.config('date_time_format', doc='''
@@ -76,24 +79,30 @@ class BlogSyncProcess:
         '''
         Starts the sync thread.
         '''
-        log.info('Starting the blog automatic sync thread.')
         schedule = scheduler(time.time, time.sleep)
         def syncBlogs():
             self.syncBlogs()
             schedule.enter(self.sync_interval, 1, syncBlogs, ())
         schedule.enter(self.sync_interval, 1, syncBlogs, ())
-        scheduleRunner = Thread(name='blog sync', target=schedule.run)
+        scheduleRunner = Thread(name='blogs sync', target=schedule.run)
         scheduleRunner.daemon = True
         scheduleRunner.start()
+        log.info('Started the blogs automatic synchronization.')
 
     def syncBlogs(self):
         '''
+        Read all blog sync entries for which auto was set true and sync
+        the corresponding blogs.
         '''
-        q = QBlogSync()
-        q.auto = True
-        syncBlogs = self.blogSyncService.getAll(q=q)
-        for blog in syncBlogs:
-            self._syncBlog(blog)
+        for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
+            assert isinstance(blogSync, BlogSync)
+            syncThread = self.syncThreads.get(blogSync.Blog, None)
+            if syncThread is not None and syncThread.is_alive(): continue
+            self.syncThreads[blogSync.Blog] = Thread(name='blog %d sync' % blogSync.Blog,
+                                                     target=self._syncBlog, args=(blogSync,))
+            self.syncThreads[blogSync.Blog].daemon = True
+            self.syncThreads[blogSync.Blog].start()
+            log.info('Thread %s started for blog id %d', self.syncThreads[blogSync.Blog], blogSync.Blog)
 
     def _syncBlog(self, blogSync):
         '''
@@ -109,48 +118,47 @@ class BlogSyncProcess:
         (scheme, netloc, path, params, query, fragment) = urlparse(source.URI)
 
         q = parse_qsl(query, keep_blank_values=True)
-        q.append(('X-Filter', '*,Author.Source.*,Author.User.*'))
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
         if blogSync.SyncStart is not None:
             q.append(('updatedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
-        req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+        req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
+                                    'X-Filter' : '*,Author.Source.*,Author.User.*'})
         try: resp = urlopen(req)
-        except HTTPError as e:
-            log.error('Error connecting to %s: %s' % (source.URI, e))
-            return
-        except socket.error as e:
-            if e.errno == 111: log.error('Connection refused by %s' % source.URI)
-            else: log.error('Error connecting to %s: %s' % (source.URI, e.strerror))
+        except (HTTPError, socket.error) as e:
+            log.error('Read error on %s: %s' % (source.URI, e))
             return
 
-        msg = json.load(codecs.getreader(self.encodingType)(resp))
-        try: blogSync.CId = msg['lastCId']
-        except KeyError as e:
-            log.error('Missing change identifier from source %s' % source.URI)
+        try: msg = json.load(codecs.getreader(self.encodingType)(resp))
+        except ValueError as e:
+            log.error('Invalid JSON data %s: %s' % (e, msg))
             return
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True': continue
-                publishedOn = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
-                if blogSync.SyncStart is None or blogSync.SyncStart < publishedOn:
-                    blogSync.SyncStart = publishedOn
-                dbPost = BlogPost()
-                dbPost.Type = post['Type']['Key']
-                dbPost.Creator = blogSync.Creator
-                dbPost.Author = self._getCollaboratorForAuthor(post['Author'], source)
-                dbPost.Meta = post['Meta'] if 'Meta' in post else None
-                dbPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
-                dbPost.Content = post['Content'] if 'Content' in post else None
-                dbPost.CreatedOn = dbPost.PublishedOn = current_timestamp()
-                self.blogPostService.insert(blogSync.Blog, dbPost)
+
+                lPost = BlogPost()
+                lPost.Type = post['Type']['Key']
+                lPost.Creator = blogSync.Creator
+                lPost.Author = self._getCollaboratorForAuthor(post['Author'], source)
+                lPost.Meta = post['Meta'] if 'Meta' in post else None
+                lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
+                lPost.Content = post['Content'] if 'Content' in post else None
+                lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
+
+                # prepare the blog sync model to update the change identifier
+                blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
+                blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
+
+                # insert post from remote source
+                self.blogPostService.insert(blogSync.Blog, lPost)
+                # update blog sync entry
+                self.blogSyncService.update(blogSync)
             except KeyError as e:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
-
-        self.blogSyncService.update(blogSync)
 
     def _getCollaboratorForAuthor(self, author, source):
         '''
@@ -176,8 +184,7 @@ class BlogSyncProcess:
             u.EMail, u.Password = uJSON.get('EMail', ''), '*'
             try: userId = self.userService.insert(u)
             except InputError:
-                q = QUser(name=u.Name)
-                localUser = self.userService.getAll(q=q)
+                localUser = self.userService.getAll(q=QUser(name=u.Name))
                 userId = localUser[0].Id
             c = Collaborator()
             c.User, c.Source = userId, source.Id
