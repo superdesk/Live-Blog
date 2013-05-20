@@ -64,3 +64,8 @@ class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, Blo
     '''
     __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_collaborator_id', name='uix_1'),
                       dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True))
+    
+    Type = association_proxy('type', 'Name')
+    
+    # Non REST model attribute --------------------------------------
+    type = relationship(BlogCollaboratorTypeMapped, uselist=False, lazy='joined')

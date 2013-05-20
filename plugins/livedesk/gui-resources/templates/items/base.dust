@@ -36,11 +36,11 @@
 	<div class="result-content-full">
 		{+TopAnnotation}
 		<div class="top editable annotation" contenteditable="true">
-			{@if cond="'{Meta.annotation.before}' != ''"}
+			{?Meta.annotation.before}
 				{Meta.annotation.before|s}
 			{:else}
 				<br/>
-			{/if}
+			{/Meta.annotation.before}
 		</div>
 		{/TopAnnotation}
 		<div class="result-content">
@@ -136,11 +136,9 @@
 		{+BottomAnnotation}
 		<!-- BOTTOM ANNOTATION - Displays for twitter provider posts, and NEVER for internal posts -->
 		<div class="bottom editable annotation" contenteditable="true">
-			{@if cond="'{Meta.annotation.after}' != ''"}
+			{?Meta.annotation.after}
 				{Meta.annotation.after|s}
-			{:else}
-				<br/>
-			{/if}
+			{/Meta.annotation.after}
 		</div>
 		{/BottomAnnotation}
 	</div>
@@ -169,8 +167,8 @@
 			</div>
 		{/ImportantActionsPrepublish}
 	{/ImportantActions}
-		<div class="saveonly">
+		<!--  div class="saveonly">
 			<button class="btn btn-small btn-primary" type="submit">Save</button>
-		</div>
+		</div -->
 </li>
 {/Post}
