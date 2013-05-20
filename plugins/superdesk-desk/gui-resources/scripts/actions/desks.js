@@ -49,18 +49,21 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
             //attr('ng-controller', 'TasksController');
 
         angular.module('desks', ['resources', 'directives']).
-            controller('TasksController', ['$scope', '$routeParams', 'desks', 'tasks', 'Task', TasksController]).
+            controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', TasksController]).
             config(['$routeProvider', function($routeProvider) {
                 $routeProvider.
                     when('/desks/:deskId', {
                         controller: 'TasksController',
                         templateUrl: '/content/lib/superdesk-desk/templates/desk/single.dust',
                         resolve: {
-                            desks: function(DeskLoader) {
+                            desk: function(DeskLoader) {
                                 return DeskLoader();
                             },
-                            tasks: function(TaskLoader) {
-                                return TaskLoader();
+                            desks: function(DeskListLoader) {
+                                return DeskListLoader();
+                            },
+                            tasks: function(TaskListLoader) {
+                                return TaskListLoader();
                             }
                         }
                     });
