@@ -155,7 +155,7 @@ function($, giz, gizList, Action, Article, User)
     // navigate to edit article
     router.route('article/:id', function(id){ console.log(listView); listView.editArticle(id); });
     
-    //Action.initApp('modules.article.edit', 'http://localhost:8080/resources/Content/Article/1'); 
+    Action.initApp('modules.article.edit', 'http://localhost:8080/resources/Content/Article/1'); 
     
     return function()
     { 

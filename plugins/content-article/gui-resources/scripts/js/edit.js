@@ -9,7 +9,8 @@ define
     'gizmo/superdesk/action',
     'loadaloha',
     'jqueryui/texteditor',
-    'tmpl!superdesk/article>edit'
+    'tmpl!superdesk/article>edit',
+    'tmpl!superdesk/article>editor-toolbar'
 ], 
 function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
 {
@@ -71,14 +72,19 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
          */
         renderCallback: function()
         {
+            var self = this,
+                selfEl = this.el;
+            $('.editor-toolbar-placeholder', selfEl).tmpl('superdesk/article>editor-toolbar');
+            
             loadAloha
             ({
                 plugins: 
                 {
-                    load: "oer/toolbar, common/ui, common/format, common/paste, common/block, common/list, common/table",
+                    load: "superdesk/fix, common/ui, common/format, superdesk/image, superdesk/link, impl/image, common/list", // common/link, common/paste, common/block, common/list, common/table",
                     format: 
                     { 
-                        config: [  'b', 'i', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
+                        config: [  'b', 'i', 'u', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
+                        //editables: { '#title': [], '#teaser': [ 'b', 'i' ] }
                     },
                     block:
                     {
@@ -87,15 +93,16 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                         {
                             '[data-element]': { 'aloha-block-type': 'DefaultBlock' }
                         }
+                    },
+                    toolbar: 
+                    {
+                        element: $('.editor-toolbar-placeholder', selfEl)
                     }
                 } 
             })
             .done(function()
             {
-                Aloha.jQuery('.aloha-editable').aloha();
-                // h4xx
-                Aloha.jQuery('.editor-toolbar-placeholder').load(config.content_url+'/lib/superdesk/article/cnx-toolbar.html').children().unwrap();
-                $('.dropdown-toggle').dropdown();
+                self._editableElements.attr('contenteditable', true).aloha();
             });
         },
         
@@ -143,6 +150,9 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             // render
             $(this.el).tmpl('superdesk/article>edit', {Article: feed}, function()
             {
+                self._editableElements = $('[data-element][contenteditable]', self.el);
+                $('[data-element][contenteditable]', self.el).removeAttr('contenteditable');
+                
                 // place tabs
                 for(var i=0; i<self._tabs.length; i++)
                 {
@@ -174,7 +184,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                         }
                     }
                 });*/
-                $('.editor-toolbar-stuff', self.el).remove();
+                //$('.editor-toolbar-stuff', self.el).remove();
             });
         },
         
