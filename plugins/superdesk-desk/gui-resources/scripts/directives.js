@@ -3,19 +3,27 @@ define([
     'jquery',
     'jqueryui/datepicker'
 ],
-function(angular, $) {
+function(angular) {
+    'use strict';
+
     angular.module('directives', []).
         directive('sdDatepicker', function() {
             return {
                 restrict: 'A',
-                link: function($scope, $element, $attrs) {
-                    $element.addClass('hide');
-                    $element.datepicker({
+                requires: '?ngModel',
+                link: function(scope, element, attrs, ngModel) {
+                    if (!ngModel) return;
+                    element.datepicker({
                         dateFormat: 'yy-mm-dd 12:00:00',
-                        onClose: function(dateText) { $scope.$apply($attrs['ngModel'] + '="' + dateText + '"'); }
+                        onClose: function(dateText) {
+                            scope.$apply(function() {
+                                ngModel.$setViewValue(dateText);
+                            });
+                        }
                     });
-                    $element.siblings('[data-toggle="datepicker"]').click(function() {
-                        $element.datepicker('show');
+                    element.addClass('hide');
+                    element.siblings('[data-toggle="datepicker"]').click(function() {
+                        element.datepicker('show');
                     });
                 }
             };
