@@ -18,7 +18,7 @@ define([
     'angular',
     'desk/controllers/desks',
     'desk/resources',
-    'desk/directives'
+    'desk/directives',
 ],
 function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController) {
     var DeskMenuView = Backbone.View.extend({
@@ -45,8 +45,10 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
     });
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
-        //$('#area-main').tmpl('superdesk-desk>desk/single').
-            //attr('ng-controller', 'TasksController');
+        var template;
+        $.tmpl('superdesk-desk>desk/single', {}, function(e, o) {
+            template = o;
+        });
 
         angular.module('desks', ['resources', 'directives']).
             controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', TasksController]).
@@ -54,7 +56,7 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
                 $routeProvider.
                     when('/desks/:deskId', {
                         controller: 'TasksController',
-                        templateUrl: '/content/lib/superdesk-desk/templates/desk/single.dust',
+                        template: template,
                         resolve: {
                             desk: function(DeskLoader) {
                                 return DeskLoader();
@@ -67,6 +69,10 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
                             }
                         }
                     });
+            }]).
+            config(['$interpolateProvider', function($interpolateProvider) {
+                $interpolateProvider.startSymbol('{{ ');
+                $interpolateProvider.endSymbol(' }}');
             }]);
 
         $('#area-main').attr('ng-view', '');

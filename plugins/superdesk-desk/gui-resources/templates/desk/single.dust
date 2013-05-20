@@ -1,8 +1,8 @@
 <div class="subnav subnav-fixed">
 		<div class="btn-group pull-left" id="desk-select">
-            <a href="" data-toggle="dropdown" class="btn dropdown-toggle" ng-repeat="desk in desks | filter:{Id: deskId}">{{desk.Name}}</a>
+            <a href="" data-toggle="dropdown" class="btn dropdown-toggle" ng-repeat="desk in desks | filter:{Id: desk.Id}">{{ desk.Name }}</a>
             <ul class="dropdown-menu sf-dropdown">
-                <li ng-repeat="desk in desks"><a ng-href="#desks/{{desk.Id}}">{{desk.Name}}</a></li>
+                <li ng-repeat="desk in desks"><a ng-href="#desks/{{ desk.Id }}">{{ desk.Name }}</a></li>
             </ul>
 	    </div>
 		
@@ -34,8 +34,8 @@
 
 
         <ul class="nav nav-pills pull-left">
-	      <li class="active"><a href="">_("Desk assignments")</a></li>
-	      <li class=""><a href="">_("My assignments")</a></li>
+	      <li ng-class="{active: !my}"><a href="" ng-click="my=false">_("Desk assignments");</a></li>
+	      <li ng-class="{active: my}"><a href="" ng-click="my=true">_("My assignments");</a></li>
 	    </ul>
 
 	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
@@ -43,7 +43,7 @@
 	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view")</button>
+	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view");</button>
       </div>
 
    </div>
@@ -245,26 +245,27 @@
 		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="max-width:1440px;">
 			<div class="desk-content-container single-desk" ng-class="{'desk-list': list}" style="">
 				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
-                    <div class="desk-container {{board.id}}-container" ng-repeat="board in boards">
+                    <div class="desk-container {{ board.id }}-container" ng-repeat="board in boards">
 	                    <div class="desk-header">
-		                    {{board.name}}
+		                    {{ board.name }}
 	                    </div>
 	                    <div class="desk">
 		                    <div class="desk-content">
 			                    <ul class="assignments">
-                                    <li ng-repeat="task in tasks | filter:{'Status.Key': board.key}">
+                                    <li ng-repeat="task in tasks | filter:taskFilter(board)">
                                         <figure class="assign-avatar">
 	                                        <img src="" />
                                         </figure>
                                         <div class="assign-description">
-                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{task.Title}}</a>
+                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{ task.Title }}</a>
                                         </div>
                                         <ul class="assign-labels clearfix">
-	                                        <li><i class="icon-desk-time icon-white"></i> {{task.DueDate|date}}</li>
+	                                        <li><i class="icon-desk-time icon-white"></i> {{ task.DueDate|date }}</li>
 	                                        <li><i class="icon-desk-task icon-white"></i> 3/3</li>
 	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
                                         </ul>
                                     </li>
+                                    <li ng-hide="hasTasks(board)">There are no tasks on this board</li>
                                 </ul>
 		                    </div>
 	                    </div>
@@ -301,7 +302,7 @@
 <div class="modal fade split-popup" id="AddAssignment" style="display:none">
   <div class="modal-header">
     <a href="#" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-    <input type="text" placeholder="_('Assignment title');" class="assignment-title" data-task-info="title" value="{Title}" ng-model="task.Title" />
+    <input type="text" placeholder="_('Assignment title')" class="assignment-title" data-task-info="title" ng-model="task.Title" />
   </div>
   <div class="modal-body">
     <div class="modal-left-pane">
@@ -317,7 +318,7 @@
         	</div>
         	<ul class="assign-labels clearfix">
 				<li class="critical">
-					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{DueDate}</span>
+					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date">{{ task.DueDate|date }}</span>
 				</li>
 				<li>
 					<i class="icon-desk-subtask icon-white"></i> <span data-task-info="subtask-count">{SubtaskCount}</span> _('Subtasks');
@@ -325,9 +326,7 @@
 			</ul>
         </div>
         <div class="taskmodal-content">
-        	<div class="taskmodal-description" data-task-info="description" contenteditable="true">
-        		{Description}
-        	</div>    
+        	<textarea class="taskmodal-description" data-task-info="description" ng-model="task.Description"></textarea>
         	<section class="modal-mainpane-module">
         		<header>_('Subtasks');</header>
         		<ul class="subtask-list-view clearfix" data-list="subtasks">
@@ -373,12 +372,9 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Assignee');</header>
     		<div class="module-sidepane-module-content">
-    			<div class="assignee-info {^Assignee}hide{/Assignee}" data-task-info="assignee">
-   					<figure data-task-info="assignee-image">
-    					
-   					</figure>
-   					<b data-task-info="assignee-name">{Name}</b>
-   					<time>{Date}</time>
+    			<div class="assignee-info" ng-show="task.User" data-task-info="assignee">
+   					<figure data-task-info="assignee-image" ng-show="task.User.Image"></figure>
+   					<b data-task-info="assignee-name">{{ task.User.Name }}</b>
     			</div>
     			<div class="btn-group">
 				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
@@ -386,9 +382,7 @@
 				    <span class="caret"></span>
 				  </a>
 				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
-				  	{#Users}
-						<li value="{Id}">{Name}</li>
-					{/Users}
+					<li ng-repeat="user in users" ng-click="setUser(user)">{{ user.Name }}</li>
 				  </ul>
 				</div>
     		</div>
@@ -396,7 +390,7 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Status');</header>
     		<div class="module-sidepane-module-content">
-    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{{task.Status}}</div>
+    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{{ task.Status }}</div>
     		</div>
     	</section>
     	<section class="modal-sidepane-module clearfix">

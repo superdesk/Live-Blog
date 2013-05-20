@@ -10,14 +10,13 @@ function(angular) {
         directive('sdDatepicker', function() {
             return {
                 restrict: 'A',
-                requires: '?ngModel',
-                link: function(scope, element, attrs, ngModel) {
-                    if (!ngModel) return;
+                requires: 'ngModel',
+                link: function(scope, element, attrs) {
                     element.datepicker({
                         dateFormat: 'yy-mm-dd 12:00:00',
                         onClose: function(dateText) {
                             scope.$apply(function() {
-                                ngModel.$setViewValue(dateText);
+                                element.controller('ngModel').$setViewValue(dateText);
                             });
                         }
                     });
