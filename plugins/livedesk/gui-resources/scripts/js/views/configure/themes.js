@@ -23,7 +23,9 @@
         change: function(evt) {
         	var self = this,
         		el = self.el.find('[name="Theme"]'),
-        		theme, data,
+        		theme, 
+                data,
+                blogUrl,
                 idLanguage = $('[name="Language"]').val(),
                 optionLanguage = $('[name="Language"] [value="'+idLanguage+'"]');
         	if(el.val() == '') {
