@@ -1,7 +1,7 @@
 <div class="subnav subnav-fixed">
 
   <input type="text" name="search" class="searchbar-container" style="width:500px;" value="{src}"><button data-action="search" style="display:none"></button>
-  <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add"><span class="medium-icon-add"></span> w'Add New Article');</a>
+  <a class="btn btn-medium btn-info pull-right" href="javascript:void(0)" data-action="add"><span class="medium-icon-add"></span> _('Add New Article');</a>
 	
 </div>
 <div class="subnav subnav-level2 subnav-fixed">
