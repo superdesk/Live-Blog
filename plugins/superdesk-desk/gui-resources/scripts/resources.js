@@ -10,14 +10,17 @@ define([
     var resources = angular.module('resources', ['ngResource']);
 
     resources.config(['$httpProvider', function($httpProvider) {
-        // transforms related objects to id
+        // transforms related resources into ids
         $httpProvider.defaults.transformRequest = function(data) {
-            for (var key in data) {
-                if (typeof data[key] === 'object' && 'Id' in data[key]) {
-                    data[key] = data[key].Id;
+            var update = {};
+            angular.forEach(data, function(value, key) {
+                if (value && typeof value === 'object') {
+                    this[key] = 'Key' in value ? value.Key : value.Id;
+                } else {
+                    this[key] = value;
                 }
-            }
-            return angular.toJson(data);
+            }, update);
+            return angular.toJson(update);
         };
     }]);
 
@@ -44,11 +47,11 @@ define([
         return $resource('/resources/Desk/Desk/:deskId/Task/?X-Filter=*,User.*');
     });
 
-    resources.factory('Task', function($resource) {
+    resources.factory('Task', ['$resource', function($resource, $q) {
         return $resource('/resources/Desk/Task/:Id', {Id: '@Id'},
             {update: {method: 'PUT'}, save: {method: 'POST', params: {'X-Filter': 'Id'}}}
         );
-    });
+    }]);
 
     resources.factory('DeskLoader', ['Desk', '$route', '$q', function(Desk, $route, $q) {
         return function() {
@@ -83,6 +86,17 @@ define([
     resources.factory('DeskUserLoader', ['$resource', '$q',  function($resource, $q) {
         return function(desk) {
             console.log(desk.User);
+        };
+    }]);
+
+    resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
+        this.loadSubtasks = function(task) {
+            var tasks = $resource('/resources/Desk/Task/:taskId/Task', {taskId: task.Id}, {query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}});
+            var delay = $q.defer();
+            tasks.query(function(response) {
+                delay.resolve(response.TaskList);
+            });
+            return delay.promise;
         };
     }]);
 });

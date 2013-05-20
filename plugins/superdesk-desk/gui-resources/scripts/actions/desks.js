@@ -16,11 +16,12 @@ define([
     'desk/models/desk-collection',
     'desk/views/single-desk',
     'angular',
-    'desk/controllers/desks',
+    'desk/controllers/tasks',
+    'desk/controllers/edit-task',
     'desk/resources',
     'desk/directives',
 ],
-function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController) {
+function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController, EditTaskController) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -51,7 +52,8 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
         });
 
         angular.module('desks', ['resources', 'directives']).
-            controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', TasksController]).
+            controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', 'TaskService', TasksController]).
+            controller('EditTaskController', ['$scope', 'Task', EditTaskController]).
             config(['$routeProvider', function($routeProvider) {
                 $routeProvider.
                     when('/desks/:deskId', {
