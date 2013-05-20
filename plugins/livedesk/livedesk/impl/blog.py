@@ -163,8 +163,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         
         sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
-        ent.Blog = blogId
-        ent.Source = sourceId
+        ent.blog = blogId
+        ent.source = sourceId
         try:
             self.session().add(ent)
             self.session().flush((ent,))
