@@ -12,7 +12,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		 */
 		keep: false,
 		resetStats: function() {
-			this._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 }
+			this._stats = { limit: 15, offset: 0, lastCId: 0, firstOrder: Infinity, total: 0 }
 		},
 		init: function(){ 
 			var self = this;
@@ -80,7 +80,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				requestOptions = $.extend(true, {
 					data: {
 						'cId.since': this._stats.lastCId, 
-						'order.start': this._stats.fistOrder
+						'order.start': this._stats.firstOrder
 					}, 
 					headers:  {
 						'X-Filter': self._xfilter,
@@ -91,7 +91,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				delete requestOptions.data['cId.since'];
 				delete requestOptions.data['order.start'];
 			}
-			if(this._stats.fistOrder === Infinity) {
+			if(this._stats.firstOrder === Infinity) {
 				delete requestOptions.data['order.start'];	
 			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
@@ -114,8 +114,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		{
 			for(var i=0, Order, count=data.length; i<count; i++) {
 				Order = parseFloat(data[i].get('Order'))
-				if( !isNaN(Order) && (this._stats.fistOrder > Order) )
-					this._stats.fistOrder = Order;
+				if( !isNaN(Order) && (this._stats.firstOrder > Order) )
+					this._stats.firstOrder = Order;
 			}
 		},
 		/*!
