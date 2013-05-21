@@ -39,7 +39,7 @@ class QDesk(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Desk))
+@service((Entity, Desk), (QEntity, QDesk))
 class IDeskService(IEntityService):
     '''
     Provides the service methods for the desk.

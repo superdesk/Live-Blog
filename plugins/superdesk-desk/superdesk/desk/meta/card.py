@@ -35,6 +35,7 @@ class CardMapped(Base, Card):
     Name = Column('name', String(255), unique=True, nullable=False)
     Description = Column('description', Text, nullable=True)
     Limit = Column('limit', INTEGER(unsigned=True), nullable=True)
+    Color = Column('color', String(255), unique=True, nullable=False)
 
 # --------------------------------------------------------------------
 

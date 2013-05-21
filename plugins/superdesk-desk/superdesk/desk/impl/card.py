@@ -36,34 +36,41 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         Construct the  service.
         '''
         EntityServiceAlchemy.__init__(self, CardMapped)
-        
+     
+    def getAll(self, deskId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: ICardService.getAll
+        '''   
+        sql = self.session().query(CardMapped)
+        sql = sql.filter(CardMapped.Desk == deskId)
+        if q:     
+            sql = buildQuery(sql, q, CardMapped)
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
 
-    def getStatuses(self, cardId, offset=None, limit=None, detailed=False, q=None):
+        return entities    
+
+    def getStatuses(self, cardId, offset=None, limit=None, detailed=False):
         '''
         @see: ICardService.getStatuses
         '''
         sql = self.session().query(TaskStatusMapped).join(CardTaskStatusMapped)
         sql = sql.filter(CardTaskStatusMapped.card == cardId)
-        if q:
-            sql = buildQuery(sql, q, TaskStatusMapped)
-
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
 
         return entities
 
-    def getUnassignedStatuses(self, cardId, offset=None, limit=None, detailed=False, q=None):
+    def getUnassignedStatuses(self, cardId, offset=None, limit=None, detailed=False):
         '''
         @see: ICardService.getUnassignedStatuses
         '''
         
-        deskId = self.session().query(CardMapped).filter(CardMapped.Id == cardId).one().deskId
+        deskId = self.session().query(CardMapped).filter(CardMapped.Id == cardId).one().Desk
         
         sql = self.session().query(TaskStatusMapped)
         sql = sql.filter(TaskStatusMapped.Id.in_(self.session().query(TaskTypeTaskStatusMapped.taskStatus).join(DeskTaskTypeMapped, TaskTypeTaskStatusMapped.taskType == DeskTaskTypeMapped.taskType).filter(DeskTaskTypeMapped.desk == deskId).subquery()))
         sql = sql.filter(not_(TaskStatusMapped.Id.in_(self.session().query(CardTaskStatusMapped.taskStatus).filter(CardTaskStatusMapped.card == cardId).subquery())))
-        if q:
-            sql = buildQuery(sql, q, TaskStatusMapped)
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
