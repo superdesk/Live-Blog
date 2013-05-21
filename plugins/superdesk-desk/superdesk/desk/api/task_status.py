@@ -10,7 +10,7 @@ API specifications for task statuses.
 '''
 
 from ally.api.config import service
-from ally.support.api.entity  import Entity, IEntityGetService, IEntityFindService
+from ally.support.api.entity  import Entity, IEntityService
 from superdesk.api.domain_superdesk import modelDesk
 
 # --------------------------------------------------------------------
@@ -28,7 +28,7 @@ class TaskStatus(Entity):
 # --------------------------------------------------------------------
 
 @service((Entity, TaskStatus))
-class ITaskStatusService(IEntityGetService, IEntityFindService):
+class ITaskStatusService(IEntityService):
     '''
     Provides the service methods for the task statuses.
     '''
