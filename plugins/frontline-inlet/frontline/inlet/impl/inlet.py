@@ -6,10 +6,10 @@ Created on April 24, 2013
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Martin Saturka
 
-Contains the SQL alchemy implementation for frontline inlet sms API.
+Contains the SQL alchemy implementation for frontline inlet API.
 '''
 
-from ..api.sms import ISMSService
+from ..api.inlet import IInletService
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
@@ -29,17 +29,18 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
 
-SMS_SOURCE_TYPE_KEY = 'FrontlineSMS'
-SMS_POST_TYPE_KEY = 'normal'
-
 # --------------------------------------------------------------------
 
 @injected
-@setup(ISMSService, name='smsService')
-class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
+@setup(IInletService, name='inletService')
+class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     '''
-    Implementation for @see: ISMSService
+    Implementation for @see: IInletService
     '''
+    sms_source_type_key = 'FrontlineSMS'; wire.config('sms_source_type_key', doc='''
+    Type of the sources for the SMS inlet feeds''')
+    sms_post_type_key = 'normal'; wire.config('sms_post_type_key', doc='''
+    Type of the posts created on the SMS that come via inlet feeds''')
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')
@@ -48,7 +49,7 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
 
     def __init__(self):
         '''
-        Construct the frontline sms service.
+        Construct the frontline inlet service.
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
         assert isinstance(self.sourceService, ISourceService), 'Invalid source service %s' % self.sourceService
@@ -57,7 +58,7 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
 
     def pushMessage(self, typeKey, phoneNumber=None, messageText=None, timeStamp=None):
         '''
-        @see: ISMSService.pushMessage
+        @see: IInletService.pushMessage
         '''
         # checking the necessary info: phone number and message text
         if (phoneNumber is None) or (phoneNumber == ''):
@@ -67,8 +68,7 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
 
         # take (or make) the user (for phone number) part of creator and collaborator
         try:
-            personDb = self.session().query(PersonMapped).filter(PersonMapped.PhoneNumber == phoneNumber).one()
-            userId = personDb.Id
+            userId, = self.session().query(PersonMapped.Id).filter(PersonMapped.PhoneNumber == phoneNumber).one()
         except:
             user = User()
             user.PhoneNumber = phoneNumber
@@ -78,25 +78,23 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
 
         # make the source (for inlet type) part of collaborator
         try:
-            sql = self.session().query(SourceMapped).join(SourceTypeMapped)
-            sql = sql.filter(SourceTypeMapped.Key == SMS_SOURCE_TYPE_KEY).filter(SourceMapped.Name == typeKey)
-            sourceDb = sql.one()
-            sourceId = sourceDb.Id
+            sql = self.session().query(SourceMapped.Id).join(SourceTypeMapped)
+            sql = sql.filter(SourceTypeMapped.Key == self.sms_source_type_key).filter(SourceMapped.Name == typeKey)
+            sourceId, = sql.one()
         except NoResultFound:
             source = Source()
-            source.Type = SMS_SOURCE_TYPE_KEY
+            source.Type = self.sms_source_type_key
             source.Name = typeKey
             source.URI = ''
             source.IsModifiable = True
             sourceId = self.sourceService.insert(source)
 
         # make the collaborator
-        sql = self.session().query(CollaboratorMapped)
+        sql = self.session().query(CollaboratorMapped.Id)
         sql = sql.filter(CollaboratorMapped.Source == sourceId)
         sql = sql.filter(CollaboratorMapped.User == userId)
         try:
-            collabDb = sql.one()
-            collabId = collabDb.Id
+            collabId, = sql.one()
         except NoResultFound:
             collab = Collaborator()
             collab.Source = sourceId
@@ -115,7 +113,7 @@ class SMSServiceAlchemy(EntityServiceAlchemy, ISMSService):
 
         # create post request
         post = Post()
-        post.Type = SMS_POST_TYPE_KEY
+        post.Type = self.sms_post_type_key
         post.Creator = userId
         post.Author = collabId
         post.Content = messageText

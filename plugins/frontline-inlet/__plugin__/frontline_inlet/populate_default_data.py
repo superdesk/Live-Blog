@@ -9,25 +9,32 @@ Created on May 1, 2013
 Populates default data for the services.
 '''
 
-from ally.container import app
+from ally.container import app, ioc
 from ..superdesk.db_superdesk import alchemySessionCreator
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
 
-SOURCE_TYPES = ('FrontlineSMS',)
-POST_TYPES = ('normal',)
+@ioc.config
+def sms_source_types():
+    ''' The source types used during SMS processing '''
+    return ['FrontlineSMS']
+
+@ioc.config
+def sms_post_types():
+    ''' The post types used during SMS processing '''
+    return ['normal']
 
 def createSourceType(key):
     creator = alchemySessionCreator()
     session = creator()
     assert isinstance(session, Session)
 
-    try: session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == key).one()[0]
-    except NoResultFound:
+    if not session.query(exists().where(SourceTypeMapped.Key == key)).scalar():
         sourceTypeDb = SourceTypeMapped()
         sourceTypeDb.Key = key
         session.add(sourceTypeDb)
@@ -40,8 +47,7 @@ def createPostType(key):
     session = creator()
     assert isinstance(session, Session)
 
-    try: session.query(PostTypeMapped.id).filter(PostTypeMapped.Key == key).one()[0]
-    except NoResultFound:
+    if not session.query(exists().where(PostTypeMapped.Key == key)).scalar():
         postTypeDb = PostTypeMapped()
         postTypeDb.Key = key
         session.add(postTypeDb)
@@ -51,9 +57,9 @@ def createPostType(key):
 
 @app.populate
 def populateTypes():
-    for one_source_type in SOURCE_TYPES:
-        createSourceType(one_source_type)
+    for oneSourceType in sms_source_types():
+        createSourceType(oneSourceType)
 
-    for one_post_type in POST_TYPES:
-        createPostType(one_post_type)
+    for onePostType in sms_post_types():
+        createPostType(onePostType)
 
