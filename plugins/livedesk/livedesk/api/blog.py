@@ -44,26 +44,6 @@ class Blog(Entity):
 
 # --------------------------------------------------------------------
 
-@model(name=Source)
-class SourceChained(Source):
-    '''
-    Provider concept implemented also through the source model.
-    '''
-    Provider = Source  # The source provider
-
-# --------------------------------------------------------------------
-# TODO: Mugur: No need to map a relation between models with API, remove this.
-@modelLiveDesk
-class BlogSource(Entity):
-    '''
-    Provides the blog source model.
-    '''
-    Blog = Blog
-    Source = Source
-    Provider = Source
-
-# --------------------------------------------------------------------
-
 @query(Blog)
 class QBlog(Entity):
     '''
@@ -109,6 +89,22 @@ class IBlogService(IEntityCRUDService):
         @raise InputError: on invalid credentials or blog id 
         '''
 
+# --------------------------------------------------------------------
+
+@service
+class IBlogSourceService:
+    @call
+    def getSource(self, blogId:Blog.Id, sourceId:Source.Id) -> Source:
+        '''
+        Gets source for source chained.
+        This methods is necessary for getting the right URLs on chained-blog sources.
+
+        @param blogId: Blog.Id
+            The blog identifier
+        @param source: Source
+            The source model
+        '''
+
     @call
     def getSources(self, blogId:Blog.Id) -> Iter(Source):
         '''
@@ -119,13 +115,13 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(method=INSERT)
-    def addSource(self, blogId:Blog.Id, source:SourceChained) -> Source.Id:
+    def addSource(self, blogId:Blog.Id, source:Source) -> Source.Id:
         '''
         Adds a source to a blog.
 
         @param blogId: Blog.Id
             The blog identifier
-        @param source: SourceChained
+        @param source: Source
             The source model
         @raise InputError: on invalid source id
         '''
