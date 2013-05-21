@@ -9,7 +9,7 @@ Created on April 2, 2013
 Contains the SQL alchemy implementation for desk task API.
 '''
 
-from ..api.task import ITaskService, Task
+from ..api.task import ITaskService, Task, QTask
 from ..meta.task import TaskMapped, TaskNestMapped
 from ..meta.task_status import TaskStatusMapped
 from ..meta.task_link import TaskLinkMapped
@@ -42,7 +42,7 @@ class TaskServiceAlchemy(EntityServiceAlchemy, ITaskService):
         '''
         Construct the desk task service.
         '''
-        EntityServiceAlchemy.__init__(self, TaskMapped)
+        EntityServiceAlchemy.__init__(self, TaskMapped, QTask)
 
     def getAll(self, deskId=None, userId=None, statusKey=None, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
         '''
