@@ -30,6 +30,7 @@ class Card(Entity):
     Name = str
     Description = str
     Limit = int
+    Color = str
     
 # --------------------------------------------------------------------
 
@@ -38,29 +39,33 @@ class QCard(QEntity):
     '''
     Provides the query for desk model.
     '''
-    desk = AsEqualOrdered
     index = AsEqualOrdered
     name = AsLikeOrdered
     description = AsLikeOrdered
+    color = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
-@service((Entity, Card))
+@service((Entity, Card), (QEntity, QCard))
 class ICardService(IEntityService):
     '''
     Provides the service methods for the desk.
     '''
+    
+    @call(method=GET)
+    def getAll(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QCard=None) -> Iter(Card):
+        '''
+        Provides the list of cards related to a desk.
+        '''
         
     @call(method=GET)
-    def getStatuses(self, cardId:Card.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, 
-                    q:QCard=None) -> Iter(TaskStatus):
+    def getStatuses(self, cardId:Card.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(TaskStatus):
         '''
         Provides all statuses assigned to the card.
         '''
 
     @call(method=GET, webName="Unassigned")
-    def getUnassignedStatuses(self, cardId:Card.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, 
-                              q:QCard=None) -> Iter(TaskStatus):
+    def getUnassignedStatuses(self, cardId:Card.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(TaskStatus):
         '''
         Returns a list of statuses that are not assigned to any board of the correspondent board desk.
         '''
