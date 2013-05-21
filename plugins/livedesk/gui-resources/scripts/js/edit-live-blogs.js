@@ -13,8 +13,13 @@ define
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
+	config.guiJs('livedesk', 'models/autocollection'),
     'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
-    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', config.guiJs('superdesk/user', 'jquery/avatar'),
+    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 
+    config.guiJs('superdesk/user', 'jquery/avatar'),
+    config.guiJs('livedesk', 'providers-templates'),
+    'tmpl!livedesk>items/item',
+    'tmpl!livedesk>items/implementors/timeline',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!core>layouts/footer',
@@ -22,7 +27,6 @@ define
     'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
-    'tmpl!livedesk>timeline-item',
 	'tmpl!livedesk>timeline-action-item',
     'tmpl!livedesk>provider-content',
     'tmpl!livedesk>provider-link',
@@ -137,216 +141,9 @@ function(providers, Gizmo, $, BlogAction)
 		}),
 		
 		/*!
-		 * Extended collection which is autoupdateing itself
-		 */
-		AutoCollection = Gizmo.Collection.extend
-		({
-			_timeInterval: 10000,
-			_idInterval: 0,
-			_stats: {},
-			/*!
-			 * for auto refresh
-			 */
-			keep: false,
-			init: function(){ 
-				var self = this;
-				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
-				self.model.on('unpublish publish reorder', function(evt, post){
-					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
-						self._stats.lastCId++;
-				});
-				self.on('readauto', function(evt, data, attr){
-					// set offset to limit
-					self._stats.offset = self._stats.limit;
-					// set total from the attributes 
-					self._stats.total = parseInt(attr.total);
-					attr.lastCId = parseInt(attr.lastCId);
-					if(attr.lastCId > self._stats.lastCId)
-						self._stats.lastCId = attr.lastCId;
-				}).on('readauto updateauto update removeingsauto',function(evt, data)
-				{
-					self.getLastCid(data);
-					self.getFirstOrder(data);
-				}).on('addingsauto', function(evt, data){
-					/*!
-					 * If addings ( from getting the auto updates ) 
-					 *   receive we need to increase the total count of the posts and the offset
-					 *   with the numbers of posts added
-					 */
-					self._stats.total += data.length;
-					self._stats.offset += data.length;
-
-				}).on('removeingsauto', function(evt, data){
-					/*!
-					 * If removeings from the collection ( from getting the autou pdates ) 
-					 *   receive we need to decrease the total and the offset for the next page
-					 *   with the numbers of posts added
-					 */					
-					self._stats.total -= data.length;
-					self._stats.offset -= data.length;
-
-				}).on('addings', function(evt, data){
-					/*!
-					 * If addings ( from getting the next page ) 
-					 *   receive we need to increase the offset for the next page
-					 *   with the numbers of posts added
-					 */
-					self._stats.offset += data.length;
-				});
-			},			
-			destroy: function(){ this.stop(); },
-			auto: function(fn)
-			{
-				var self = this;
-				ret = this.stop().start();
-				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
-				return ret;
-			},
-			start: function()
-			{
-				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order, IsPublished'}};
-				if(self._stats.lastCId === 0) delete requestOptions.data;
-				if(!this.keep && self.view && !self.view.checkElement()) 
-				{
-					self.stop();
-					return;
-				}				
-				this.triggerHandler('beforeUpdate');
-				return this.autosync(requestOptions);
-			},
-			stop: function()
-			{
-				var self = this;
-				clearInterval(self._idInterval);
-				return this;
-			},
-			/*!
-			 * Get the minim Order value from the post list received.
-			 */
-			getFirstOrder: function(data)
-			{
-				for(var i=0, Order, count=data.length; i<count; i++) {
-					Order = parseFloat(data[i].get('Order'))
-					if( !isNaN(Order) && (this._stats.fistOrder > Order) )
-						this._stats.fistOrder = Order;
-				}
-			},
-			/*!
-			 * Get the maximum CId value from the post list received.
-			 */			
-			getLastCid: function(data)
-			{
-				for(var i=0, CId, count=data.length; i<count; i++) {
-					var CId = parseInt(data[i].get('CId'))
-					if( !isNaN(CId) && (this._stats.lastCId < CId) )
-						this._stats.lastCId = CId;
-				}
-			},
-	        autosync: function()
-	        {
-            var self = this;
-            return (this.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
-                {					
-                    var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
-                     // important or it will infiloop
-                    for( var i=0; i < list.length; i++ )
-                    {
-                        var model = false;
-                        for( var j=0; j<count; j++ ) {
-							if( list[i].hash() == self._list[j].hash() )
-                            {
-								model = list[i];
-                                break;
-                            }
-						}
-                        if( !model ) {
-							//console.log('is model');
-							if(self.isCollectionDeleted(list[i])) {
-                                //console.log('is collection deleted');
-                                if( self.hasEvent('removeingsauto') ) {
-                                    removeings.push(list[i]);
-                                }
-
-                            } else if( !list[i].isDeleted() ) {
-                            	//console.log('is deleted')
-								self._list.push(list[i]);
-								changeset.push(list[i]);
-                                if( self.hasEvent('addingsauto') ) {
-                                    addings.push(list[i]);
-                                }
-							} else {
-								//console.log('is updated1');
-                                if( self.hasEvent('updatesauto') ) {
-								    updates.push(list[i]);
-                                }					
-							}
-                        }
-                        else {
-                            if( self.hasEvent('updatesauto') ) {
-                                //console.log('has event');
-                                updates.push(model);
-                            }
-                            if(self.isCollectionDeleted(model)) {
-                                self._list.splice(j,1);
-                                if( self.hasEvent('removeingsauto') ) {
-                                    removeings.push(model);
-                                }
-
-                            } else {
-	                            //console.log('model.isChanged: ',model.isChanged());
-	                            if( model.isDeleted()) {
-	                                model._remove();                               
-	                            } 
-	                            /**
-	                             * @TODO: remove this dirty hack and find the real problem 
-	                             * 		why is the model not seen as changed after un unpublish
-	                             * secenarion: admin unpublish an collab1 post the collab1(admin) is republishing the post.
-								 */
-	                            else/* if( model.isChanged() )*/{
-									changeset.push(model);
-								}/*
-	                            else {
-	                                model.on('delete', function(){ self.remove(this.hash()); })
-	                                        .on('garbage', function(){ this.desynced = true; });
-	                            }*/
-	                        }
-                        }
-                    }
-                    self.desynced = false;
-					/**
-					 * If the initial data is empty then trigger READ event
-					 * else UPDATE with the changeset if there are some
-					 */
-					if( ( count === 0) ){
-						//console.log('read');
-
-						self.triggerHandler('readauto',[self._list,attr]);
-                    } else {                    
-                        /**
-                         * Trigger handler with changeset extraparameter as a vector of vectors,
-                         * caz jquery will send extraparameters as arguments when calling handler
-                         */
-                        if( updates.length && self.hasEvent('updatesauto') ) {
-                            self.triggerHandler('updatesauto', [updates,attr]);
-                        }
-                        if( addings.length && self.hasEvent('addingsauto') ) {
-                            self.triggerHandler('addingsauto', [addings,attr]);
-                        }
-                        if( removeings.length && self.hasEvent('removeingsauto') ) {
-                            self.triggerHandler('removeingsauto', [removeings,attr]);
-                        }
-						self.triggerHandler('updateauto', [changeset,attr]);
-					}
-                }));
-	        }
-		
-		}),
-		
-		/*!
 		 * 
 		 */
-		TimelineCollection = AutoCollection.extend
+		TimelineCollection = Gizmo.Register.AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published'),
@@ -380,23 +177,92 @@ function(providers, Gizmo, $, BlogAction)
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
 				
-				'.btn.cancel': {click: 'hideActions'},
-				'.btn.publish': {click: 'save'},
-				'.editable': { focusin: 'edit', click: 'showActions', focusout: 'hideActionsSlow'}
+				'.btn.cancel': {click: 'cancelActions', focusin: 'stopFocuseOut'},
+				'.btn.publish': {click: 'save', focusin: 'stopFocuseOut'},
+				'.editable': { focusin: 'edit'} //, focusout: 'focuseOut'}
 			},
 			showActions: function() {
 				var self = this;
 				self.el.find('.actions').removeClass('hide');
 			},
-			hideActionsSlow: function() {
-				var self = this;
-				setTimeout(function(){
-					self.hideActions();
-				},500)
+			stopFocuseOut: function(evt) {
+				var self = this,
+					actions = self.el.find('.actions');
+				actions.data('focuseout-stop',true);
 			},
-			hideActions: function() {
+			focuseOut: function(evt) {
+				var self = this,
+					actions = self.el.find('.actions');
+					setTimeout(function(){
+						if(!actions.data('focuseout-stop')) {
+							self.hideActions(evt, 1000);
+						}
+						actions.removeData('focuseout-stop');
+					}, 100);
+			},
+			hideActions: function(evt, duration) {
+				var self = this,
+					actions = self.el.find('.actions'),
+					duration = duration || 100;
+				actions.fadeOut(duration, function(){
+					self.el.find('.editable').html(function(){
+						return $(this).data('previous');
+					});
+				});
+			},
+			cancelActions: function(evt) {
+				this.stopFocuseOut(evt);
+				this.hideActions(evt);
+			},
+			/*!
+			 * subject to aop
+			 */
+			preData: $.noop,
+			handleError: function(data) {
 				var self = this;
-				self.el.find('.actions').addClass('hide');
+				var status = data.status;
+				var responseObj = jQuery.parseJSON( data.responseText );
+				var responseText = responseObj.details.model.Post.Meta + _(' characters for text with HTML and formatting');
+				switch ( status ) {
+					case 400:
+						self.showErrorMessage(responseText);
+						break;
+				}
+			},
+			showErrorMessage: function(responseText) {
+				this.el.find('.message-error').html(responseText).css('display', 'inline');
+			},
+			save: function(evt)
+			{
+				var self = this,
+					actions = self.el.find('.actions'),
+					data = {
+						Meta: this.model.get('Meta'),
+						Content: $('.result-text.editable',this.el).html()
+				};
+				actions.data('focuseout-stop',true);
+				if( !data.Content )
+					delete data.Content;
+				if($.type(data.Meta) === 'string')
+					data.Meta = JSON.parse(data.Meta);
+				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
+				data.Meta = JSON.stringify(data.Meta);
+				this.model.updater = this;
+				this.model.set(data).sync().done(function(){
+					//handle done
+				}).fail(function(data){
+					//handle fail
+					self.handleError(data);
+				});
+				this.el.find('.actions').stop().fadeOut(100, function(){
+					$('.editable').removeData('previous');
+				});
+			},	
+			edit: function(evt){
+				var el = $(evt.target);
+				this.el.find('.actions').stop(true).fadeTo(100, 1);
+				if(!el.data('previous'))
+					el.data('previous', el.html());
 			},
 			init: function()
 			{
@@ -408,6 +274,7 @@ function(providers, Gizmo, $, BlogAction)
 				this.model
 				    .on('delete', this.remove, this)
 				    .off('unpublish').on('unpublish', function(evt) {
+				    	//console.log('unpublish');
 				    	self.remove(evt);
 						 /*
 						 * @TODO: remove this
@@ -447,36 +314,19 @@ function(providers, Gizmo, $, BlogAction)
 					})
 					.on('update', function(evt, data)
 					{
-						//console.log('update model: ',data);
+						//console.log('update model: ',evt);
 						/**
 						 * Quickfix.
 						 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
 						 */
 					    if( self._parent.collection.isCollectionDeleted(self.model) )
 					    	return;
-					    /*!
-                         * conditionally handing over save functionality to provider if
-                         * model has source name in providers 
-                         */
-					    try
-					    {
-                            var src = this.get("Author").Source.Name;
-                            if( providers[src] && providers[src].timeline )
-                            {
-                                self.edit = providers[src].timeline.edit;
-                                self.save = providers[src].timeline.save;
-                            };
-					    }
-					    catch(e){ /*...*/ }
-                        
 						/*!
 						 * If the updater on the model is the current view don't update the view;
 						 */
 						if(self.model.updater === self) {
 							delete self.model.updater; return;
 						}
-						if(data['Order'])
-							self.order = parseFloat(data['Order']);
 						/*!
 						 * If the Change Id is received, then sync the hole model;
 						 */						 
@@ -494,7 +344,13 @@ function(providers, Gizmo, $, BlogAction)
 			
 			reorder: function(evt, ui)
 			{
-				var self = this, next = $(ui.item).next('li'), prev = $(ui.item).prev('li'), id, order, newPrev = undefined, newNext = undefined;
+				var self = this, 
+					next = $(ui.item).next('li'), 
+					prev = $(ui.item).prev('li'), 
+					id, 
+					order, 
+					newPrev = undefined, 
+					newNext = undefined;
 				if(next.length) {
 					var nextView = next.data('view');
 					nextView.prev = self;
@@ -539,15 +395,17 @@ function(providers, Gizmo, $, BlogAction)
 					self.render().el.fadeTo(500, '1');
 				});
 			},
-			
-			render: function()
+			renderReorder: function()
 			{
-				var self = this, order = parseFloat(this.model.get('Order'));
+				var self = this, 
+					order = parseFloat(self.model.get('Order'));
 				if(isNaN(order)) {
 					order = 0.0;
 				}
-				if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
-					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
+				if ( !isNaN(self.order) && (order != self.order) && self.model.ordering !== self) {
+					var actions = { prev: 'insertBefore', next: 'insertAfter' }, 
+						ways = { prev: 1, next: -1}, 
+						anti = { prev: 'next', next: 'prev'};
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
 						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
@@ -564,82 +422,34 @@ function(providers, Gizmo, $, BlogAction)
 				if(this.model.ordering === self)
 					delete this.model.ordering;
 				self.order = order;
-				self.id = this.model.get('Id');
-				
-				// pre parse data
-				var src = self.model.get("Author").Source.Name,
-				    rendered = false;
-				// pass functionallity to provider if exists
-				if( providers[src] && providers[src].timeline )
-				{
-				    providers[src].timeline.preData && providers[src].timeline.preData.call(self);
-				    if( providers[src].timeline.render ) 
-				    {
-				        providers[src].timeline.render.call(self, function()
-				        {
-				        	var that = this;
-				        	BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
-				            	$('.editable', that.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-				            }).fail(function(action){
-				            	self.el.find('.unpublish,.close').remove();
-				            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
-				            		self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-				            });
-				            $(self).triggerHandler('render');
-				        });
-				        rendered = true;
-				    }
-				}
-				var img = new Image,
-				    post = this.model.feed();
-				
-				img.src = $.avatar.get('AuthorPerson.EMail');
-				img.onload = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').replaceWith(img); }
-				img.onerror = function(){ self.el.find('[data-avatar-id="'+post['Id']+'"]').remove(); }
-				
-				post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
-				        '<img data-avatar-id="'+post['Id']+'" />';
-				!rendered &&
-				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
-				{
-					self.setElement(o);
-					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
-						self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-		            }).fail(function(action){
-		            	self.el.find('.unpublish,.close').remove();
-		            	if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
-							self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
-					});
-					/*!
-                     * conditionally handing over some functionallity to provider if
-                     * model has source name in providers 
-                     */
-                    if( providers[src] && providers[src].timeline ) {
-						providers[src].timeline.init.call(self);
-					}
-                    
-                    $(self).triggerHandler('render');
-					
-				});
-				
-				//this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf().addClass('first');
-				
-				return this;
-			},
-			
-			/*!
-			 * subject to aop
-			 */
-			preData: $.noop,
-			edit: $.noop,
-			save: function(evt)
+				self.id = this.model.get('Id');				
+			}, 
+			render: function()
 			{
-				if($(evt.target).data('linkCommandActive'))
-					return;
-				this.model.updater = this;
-				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
-				this.el.find('.actions').addClass('hide');
-			},		
+				var self = this,
+					rendered = false,
+					post = self.model.feed(true);
+
+				self.renderReorder();
+				if ( typeof post.Meta === 'string') {
+					post.Meta = JSON.parse(post.Meta);
+				}
+				$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
+				$.tmpl('livedesk>items/item', { 
+					Base: 'implementors/timeline',
+					Post: post
+				}, function(e, o) {
+					self.setElement(o);
+						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
+							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+						}).fail(function(action){
+							self.el.find('.unpublish,.close').remove();
+							if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
+								self.el.find('.editable').texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+						});
+				});
+				return this;
+			},	
 			remove: function(evt)
 			{
 				//console.log('evt: ',evt);
@@ -694,14 +504,13 @@ function(providers, Gizmo, $, BlogAction)
 				});
 				self.xfilter = 'CId, Order, IsPublished';
 				self.collection
-					.on('read readauto', function()
+					.on('read readauto', function(evt)
 					{
 						self.render();
 						self.toggleMoreVisibility();
 					})
-					.on('update updateauto', function(evt, data)
+					.on('addingsauto update', function(evt, data)
 					{
-						//console.log('update collection: ',evt.type, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
@@ -733,11 +542,10 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			more: function(evnt, ui)
 			{
-				var self = this;
-				self.collection
-					.xfilter(self.xfilter)
-					.limit(self.collection._stats.limit)
-					.offset(self.collection._stats.offset)
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
 					.desc('order')
 					.sync();
 			},
@@ -838,7 +646,7 @@ function(providers, Gizmo, $, BlogAction)
 							.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
 						self.addAll(self.collection.getList());
 					});
-				}
+                }
 			},
 			
 			/*!
@@ -859,19 +667,36 @@ function(providers, Gizmo, $, BlogAction)
 			    });
 				*/
 				var self = this,
-					post = Gizmo.Auth(new this.collection.model(data))
+					post = Gizmo.Auth(new this.collection.model());
+				delete data._parsed;
+				post._new = true;
+				post.set(data);
 				this.collection.xfilter('CId,Order').insert(post).done(function(){
-				    
 				    post.href = post.data.href;
 				    
 					self.collection.model.triggerHandler('publish', post);
 					self.addOne(post);		
+					if(view) {
+						view.el.remove();
+					}	
+				}).fail(function(data){
+
+					self.handleError(data, view);
 				});
-				if(view) {
-					view.el.remove();
-				}				
+							
 			},
-			
+			handleError: function(data, view) {
+				var self = this;
+				var status = data.status;
+				var responseObj = jQuery.parseJSON( data.responseText );
+				var responseText = responseObj.details.model.Post.Meta + _(' characters for text with HTML and formatting');
+
+				switch ( status ) {
+					case 400:
+						$('.message-error', view.el).html(responseText).css('display', 'inline');
+						break;
+				}
+			},
 			publish: function(post)
 			{
 				if(post instanceof this.collection.model) 
@@ -917,6 +742,9 @@ function(providers, Gizmo, $, BlogAction)
 		}),
 		ActionsView = Gizmo.View.extend
 		({
+			events: {
+				'[data-action="update"]': { "click": "update" }
+			},
 			init: function() {
 				var self = this,
 					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
@@ -931,6 +759,10 @@ function(providers, Gizmo, $, BlogAction)
 				this.el.tmpl('livedesk>timeline-action-item', { PostTypes: PostTypes }, function(){				
 					var self = this;
 				});
+			},
+			update: function(e) {
+				var element = e.currentTarget;
+				$('[data-info="filter"]').html($(element).html());
 			}
 		}),
 		EditView = Gizmo.View.extend
@@ -941,14 +773,43 @@ function(providers, Gizmo, $, BlogAction)
 				'[is-content] section header h2': { focusout: 'save' },
 				'[is-content] #blog-intro' : { focusout: 'save' },
 				'#toggle-status': { click: 'toggleStatus' },
-				//, '.live-blog-content': { drop: 'drop'}
 				'#put-live .btn-primary': { click : 'putLive' },
-				'#more': { click: 'more'}
+				'#more': { click: 'more'},
+				'#tabmove-down': { click: 'tabMoveDown'},
+				'#tabmove-up': { click: 'tabMoveUp'}
 			},
 			more: function(evnt)
 			{
 				this.timelineView.more(evnt);
-			},			
+			},
+			tabMoveDown: function(evt) {
+				evt.preventDefault();
+				var tabs = $(".side-tab-container .nav-tabs", this.el),
+					top_pos = parseInt(tabs.css('top'));
+				if ((top_pos + tabs.height()) > 90)
+					tabs.css('top',top_pos-56+'px');
+			},
+			tabMoveUp: function(evt) {
+				evt.preventDefault();
+				var tabs = $(".side-tab-container .nav-tabs", this.el),
+					top_pos = parseInt(tabs.css('top'));
+				if (top_pos < 35) 
+					tabs.css('top',top_pos+56+'px');				
+			},
+			responsiveTabs: function() {
+				var cont = $(".side-tab-container", this.el),
+					tabs = $(".side-tab-container .nav-tabs", this.el);
+				if (cont.height() < tabs.height() ) {
+					if (!cont.hasClass("compact-tabs")) {
+						cont.addClass("compact-tabs");
+						tabs.css('top','35px');
+					}
+				}
+				else { 
+					cont.removeClass("compact-tabs");
+					tabs.css('top','0');
+				}				
+			},
 			postInit: function()
 			{
 				var self = this;
@@ -961,7 +822,7 @@ function(providers, Gizmo, $, BlogAction)
 				        self.render();
 				    });
 			},
-			/*!
+			/*
 			 * TODO description
 			 */
 			drop: function(event, ui)
@@ -971,13 +832,12 @@ function(providers, Gizmo, $, BlogAction)
 					post = ui.draggable.data('post'),
 					
 					either = data || post;
-				
 				if( either instanceof Gizmo.View)
 				{
-				    either.parent = self.timelineView;
-				    either.render();
-				    $('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
-				    $('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+					either.parent = self.timelineView;
+					either.render();
+					$('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
+					$('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
 				else if(data !== undefined) {
 					self.timelineView.insert(data);
@@ -1080,11 +940,14 @@ function(providers, Gizmo, $, BlogAction)
 					embedConfig = JSON.parse(mfeed.EmbedConfig);
 
 				if(embedConfig.FrontendServer !== undefined)
-					embedConfig.FrontendServer = config.api_url
+					embedConfig.FrontendServer = config.api_url;
+
 				var
 				data = $.extend({}, this.model.feed(), 
 				{
-					BlogHref: self.theBlog,
+                    BlogHref: self.theBlog,
+                    BlogId: self.model.get('Id'),
+
 					FooterDinamic: true,
 					ui: 
 					{
@@ -1113,7 +976,7 @@ function(providers, Gizmo, $, BlogAction)
 				    
 					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
-					
+
 					self.timelineView = new TimelineView
 					({
 						el: $('#timeline-view .results-placeholder', self.el),
@@ -1159,7 +1022,12 @@ function(providers, Gizmo, $, BlogAction)
 						dockKey: 'Z',   // Alt-Shift-Z in FF/IE
 						accessKey: 'I'  // Alt-Shift-I in FF/IE
 					});
-					
+					$(window)
+						.off(self.getNamespace())
+						.on(self.getEvent('resize'), function(){
+							self.responsiveTabs();
+						});
+					self.responsiveTabs();
 					$.superdesk.hideLoader();
 					
 				});
@@ -1205,43 +1073,8 @@ function(providers, Gizmo, $, BlogAction)
 				/** text editor stop */
 				
 				
-				var 
-					topSubMenu = $(this.el).find('[is-submenu]'),
-					content = $(this.el).find('[is-content]');
-				$(topSubMenu)
-				.off('click'+this.getNamespace(), 'a[data-target="configure-blog"]')
-				.on('click'+this.getNamespace(), 'a[data-target="configure-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					BlogAction.get('modules.livedesk.configure')
-					.done(function(action)
-					{
-						require([action.get('Script').href], function(app){ new app(blogHref); });
-					});
-				})
-				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
-				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					BlogAction.get('modules.livedesk.manage-collaborators')
-					.done(function(action)
-					{
-						require([action.get('Script').href], function(app){ new app(blogHref); });
-					});
-				})
-				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')
-				.on('click'+this.getNamespace(), 'a[data-target="edit-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href');
-					BlogAction.get('modules.livedesk.edit')
-					.done(function(action)
-					{
-						require([$.superdesk.apiUrl+action.get('ScriptPath')], function(EditApp){ EditApp(blogHref); });
-					});
-				});
+				var content = $(this.el).find('[is-content]');
+
 				// wrapup toggle
 				$(content)
 				.off('click'+this.getNamespace())
@@ -1276,6 +1109,7 @@ function(providers, Gizmo, $, BlogAction)
 	
 	return function(theBlog)
 	{
+	    BlogAction.clearCache();
 		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
 						delete providers["google"];
 						delete providers["colabs"];
@@ -1285,6 +1119,9 @@ function(providers, Gizmo, $, BlogAction)
 						delete providers["instagram"];
 						delete providers["soundcloud"];
 						delete providers["ads"];
+						delete providers["facebook"];
+						delete providers["chain"];
+						//delete providers["image"];
 					});
 	    BlogAction.setBlogUrl(theBlog);
 	    // stop autoupdate if any

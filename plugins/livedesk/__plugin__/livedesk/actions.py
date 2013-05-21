@@ -29,6 +29,7 @@ from livedesk.api.blog_type_post import IBlogTypePostService
 from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
+from superdesk.source.api.source import ISourceService
     
 # --------------------------------------------------------------------
 
@@ -81,7 +82,10 @@ def modulesConfigureAction() -> Action:
 def modulesManageCollaboratorsAction() -> Action:
     return Action('manage-collaborators', Parent=modulesAction(),
                   Script=publishedURI('livedesk/scripts/js/manage-collaborators.js'))
-
+@ioc.entity
+def modulesManageFeedsAction() -> Action:
+    return Action('manage-feeds', Parent=modulesAction(),
+                  Script=publishedURI('livedesk/scripts/js/manage-feeds.js'))
 @ioc.entity
 def modulesArchiveAction() -> Action:
     return Action('archive', Parent=modulesAction(), Script=publishedURI('livedesk/scripts/js/archive.js'))
@@ -116,6 +120,7 @@ def registerAclLivedeskView():
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())
     r.allGet(IBlogTypeService, IBlogTypePostService, IPersonService, IPersonIconService)
     r.allGet(IBlogService, IBlogCollaboratorService, IBlogPostService, filter=filterCollaboratorBlog())
+    r.allGet(ISourceService)
     r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
 
 @gui.setup
@@ -123,6 +128,7 @@ def registerAclManageOwnPost():
     r = rightManageOwnPost()
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction())
     r.allGet(IBlogService, filter=filterCollaboratorBlog())
+    r.allGet(ISourceService)
     r.add(ref(IBlogPostService).delete)
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, filter=filterCollaboratorBlog())
@@ -135,10 +141,10 @@ def registerAclManageOwnPost():
 def registerAclLivedeskUpdate():
     r = rightLivedeskUpdate()
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(),
-                 dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(),
+                 dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), modulesManageFeedsAction(),
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
     r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
-          IPersonService, IPersonIconService)
+          IPersonService, IPersonIconService, ISourceService)
 
 # --------------------------------------------------------------------
 
@@ -156,4 +162,4 @@ def updateCollaboratorSpecification():
                                          modulesArchiveAction(), dashboardAction(), modulesEditAction()]
     spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
-                                modulesManageCollaboratorsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]
+                                modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]

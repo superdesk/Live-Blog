@@ -1,8 +1,8 @@
 <li class="soundcloud draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
     <div class="drag-bar"></div>
     <div class="tool-box-right" style="z-index: 1000">
-    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
-        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete');">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
     </div>
     <figure>
         {Avatar|s}
@@ -43,8 +43,8 @@
     </div>	
 	
     <div class="btn-group pull-right clearfix actions hide">
-    	<button class="btn btn-mini cancel">Cancel</button>
-    	<button class="btn btn-mini btn-primary publish">Publish</button>
+    	<button class="btn btn-mini cancel">_('Cancel');</button>
+    	<button class="btn btn-mini btn-primary publish">_('Publish');</button>
    	</div>		
 </li>
 

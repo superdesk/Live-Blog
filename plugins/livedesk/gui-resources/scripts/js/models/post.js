@@ -1,4 +1,9 @@
-define([ 'gizmo/superdesk', config.guiJs('superdesk/user', 'models/person')],
+define([ 
+	'gizmo/superdesk', 
+	config.guiJs('superdesk/user', 'models/person'),
+	config.guiJs('livedesk', 'models/author'),
+	config.guiJs('livedesk', 'models/type'),
+	],
 function(Gizmo, Person)
 {
     // Post
@@ -6,7 +11,9 @@ function(Gizmo, Person)
 	({
 	    defaults: 
 	    {
-	        AuthorPerson: Person
+	        AuthorPerson: Person,
+	        Author: Gizmo.Register.Author,
+	        Type: Gizmo.Register.Type
 	    },
 	    insertExcludes: [ 'AuthorPerson' ],
 	      

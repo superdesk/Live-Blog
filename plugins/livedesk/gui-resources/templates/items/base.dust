@@ -1,0 +1,174 @@
+{#Post}
+<li class="{+DraggableClass}draggable{/DraggableClass} {+ProviderClass}{/ProviderClass} {+ImplementorClass}{/ImplementorClass} clearfix" {+AdditionalAttributes}{/AdditionalAttributes}>
+	<div class="drag-bar"></div>
+	{+FastActions}
+	<div class="tool-box-right">
+		<a href="{+FastActionsDeleteModal}#delete-post{/FastActionsDeleteModal}" class="close image" data-toggle="modal" title="Delete">x</a>
+		{+FastActionsUnPublish}
+		<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="Unpublish">&nbsp;</a>
+		{/FastActionsUnPublish}
+	</div>
+	{/FastActions}
+	{+AdditionalActions}
+		{+WrapupAdditionalActions}
+			<div class="arrow" style="height:20px; width:20px; float: left; background: url('images/wrapup-arrow.png') no-repeat scroll 0 0 transparent; background-position: -40px 0;">
+			</div>		
+		{/WrapupAdditionalActions}
+	{/AdditionalActions}
+
+	{+ItemInfo}
+		{+Avatar}
+		<figure class="avatar">
+			{Avatar|s}
+		</figure>
+		{/Avatar}
+		{+PostInfo}
+		<div class="post-info">
+			{+AuthorInfo}
+			<p rel="author">{Creator.FullName}</p> <!-- User full name -->
+			{/AuthorInfo}
+			{+TimeInfo}
+			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
+			{/TimeInfo}
+		</div>
+		{/PostInfo}
+	{/ItemInfo}
+	<div class="result-content-full">
+		{+TopAnnotation}
+		<div class="top editable annotation" contenteditable="true">
+			{?Meta.annotation.before}
+				{Meta.annotation.before|s}
+			{:else}
+				<br/>
+			{/Meta.annotation.before}
+		</div>
+		{/TopAnnotation}
+		<div class="result-content">
+			{+ContentImage}
+			<figure>
+				<a href="{+ContentImageLink}{/ContentImageLink}" {+ContentImageLinkAttributes}{/ContentImageLinkAttributes} title="{+ContentImageTitle}{/ContentImageTitle}" target="_blank">
+					<!-- a tag displays only for clickable images :
+						> google images
+						> flickr
+						> instagram
+					-->
+					<img src="{+ContentImageUrl}{/ContentImageUrl}" alt="{+ContentImageAlt}{/ContentImageAlt}" {+ContentImageAttributes}{/ContentImageAttributes}/>
+				</a>
+			</figure>
+			<!-- figure tag displays for:
+				> internal link
+				> twitter
+				> google link
+				> google news
+				> flickr
+				> instagram
+				> youtube
+			-->
+			{/ContentImage}
+			<div class="result-text{+EditableClass} editable {/EditableClass}" {+EditableAttribute} contenteditable="true"{/EditableAttribute}>
+				{+ContainerIframe}
+				<iframe src="{+ContainerIframeUrl}{/ContainerIframeUrl}" class='{+ContainerIframeClass}{/ContainerIframeClass}' {+ContainerIframeAttributes}{/ContainerIframeAttributes}></iframe>
+				{/ContainerIframe}
+				{+ContainerAdditional}
+					{+ContainerTitle}
+					<h3>
+						<a href="{+ContainerTitleLink}{/ContainerTitleLink}" target="_blank">{+ContainerTitleName}{/ContainerTitleName}</a>
+					</h3>
+					{/ContainerTitle}
+					{+ContainerDescription}
+							<div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
+							<!-- p.result-description tag displays for:
+								> internal link
+								> twitter
+								> google link
+								> google news
+								> google images
+								> flickr
+								> youtube
+								> soundcloud
+							-->
+					{/ContainerDescription}
+				{/ContainerAdditional}
+				{+Container}
+					{Content|s}
+				{/Container}
+			</div>
+		</div>
+		{+Attributes}
+			<div class="attributes">
+				<i class="source-icon">
+					{+SourceIcon}
+					<img src="http://g.etfv.co/{+SourceLink}{/SourceLink}" style="max-width: 16px" border="0">
+					{/SourceIcon}
+				</i>
+				<!-- i.source-icon and a.author-name tag displays for:
+					> internal link
+					> twitter
+					> google link
+					> google news
+					> google images
+					> youtube
+					> soundcloud
+				-->
+				{+SourceInfo}
+					{+SourceAuthor}
+					<a class="author-name" href="{+AuthorLink}{/AuthorLink}" target="_blank">{+AuthorShowed}{AuthorName}{/AuthorShowed}</a>
+					<!-- a.author-name tag displays for:
+						> internal link
+						> google link
+						> google news
+						> google images
+						> youtube
+						> soundcloud
+					-->
+					{/SourceAuthor}
+					{+SourceTime}
+					<time data-date="{+TimeIso}{/TimeIso}">{+TimeShowed}{/TimeShowed}</time>
+					<!-- time tag displays for:
+						> twitter
+						> youtube
+						> soundcloud
+					-->
+					{/SourceTime}
+				{/SourceInfo}
+			</div>
+		{/Attributes}
+		{+BottomAnnotation}
+		<!-- BOTTOM ANNOTATION - Displays for twitter provider posts, and NEVER for internal posts -->
+		<div class="bottom editable annotation" contenteditable="true">
+			{?Meta.annotation.after}
+				{Meta.annotation.after|s}
+			{/Meta.annotation.after}
+		</div>
+		{/BottomAnnotation}
+	</div>
+	{+ImportantActions}
+		{+ImportantActionsPublish}
+		<div class="btn-group pull-right clearfix actions hide">
+			<button class="btn btn-mini cancel">_("Cancel");</button>
+			<button class="btn btn-mini btn-primary publish">_("Publish");</button>
+		</div>
+
+		<div class="message-error">
+			_("There an error updating the post!");
+		</div>
+
+		<div class="message-success">
+			_("Post has been updated!");
+		</div>
+		{/ImportantActionsPublish}
+		{+ImportantActionsPrepublish}
+			<div class="btn-group pull-right clearfix actions">
+				<button class="btn btn-mini cancel">_("Cancel");</button>
+				<button class="btn btn-mini btn-primary publish">_("Publish");</button>
+			</div>
+			<div class="message-error">
+				_("There an error saving the post!");
+			</div>
+		{/ImportantActionsPrepublish}
+	{/ImportantActions}
+		<!--  div class="saveonly">
+			<button class="btn btn-small btn-primary" type="submit">Save</button>
+		</div -->
+</li>
+{/Post}

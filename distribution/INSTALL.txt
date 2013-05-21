@@ -42,8 +42,8 @@ need to be done:
 'server_host' and change it to '0.0.0.0'
 E.g.: server_host: 0.0.0.0
 
-2. Edit the file plugins.properties, search for the property 'server_url'
-and change it to '[machine_name_or_ip]:8080
+2. Edit the file plugins.properties, search for the properties 'server_url'
+and 'embed_server_url' and change them to '[machine_name_or_ip]:8080
 E.g.: server_url: my.machine.domain.com:8080
 
 3. Restart the REST Ally server.

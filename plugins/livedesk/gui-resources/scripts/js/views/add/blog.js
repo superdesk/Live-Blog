@@ -111,18 +111,15 @@
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, ''),
                     Creator: localStorage.getItem('superdesk.login.id')
                 };
-            self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type').sync().done(function(liveBlog){
+            self.model.
+                set(data).
+                xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type').
+                sync().
+                done(function(liveBlog) {
+                    self.el.modal('hide');
                     self.model._parseHash(liveBlog);
-                    require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
-                        function(EditApp){
-                            self.el.modal('hide');
-                            $.superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 
-                                    function(){ 
-                                        new EditApp(liveBlog.href); 
-                                        $('#navbar-top').trigger('refresh-menu');
-                                    }, 
-                                    liveBlog.Title );
-                        });
+                    Backbone.history.navigate('live-blog/' + self.model.get('Id'), true);
+                    $('#navbar-top').trigger('refresh-menu');
              });
         }
     });

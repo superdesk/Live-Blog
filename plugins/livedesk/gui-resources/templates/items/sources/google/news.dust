@@ -1,0 +1,38 @@
+{>"livedesk>items/sources/google/base"/}
+{<ProviderSubClass}googlenews{/ProviderSubClass}
+{<TopAnnotation}{/TopAnnotation}
+{<SourceLink}{Meta.unescapedUrl|s}{/SourceLink}
+{<ContentImageUrl}{Meta.image.tbUrl}{/ContentImageUrl}
+{<ContentImage}
+	{?Meta.image.originalContextUrl}
+			<figure>
+				<a href="{+ContentImageLink}{/ContentImageLink}" title="{+ContentImageTitle}{/ContentImageTitle}" target="_blank">
+					<!-- a tag displays only for clickable images :
+						> google images
+						> flickr
+						> instagram
+					-->
+					<img src="{+ContentImageUrl}{/ContentImageUrl}" alt="{+ContentImageAlt}{/ContentImageAlt}" {+ContentImageAttributes}{/ContentImageAttributes}/>
+				</a>
+			</figure>
+			<!-- figure tag displays for:
+				> internal link
+				> twitter
+				> google link
+				> google news
+				> flickr
+				> instagram
+				> youtube
+			-->
+	{/Meta.image.originalContextUrl}
+{/ContentImage}
+{<ContentImageLink}{Meta.image.originalContextUrl}{/ContentImageLink}
+{<ContentImageTitle}{Meta.image.publisher}{/ContentImageTitle}
+{<ContentImageAlt}{Meta.image.publisher}{/ContentImageAlt}
+{<SourceTime}{/SourceTime}
+{<AuthorLink}{Meta.unescapedUrl|s}{/AuthorLink}
+{<AuthorShowed}{Meta.publisher}{/AuthorShowed}
+{<ContainerTitleName}{Meta.title|s}{/ContainerTitleName}
+{<ContainerTitleLink}{Meta.url|s}{/ContainerTitleLink}
+{<ContainerDescriptionText}{Meta.content|s}{/ContainerDescriptionText}
+{<Container}{/Container}

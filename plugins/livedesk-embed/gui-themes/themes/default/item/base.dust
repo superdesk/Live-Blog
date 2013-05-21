@@ -7,7 +7,7 @@ _('Share');
 	{+head}
 	<div class="result-header">
 		<div class="post_info">
-			<time >{CreatedOn}</time>
+			<time data-date={CreatedOnISO}>{CreatedOn}</time>
 			<p rel="author">_('by'); {Creator.FullName}</p>
 			<a href="#" class="sf-share">_('Share');</a>
 			<a href="{permalink}" rel="bookmark">#</a>
@@ -21,7 +21,9 @@ _('Share');
 		{+body_top}{/body_top}
 		{+body_content}<div class="result-text">{Content|s}</div>{/body_content}
 			{+reference}
-			<p class="attributes"><i class="source-icon"></i>{+reference_name}{/reference_name}</p>
+			<p class="attributes"><i class="source-icon"></i> 
+				{+reference_link}{+reference_name}{/reference_name}{/reference_link}
+			</p>
 			{/reference}
 		</div>
 		{+body_bottom}{/body_bottom}

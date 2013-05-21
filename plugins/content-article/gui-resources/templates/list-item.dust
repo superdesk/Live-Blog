@@ -1,0 +1,28 @@
+
+<!-- <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td> -->
+<td>{Id}</td>
+<td class="title_col"><a data-action="edit" href="#/article/{Id}">{Content.Title|s}</a></td>
+<td><span data-article-id="{Id}"><span data-placeholder="Author"></span></span></td>
+<td>{#PublishedOn}{.}{:else}{/PublishedOn}</td>
+<td>
+	{@if cond="'{IsPublished}'=='True'"}
+	_('Published');
+	{:else}
+	_('Not published');
+	{/if}
+</td>
+<td class="action_col">
+	<div class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">_('Action'); <b class="caret"></b></a>
+		<ul class="dropdown-menu sf-dropdown-simple pull-right">
+			<li data-action="edit"><a href="#/article/{Id}" data-action="edit"><i class="icon-pencil"></i> _('Edit');</a></li>
+			<li data-action="delete"><a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete');</a></li>
+			{@if cond="'{IsPublished}'=='True'"}
+			<li data-action="unpublish"><a href="#"><i class="icon-ban-circle"></i>_('Unpublish');</a></li>
+			{:else}
+			<li data-action="publish"><a href="#"><i class="icon-ok-circle"></i>_('Publish');</a></li>
+			{/if}
+			<li data-action="preview"><a href="{Preview.href}" target="_blank"><i class="icon-eye-open"></i> _('Preview');</a></li>
+		</ul>
+	</div>
+</td>

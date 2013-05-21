@@ -1,16 +1,21 @@
-define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomainrequest'], function($){
-
+define([
+	'jquery',
+	'jquery/i18n',
+	'jquery/utils',
+	'jquery/cookie',
+	'jquery/xdomainrequest'
+], function($){
 	
     var buildMap = {},
 	apiUrl = livedesk.FrontendServer,
 	langCode = $.cookie('superdesk.langcode');
     if(livedesk.language) {
        langCode = livedesk.language;
-    } else 
+    }
     if(!langCode) {
 		langCode = $.browser.language.substring(0,2);
-		$.cookie('superdesk.langcode',langCode);
 	}
+	$.cookie('superdesk.langcode',langCode);
 	//resources/Admin/Plugin/superdesk_country/JSONLocale/ro
 	//API
     return {
@@ -19,10 +24,10 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomai
             // support 
             $.support.cors = true;
             // Append '.json' if no filename given:
-            nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
+            var nameCached = apiUrl + '/content/cache/locale/plugin-' + name + '-' + langCode + '.json';
 			name = apiUrl + '/resources/Admin/Plugin/' + name + '/JSONLocale/' + langCode;
             var urlCached = req.toUrl(nameCached);//+'&t='+(new Date()).getTime(),
-                url = req.toUrl(name);//+'&t='+(new Date()).getTime();
+            var url = req.toUrl(name);//+'&t='+(new Date()).getTime();
                 /*!
                  * Use the same options for the internationalization ajax request
                  *   url key need to be supplied in options
@@ -30,8 +35,8 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomai
                  */
                 options = {
                         dataType: 'json',
-                        timeout : 1000,
-                        processTime: 300,
+                        //timeout : 2500,
+                        processTime: 400,
                         tryCount : 0,
                         retryLimit : 2,
                         statusCode: {
@@ -80,8 +85,8 @@ define(['jquery', 'jquery/i18n', 'jquery/utils', 'jquery/cookie', 'jquery/xdomai
                         options.error =  this.errorTimeout;
                         $.ajax(options);
                     }
-                }
-                options.url = urlCached;
+                };
+                options.url = url;
                 $.ajax(options);
         },
 

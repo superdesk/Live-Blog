@@ -1,1 +1,1 @@
-<div class="tabbable tabs-left splitt-content side-tabs">	<ul class="nav nav-tabs">	</ul>			<div class="tab-content">	</div></div>
+<div class="tabbable tabs-left splitt-content side-tabs">	<div class="side-tab-container">		<div class="tabmove tabmove-up" id="tabmove-up"><i class="icon-chevron-up icon-white"></i></div>		<div class="tabmove tabmove-down" id="tabmove-down"><i class="icon-chevron-down icon-white"></i></div>		<ul class="nav nav-tabs">		</ul>			</div>	<div class="tab-content">	</div></div>

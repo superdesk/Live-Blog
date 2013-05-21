@@ -18,3 +18,5 @@
 .project
 .pydevproject
 /.metadata/
+
+*.egg-info/

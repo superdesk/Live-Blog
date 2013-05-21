@@ -12,7 +12,7 @@ the content is received from the source.
 
 from .type import SourceType
 from ally.api.config import service, call, query, LIMIT_DEFAULT
-from ally.api.criteria import AsBoolean, AsLikeOrdered
+from ally.api.criteria import AsBoolean, AsLikeOrdered, AsLike, AsEqual
 from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
 from superdesk.api.domain_superdesk import modelData
@@ -39,10 +39,12 @@ class QSource(QEntity):
     '''
     name = AsLikeOrdered
     isModifiable = AsBoolean
+    all = AsLike
+    type = AsEqual
 
 # --------------------------------------------------------------------
 
-@service((Entity, Source))
+@service((Entity, Source), (QEntity, QSource))
 class ISourceService(IEntityGetCRUDService):
     '''
     Provides the service methods for the source.
@@ -55,3 +57,14 @@ class ISourceService(IEntityGetCRUDService):
         Provides all the available sources.
         '''
 
+    @call
+    def insert(self, source:Source) -> Source.Id:
+        '''
+        Insert the source, also the source will have automatically assigned the Id to it.
+
+        @param source: Source
+            The source to be inserted.
+
+        @return: The id assigned to the source
+        @raise InputError: If the source is not valid.
+        '''
