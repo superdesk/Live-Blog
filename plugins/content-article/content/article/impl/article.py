@@ -199,3 +199,72 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             return True
         return False
 
+
+
+@injected
+@setup(IArticleTargetTypeService, name='articleTargetTypeService')
+class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeService):
+    '''
+    Implementation for @see: IArticleTargetTypeService
+    '''
+
+    def __init__(self):
+        '''
+        Construct the article target type service.
+        '''
+        EntityServiceAlchemy.__init__(self, ArticleTargetTypeMapped)
+
+    def getTargetTypes(self, id, offset=None, limit=None, detailed=False):
+        '''
+        @see: IArticleTargetTypeService.getUsers
+        '''
+
+        sql = self.session().query(ArticleMapped).join(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+
+    def getUnassignedTargetTypes(self, id, offset=None, limit=None, detailed=False):
+        '''
+        @see: IArticleTargetTypeService.getUnassignedTargetTypes
+        '''
+        sql = self.session().query(UserMapped)
+        sql = sql.filter(not_(UserMapped.Id.in_(self.session().query(DeskUserMapped.user).filter(DeskUserMapped.desk == deskId).subquery())))
+        if q:
+            sql = buildQuery(sql, q, UserMapped)
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+
+    def attachTargetType(self, id, targetKey):
+        '''
+        @see IArticleTargetTypeService.attachTargetType
+        '''
+        sql = self.session().query(DeskUserMapped)
+        sql = sql.filter(DeskUserMapped.desk == deskId)
+        sql = sql.filter(DeskUserMapped.user == userId)
+        if sql.count() == 1: return
+
+        deskUser = DeskUserMapped()
+        deskUser.desk = deskId
+        deskUser.user = userId
+
+        self.session().add(deskUser)
+        self.session().flush((deskUser,))
+
+    def detachTargetType(self, id, targetKey):
+        '''
+        @see IArticleTargetTypeService.detachTargetType
+        '''
+        sql = self.session().query(DeskUserMapped)
+        sql = sql.filter(DeskUserMapped.desk == deskId)
+        sql = sql.filter(DeskUserMapped.user == userId)
+        count_del = sql.delete()
+
+        return (0 < count_del)
+
