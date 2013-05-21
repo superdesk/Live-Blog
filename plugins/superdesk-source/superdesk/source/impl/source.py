@@ -9,7 +9,7 @@ Created on May 3, 2012
 Contains the SQL alchemy implementation for source API.
 '''
 
-from ..api.source import ISourceService
+from ..api.source import ISourceService, QSource
 from ..meta.source import SourceMapped
 from ..meta.type import SourceTypeMapped
 from ally.container.ioc import injected
@@ -23,8 +23,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.source.api.source import Source
 from ally.api.extension import IterPart
+from ally.api.criteria import AsLike
 
 # --------------------------------------------------------------------
+
+ALL_NAMES = (SourceMapped.Name, SourceMapped.URI)
 
 @injected
 @setup(ISourceService, name='sourceService')
@@ -37,7 +40,7 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         '''
         Construct the source service.
         '''
-        EntityGetCRUDServiceAlchemy.__init__(self, SourceMapped)
+        EntityGetCRUDServiceAlchemy.__init__(self, SourceMapped, QSource)
 
     def getAll(self, typeKey=None, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -46,7 +49,19 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         sql = self.session().query(SourceMapped)
         if typeKey:
             sql = sql.join(SourceTypeMapped).filter(SourceTypeMapped.Key == typeKey)
-        if q: sql = buildQuery(sql, q, SourceMapped)
+        if q:
+            assert isinstance(q, QSource), 'Invalid source query %s' % q
+            sql = buildQuery(sql, q, SourceMapped)
+            if QSource.all in q:
+                filter = None
+                if AsLike.like in q.all:
+                    for col in ALL_NAMES:
+                        filter = col.like(q.all.like) if filter is None else filter | col.like(q.all.like)
+                elif AsLike.ilike in q.all:
+                    for col in ALL_NAMES:
+                        filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
+                sql = sql.filter(filter)
+
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()

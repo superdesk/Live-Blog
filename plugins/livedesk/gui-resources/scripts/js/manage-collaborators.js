@@ -5,7 +5,7 @@ define([
     config.guiJs('livedesk', 'action'),
 	'jquery/rest',
 	'jquery/superdesk',
-	'jquery/avatar',
+    config.guiJs('superdesk/user', 'jquery/avatar'),
 	config.guiJs('livedesk', 'models/collaborators'),
 	config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/collaborator'),
@@ -94,7 +94,7 @@ define([
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
-                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                meta.sync({data:{ thumbSize: 'small' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
                     self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
@@ -215,7 +215,7 @@ define([
 		render: function(){
 			var self = this,
 				data = { 
-					Selected: self.model.get("Type"),
+					Selected: self.model.get("Type").Name,
 					BlogCollaaboratorTypes: self.collection.feed()
 				};
 			self.el.tmpl("livedesk>manage-collaborators/blog-collaborator-types",data);
@@ -235,6 +235,7 @@ define([
 		init: function(){
 			this.render();
 		},
+		tagName: 'li',
 		render: function(){
 			var self = this;
 			
@@ -242,12 +243,15 @@ define([
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
-                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                meta.sync({data:{ thumbSize: 'small' }}).done(function()
                 {  
                     userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
                     self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
-                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
-                });
+                        .html('<img src="'+meta.get('Thumbnail').href+'" style="height: 25px;" />');
+                }).fail(function(){
+                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
+                        .html('<img src="'+$.avatar.get(self.model.get('User').get('EMail'), {size: 25})+'" style="height: 25px;"/>');				
+				});
             })
             .sync();
 			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed('', true), function(){
@@ -365,6 +369,7 @@ define([
 			data = $.extend({}, this.model.feed(), {
 					
 					BlogHref: self.theBlog,
+                    BlogId: self.model.get('Id'),
 					ui:	{
 
 						content: 'is-content=1',
@@ -387,37 +392,6 @@ define([
 			};
 
 			$.superdesk.applyLayout('livedesk>manage-collaborators', data, function(){
-		       var topSubMenu = $(self.el).find('[is-submenu]');
-		        $(topSubMenu)
-		        .off(self.getEvent('click'), 'a[data-target="configure-blog"]')
-		        .on(self.getEvent('click'), 'a[data-target="configure-blog"]', function(event)
-		        {
-		            event.preventDefault();
-		            var blogHref = $(this).attr('href');
-		            Action.get('modules.livedesk.configure').done(function(action) {
-		                    require([action.get('Script').href], function(app){ 
-		                    	//console.log(app);
-		                    	new app(blogHref); });
-		            });
-		        })
-		        .off(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
-				.on(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
-				{
-					event.preventDefault();
-					var blogHref = $(this).attr('href')
-					Action.get('modules.livedesk.manage-collaborators').done(function(action) {
-							require([action.get('Script').href], function(app){ new app(blogHref); });
-					});
-				})
-		        .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
-		        .on(self.getEvent('click'), 'a[data-target="edit-blog"]', function(event)
-		        {
-		            event.preventDefault();
-		            var blogHref = $(this).attr('href');
-		            Action.get('modules.livedesk.edit').done(function(action) {
-							require([action.get('Script').href], function(EditApp){ EditApp(blogHref); });
-		            });
-		        });
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);
 			});
 		}

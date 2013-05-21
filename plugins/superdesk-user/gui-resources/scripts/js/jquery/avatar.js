@@ -1,4 +1,4 @@
-define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery/md5'], function(str, $, gizmo) {
+define(['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery/md5'], function(str, $, gizmo) {
     var counter = 0,
         gravatar = {
         url: '//gravatar.com/avatar/%(md5)s?r=%(rate)s&s=%(size)s&d=%(default)s&%(forcedefault)s',
@@ -7,9 +7,11 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             size: 48,
             sizeText: 'large',
             metaDataKey: 'MetaData',
-            default: encodeURIComponent('images/avatar_default_collaborator.png'),
+            "default": 'blank',//encodeURIComponent('images/avatar_default_collaborator.png'),
             forcedefault: '',
             key: 'Avatar',
+			idAttribute: 'Id',
+			imageAttribute: 'AuthorImage',
             needle: 'Person.EMail'
         },
         parse: function(data, needle) 
@@ -76,11 +78,31 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             });
             return data;
         },
-		get: function(value) {
-            var self = this;
-            if(!$.isString(value))
-                return value;
-			return str.format(self.url,$.extend({}, self.defaults, { md5: $.md5($.trim(value.toLowerCase()))}));
+		get: function(value, defaults) {
+            var self = this,
+				params = $.extend({}, self.defaults, defaults||{},{ md5: value ? $.md5($.trim(value.toLowerCase())) : '' }),
+				url = str.format(self.url, params);
+			return url;
+		},
+		setImage: function(data, defaults) {
+			
+			var self = this,
+				img = new Image,
+				params = $.extend({}, self.defaults, defaults || {}),
+				parts = params.needle.split('.'),
+				email;
+				if(( parts.length === 1 ) && data[parts[0]]) {
+					email = data[parts[0]];
+				} else if( ( parts.length === 2 ) && data[parts[0]] && data[parts[0]][parts[1]] ) {
+					email = data[parts[0]][parts[1]];
+				}
+				else
+					return;
+				if( data[params.imageAttribute] ) {
+					data[params.key] = '<img data-avatar-id="'+data[params.idAttribute]+'" src="'+data[params.imageAttribute].href+'" />';
+				} else {
+					data[params.key] = '<img data-avatar-id="'+data[params.idAttribute]+'" src="'+self.get(email, defaults)+'" />';
+				}
 		}
     };
     $.avatar  = gravatar;

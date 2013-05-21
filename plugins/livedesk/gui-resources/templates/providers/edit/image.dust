@@ -10,24 +10,26 @@
 
 	<div class="form-row">
 		<div class="btn-group pull-left">
-			<button class="btn dropdown-toggle upload-dropdown" data-toggle="dropdown">_('Image Upload') <span class="caret"></span></button>
+			<button class="btn" data-toggle="modal-image">_('Image Upload'); <span class="caret"></span></button>
+			<!--
 			<ul class="dropdown-menu" data-image-source="true">
-			  <li data-source="computer"><a href="javascript:void(0)">_('From computer')</a></li>
-			  <li data-source="media-archive"><a href="javascript:void(0)">_('From Media archive')</a></li>
-		      <li data-source="url"><a href="javascript:void(0)">_('Paste from URL')</a></li>
+			  <li data-source="computer"><a href="javascript:void(0)">_('From computer');</a></li>
+			  <li data-source="media-archive"><a href="javascript:void(0)">_('From Media archive');</a></li>
+		      <li data-source="url"><a href="javascript:void(0)">_('Paste from URL');</a></li>
 			</ul>
+		-->
 		</div>
 		<input type="text" class="upload-url" placeholder="http://">
 	</div>
 
 	<div class="form-row">
-		<input type="text" class="input-mini-upload" placeholder="_('width')">
+		<input type="text" class="input-mini-upload" placeholder="_('width');">
 		x
-		<input type="text" class="input-mini-upload" placeholder="_('height')">
+		<input type="text" class="input-mini-upload" placeholder="_('height');">
 	</div>
 
 	<div class="form-row">
-		<textarea class="upload-caption" placeholder="_('Image Caption')"></textarea>
+		<textarea class="upload-caption" placeholder="_('Image Caption');"></textarea>
 	</div>
 	
 </article>

@@ -20,11 +20,15 @@
             '[data-action="save-close"]': { 'click': 'saveClose' },
             '[data-action="cancel"]': { 'click': 'close' },
             '[name="Language"]': { change: 'changeLanguage' },
-            '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' }
+            '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
+			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
         },
         init: function() {
-            
         },
+		selectInput: function(evt) {
+			$(evt.target).select();
+		},
         save: function(evt){
             var self = this,
                 EmbedConfig = {
@@ -37,6 +41,7 @@
                     EmbedConfig: JSON.stringify(EmbedConfig)
                 };
             self.apiKeysView.save();
+			self.model.off('update');
             self.model.set(data).sync();
         },
         saveClose: function(evt) {
@@ -52,12 +57,11 @@
                 }
             self.apiKeysView.save();
             self.model.set(data).sync().done(function(){
-               self.close(evt);
+               self.close();
             });
         },
-        close:  function(evt) {
-            var self = this;
-            $(self.el).find('a[data-target="edit-blog"]').click();
+        close: function() {
+            Backbone.history.navigate('live-blog/' + this.model.get('Id'), true);
         },
         refresh: function() {
             var self = this;
@@ -90,8 +94,8 @@
                 themesData,
                 data = $.extend({}, self.model.feed(), {
                     BlogHref: self.theBlog,
-                    ui: 
-                    {
+                    BlogId: self.model.get('Id'),
+                    ui: {
                         content: 'is-content=1',
                         side: 'is-side=1',
                         submenu: 'is-submenu',
@@ -102,6 +106,13 @@
             if(!embedConfig.FrontendServer || embedConfig.FrontendServer == ''){
                 embedConfig.FrontendServer = config.api_url;
             }
+            if(this.model.href.indexOf(config.api_url) !== -1 ) {
+                data["OutputLink"] = this.model.href.replace(config.api_url, embedConfig.FrontendServer);
+            }
+            else {
+                data["OutputLink"] = embedConfig.FrontendServer + this.model.href;
+            }
+            data["ProviderLink"] = data["OutputLink"].split('/').slice(0,-1).join('/');
             $.superdesk.applyLayout('livedesk>configure', data, function() {
             //$.tmpl('livedesk>configure', self.model.feed(), function(e, o){
                 //self.el.html(o);
@@ -134,37 +145,6 @@
                 self.themesView = new ThemesView(themesData);
                 // TODO: move this in emebed view or in theme view
                 self.el.find('#emebed-script').focus(function() { $(this).select(); } );
-                var 
-                    topSubMenu = $(self.el).find('[is-submenu]'),
-                    content = $(self.el).find('[is-content]');
-                $(topSubMenu)
-                .off(self.getEvent('click'), 'a[data-target="configure-blog"]')
-                .on(self.getEvent('click'), 'a[data-target="configure-blog"]', function(event)
-                {
-                    event.preventDefault();
-                    var blogHref = $(this).attr('href')
-                    Action.get('modules.livedesk.configure').done(function(action) {
-                        require([action.get('Script').href], function(app){ new app(blogHref); });
-                    });
-                })
-                .off(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
-                .on(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
-                {
-                    event.preventDefault();
-                    var blogHref = $(this).attr('href')
-                    Action.get('modules.livedesk.manage-collaborators').done(function(action) {
-                        require([action.get('Script').href], function(app){ new app(blogHref); });
-                    });
-                })
-                .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
-                .on(self.getEvent('click'), 'a[data-target="edit-blog"]', function(event)
-                {
-                    event.preventDefault();
-                    var blogHref = $(this).attr('href');
-                    Action.get('modules.livedesk.edit').done(function(action) { 
-                        require([action.get('Script').href], function(EditApp){ EditApp(blogHref); });
-                    });
-                });
             });
         }
     });

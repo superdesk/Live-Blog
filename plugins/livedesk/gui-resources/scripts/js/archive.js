@@ -19,25 +19,6 @@ function($, superdesk, giz, Action, Blog)
     ({
         tagName: 'tr',
         model: null,
-        events: 
-        {
-            '.view': { 'click': 'loadBlog' }
-        },
-        loadBlog: function(evt)
-        {
-            superdesk.showLoader();
-            var theBlog = $(evt.target).attr('data-blog-link'), self = this;
-            Action.get('modules.livedesk.edit')
-            .done(function(action)
-            {
-                var callback = function()
-                { 
-                    require([action.get('Script').href], function(EditApp){ EditApp(theBlog); }); 
-                };
-                action.get('Script') && superdesk.navigation.bind( $(evt.target).attr('href'), callback, $(evt.target).attr('data-blog-title') );
-            });
-            evt.preventDefault();
-        },
         init: function()
         {
             var self = this;

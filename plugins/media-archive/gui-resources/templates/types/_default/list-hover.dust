@@ -29,7 +29,7 @@
 	{+side}
 	<div class="actions-right">
     	<div class="btn-group">
-        	<button class="btn btn-mini">_('Action')</button>
+        	<button class="btn btn-mini">_('Action');</button>
 			<button data-toggle="dropdown" class="btn btn-mini dropdown-toggle">
             	<span class="caret"></span>
 			</button>

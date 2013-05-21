@@ -21,7 +21,7 @@ from ally.support.sqlalchemy.mapper import validate
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=['Type'])
 class SourceMapped(Base, Source):
     '''
     Provides the mapping for Source.

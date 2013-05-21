@@ -1,0 +1,4 @@
+{>"livedesk>items/{Base}"/}
+{<EditableClass}{/EditableClass}
+{<EditableAttribute}{/EditableAttribute}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}

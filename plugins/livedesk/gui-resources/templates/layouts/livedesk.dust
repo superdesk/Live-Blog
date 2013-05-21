@@ -1,16 +1,16 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
   <div id="role-blog-publish" style="display: none;">
-  	<a class="btn btn-medium pull-right btn-danger {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Take offline')</a>
-  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Go live')</a>
-  	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
+  	<a class="btn btn-medium pull-right btn-danger {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Take offline');</a>
+  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Go live');</a>
+  	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog');</a>
   </div>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
-		<li class="{ui.submenuActive1}"><a data-target="edit-blog" href="{BlogHref}">{Title|t}</a></li>
-		<li class="{ui.submenuActive2}"><a data-target="configure-blog" href="{BlogHref}">_("Configure Blog");</a></li>
-		<li class="{ui.submenuActive3}"><a data-target="manage-collaborators-blog" href="{BlogHref}">_("Manage collaborators");</a></li>
-		<!--<li class=""><a href="#">Manage feeds</a></li-->
+		<li class="{ui.submenuActive1}"><a href="#live-blog/{Id}">{Title|t}</a></li>
+		<li class="{ui.submenuActive2}"><a href="#live-blog/{Id}/config">_("Configure Blog");</a></li>
+		<li class="{ui.submenuActive3}"><a href="#live-blog/{Id}/collaborators">_("Manage collaborators");</a></li>
+		<li class="{ui.submenuActive4}"><a href="#live-blog/{Id}/feeds">_("Manage feeds");</a></li>
 	{!/blog!}	
     </ul>
     
@@ -35,53 +35,53 @@
 <div class="modal hide fade" id="put-live">
   <div class="modal-header">
 	<a class="popup-close" data-dismiss="modal">x</a>
-    <h3 id="put-live-title-live" class="{isLive}">_('Go live?')</h3>
-    <h3 id="put-live-title-offline" class="{isOffline}">_('Take offline?')</h3>
+    <h3 id="put-live-title-live" class="{isLive}">_('Go live?');</h3>
+    <h3 id="put-live-title-offline" class="{isOffline}">_('Take offline?');</h3>
   </div>
   <div class="modal-body" style="height:50px; min-height:50px">
-    <p id="put-live-msg-live" class="{isLive}">_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
-    <p id="put-live-msg-offline" class="{isOffline}">_('Are you sure you want to take Live Blog') <strong>{Title|s}</strong> _('offline?')</p>
+    <p id="put-live-msg-live" class="{isLive}">_('Are you sure you want to put Live Blog'); <strong>{Title|s}</strong> _('online?');</p>
+    <p id="put-live-msg-offline" class="{isOffline}">_('Are you sure you want to take Live Blog'); <strong>{Title|s}</strong> _('offline?');</p>
   </div>
   <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">_('No')</a>
-    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes')</a>
+    <a href="#" class="btn" data-dismiss="modal">_('No');</a>
+    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes');</a>
   </div>
 </div>
 <div class="modal hide fade" id="unpublish-live">
   <div class="modal-header"> <a class="popup-close" data-dismiss="modal">x</a>
-    <h3>_('Go live')</h3>
+    <h3>_('Go live');</h3>
   </div>
   <div class="modal-body" style="height:50px; min-height:50px">
-    <p>_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
+    <p>_('Are you sure you want to put Live Blog'); <strong>{Title|s}</strong> _('online?');</p>
   </div>
   <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">_('No')</a>
-    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes')</a>
+    <a href="#" class="btn" data-dismiss="modal">_('No');</a>
+    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes');</a>
   </div>
 </div>
 
 <div id="delete-post" class="modal hide">
   <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
-    <h3>_("Delete post")</h3>
+    <h3>_("Delete post");</h3>
   </div>
   <div class="modal-body">
-  <p>_("Are you sure you want to delete the post") <strong id="post-name"></strong>?</p>
+  <p>_("Are you sure you want to delete the post"); <strong id="post-name"></strong>?</p>
   </div>
   <div class="modal-footer">
-    <a data-dismiss="modal" class="no btn" href="#">_("No")</a>
-    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes")</a>
+    <a data-dismiss="modal" class="no btn" href="#">_("No");</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes");</a>
   </div>
 </div>
 <div id="delete-own-post" class="modal hide">
   <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
-    <h3>_("Delete post")</h3>
+    <h3>_("Delete post");</h3>
   </div>
   <div class="modal-body">
-  <p>_("Are you sure you want to delete the post") <strong id="post-name"></strong>?</p>
+  <p>_("Are you sure you want to delete the post"); <strong id="post-name"></strong>?</p>
   </div>
   <div class="modal-footer">
-    <a data-dismiss="modal" class="no btn" href="#">_("No")</a>
-    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes")</a>
+    <a data-dismiss="modal" class="no btn" href="#">_("No");</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes");</a>
   </div>
 </div>
 <div id="unpublish-post" class="modal hide in">
