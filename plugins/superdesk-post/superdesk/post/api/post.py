@@ -10,7 +10,7 @@ API specifications for posts.
 '''
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
-from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsRange
+from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsRange, AsLikeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
@@ -60,6 +60,7 @@ class QPostUnpublished(QEntity, QWithCId):
     isModified = AsBoolean
     updatedOn = AsDateTimeOrdered
     deletedOn = AsDateTimeOrdered
+    content = AsLikeOrdered
 
 @query(Post)
 class QPostPublished(QPostUnpublished):
