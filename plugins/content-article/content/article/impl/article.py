@@ -12,18 +12,20 @@ API implementation for article.
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError
+from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import handle
-from content.article.api.article import IArticleService, Article, QArticle
+from ally.support.sqlalchemy.util_service import handle, buildLimits
+from content.article.api.article import IArticleService, Article, QArticle, IArticleTargetTypeService
 from content.article.api.search_provider import IArticleSearchProvider
-from content.article.meta.article import ArticleMapped
+from content.article.meta.article import ArticleMapped, ArticleTargetTypeMapped
+from content.article.meta.target_type import TargetTypeMapped
 from content.packager.api.item import IItemService, Item, CLASS_PACKAGE
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
 from content.publisher.api.publisher import IContentPublisherService
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
 import json
 from ally.api.extension import IterPart
@@ -199,7 +201,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             return True
         return False
 
-
+# --------------------------------------------------------------------
 
 @injected
 @setup(IArticleTargetTypeService, name='articleTargetTypeService')
@@ -219,7 +221,7 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
         @see: IArticleTargetTypeService.getUsers
         '''
 
-        sql = self.session().query(ArticleMapped).join(ArticleTargetTypeMapped)
+        sql = self.session().query(TargetTypeMapped).join(ArticleTargetTypeMapped)
         sql = sql.filter(ArticleTargetTypeMapped.article == id)
 
         entities = buildLimits(sql, offset, limit).all()
@@ -231,10 +233,8 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
         '''
         @see: IArticleTargetTypeService.getUnassignedTargetTypes
         '''
-        sql = self.session().query(UserMapped)
-        sql = sql.filter(not_(UserMapped.Id.in_(self.session().query(DeskUserMapped.user).filter(DeskUserMapped.desk == deskId).subquery())))
-        if q:
-            sql = buildQuery(sql, q, UserMapped)
+        sql = self.session().query(TargetTypeMapped)
+        sql = sql.filter(not_(TargetTypeMapped.id.in_(self.session().query(ArticleTargetTypeMapped.target_type).filter(ArticleTargetTypeMapped.article == id).subquery())))
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
@@ -245,26 +245,41 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
         '''
         @see IArticleTargetTypeService.attachTargetType
         '''
-        sql = self.session().query(DeskUserMapped)
-        sql = sql.filter(DeskUserMapped.desk == deskId)
-        sql = sql.filter(DeskUserMapped.user == userId)
+        targetId = self._targetTypeId(targetKey)
+
+        sql = self.session().query(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+        sql = sql.filter(ArticleTargetTypeMapped.target_type == targetId)
         if sql.count() == 1: return
 
-        deskUser = DeskUserMapped()
-        deskUser.desk = deskId
-        deskUser.user = userId
+        articleTargetType = ArticleTargetTypeMapped()
+        articleTargetType.article = id
+        articleTargetType.target_type = targetId
 
-        self.session().add(deskUser)
-        self.session().flush((deskUser,))
+        self.session().add(articleTargetType)
+        self.session().flush((articleTargetType,))
 
     def detachTargetType(self, id, targetKey):
         '''
         @see IArticleTargetTypeService.detachTargetType
         '''
-        sql = self.session().query(DeskUserMapped)
-        sql = sql.filter(DeskUserMapped.desk == deskId)
-        sql = sql.filter(DeskUserMapped.user == userId)
+        targetId = self._targetTypeId(targetKey)
+
+        sql = self.session().query(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+        sql = sql.filter(ArticleTargetTypeMapped.target_type == targetId)
         count_del = sql.delete()
 
         return (0 < count_del)
 
+   # ----------------------------------------------------------------
+
+    def _targetTypeId(self, key):
+        '''
+        Provides the output target type id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TargetTypeMapped.id).filter(TargetTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(Ref(_('Invalid output target type %(type)s') % dict(type=key),))
