@@ -22,12 +22,9 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-try: from __setup__ import ally_core_http
+try: from __setup__ import ally_core_http # @UnusedImport
 except ImportError: log.info('No ally core http component available, thus cannot populate configurations and processors')
 else:
-    ally_core_http = ally_core_http  # Just to avoid the import warning
-    # ----------------------------------------------------------------
-    
     from .patch_ally_core import gatewaysFromPermissions, updateAssemblyGatewaysForResources, \
         iterateResourcePermissions, modelFiltersForPermissions, alternateNavigationPermissions, userValueForFilter, \
         alternateNavigationPermissions

@@ -10,13 +10,12 @@ SQL alchemy implementation for language API.
 '''
 
 from ..api.country import Country, ICountryService
-from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import trimIter, processQuery
+from ally.support.api.util_service import processCollection
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 
@@ -44,28 +43,20 @@ class CountryServiceBabelAlchemy(ICountryService):
         assert isinstance(self.countries, Countries), 'Invalid countries %s' % self.countries
         self._locales = {code:Locale.parse(code) for code in locale_identifiers()}
 
-    def getByCode(self, code, locales):
+    def getByCode(self, code, locales=()):
         '''
         @see: ICountryService.getByCode
         '''
         if code not in self.countries: raise InputError(Ref(_('Unknown country code'), ref=Country.Code))
         return Country(code, self._translate(code, self._localesOf(locales)))
 
-    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
+    def getAllAvailable(self, locales=(), q=None, **options):
         '''
         @see: ILanguageService.getAllAvailable
         '''
         locales = self._localesOf(locales)
-        if q:
-            countries = (Country(code, self._translate(code, locales)) for code in self.countries)
-            countries = processQuery(countries, q, Country)
-            length = len(countries)
-            countries = trimIter(countries, length, offset, limit)
-        else:
-            length = len(self.countries)
-            countries = trimIter(self.countries, length, offset, limit)
-            countries = (Country(code, self._translate(code, locales)) for code in countries)
-        return IterPart(countries, length, offset, limit)
+        return processCollection(self.countries, Country, q,
+                                 lambda code: Country(code, self._translate(code, locales)), withTotal=True, **options)
 
     # ----------------------------------------------------------------
 

@@ -11,6 +11,7 @@ API specifications for languages.
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered
+from ally.api.option import Slice #@UnusedImport
 from ally.api.type import Locale, List, Iter
 from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.api.domain_superdesk import modelLocalization
@@ -62,8 +63,7 @@ class ILanguageService(IEntityCRUDService):
         '''
 
     @call(webName='Available')
-    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
-                        q:QLanguage=None) -> Iter(Language):
+    def getAllAvailable(self, locales:List(Locale)=(), q:QLanguage=None, **options:Slice) -> Iter(Language.Code):
         '''
         Provides all the available languages.
         '''

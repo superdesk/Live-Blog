@@ -56,7 +56,7 @@ class QueryCriteriaService(IQueryCriteriaService):
             queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, types, key))
 
         if q:
-            queryCriterias = processQuery(queryCriterias, q, QueryCriteria)
+            queryCriterias = processQuery(queryCriterias, QueryCriteria, q)
 
         return queryCriterias
 

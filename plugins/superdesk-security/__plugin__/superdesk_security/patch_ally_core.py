@@ -21,12 +21,9 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-try: from __setup__ import ally_core
+try: from __setup__ import ally_core # @UnusedImport
 except ImportError: log.info('No ally core component available, thus cannot populate processors')
 else:
-    ally_core = ally_core  # Just to avoid the import warning
-    # ----------------------------------------------------------------
-    
     from acl.core.impl.processor import resource_node_associate, resource_model_filter, resource_alternate, resource_gateway
     
     iterateResourcePermissions = checkResourceAvailableRights = modelFiltersForPermissions = \

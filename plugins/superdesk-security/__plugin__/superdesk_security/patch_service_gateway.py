@@ -23,14 +23,10 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 try:
-    from __setup__ import ally_gateway
-    from __setup__ import ally_core_http
+    from __setup__ import ally_gateway # @UnusedImport
+    from __setup__ import ally_core_http # @UnusedImport
 except ImportError: log.info('No gateway service available, thus no need to publish the authorized gateway URI')
 else:
-    ally_gateway = ally_gateway  # Just to avoid the import warning
-    ally_core_http = ally_core_http  # Just to avoid the import warning
-    # ----------------------------------------------------------------
-    
     from __setup__.ally_core_http.processor import root_uri_resources
     from __setup__.ally_gateway.processor import gateway_authorized_uri
     

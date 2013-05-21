@@ -9,19 +9,19 @@ Created on Jun 23, 2011
 SQL alchemy implementation for language API.
 '''
 
+from ally.api.extension import IterPart
 from ally.container.binder_op import validateProperty
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, DevelError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import trimIter, processQuery
+from ally.support.api.util_service import processCollection
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 from collections import OrderedDict
 from sql_alchemy.impl.entity import EntityNQServiceAlchemy
 from superdesk.language.api.language import Language, ILanguageService
 from superdesk.language.meta.language import LanguageEntity
-from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -50,23 +50,13 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if not locale: raise InputError(Ref(_('Unknown language code'), ref=Language.Code))
         return self._populate(Language(code), self._translator(locale, self._localesOf(locales)))
 
-    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
+    def getAllAvailable(self, locales=(), q=None, **options):
         '''
         @see: ILanguageService.getAllAvailable
         '''
         locales = self._localesOf(locales)
-        if q:
-            languages = (self._populate(Language(code), self._translator(locale, locales))
-                         for code, locale in self._locales.items())
-            languages = processQuery(languages, q, Language)
-            length = len(languages)
-            languages = trimIter(languages, length, offset, limit)
-        else:
-            length = len(self._locales)
-            languages = trimIter(self._locales.items(), length, offset, limit)
-            languages = (self._populate(Language(code), self._translator(locale, locales))
-                         for code, locale in languages)
-        return IterPart(languages, length, offset, limit)
+        fetcher = lambda code: self._populate(Language(code), self._translator(self._locales[code], locales))
+        return processCollection(self._locales.keys(), Language, q, fetcher, withTotal=True, **options)
 
     def getById(self, id, locales):
         '''

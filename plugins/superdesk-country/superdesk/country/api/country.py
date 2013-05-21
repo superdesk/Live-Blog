@@ -9,8 +9,9 @@ Created on Aug 2, 2011
 API specifications for languages.
 '''
 
-from ally.api.config import service, call, query, LIMIT_DEFAULT
+from ally.api.config import service, call, query
 from ally.api.criteria import AsLikeOrdered
+from ally.api.option import Slice #@UnusedImport
 from ally.api.type import Locale, List, Iter
 from superdesk.api.domain_superdesk import modelLocalization
 
@@ -53,8 +54,7 @@ class ICountryService:
         '''
 
     @call
-    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
-                        q:QCountry=None) -> Iter(Country):
+    def getAllAvailable(self, locales:List(Locale)=(), q:QCountry=None, **options:Slice) -> Iter(Country.Code):
         '''
         Provides all the available countries.
         '''
