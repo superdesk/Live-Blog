@@ -20,6 +20,7 @@ from ally.container.binder_op import validateManaged
 from sqlalchemy.ext.hybrid import hybrid_property
 from superdesk.user.meta.user import UserMapped
 from superdesk.person.meta.person import PersonMapped
+from ..meta.target_type import TargetTypeMapped
 
 # --------------------------------------------------------------------
 

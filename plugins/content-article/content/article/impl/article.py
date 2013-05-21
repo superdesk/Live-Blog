@@ -27,6 +27,7 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
+from sqlalchemy.sql.expression import not_
 import json
 from ally.api.extension import IterPart
 from superdesk.user.api.user import IUserService
@@ -118,7 +119,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(article, Article)
 
         # decode the JSON content
-        rawContent = json.loads(article.Content)
+        try:
+            rawContent = json.loads(article.Content)
+        except:
+            raise InputError(_('Invalid article content'))
         try:
             # create the corresponding item (@see IItemService)
             item = Item()
@@ -214,7 +218,6 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
         '''
         Construct the article target type service.
         '''
-        EntityServiceAlchemy.__init__(self, ArticleTargetTypeMapped)
 
     def getTargetTypes(self, id, offset=None, limit=None, detailed=False):
         '''
