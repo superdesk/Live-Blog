@@ -9,7 +9,7 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog
+from ..api.blog import IBlogService, QBlog, Blog, BlogSource
 from ..meta.blog import BlogMapped
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
@@ -23,11 +23,11 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.source.api.source import Source
 from superdesk.source.meta.source import SourceMapped
 from livedesk.meta.blog import BlogSourceMapped
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
-from livedesk.api.blog import BlogSource, SourceChained
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
 
@@ -99,6 +99,17 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if blog.CreatedOn is None: blog.CreatedOn = current_timestamp()
         return super().insert(blog)
 
+    def getSource(self, blogId, sourceId):
+        '''
+        @see: IBlogService.getSource
+        '''
+        source = self.session().query(SourceMapped).get(sourceId)
+        if not source:
+            raise InputError(Ref(_('Unknown source'),))
+        sql = self.session().query(BlogSourceMapped)
+        sql = sql.filter(BlogSourceMapped.Blog == blogId).filter(BlogSourceMapped.Source == sourceId)
+        return source
+
     def getSources(self, blogId):
         '''
         @see: IBlogService.getSources
@@ -112,15 +123,13 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         # TODO: Mugur: enforce the blog source type to chained blog and also validate the provider to have blog provider typ
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
-        assert isinstance(source, SourceChained), 'Invalid source %s' % source
-        if source.Provider is None: raise InputError(Ref(_('Missing chained blog source provider'), ref=SourceChained.Provider))
+        assert isinstance(source, Source), 'Invalid source %s' % source
         
         source.Type = 'chained blog'  # TODO: Mugur: Externalize the chained blog type.
         sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
         ent.Blog = blogId
         ent.Source = sourceId
-        ent.Provider = source.Provider
         try:
             self.session().add(ent)
             self.session().flush((ent,))

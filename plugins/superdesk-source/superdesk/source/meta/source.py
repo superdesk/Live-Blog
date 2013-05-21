@@ -35,6 +35,8 @@ class SourceMapped(Base, Source):
     URI = Column('uri', String(255), nullable=False)
     Key = Column('key', String(1024), nullable=True)
     IsModifiable = Column('modifiable', Boolean, nullable=False)
+    OriginName = Column('origin_name', String(255), nullable=True)
+    OriginURI = Column('origin_uri', String(255), nullable=True)
     # Non REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(SourceTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     type = relationship(SourceTypeMapped, uselist=False, lazy='joined')
