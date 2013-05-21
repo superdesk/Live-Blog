@@ -1,14 +1,3 @@
-requirejs.config({
-    paths: {
-        'angular': 'http://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular',
-        'angular-resource': 'http://code.angularjs.org/1.1.4/angular-resource'
-    },
-    shim: {
-        'angular': {exports: 'angular'},
-        'angular-resource': {deps: ['angular']}
-    }
-});
-
 define([
     'jquery',
     'backbone',

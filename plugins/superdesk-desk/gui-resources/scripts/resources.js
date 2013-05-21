@@ -16,7 +16,7 @@ define([
             angular.forEach(data, function(value, key) {
                 if (value && typeof value === 'object') {
                     this[key] = 'Key' in value ? value.Key : value.Id;
-                } else {
+                } else if (key !== 'href') {
                     this[key] = value;
                 }
             }, update);
@@ -25,9 +25,11 @@ define([
     }]);
 
     resources.factory('Desk', ['$resource', '$q', function($resource, $q) {
-        var Desk = $resource('/resources/Desk/Desk/:id', {id: '@Id'},
-            {query: {method: 'GET', params: {'X-Filter': 'Id,Name,User'}, isArray: false}}
-        );
+        var Desk = $resource('/resources/Desk/Desk/:Id', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*,UserUnassigned'}, isArray: false},
+            save: {method: 'POST', params: {'X-Filter': 'Id'}},
+            update: {method: 'PUT'}
+        });
 
         Desk.prototype = {
             getUsers: function() {
@@ -76,9 +78,11 @@ define([
     resources.factory('TaskListLoader', ['TaskList', '$route', '$q', function(TaskList, $route, $q) {
         return function() {
             var delay = $q.defer();
+
             TaskList.get({deskId: $route.current.params.deskId}, function(response) {
                 delay.resolve(response.TaskList);
             });
+
             return delay.promise;
         };
     }]);
@@ -91,12 +95,63 @@ define([
 
     resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
         this.loadSubtasks = function(task) {
-            var tasks = $resource('/resources/Desk/Task/:taskId/Task', {taskId: task.Id}, {query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}});
+            var tasks = $resource('/resources/Desk/Task/:taskId/Task', {taskId: task.Id}, {
+                query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+            });
+
             var delay = $q.defer();
             tasks.query(function(response) {
                 delay.resolve(response.TaskList);
             });
+
             return delay.promise;
+        };
+    }]);
+
+    resources.factory('DeskMember', ['$resource', function($resource) {
+        return $resource('/resources/Desk/Desk/:deskId/User/:userId', {deskId: '@deskId', userId: '@userId'}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}},
+            save: {method: 'PUT'}
+        });
+    }]);
+
+    resources.service('DeskService', ['$resource', '$q', 'DeskMember', function($resource, $q, DeskMember) {
+        this.getMembers = function(desk) {
+            var delay = $q.defer();
+            DeskMember.query({deskId: desk.Id}, function(response) {
+                delay.resolve(response.UserList);
+            });
+
+            return delay.promise;
+        };
+
+        this.addMember = function(desk, user) {
+            DeskMember.save({deskId: desk.Id, userId: user.Id});
+        };
+
+        this.removeMember = function(desk, user) {
+            DeskMember.delete({deskId: desk.Id, userId: user.Id});
+        };
+
+        this.getAvailableUsers = function(desk) {
+            var users = $resource(parseUrl(desk.UserUnassigned.href), {}, {
+                query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+            });
+
+            var delay = $q.defer();
+            users.query(function(response) {
+                delay.resolve(response.UserList);
+            });
+
+            return delay.promise;
+        };
+
+        this.getCards = function(desk) {
+            return [
+                {Id: 'todo', Key: 'to do', Name: _('To Do')},
+                {Id: 'inprogress', Key: 'in progress', Name: _('In Progress')},
+                {Id: 'done', Key: 'done', Name: _('Done')}
+            ];
         };
     }]);
 });
