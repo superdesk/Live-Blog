@@ -48,6 +48,9 @@ class Post(Entity):
 class QWithCId:
     '''
     Provides the query for cId.
+    TODO: This was added for a possibility to check for just new SMS posts.
+          It partially emulates the cId parameter behavior of BlogPosts.
+          It should be done more properly at some future.
     '''
     cId = AsRange
 
