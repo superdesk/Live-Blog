@@ -51,7 +51,7 @@ function($, superdesk, giz, base, VideoData, VideoInfo, VideoInfoList)
     ({
         getInfoCollection: function()
         {
-            return new VideoInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'VideoInfo').replace('MetaData', 'VideoData'));
+            return giz.Auth(new VideoInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'VideoInfo').replace('MetaData', 'VideoData')));
         }
     });
     return {edit: Edit, view: View, remove: Remove};

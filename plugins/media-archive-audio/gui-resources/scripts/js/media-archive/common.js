@@ -51,7 +51,7 @@ function($, superdesk, giz, base, AudioData, AudioInfo, AudioInfoList)
     ({
         getInfoCollection: function()
         {
-            return new AudioInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'AudioInfo').replace('MetaData', 'AudioData'));
+            return giz.Auth(new AudioInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'AudioInfo').replace('MetaData', 'AudioData')));
         }
     });
     return {edit: Edit, view: View, remove: Remove};
