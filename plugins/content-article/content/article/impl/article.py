@@ -234,7 +234,7 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
         @see: IArticleTargetTypeService.getUnassignedTargetTypes
         '''
         sql = self.session().query(TargetTypeMapped)
-        sql = sql.filter(not_(TargetTypeMapped.id.in_(self.session().query(ArticleTargetTypeMapped.target_type).filter(ArticleTargetTypeMapped.article == id).subquery())))
+        sql = sql.filter(not_(TargetTypeMapped.id.in_(self.session().query(ArticleTargetTypeMapped.targetType).filter(ArticleTargetTypeMapped.article == id).subquery())))
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
@@ -249,12 +249,12 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
 
         sql = self.session().query(ArticleTargetTypeMapped)
         sql = sql.filter(ArticleTargetTypeMapped.article == id)
-        sql = sql.filter(ArticleTargetTypeMapped.target_type == targetId)
+        sql = sql.filter(ArticleTargetTypeMapped.targetType == targetId)
         if sql.count() == 1: return
 
         articleTargetType = ArticleTargetTypeMapped()
         articleTargetType.article = id
-        articleTargetType.target_type = targetId
+        articleTargetType.targetType = targetId
 
         self.session().add(articleTargetType)
         self.session().flush((articleTargetType,))
@@ -267,7 +267,7 @@ class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeSe
 
         sql = self.session().query(ArticleTargetTypeMapped)
         sql = sql.filter(ArticleTargetTypeMapped.article == id)
-        sql = sql.filter(ArticleTargetTypeMapped.target_type == targetId)
+        sql = sql.filter(ArticleTargetTypeMapped.targetType == targetId)
         count_del = sql.delete()
 
         return (0 < count_del)
