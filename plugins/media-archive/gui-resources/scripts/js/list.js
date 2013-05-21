@@ -95,8 +95,8 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         languageView: null,
         init: function()
         {
-            this.types = new MetaTypeCollection;
-            this.criteriaList = new QueryCriteriaList;
+            this.types = giz.Auth(new MetaTypeCollection);
+            this.criteriaList = giz.Auth(new QueryCriteriaList);
             this.types.on('read update', this.render, this);
             this.criteriaList.on('read update', this.renderCriteria, this);
             
