@@ -23,7 +23,7 @@ class IUserActionService:
     '''
 
     @call
-    def getAll(self, userId:User.Id, path:str=None) -> Iter(Action):
+    def getAll(self, userId:User.Id, path:str=None, origPath:str=None) -> Iter(Action):
         '''
         Get all actions registered for the provided user.
         '''

@@ -60,7 +60,7 @@ class IBlogCollaboratorService:
         '''
         
     @call
-    def getActions(self, userId:User.Id, blogId:Blog, path:str=None) -> Iter(Action):
+    def getActions(self, userId:User.Id, blogId:Blog, path:str=None, origPath:str=None) -> Iter(Action):
         '''
         Get all actions registered for the provided user for the blog.
         '''
