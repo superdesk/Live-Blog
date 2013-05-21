@@ -35,7 +35,7 @@ define('providers/edit', [
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
 	var 
-	uploadView = new UploadView,
+	uploadView = new UploadView({thumbSize: 'large'}),
 	ImagePostType = Gizmo.View.extend
 	({ 
 	    events:
