@@ -14,6 +14,8 @@ from datetime import datetime
 from ally.api.config import query, service, call, LIMIT_DEFAULT
 from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
 from ally.api.type import Iter
+from superdesk.user.api.user import User
+from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
 
@@ -28,13 +30,13 @@ class Item:
     GUId = str
     Version = int
     ItemClass = str
-    Urgency = str
     HeadLine = str
     SlugLine = str
-    Byline = str
-    CreditLine = str
+    Creator = User
+    Author = Person
     FirstCreated = datetime
     VersionCreated = datetime
+    PublishedOn = datetime
 
 # --------------------------------------------------------------------
 

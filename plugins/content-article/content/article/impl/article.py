@@ -27,7 +27,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.functions import current_timestamp
 import json
 from ally.api.extension import IterPart
-from superdesk.user.api.user import IUserService
 from urllib.parse import quote
 
 # --------------------------------------------------------------------
@@ -49,11 +48,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
     # content service used to publish the article content to the web
     articleSearchProvider = IArticleSearchProvider; wire.entity('articleSearchProvider')
     # the search provider used to search the article list
-    userService = IUserService; wire.entity('userService')
-    # the user service used to set the creator
-    authorService = IUserService; wire.entity('authorService')
-    # the author service used to set the author
-    
+
     def __init__(self):
         '''
         Construct the article service.
@@ -101,14 +96,14 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         sql, count = self.articleSearchProvider.buildQuery(self.session(), offset, limit, q)
         articles = sql.all()
-        
+
         for article in articles:
             assert isinstance(article, Article)
             params = dict(guid=quote(article.Item, safe=''))
             article.Preview = self.preview_url % params
 
-        return IterPart(articles, count, offset, limit) 
-    
+        return IterPart(articles, count, offset, limit)
+
     def insert(self, article):
         '''
         Implementation of @see: IArticleService.publish
@@ -122,10 +117,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             item = Item()
             item.ItemClass = CLASS_PACKAGE
             item.HeadLine = rawContent['Title']
-            item.SlugLine = '-'.join(item.HeadLine.split())
             item.Version = 1
-            item.Byline = self.authorService.getById(article.Author).FullName
-            item.CreditLine = self.userService.getById(article.Creator).FullName
+            item.Creator = article.Creator
+            item.Author = article.Author
+            item.PublishedOn = article.PublishedOn
             article.Item = self.itemService.insert(item)
 
             # create the item content (@see IContentService, @see IItemContentService)
@@ -141,9 +136,9 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
 
         # insert the article content
         article = super().insert(article)
-        
+
         self.articleSearchProvider.update(article)
-        
+
         return article
 
     def update(self, article):
@@ -164,7 +159,6 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(item, Item)
         rawContent = json.loads(article.Content)
         item.HeadLine = rawContent['Title']
-        item.SlugLine = '-'.join(item.HeadLine.split())
         item.Version += 1
         self.itemService.update(item)
         q = QItemContent()
@@ -179,9 +173,9 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         # if article was published republish the changes
         if article.PublishedOn is not None:
             self.contentPublisherService.publish(article.Item)
-        
+
         self.articleSearchProvider.update(article)
-            
+
 
     def delete(self, id):
         '''

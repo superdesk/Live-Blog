@@ -4,14 +4,14 @@ Created on Mar 14, 2013
 @package: content publisher
 @copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Petr Jasek 
+@author: Petr Jasek
 
 Contains MongoDB meta for content publisher API.
 '''
 
 from collections import deque
 from mongoengine.document import EmbeddedDocument, Document
-from mongoengine.fields import StringField, IntField, EmbeddedDocumentField,\
+from mongoengine.fields import StringField, IntField, EmbeddedDocumentField, \
     ListField, DateTimeField
 
 # ----------------------------------------------------------------
@@ -62,17 +62,17 @@ class Item(Document):
     '''
     CLASS_TEXT = 'icls:text'
     CLASS_PACKAGE = 'icls:composite'
-    
+
     guid = StringField(unique=True)
     version = IntField(required=True)
     itemClass = StringField()
-    urgency = StringField()
     headline = StringField()
     slugline = StringField()
     byline = StringField()
     creditline = StringField()
     firstCreated = DateTimeField()
     versionCreated = DateTimeField()
+    publishedOn = DateTimeField()
 
     groups = ListField(EmbeddedDocumentField(Group))
     contents = ListField(EmbeddedDocumentField(Content))

@@ -60,13 +60,13 @@ class ContentPublisherService(IContentPublisherService):
         item.guid = myItem.GUId
         item.version = myItem.Version
         item.itemClass = myItem.ItemClass
-        item.urgency = myItem.Urgency
         item.headline = myItem.HeadLine
-        item.slugline = myItem.SlugLine
-        item.byline = myItem.Byline
-        item.creditline = myItem.CreditLine
+        item.slugline = '-'.join(myItem.HeadLine.split())
+        item.byline = myItem.Author.FullName
+        item.creditline = myItem.Creator.FullName
         item.firstCreated = myItem.FirstCreated
         item.versionCreated = myItem.VersionCreated
+        item.publishedOn = myItem.PublishedOn
 
         q = QItemContent()
         q.item = myItem.GUId
