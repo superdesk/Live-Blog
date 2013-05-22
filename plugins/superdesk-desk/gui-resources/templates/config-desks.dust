@@ -99,7 +99,9 @@
       <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin:-8px 0 0 0;float:right !important;" ng-model="userSearch">
 
         <label class="checkbox select-all-colaborator">
-          <input type="checkbox" name="selectAllMembers" ng-model="checkAll"> _("Select all");
+          <span ng-show>
+            <input type="checkbox" name="selectAllMembers" ng-model="checkAll"> _("Select all");
+          </span>
         </label>
 
         <ul class="internal-collaborators">

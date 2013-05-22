@@ -3,8 +3,14 @@ function(angular) {
     'use strict';
 
     return function($scope, $window, DeskListLoader, TaskStatusLoader, Desk, DeskService, TaskStatus) {
-        $scope.desks = DeskListLoader();
-        $scope.statuses = TaskStatusLoader();
+        DeskListLoader().then(function(desks) {
+            $scope.desks = desks;
+        });
+
+        TaskStatusLoader().then(function(statuses) {
+            $scope.statuses = statuses;
+        });
+
         $scope.colors = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
         $scope.createDesk = function() {
