@@ -48,4 +48,4 @@ class CardTaskStatusMapped(Base):
 
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     card = Column('fk_card_id', ForeignKey(CardMapped.Id, ondelete='CASCADE'), nullable=False)
-    taskStatus = Column('fk_task_status_id', ForeignKey(TaskStatusMapped.Id, ondelete='CASCADE'), nullable=False)
+    taskStatus = Column('fk_task_status_id', ForeignKey(TaskStatusMapped.id, ondelete='CASCADE'), nullable=False)

@@ -71,13 +71,13 @@ class ICardService(IEntityService):
         '''
 
     @call(method=UPDATE)
-    def attachTaskStatus(self, cardId:Card.Id, statusId:TaskStatus.Id):
+    def attachTaskStatus(self, cardId:Card.Id, statusKey:TaskStatus.Key):
         '''
         Attach a status to a card.
         '''
 
     @call(method=DELETE)
-    def detachTaskStatus(self, cardId:Card.Id, statusId:TaskStatus.Id) -> bool:
+    def detachTaskStatus(self, cardId:Card.Id, statusKey:TaskStatus.Key) -> bool:
         '''
         Detach a status from a card.
         '''

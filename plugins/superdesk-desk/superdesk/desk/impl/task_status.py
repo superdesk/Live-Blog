@@ -13,7 +13,8 @@ from ..api.task_status import ITaskStatusService
 from ..meta.task_status import TaskStatusMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from sql_alchemy.impl.entity import EntityServiceAlchemy
+from sql_alchemy.impl.keyed import EntityServiceAlchemy
+
 
 # --------------------------------------------------------------------
 

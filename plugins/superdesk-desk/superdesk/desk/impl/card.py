@@ -21,6 +21,7 @@ from superdesk.desk.meta.card import CardTaskStatusMapped
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
 from superdesk.desk.meta.desk import DeskTaskTypeMapped
+from superdesk.desk.api.card import QCard
 
 # --------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         Construct the  service.
         '''
-        EntityServiceAlchemy.__init__(self, CardMapped)
+        EntityServiceAlchemy.__init__(self, CardMapped, QCard)
      
     def getAll(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -68,38 +69,45 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         
         deskId = self.session().query(CardMapped).filter(CardMapped.Id == cardId).one().Desk
         
+        sqlDesk = self.session().query(TaskTypeTaskStatusMapped.taskStatus)
+        sqlDesk = sqlDesk.join(DeskTaskTypeMapped, TaskTypeTaskStatusMapped.taskType == DeskTaskTypeMapped.taskType)
+        sqlDesk = sqlDesk.filter(DeskTaskTypeMapped.desk == deskId)
+        
+        sqlCard = self.session().query(CardTaskStatusMapped.taskStatus)
+        sqlCard = sqlCard.filter(CardTaskStatusMapped.card == cardId)
+        
         sql = self.session().query(TaskStatusMapped)
-        sql = sql.filter(TaskStatusMapped.Id.in_(self.session().query(TaskTypeTaskStatusMapped.taskStatus).join(DeskTaskTypeMapped, TaskTypeTaskStatusMapped.taskType == DeskTaskTypeMapped.taskType).filter(DeskTaskTypeMapped.desk == deskId).subquery()))
-        sql = sql.filter(not_(TaskStatusMapped.Id.in_(self.session().query(CardTaskStatusMapped.taskStatus).filter(CardTaskStatusMapped.card == cardId).subquery())))
+        sql = sql.filter(TaskStatusMapped.id.in_(sqlDesk.subquery()))
+        sql = sql.filter(not_(TaskStatusMapped.id.in_(sqlCard.subquery())))
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
 
         return entities
 
-    def attachTaskStatus(self, cardId, taskStatusId):
+    def attachTaskStatus(self, cardId, taskStatusKey):
         '''
         @see ICardService.attachUser
         '''
         sql = self.session().query(CardTaskStatusMapped)
         sql = sql.filter(CardTaskStatusMapped.card == cardId)
-        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusId)
+        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusKey)
         if sql.count() == 1: return
 
         cardTaskStatus = CardTaskStatusMapped()
         cardTaskStatus.desk = cardId
-        cardTaskStatus.user = taskStatusId
+        cardTaskStatus.taskStatus = taskStatusKey
 
         self.session().add(cardTaskStatus)
         self.session().flush((cardTaskStatus,))
 
-    def detachTaskStatus(self, cardId, taskStatusId):
+    def detachTaskStatus(self, cardId, taskStatusKey):
         '''
         @see ICardService.detachTaskStatus
         '''
         sql = self.session().query(CardTaskStatusMapped)
         sql = sql.filter(CardTaskStatusMapped.card == cardId)
-        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusId)
+        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusKey)
         count_del = sql.delete()
 
         return (0 < count_del)

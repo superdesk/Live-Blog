@@ -43,7 +43,7 @@ class TaskMapped(Base, Task):
     DueDate = Column('due_date', DateTime, nullable=True)
     Status = association_proxy('status', 'Key')
     # Non REST model attribute ---------------------------------------
-    statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.Id, ondelete='RESTRICT'), nullable=False)
+    statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(TaskStatusMapped, uselist=False, lazy='joined')
 
 # --------------------------------------------------------------------

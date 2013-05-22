@@ -10,7 +10,7 @@ API specifications for task statuses.
 '''
 
 from ally.api.config import service
-from ally.support.api.entity  import Entity, IEntityService
+from ally.support.api.keyed import Entity, IEntityService
 from superdesk.api.domain_superdesk import modelDesk
 
 # --------------------------------------------------------------------
@@ -20,7 +20,6 @@ class TaskStatus(Entity):
     '''
     Provides the task status model.
     '''
-    Key = str
     Active = bool
 
 # --------------------------------------------------------------------
