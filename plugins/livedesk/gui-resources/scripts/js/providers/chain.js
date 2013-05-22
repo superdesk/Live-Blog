@@ -4,6 +4,8 @@
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
     config.guiJs('livedesk', 'views/post'),
+    config.guiJs('livedesk', 'models/sync'),
+    config.guiJs('livedesk', 'models/sync-collection'),
 	'jqueryui/draggable',
     'providers/chain/adaptor',
     config.guiJs('livedesk', 'models/blog'),
@@ -18,7 +20,10 @@
 	'tmpl!livedesk>providers/chain/blog-link',
 	'tmpl!livedesk>providers/chain/blog-content',
 	'tmpl!livedesk>providers/chain/timeline',
-], function(providers, $, Gizmo, BlogAction, PostView) {
+], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
+
+    var autoSources = new SyncCollection();
+
     var 
     	ChainPostView = PostView.extend({
     		events: {
@@ -52,18 +57,23 @@
 			},
 			activate: function(){
 				var self = this;
+			    var data = {thumbSize: 'medium'};
+                if (autoSources.isPaused(this.sourceId)) {
+                    data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
+                }
+
 				this.collection
 					.on('read update readauto updateauto', function(){
-						self.el.find('.chainblogs').css('display','block');
+						self.el.find('.chainblogs').show();
 					})
 					.auto({
 						headers: { 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, IsModified, ' +
 							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName' },
-						data: { thumbSize: 'medium'}
+                        data: data
 					});
 			},
 			deactivate: function(){
-				this.el.find('.chainblogs').css('display','none');
+				this.el.find('.chainblogs').hide();
 				this.collection.stop();
 			},
 			render: function(evt){
@@ -158,20 +168,33 @@
 		}),
 		ChainBlogLinkView = Gizmo.View.extend({
 			events: {
-				'': { click: 'activate'}
+				'': { click: 'toggleActive'}
 			},
-			init: function(){
+			init: function() {
 				this.model.on('read update', this.render, this);
 			},
+            
+            toggleActive: function(e) {
+                if (this.el.hasClass('active')) {
+                    this.deactivate();
+                } else {
+                    this.activate();
+                }
+            },
+
 			deactivate: function() {
-				this.el.removeClass('active');
-				this.model.chainBlogContentView.deactivate();
+                if (this.model.chainBlogContentView.active) {
+				    this.model.chainBlogContentView.deactivate();
+                    this._parent.setActive(null);
+                }
 			},
+
 			activate: function() {
 				this.active = true;
 				this.model.chainBlogContentView.activate();
-				this._parent.deactivateOthers(this);
+				this._parent.setActive(this);
 			},
+
 			render: function(){
 				var self = this;
 				$.tmpl('livedesk>providers/chain/blog-link', { Blog: self.model.feed(true)}, function(e,o) {
@@ -190,7 +213,12 @@
 			},
 			activate: function() {
 				this.active = true;
-				this.timelineView.activate();
+
+                var isAuto = autoSources.isAuto(this.model.sourceId);
+                $('.autopublish input:checkbox').prop('checked', isAuto);
+                $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
+                $('#automod-info').toggle(isAuto);
+                isAuto ? this.timelineView.deactivate() : this.timelineView.activate();
 			},
 			render: function(){
 				var self = this;
@@ -198,7 +226,8 @@
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el, 
-							collection: self.model.get('PostPublished') 
+							collection: self.model.get('PostPublished'),
+                            sourceId: self.model.sourceId
 					});
 				});
 			}
@@ -206,7 +235,8 @@
 		ChainBlogsView = Gizmo.View.extend({
 			events: {
 				'.sf-searchbox a': { click: 'removeSearch'},
-				'.sf-searchbox input': { keypress: 'checkEnter'}
+				'.sf-searchbox input': { keypress: 'checkEnter'},
+                '.sf-toggle:checkbox': {change: 'toggleAutopublish'}
 			},
 			init: function(){
 				var self = this;
@@ -214,22 +244,30 @@
 				self.chainBlogContentViews = [];
 				if($.type(self.sourceBlogs) === 'undefined') {
 					self.sourceBlogs = new Gizmo.Register.Sources();
-					self.sourceBlogs.url = new Gizmo.Url('Data/SourceType/chained%20blog/Source/');
+					self.sourceBlogs.setHref(this.blog.get('Source').href);
 					self.sourceBlogs
 						.on('read', this.render, this)
 						.xfilter('URI,Name,Id')
 						.sync();
 				}
+
+                autoSources.url = this.blog.get('Sync').href;
+                autoSources.fetch({headers: autoSources.xfilter, reset: true});
 			},
+
+            getActiveView: function() {
+                if (this.activeView) {
+                    return this.activeView;
+                }
+            },
+
 			search: function(what){
-				var self = this;
-				for(var i = 0, count = self.chainBlogContentViews.length; i < count; i++ ) {
-					if(self.chainBlogContentViews[i].active) {
-						self.chainBlogContentViews[i].timelineView.search(what);
-						break;
-					}
+                var active = this.getActiveView();
+                if (active) {
+					active.model.chainBlogContentView.timelineView.search(what);
 				}
 			},
+
 			removeSearch: function(evt){
 				var input = $(evt.target).parents('.sf-searchbox').find('input');
 					input.val('');
@@ -239,11 +277,11 @@
 				if(evt.which == 13) 
 					this.search($(evt.target).val());
 			},
-			deactivateOthers: function(view) {
-				var self = this;
-				for(var i = 0, count = self.chainBlogLinkViews.length; i < count; i++ ) {
-					if(self.chainBlogLinkViews[i] !== view) {
-						self.chainBlogLinkViews[i].deactivate();
+			setActive: function(view) {
+                this.activeView = view;
+				for (var i = 0; i < this.chainBlogLinkViews.length; i++) {
+					if (this.chainBlogLinkViews[i] !== this.activeView) {
+						this.chainBlogLinkViews[i].deactivate();
 					}
 				}
 			},
@@ -261,6 +299,7 @@
 						chainBlog.defaults.PostPublished = Gizmo.Register.AutoPosts;
 						chainBlog.setHref(sourceBlog.get('URI').href);
 						chainBlog.sync();
+                        chainBlog.sourceId = sourceBlog.get('Id');
 						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
 						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
 						self.chainBlogLinkViews.push(chainBlogLinkView);
@@ -269,13 +308,35 @@
 						chainBlogContentView.el.insertAfter($contentEl);
 					});
 				});
-			}
-		})
+			},
+
+            toggleAutopublish: function(e) {
+                e.preventDefault();
+                var autopublish = $(e.target).is(':checked');
+                var view = this.activeView;
+                if (view) {
+                    sync = autoSources.findSource(view.model.sourceId);
+                    if (sync) {
+                        sync.save({Auto: autopublish ? 'True' : 'False'}, {patch: true});
+                    } else {
+                        autoSources.create({Blog: this.blog.get('Id'), Source: view.model.sourceId, Auto: autopublish ? 'True' : 'False'}, {headers: autoSources.xfilter});
+                    }
+
+                    view.model.chainBlogContentView.activate();
+                }
+            }
+		});
+
 	$.extend( providers.chain, { init: function(blogUrl) {
-			this.adaptor._parent = this;
-			this.adaptor.init();
-			chain = new ChainBlogsView({ el: this.el, blogUrl: blogUrl });
-		}
-	});
+		this.adaptor._parent = this;
+		this.adaptor.init();
+
+	    var blog = new Gizmo.Auth(new Gizmo.Register.Blog(blogUrl));
+        blog.on('read', function() {
+			chain = new ChainBlogsView({el: this.el, blog: blog});
+		}.apply(this));
+        blog.sync();
+	}});
+
     return providers;
 });
