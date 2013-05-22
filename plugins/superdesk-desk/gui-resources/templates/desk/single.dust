@@ -242,17 +242,17 @@
 
 
 
-		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="max-width:1440px;">
+		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="max-width:1440px;" ng-controller="DeskController">
 			<div class="desk-content-container single-desk" ng-class="{'desk-list': list}" style="">
 				<div class="desk-horizontal-scroll" style="width:1450px;" id="statuses-list">
-                    <div class="desk-container {{ board.id }}-container" ng-repeat="board in boards">
+                    <div class="desk-container boardcolor-{{ card.Color }}" ng-repeat="card in cards" ng-controller="CardController">
 	                    <div class="desk-header">
-		                    {{ board.name }}
+		                    {{ card.Name }}
 	                    </div>
 	                    <div class="desk">
 		                    <div class="desk-content">
 			                    <ul class="assignments">
-                                    <li ng-repeat="task in tasks | filter:isUserBoardTask(board)">
+                                    <li ng-repeat="task in tasks | filter:isCardTask | filter:isMyTask">
                                         <figure class="assign-avatar">
 	                                        <img src="" />
                                         </figure>
@@ -265,7 +265,6 @@
 	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
                                         </ul>
                                     </li>
-                                    <li ng-hide="hasTasks(board)">There are no tasks on this board</li>
                                 </ul>
 		                    </div>
 	                    </div>
@@ -299,8 +298,8 @@
 
 		</div>
 
-<div class="modal fade split-popup" id="AddAssignment" style="display:none">
-  <form name="task">
+<div class="modal fade split-popup" id="AddAssignment" style="display:none" ng-controller="EditTaskController">
+  <form name="taskForm">
   <div class="modal-header">
     <a href="#" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
     <input type="text" placeholder="_('Assignment title');" class="assignment-title" data-task-info="title" ng-model="task.Title" required />
@@ -360,14 +359,14 @@
     </div>
     <div class="modal-right-pane">
     	<section class="modal-sidepane-module clearfix">
-    		<header>_('Assignee');</header>
+    		<header ng-show="task.User">_('Assignee');</header>
     		<div class="module-sidepane-module-content">
     			<div class="assignee-info" ng-show="task.User" data-task-info="assignee">
    					<figure data-task-info="assignee-image" ng-show="task.User.Image"></figure>
    					<b data-task-info="assignee-name">{{ task.User.Name }}</b>
     			</div>
     			<div class="btn-group">
-				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
+				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="">
 				    <i class="icon-plus-sign"></i> _('Assign');
 				    <span class="caret"></span>
 				  </a>
@@ -380,7 +379,15 @@
     	<section class="modal-sidepane-module clearfix">
     		<header>_('Status');</header>
     		<div class="module-sidepane-module-content">
-    			<div class="task-status" ng-class="task.Status.replace(' ', '') + '-status'" data-task-info="status">{{ task.Status }}</div>
+                <div class="status-info" ng-show="task.Status">
+                    <b>{{ task.Status.Key }}</b>
+                </div>
+    			<div class="btn-group">
+				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="">_('Status');<span class="caret"></span></a>
+				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
+					<li ng-repeat="status in statuses" ng-click="task.Status=status">{{ status.Key }}</li>
+				  </ul>
+				</div>
     		</div>
     	</section>
     	<section class="modal-sidepane-module clearfix">
@@ -389,8 +396,6 @@
     			<input type="text" ng-model="task.DueDate" sd-datepicker />
     			<a class="btn" href="" data-toggle="datepicker"><i class="icon-desk-time"></i> _('Due Date');</a>
     			<a class="btn" href="" ng-click="addTask(task)" ng-show="task.Id"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
-    			<a class="btn" href="" ng-click="task.Status='in progress'"><i class="icon-arrow-right"></i> _('Start Progress');</a>
-    			<a class="btn" href="" ng-click="task.Status='done'"><i class="icon-ok"></i> _('Finish Task');</a>
     			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask()" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
     		</div>
     	</section>
@@ -398,7 +403,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn" data-dismiss="modal">_('Cancel');</button>
-    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()">_('Save Changes');</button>
+    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()" ng-disabled="!taskForm.$valid">_('Save Changes');</button>
   </div>
   </form>
 </div>
