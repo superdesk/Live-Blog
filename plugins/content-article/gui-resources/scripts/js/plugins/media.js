@@ -71,7 +71,9 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             var self = this;
             this.el.appendTo($('section', mediaTab.content.el));
             $(mediaTab.content).on('active', function(){ self.activate(); });
-            $(upload).on('complete', function(){ self.addItems(upload.getRegisteredItems()); });
+            $(upload).on('complete', function(){
+              self.addItems(upload.getRegisteredItems());
+            });
         },
         /*!
          * 
@@ -202,8 +204,9 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
          */
         removeItem: function(item)
         {
-            if(this._attachedFiles[item.model.get('Id')])
-                this._removedItems[item.model.get('Id')] = this._attachedFiles[item.model.get('Id')];
+            if(this._attachedFiles[item.model.get('Id')]) {
+              this._removedItems[item.model.get('Id')] = this._attachedFiles[item.model.get('Id')];
+            }
             delete this._addedItems[item.model.get('Id')];
             $.isEmptyObject(this._addedItems) && $('[data-placeholder="description"]', this.el).removeClass('hide');
         }
