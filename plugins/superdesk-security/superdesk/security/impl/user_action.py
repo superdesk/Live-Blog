@@ -73,7 +73,7 @@ class IUserActionServiceAlchemy(IUserActionService):
         
         self._processing = self.assemblyActiveRights.create(solicitation=Solicitation, reply=Reply)
 
-    def getAll(self, userId, path=None):
+    def getAll(self, userId, path=None, origPath=None):
         '''
         @see: IUserActionService.getAll
         '''
