@@ -42,7 +42,24 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
 
         angular.module('desks', ['resources', 'directives']).
             controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', 'TaskService', TasksController]).
-            controller('EditTaskController', ['$scope', 'Task', EditTaskController]).
+            controller('EditTaskController', ['$scope', 'Task', 'TaskStatusLoader', EditTaskController]).
+            controller('CardController', function($scope, CardService) {
+                CardService.getStatuses($scope.card).then(function(statuses) {
+                    $scope.card.statuses = statuses;
+                    $scope.isCardTask = function(task) {
+                        for (var i in statuses) {
+                            if (statuses[i].Key === task.Status.Key) {
+                                return true;
+                            }
+                        }
+                    };
+                });
+            }).
+            controller('DeskController', function($scope, DeskService) {
+                DeskService.getCards($scope.desk).then(function(cards) {
+                    $scope.cards = cards;
+                });
+            }).
             config(['$routeProvider', function($routeProvider) {
                 $routeProvider.
                     when('/desks/:deskId', {
@@ -55,8 +72,8 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
                             desks: function(DeskListLoader) {
                                 return DeskListLoader();
                             },
-                            tasks: function(TaskListLoader) {
-                                return TaskListLoader();
+                            tasks: function(DeskTaskLoader) {
+                                return DeskTaskLoader();
                             }
                         }
                     });

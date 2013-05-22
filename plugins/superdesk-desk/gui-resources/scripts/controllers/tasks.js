@@ -53,6 +53,10 @@ function(angular) {
             return task.User && task.User.Id == localStorage.getItem('superdesk.login.id'); // TODO create user service
         };
 
+        $scope.isMyTask = function(task) {
+            return !$scope.my || $scope.isUserTask(task);
+        };
+
         $scope.isUserBoardTask = function(board) {
             return function(task) {
                 return $scope.isBoardTask(task, board) && (!$scope.my || $scope.isUserTask(task));
@@ -73,7 +77,7 @@ function(angular) {
         $scope.getEditData = function() {
             var data = $scope.task;
 
-            if (data.DueDate == $scope.orig.DueDate) {
+            if (data.DueDate === $scope.orig.DueDate) {
                 delete data.DueDate; // TODO api does not accepts data in same format it sends them..
             }
 
@@ -84,7 +88,6 @@ function(angular) {
             var data = $scope.getEditData();
             if ('Id' in $scope.task) {
                 Task.update(data, function(task) {
-                    console.log('user', $scope.orig.User, $scope.task.User);
                     angular.extend($scope.orig, $scope.task);
                     $scope.orig.Status = {Key: $scope.task.Status};
                     $scope.orig.User = $scope.task.User;
