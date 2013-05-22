@@ -1,0 +1,10 @@
+<div class="desk-container {Id}-container">
+	<div class="desk-header">
+		{Name}
+	</div>
+	<div class="desk">
+		<div class="desk-content">
+			<ul class="assignments"></ul>
+		</div>
+	</div>
+</div>
