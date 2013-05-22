@@ -18,6 +18,7 @@ from superdesk.user.api.user import User
 from datetime import datetime
 from ..api.desk import Desk
 from ..api.task_status import TaskStatus
+from superdesk.desk.api.task_type import TaskType
 
 # --------------------------------------------------------------------
 
@@ -26,13 +27,14 @@ class TaskPrototype(Entity):
     '''
     Provides the desk task prototype model.
     '''
-    Status = TaskStatus
     Desk = Desk
     User = User
     Title = str
     Description = str
     StartDate = datetime
     DueDate = datetime
+    Status = TaskStatus
+    Type = TaskType
     UserImage = Reference
 
 # --------------------------------------------------------------------
