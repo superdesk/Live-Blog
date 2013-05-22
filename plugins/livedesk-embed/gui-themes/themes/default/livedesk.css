@@ -33,6 +33,7 @@
     list-style-type: none;
     margin: 0;
     padding: 0;
+    margin-top: -2px;
 }
 
 #livedesk-root .liveblog-post-list li {
@@ -296,7 +297,14 @@
     line-height: 16px !important;
     color: #484848 !important;
 }
-    
+
+.youtubeservice iframe {
+    width: 100% !important;
+    border: 0;
+}
+.youtubeservice .result-text {
+    overflow: hidden;
+}
 
 .liveblog-post-list li.quotation .result-content {
     padding-left:55px ;
@@ -711,29 +719,36 @@ li.loading-more:hover{
 
 
 
-@media screen and (max-width: 768px) {
+/* MOBILE */
 
-    #livedesk-root .liveblog-post-list {
+    .mobile#livedesk-root .liveblog-post-list {
         margin-left: 5px;
     }
 
-    #livedesk-root .liveblog-post-list li {
+    .mobile#livedesk-root .liveblog-post-list li {
         padding: 7px 5px 30px 5px;
     }
 
-    .liveblog-post-list li.advertisement {
+    .mobile .liveblog-post-list li.advertisement {
         padding: 7px 5px 5px 5px !important;
     }
 
-    .liveblog-post-list li a[rel="bookmark"] {
+    .mobile .liveblog-post-list li a[rel="bookmark"] {
         display: block !important;
         top: auto;
         right: 10px;
         bottom: 9px;
         
     }
+    .mobile .liveblog-post-list li.quotation .result-content-full {
+        background-position: 0 3px;
+        padding-left: 40px;
+    }
+    .mobile .wrapup h3  {
+        padding: 5px 5px 5px 40px;
+    }
 
-    .sf-share {
+    .mobile .sf-share {
         display: block !important;
         top: auto;
         right: 50px;
@@ -742,27 +757,30 @@ li.loading-more:hover{
         font-size: 12px;
     }
     
-    .share-box {
+    .mobile .share-box {
         top: auto;
         bottom: 35px;
-        right: 50px;
+        right: auto;
+        left: 0;
     }
 
-    .twitter-controls {
+    .mobile .twitter-controls {
         height: 15px;
         top: auto !important;
         padding: 5px 0;
+        margin: 0;
     }
 
-    .twitter-controls .twitter-button {
+    .mobile .twitter-controls .twitter-button {
         display: block !important;
+        margin-left: 8px;
     }
     
-    .liveblog-post-list li input[data-type="permalink"] {
+    .mobile .liveblog-post-list li input[data-type="permalink"] {
         top: auto;
         bottom: 35px;
-        right: 15px;
+        right: 0;
         display: block;
+        left: 0;
+        width: auto;
     }
-
-}
