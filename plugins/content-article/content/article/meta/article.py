@@ -20,6 +20,7 @@ from ally.container.binder_op import validateManaged
 from sqlalchemy.ext.hybrid import hybrid_property
 from superdesk.user.meta.user import UserMapped
 from superdesk.person.meta.person import PersonMapped
+from ..meta.target_type import TargetTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -46,3 +47,17 @@ class ArticleMapped(Base, Article):
 
 validateManaged(ArticleMapped.Item)
 validateManaged(ArticleMapped.PublishedOn)
+
+# --------------------------------------------------------------------
+
+class ArticleTargetTypeMapped(Base):
+    '''
+    Provides the connecting of Article and TargetType.
+    '''
+    __tablename__ = 'article_target_type'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    article = Column('fk_article_id', ForeignKey(ArticleMapped.Id, ondelete='CASCADE'), nullable=False)
+    targetType = Column('fk_target_type_id', ForeignKey(TargetTypeMapped.id, ondelete='CASCADE'), nullable=False)
+
