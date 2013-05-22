@@ -45,7 +45,7 @@ define([
             var menu = new MenuView({el: submenu, collection: desks});
             var timeout = 5000;
 
-            var fetchDesks = function fetchDesks() {
+            function fetchDesks() {
                 desks.fetch({reset: true, headers: desks.xfilter});
                 setTimeout(fetchDesks, timeout);
             };

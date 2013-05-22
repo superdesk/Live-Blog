@@ -189,7 +189,6 @@ function($, Backbone, Gizmo, Action, Router)
         model: Desk,
         render: function(){
             var self = this;
-            console.log(this.model.toJSON());
             $.tmpl('superdesk/desks>desk/desk', this.model.toJSON(), function(e, o) {
                 self.$el.append(o);
                 statusCollection = new StatusCollection;
@@ -230,15 +229,11 @@ function($, Backbone, Gizmo, Action, Router)
             'click #list-view': 'setListView'
         },
         toggleCompactView: function(evt) {
-            console.log('compact view');
             var target = $(evt.target);
-            console.log(target);
             if (target.hasClass('active')) {
-                console.log('has');
                 $("#main-desk").removeClass('compact-desk');
             }
             else {
-                console.log('has not');
                 $("#main-desk").addClass('compact-desk');
             }
         },
