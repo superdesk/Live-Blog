@@ -16,17 +16,17 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.source.api.source import Source
+from superdesk.source.api.source import Source, QSource
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.meta.blog import BlogSourceMapped
+from livedesk.meta.blog import BlogSourceDB
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
@@ -141,8 +141,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         source = self.session().query(SourceMapped).get(sourceId)
         if not source:
             raise InputError(Ref(_('Unknown source'),))
-        sql = self.session().query(BlogSourceMapped)
-        sql = sql.filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId)
+        sql = self.session().query(BlogSourceDB)
+        sql = sql.filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId)
         return source
 
     def getSources(self, blogId):
@@ -150,7 +150,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId).all()
+        return sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId).all()
 
     def addSource(self, blogId, source):
         '''
@@ -160,15 +160,22 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         '''
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
-        
-        sourceId = self.sourceService.insert(source)
-        ent = BlogSourceMapped()
+
+        q = QSource()
+        q.name = source.Name
+        sources = self.sourceService.getAll(typeKey=source.Type, offset=0, limit=1, detailed=False, q=q)
+        if sources:
+            sourceId = sources[0].Id
+        else:
+            sourceId = self.sourceService.insert(source)
+        ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
         try:
             self.session().add(ent)
             self.session().flush((ent,))
-        except SQLAlchemyError as e: handle(e, ent)
+        except SQLAlchemyError as e:
+            raise InputError(Ref(_('Cannot persist BlogSource'),))
         return sourceId
 
     def deleteSource(self, blogId, sourceId):
@@ -178,7 +185,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
         try:
-            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId).delete() > 0
+            res = self.session().query(BlogSourceDB).filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId).delete() > 0
             if res:
                 sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
