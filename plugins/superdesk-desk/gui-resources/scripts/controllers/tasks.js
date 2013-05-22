@@ -2,24 +2,28 @@ define(['angular'],
 function(angular) {
     'use strict';
 
-    return function($scope, desk, desks, tasks, Task, TaskService) {
+    return function($scope, DeskLoader, DeskListLoader, DeskTaskLoader, Task, TaskService) {
         $scope.compact = false;
         $scope.list = false;
         $scope.my = false;
-        $scope.desk = desk;
-        $scope.desks = desks;
-        $scope.tasks = tasks;
-        $scope.users = desk.getUsers();
 
-        $scope.boards = [
-            {id: 'todo', key: 'to do', name: _('To Do') + ''},
-            {id: 'inprogress', key: 'in progress', name: _('In Progress') + ''},
-            {id: 'done', key: 'done', name: _('Done') + ''}
-        ];
+        DeskListLoader().then(function(desks) {
+            $scope.desks = desks;
+        });
+
+        DeskTaskLoader().then(function(tasks) {
+            $scope.tasks = tasks;
+        });
+
+        $scope.desk = DeskLoader();
+        $scope.desk.then(function(desk) {
+            $scope.users = desk.getUsers();
+            $scope.deskId = desk.Id;
+        });
 
         $scope.addTask = function(parentTask) {
             $scope.orig = {};
-            $scope.task = {Status: 'to do', Desk: desk.Id, User: null, Parent: parentTask};
+            $scope.task = {Status: 'to do', Desk: $scope.deskId, User: null, Parent: parentTask};
             $scope.parentTask = parentTask;
         };
 
@@ -45,33 +49,12 @@ function(angular) {
             }
         };
 
-        $scope.isBoardTask = function(task, board) {
-            return board.key === task.Status.Key;
-        };
-
         $scope.isUserTask = function(task, user) {
             return task.User && task.User.Id == localStorage.getItem('superdesk.login.id'); // TODO create user service
         };
 
         $scope.isMyTask = function(task) {
             return !$scope.my || $scope.isUserTask(task);
-        };
-
-        $scope.isUserBoardTask = function(board) {
-            return function(task) {
-                return $scope.isBoardTask(task, board) && (!$scope.my || $scope.isUserTask(task));
-            };
-        };
-
-        $scope.hasTasks = function(board) {
-            var filter = $scope.isUserBoardTask(board);
-            for (var i = 0; i < $scope.tasks.length; i++) {
-                if (filter($scope.tasks[i])) {
-                    return true;
-                }
-            }
-
-            return false;
         };
 
         $scope.getEditData = function() {
@@ -89,7 +72,7 @@ function(angular) {
             if ('Id' in $scope.task) {
                 Task.update(data, function(task) {
                     angular.extend($scope.orig, $scope.task);
-                    $scope.orig.Status = {Key: $scope.task.Status};
+                    $scope.orig.Status = {Key: $scope.task.Status.Key};
                     $scope.orig.User = $scope.task.User;
                 });
             } else {

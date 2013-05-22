@@ -4,7 +4,7 @@ define([
     'jqueryui/datepicker',
     'jqueryui/sortable'
 ],
-function(angular) {
+function(angular, $) {
     'use strict';
 
     var module = angular.module('directives', []);
@@ -36,9 +36,16 @@ function(angular) {
             require: 'ngModel',
             link: function(scope, element, attrs) {
                 var ngModel = element.controller('ngModel');
-                element.sortable({
-                    update: function(e, ui) {
-                        console.log(element.sortable('toArray', ['data-index']));
+                var startIndex = NaN;
+                $(element[0]).sortable({
+                    delay: 150,
+                    start: function(e, ui) {
+                        startIndex = $(ui.item).index();
+                    },
+                    stop: function(e, ui) {
+                        var stopIndex = $(ui.item).index();
+                        var list = ngModel.$modelValue;
+                        console.log(list[startIndex], list[stopIndex]);
                     }
                 });
             }

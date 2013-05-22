@@ -57,7 +57,7 @@
 					</div>
 					<div class="desk-config-tab-content" ng-show="cards">
 						<ul class="board-table plain-table" sd-sortable ng-model="desk.cards">
-		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-index="{{ $index }}" ng-controller="CardController">
+		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-id="{{ card.Id }}" ng-controller="CardController">
 		                     <span class="board-name">{{ card.Name }}</span>
 
                              <div class="dropdown dropdown-simple board-status">
@@ -70,14 +70,7 @@
 		                       <div class="dropdown dropdown-simple">
 		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
 		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                          	<li class="no-bg item-border">
-		                          		Choose color: 
-		                          		<ul class="simple-color-list clearfix">
-		                          			<li ng-repeat="color in colors" ng-class="{picked: color == card.Color}"><span class="color boardcolor-{{ color }}"></span></li>
-		                          		</ul>
-		                          	</li>
 		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;" ng-model="card.Limit"></li>
-		                            <li><a href=""><i class="icon-pencil"></i> Rename</a></li>
 		                            <li><a href="" ng-click="deleteCard(desk.cards, $index)"><i class="icon-trash"></i> Delete</a></li>
 		                          </ul>
 		                      </div>
@@ -105,14 +98,13 @@
   <div class="modal-body modal-body-min">
       <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin:-8px 0 0 0;float:right !important;" ng-model="userSearch">
 
-        <label class="checkbox select-all-colaborator" >
-          <input type="checkbox"  name="selectAllMembers">
-          Select all
+        <label class="checkbox select-all-colaborator">
+          <input type="checkbox" name="selectAllMembers" ng-model="checkAll"> _("Select all");
         </label>
 
         <ul class="internal-collaborators">
           <li ng-repeat="user in users | filter:userSearch">
-            <input type="checkbox" class="select-colaborator" name="member1" group="members" ng-model="user.isSelected" id="_user_{{ $index }}">
+            <input type="checkbox" class="select-colaborator" name="member1" group="members" ng-checked="checkAll" ng-model="user.isSelected" id="_user_{{ $index }}">
             <figure><img ng-src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
             <label for="_user_{{ $index }}"><span class="add-collaborator-name">{{ user.Name }}</span><span>{{ user.EMail }}</span></label>
           </li>
@@ -168,7 +160,7 @@
 
 
 <div class="modal hide fade modal-wide" id="addDesk">
-    <form>
+    <form name="deskForm">
 	<div class="modal-header"> <a href="" class="close" data-dismiss="modal">×</a>
 		<h3 ng-show="!desk.Id">Add New Desk</h3>
 		<h3 ng-show="desk.Id">Edit Desk</h3>
@@ -181,11 +173,11 @@
 			<div class="popup-subnav subnav">
 				<ul class="nav nav-pills pull-left">
 					<li class="active"><a href="#general-screen">General</a></li>
-					<li ><a href="#members-screen">Desk members</a></li>
-					<li ><a href="#boards-screen">Desk boards</a></li>
+					<li ng-show><a href="#members-screen">Desk members</a></li>
+					<li ng-show><a href="#boards-screen">Desk boards</a></li>
 				</ul>
 			</div>
-				<input type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" style="margin-bottom:10px;" ng-model="desk.Name"> 
+				<input type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" style="margin-bottom:10px;" ng-model="desk.Name" required> 
 
 				<label>Define task types and statuses for this Desk</label>
 				<div class="checklist-doubleside" style="height:280px;">
@@ -438,7 +430,7 @@
 
 	<div class="modal-footer"> 
 	  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
-	  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveDesk(desk)">Save</a>
+	  	<button class="btn btn-primary" data-dismiss="modal" ng-click="saveDesk(desk)" ng-disabled="!deskForm.$valid">Save</button>
 	  </div>
 
     </form>
