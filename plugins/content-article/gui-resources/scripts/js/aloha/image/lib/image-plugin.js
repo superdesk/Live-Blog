@@ -42,6 +42,7 @@ function ($, Image)
         { 
             item.sync({data: { thumbSize: 'large' }}).done(function()
             {
+                Aloha.trigger('insert-image.image-plugin', item);
                 var newImg = $('<img src="'+item.get('Thumbnail').href+'" />');
                 GENTICS.Utils.Dom.insertIntoDOM(newImg, activeRange, jQuery(activeEditableObj));
             });

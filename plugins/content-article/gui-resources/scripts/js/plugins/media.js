@@ -60,6 +60,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
      */
     MediaTabBoxPlugin = giz.View.extend
     ({
+        name: "media",
         events: 
         {
             "[data-action='add']": { 'click': 'addMedia' }
@@ -99,7 +100,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
                     metadatas[m.get('Id')] = m;
                     self._attachedFiles[m.get('Id')] = this;
                 });
-                self.addItems(metadatas);
+                self.addItems(self._attachedFiles);
             });
             return this._articleFileCollection;
         },
@@ -111,7 +112,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
         {
             this.getNewFileCollection().xfilter('*').sync({data: { article: this._article.get('Id') }});
             !this._isRendered && this.render();
-            $('[data-placeholder="media"]', self.el).html('');
+            //$('[data-placeholder="media"]', self.el).html('');
             $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
         },
