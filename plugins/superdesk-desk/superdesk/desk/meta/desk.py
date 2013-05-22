@@ -56,4 +56,4 @@ class DeskTaskTypeMapped(Base):
 
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     desk = Column('fk_desk_id', ForeignKey(DeskMapped.Id, ondelete='CASCADE'), nullable=False)
-    taskType = Column('fk_task_type_id', ForeignKey(TaskTypeMapped.Id, ondelete='CASCADE'), nullable=False)
+    taskType = Column('fk_task_type_id', ForeignKey(TaskTypeMapped.id, ondelete='CASCADE'), nullable=False)

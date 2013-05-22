@@ -15,10 +15,10 @@ from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildLimits
-from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.sql.expression import not_
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
+from sql_alchemy.impl.keyed import EntityServiceAlchemy
 
 # --------------------------------------------------------------------
 
@@ -36,13 +36,13 @@ class TaskTypeServiceAlchemy(EntityServiceAlchemy, ITaskTypeService):
         EntityServiceAlchemy.__init__(self, TaskTypeMapped)
         
         
-    def getStatuses(self, taskTypeId, offset=None, limit=None, detailed=True):
+    def getStatuses(self, taskTypeKey, offset=None, limit=None, detailed=True):
         '''
         @see: ITaskTypeService.getStatuses
         '''
 
         sql = self.session().query(TaskStatusMapped).join(TaskTypeTaskStatusMapped)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeId)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
    
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
@@ -50,12 +50,15 @@ class TaskTypeServiceAlchemy(EntityServiceAlchemy, ITaskTypeService):
         return entities
 
 
-    def getUnasignedStatuses(self, taskTypeId, offset=None, limit=None, detailed=True):
+    def getUnasignedStatuses(self, taskTypeKey, offset=None, limit=None, detailed=True):
         '''
         @see: ITaskTypeService.getUnasignedStatuses
         '''
+        sqlTask = self.session().query(TaskTypeTaskStatusMapped.taskStatus)
+        sqlTask = sqlTask.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
+        
         sql = self.session().query(TaskStatusMapped)
-        sql = sql.filter(not_(TaskStatusMapped.Id.in_(self.session().query(TaskTypeTaskStatusMapped.taskStatus).filter(TaskTypeTaskStatusMapped.taskType == taskTypeId).subquery())))
+        sql = sql.filter(not_(TaskStatusMapped.id.in_(sqlTask.subquery())))
 
         entities = buildLimits(sql, offset, limit).all()
         if detailed: return IterPart(entities, sql.count(), offset, limit)
@@ -63,30 +66,30 @@ class TaskTypeServiceAlchemy(EntityServiceAlchemy, ITaskTypeService):
         return entities
 
 
-    def attachTaskStatus(self, taskTypeId, taskStatusId):
+    def attachTaskStatus(self, taskTypeKey, taskStatusKey):
         '''
         @see ITaskTypeService.attachStatus
         '''
         sql = self.session().query(TaskTypeTaskStatusMapped)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeId)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusId)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusKey)
         if sql.count() == 1: return
 
         taskTypeTaskStatus = TaskTypeTaskStatusMapped()
-        taskTypeTaskStatus.desk = taskTypeId
-        taskTypeTaskStatus.user = taskStatusId
+        taskTypeTaskStatus.desk = taskTypeKey
+        taskTypeTaskStatus.user = taskStatusKey
 
         self.session().add(taskTypeTaskStatus)
         self.session().flush((taskTypeTaskStatus,))
         
 
-    def detachTaskStatus(self, taskTypeId, taskStatusId) -> bool:
+    def detachTaskStatus(self, taskTypeKey, taskStatusKey) -> bool:
         '''
         @see IDeskService.detachUser
         '''
         sql = self.session().query(TaskTypeTaskStatusMapped)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeId)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusId)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusKey)
         count_del = sql.delete()
 
         return (0 < count_del)
