@@ -45,7 +45,7 @@ class TaskMapped(Base, Task):
     TaskType = association_proxy('type', 'Key')
     Status = association_proxy('status', 'Key')
     # Non REST model attribute ---------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(TaskTypeMapped.id, ondelete='RESTRICT'), nullable=False)
+    typeId = Column('fk_type_id', ForeignKey(TaskTypeMapped.id, ondelete='RESTRICT'), nullable=True) #TODO: make nullable=False when the type will eb added on UI
     type = relationship(TaskTypeMapped, uselist=False, lazy='joined')
     statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(TaskStatusMapped, uselist=False, lazy='joined')
