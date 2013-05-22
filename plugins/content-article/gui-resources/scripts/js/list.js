@@ -8,6 +8,7 @@ define
     config.guiJs('superdesk/user', 'models/user'),
     'tmpl!superdesk/article>list',
     'tmpl!superdesk/article>list-item',
+    'tmpl!superdesk/article>delete-item',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
     'tmpl!core>layouts/footer-dinamic'
@@ -80,14 +81,14 @@ function($, giz, gizList, Action, Article, User)
         },
         events: 
         { 
-            '[data-action="delete"]': { "click": "destroy" },
+            '[data-action="pre-delete"]': { "click": "preDelete" },
             '[data-action="publish"]': { "click": "publish" },
             '[data-action="unpublish"]': { "click": "unpublish" }
         },
-        destroy: function()
+        preDelete: function()
         {
-            this.model.remove().sync();
-            this.el.remove();
+            var el = $('#article-list-modal-container');
+            var deleteView = new DeleteView(el, this.model);
         },
         publish: function(evt)
         {
@@ -102,8 +103,30 @@ function($, giz, gizList, Action, Article, User)
             this.model.unpublishSync();
         }
     }),
+    DeleteView = Backbone.View.extend({ 
+        events: { 
+            'click [data-action="delete"]': 'delete'
+        },
+        tmpl: 'superdesk/article>delete-item',
+        render: function(){
+            $(this.el).tmpl(this.tmpl);
+            $(this.el).addClass('modal hide fade').modal();
+        },
+        initialize: function(el, model) {
+            this.setElement(el);
+            this.model = model;
+            this.render();
+        },
+        delete: function(){
+            $(this.el).modal('hide');
+            this.model.remove().sync();
+            listView.activate();
+            listView.resetEvents();
+        }
+    }),
     listViewEvents = $.extend( true, {}, gizList.ListView.prototype.events, 
     { 
+        "[data-action='delete']": { "click": "delete" },
         "[data-action='multi-delete']": { "click": "multiDelete" },
         "[data-action='add']": { 'click': 'add' }
     }),
@@ -121,6 +144,10 @@ function($, giz, gizList, Action, Article, User)
         add: function()
         {
             Action.initApp('modules.article.add', this.collection);
+        },
+
+        delete: function(evt){
+            $(evt.currentTarget).attr('data-article-id')
         },
 
         /*!
