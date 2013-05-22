@@ -192,9 +192,13 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         returnImageList: {},
         registerItem: function(evt, model)
         {
-            var id = model.get('Id'), itm = this.returnImageList[id];
-            if( itm ) delete this.returnImageList[id];
-            else this.returnImageList[id] = model;
+            var id = model.get('Id');
+            var itm = this.returnImageList[id];
+            if (itm) {
+                delete this.returnImageList[id];
+            } else {
+                this.returnImageList[id] = model;
+            }
         },
         getRegisteredItems: function()
         {
@@ -206,12 +210,15 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         upload: function()
         {
-            var self = this,
-                xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
+            var self = this;
+            var xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
                         'upload_file', 
                         $("form", self.el).attr('action'), 
                         self.uploadingDisplay );
-            xhr.onload = function(){ self.uploadComplete.apply(self, arguments); };
+            xhr.onload = function(){
+                $('[data-action="browse"]').val('');
+                self.uploadComplete.apply(self, arguments);
+            };
         },
         complete: function()
         {
