@@ -105,7 +105,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             var meta = model.getMetaData(),
                 self = this;
-            meta.sync().done(function(){ $(self).triggerHandler('register-item', [meta]); });
+            meta.sync({data: {thumbSize: this.thumbSize}}).done(function(){ $(self).triggerHandler('register-item', [meta]); });
         }
     }),
     
@@ -168,7 +168,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             img.onerror = function(){  };
             
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+id);
-            meta.sync().done(function()
+            meta.sync({data: {thumbSize: 'large'}}).done(function()
             { 
                 self.lastUpload = meta.get('Id');
                 self.registerItem(null, meta);
@@ -230,7 +230,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         init: function()
         {
             var self = this;
-            this.listView = new ListView,
+                this.listView = new ListView({thumbSize: this.thumbSize});
             $(this.listView).on('register-item', function(){ self.registerItem.apply(self, arguments); });
             this.listView._parent = this;
             this.render();
@@ -258,7 +258,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         },
         getUploadEndpoint: function()
         {
-            return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
+            return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
         }
     });
     

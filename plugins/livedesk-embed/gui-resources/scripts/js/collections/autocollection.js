@@ -91,12 +91,14 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				delete requestOptions.data['cId.since'];
 				delete requestOptions.data['order.start'];
 			}
+			if(this._stats.fistOrder === Infinity) {
+				delete requestOptions.data['order.start'];	
+			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();
 				return;
-			}				
-			this.triggerHandler('beforeUpdate');
+			}
 			return this.autosync(requestOptions);
 		},
 		stop: function()
