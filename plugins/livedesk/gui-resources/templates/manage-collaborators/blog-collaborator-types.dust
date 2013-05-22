@@ -1,10 +1,10 @@
 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-  <span>{Selected}</span><b class="caret"></b>
+  <span>{Selected}</span>{~s}<b class="caret"></b>
 </a>
 <ul class="dropdown-menu bottom-up pull-right">
   {#BlogCollaaboratorTypes}
   <li>
-    <a href="#" data-name="{Name}">{Name}</a>
+    <a href="javascript:void(0)" data-name="{Name}">{Name}</a>
   </li>
   {/BlogCollaaboratorTypes}
 </ul>

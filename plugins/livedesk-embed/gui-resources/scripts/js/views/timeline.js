@@ -3,6 +3,7 @@ define([
 	'gizmo/view-events',
 	'livedesk-embed/views/post',
 	'utils/date-format',
+	'utils/ie-polyfill',
 	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',
@@ -267,7 +268,9 @@ define([
 		},
 		addOne: function(model)
 		{
-			return this.orderOne(new PostView({model: model, _parent: this}));
+			var view = new PostView({model: model, _parent: this});
+            model.postView = view;
+			return this.orderOne(view);
 		},
 		toggleStatusCount: function()
 		{
@@ -280,13 +283,13 @@ define([
 		},
 		removeAllAutoupdate: function(evt, data)
 		{
-			var self = this;
-			for( var i = 0, count = data.length; i < count; i++ ) {
-				if(data[i].postview) {
-					data[i].postview.remove();
+			for (var i in data) {
+                if ('postView' in data[i]) {
+					data[i].postView.remove();
 				}
 			}
-			self.markScroll();
+
+			this.markScroll();
 		},
 		addAllAutoupdate: function(evt, data)
 		{
@@ -369,7 +372,7 @@ define([
 			var self = this,
 				data,
 				auxView,
-				postPublished = self.model.get('PostPublished');;
+				postPublished = self.model.get('PostPublished');
 			self.el.tmpl('theme/container');
 			self.renderBlog();
 			self.ensureStatus();
@@ -391,19 +394,19 @@ define([
 				$("#liveblog-posts",self.el).scrollTop(0);
 			});
 			self.markScroll();
-			$("#liveblog-posts", self.el).scroll(function() {
-				if( !self.flags.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
+			$("#liveblog-posts", self.el).scroll(function(e) {
+				if ( !self.flags.atEnd && ($(this).outerHeight() + 1 >= ($(this).get(0).scrollHeight - $(this).scrollTop()))) {
 					self.more();
+                }
+
 				if (self.scroll.element.offset().top < self.scroll.start) {
 					self.autoRender = false;
 					$("#liveblog-status", self.el).addClass("shadow")
-				}
-				else {
+				} else {
 					self.autoRender = true;
 					self.addAllPending();
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
-
 			});
 			$.dispatcher.triggerHandler('after-render',this);
 		},

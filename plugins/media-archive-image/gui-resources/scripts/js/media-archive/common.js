@@ -51,7 +51,7 @@ function($, superdesk, giz, base, ImageData, ImageInfo, ImageInfoList)
     ({
         getInfoCollection: function()
         {
-            return new ImageInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'ImageInfo').replace('MetaData', 'ImageData'));
+            return giz.Auth(new ImageInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'ImageInfo').replace('MetaData', 'ImageData')));
         }
     });
     return {edit: Edit, view: View, remove: Remove};

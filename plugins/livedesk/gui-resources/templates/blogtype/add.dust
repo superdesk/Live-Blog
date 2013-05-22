@@ -1,17 +1,18 @@
 <div id="add-blogtype" class="modal hide fade in">
   <div screenid="0" class="modalscreen" style="display: block;">
+
+    <form name="add-blog-type">
+
     <div class="modal-header">
       <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Add New Blog Type");</h3>
     </div>
   
     <div class="modal-body modal-body-min">
-      <form>
         <label>_("Blog type name");</label>
         <input type="text" class="fullwidth-input" value="{Name}" placeholder='_("Enter Blog Type Name");' name="blogtypename">
         <div class="blogtype-content"></div>
         <a name="addnewpost" href="javascript:void(0)" class="btn"><i class="icon-plus-sign"></i> _("Create New Predefined Post");</a>
-      </form> 
     </div>
 
 
@@ -20,6 +21,7 @@
       <a id="save-add-blogtype" data-dismiss="modal" class="btn btn-primary" href="javascript:void(0)">_("Save changes");</a> 
     </div>
 
+    </form> 
   </div>
 
 

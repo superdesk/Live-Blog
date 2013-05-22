@@ -4,3 +4,4 @@
 {<TopAnnotation}{/TopAnnotation}
 {<BottomAnnotation}{/BottomAnnotation}
 {<ContainerIframe}{/ContainerIframe}
+{<AdditionalAttributes}data-post-type="{Type.Key}"{/AdditionalAttributes}

@@ -15,7 +15,7 @@ define([
      * @return {string}
      */
     function getBlogHref(blogId) {
-        return '/resources/LiveDesk/Blog/' + blogId;
+        return superdesk.apiUrl+'/resources/LiveDesk/Blog/' + blogId;
     }
 
     /**

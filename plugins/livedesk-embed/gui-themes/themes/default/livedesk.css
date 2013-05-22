@@ -27,13 +27,13 @@
     left: 0;
     right: 0;
     z-index: 2000;
-    /*background: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/genlivedesk.jpg") no-repeat right center !important;*/
 }
 
 #livedesk-root .liveblog-post-list {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    margin-top: -2px;
 }
 
 #livedesk-root .liveblog-post-list li {
@@ -133,7 +133,7 @@
 .googleservice .attributes .source-icon {
     background-image: url("img/google-16px.png");
 }
-.instagram .attributes .source-icon {
+.instagramservice .attributes .source-icon {
     background-image: url("img/instagram.png");
 }  
 
@@ -147,6 +147,9 @@
     padding: 0;
     margin: 0;
     margin-top: -3px;
+}
+.googleservice h3 {
+    padding-bottom: 3px;
 }
 
 .facebookservice h3 a,
@@ -167,27 +170,74 @@
 }
 
 .imagepost figure, 
-.instagram figure,
+.instagramservice figure,
 .flickrservice figure  {
     margin: 0;
     padding: 0;
 }
 .imagepost figure img,
-.instagram figure img,
+.instagramservice figure img,
 .flickrservice figure img,
 .googleservice img {
     padding: 2px;
     border: 1px solid #e0e0e0;
 }
+.googleservice img {
+    margin: 5px 0;
+}
 
 .imagepost figure figcaption,
-.instagram figure figcaption,
+.instagramservice figure figcaption,
 .flickrservice figure figcaption {
     color:#787878;
     padding: 5px 0 0;
     font-size: 12px;
     line-height: 16px;
-    width: 500px;
+    max-width: 500px;
+}
+
+.instagramservice .result-content a,
+.flickrservice .result-content a {
+    text-decoration: none;
+}
+
+.instagramservice .result-content a img,
+.flickrservice .result-content a img {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.instagramservice .result-content a .result-text,
+.flickrservice .result-content .result-text {
+    font-size: 14px;
+    color: #000000;
+    line-height: 18px;
+}
+
+.instagramservice .result-content a .result-text p,
+.flickrservice .result-content .result-text p {
+    padding: 5px 0;
+    margin: 0;
+}
+
+
+.youtubeservice h3 {
+    margin: 5px 0;
+}
+.youtubeservice h3 a {
+    color: #2d6aaf;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.youtubeservice .result-text + .attributes .source-icon {
+    display: none;
+}
+.youtubeservice .author-name {
+    color: #2d6aaf;
+    text-decoration: none;
+    text-transform: none;
 }
 
 
@@ -232,15 +282,12 @@
     padding: 10px !important;
     padding-bottom:0 !important; 
     background: #f5f5f5;
-    margin: 0 -5px 5px;
-}
-
-.facebookservice .result-content,
-.twitterservice .result-content {
+    margin: 0 0px 5px;
     border-radius: 2px;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
 }
+
 
 .facebookservice .result-text,
 .link .result-text,
@@ -250,7 +297,14 @@
     line-height: 16px !important;
     color: #484848 !important;
 }
-    
+
+.youtubeservice iframe {
+    width: 100% !important;
+    border: 0;
+}
+.youtubeservice .result-text {
+    overflow: hidden;
+}
 
 .liveblog-post-list li.quotation .result-content {
     padding-left:55px ;
@@ -665,29 +719,36 @@ li.loading-more:hover{
 
 
 
-@media screen and (max-width: 768px) {
+/* MOBILE */
 
-    #livedesk-root .liveblog-post-list {
+    .mobile#livedesk-root .liveblog-post-list {
         margin-left: 5px;
     }
 
-    #livedesk-root .liveblog-post-list li {
+    .mobile#livedesk-root .liveblog-post-list li {
         padding: 7px 5px 30px 5px;
     }
 
-    .liveblog-post-list li.advertisement {
+    .mobile .liveblog-post-list li.advertisement {
         padding: 7px 5px 5px 5px !important;
     }
 
-    .liveblog-post-list li a[rel="bookmark"] {
+    .mobile .liveblog-post-list li a[rel="bookmark"] {
         display: block !important;
         top: auto;
         right: 10px;
         bottom: 9px;
         
     }
+    .mobile .liveblog-post-list li.quotation .result-content-full {
+        background-position: 0 3px;
+        padding-left: 40px;
+    }
+    .mobile .wrapup h3  {
+        padding: 5px 5px 5px 40px;
+    }
 
-    .sf-share {
+    .mobile .sf-share {
         display: block !important;
         top: auto;
         right: 50px;
@@ -696,27 +757,30 @@ li.loading-more:hover{
         font-size: 12px;
     }
     
-    .share-box {
+    .mobile .share-box {
         top: auto;
         bottom: 35px;
-        right: 50px;
+        right: auto;
+        left: 0;
     }
 
-    .twitter-controls {
+    .mobile .twitter-controls {
         height: 15px;
         top: auto !important;
         padding: 5px 0;
+        margin: 0;
     }
 
-    .twitter-controls .twitter-button {
+    .mobile .twitter-controls .twitter-button {
         display: block !important;
+        margin-left: 8px;
     }
     
-    .liveblog-post-list li input[data-type="permalink"] {
+    .mobile .liveblog-post-list li input[data-type="permalink"] {
         top: auto;
         bottom: 35px;
-        right: 15px;
+        right: 0;
         display: block;
+        left: 0;
+        width: auto;
     }
-
-}

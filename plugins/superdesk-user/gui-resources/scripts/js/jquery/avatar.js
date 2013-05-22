@@ -1,4 +1,4 @@
-define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery/md5'], function(str, $, gizmo) {
+define(['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery/md5'], function(str, $, gizmo) {
     var counter = 0,
         gravatar = {
         url: '//gravatar.com/avatar/%(md5)s?r=%(rate)s&s=%(size)s&d=%(default)s&%(forcedefault)s',
@@ -80,7 +80,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
         },
 		get: function(value, defaults) {
             var self = this,
-				params = $.extend({}, self.defaults, defaults||{},{ md5: $.md5($.trim(value.toLowerCase()))}),
+				params = $.extend({}, self.defaults, defaults||{},{ md5: value ? $.md5($.trim(value.toLowerCase())) : '' }),
 				url = str.format(self.url, params);
 			return url;
 		},

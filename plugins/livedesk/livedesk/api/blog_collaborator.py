@@ -39,7 +39,7 @@ class BlogCollaborator(Collaborator):
     Provides the blog collaborator model.
     '''
     Blog = Blog
-    Type = str
+    Type = BlogCollaboratorType
 
 # --------------------------------------------------------------------
 

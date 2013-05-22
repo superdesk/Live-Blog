@@ -9,5 +9,6 @@ define('providers/enabled', [
 	'order!providers/instagram/tab',
     'order!providers/soundcloud/tab',
 	'order!providers/ads/tab',
-	'order!providers/chain/tab'
+	'order!providers/chain/tab',
+	'order!providers/sms/tab'
 ], function(providers){ return providers; });
