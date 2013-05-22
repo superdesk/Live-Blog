@@ -39,12 +39,11 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         @see: ICollaboratorService.getAll
         '''
         sql = self.session().query(CollaboratorMapped)
-        if userId: sql = sql.filter(CollaboratorMapped.User == userId)
-        sql = sql.filter(UserMapped.DeletedOn == None)
-        if sourceId: sql = sql.filter(CollaboratorMapped.Source == sourceId)
-        if qu: sql = buildQuery(sql.join(UserMapped), qu, UserMapped)
-        if qs: sql = buildQuery(sql.join(SourceMapped), qs, SourceMapped)
+        sql = sql.outerjoin(UserMapped).filter(UserMapped.DeletedOn == None)
+        if userId is not None: sql = sql.filter(CollaboratorMapped.User == userId)
+        if sourceId is not None: sql = sql.filter(CollaboratorMapped.Source == sourceId)
+        if qu is not None: sql = buildQuery(sql.join(UserMapped), qu, UserMapped)
+        if qs is not None: sql = buildQuery(sql.join(SourceMapped), qs, SourceMapped)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
-
