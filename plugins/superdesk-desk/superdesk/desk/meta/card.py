@@ -31,11 +31,11 @@ class CardMapped(Base, Card):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Desk = Column('fk_desk_id', ForeignKey(DeskMapped.Id, ondelete='CASCADE'), nullable=False)
-    Index = Column('index', INTEGER(unsigned=True), nullable=True)
+    OrderIndex = Column('order_index', INTEGER(unsigned=True), nullable=True)
     Name = Column('name', String(255), unique=True, nullable=False)
     Description = Column('description', Text, nullable=True)
-    Limit = Column('limit', INTEGER(unsigned=True), nullable=True)
-    Color = Column('color', String(255), unique=True, nullable=False)
+    UpperLimit = Column('upper_limit', INTEGER(unsigned=True), nullable=True)
+    Color = Column('color', String(255), nullable=False)
 
 # --------------------------------------------------------------------
 

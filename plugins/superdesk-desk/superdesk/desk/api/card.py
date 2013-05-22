@@ -26,10 +26,10 @@ class Card(Entity):
     Provides the card model.
     '''
     Desk = Desk
-    Index = int
+    OrderIndex = int
     Name = str
     Description = str
-    Limit = int
+    UpperLimit = int
     Color = str
     
 # --------------------------------------------------------------------
@@ -39,7 +39,7 @@ class QCard(QEntity):
     '''
     Provides the query for desk model.
     '''
-    index = AsEqualOrdered
+    orderIndex = AsEqualOrdered
     name = AsLikeOrdered
     description = AsLikeOrdered
     color = AsLikeOrdered

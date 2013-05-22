@@ -16,7 +16,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from ally.api.extension import IterPart
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from sqlalchemy.sql.expression import not_
+from sqlalchemy.sql.expression import not_, func
 from superdesk.desk.meta.card import CardTaskStatusMapped
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
@@ -39,6 +39,17 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         Construct the  service.
         '''
         EntityServiceAlchemy.__init__(self, CardMapped, QCard)
+        
+    def insert(self, card): 
+        if not card.OrderIndex:
+            card.OrderIndex = self.session().query(func.max(CardMapped.OrderIndex)).one()[0]
+        
+        if not card.OrderIndex:
+            card.OrderIndex = 0
+            
+        card.OrderIndex =  card.OrderIndex + 1   
+            
+        return EntityServiceAlchemy.insert(self, card)        
      
     def getByDesk(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
