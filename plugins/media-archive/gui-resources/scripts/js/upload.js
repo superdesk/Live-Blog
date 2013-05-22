@@ -18,8 +18,8 @@ function()
              */
             upload: function(file, filename, path, startCb, format)
             {
-                var fd = new FormData(),
-                    format = typeof startCb == 'string' && !format ? startCb : (format ? format : 'xml');
+                var fd = new FormData();
+                var format = typeof startCb == 'string' && !format ? startCb : (format ? format : 'xml');
                 fd.append(filename || 'upload_file', file);
                 var xhr = new XMLHttpRequest();
                 // replace or add format we want as response in url // path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';

@@ -30,6 +30,7 @@ from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.source.api.source import ISourceService
+from livedesk.api.blog_sync import IBlogSyncService
     
 # --------------------------------------------------------------------
 
@@ -140,6 +141,9 @@ def registerAclManageOwnPost():
 @gui.setup
 def registerAclLivedeskUpdate():
     r = rightLivedeskUpdate()
+    r.allGet(IBlogSyncService)
+    r.add(ref(IBlogSyncService).insert, ref(IBlogSyncService).update, filter=filterAuthenticated())
+    r.add(ref(IBlogSyncService).delete)
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(),
                  dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), modulesManageFeedsAction(),
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())

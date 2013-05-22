@@ -1,9 +1,10 @@
 <div class="chain-header">
 	<p>_("Select liveblogs:")</p>
-	<p class="feed-info"><button class="btn btn-mini btn-yellow" data-toggle="button">Tageswoche</button></p>
+	<p class="feed-info">
+    </p>
 	<div class="chain-search">
 		<div class="autopublish">
-			<span>Autopublish:</span><input type="checkbox" class="sf-toggle on-off">
+			<span>_("Autopublish:");</span><input type="checkbox" name="autopublish" value="on" class="sf-toggle on-off">
 		</div>
 		<div class="sf-searchbox">
 			<input type="text" placeholder="Search">
@@ -11,7 +12,7 @@
 		</div>
 	</div>
 </div>
-<div class="alert fade in" style="margin-top:145px;margin-right:12px;">
+<div class="alert fade in" style="margin-top:145px;margin-right:12px;display:none" id="automod-info">
 	<a class="popup-close" data-dismiss="alert">x</a>
 	<strong>This feed is set to autopublish </strong>- all posts are published automatically.
 </div>
@@ -32,25 +33,11 @@
 	        e.preventDefault();
 
 	        if (!$(this).hasClass("sf-disable")) {
-
 	        	$(this).toggleClass('sf-checked');
 		        var own_box = $(this).find(".sf-toggle");        
-		        
-		        if (own_box.prop('checked')==true) 
-		        	{ own_box.prop('checked',false); }
-		        else 
-		        	{ own_box.prop('checked',true); }
-		       
-		        own_box.click();
-		        
-		        if (own_box.prop('checked')==true) 
-		        	{ own_box.prop('checked',false); }
-		        else 
-		        	{ own_box.prop('checked',true); }
+		        own_box.prop('checked', $(this).hasClass('sf-checked'));
+                own_box.change();
 	        }
-	       
-	        return false;
-	        
 	      });
 
 </script>
