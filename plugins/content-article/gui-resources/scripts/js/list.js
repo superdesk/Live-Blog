@@ -88,7 +88,7 @@ function($, giz, gizList, Action, Article, User)
         preDelete: function()
         {
             var el = $('#article-list-modal-container');
-            var deleteView = new DeleteView(el, this.model);
+            var deleteView = new DeleteView({ el: el, model: this.model});
         },
         publish: function(evt)
         {
@@ -103,18 +103,16 @@ function($, giz, gizList, Action, Article, User)
             this.model.unpublishSync();
         }
     }),
-    DeleteView = Backbone.View.extend({ 
+    DeleteView = giz.View.extend({ 
         events: { 
-            'click [data-action="delete"]': 'delete'
+            '[data-action="delete"]': { click:'delete' }
         },
         tmpl: 'superdesk/article>delete-item',
         render: function(){
             $(this.el).tmpl(this.tmpl);
             $(this.el).addClass('modal hide fade').modal();
         },
-        initialize: function(el, model) {
-            this.setElement(el);
-            this.model = model;
+        init: function() {
             this.render();
         },
         delete: function(){
@@ -158,7 +156,7 @@ function($, giz, gizList, Action, Article, User)
             // take each item, from checkbox data, and call delete on it
             $('[type="checkbox"]', self.el).each(function()
             { 
-                console.log( $(this).data('view').destroy() );
+                //console.log( $(this).data('view').destroy() );
                 /*
                 console.log($(this).data('view'));
                 $(this).data('view').delete();
