@@ -222,6 +222,8 @@
 
 		<a href="javascript:void(0)" data-action="save" class="btn btn-medium btn-info pull-right">Save</a>
 		<a href="javascript:void(0)" data-action="close" class="btn btn-medium pull-right">Close</a>
+		
+		<a href="javascript:void(0)" data-action="toggle-live-edit" class="btn btn-medium pull-right">Live edit</a>
 
 		<div class="alert alert-success pull-right hide"> 
 			<a class="close" data-dismiss="alert">&times;</a> 
@@ -244,14 +246,7 @@
 
 	</div>
 
-		<div id="switch_article_view" class="switch-article-view" style="left: 152px;">
-			<ul class="switch-view-tabs">
-				<li class="active-view" target-view="desktop"></li>
-				<li target-view="tablet"></li>
-				<li target-view="mobile"></li>
-				<li target-view="print"></li>
-			</ul>
-		</div-->
+		-->
 	
 	<div tabcontent-area="right-tabpane" class="tablist right-tablist">
 		<ul class="navigation-tabs">
@@ -264,8 +259,16 @@
 	</div>	
 
 	{#Article}
-	<article article-view="desktop" id="main-article" class="main-article-container" style="margin-left: 152px; margin-right: 152px; max-width: 960px;">
-			
+	<div class="switch-article-view hide" id="switch_article_view">
+		<ul class="switch-view-tabs" data-action="switch-view">
+			<li target-view="desktop" class=""></li>
+			<li target-view="tablet" class=""></li>
+			<li target-view="mobile" class=""></li>
+			<li target-view="print" class=""></li>
+		</ul>
+	</div>
+	
+	<article article-view="desktop" id="main-article" class="main-article-container">
 			<section class="article-section">
 				<header>
 					<span class="edit-label">_('Date')</span>

@@ -84,7 +84,6 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                     format: 
                     { 
                         config: [  'b', 'i', 'u', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
-                        //editables: { '#title': [], '#teaser': [ 'b', 'i' ] }
                     },
                     block:
                     {
@@ -111,6 +110,8 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             "[data-action='add-article']": { 'click': 'add' },
             "[data-action='save']": { 'click': 'save' },
             "[data-action='close']": { 'click': 'close' },
+            "[data-action='switch-view'] li": { 'click': 'switchView' },
+            "[data-action='toggle-live-edit']": { 'click': 'toggleLiveEdit' }
         },
 
         _tabs: [],
@@ -163,28 +164,10 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                     self._tabs[i].content.resetState && self._tabs[i].content.resetState();
                 }
                 
+                var evt = $.Event;
+                evt.currentTarget = $("[data-action='switch-view'] li:eq(0)");
+                self.switchView(evt);
                 self.renderCallback();
-                //editor.toolbarPlace = $('.editor-toolbar', self.el);
-                /*$('#main-article section [contenteditable]', this.el).texteditor
-                ({ 
-                    plugins: 
-                    { 
-                        controls: editorControls,
-                        floatingToolbar: null,
-                        draggableToolbar: null,
-                        fixedToolbar: editor.fixedToolbar($('.editor-toolbar-placeholder', self.el)),
-                        controlElements: 
-                        {
-                            bold: $('.editor-toolbar-stuff .strong', self.el),
-                            italic: $('.editor-toolbar-stuff .emphasis', self.el),
-                            underline: $('.editor-toolbar-stuff .underline', self.el),
-                            strike: $('.editor-toolbar-stuff .strike', self.el),
-                            link: $('.editor-toolbar-stuff .insertLink', self.el),
-                            image: $('.editor-toolbar-stuff .insertImage-oer', self.el),
-                        }
-                    }
-                });*/
-                //$('.editor-toolbar-stuff', self.el).remove();
             });
         },
         
@@ -220,10 +203,50 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             {
                 router.navigate('//article');
             });
+        },
+        
+        /*!
+         * live edit switch view
+         */
+        switchView: function(evt)
+        {
+            var elem = $(evt.currentTarget),
+                viewType = elem.attr('target-view'),
+                x = [];
+              
+            $('.switch-article-view li')
+                .removeClass('active-view')
+                .each(function(){ x.push($(this).attr('target-view')); });
+            elem.addClass('active-view');
+            $('article', this.el).removeClass(x.join(' ')).addClass(viewType);
+            this.arrangeSwitchViewControls();
+        },
+        
+        /*!
+         * return the switch view (mobile, tablet, etc.) button
+         */
+        getSwitchViewCtrl: function()
+        {
+            if( !this.switchViewCtrl ) this.switchViewCtrl = $('.switch-article-view', this.el);
+            return this.switchViewCtrl;
+        },
+        /*!
+         * calculate and execute placement of the switch view controls
+         */
+        arrangeSwitchViewControls: function()
+        {
+            var sw = this.getSwitchViewCtrl();
+            sw.css({left: $('article', this.el).offset().left - sw.width() });
+        },
+        /*!
+         * show/hide view controls
+         */
+        toggleLiveEdit: function()
+        {
+            var sw = this.getSwitchViewCtrl();
+            sw.hasClass('hide') ? sw.removeClass('hide') : sw.addClass('hide');
+            this.arrangeSwitchViewControls();
         }
-        
-        
-        
     });
     
     return { init: function(articleHash){ return new ArticleView(articleHash); }}; 
