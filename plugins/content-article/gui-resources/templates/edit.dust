@@ -198,6 +198,20 @@
 	position: static;
 	margin: 10px;
 }
+
+.btn-group.headings ul.dropdown-menu button
+{
+	background: none;
+	border: none;
+	border-radius: 0;
+	width: 100%;
+	text-align: left;
+}
+.btn-group.headings ul.dropdown-menu button:hover
+{
+	background-color: #08c;
+	color: #fff;
+}
 </style>
 
 
@@ -270,7 +284,7 @@
 					<span class="edit-label">_('Title')</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
-				<div contenteditable="true" id="article-title" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+				<div contenteditable="true" data-element="Title" id="article-title" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
 					{Content.Title|s}
 				</div>
 			</section>
@@ -280,7 +294,7 @@
 					<span class="edit-label">_('Lead')</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
-				<div contenteditable="true" id="article-short-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+				<div contenteditable="true" data-element="Lead" id="article-short-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
 					{Content.Lead|s}
 				</div>
 			</section>
@@ -290,7 +304,7 @@
 					<span class="edit-label">_('Body')</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
-				<div contenteditable="true" id="article-full-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
+				<div contenteditable="true" data-element="Body" id="article-full-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
 					{Content.Body|s}
 				</div>
 			</section>

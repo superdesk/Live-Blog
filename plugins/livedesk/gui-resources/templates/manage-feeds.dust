@@ -19,7 +19,7 @@
 				<div class="span8">
 					<div class="manage-feeds-top">
 						<div class="sf-searchbox">
-					<input type="text" placeholder="_('Search');">
+							<input type="text" placeholder="Search">
 		                    <a href="#"><i class="icon-remove"></i></a>
 						</div>
 						<a class="btn btn-info pull-right" data-toggle="modal" href="#AddFeed"><span class="medium-icon-add"></span> Add new Feed</a>
