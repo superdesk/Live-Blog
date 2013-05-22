@@ -9,7 +9,7 @@ Created on April 2, 2013
 Contains the SQL alchemy implementation for desk API.
 '''
 
-from ..api.desk import IDeskService
+from ..api.desk import IDeskService, QDesk
 from ..meta.desk import DeskMapped, DeskUserMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -32,7 +32,7 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         '''
         Construct the desk service.
         '''
-        EntityServiceAlchemy.__init__(self, DeskMapped)
+        EntityServiceAlchemy.__init__(self, DeskMapped, QDesk)
 
     def getUsers(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''

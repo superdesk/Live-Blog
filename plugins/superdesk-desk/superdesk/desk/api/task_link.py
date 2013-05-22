@@ -40,7 +40,7 @@ class QTaskLink(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, TaskLink))
+@service((Entity, TaskLink), (QEntity, QTaskLink))
 class ITaskLinkService(IEntityService):
     '''
     Provides the service methods for the desk task links.

@@ -9,7 +9,7 @@ Created on April 2, 2013
 Contains the SQL alchemy implementation for desk task API.
 '''
 
-from ..api.task_link import ITaskLinkService, TaskLink
+from ..api.task_link import ITaskLinkService, TaskLink, QTaskLink
 from ..meta.task_link import TaskLinkMapped
 from ..meta.task_link_type import TaskLinkTypeMapped
 from ally.container.ioc import injected
@@ -37,7 +37,7 @@ class TaskLinkServiceAlchemy(EntityServiceAlchemy, ITaskLinkService):
         '''
         Construct the desk task link service.
         '''
-        EntityServiceAlchemy.__init__(self, TaskLinkMapped)
+        EntityServiceAlchemy.__init__(self, TaskLinkMapped, QTaskLink)
 
     def getAll(self, typeKey=None, offset=None, limit=None, detailed=False, q=None):
         '''

@@ -9,7 +9,7 @@ Created on April 23, 2013
 Contains the SQL alchemy implementation for desk task comment API.
 '''
 
-from ..api.task_comment import ITaskCommentService, TaskComment
+from ..api.task_comment import ITaskCommentService, TaskComment, QTaskComment
 from ..meta.task_comment import TaskCommentMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -21,7 +21,6 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
-from superdesk.desk.api.task_comment import QTaskComment
 
 # --------------------------------------------------------------------
 
