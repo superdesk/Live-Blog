@@ -21,6 +21,8 @@ from sqlalchemy.sql.expression import not_
 from superdesk.desk.meta.task_type import TaskTypeMapped
 from superdesk.desk.meta.desk import DeskTaskTypeMapped
 from superdesk.desk.api.desk import QDesk
+from sqlalchemy.orm.exc import NoResultFound
+from ally.exception import InputError
 
 # --------------------------------------------------------------------
 
@@ -125,14 +127,16 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         '''
         @see IDeskService.attachTaskType
         '''
+        taskTypeId = self._typeId(taskTypeKey)
+        
         sql = self.session().query(DeskTaskTypeMapped)
         sql = sql.filter(DeskTaskTypeMapped.desk == deskId)
-        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeKey)
+        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeId)
         if sql.count() == 1: return
 
         deskTaskType = DeskTaskTypeMapped()
         deskTaskType.desk = deskId
-        deskTaskType.taskType = taskTypeKey
+        deskTaskType.taskType = taskTypeId
 
         self.session().add(deskTaskType)
         self.session().flush((deskTaskType,))
@@ -142,9 +146,21 @@ class DeskServiceAlchemy(EntityServiceAlchemy, IDeskService):
         '''
         @see IDeskService.detachUser
         '''
+        taskTypeId = self._typeId(taskTypeKey)
+        
         sql = self.session().query(DeskTaskTypeMapped)
         sql = sql.filter(DeskTaskTypeMapped.desk == deskId)
-        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeKey)
+        sql = sql.filter(DeskTaskTypeMapped.taskType == taskTypeId)
         count_del = sql.delete()
 
         return (0 < count_del)
+    
+    def _typeId(self, key):
+        '''
+        Provides the task type id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TaskTypeMapped.id).filter(TaskTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError('Invalid task type %(type)s') % dict(type=key)       

@@ -22,6 +22,8 @@ from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
 from superdesk.desk.meta.desk import DeskTaskTypeMapped
 from superdesk.desk.api.card import QCard
+from sqlalchemy.orm.exc import NoResultFound
+from ally.exception import InputError
 
 # --------------------------------------------------------------------
 
@@ -38,7 +40,7 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         EntityServiceAlchemy.__init__(self, CardMapped, QCard)
      
-    def getAll(self, deskId, offset=None, limit=None, detailed=False, q=None):
+    def getByDesk(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ICardService.getAll
         '''   
@@ -88,15 +90,17 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
     def attachTaskStatus(self, cardId, taskStatusKey):
         '''
         @see ICardService.attachUser
-        '''
+        '''      
+        taskStatusId = self._statusId(taskStatusKey)
+          
         sql = self.session().query(CardTaskStatusMapped)
         sql = sql.filter(CardTaskStatusMapped.card == cardId)
-        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusKey)
+        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusId)
         if sql.count() == 1: return
 
         cardTaskStatus = CardTaskStatusMapped()
-        cardTaskStatus.desk = cardId
-        cardTaskStatus.taskStatus = taskStatusKey
+        cardTaskStatus.card = cardId
+        cardTaskStatus.taskStatus = taskStatusId
 
         self.session().add(cardTaskStatus)
         self.session().flush((cardTaskStatus,))
@@ -105,9 +109,11 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         @see ICardService.detachTaskStatus
         '''
+        taskStatusId = self._statusId(taskStatusKey)
+        
         sql = self.session().query(CardTaskStatusMapped)
         sql = sql.filter(CardTaskStatusMapped.card == cardId)
-        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusKey)
+        sql = sql.filter(CardTaskStatusMapped.taskStatus == taskStatusId)
         count_del = sql.delete()
 
         return (0 < count_del)
@@ -123,3 +129,14 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         @see ICardService.moveDown
         '''
         pass
+    
+    def _statusId(self, key):
+        '''
+        Provides the task status id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TaskStatusMapped.id).filter(TaskStatusMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError('Invalid task status %(status)s') % dict(status=key)
+        

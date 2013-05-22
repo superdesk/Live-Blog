@@ -19,6 +19,8 @@ from sqlalchemy.sql.expression import not_
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
 from sql_alchemy.impl.keyed import EntityServiceAlchemy
+from sqlalchemy.orm.exc import NoResultFound
+from ally.exception import InputError
 
 # --------------------------------------------------------------------
 
@@ -70,14 +72,17 @@ class TaskTypeServiceAlchemy(EntityServiceAlchemy, ITaskTypeService):
         '''
         @see ITaskTypeService.attachStatus
         '''
+        taskTypeId = self._typeId(taskTypeKey)
+        taskStatusId = self._statusId(taskStatusKey)
+        
         sql = self.session().query(TaskTypeTaskStatusMapped)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusKey)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeId)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusId)
         if sql.count() == 1: return
 
         taskTypeTaskStatus = TaskTypeTaskStatusMapped()
-        taskTypeTaskStatus.desk = taskTypeKey
-        taskTypeTaskStatus.user = taskStatusKey
+        taskTypeTaskStatus.desk = taskTypeId
+        taskTypeTaskStatus.user = taskStatusId
 
         self.session().add(taskTypeTaskStatus)
         self.session().flush((taskTypeTaskStatus,))
@@ -87,9 +92,32 @@ class TaskTypeServiceAlchemy(EntityServiceAlchemy, ITaskTypeService):
         '''
         @see IDeskService.detachUser
         '''
+        taskTypeId = self._typeId(taskTypeKey)
+        taskStatusId = self._statusId(taskStatusKey)
+        
         sql = self.session().query(TaskTypeTaskStatusMapped)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeKey)
-        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusKey)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskType == taskTypeId)
+        sql = sql.filter(TaskTypeTaskStatusMapped.taskStatus == taskStatusId)
         count_del = sql.delete()
 
         return (0 < count_del)
+    
+    def _statusId(self, key):
+        '''
+        Provides the task status id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TaskStatusMapped.id).filter(TaskStatusMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError('Invalid task status %(status)s') % dict(status=key)
+        
+    def _typeId(self, key):
+        '''
+        Provides the task type id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TaskTypeMapped.id).filter(TaskTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError('Invalid task type %(type)s') % dict(type=key)        

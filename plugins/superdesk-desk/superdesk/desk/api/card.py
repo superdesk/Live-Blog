@@ -53,7 +53,7 @@ class ICardService(IEntityService):
     '''
     
     @call(method=GET)
-    def getAll(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QCard=None) -> Iter(Card):
+    def getByDesk(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QCard=None) -> Iter(Card):
         '''
         Provides the list of cards related to a desk.
         '''
