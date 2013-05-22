@@ -15,6 +15,7 @@ from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelDesk
 from superdesk.user.api.user import User, QUser
+from superdesk.desk.api.task_type import TaskType
 
 # --------------------------------------------------------------------
 
@@ -70,3 +71,26 @@ class IDeskService(IEntityService):
         Unsets a user from a desk.
         '''
 
+    @call(method=GET)
+    def getTaskTypes(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(TaskType):
+        '''
+        Provides all task types of a desk.
+        '''
+        
+    @call(method=GET, webName="Unassigned")
+    def getUnassignedTaskTypes(self, deskId:Desk.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(TaskType):
+        '''
+        Returns a list of task types that are not assigned to the given desk.
+        '''
+        
+    @call(method=UPDATE)
+    def attachTaskType(self, deskId:Desk.Id, taskTypeKey:TaskType.Key):
+        '''
+        Attach a task type to a desk.
+        '''
+
+    @call(method=DELETE)
+    def detachTaskType(self, deskId:Desk.Id, taskTypeKey:TaskType.Key) -> bool:
+        '''
+        Detach a task type from a desk.
+        '''

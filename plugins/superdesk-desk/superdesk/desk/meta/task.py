@@ -20,6 +20,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import UserMapped
 from ally.support.sqlalchemy.mapper import validate
+from superdesk.desk.meta.task_type import TaskTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -41,8 +42,11 @@ class TaskMapped(Base, Task):
     Description = Column('description', Text, nullable=True)
     StartDate = Column('start_date', DateTime, nullable=True)
     DueDate = Column('due_date', DateTime, nullable=True)
+    TaskType = association_proxy('type', 'Key')
     Status = association_proxy('status', 'Key')
     # Non REST model attribute ---------------------------------------
+    typeId = Column('fk_type_id', ForeignKey(TaskTypeMapped.id, ondelete='RESTRICT'), nullable=True) #TODO: make nullable=False when the type will eb added on UI
+    type = relationship(TaskTypeMapped, uselist=False, lazy='joined')
     statusId = Column('fk_status_id', ForeignKey(TaskStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(TaskStatusMapped, uselist=False, lazy='joined')
 
