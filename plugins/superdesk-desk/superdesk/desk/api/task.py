@@ -58,7 +58,7 @@ class QTask(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Task))
+@service((Entity, Task), (QEntity, QTask))
 class ITaskService(IEntityService):
     '''
     Provides the service methods for the desk task.
