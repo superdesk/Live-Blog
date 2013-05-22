@@ -255,7 +255,6 @@ define
                     post.Meta = JSON.parse(post.Meta);
                 }
                 $.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
-                console.log(post);
                 $.tmpl('livedesk>items/item', { 
                     Base: self.tmplImplementor,
                     Post: post
