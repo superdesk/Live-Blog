@@ -1,8 +1,11 @@
 define([
     'jquery',
     'backbone',
-    'desk/models/desk-collection'
-],function($, Backbone, DeskCollection) {
+    'router',
+    'desk/models/desk',
+    'desk/models/desk-collection',
+    'desk/views/single-desk'
+],function($, Backbone, router, Desk, DeskCollection, DeskBoardsView) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -26,13 +29,23 @@ define([
         }
     });
 
+    router.route('desks/:id', 'desk', function singleDesk(id) {
+        var desk = new Desk({Id: id});
+        var view = new DeskBoardsView({model: desk, el: '#area-main'});
+        desk.fetch();
+    });
+
+    router.route('desks', 'desks', function allDesks() {
+        // noop
+    });
+
     return {
         init: function(submenu, menu, data) {
             var desks = new DeskCollection();
             var menu = new MenuView({el: submenu, collection: desks});
             var timeout = 5000;
 
-            var fetchDesks = function() {
+            function fetchDesks() {
                 desks.fetch({reset: true, headers: desks.xfilter});
                 setTimeout(fetchDesks, timeout);
             };
