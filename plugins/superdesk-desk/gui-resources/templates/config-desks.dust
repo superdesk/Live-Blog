@@ -1,0 +1,441 @@
+<div class="main-background-container">
+
+	<div class="subnav subnav-fixed">
+
+		<h1 class="config-page-title pull-left">_("Desk managment");</h1> 
+		<a class="btn btn-medium btn-info pull-right" href="#addDesk" data-toggle="modal" ng-click="createDesk()"><span class="medium-icon-add"></span> _("New Desk");</a>
+	</div>
+
+
+		<div class="config-page-container">
+
+			<div class="desk-config" ng-repeat="desk in desks" ng-class="{'board-view': cards}" ng-controller="DeskController">
+				<div class="desk-header">
+					<div class="toggle-desk">
+						<i class="icon-chevron-down toggle-desk-close"></i>
+						<i class="icon-chevron-right toggle-desk-open"></i>
+					</div>
+					{{ desk.Name }}
+					<div class="dropdown dropdown-simple pull-right">
+                      <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+                      <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+                        <li><a href="#addDesk" data-toggle="modal" ng-click="editDesk(desk)"><i class="icon-pencil"></i> _("Edit Desk");</a></li>
+                        <li><a href="" ng-click="deleteDesk(desk, $index)"><i class="icon-trash"></i> _("Delete Desk");</a></li>
+                      </ul>
+                  	</div>
+				</div>
+
+				<div class="desk-config-tab show" ng-class="{'member-tab': !cards, 'board-tab': cards}">
+					<div class="desk-subheader subnav">
+						<ul class="nav nav-pills pull-left">
+					      <li ng-class="{active: !cards}"><a href="" ng-click="cards=false">Desk members</a></li>
+					      <li ng-class="{active: cards}"><a href="" ng-click="cards=true">Desk boards</a></li>
+					    </ul>
+					    <a class="btn btn-info pull-right" href="#addMember" ng-click="addMember(desk)" data-toggle="modal" ng-show="!cards"><span class="icon-plus-sign icon-white"></span> Add Member</a>
+					    <a class="btn btn-info pull-right" href="#addBoard" ng-click="addCard(desk, desk.cards)" data-toggle="modal" ng-show="cards"><span class="icon-plus-sign icon-white"></span> Add Board</a>
+					</div>
+					<div class="desk-config-tab-content" ng-show="!cards">
+						<ul class="plain-table">
+		                    <li ng-repeat="user in desk.members"> <figure><img ng-src="" width="22" height="22"></figure>
+		                      <a class="collaborator-name-large" >{{ user.Name }}</a>
+		                      
+		                      <div class="table-buttons">
+		                        <a href="" title="delete members" ng-click="removeMember(desk, user)"><i class="icon-remove"></i></a>
+		                      </div>
+
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1editor"> Editor</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="uid1Journalist"> Journalist</li>
+		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1photographer"> Photographer</li>
+		                        </ul>
+		                      </div>
+		                    </li>
+                            <li ng-show="!desk.members.length">_("There are no members yet");</li>
+		                  </ul>
+					</div>
+					<div class="desk-config-tab-content" ng-show="cards">
+						<ul class="board-table plain-table" sd-sortable ng-model="desk.cards">
+		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-id="{{ card.Id }}" ng-controller="CardController">
+		                     <span class="board-name">{{ card.Name }}</span>
+
+                             <div class="dropdown dropdown-simple board-status">
+	                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span ng-repeat="status in card.statuses">{{ status.Key }}<span ng-show="!$last">, </span></span> <b class="caret"></b></a>
+	                            <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	                                <li ng-repeat="status in statuses"><label><input type="checkbox" ng-checked="hasStatus(status)" ng-click="toggleStatus(card, status)"> {{ status.Key }}</label></li>
+	                            </ul>
+                             </div>
+
+		                       <div class="dropdown dropdown-simple">
+		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;" ng-model="card.Limit"></li>
+		                            <li><a href="" ng-click="deleteCard(desk.cards, $index)"><i class="icon-trash"></i> Delete</a></li>
+		                          </ul>
+		                      </div>
+
+		                      <span class="board-limit">{{ card.Limit }}</span>
+		                    </li>
+                            <li ng-show="!desk.cards.length">_("There are no cards yet");</li>
+		                </ul>
+					</div>
+				</div>
+			</div>
+		</div>
+</div><!--/.main-backround-container-->
+
+
+
+
+
+
+<div class="modal hide fade modal modal-wide" id="addMember" ng-controller="AddMemberController">
+  <form name="addMember" class="form-horizontal row-fluid" style="margin-top:10px;">
+  <div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
+    <h3>Add Desk member</h3>
+  </div>
+  <div class="modal-body modal-body-min">
+      <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin:-8px 0 0 0;float:right !important;" ng-model="userSearch">
+
+        <label class="checkbox select-all-colaborator">
+          <span ng-show>
+            <input type="checkbox" name="selectAllMembers" ng-model="checkAll"> _("Select all");
+          </span>
+        </label>
+
+        <ul class="internal-collaborators">
+          <li ng-repeat="user in users | filter:userSearch">
+            <input type="checkbox" class="select-colaborator" name="member1" group="members" ng-checked="checkAll" ng-model="user.isSelected" id="_user_{{ $index }}">
+            <figure><img ng-src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
+            <label for="_user_{{ $index }}"><span class="add-collaborator-name">{{ user.Name }}</span><span>{{ user.EMail }}</span></label>
+          </li>
+        </ul>          
+  </div>
+  <div class="modal-footer"> 
+  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
+  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveMembers(desk, users)">Save changes</a>
+  </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+<div class="modal hide fade modal" id="addBoard">
+  <form name="addBoard">
+  <div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
+    <h3>Add Desk board</h3>
+  </div>
+  <div class="modal-body">
+      		<input type="text" placeholder="Board name" ng-model="card.Name">
+      		<div class="inline-color-list clearfix">
+      			<span>Choose color: </span>
+      			<ul class="simple-color-list clearfix">
+                    <li ng-repeat="color in colors" ng-class="{picked: color === card.Color}"><a href="" ng-click="card.Color=color"><span class="color boardcolor-{{ color }}"></span></a></li>
+	      		</ul>
+      		</div>
+      		<legend></legend>
+      		<p>You can optionaly limit the number of tasks inside a board</p>
+      		<div>
+      			<span style="margin-right:20px;">Set limit: </span><input type="text" placeholder="none" class="inline-input" style="width:50px;" ng-model="card.Limit">
+      		</div>
+
+ </div>
+  <div class="modal-footer"> 
+  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
+  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveCard(desk, card)">Save changes</a>
+  </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="modal hide fade modal-wide" id="addDesk">
+    <form name="deskForm">
+	<div class="modal-header"> <a href="" class="close" data-dismiss="modal">×</a>
+		<h3 ng-show="!desk.Id">Add New Desk</h3>
+		<h3 ng-show="desk.Id">Edit Desk</h3>
+	</div>
+
+	<div class="modalscreen" id="general-screen" style="display:block">
+
+		<div class="modal-body modal-body-min">
+
+			<div class="popup-subnav subnav">
+				<ul class="nav nav-pills pull-left">
+					<li class="active"><a href="#general-screen">General</a></li>
+					<li ng-show><a href="#members-screen">Desk members</a></li>
+					<li ng-show><a href="#boards-screen">Desk boards</a></li>
+				</ul>
+			</div>
+				<input type="text" placeholder="_("Enter Desk name");" class="fullwidth-input" style="margin-bottom:10px;" ng-model="desk.Name" required> 
+
+				<label>Define task types and statuses for this Desk</label>
+				<div class="checklist-doubleside" style="height:280px;">
+					
+                    <!--
+					<section class="checklist-pane" ng-show>
+						<header>
+							Task types
+							<a class="btn btn-mini" href="" ng-click="addTaskType(desk)"><i class="icon-plus-sign"></i> New task type</a>
+						</header>
+						<ul class="checklist-selection tasktypes" id="tasktypes">
+				    		<li ng-repeat="type in types"><input type="text" model="type.Name" placeholder="_("Type Name");" class="inline" /></li>
+						</ul>
+					</section>
+                    -->
+
+					<section class="checklist-pane">
+						<header>
+							Statuses
+							<a class="btn btn-mini" href="" ng-click="addTaskStatus(desk)"><i class="icon-plus-sign"></i> New task status</a>
+						</header>
+						<ul>
+				    		<li ng-repeat="status in statuses"><input type="text" ng-model="status.Key" /></li>
+						</ul> 
+					</section>
+					
+				</div>
+		</div>
+		
+	</div>
+
+
+	<div class="modalscreen" id="members-screen">
+		
+		<div class="modal-body modal-body-min">
+
+			<div class="popup-subnav subnav">
+				<ul class="nav nav-pills pull-left">
+					<li ><a href="#general-screen">General</a></li>
+					<li class="active"><a href="#members-screen">Desk members</a></li>
+					<li ><a href="#boards-screen">Desk boards</a></li>
+				</ul>
+			</div>
+			<p class="dummy-info">You can also add or change Desk members at a later point, from the Desk list.</p>
+			<input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin:-8px 0 0 0;float:right !important;">
+
+			<form class="form-horizontal row-fluid" style="margin-top:10px;">
+
+			<label class="checkbox select-all-colaborator" >
+			  <input type="checkbox"  name="selectAllMembers">
+			  Select all
+			</label>
+
+			<ul class="internal-collaborators">
+			  <li>
+			    <input type="checkbox" class="select-colaborator" name="member1" group="members">
+			    <figure><img src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
+			    <span class="add-collaborator-name">Nikola Nikolic</span><span>nikola.nikolic@yahoo.com</span>
+			  </li>
+
+			  <li>
+			    <input type="checkbox" class="select-colaborator" name="member2" group="members">
+			    <figure><img src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
+			    <span class="add-collaborator-name">Vladimir Stefanović</span><span>vladimir.stefanovic@sourcefabric.org</span>
+			  </li>
+
+			  <li>
+			    <input type="checkbox" class="select-colaborator" name="member3" group="members">
+			    <figure><img src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
+			    <span class="add-collaborator-name">Ljuba Ranković</span><span>ljuba.rankovic@yahoo.com</span>
+			  </li>
+
+			  <li>
+			    <input type="checkbox" class="select-colaborator" name="member4" group="members">
+			    <figure><img src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
+			    <span class="add-collaborator-name">Ana Nedić</span><span>ana.nedic@yahoo.com</span>
+			  </li>
+
+			</ul>          
+
+			</form>
+		</div>
+	
+	</div>
+
+
+	<div class="modalscreen" id="boards-screen">
+		<div class="modal-body modal-body-min">
+			<div class="popup-subnav subnav">
+				<ul class="nav nav-pills pull-left">
+					<li ><a href="#general-screen">General</a></li>
+					<li ><a href="#members-screen">Desk members</a></li>
+					<li class="active"><a href="#boards-screen">Desk boards</a></li>
+				</ul>
+			</div>
+			<p class="dummy-info">You can also add or change Desk boards at a later point, from the Desk list.</p>
+				<ul class="plain-table plain-border-top board-table">
+                    <li class="boardcolor-1">
+                     <span class="board-name"><input type="text" class="sf-inline-input" value="To Do"></span>
+                      <div class="dropdown dropdown-simple board-status">
+	                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Open, Reopened <b class="caret"></b></a>
+	                       <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="bid1open"> Open</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="bid1reopened"> Reopened</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1inreview"> In review</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1"  name="bid1resolved"> Resolved</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1"  name="bid1closed"> Closed</li>
+	                    </ul>
+	                  </div>
+                       <div class="dropdown dropdown-simple">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+                          	<li class="no-bg item-border">
+                          		Choose color: 
+                          		<ul class="simple-color-list clearfix">
+                          			<li class="picked"><span class="color boardcolor-1"></span></li>
+                          			<li><span class="color boardcolor-2"></span></li>
+                          			<li><span class="color boardcolor-3"></span></li>
+                          			<li><span class="color boardcolor-4"></span></li>
+                          			<li><span class="color boardcolor-5"></span></li>
+                          			<li><span class="color boardcolor-6"></span></li>
+                          			<li><span class="color boardcolor-7"></span></li>
+                          			<li><span class="color boardcolor-8"></span></li>
+                          			<li><span class="color boardcolor-9"></span></li>
+                          			<li><span class="color boardcolor-10"></span></li>
+                          		</ul>
+                          	</li>
+                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                          </ul>
+                      </div>
+                       <span class="board-limit-editable"><input type="text" class="sf-inline-input" value="none"></span>
+                    </li>
+                    <li class="boardcolor-2">
+                     <span class="board-name"><input type="text" class="sf-inline-input" value="In progress"></span>
+                      <div class="dropdown dropdown-simple board-status">
+	                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">In review <b class="caret"></b></a>
+	                       <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1open"> Open</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1reopened"> Reopened</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked"name="bid1inreview"> In review</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1"  name="bid1resolved"> Resolved</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1"  name="bid1closed"> Closed</li>
+	                    </ul>
+	                  </div>
+                       <div class="dropdown dropdown-simple">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+                          	<li class="no-bg item-border">
+                          		Choose color: 
+                          		<ul class="simple-color-list clearfix">
+                          			<li><span class="color boardcolor-1"></span></li>
+                          			<li class="picked"><span class="color boardcolor-2"></span></li>
+                          			<li><span class="color boardcolor-3"></span></li>
+                          			<li><span class="color boardcolor-4"></span></li>
+                          			<li><span class="color boardcolor-5"></span></li>
+                          			<li><span class="color boardcolor-6"></span></li>
+                          			<li><span class="color boardcolor-7"></span></li>
+                          			<li><span class="color boardcolor-8"></span></li>
+                          			<li><span class="color boardcolor-9"></span></li>
+                          			<li><span class="color boardcolor-10"></span></li>
+                          		</ul>
+                          	</li>
+                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                          </ul>
+                      </div>
+                       <span class="board-limit-editable"><input type="text" class="sf-inline-input" value="none"></span>
+                    </li>
+                    <li class="boardcolor-3">
+                     <span class="board-name"><input type="text" class="sf-inline-input" value="Done"></span>
+                      <div class="dropdown dropdown-simple board-status">
+	                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Resolved, Closed <b class="caret"></b></a>
+	                       <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1open"> Open</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1reopened"> Reopened</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1inreview"> In review</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="bid1resolved"> Resolved</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="cheked" name="bid1closed"> Closed</li>
+	                    </ul>
+	                  </div>
+                       <div class="dropdown dropdown-simple">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+                          	<li class="no-bg item-border">
+                          		Choose color: 
+                          		<ul class="simple-color-list clearfix">
+                          			<li><span class="color boardcolor-1"></span></li>
+                          			<li><span class="color boardcolor-2"></span></li>
+                          			<li class="picked"><span class="color boardcolor-3"></span></li>
+                          			<li><span class="color boardcolor-4"></span></li>
+                          			<li><span class="color boardcolor-5"></span></li>
+                          			<li><span class="color boardcolor-6"></span></li>
+                          			<li><span class="color boardcolor-7"></span></li>
+                          			<li><span class="color boardcolor-8"></span></li>
+                          			<li><span class="color boardcolor-9"></span></li>
+                          			<li><span class="color boardcolor-10"></span></li>
+                          		</ul>
+                          	</li>
+                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                          </ul>
+                      </div>
+                       <span class="board-limit-editable"><input type="text" class="sf-inline-input" value="none"></span>
+                    </li>
+                    <li class="boardcolor-4" style="display:none" id="newBoardInModal">
+                     <span class="board-name"><input type="text" class="sf-inline-input" value="New Board"></span>
+                      <div class="dropdown dropdown-simple board-status">
+	                      <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <b class="caret"></b></a>
+	                       <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1open"> Open</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1reopened"> Reopened</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1inreview"> In review</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1resolved"> Resolved</li>
+	                          <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="bid1closed"> Closed</li>
+	                    </ul>
+	                  </div>
+                       <div class="dropdown dropdown-simple">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
+                          	<li class="no-bg item-border">
+                          		Choose color: 
+                          		<ul class="simple-color-list clearfix">
+                          			<li class="picked"><span class="color boardcolor-1"></span></li>
+                          			<li><span class="color boardcolor-2"></span></li>
+                          			<li><span class="color boardcolor-3"></span></li>
+                          			<li><span class="color boardcolor-4"></span></li>
+                          			<li><span class="color boardcolor-5"></span></li>
+                          			<li><span class="color boardcolor-6"></span></li>
+                          			<li><span class="color boardcolor-7"></span></li>
+                          			<li><span class="color boardcolor-8"></span></li>
+                          			<li><span class="color boardcolor-9"></span></li>
+                          			<li><span class="color boardcolor-10"></span></li>
+                          		</ul>
+                          	</li>
+                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;"></li>
+                            <li><a href="#"><i class="icon-pencil"></i> Rename</a></li>
+                            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                          </ul>
+                      </div>
+                      <span class="board-limit-editable"><input type="text" class="sf-inline-input" value="none"></span>
+                    </li>
+                </ul>
+                <a class="btn pull-left" href="#" style="margin-top:20px;" id="addNewBoardInModal"><span class="icon-plus-sign"></span> Add new board</a>
+
+		</div>
+
+	</div>
+
+
+	<div class="modal-footer"> 
+	  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
+	  	<button class="btn btn-primary" data-dismiss="modal" ng-click="saveDesk(desk)" ng-disabled="!deskForm.$valid">Save</button>
+	  </div>
+
+    </form>
+</div>  
+  
+
