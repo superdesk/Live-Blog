@@ -1,0 +1,33 @@
+<div class="switches-tab">
+	<div class="tabmodule tabmodule-open">
+		<div class="tabmodule-header">
+			<i class="icon-chevron-down toggle-module-close"></i>
+			<i class="icon-chevron-right toggle-module-open"></i>
+			<span class="tabmodule-title">_('Target outputs');</span>
+		</div>
+		<div class="tabmodule-content">
+			<ul class="selectionlist">
+	    		<li>_('Web'); <input type="checkbox" class="sf-toggle on-off"></li>
+	    		<li>_('Tablet'); <input type="checkbox" class="sf-toggle on-off" checked="checked"></li>
+	    		<li>_('Mobile'); <input type="checkbox" class="sf-toggle on-off"></li>
+			</ul>
+		</div>
+	</div>
+	<div class="tabmodule  tabmodule-open">
+		<div class="tabmodule-header">
+			<i class="icon-chevron-down toggle-module-close"></i>
+			<i class="icon-chevron-right toggle-module-open"></i>
+			<span class="tabmodule-title"> _('Switches');</span>
+		</div>
+		<div class="tabmodule-content">
+			<ul class="checklist-selection">
+	    		<li><input type="checkbox" class="sf-checkbox" checked="checked"> _('Artikel des Tages');</li>
+	    		<li><input type="checkbox" class="sf-checkbox"> _('Teaser mit Karte auf Startseite');</li>
+	    		<li><input type="checkbox" class="sf-checkbox"> _('Print');</li>
+	    		<li><input type="checkbox" class="sf-checkbox" checked="checked"> _('Artikelbild ausblenden');</li>
+	    		<li><input type="checkbox" class="sf-checkbox"> _('full_width_element');</li>
+	    		<li><input type="checkbox" class="sf-checkbox"> _('iPad - prominent');</li>
+			</ul>
+		</div>
+	</div>
+</div>

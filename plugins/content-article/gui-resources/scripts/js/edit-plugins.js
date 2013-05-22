@@ -9,5 +9,6 @@
 define
 ([
     config.guiJs('superdesk/article', 'plugins/media'),
+    config.guiJs('superdesk/article', 'plugins/publishing-control')
 ], 
 function(){ return arguments; });
