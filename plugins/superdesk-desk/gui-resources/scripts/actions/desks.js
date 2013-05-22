@@ -3,14 +3,16 @@ define([
     'backbone',
     'router',
     'desk/models/desk-collection',
-    'desk/views/single-desk',
     'angular',
     'desk/controllers/tasks',
     'desk/controllers/edit-task',
+    'desk/controllers/card',
+    'desk/controllers/desk',
     'desk/resources',
     'desk/directives',
+    'tmpl!superdesk-desk>desk/single'
 ],
-function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksController, EditTaskController) {
+function($, Backbone, router, DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -35,56 +37,23 @@ function($, Backbone, router, DeskCollection, DeskBoardsView, angular, TasksCont
     });
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
-        var template;
-        $.tmpl('superdesk-desk>desk/single', {}, function(e, o) {
-            template = o;
-        });
+        var module = angular.module('desks', ['resources', 'directives']);
 
-        angular.module('desks', ['resources', 'directives']).
-            controller('TasksController', ['$scope', 'desk', 'desks', 'tasks', 'Task', 'TaskService', TasksController]).
-            controller('EditTaskController', ['$scope', 'Task', 'TaskStatusLoader', EditTaskController]).
-            controller('CardController', function($scope, CardService) {
-                CardService.getStatuses($scope.card).then(function(statuses) {
-                    $scope.card.statuses = statuses;
-                    $scope.isCardTask = function(task) {
-                        for (var i in statuses) {
-                            if (statuses[i].Key === task.Status.Key) {
-                                return true;
-                            }
-                        }
-                    };
-                });
-            }).
-            controller('DeskController', function($scope, DeskService) {
-                DeskService.getCards($scope.desk).then(function(cards) {
-                    $scope.cards = cards;
-                });
-            }).
-            config(['$routeProvider', function($routeProvider) {
-                $routeProvider.
-                    when('/desks/:deskId', {
-                        controller: 'TasksController',
-                        template: template,
-                        resolve: {
-                            desk: function(DeskLoader) {
-                                return DeskLoader();
-                            },
-                            desks: function(DeskListLoader) {
-                                return DeskListLoader();
-                            },
-                            tasks: function(DeskTaskLoader) {
-                                return DeskTaskLoader();
-                            }
-                        }
-                    });
-            }]).
-            config(['$interpolateProvider', function($interpolateProvider) {
-                $interpolateProvider.startSymbol('{{ ');
-                $interpolateProvider.endSymbol(' }}');
-            }]);
+        module.controller('TasksController', TasksController);
+        module.controller('EditTaskController', EditTaskController);
+        module.controller('CardController', CardController);
+        module.controller('DeskController', DeskController);
 
-        $('#area-main').attr('ng-view', '');
-        angular.bootstrap('body', ['desks']);
+        module.config(['$interpolateProvider', function($interpolateProvider) {
+            $interpolateProvider.startSymbol('{{ ');
+            $interpolateProvider.endSymbol(' }}');
+        }]);
+
+        angular.module('resources').value('deskId', deskId);
+
+        $('#area-main').tmpl('superdesk-desk>desk/single');
+        $('#area-main').attr('ng-controller', 'TasksController');
+        angular.bootstrap(document, ['desks']);
     });
 
     router.route('desks', 'desks', function allDesks() {

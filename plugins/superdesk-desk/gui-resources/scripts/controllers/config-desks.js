@@ -2,9 +2,9 @@ define(['angular'],
 function(angular) {
     'use strict';
 
-    return function($scope, $window, desks, statuses, Desk, DeskService, TaskStatus) {
-        $scope.desks = desks;
-        $scope.statuses = statuses;
+    return function($scope, $window, DeskListLoader, TaskStatusLoader, Desk, DeskService, TaskStatus) {
+        $scope.desks = DeskListLoader();
+        $scope.statuses = TaskStatusLoader();
         $scope.colors = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
         $scope.createDesk = function() {
@@ -17,9 +17,13 @@ function(angular) {
         };
 
         $scope.saveDesk = function() {
-            angular.forEach($scope.statuses, function(status) {
-                TaskStatus.save(status, function(status) {
-                    $scope.statuses.push(status);
+            angular.forEach($scope.statuses, function(stat) {
+                if ('href' in stat) {
+                    return;
+                }
+
+                TaskStatus.save(stat, function(nextStat) {
+                    stat.href = nextStat.href;
                 });
             });
 
@@ -30,7 +34,7 @@ function(angular) {
             } else {
                 Desk.save($scope.desk, function(desk) {
                     Desk.get({Id: desk.Id}, function(desk) {
-                        $scope.desks.unshift(desk);
+                        $scope.desks.push(desk);
                     });
                 });
             }
@@ -57,7 +61,7 @@ function(angular) {
         $scope.addCard = function(desk, cards) {
             $scope.desk = desk;
             $scope.cards = cards;
-            $scope.card = {};
+            $scope.card = {Index: cards.length};
         };
 
         $scope.saveCard = function(desk, card) {

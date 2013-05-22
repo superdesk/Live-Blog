@@ -74,10 +74,10 @@ define([
         };
     }]);
 
-    resources.factory('DeskLoader', ['Desk', '$route', '$q', function(Desk, $route, $q) {
+    resources.factory('DeskLoader', ['Desk', 'deskId', '$q', function(Desk, deskId, $q) {
         return function() {
             var delay = $q.defer();
-            Desk.get({Id: $route.current.params.deskId}, function(desk) {
+            Desk.get({Id: deskId}, function(desk) {
                 delay.resolve(desk);
             });
             return delay.promise;
@@ -94,11 +94,11 @@ define([
         };
     }]);
 
-    resources.factory('DeskTaskLoader', ['TaskList', '$route', '$q', function(TaskList, $route, $q) {
+    resources.factory('DeskTaskLoader', ['TaskList', 'deskId', '$q', function(TaskList, deskId, $q) {
         return function() {
             var delay = $q.defer();
 
-            TaskList.get({deskId: $route.current.params.deskId}, function(response) {
+            TaskList.get({deskId: deskId}, function(response) {
                 delay.resolve(response.TaskList);
             });
 

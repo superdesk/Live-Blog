@@ -9,12 +9,16 @@ requirejs.config({
 define([
     'jquery',
     'router',
-    'desk/views/config',
     'superdesk/views/menu',
     'angular',
     'desk/controllers/config-desks',
+    'desk/controllers/config-desk',
+    'desk/controllers/config-card',
+    'desk/controllers/config-add-member',
+    'desk/resources',
+    'desk/directives',
     'tmpl!superdesk-desk>config-desks'
-], function($, router, configView, menuView, angular, ConfigDesksController) {
+], function($, router, menuView, angular, ConfigDesksController, ConfigDeskController, ConfigCardController, ConfigAddMemberController) {
     'use strict';
 
     return {
@@ -25,101 +29,19 @@ define([
             router.route(data.get('NavBar'), 'config:desks', function() {
                 var module = angular.module('desks.config', ['resources', 'directives']);
 
-                var template;
-                $.tmpl('superdesk-desk>config-desks', {}, function(e, o) {
-                    template = o;
-                });
-
-                module.config(['$routeProvider', function($routeProvider) {
-                    $routeProvider.
-                        when('/config/desks', {
-                            controller: ConfigDesksController,
-                            template: template,
-                            resolve: {
-                                desks: function(DeskListLoader) {
-                                    return DeskListLoader();
-                                },
-                                statuses: function(TaskStatusLoader) {
-                                    return TaskStatusLoader();
-                                }
-                            }
-                        });
-                }]);
-
                 module.config(['$interpolateProvider', function($interpolateProvider) {
                     $interpolateProvider.startSymbol('{{ ');
                     $interpolateProvider.endSymbol(' }}');
                 }]);
 
-                module.controller('DeskController', function($scope, DeskService, CardService) {
-                    $scope.desk.members = DeskService.getMembers($scope.desk);
+                module.controller('ConfigDesksController', ConfigDesksController);
+                module.controller('DeskController', ConfigDeskController);
+                module.controller('CardController', ConfigCardController);
+                module.controller('AddMemberController', ConfigAddMemberController);
 
-                    DeskService.getCards($scope.desk).then(function(cards) {
-                        $scope.desk.cards = cards;
-
-                        $scope.removeFromAllCards = function(stat) {
-                            angular.forEach($scope.desk.cards, function(card) {
-                                for (var i in card.statuses) {
-                                    if (card.statuses[i].Key === stat.Key) {
-                                        CardService.removeStatus(card, stat);
-                                        card.statuses.splice(i, 1);
-                                        break;
-                                    }
-                                }
-                            });
-                        };
-                    });
-                });
-
-                module.controller('CardController', function($scope, CardService) {
-                    $scope.card.statuses = [];
-
-                    CardService.getStatuses($scope.card).then(function(statuses) {
-                        $scope.card.statuses = statuses;
-
-                        $scope.findStatus = function(stat) {
-                            var stats = $scope.card.statuses;
-                            for (var i in stats) {
-                                if (stats[i].Key === stat.Key) {
-                                    return i;
-                                }
-                            }
-
-                            return false;
-                        };
-
-                        $scope.hasStatus = function(stat) {
-                            return $scope.findStatus(stat) !== false;
-                        };
-
-                        $scope.toggleStatus = function(card, stat) {
-                            var index = $scope.findStatus(stat);
-                            if (index !== false) {
-                                CardService.removeStatus(card, stat);
-                                $scope.card.statuses.splice(index, 1);
-                            } else {
-                                console.log('add', stat);
-                                $scope.removeFromAllCards(stat);
-                                CardService.addStatus(card, stat);
-                                $scope.card.statuses.push(stat);
-                            }
-                        };
-                    });
-                });
-
-                module.controller('AddMemberController', function($scope, DeskService) {
-                    $scope.saveMembers = function(desk, users) {
-                        angular.forEach(users, function(user) {
-                            if (user.isSelected) {
-                                DeskService.addMember(this, user);
-                            }
-                        }, desk);
-                        desk.members = DeskService.getMembers(desk);
-                    };
-                });
-
-                $('#area-main').attr('ng-view', '');
-                angular.bootstrap('body', ['desks.config']);
+                $('#area-main').tmpl('superdesk-desk>config-desks');
+                $('#area-main').attr('ng-controller', 'ConfigDesksController');
+                angular.bootstrap(document, ['desks.config']);
             });
         }
     };
