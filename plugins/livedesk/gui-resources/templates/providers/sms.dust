@@ -1,2 +1,22 @@
-<!--search results for sms -->
-<ul class="search-result-list sms-list scroller" id="sms-search-results" style="top:0px!important"></ul>
+<div class="sms-header" style="display:block; position:relative">
+	<p>_("Select SMS feed:");</p>
+	<p class="feed-info">
+		{#items}
+			<button class="btn btn-mini " data-toggle="button" data-feed-id="{Id}" style="margin-bottom:2px">{Name}</button> 
+		{/items}
+	</p>
+</div>
+<div class="sms-search" style="position:relative">
+	<div class="sf-searchbox">
+		{#items}
+			<input type="text" placeholder="_('Search');" class="sms-search-query smstab" data-feed-id="{Id}" style="display: none">
+			<!-- <a href="#" class="sms-clear-search"><i class="icon-remove sms-clear-search smstab" data-feed-id="{Id}"></i></a> -->
+		{/items}
+	</div>
+	</div>
+<div class="sms-results-holder" style="display:block; position:relative">
+	{#items}
+		<ul class="search-result-list sms-list scroller" style="position:relative; top:0px!important" data-feed-id="{Id}"></ul>
+		<div class="sms-load-more-holder" data-feed-id="{Id}" style="display: block"></div>
+	{/items}
+</div>

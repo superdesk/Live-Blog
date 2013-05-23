@@ -25,7 +25,8 @@ define([
                     sourceTemplate: 'sources/sms',
                     data: {
                         Creator: localStorage.getItem('superdesk.login.id'),
-                        Content: obj.message,
+                        //@TODO Content needs to be given the message value
+                        Content: '',
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
