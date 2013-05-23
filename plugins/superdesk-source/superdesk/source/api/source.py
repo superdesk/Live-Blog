@@ -27,6 +27,7 @@ class Source(Entity):
     Type = SourceType
     Name = str
     URI = Reference
+    Key = str
     IsModifiable = bool
     OriginName = str
     OriginURI = str
