@@ -141,7 +141,7 @@ function($, giz, gizList, Action, Article, User)
         searchData: function(string){ return { 'search.all': string }; },
         add: function()
         {
-            Action.initApp('modules.article.add');
+            Action.initApp('modules.article.add', this.collection);
         },
 
         delete: function(evt){
