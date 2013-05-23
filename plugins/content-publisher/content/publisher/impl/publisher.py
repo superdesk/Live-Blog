@@ -19,6 +19,7 @@ from content.packager.api.item import IItemService
 from content.packager.api.item_content import IItemContentService, QItemContent, \
     ItemContent
 from content.packager.api.item import Item as PackageItem
+from superdesk.person.api.person import IPersonService
 
 # --------------------------------------------------------------------
 
@@ -37,6 +38,8 @@ class ContentPublisherService(IContentPublisherService):
     # item service used to convert article content to NewsML structure
     itemContentService = IItemContentService; wire.entity('itemContentService')
     # item content service used to convert article content to NewsML structure
+    personService = IPersonService; wire.entity('personService')
+    # person service used to retrieve person data
 
     def __init__(self):
         '''
@@ -61,9 +64,9 @@ class ContentPublisherService(IContentPublisherService):
         item.version = myItem.Version
         item.itemClass = myItem.ItemClass
         item.headline = myItem.HeadLine
-        item.slugline = '-'.join(myItem.HeadLine.split())
-        item.byline = myItem.Author.FullName
-        item.creditline = myItem.Creator.FullName
+        item.slugline = myItem.SlugLine
+        item.byline = self.personService.getById(myItem.Author).FullName
+        item.creditline = self.personService.getById(myItem.Creator).FullName
         item.firstCreated = myItem.FirstCreated
         item.versionCreated = myItem.VersionCreated
         item.publishedOn = myItem.PublishedOn

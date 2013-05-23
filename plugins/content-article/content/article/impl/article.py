@@ -28,6 +28,8 @@ from sqlalchemy.sql.functions import current_timestamp
 import json
 from ally.api.extension import IterPart
 from urllib.parse import quote
+import re
+from ally.support.api.util_service import copy
 
 # --------------------------------------------------------------------
 
@@ -59,27 +61,45 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         '''
         Implementation of @see: IArticleService.publish
         '''
-        article = self.getById(id)
-        assert isinstance(article, Article)
+        origArticle = self.getById(id)
+        assert isinstance(origArticle, Article)
+        article = Article()
+        article.Id = origArticle.Id
+
         # set article publish timestamp
         article.PublishedOn = current_timestamp()
-        try: self.session().flush((article,))
-        except SQLAlchemyError as e: handle(e, article)
+        super().update(article)
+
+        # set the item publish timestamp
+        item = self.itemService.getById(origArticle.Item)
+        assert isinstance(item, Item)
+        item.PublishedOn = article.PublishedOn
+        self.itemService.update(item)
+
         # publish the article content through the content publisher service
-        self.contentPublisherService.publish(article.Item)
+        self.contentPublisherService.publish(origArticle.Item)
 
     def unpublish(self, id):
         '''
         Implementation of @see: IArticleService.unpublish
         '''
-        article = self.getById(id)
-        assert isinstance(article, Article)
+        origArticle = self.getById(id)
+        assert isinstance(origArticle, Article)
+        article = Article()
+        article.Id = origArticle.Id
+
         # unset article publish timestamp
         article.PublishedOn = None
-        try: self.session().flush((article,))
-        except SQLAlchemyError as e: handle(e, article)
+        super().update(article)
+
+        # unset the item publish timestamp
+        item = self.itemService.getById(origArticle.Item)
+        assert isinstance(item, Item)
+        item.PublishedOn = None
+        self.itemService.update(item)
+
         # publish the article content through the content publisher service
-        self.contentPublisherService.unpublish(article.Item)
+        self.contentPublisherService.publish(origArticle.Item)
 
     def getById(self, id):
         '''
@@ -117,6 +137,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             item = Item()
             item.ItemClass = CLASS_PACKAGE
             item.HeadLine = rawContent['Title']
+            item.SlugLine = self._slugify(item.HeadLine)
             item.Version = 1
             item.Creator = article.Creator
             item.Author = article.Author
@@ -130,16 +151,17 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
                 content.ContentType = 'text/html'
                 content.ResidRef = tag
                 content.Content = rawContent[tag]
-                id = self.itemContentService.insert(content)
+                self.itemContentService.insert(content)
         except KeyError as e:
             raise InputError(_('Invalid article content: missing field %s' % e))
 
         # insert the article content
-        article = super().insert(article)
+        articleId = super().insert(article)
 
         self.articleSearchProvider.update(article)
+        self.contentPublisherService.publish(article.Item)
 
-        return article
+        return articleId
 
     def update(self, article):
         '''
@@ -160,6 +182,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         rawContent = json.loads(article.Content)
         item.HeadLine = rawContent['Title']
         item.Version += 1
+        item.PublishedOn = article.PublishedOn
         self.itemService.update(item)
         q = QItemContent()
         q.item = article.Item
@@ -170,12 +193,8 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
                 c.Content = rawContent[c.ResidRef]
                 self.itemContentService.update(c)
 
-        # if article was published republish the changes
-        if article.PublishedOn is not None:
-            self.contentPublisherService.publish(article.Item)
-
+        self.contentPublisherService.publish(article.Item)
         self.articleSearchProvider.update(article)
-
 
     def delete(self, id):
         '''
@@ -193,3 +212,7 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
             return True
         return False
 
+# --------------------------------------------------------------------
+
+    def _slugify(self, headline):
+        return re.sub('[^\w\s-]', '', headline).strip().lower()
