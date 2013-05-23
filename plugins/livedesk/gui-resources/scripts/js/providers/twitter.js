@@ -204,11 +204,17 @@ $.extend(providers.twitter, {
                 }
             
             },
+            replaceURLWithHTMLLinks: function(text) {
+                var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
+            },
             adaptUserData : function(data) {
+                var self = this;
                 for ( var i = 0; i < data.length; i ++) {
                     data[i].profile_image_url = data[i].user.profile_image_url;
                     data[i].from_user_name = data[i].user.name;
                     data[i].from_user = data[i].user.screen_name;
+                    data[i].text = self.replaceURLWithHTMLLinks(data[i].text);
                 }
                 return data;
             },

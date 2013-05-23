@@ -97,7 +97,7 @@ def populateDefaultUsers():
         user.FirstName = 'Janet'
         user.LastName = 'Editor'
         user.EMail = 'Janet.Editor@email.addr'
-        user.Name = 'admin'
+        user.Name = 'Janet'
         user.Password = hashlib.sha512(b'a').hexdigest()
         user.Id = userService.insert(user)
     else: user = next(iter(users))
