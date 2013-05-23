@@ -33,6 +33,7 @@ class SourceMapped(Base, Source):
     Type = association_proxy('type', 'Key')
     Name = Column('name', String(255), nullable=False)
     URI = Column('uri', String(255), nullable=False)
+    Key = Column('key', String(1024), nullable=True)
     IsModifiable = Column('modifiable', Boolean, nullable=False)
     OriginName = Column('origin_name', String(255), nullable=True)
     OriginURI = Column('origin_uri', String(255), nullable=True)
