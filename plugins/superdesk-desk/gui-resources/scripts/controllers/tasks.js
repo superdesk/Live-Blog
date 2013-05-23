@@ -32,7 +32,7 @@ function(angular) {
             $scope.task = {
                 Id: task.Id,
                 Title: task.Title,
-                Status: task.Status.Key,
+                Status: task.Status,
                 DueDate: task.DueDate,
                 User: task.User,
                 Description: task.Description
@@ -72,8 +72,8 @@ function(angular) {
             if ('Id' in $scope.task) {
                 Task.update(data, function(task) {
                     angular.extend($scope.orig, $scope.task);
-                    $scope.orig.Status = {Key: $scope.task.Status.Key};
                     $scope.orig.User = $scope.task.User;
+                    $scope.orig.Status = {Key: $scope.task.Status.Key};
                 });
             } else {
                 Task.save(data, function(response) {

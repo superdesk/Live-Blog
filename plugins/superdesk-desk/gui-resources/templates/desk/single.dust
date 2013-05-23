@@ -253,10 +253,7 @@
 		                    <div class="desk-content">
 			                    <ul class="assignments">
                                     <li ng-repeat="task in tasks | filter:isCardTask | filter:isMyTask">
-                                        <figure class="assign-avatar" ng-show="task.UserImage">
-	                                        <img ng-src="{{ task.UserImage.href }}" ng-show="task.UserImage" />
-                                        </figure>
-
+                                        <figure class="assign-avatar" sd-user-image data-width="20" data-height="20" sd-user="task.User"></figure>
                                         <div class="assign-description">
                                             <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{ task.Title }}</a>
                                         </div>
@@ -363,9 +360,7 @@
     		<header ng-show="task.User">_('Assignee');</header>
     		<div class="module-sidepane-module-content">
     			<div class="assignee-info" ng-show="task.User" data-task-info="assignee">
-   					<figure data-task-info="assignee-image">
-	                    <img ng-src="{{ task.UserImage.href }}" ng-show="task.UserImage" />
-                    </figure>
+   					<figure sd-user-image sd-user="task.User" data-width="32" data-height="32"></figure>
    					<b data-task-info="assignee-name">{{ task.User.Name }}</b>
     			</div>
     			<div class="btn-group">
