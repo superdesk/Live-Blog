@@ -4,7 +4,7 @@
 {<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/body_top}
 {<body_content}
 			<div class="result-text">
-				 <iframe src="//youtube.com/embed/{Meta.id}?wmode=opaque" style='display: block' class='youtube-content' width='450px' height='300px'></iframe>
+				 <iframe src="//youtube.com/embed/{Meta.id}" style='display: block' class='youtube-content' width='450px' height='300px'></iframe>
 				{#Meta}<h3><a href="//youtube.com/watch?v={id}" target="_blank">{title|s}</a></h3>{/Meta}
             </div>
 			{#Meta}

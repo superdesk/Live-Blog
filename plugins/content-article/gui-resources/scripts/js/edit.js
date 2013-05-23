@@ -102,6 +102,13 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             .done(function()
             {
                 self._editableElements.attr('contenteditable', true).aloha();
+                
+                Aloha.bind('insert-image.image-plugin', function(evt, image)
+                { 
+                    for( var i=0; i<self._plugins.length; i++) 
+                        if( self._plugins[i].name == 'media' )
+                            self._plugins[i].addItem(image);
+                });
             });
         },
         

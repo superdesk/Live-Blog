@@ -271,10 +271,10 @@
 	<article article-view="desktop" id="main-article" class="main-article-container">
 			<section class="article-section">
 				<header>
-					<span class="edit-label">_('Date')</span>
+					<span class="edit-label">_('Date');</span>
 				</header>
 				<div id="article-section" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
-					{?PublishedOn}{PublishedOn}{:else}_('Not published'){/PublishedOn}
+					{?PublishedOn}{PublishedOn}{:else}_('Not published');{/PublishedOn}
 				</div>
 			</section>
 
@@ -284,7 +284,7 @@
 
 			<section class="article-title" data-content="Title">
 				<header>
-					<span class="edit-label">_('Title')</span>
+					<span class="edit-label">_('Title');</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
 				<div contenteditable="true" data-element="Title" id="article-title" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
@@ -294,7 +294,7 @@
 
 			<section class="article-short-text" data-content="Lead">
 				<header>
-					<span class="edit-label">_('Lead')</span>
+					<span class="edit-label">_('Lead');</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
 				<div contenteditable="true" data-element="Lead" id="article-short-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
@@ -304,7 +304,7 @@
 
 			<section class="article-full-text" data-content="Body">
 				<header>
-					<span class="edit-label">_('Body')</span>
+					<span class="edit-label">_('Body');</span>
 					<span class="edit-words-info"> info </span>	
 				</header>
 				<div contenteditable="true" data-element="Body" id="article-full-text" class="aloha-editable aloha-block-blocklevel-sortable ui-sortable">
