@@ -10,17 +10,17 @@ Creates the service that will be used for multi-plugins queries.
 '''
 
 from ally.api.config import service, call, query
+from ally.api.extension import IterPart
 from ally.api.type import Iter, Scheme
+from ally.cdm.spec import ICDM
 from ally.support.sqlalchemy.session import SessionSupport
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData, MetaData
+from superdesk.media_archive.api.meta_data_info import MetaDataInfo, \
+    QMetaDataInfo
 from superdesk.media_archive.api.meta_info import QMetaInfo, MetaInfo
 from superdesk.media_archive.core.spec import QueryIndexer, IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
-from ally.api.extension import IterPart
-from cdm.spec import ICDM
-from superdesk.media_archive.api.meta_data_info import MetaDataInfo, \
-    QMetaDataInfo
 
 
 def createService(queryIndexer, cdmArchive, thumbnailManager, searchProvider):
@@ -134,8 +134,6 @@ class QueryServiceAlchemy(SessionSupport):
         metaDataInfos = list()
         if count == 0:
             return IterPart(metaDataInfos, count, offset, limit)
-        
-        count = 0
 
         for row in sql.all():
             metaDataMapped = row[0]
@@ -171,6 +169,5 @@ class QueryServiceAlchemy(SessionSupport):
             metaDataInfos.append(metaDataInfo)
             
             indexDict[metaDataMapped.Id] = count
-            count = count + 1
             
         return IterPart(metaDataInfos, count, offset, limit)

@@ -1,7 +1,14 @@
 define(['jquery'],function( $ ) {
 
 $.support.cors = true;
-var root = this;	
+var root = this,
+    /*!
+     * Have this incremental time for requests
+     * IE is having issues if the onload callback is taking to long to process
+     * will fail/abort to call the rest of the request in queue
+     */
+	count = 0,
+	previousTime = 0;
 if (root.XDomainRequest) {
   $.ajaxTransport("+*",function( s ) {
 	if ( s.crossDomain && s.async ) {
@@ -9,7 +16,7 @@ if (root.XDomainRequest) {
 		s.xdrTimeout = s.timeout;
 		delete s.timeout;
 	  }
-	  var xdr;
+	  var xdr, processTime;
 	  return {
 		send: function( _, complete ) {
 		  function callback( status, statusText, responses, responseHeaders ) {
@@ -27,9 +34,16 @@ if (root.XDomainRequest) {
 			  s.url = s.url + (s.url.indexOf("?") === -1 ? "?" : "&" ) + headerThroughUriParameters;
 		  }
 		  xdr.open( s.type, s.url );
+		  if(s.processTime) {
+		  	processTime = s.processTime;
+		  } else {
+		  	processTime = (count++)*80;
+		  }
+		  //console.log(previousTime);
 		  xdr.onload = function(e1, e2) {
-			callback( 200, "OK", { text: xdr.responseText }, "Content-Type: " + xdr.contentType );
+			setTimeout(function(){ callback( 200, "OK", { text: xdr.responseText }, "Content-Type: " + xdr.contentType ); count = 0;},previousTime);
 		  };
+		  previousTime = processTime;
 		  xdr.onerror = function(e) {
 			  //console.error(JSON.stringify(e));
 			  callback( 404, "Not Found" );

@@ -25,7 +25,7 @@ define([
 		},
 		isCollectionDeleted: function(model)
         {
-           return model.get('IsPublished') === 'True'? false : true;
+           return model.get('IsPublished') === 'False';
         },
 		model: Gizmo.Register.Post
 	},{ register: 'Posts' });

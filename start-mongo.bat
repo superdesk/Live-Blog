@@ -1,0 +1,1 @@
+"c:\Program Files (x86)\mongodb\bin\mongod" --dbpath c:\database\superdesk\

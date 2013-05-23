@@ -9,14 +9,14 @@ Created on Jan 11, 2013
 Contains the implementation of the blog theme API.
 '''
 
+from ally.cdm.spec import ICDM
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from cdm.spec import ICDM
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme
 from livedesk.meta.blog_theme import BlogThemeMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 import logging
-from ally.container import wire
 
 # --------------------------------------------------------------------
 

@@ -5,12 +5,12 @@
 <h3>_('Collaborators managment:'); {Title|t}</h3>
 </header>
 <div class="row-fluid">
-  <div class="span10">
+  <div class="span8">
     <form class="form-horizontal form-large">
       <fieldset>
         <legend>_("Define Collaborators");</legend>
         <div class="control-group">
-          <div class="controls">
+          <div class="controls" style="margin-left:0 !important;">
           </div>
         </div>
       </fieldset>
@@ -20,12 +20,12 @@
 </section>
 <div class="modal hide fade modal modal-wide" id="addCollaborator2">
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">x</a>
+    <a class="popup-close" data-dismiss="modal">x</a>
     <h3>_("Add internal Collaborator");</h3>
   </div>
-  <div class="modal-body">
+  <div class="modal-body modal-body-min">
 
-    <input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search" style="margin:0;float:right !important;">
+    <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin-top:-5px;float:right !important;">
 
     <form class="form-horizontal row-fluid" style="margin-top:10px;">
 
@@ -45,7 +45,7 @@
 
 <div class="modal hide fade" id="delete_internal_collaborator">
   <div class="modal-header">
-    <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+    <a href="#" class="popup-close" data-dismiss="modal" aria-hidden="true">x</a>
     <h3>_("Confirm Delete");</h3>
   </div>
   <div class="modal-body confirm-modal">

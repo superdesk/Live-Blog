@@ -25,7 +25,7 @@ from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMap
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, or_
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -40,7 +40,7 @@ from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 UserPerson = aliased(PersonMapped)
 
 @injected
-@setup(IBlogPostService)
+@setup(IBlogPostService, name='blogPostService')
 class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService
@@ -64,7 +64,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id == postId)
 
-
         try: return self._addImage(sql.one(), thumbSize)
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
@@ -75,7 +74,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
 
-        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
         sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:
@@ -104,10 +103,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
-
-        # TODO: delete this filter for the final version
-#        sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
 
         sqlMore = None
         if q:
@@ -149,7 +145,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = buildLimits(sql, offset, limit)
         return self._addImages(sql.all())
 
-    def getOwned(self, blogId, creatorId, typeId=None, offset=None, limit=None, q=None):
+    def getOwned(self, blogId, creatorId, typeId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
         @see: IBlogPostService.getOwned
         '''
@@ -158,11 +154,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if q and QBlogPost.isPublished in q:
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        # sql = sql.filter(BlogPostMapped.Author == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        return self._addImages(sql.all(), thumbSize)
 
     def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
@@ -310,7 +305,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         Builds the general query for posts.
         '''
-        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
         if q:
             sql = buildQuery(sql, q, BlogPostMapped)
             if QPostUnpublished.deletedOn not in q and QWithCId.cId not in q:
@@ -318,12 +313,16 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return sql
 
-    def _filterQuery(self, blogId, typeId=None, creatorId=None, authorId=None):
+    def _filterQuery(self, blogId, typeId=None, creatorId=None, authorId=None, q=None):
         '''
         Creates the general query filter for posts based on the provided parameters.
         '''
+
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
+        if isinstance(q, QWithCId) and QWithCId.search in q:
+            all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
+            sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
@@ -333,6 +332,20 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                               (CollaboratorMapped.User == BlogPostMapped.Creator)))
 
         return sql
+
+    def _processLike(self, value):
+        assert isinstance(value, str), 'Invalid like value %s' % value
+
+        if not value:
+            return '%'
+
+        if not value.endswith('%'):
+            value = value + '%'
+
+        if not value.startswith('%'):
+            value = '%' + value
+
+        return value
 
     def _trimPosts(self, posts, deleted=True, unpublished=True, published=False):
         '''

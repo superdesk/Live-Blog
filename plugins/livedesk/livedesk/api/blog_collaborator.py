@@ -39,7 +39,7 @@ class BlogCollaborator(Collaborator):
     Provides the blog collaborator model.
     '''
     Blog = Blog
-    Type = str
+    Type = BlogCollaboratorType
 
 # --------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ class IBlogCollaboratorService:
         '''
         
     @call
-    def getActions(self, userId:User.Id, blogId:Blog, path:str=None) -> Iter(Action):
+    def getActions(self, userId:User.Id, blogId:Blog, path:str=None, origPath:str=None) -> Iter(Action):
         '''
         Get all actions registered for the provided user for the blog.
         '''

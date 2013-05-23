@@ -10,13 +10,12 @@ Contains the GUI configuration setup for the node presenter plugin.
 '''
 
 from ..gui_action.defaults import menuAction
-from ..gui_core.gui_core import publishGui, publishedURI
+from ..gui_core.gui_core import publishGui, publishedURI, publish
 from ally.container import ioc
-from distribution.container import app
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('superdesk/user')
     

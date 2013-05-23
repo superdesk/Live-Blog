@@ -3,17 +3,21 @@ define([
 	'gizmo/superdesk',
 	'jquery/tmpl',
 	'jquery/utils',
+	'utils/encode_url',
 	'tmpl!theme/item/base',
 	'tmpl!theme/item/item',
 	'tmpl!theme/item/annotated',
 	'tmpl!theme/item/social-share',
 	'tmpl!theme/item/posttype/normal',
+	'tmpl!theme/item/posttype/image',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
 	'tmpl!theme/item/posttype/link',
+	'tmpl!theme/item/posttype/advertisement',	
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
+	'tmpl!theme/item/source/facebook',
 	'tmpl!theme/item/source/youtube',
 	'tmpl!theme/item/source/flickr',
 	'tmpl!theme/item/source/soundcloud',
@@ -84,49 +88,66 @@ define([
 		{
 			var self = this, 
 				data = self.model.feed(),
-				order = parseFloat(self.model.get('Order'));
+				order = parseFloat(self.model.get('Order')),
+				regexHash, newHash, createdOn;
 			if ( !isNaN(self.order) && (order != self.order)) {
-				self.order = order;
-				self._parent.reorderOne(self);
+				self._parent.orderOne(self);
 			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
-
 				data.Meta = JSON.parse(data.Meta);
+			}
+			if(data.Meta && data.Meta.annotation) {
 				if(data.Meta.annotation[1] === null) {
 					data.Meta.annotation = data.Meta.annotation[0];
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
-
 				if ( typeof data.Meta.annotation !== 'string') {
-					var aux = data.Meta.annotation;
-					data.Meta.annotation = {
-						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-						'after': $.trimTag(['<br>', '<br />'], aux[1])
+					if(data.Meta.annotation[0]) {
+						var aux = data.Meta.annotation;
+						data.Meta.annotation = {
+							'before': $.trimTag(['<br>', '<br />'], aux[0]), 
+							'after': $.trimTag(['<br>', '<br />'], aux[1])
+						}
+					} else {
+						data.Meta.annotation = {
+							'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before), 
+							'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
+						}					
 					}
 				} else {
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
 			}
-			data.permalink = self._parent.location + '#' + self._parent.hashIdentifier + data.Order;			
+			newHash = self._parent.hashIdentifier + data.Order;
+			if(self._parent.location.indexOf('?') === -1) {
+				data.permalink = self._parent.location + '?' + newHash ;
+			} else if(self._parent.location.indexOf(self._parent.hashIdentifier) !== -1) {
+				regexHash = new RegExp(self._parent.hashIdentifier+'[^&]*');
+				data.permalink = self._parent.location.replace(regexHash,newHash);
+			} else {
+				data.permalink = self._parent.location + '&' + newHash;
+			}
 			if(data.Author.Source.Name !== 'internal') {
 				data.item = "source/"+data.Author.Source.Name;
 			}
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
 			if(data.CreatedOn) {
-				data.CreatedOn = (new Date(data.CreatedOn)).format(_('mm/dd/yyyy HH:MM'));
+				createdOn = new Date(Date.parse(data.CreatedOn));
+				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));
+				data.CreatedOnISO = createdOn.getTime();
 			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
 			}
-			//console.log(data.Author.Source.Name,data.item);
+			//console.log(data);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
 					self.setElement(o);
 					var input = $('input[data-type="permalink"]',self.el);
 					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
-						//evt.preventDefault();
+						evt.preventDefault();
 						if(input.css('visibility') === 'visible') {
 							input.css('visibility', 'hidden' );
 						} else {
@@ -157,16 +178,29 @@ define([
 						var share = $(this);
 						var added = share.attr('data-added');
 						if ( added != 'yes') {
-							var blogTitle = self._parent.model.get('Title');
-							var myPerm = escape(data.permalink);
+							var blogTitle = encodeURL(self._parent.model.get('Title'));
+							var myPerm = encodeURL(data.permalink);
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
-							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
+							var summary = encodeURL($('.result-content .result-text:last', self.el).text());
+							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=" + blogTitle;
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
 							var emailurl = "mailto:?to=&subject=" + _('Check out this Live Blog') + "&body=" + myPerm;
+							var fburl = "http://www.facebook.com/sharer.php?s=100";
+							fburl += '&p[title]=' + blogTitle;
+							fburl += '&p[summary]=' + summary;
+							fburl += '&p[url]=' + myPerm;
+							var i = 0;
+							$('.result-content img', self.el).each(function(){
+								var src = $(this).attr('src');
+								fburl += '&p[images][' + i + ']=' + src;
+								i ++;
+							});
+							
+
 							var socialParams = {
-								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
+								'fbclick': "$.socialShareWindow('" + fburl + "',400,570); return false;",
 								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
-								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "', 400, 570); return false;",
+								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "&title=" +  blogTitle + "&summary=" + summary + "', 400, 570); return false;",
 								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
 								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
 								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",

@@ -9,34 +9,39 @@ Created on Apr 25, 2012
 Contains the services setups for media archive superdesk.
 '''
 
-from ..cdm.local_cdm import server_uri, repository_path
+from ..cdm import server_uri, repository_path
 from ..plugin.registry import registerService
 from ..superdesk import service
 from ..superdesk.db_superdesk import bindSuperdeskSession
-from ally.container import ioc, support
-from cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
+from ally.cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
     IDelivery
-from cdm.spec import ICDM
-from cdm.support import ExtendPathCDM
-from distribution.container import app
+from ally.cdm.spec import ICDM
+from ally.cdm.support import ExtendPathCDM
+from ally.container import ioc, support, bind, app, wire
 from superdesk.media_archive.api.meta_data import IMetaDataService
+from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
 from superdesk.media_archive.core.impl.query_service_creator import \
     createService, ISearchProvider
+from superdesk.media_archive.core.impl.thumbnail_processor_avconv import \
+    ThumbnailProcessorAVConv
+from superdesk.media_archive.core.impl.thumbnail_processor_ffmpeg import \
+    ThumbnailProcessorFfmpeg
+from superdesk.media_archive.core.impl.thumbnail_processor_gm import \
+    ThumbnailProcessorGM
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
     IQueryIndexer, IThumbnailProcessor
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
-from superdesk.media_archive.core.impl.db_search import SqlSearchProvider
-from superdesk.media_archive.core.impl.thumbnail_processor_gm import ThumbnailProcessorGM
-from superdesk.media_archive.core.impl.thumbnail_processor_ffmpeg import ThumbnailProcessorFfmpeg
-from superdesk.media_archive.core.impl.thumbnail_processor_avconv import ThumbnailProcessorAVConv
 
 # --------------------------------------------------------------------
 
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
+@ioc.entity
+def binders(): return [bindSuperdeskSession]
+
+bind.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
-support.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
 support.loadAllEntities(IMetaDataHandler, module=service)
 
@@ -109,9 +114,12 @@ def queryIndexer() -> IQueryIndexer: return QueryIndexer()
 
 @ioc.config
 def thumnail_processor():
-    ''' Specify which implementation will be used for thumbnail processor. Currently the following options are available: gm, ffmpeg, avconv '''
-    return 'ffmpeg'
+    '''
+    Specify which implementation will be used for thumbnail processor. Currently the following options are available:
+        "gm", "ffmpeg", "avconv"
+    '''
 
+@wire.wire(ThumbnailProcessorFfmpeg, ThumbnailProcessorAVConv, ThumbnailProcessorGM)
 @ioc.entity
 def thumbnailProcessor() -> IThumbnailProcessor: 
     if thumnail_processor() == 'ffmpeg':
@@ -120,11 +128,10 @@ def thumbnailProcessor() -> IThumbnailProcessor:
         return ThumbnailProcessorAVConv()
     else:
         return ThumbnailProcessorGM()
-    
 
 # --------------------------------------------------------------------
 
 @app.deploy
 def publishQueryService():
     b = createService(queryIndexer(), cdmArchive(), support.entityFor(IThumbnailManager), searchProvider())
-    registerService(b, (bindSuperdeskSession,))
+    registerService(b, binders())

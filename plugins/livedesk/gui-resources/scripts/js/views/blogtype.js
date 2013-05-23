@@ -25,12 +25,14 @@
             self.render();
         },
         editBlogType: function(evt) {
+            evt.preventDefault();
             var self = this;
             self._parent.configBlogType.model = self.model;
             self._parent.configBlogType.render();
             self._parent.configBlogType.el.find('#add-blogtype').modal('show');
         },
-        remove: function(){
+        remove: function(evt){
+            evt.preventDefault();
             this.el.remove();
         },
         removeBlogTypeDialog: function() {

@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IBlogCollaboratorGroupService, IBlogCollaboratorGroupCleanupService)
+@setup(IBlogCollaboratorGroupService, IBlogCollaboratorGroupCleanupService, name='blogCollaboratorGroupService')
 class BlogCollaboratorGroupService(SessionSupport, IBlogCollaboratorGroupService, IBlogCollaboratorGroupCleanupService):
     '''
     Implementation for @see: IBlogCollaboratorGroupService

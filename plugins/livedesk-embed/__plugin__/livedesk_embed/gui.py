@@ -11,11 +11,9 @@ Publish the GUI resources.
 
 from ..gui_core import publish_gui_resources
 from ..gui_core.gui_core import getGuiPath, getPublishedLib, gui_folder_format, \
-    lib_folder_format, publishGui
-from ..plugin.registry import cdmGUI
+    lib_folder_format, publishGui, publish, cdmGUI
 from ally.container import ioc
 from ally.support.util_io import openURI
-from distribution.container import app
 from io import BytesIO
 import logging
 
@@ -42,7 +40,7 @@ def embed_server_url():
 
 # --------------------------------------------------------------------
 
-@app.populate
+@publish
 def publishJS():
     publishGui('livedesk-embed')
 

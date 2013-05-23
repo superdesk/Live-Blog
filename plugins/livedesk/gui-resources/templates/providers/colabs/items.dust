@@ -4,6 +4,18 @@
 	<li class="with-avatar twitter {?PublishedOn}published{:else}draggable{/PublishedOn}" 
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
 	    <figure><img src="{#Meta}{profile_image_url}{/Meta}" width="48" height="48" alt="1"></figure>
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 	    <div class="result-content">
 	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
 	        <h3><span class="author">{#Meta}{from_user_name}({from_user}){/Meta}</span></h3>
@@ -18,6 +30,18 @@
 	{@eq value="'flickr'"}
 	<li class="flickr image {?PublishedOn}published{:else}draggable{/PublishedOn}"
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 	    <div class="result-content" style="display:inline">
 	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
 	     	<div class="flickr-box">
@@ -35,6 +59,18 @@
 	<li class="google {?PublishedOn}published{:else}draggable{/PublishedOn}"
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
 		<div class="drag-bar"></div>
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 		<div class="result-content">
 			<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
 			<h3><a href="{url}" target="_blank">{#Meta}{title|s}{/Meta}</a></h3>
@@ -55,6 +91,18 @@
 	<li class="soundcloud {?PublishedOn}published{:else}draggable{/PublishedOn}" style="min-height:105px; cursor: move;" 
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
 		<div class="drag-bar"></div>
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 		<div class="result-content" style="display: block">
 			<img src="{#Meta}{artwork_url}{/Meta}" style="position:absolute; max-width: 80px; max-height: 64px; right: 5px;">
 	        <div style="display:block; right: 90px; position: absolute; left:5px;">
@@ -84,6 +132,18 @@
 	{@eq value="'youtube'"}
 	<li class="youtube {?PublishedOn}published{:else}draggable{/PublishedOn}"
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 		<div class="result-content">
 			<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
 			<img src="{#Meta}{#thumbnail}{sqDefault}{/thumbnail}{/Meta}" style="float: right; max-width: 80px; max-height: 64px;">
@@ -101,8 +161,8 @@
 	                            </i>
 	                            <a class="author-name" href="http://youtube.com/{uploader}" target="_blank">{uploader}</a>
 	                            <time>{uploaded}</time>
-	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">{viewCount} _('views')</span>
-	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">_('rating') {rating}</span>
+	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">{viewCount} _('views');</span>
+	                            <span style="display: inline-block; margin-left: 5px; padding-left: 5px; border-left: solid 1px #EBEBEB; color: #7D7D7D;">_('rating'); {rating}</span>
 	                         {/Meta}   
 	                    </p>
 	                </div>
@@ -112,6 +172,18 @@
 	{@eq value="'instagram'"}
 	 <li class="instagram image {?PublishedOn}published{:else}draggable{/PublishedOn}" 
 		data-colab-id="{#Creator}{Id}{/Creator}" data-post-id="{Id}">
+        <figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 	    <div class="result-content" style="display: inline;">
 	    	<h3><span class="creator">{#Creator}{FirstName} {LastName}{/Creator}:</span></h3>
 	    	<a href="{#Meta}{#images}{#standard_resolution}{url}{/standard_resolution}{/images}{/Meta}" 
@@ -128,14 +200,17 @@
 		data-colab-id="{Creator.Id}" data-post-id="{Id}">
 		<div class="drag-bar"></div>
 		<figure>
-	        {#AuthorPerson}
-	            {?Avatar}
-	                <img src="{Avatar}" />
-	            {:else}
-	                <img src="images/avatar_default_collaborator.png" />
-	            {/AuthorPerson}
-	        {/User}
-		</figure>
+            {Avatar|s}
+            {?AuthorPerson.Avatar}
+            <img src="{AuthorPerson.Avatar}">
+            {:else}
+            <!--<img>-->
+            {/AuthorPerson}
+        </figure>
+        <div class="post-info"> 
+          <p rel="author">{Creator.FullName}</p> 
+          <time>{CreatedOn}</time> 
+      </div>
 		<div class="result-content">
 	    	<h3><span class="author">{AuthorName}</span></h3>
 	        {@if cond="'{Type.Key}'=='wrapup'"}<div class="collabs-wrap-arrow"></div>{/if}

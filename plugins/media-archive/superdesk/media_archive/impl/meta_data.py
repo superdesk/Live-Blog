@@ -14,16 +14,15 @@ from ..core.impl.meta_service_base import MetaDataServiceBaseAlchemy
 from ..core.spec import IMetaDataHandler, IMetaDataReferencer, IThumbnailManager
 from ..meta.meta_data import MetaDataMapped
 from ally.api.model import Content
-from ally.container import wire
+from ally.cdm.spec import ICDM
+from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from cdm.spec import ICDM
 from datetime import datetime
-from distribution.support import IPopulator
 from os.path import join, getsize, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.language.meta.language import LanguageEntity
@@ -39,8 +38,8 @@ from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataUploadService, IPopulator, name='metaDataService')
-class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService, IPopulator):
+@setup(IMetaDataUploadService, name='metaDataService')
+class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService):
     '''
     Implementation for @see: IMetaDataService, @see: IMetaDataUploadService , and also provides services
     as the @see: IMetaDataReferencer
@@ -150,9 +149,10 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     # ----------------------------------------------------------------
 
-    def doPopulate(self):
+    @app.populate
+    def populateThumbnail(self):
         '''
-        @see: IPopulator.doPopulate
+        Populates the thumbnail for other resources.
         '''
         self.thumbnailManager.putThumbnail(self.thumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'other.jpg')))

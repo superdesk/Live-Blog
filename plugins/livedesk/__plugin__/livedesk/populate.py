@@ -9,18 +9,19 @@ Created on Jan 26, 2013
 Contains the default data for the live desk plugin.
 '''
 
-from ..gui_security.acl import aclType
+from ..acl.security import rightId
+from ..administration.actions import rightRequestsInspection
 from ..livedesk.actions import rightLivedeskView, rightManageOwnPost
+from ..media_archive.actions import rightMediaArchiveView
 from ..security_rbac.populate import rootRoleId
-from ally.container import support, ioc
+from ally.container import support, ioc, app
 from ally.internationalization import NC_
-from distribution.container import app
-from security.api.right import IRightService, Right
+from security.api.right import IRightService, Right, QRight
 from security.rbac.api.rbac import IRoleService, QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
-from __plugin__.media_archive.actions import rightMediaArchiveView
+from __plugin__.media_archive.actions import rightMediaArchiveUpload
 
 # --------------------------------------------------------------------
 
@@ -58,11 +59,10 @@ def blogRoleCollaboratorId():
 def populateCollaboratorRole():
     roleService = support.entityFor(IRoleService)
     assert isinstance(roleService, IRoleService)
-    rightService = support.entityFor(IRightService)
-    assert isinstance(rightService, IRightService)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightLivedeskView().name).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightManageOwnPost().name).Id)
-    roleService.assignRight(blogRoleCollaboratorId(), rightService.getByName(aclType().name, rightMediaArchiveView().name).Id)
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
+    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveUpload()))
     roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
 
 @app.populate
@@ -73,8 +73,14 @@ def populateBlogAdministratorRole():
     assert isinstance(rightService, IRightService)
     for right in rightService.getAll():
         assert isinstance(right, Right)
+        if right.Name == rightRequestsInspection().name: continue
         roleService.assignRight(blogRoleAdministratorId(), right.Id)
     roleService.assignRole(rootRoleId(), blogRoleAdministratorId())
+    q = QRight()
+    q.name = rightRequestsInspection().name
+    for right in rightService.getAll(q=q):
+        assert isinstance(right, Right)
+        roleService.assignRight(rootRoleId(), right.Id)
 
 # --------------------------------------------------------------------
 
@@ -104,7 +110,7 @@ def populateDefaultUsers():
             user.FirstName = name[0]
             user.LastName = name[1]
             user.EMail = '%s.%s@email.addr' % name
-            user.Name = name[0]
+            user.Name = name[1].lower()
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
         else: user = next(iter(users))

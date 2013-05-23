@@ -1,13 +1,20 @@
 define([
 	'jquery',
-	'gizmo/superdesk',
-	'livedesk-embed/views/post',	
+	'gizmo/view-events',
+	'livedesk-embed/views/post',
+	'utils/date-format',
+	'utils/ie-polyfill',
+	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
 	'tmpl!theme/container',
 	'jquery/xdomainrequest'
-], function($, Gizmo, PostView) {
+], function($, Gizmo, PostView, dateFormat) {
+	dateFormat.i18n = {
+		dayNames: _("Sun,Mon,Tue,Wed,Thu,Fri,Sat,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday").toString().split(","),
+		monthNames: _("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,January,February,March,April,May,June,July,August,September,October,November,December").toString().split(",")
+	};
 	return Gizmo.View.extend({
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',
@@ -50,7 +57,7 @@ define([
 			postPublished
 				.limit(postPublished._stats.limit)
 				.offset(postPublished._stats.offset)
-				.auto();
+				.auto({ data: { thumbSize: 'medium'} });
 			$(this).hide();			
 		},
 		showLiner: function()
@@ -60,7 +67,7 @@ define([
 		},
 		loadingMore: function(evt) {
 			var self = this;
-			console.log(self.flags);
+			//console.log(self.flags);
 			if(self.flags.atEnd || self.flags.loadingMore)
 				return;
 			self.flags.loadingMore = true;
@@ -76,7 +83,7 @@ define([
 				.xfilter(self.xfilter)
 				.limit(postPublished._stats.limit)
 				.offset(postPublished._stats.offset)
-				.sync().done(function(data){				
+				.sync({ data: { thumbSize: 'medium'} }).done(function(data){				
 					var total = self.model.get('PostPublished').total;
 					self.toggleMoreVisibility();
 					if(self._views.length >= total) {
@@ -106,7 +113,7 @@ define([
 					var total = self.model.get('PostPublished').total;
 					if(self._views.length >= total) {
 						self.flags.atEnd = true;
-						$("#liveblog-posts li#loading-more", self.el).hide();
+						$("#loading-more", self.el).hide();
 					}
 					self.flags.more = false;
 				});
@@ -127,15 +134,7 @@ define([
 		auto: function(){
 			this.model.xfilter().sync({force: true});
 			return this;
-		},
-		ensureStatus: function(){
-			if(this.model.get('ClosedOn')) {
-				var closedOn = new Date(this.model.get('ClosedOn'));
-				this.pause();
-				this.model.get('PostPublished').stop();					
-				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
-			}
-		},                       
+		},                      
 		gotoHash : function() {
 			if (location.hash.length > 0) {
 				var topHash = location.hash;
@@ -153,22 +152,20 @@ define([
 			if($.type(self.url) === 'string')
 				self.model = new Gizmo.Register.Blog(self.url.replace('my/',''));				
 			self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName';
+							   'AuthorImage, AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName';
 			//self.xfilter = 'CId';								   
 			self.model.on('read', function()
 			{
 				//console.log('read');
 				if(!self.rendered) {
 					var hashIndex, 
-						orderhash = window.location.href.split('#'),
+						orderhash = window.location.href.split('?'),
 						postPublished = self.model.get('PostPublished');
 						postPublished
 							.on('read readauto', self.render, self)
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
-							.on('updateauto', self.updateStatus, self)
-							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(postPublished._stats.limit);
 					if(orderhash[1] && ( (hashIndex = orderhash[1].indexOf(self.hashIdentifier)) !== -1)) {
@@ -177,17 +174,22 @@ define([
 						postPublished
 							.one('rendered', self.showLiner, self)
 							.end(order, 'order')
-							.sync();
+							.sync({ data: { thumbSize: 'medium'} });
 					} else {
 							postPublished
 								.offset(postPublished._stats.offset)
-								.auto();
+								.auto({ data: { thumbSize: 'medium'} });
 					}
 				}
 				self.rendered = true;
 			}).on('update', function(e, data){
 				self.ensureStatus();
 				self.renderBlog();
+			}).on('sync',function(){
+				self.updateingStatus();
+			})
+			.on('synced', function(){
+				self.updateStatus();
 			});
 			self.sync();				
 		},
@@ -206,52 +208,60 @@ define([
 			}
 			return self;
 		},
-		reorderOne: function(view) {
-			var self = this;
-			self._views.sort(function(a,b){
-				return a.order - b.order;
-			});
-			pos = self._views.indexOf(view);
-			if(pos === 0) {
-				view.el.insertAfter(self._views[1].el);
-			} else {
-				view.el.insertBefore(self._views[pos>0? pos-1: 1].el);
+		/*!
+		 * Order given view in timeline
+		 * If the view is the first one the it's added after #load-more selector
+		 * returns the given view.
+		 */
+		orderOne: function(view) {
+			var pos = this._views.indexOf(view);
+			/*!
+			 * View property order need to be set here
+			 *   because could be multiple updates and 
+			 *   orderOne only works for one update.
+			 */
+			view.order = parseFloat(view.model.get('Order'));
+			/*!
+			 * If the view isn't in the _views vector
+			 *   add it.
+			 */
+			if ( pos === -1 ) {
+				this._views.push(view);
 			}
+			/*!
+			 * Sort the _view vector descendent by view property order.
+			 */
+			this._views.sort(function(a,b){
+				return b.order - a.order;
+			});
+			/*!
+			 * Search it again in find the new position.
+			 */
+			pos = this._views.indexOf(view);
+			if( pos === 0 ){
+				/*!
+				 * If the view is the first one the it's added after #load-more selector.
+				 *   else
+				 *   Reposition the dom element before the old (postion 1) first element.
+				 */
+				if( this._views.length === 1) {
+					this.el.find('#load-more').after(view.el);
+				} else {
+					view.el.insertBefore(this._views[1].el);
+				}
+			} else {
+				/*!
+				 * Reposition the dom element after the previous element.
+				 */
+				view.el.insertAfter(this._views[pos-1].el);
+			}
+			return view;
 		},
 		addOne: function(model)
 		{
-			var self = this,
-				current = new PostView({model: model, _parent: self}),
-				count = self._views.length;
-			model.postview = current;
-			current.order =  parseFloat(model.get('Order'));
-			if(!count) {
-				this.el.find('#load-more').after(current.el);
-				self._views = [current];
-			} else {
-				var next, prev;
-				for(i=0; i<count; i++) {
-					if(current.order>self._views[i].order) {
-						next = self._views[i];
-						nextIndex = i;
-					} else if(current.order<self._views[i].order) {
-						prev = self._views[i];
-						prevIndex = i;
-						break;
-					}						
-				}
-				//console.log(prev && prev.order,'<<',current.order, '>>',next && next.order);
-				if(prev) {
-					//console.log('next');
-					current.el.insertAfter(prev.el);
-					self._views.splice(prevIndex, 0, current);					
-				} else if(next) {
-					//console.log('prev');
-					current.el.insertBefore(next.el);
-					self._views.splice(nextIndex+1, 0, current);
-				}
-			}
-			return current;
+			var view = new PostView({model: model, _parent: this});
+            model.postView = view;
+			return this.orderOne(view);
 		},
 		toggleStatusCount: function()
 		{
@@ -264,13 +274,13 @@ define([
 		},
 		removeAllAutoupdate: function(evt, data)
 		{
-			var self = this;
-			for( var i = 0, count = data.length; i < count; i++ ) {
-				if(data[i].postview) {
-					data[i].postview.remove();
+			for (var i in data) {
+                if ('postView' in data[i]) {
+					data[i].postView.remove();
 				}
 			}
-			self.markScroll();
+
+			this.markScroll();
 		},
 		addAllAutoupdate: function(evt, data)
 		{
@@ -311,26 +321,36 @@ define([
 			}
 			this.toggleMoreVisibility();
 		},
+		ensureStatus: function(){
+			if(this.model.get('ClosedOn')) {
+				var closedOn = new Date(this.model.get('ClosedOn'));
+				this.pause();
+				this.model.get('PostPublished').stop();					
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
+			}
+		}, 
 		updateingStatus: function()
 		{
-
-			this.el.find('#liveblog-status-time').html(_('updating...'));
+			this.el.find('#liveblog-status-time').html(_('updating...')+'');
 		},
 		updateStatus: function()
 		{
-			var now = new Date();
-			this.el.find('#liveblog-status').fadeOut(function(){
-				
-				$(this).find('#liveblog-status-time')
-					.attr('time',now.format())
-					.text(_('updated on %s').format(now.format(_('HH:MM')))).end().fadeIn();
-			});
+			var self = this,
+				now = new Date();
+			if(this.model.get('ClosedOn') === undefined) {
+				this.el.find('#liveblog-status').fadeOut(function(){
+					var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
+					$(this).find('#liveblog-status-time')
+						.html(_('updated on %s').format([t])).end().fadeIn();
+					$.dispatcher.triggerHandler('after-render',self);
+				});
+			}
 		},
 		renderBlog: function()
 		{
-			//$(this.el).find('article')
-				//.find('h2').html(this.model.get('Title')).end()
-				//.find('p').html(this.model.get('Description'));
+			$(this.el)
+				.find('[gimme="blog.title"]').html(this.model.get('Title')).end()
+				.find('[gimme="blog.description"]').html(this.model.get('Description'));
 		},
 		toggleMoreVisibility: function()
 		{	
@@ -343,7 +363,7 @@ define([
 		markScroll: function()
 		{
 			var self = this;
-			self.scroll.element = $("#liveblog-posts li:not(#load-more)", self.el).first();
+			self.scroll.element = $("#liveblog-posts :not(#load-more)", self.el).first();
 			//console.log(self.scroll.element);
 			self.scroll.start = self.scroll.element.offset().top;		
 		},
@@ -352,7 +372,7 @@ define([
 			var self = this,
 				data,
 				auxView,
-				postPublished = self.model.get('PostPublished');;
+				postPublished = self.model.get('PostPublished');
 			self.el.tmpl('theme/container');
 			self.renderBlog();
 			self.ensureStatus();
@@ -387,7 +407,8 @@ define([
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
-			});	
+			});
+			$.dispatcher.triggerHandler('after-render',this);
 		},
 		renderedOn: function(){
 		   this.renderedTotal--;

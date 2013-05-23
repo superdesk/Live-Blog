@@ -59,6 +59,7 @@
             //self.switchModal(evt, 0);
         },
         save: function(evt) {
+            evt.preventDefault();
             var self = this;
             var postspost = self.model.data['Post'];
             delete self.model.data['Post'];
@@ -122,6 +123,7 @@
             };            
         },
         addPost: function(evt) {
+            evt.preventDefault();
             var self = this;
             self.currentPost = Gizmo.Auth(new Gizmo.Register.Post({}));
             self.resetPostSettings();
@@ -129,6 +131,7 @@
             self.switchModal(evt, 1);
         },
         editPost: function(evt, model) {
+            evt.preventDefault();
             var self = this;
             self.currentPost = model;
             if(model.get('Meta')) {
@@ -140,6 +143,7 @@
             self.switchModal(evt, 1);
         }, 
         savePost: function(evt) {
+            evt.preventDefault();
             var self = this;
             //console.log(JSON.stringify($.extend({},self._post_settings)));
             if(self.currentPost._new) {
@@ -161,10 +165,12 @@
             this.switchModal(evt, 0);
         },
         savePostClose: function(evt) {
+            evt.preventDefault();
             this.addPost(evt);
             this.save(evt);
         },
         showBgImages: function(evt) {
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             if (el.prop("checked")==true)  {
@@ -181,6 +187,7 @@
          * Set or add the image selected to the post
          */
         selectBgImage: function(evt) {
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             self.el.find('.wizard-picture-selection ul li').removeClass("picked");
@@ -216,6 +223,7 @@
             return false;
         },
         selectColorPicker1: function(evt) {
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             self.el.find('#colorpicker1 span[name="picked-color"]').attr("class",el.attr("class"));
@@ -224,6 +232,7 @@
             self._post_settings['color'] = el.attr("class").replace("wizard-color ","");
         },
         selectColorPicker2: function(evt) {
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             self.el.find('#colorpicker2 span[name="picked-color"]').attr("class",el.attr("class"));
@@ -232,6 +241,7 @@
             self._post_settings['background-color'] = el.attr("class").replace("wizard-color ","");
         },
         selectItalic: function(evt){
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             if(el.get(0).tagName.toUpperCase() !== 'A')
@@ -246,6 +256,7 @@
             }            
         },
         selectUnderline: function(evt){
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             if(el.get(0).tagName.toUpperCase() !== 'A')
@@ -260,6 +271,7 @@
             }            
         },
         selectAlign:  function(evt){
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             if(el.get(0).tagName.toUpperCase() !== 'A')
@@ -274,6 +286,7 @@
             }            
         },
         selectBold: function(evt) {
+            evt.preventDefault();
             var self = this,
                 el = $(evt.target);
             if(el.get(0).tagName.toUpperCase() !== 'A')
@@ -288,6 +301,7 @@
             }
         },
         selectFontFamily: function(evt) {
+            evt.preventDefault();
             var self = this;
             switch($(evt.target).val()) {
                 case '1' : self.el.find('.wizard-preview').css("font-family","Arial, Helvetica, sans-serif"); break;
@@ -298,6 +312,7 @@
             self._post_settings['font-family'] = $(evt.target).val();            
         },
         selectFontSize: function(evt) {
+            evt.preventDefault();
             var self = this,
                 size = $(evt.target).val();
             var l_height = parseInt($(evt.target).val()) + 5;
@@ -305,11 +320,13 @@
             self._post_settings['font-size'] = size;            
         },
         previousStep: function(evt) {
+            evt.preventDefault();
             var self = this,
                 previous_step = parseInt($(evt.target).parents().eq(1).attr("screenid"))-1;
             self.switchModal(evt, previous_step);
         },
         nextStep: function(evt) {
+            evt.preventDefault();
             var self = this,
                 next_step  = parseInt($(evt.target).parents().eq(1).attr("screenid"))+1;
             if(self._currentStep === 0) {
@@ -322,11 +339,13 @@
             self.switchModal(evt, next_step );
         },
         wizardStart: function(evt) {
+            evt.preventDefault();
             var self = this;
             self.switchModal(evt, 0);
             self._currentStep = 0;            
         },
         switchModal: function(evt, id){
+            evt.preventDefault();
             var self = this;
             //getting and saving data from current screen
             var current_screen = self.el.find('div.modalscreen[screenid="'+self._currentStep+'"]');

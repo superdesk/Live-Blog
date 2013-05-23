@@ -9,14 +9,13 @@ Created on Apr 25, 2012
 Implementation for the image persistence API.
 '''
 
-from ally.container import wire
+from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
-from distribution.support import IPopulator
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
@@ -26,15 +25,15 @@ from superdesk.media_archive.core.spec import IMetaDataHandler, \
     IThumbnailManager
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
     ImageDataEntry
+from superdesk.media_archive.meta.image_info import ImageInfoMapped
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
-from superdesk.media_archive.meta.image_info import ImageInfoMapped
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, IPopulator, name='imageDataHandler')
-class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
+@setup(IMetaDataHandler, name='imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
@@ -45,9 +44,9 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
     The format for the images thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
-    metadata_extractor_path = join('workspace', 'tools', 'exiv2')
+    metadata_extractor_path = join('workspace', 'tools', 'exiv2', 'bin', 'exiv2.exe')
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
-    
+
     image_supported_files = 'gif, png, bmp, jpg'
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
@@ -93,8 +92,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        p = Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        p = Popen([self.metadata_extractor_path, contentPath], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait()
         # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
@@ -143,14 +141,15 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         return True
 
     # ----------------------------------------------------------------
-    
-    def doPopulate(self):
+
+    @app.populate
+    def populateThumbnail(self):
         '''
-        @see: IPopulator.doPopulate
+        Populates the thumbnail for images.
         '''
         self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'image.jpg')))
-        
+
     # ----------------------------------------------------------------
 
     def metaTypeId(self):
@@ -159,7 +158,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         '''
         if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
         return self._metaTypeId
-    
+
     def defaultThumbnailFormatId(self):
         '''
         Provides the thumbnail format id.
@@ -167,14 +166,14 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler, IPopulator):
         if not self._defaultThumbnailFormatId:
             self._defaultThumbnailFormatId = thumbnailFormatFor(self.session(), self.default_format_thumbnail).id
         return self._defaultThumbnailFormatId
-    
+
     def thumbnailFormatId(self):
         '''
         Provides the thumbnail format id.
         '''
         if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
         return self._thumbnailFormatId
-    
+
     def extractProperty(self, line):
         return line.partition(':')[0].strip()
 

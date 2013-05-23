@@ -9,18 +9,46 @@ Created on Feb 27, 2012
 Action manager implementation for user GUI actions. 
 '''
 
-from acl.impl.action_right import TypeAction, RightAction
+from acl.right_action import RightAction
+from acl.spec import TypeAcl
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError
+from ally.design.processor.assembly import Assembly
+from ally.design.processor.attribute import defines, requires
+from ally.design.processor.context import Context
+from ally.design.processor.execution import Processing, Chain
+from collections import Iterable
 from gui.action.api.action import IActionManagerService, Action
 from gui.action.impl.action import processChildCount
-from security.acl.core.spec import IAclAccessService
-from security.api.right_type import IRightTypeService, RightType
 from superdesk.security.api.user_action import IUserActionService
-from superdesk.security.api.user_rbac import IUserRbacService
 
+# --------------------------------------------------------------------
+
+class Solicitation(Context):
+    '''
+    The solicitation context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    userId = defines(int, doc='''
+    @rtype: integer
+    The id of the user to create gateways for.
+    ''')
+    types = defines(Iterable, doc='''
+    @rtype: Iterable(TypeAcl)
+    The ACL types to create gateways for.
+    ''')
+
+class Reply(Context):
+    '''
+    The reply context.
+    '''
+    # ---------------------------------------------------------------- Required
+    rightsAvailable = requires(Iterable, doc='''
+    @rtype: Iterable(RightAcl)
+    The rights that are available.
+    ''')
+    
 # --------------------------------------------------------------------
 
 @injected
@@ -32,33 +60,42 @@ class IUserActionServiceAlchemy(IUserActionService):
     
     actionManagerService = IActionManagerService; wire.entity('actionManagerService')
     # The action manager that provides all the applications actions.
-    aclAccessService = IAclAccessService; wire.entity('aclAccessService')
-    # The acl access service.
-    userRbacService = IUserRbacService; wire.entity('userRbacService')
-    # The user rbac service.
-    rightTypeService = IRightTypeService; wire.entity('rightTypeService')
-    # The right type service.
-    aclType = TypeAction; wire.entity('aclType')
-    # The GUI acl type.
+    actionType = TypeAcl; wire.entity('actionType')
+    # The GUI acl action type.
+    assemblyActiveRights = Assembly; wire.entity('assemblyActiveRights')
+    # The assembly to be used for getting the active rights.
     
     def __init__(self):
         assert isinstance(self.actionManagerService, IActionManagerService), \
         'Invalid action manager service %s' % self.actionManagerService
-        assert isinstance(self.aclAccessService, IAclAccessService), 'Invalid acl access service %s' % self.aclAccessService
-        assert isinstance(self.userRbacService, IUserRbacService), 'Invalid user rbac service %s' % self.userRbacService
-        assert isinstance(self.rightTypeService, IRightTypeService), 'Invalid right type service %s' % self.rightTypeService
-        assert isinstance(self.aclType, TypeAction), 'Invalid acl action type %s' % self.aclType
+        assert isinstance(self.actionType, TypeAcl), 'Invalid acl action type %s' % self.actionType
+        assert isinstance(self.assemblyActiveRights, Assembly), 'Invalid assembly rights %s' % self.assemblyActiveRights
+        
+        self._processing = self.assemblyActiveRights.create(solicitation=Solicitation, reply=Reply)
 
-    def getAll(self, userId, path=None):
+    def getAll(self, userId, path=None, origPath=None):
         '''
         @see: IUserActionService.getAll
         '''
-        try: rightType = self.rightTypeService.getByName(self.aclType.name)
-        except InputError: return ()
-        assert isinstance(rightType, RightType)
+        assert isinstance(userId, int), 'Invalid user id %s' % userId
+        
+        proc = self._processing
+        assert isinstance(proc, Processing), 'Invalid processing %s' % proc
+        
+        solicitation = proc.ctx.solicitation()
+        assert isinstance(solicitation, Solicitation), 'Invalid solicitation %s' % solicitation
+        solicitation.userId = userId
+        solicitation.types = (self.actionType,)
+        
+        chain = Chain(proc)
+        chain.process(solicitation=solicitation, reply=proc.ctx.reply()).doAll()
+        
+        reply = chain.arg.reply
+        assert isinstance(reply, Reply), 'Invalid reply %s' % reply
+        if Reply.rightsAvailable not in reply: return ()
+        
         actionPaths = set()
-        rights = (right.Name for right in self.userRbacService.getRights(userId, rightType.Id))
-        for aclRight in self.aclAccessService.rightsFor(rights, typeName=self.aclType.name):
+        for aclRight in reply.rightsAvailable:
             if isinstance(aclRight, RightAction):
                 assert isinstance(aclRight, RightAction)
                 for action in aclRight.actions():

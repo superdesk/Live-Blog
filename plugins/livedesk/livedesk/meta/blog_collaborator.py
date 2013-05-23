@@ -69,5 +69,3 @@ class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, Blo
     
     # Non REST model attribute --------------------------------------
     type = relationship(BlogCollaboratorTypeMapped, uselist=False, lazy='joined')
-
-# validateManaged(BlogCollaboratorMapped.Type)

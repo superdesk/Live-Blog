@@ -1,5 +1,5 @@
 <div class="collaborators-header">
-	<p>_("Collaborators feed is being updated with the feed of:")</p>
+	<p>_("Collaborators feed is being updated with the feed of:");</p>
 	<p class="feed-info">
 	{#Colabs}
 		{#User}<span class="label label-info" data-colab-id="{Id}">{FullName}</span>{~n}{/User}
@@ -7,8 +7,4 @@
 	</p>
 	<span class="new-results label label-warning hide"></span>
 </div>
-
-<ul class="search-result-list scroller">
-
-</ul>
-          
+<ul class="post-list scroller collabs"></ul>

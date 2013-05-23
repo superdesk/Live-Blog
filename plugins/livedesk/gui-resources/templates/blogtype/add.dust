@@ -1,16 +1,16 @@
 <div id="add-blogtype" class="modal hide fade in">
   <div screenid="0" class="modalscreen" style="display: block;">
     <div class="modal-header">
-      <a data-dismiss="modal" class="close">x</a>
+      <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Add New Blog Type");</h3>
     </div>
   
-    <div class="modal-body">
+    <div class="modal-body modal-body-min">
       <form>
         <label>_("Blog type name");</label>
         <input type="text" class="fullwidth-input" value="{Name}" placeholder='_("Enter Blog Type Name");' name="blogtypename">
         <div class="blogtype-content"></div>
-        <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Predefined Post");</a>
+        <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i> _("Create New Predefined Post");</a>
       </form> 
     </div>
 
@@ -26,11 +26,11 @@
   <!--screen 1 -->
   <div screenid="1" class="modalscreen">
 
-    <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+    <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Create new Predefined Post");</h3>
     </div>
   
-    <div class="modal-body">
+    <div class="modal-body modal-body-min">
 
       <form>
         <div class="wizard">
@@ -60,11 +60,11 @@
   <!--screen 2 -->
   <div screenid="2" class="modalscreen">
 
-    <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+    <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Create new Predefined Post");</h3>
     </div>
   
-    <div class="modal-body">
+    <div class="modal-body modal-body-min">
 
       <form>
         <div class="wizard">
@@ -78,7 +78,7 @@
         </div>
         <legend class="small-legend" style="clear:both;">_("Predefine the content of the Post");</legend>
         <div class="alert alert-info">
-           <a data-dismiss="alert" class="close">x</a>
+           <a data-dismiss="alert" class="popup-close">x</a>
            <strong>_("Note!");</strong> _("You can optionally place a predifined text in your Predefine Post.");
         </div>
         <textarea class="fullwidth-input" name="post-predefined" placeholder='_("Type your text here");' rows="4"></textarea>
@@ -103,11 +103,11 @@
   <!--screen 3 -->
   <div screenid="3" class="modalscreen">
 
-    <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+    <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Create new Predefined Post");</h3>
     </div>
   
-    <div class="modal-body">
+    <div class="modal-body modal-body-min">
 
       <form>
         <div class="wizard">
@@ -121,17 +121,17 @@
         </div>
         <legend class="small-legend" style="clear:both;">_("Customize the Font style and color of the Predefined Post"); <i style="color:#989898">(_("optional");)</i></legend>
         <div class="alert alert-info">
-           <a data-dismiss="alert" class="close">x</a>
+           <a data-dismiss="alert" class="popup-close">x</a>
            <strong>_("Note!");</strong>_("You can difine a differnt Font style, size and/or color for each Predefined Post.");
         </div>
         <legend class="small-legend wizard-legend">Font options</legend>
-        <select name="post-fontfamily" style="width:140px;">
+        <select name="post-fontfamily" style="width:140px;height:28px;">
           <option selected="selected" value="1">Arial, Helvetica, sans-serif</option>
           <option value="2">Times New Roman, Times, serif</option>
           <option value="3">Courier New, Courier, monospace</option>
           <option value="4">Verdana, Arial, Helvetica, sans-serif</option>
         </select>
-        <select name="post-fontsize" style="width:65px;margin-left:5px;">
+        <select name="post-fontsize" style="width:65px;margin-left:5px;height:28px;">
           <option value="8">8px</option>
           <option value="9">9px</option>
           <option value="10">10px</option>
@@ -150,14 +150,14 @@
           <option value="45">45px</option>
           <option value="55">55px</option>
         </select>
-        <div class="btn-toolbar">
+        <div class="btn-toolbar row-display">
           <div data-toggle="buttons-checkbox" class="btn-group">
             <a name="post-bold" href="#" class="btn"><i class="icon-bold"></i></a>
             <a name="post-italic" href="#" class="btn"><i class="icon-italic"></i></a>
             <a name="post-underline" href="#" class="btn"><i class="icon-underline"></i></a>
           </div>
         </div>
-        <div class="btn-toolbar">
+        <div class="btn-toolbar row-display">
           <div data-toggle="buttons-radio" class="btn-group">
             <a align="left" name="post-align" href="#" class="btn"><i class="icon-align-left"></i></a>
             <a align="center" name="post-align" href="#" class="btn"><i class="icon-align-center"></i></a>
@@ -207,11 +207,11 @@
   <!--screen 4 -->
   <div screenid="4" class="modalscreen">
 
-    <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
+    <div class="modal-header"> <a data-dismiss="modal" class="popup-close">x</a>
       <h3>_("Create new Predefined Post");</h3>
     </div>
   
-    <div class="modal-body">
+    <div class="modal-body modal-body-min">
 
       <form>
         <div class="wizard">
@@ -225,7 +225,7 @@
         </div>
         <legend class="small-legend" style="clear:both;">_("Customize the Background the Predefined Post"); <i style="color:#989898">(_("optional");)</i></legend>
         <div class="alert alert-info">
-           <a data-dismiss="alert" class="close">×</a>
+           <a data-dismiss="alert" class="popup-close">x</a>
            <strong>_("Note!");</strong> _("You can difine a differnt Background color and/or graphic for each Predefined Post.");
         </div>
 
@@ -254,13 +254,13 @@
           </ul>
         </div>
 
-        <label style="display:inline-block; vertical-align:middle; margin-left:20px;" class="checkbox">
+        <label style="display:inline-block; vertical-align:middle; margin-left:20px;width: 150px;" class="checkbox">
           <input type="checkbox" name="post-addbgimage">
           _("Add Background graphic");
         </label>
 
         <div class="wizard-picture-selection">
-          <ul>
+          <ul class="clearfix" style="margin:0;">
             <li><img imageid="1" src="images/post-icons/post-1.png"></li>
             <li><img imageid="2" src="images/post-icons/post-2.png"></li>
             <li><img imageid="3" src="images/post-icons/post-3.png"></li>

@@ -14,10 +14,12 @@ from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call, UPDATE
+from ally.api.config import query, service, call, UPDATE, DELETE, alias, INSERT, \
+    model
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
+from superdesk.source.api.source import Source
 
 # --------------------------------------------------------------------
 
@@ -39,6 +41,26 @@ class Blog(Entity):
     LastUpdatedOn = datetime
     ClosedOn = datetime
     UpdatedOn = datetime
+
+# --------------------------------------------------------------------
+
+@model(name=Source)
+class SourceChained(Source):
+    '''
+    Provider concept implemented also through the source model.
+    '''
+    Provider = Source  # The source provider
+
+# --------------------------------------------------------------------
+# TODO: Mugur: No need to map a relation between models with API, remove this.
+@modelLiveDesk
+class BlogSource(Entity):
+    '''
+    Provides the blog source model.
+    '''
+    Blog = Blog
+    Source = Source
+    Provider = Source
 
 # --------------------------------------------------------------------
 
@@ -85,4 +107,37 @@ class IBlogService(IEntityCRUDService):
         '''
         Puts blog live
         @raise InputError: on invalid credentials or blog id 
+        '''
+
+    @call
+    def getSources(self, blogId:Blog.Id) -> Iter(Source):
+        '''
+        Returns a list of blog sources
+
+        @param blogId: Blog.Id
+            The blog identifier
+        '''
+
+    @call(method=INSERT)
+    def addSource(self, blogId:Blog.Id, source:SourceChained) -> Source.Id:
+        '''
+        Adds a source to a blog.
+
+        @param blogId: Blog.Id
+            The blog identifier
+        @param source: SourceChained
+            The source model
+        @raise InputError: on invalid source id
+        '''
+
+    @call(method=DELETE)
+    def deleteSource(self, blogId:Blog.Id, sourceId:Source.Id) -> bool:
+        '''
+        Removes a source from the blog.
+
+        @param blogId: Blog.Id
+            The blog identifier
+        @param sourceId: Source.Id
+            The source identifier
+        @raise InputError: on invalid source id
         '''

@@ -9,10 +9,10 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
+from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
-from ..plugin.registry import cdmGUI
+from ally.container import app
 from ally.container.support import entityFor
-from distribution.container import app
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
 import logging
 
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 def insertThemes():
     s = entityFor(IBlogThemeService)
     assert isinstance(s, IBlogThemeService)
-    for name in ('default', 'space', 'tageswoche', 'sdtageswoche'):
+    for name in ('default', 'tageswoche', 'stt'):
         q = QBlogTheme()
         q.name = name
         l = s.getAll(q=q)

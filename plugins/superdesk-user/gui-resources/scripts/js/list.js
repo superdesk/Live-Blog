@@ -82,7 +82,9 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             icon.sync({data: { thumbSize: 'small'}}).done(function()
             { 
                 $('figure img', self.el).attr('src', icon.get('Thumbnail').href);
-            });
+            }).fail(function(){
+				$('figure img', self.el).attr('src', $.avatar.get(self.model.get("EMail")));
+			});
             // ---
             
             delete this.model.data['Password'];
@@ -117,11 +119,23 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                         {
                             if(this.get('Name') == 'internal')
                             {
-                                newCollaborator.set('Source', this.get('Id'));
-                                return false;
+                                var collaboratorUrl = new giz.Url('HR/User/{1}/Source/{2}/Collaborator');
+                                var href = collaboratorUrl.get('href').replace('{1}', self.model.get('Id')).replace('{2}', this.get('Id'));
+
+                                var collaboratorList = new Collaborator;
+                                collaboratorList.setHref(href).sync().done(function(){
+                                    if (collaboratorList.data.CollaboratorList.length === 0) {
+                                        newCollaborator.set('Source', this.get('Id'));
+                                        newCollaborator.sync();
+                                        return false;
+                                    } else {
+                                        newCollaborator = new Collaborator;
+                                        newCollaborator.setHref(collaboratorList.data.CollaboratorList[0].href).sync();
+                                        return false;
+                                    }
+                                });
                             }
                         });
-                        newCollaborator.sync(newCollaborator.url.get()); 
                     });
             // ?
             
@@ -290,7 +304,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          * passing along view prop
          */
         showDeleteUser: function(evt)
-        { 
+        {
+            evt.preventDefault();
             $('#user-delete-modal', this.el).prop('view', $(evt.currentTarget).prop('view')); 
             $('#user-delete-modal', this.el).modal(); 
         },
@@ -375,9 +390,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         },
         checkPass: function(modal)
         {
-            var pass = $(modal+' form input#inputPass', self.el).val();
-            if( pass.length > 0 && $(modal+' form input#inputPassConfirm', self.el).val() !== pass ) return false;
-            return true;
+            var pass = $(modal+' form input#inputPass', this.el).val();
+            return !(pass.length > 0) || $(modal+' form input#inputPassConfirm', this.el).val() === pass;
         },
         checkEmail: function(email)
         {
@@ -432,7 +446,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             }
             
             // hashing password
-            newModel.get('Password').length && newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
+            var pass = newModel.get('Password');
+            pass && pass.length && newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
 
             newModel.on('insert', function()
             {
@@ -512,10 +527,12 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
          */
         showUpdateUser: function(evt)
         {
+            evt.preventDefault();
             var $this = $(evt.currentTarget),
                 model = $this.prop('model');
 
             $('#user-edit-modal figure.user-avatar img', this.el).attr('src', config.content_url+'/lib/core/images/default_profile_3_bigger.png');
+            $('.control-group').removeClass('error');
             
             var personModel = /*giz.Auth(*/new Person(model.hash().replace('User', 'Person').replace('my/', ''))/*)*/,
                 roleCollection = new RoleCollection({href: new giz.Url('HR/User/'+model.get('Id')+'/Role')});
@@ -595,7 +612,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         updateUser: function()
         { 
             var data = {},
-                self = this;
+                self = this,
+                userItemView = $('#user-edit-modal', self.el).prop('view');
             if( !self.checkPass('#user-edit-modal') ) 
             {
                 $('#user-edit-modal .alert', self.el).removeClass('hide')
@@ -606,11 +624,19 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             {
                 var val = $(this).val(),
                     name = $(this).attr('name');
+                
                 if( $(this).is(':checkbox') && $(this).is(':not(:checked)') ) return true;
                 if( $(this).is(':checkbox') ) data[name] = true;
                 if( name && val != '' ) data[name] = val;
+                // deleted value
+                if( userItemView.model.get(name) && val == '' ) data[name] = '';
             });
             data['Role'] = $('#user-edit-modal form [data-input="role"] [data-selected-value]', self.el).attr('data-selected-value');
+            
+            /*
+             * for( var i in this.model.data )
+                if( i != 'Id' && this.model.data[i] && !data[i] ) data[i] = '';
+             */
             
             // checking email
             if( data.EMail && !self.checkEmail(data.EMail) )
@@ -619,7 +645,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 return false;
             }
             
-            $('#user-edit-modal', self.el).prop('view').update(data)
+            userItemView.update(data)
             .fail(function(data)
             {
                 eval('var data = '+data.responseText);

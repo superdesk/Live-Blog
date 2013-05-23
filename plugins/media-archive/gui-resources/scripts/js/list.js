@@ -58,7 +58,6 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         tmpl: 'media-archive>item',
         render: function()
         {
-            require(['media-types/'+this.model.get('Type')+'/grid-view']);
             $(this.el).tmpl(this.tmpl, {Item: this.model.feed()});
             $(this.el).prop('model', this.model).prop('view', this);
             return this;
@@ -138,7 +137,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
                     }); 
                 
                 $('#languages', self.el).append(self.languageView.el);
-                $('select', self.languageView.el).prepend('<option value="" selected="selected">'+_('Any')+'</option>');
+                !$('select [value=""]', self.languageView.el).length && $('select', self.languageView.el).prepend('<option value="" selected="selected">'+_('Any')+'</option>');
                 
                 self.resetEvents();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
@@ -465,9 +464,9 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             {
                 query = query.concat($(this).data('criteria'));
             });
-            dateFrom.length && query.push({ 'qd.createdOn.since': dateFrom });
-            dateTo.length && query.push({ 'qd.createdOn.until': dateTo });
-            language.length && query.push({ 'language': language });
+            dateFrom && dateFrom.length && query.push({ 'qd.createdOn.since': dateFrom });
+            dateFrom && dateTo.length && query.push({ 'qd.createdOn.until': dateTo });
+            language && language.length && query.push({ 'language': language });
             $('#type-list input:checked', this.el).each(function(){ query.push({'type': $(this).val()}); });
             return query;
         }
@@ -479,7 +478,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
     ListView = gizList.ListView.extend
     ({
         users: null,
-        events: $.extend(gizList.ListView.prototype.events, 
+        events: $.extend( true, {}, gizList.ListView.prototype.events, 
         {
             '[data-action="add-media"]': { 'click' : 'add' },
             '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' },
@@ -502,11 +501,12 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         init: function()
         {
             gizList.ListView.prototype.init.call(this);
-            this.filterView = new FilterView;
+            this.filterView = this.getFilterView();
             var self = this;
             $(this.filterView).on('trigger-search', function(){ self.search.call(self) });
             $(Add).on('uploaded', function(e, Id){ self.uploaded.call(self, Id); });
         },
+        getFilterView: function(){ return new FilterView; },
         getSearchTerm: function(){ return 'abc'; },
         searchData: function()
         { 
@@ -533,7 +533,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             if(!this.collection)
             {
                 this.collection = new MetaDataInfos;
-                this.collection.on('read', this.renderList, this);
+                //this.collection.on('read', this.renderList, this);
             }
             return this.collection; 
         },
@@ -632,10 +632,12 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             this.refresh();
         }
         
-    }),
+    });
     
-    listView = new ListView(); 
+    return {ListView: ListView, ItemView: ItemView, FilterView: FilterView};
     
-    return { init: function(){ listView.activate(); } };
+    //listView = new ListView(); 
+    
+    //return { init: function(){ listView.activate(); } };
 });
 

@@ -1,10 +1,21 @@
 <li class="soundcloud draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
     <div class="drag-bar"></div>
     <div class="tool-box-right" style="z-index: 1000">
-    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete')">x</a>
-        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish')">&nbsp;</a>{/PublishedOn}
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete');">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
     </div>
-    
+    <figure>
+        {Avatar|s}
+        {?AuthorPerson.Avatar}
+        <img src="{AuthorPerson.Avatar}">
+        {:else}
+        <!--<img>-->
+        {/AuthorPerson}
+    </figure>
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+  </div>  
     <div class="result-content" style="display:block; position:relative;">
         <div>
             <h3><a href="{Meta.permalink_url}" target="_blank">{Meta.title|s}</a></h3>
@@ -17,7 +28,7 @@
             <br/>    
 
         </div>
-        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+        <div style="position: absolute; bottom:0px;">
             <p class="attributes" >
                     <i class="source-icon">
                             <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
@@ -32,8 +43,8 @@
     </div>	
 	
     <div class="btn-group pull-right clearfix actions hide">
-    	<button class="btn btn-mini cancel">Cancel</button>
-    	<button class="btn btn-mini btn-primary publish">Publish</button>
+    	<button class="btn btn-mini cancel">_('Cancel');</button>
+    	<button class="btn btn-mini btn-primary publish">_('Publish');</button>
    	</div>		
 </li>
 

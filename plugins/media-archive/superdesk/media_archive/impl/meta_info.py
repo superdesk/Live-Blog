@@ -27,7 +27,7 @@ from superdesk.media_archive.api.meta_data import IMetaDataService
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaInfoService)
+@setup(IMetaInfoService, name='metaInfoService')
 class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     '''
     Implementation for @see: IMetaInfoService

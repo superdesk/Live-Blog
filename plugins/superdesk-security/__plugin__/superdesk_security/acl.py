@@ -9,10 +9,12 @@ Created on Jan 15, 2013
 Provides the acl setup.
 '''
 
-from ..gui_security.acl import updateDefaults, aclType
-from acl.impl.sevice_right import RightService
+from ..acl import acl
+from ..acl.gui import defaultRight, updateDefault
 from acl.spec import Filter
 from ally.container import ioc, support
+from ally.support.util import ref
+from gui.action.api.action import IActionManagerService
 from superdesk.security.api.authentication import IAuthenticationService
 from superdesk.security.api.filter_authenticated import Authenticated, \
     IAuthenticatedFilterService
@@ -22,7 +24,7 @@ from superdesk.user.api.user import User, IUserService
 # --------------------------------------------------------------------
 
 @ioc.entity
-def filterAuthenticated():
+def filterAuthenticated() -> Filter:
     '''
     Provides filtering for the authenticated user.
     '''
@@ -30,13 +32,14 @@ def filterAuthenticated():
 
 # --------------------------------------------------------------------
 
-@ioc.replace(updateDefaults)
+@ioc.replace(updateDefault)
 def updateFilteredDefaults():
-    default = aclType().default()
-    assert isinstance(default, RightService)
-    # Provides access to the users actions
-    default.allGet(IUserActionService, filter=filterAuthenticated())
+    defaultRight().allGet(IUserActionService, filter=filterAuthenticated())
     # Provides access for performing login
-    default.byName(IAuthenticationService, IAuthenticationService.requestLogin, IAuthenticationService.performLogin)
+    defaultRight().add(ref(IAuthenticationService).requestLogin, ref(IAuthenticationService).performLogin)
     # Provides read only access to the logged in user
-    default.byName(IUserService, IUserService.getById, filter=filterAuthenticated())
+    defaultRight().add(ref(IUserService).getById, filter=filterAuthenticated())
+
+@acl.setupAlternate
+def updateAlternates():
+    acl.aclAlternate(ref(IActionManagerService).getAll, ref(IUserActionService).getAll)

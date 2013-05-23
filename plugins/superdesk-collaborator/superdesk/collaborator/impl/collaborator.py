@@ -22,7 +22,7 @@ from superdesk.user.meta.user import UserMapped
 # --------------------------------------------------------------------
 
 @injected
-@setup(ICollaboratorService)
+@setup(ICollaboratorService, name='collaboratorService')
 class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorService):
     '''
     Implementation for @see: ICollaboratorService

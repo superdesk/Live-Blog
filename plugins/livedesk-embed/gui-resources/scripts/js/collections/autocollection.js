@@ -12,7 +12,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		 */
 		keep: false,
 		resetStats: function() {
-			this._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 }
+			this._stats = { limit: 15, offset: 0, lastCId: 0, firstOrder: Infinity, total: 0 }
 		},
 		init: function(){ 
 			var self = this;
@@ -64,23 +64,41 @@ define(['gizmo/superdesk'], function(Gizmo) {
 			});
 		},			
 		destroy: function(){ this.stop(); },
-		auto: function(fn)
+		auto: function(params)
 		{
 			var self = this;
-			ret = this.stop().start();
-			this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
+			ret = this.stop().start(params);
+			this._idInterval = setInterval(function(){
+				self.start(params);
+			}, this._timeInterval);
 			return ret;
 		},
-		start: function()
+		start: function(params)
 		{
-			var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers:  { 'X-Filter': self._xfilter, 'X-Format-DateTime': 'M/dd/yyyy HH:mm:ss'}};
-			if(self._stats.lastCId === 0) delete requestOptions.data;
+			var self = this,
+				params = params || {},
+				requestOptions = $.extend(true, {
+					data: {
+						'cId.since': this._stats.lastCId, 
+						'order.start': this._stats.firstOrder
+					}, 
+					headers:  {
+						'X-Filter': self._xfilter,
+						'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"
+					}
+				},params);
+			if(self._stats.lastCId === 0) {
+				delete requestOptions.data['cId.since'];
+				delete requestOptions.data['order.start'];
+			}
+			if(this._stats.firstOrder === Infinity) {
+				delete requestOptions.data['order.start'];	
+			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();
 				return;
-			}				
-			this.triggerHandler('beforeUpdate');
+			}
 			return this.autosync(requestOptions);
 		},
 		stop: function()
@@ -96,8 +114,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		{
 			for(var i=0, Order, count=data.length; i<count; i++) {
 				Order = parseFloat(data[i].get('Order'))
-				if( !isNaN(Order) && (this._stats.fistOrder > Order) )
-					this._stats.fistOrder = Order;
+				if( !isNaN(Order) && (this._stats.firstOrder > Order) )
+					this._stats.firstOrder = Order;
 			}
 		},
 		/*!

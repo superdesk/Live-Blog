@@ -23,13 +23,14 @@ from security.rbac.meta.rbac import RoleMapped
 from security.rbac.meta.rbac_intern import RbacRole, RbacRight
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.security.api.user_rbac import IUserRbacService
+from superdesk.security.core.spec import IUserRbacSupport
 from superdesk.security.meta.security_intern import RbacUser
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IUserRbacService, name='userRbacService')
-class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
+@setup(IUserRbacService, IUserRbacSupport, name='userRbacService')
+class UserRbacServiceAlchemy(SessionSupport, IUserRbacService, IUserRbacSupport):
     '''
     Implementation for @see: IUserRbacService
     '''
@@ -47,7 +48,7 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         if limit == 0: entities = ()
         else: entities = None
         if detailed or entities is None:
-            rbacId = self._rbacId(userId)
+            rbacId = self.rbacIdFor(userId)
             if not rbacId: return IterPart((), 0, offset, limit) if detailed else ()
             
             sql = self.rbacService.rolesForRbacSQL(rbacId)
@@ -65,7 +66,7 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         if limit == 0: entities = ()
         else: entities = None
         if detailed or entities is None:
-            rbacId = self._rbacId(userId)
+            rbacId = self.rbacIdFor(userId)
             if not rbacId: return IterPart((), 0, offset, limit) if detailed else ()
             
             sql = self.rbacService.rightsForRbacSQL(rbacId)
@@ -81,7 +82,7 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         '''
         @see: IUserRbacService.assignRole
         '''
-        rbacId = self._rbacId(userId)
+        rbacId = self.rbacIdFor(userId)
         if not rbacId: rbacId = self._rbacCreate(userId)
         else:
             sql = self.session().query(RbacRole).filter(RbacRole.rbac == rbacId).filter(RbacRole.role == roleId)
@@ -92,7 +93,7 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         '''
         @see: IUserRbacService.unassignRole
         '''
-        rbacId = self._rbacId(userId)
+        rbacId = self.rbacIdFor(userId)
         if not rbacId: return False
         sql = self.session().query(RbacRole).filter(RbacRole.rbac == rbacId).filter(RbacRole.role == roleId)
         return sql.delete() > 0
@@ -101,7 +102,7 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         '''
         @see: IUserRbacService.assignRight
         '''
-        rbacId = self._rbacId(userId)
+        rbacId = self.rbacIdFor(userId)
         if not rbacId: rbacId = self._rbacCreate(userId)
         else:
             sql = self.session().query(RbacRight).filter(RbacRight.rbac == rbacId).filter(RbacRight.right == rightId)
@@ -112,20 +113,22 @@ class UserRbacServiceAlchemy(SessionSupport, IUserRbacService):
         '''
         @see: IUserRbacService.unassignRight
         '''
-        rbacId = self._rbacId(userId)
+        rbacId = self.rbacIdFor(userId)
         if not rbacId: return False
         sql = self.session().query(RbacRight).filter(RbacRight.rbac == rbacId).filter(RbacRight.right == rightId)
         return sql.delete() > 0
         
     # ----------------------------------------------------------------
     
-    def _rbacId(self, userId):
+    def rbacIdFor(self, userId):
         '''
-        Provides the rbac id for the user id, optionally generate one.
+        @see: IUserRbacSupport.rbacIdFor
         '''
         try: rbacId, = self.session().query(RbacUser.Id).filter(RbacUser.userId == userId).one()
         except NoResultFound: return
         return rbacId
+    
+    # ----------------------------------------------------------------
     
     def _rbacCreate(self, userId):
         '''
