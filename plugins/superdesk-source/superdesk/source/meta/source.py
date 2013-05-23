@@ -33,6 +33,7 @@ class SourceMapped(Base, Source):
     Type = association_proxy('type', 'Key')
     Name = Column('name', String(255), nullable=False)
     URI = Column('uri', String(255), nullable=False)
+    Key = Column('key', String(1024), nullable=True)
     IsModifiable = Column('modifiable', Boolean, nullable=False)
     # Non REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(SourceTypeMapped.id, ondelete='RESTRICT'), nullable=False)
