@@ -7,7 +7,15 @@ define([
     'tmpl!superdesk/article>plugins/publishing-control/item'
 ], 
 function($, Backbone, giz, publishingControlTab) {
-    PublishingControlTabBoxPlugin = Backbone.View.extend({
+    var TargetType = Backbone.Model.extend({
+
+    });
+
+    var TargetTypeCollection = Backbone.Collection.extend({
+    	model: TargetType
+    });
+
+    var PublishingControlTabBoxPlugin = Backbone.View.extend({
     	_parent: null,
     	_article: null,
     	_activatedOnce: false,
@@ -31,36 +39,32 @@ function($, Backbone, giz, publishingControlTab) {
         },
         activate: function() {
         	if (this._activatedOnce === false) {
-        		$('.sf-checkbox').each(function(i,val){
-			      	var ischecked = "";
-			      	if ($(val).attr("checked")=="checked") ischecked="sf-checked";
-			        $(val).wrap('<span class="sf-checkbox-custom ' + ischecked + '"></span>');
+        		//
+        		$('.sf-toggle').each(function(i,val){
+			      	var additional_class="";
+			      	if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
+			      	if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
+			      	if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
+			        $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
 			        $(val).hide();
-
-			        var set_bg = $(val).attr("set-bg"); 
-					if (typeof set_bg !== undefined && set_bg !== false && $(val).attr("checked")=="checked") {
-						$(this).parents().eq(set_bg-1).toggleClass('active-bg');
-					}
 			    });
-			    $('.sf-checkbox-custom').click(function(e){
-			    	e.preventDefault();
-			        $(this).toggleClass('sf-checked');
-			        var own_box = $(this).find(".sf-checkbox").first();
-
-			        var set_bg = own_box.attr("set-bg"); 
-			        if (typeof set_bg !== undefined && set_bg !== false) {
-			        	$(this).parents().eq(set_bg-1).toggleClass('active-bg');
-			        }
-			        if (own_box.prop('checked')==true) {
-			        	own_box.prop('checked',false);
-			        } else {
-			        	own_box.prop('checked',true);
+			    $('.sf-toggle-custom').click(function(e){
+			        e.preventDefault();
+			        if (!$(this).hasClass("sf-disable")) {
+						$(this).toggleClass('sf-checked');
+				        var own_box = $(this).find(".sf-toggle").first();
+				        if (own_box.prop('checked')==true) {
+				        	own_box.prop('checked',false);
+				        } else {
+				        	own_box.prop('checked',true);
+				        }
 			        }
 			    });
+			    //
 			    this._activatedOnce = true;
         	}
         }
     });
     
-    return new PublishingControlTabBoxPlugin;
+    return new PublishingControlTabBoxPlugin(new TargetTypeCollection);
 });
