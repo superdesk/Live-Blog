@@ -55,7 +55,7 @@ class SqlArticleSearchProvider(IArticleSearchProvider):
             sql = sql.join(UserMapped, ArticleMapped.Creator == UserMapped.Id)
 
             if QArticle.search in q:
-                all = processLike(q.search.all)
+                all = processLike(q.search.like if q.search.like else q.search.ilike)
                 # TODO: Notice that the "UserMapped.Name" part is for login names.
                 #       It should not be used when doing a search for outer readers.
                 sql = sql.filter(or_(PersonMapped.FullName.like(all), UserMapped.Name.like(all), UserMapped.FullName.like(all), ArticleMapped.Content.like(all)))
