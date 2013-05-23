@@ -46,27 +46,14 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         @see: ICardService.insert
         '''
-        if card.OrderIndex:
-            if self.session().query(exists().where(and_((CardMapped.Desk == card.Desk),(CardMapped.OrderIndex == card.OrderIndex)))).scalar():
-                raise InputError(Ref(_('Can not create the card: colliding desk and order index'),))
-        else:
-            card.OrderIndex = self.session().query(func.max(CardMapped.OrderIndex)).one()[0]
+        card.Order = self.session().query(func.max(CardMapped.Order)).one()[0]
 
-            if not card.OrderIndex:
-                card.OrderIndex = 0
+        if not card.Order:
+            card.Order = 0
 
-            card.OrderIndex =  card.OrderIndex + 1   
+        card.Order =  card.Order + 1   
 
         return EntityServiceAlchemy.insert(self, card)        
-
-    def update(self, card):
-        '''
-        @see: ICardService.update
-        '''
-        if Card.OrderIndex in card:
-            raise InputError(Ref(_('Can not directly update the order index'),))
-
-        return EntityServiceAlchemy.update(self, card)
 
     def getByDesk(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -154,14 +141,14 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
 
         sql = self.session().query(CardMapped)
         sql = sql.filter(CardMapped.Desk == cardDb.Desk)
-        sql = sql.filter(CardMapped.OrderIndex < cardDb.OrderIndex)
-        sql = sql.order_by(desc_op(CardMapped.OrderIndex))
+        sql = sql.filter(CardMapped.Order < cardDb.Order)
+        sql = sql.order_by(desc_op(CardMapped.Order))
         try:
             upperDb = sql.one()
         except:
             raise InputError(Ref(_('Can not move the card up'),))
 
-        cardDb.OrderIndex, upperDb.OrderIndex = upperDb.OrderIndex, cardDb.OrderIndex
+        cardDb.Order, upperDb.Order = upperDb.Order, cardDb.Order
         self.session().flush((cardDb, upperDb))
         
     def moveDown(self, cardId):
@@ -172,14 +159,14 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
 
         sql = self.session().query(CardMapped)
         sql = sql.filter(CardMapped.Desk == cardDb.Desk)
-        sql = sql.filter(CardMapped.OrderIndex > cardDb.OrderIndex)
-        sql = sql.order_by(CardMapped.OrderIndex)
+        sql = sql.filter(CardMapped.Order > cardDb.Order)
+        sql = sql.order_by(CardMapped.Order)
         try:
             lowerDb = sql.one()
         except:
             raise InputError(Ref(_('Can not move the card down'),))
 
-        cardDb.OrderIndex, lowerDb.OrderIndex = lowerDb.OrderIndex, cardDb.OrderIndex
+        cardDb.Order, lowerDb.Order = lowerDb.Order, cardDb.Order
         self.session().flush((cardDb, lowerDb))
 
     def makeJump(self, cardId, jump):
