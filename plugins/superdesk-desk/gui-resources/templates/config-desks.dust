@@ -36,7 +36,8 @@
 					</div>
 					<div class="desk-config-tab-content" ng-show="!cards">
 						<ul class="plain-table">
-		                    <li ng-repeat="user in desk.members"> <figure><img ng-src="" width="22" height="22"></figure>
+		                    <li ng-repeat="user in desk.members">
+                              <figure sd-user-image sd-user="user" data-width="22" data-height="22"></figure>
 		                      <a class="collaborator-name-large" >{{ user.Name }}</a>
 		                      
 		                      <div class="table-buttons">
@@ -106,9 +107,9 @@
 
         <ul class="internal-collaborators">
           <li ng-repeat="user in users | filter:userSearch">
-            <input type="checkbox" class="select-colaborator" name="member1" group="members" ng-checked="checkAll" ng-model="user.isSelected" id="_user_{{ $index }}">
-            <figure><img ng-src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
-            <label for="_user_{{ $index }}"><span class="add-collaborator-name">{{ user.Name }}</span><span>{{ user.EMail }}</span></label>
+            <input type="checkbox" class="select-colaborator" name="member1" group="members" ng-checked="checkAll" ng-model="user.isSelected" id="select-user-{{ $index }}">
+            <figure sd-user-image sd-user="user" data-width="32" data-height="32"></figure>
+            <label for="select-user-{{ $index }}"><span class="add-collaborator-name">{{ user.Name }}</span><span>{{ user.EMail }}</span></label>
           </li>
         </ul>          
   </div>

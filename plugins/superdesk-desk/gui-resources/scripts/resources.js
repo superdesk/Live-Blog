@@ -2,10 +2,7 @@ define([
     'angular',
     'angular-resource'
 ],function(angular) {
-
-    function parseUrl(url) {
-        return url.replace('http://localhost:8080', '');
-    }
+    'use strict';
 
     var resources = angular.module('resources', ['ngResource']);
 
@@ -31,13 +28,17 @@ define([
             update: {method: 'PUT'}
         });
 
+        var Users = $resource('/resources/Desk/Desk/:deskId/User', {deskId: 'deskId'}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+        });
+
         Desk.prototype = {
             getUsers: function() {
-                var Users = $resource(parseUrl(this.User.href), {}, {query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}});
                 var delay = $q.defer();
-                Users.query(function(response) {
+                Users.query({deskId: this.Id}, function(response) {
                     delay.resolve(response.UserList);
                 });
+
                 return delay.promise;
             }
         };
@@ -160,12 +161,12 @@ define([
         };
 
         this.getAvailableUsers = function(desk) {
-            var users = $resource(parseUrl(desk.UserUnassigned.href), {}, {
-                query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+            var users = $resource('/resources/Desk/Desk/:deskId/User/Unassigned', {deskId: '@deskId'}, {
+                query: {method: 'GET', isArray: false, params: {'X-Filter': '*,MetaDataIcon'}}
             });
 
             var delay = $q.defer();
-            users.query(function(response) {
+            users.query({deskId: desk.Id}, function(response) {
                 delay.resolve(response.UserList);
             });
 
@@ -184,7 +185,7 @@ define([
         this.saveCard = function(desk, card) {
             var delay = $q.defer();
             var data = angular.copy(card);
-            data['Desk'] = desk.Id;
+            data.Desk = desk.Id;
             Card.save(data, function(card) {
                 delay.resolve(card);
             });
@@ -230,6 +231,22 @@ define([
         this.removeStatus = function(card, stat) {
             var res = new CardStatus({Card: card.Id, TaskStatus: stat.Key});
             res.$delete();
+        };
+    }]);
+
+    resources.service('UserService', ['$resource', '$q', function($resource, $q) {
+        var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+
+        this.getImage = function(user) {
+            var delay = $q.defer();
+
+            UserImage.get({userId: user.Id}, function(image) {
+                delay.resolve(image);
+            }, function() {
+                delay.reject();
+            });
+
+            return delay.promise;
         };
     }]);
 });
