@@ -9,14 +9,14 @@ Created on May 18, 2013
 Contains the SQL alchemy implementation for card API.
 '''
 
-from ..api.card import ICardService
+from ..api.card import ICardService, Card
 from ..meta.card import CardMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from ally.api.extension import IterPart
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from sqlalchemy.sql.expression import not_, func
+from sqlalchemy.sql.expression import not_, func, exists, and_
 from sqlalchemy.sql.operators import desc_op
 from superdesk.desk.meta.card import CardTaskStatusMapped
 from superdesk.desk.meta.task_status import TaskStatusMapped
@@ -41,18 +41,33 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         Construct the  service.
         '''
         EntityServiceAlchemy.__init__(self, CardMapped, QCard)
-        
-    def insert(self, card): 
-        if not card.OrderIndex:
+
+    def insert(self, card):
+        '''
+        @see: ICardService.insert
+        '''
+        if card.OrderIndex:
+            if self.session().query(exists().where(and_((CardMapped.Desk == card.Desk),(CardMapped.OrderIndex == card.OrderIndex)))).scalar():
+                raise InputError(Ref(_('Can not create the card: colliding desk and order index'),))
+        else:
             card.OrderIndex = self.session().query(func.max(CardMapped.OrderIndex)).one()[0]
-        
-        if not card.OrderIndex:
-            card.OrderIndex = 0
-            
-        card.OrderIndex =  card.OrderIndex + 1   
-            
+
+            if not card.OrderIndex:
+                card.OrderIndex = 0
+
+            card.OrderIndex =  card.OrderIndex + 1   
+
         return EntityServiceAlchemy.insert(self, card)        
-     
+
+    def update(self, card):
+        '''
+        @see: ICardService.update
+        '''
+        if Card.OrderIndex in card:
+            raise InputError(Ref(_('Can not directly update the order index'),))
+
+        return EntityServiceAlchemy.update(self, card)
+
     def getByDesk(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ICardService.getAll
@@ -166,6 +181,19 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
 
         cardDb.OrderIndex, lowerDb.OrderIndex = lowerDb.OrderIndex, cardDb.OrderIndex
         self.session().flush((cardDb, lowerDb))
+
+    def makeJump(self, cardId, jump):
+        '''
+        @see ICardService.makeJump
+        '''
+        if not jump:
+            return
+        if jump > 0:
+            for i in range(jump):
+                self.moveDown(cardId)
+        else:
+            for i in range(-jump):
+                self.moveUp(cardId)
 
     def _statusId(self, key):
         '''
