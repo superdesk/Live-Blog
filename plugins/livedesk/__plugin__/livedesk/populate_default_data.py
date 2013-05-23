@@ -9,6 +9,7 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
+from os.path import abspath, dirname, join
 from ..superdesk.db_superdesk import alchemySessionCreator
 from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
@@ -34,6 +35,7 @@ from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
+from ally.support.util_io import openURI
 
 # --------------------------------------------------------------------
 
@@ -190,8 +192,8 @@ def createPostTypes():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'admin', 'admin', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'admin', 'admin', 'Conclusion', 'To summarize, this is the conclusion...',)
+                   ('default', 'normal', 'Janet', 'Janet', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'Janet', 'Janet', 'Conclusion', 'To summarize, this is the conclusion...',)
                    ]
 
 @ioc.after(populateDefaultUsers, createPostTypes)
