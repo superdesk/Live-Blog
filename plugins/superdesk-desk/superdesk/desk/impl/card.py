@@ -144,7 +144,7 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         sql = sql.filter(CardMapped.Order < cardDb.Order)
         sql = sql.order_by(desc_op(CardMapped.Order))
         try:
-            upperDb = sql.one()
+            upperDb = sql.limit(1).one()
         except:
             raise InputError(Ref(_('Can not move the card up'),))
 
@@ -162,7 +162,7 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         sql = sql.filter(CardMapped.Order > cardDb.Order)
         sql = sql.order_by(CardMapped.Order)
         try:
-            lowerDb = sql.one()
+            lowerDb = sql.limit(1).one()
         except:
             raise InputError(Ref(_('Can not move the card down'),))
 
