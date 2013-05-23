@@ -6,7 +6,11 @@
 			<span class="tabmodule-title">_('Target outputs');</span>
 		</div>
 		<div class="tabmodule-content">
-			<ul class="selectionlist" data-placeholder="target-type"></ul>
+			<ul class="selectionlist" data-placeholder="target-type">
+				{#targetTypes}
+				<li>{Key} <input type="checkbox" class="sf-toggle on-off" data-target-type="{Key}"></li>
+				{/targetTypes}
+			</ul>
 		</div>
 	</div>
 </div>

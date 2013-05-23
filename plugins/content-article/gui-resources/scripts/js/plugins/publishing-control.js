@@ -1,45 +1,53 @@
 define([
     'jquery',
-    'backbone',
     'gizmo/superdesk',
     config.guiJs('superdesk/article', 'tabs/publishing-control'),
-    'tmpl!superdesk/article>plugins/publishing-control',
-    'tmpl!superdesk/article>plugins/publishing-control/item'
+    config.guiJs('superdesk/article', 'models/target-type'),
+    config.guiJs('superdesk/article', 'models/target-types'),
+    'tmpl!superdesk/article>plugins/publishing-control'
 ], 
-function($, Backbone, giz, publishingControlTab) {
-    var TargetType = Backbone.Model.extend({
-
-    });
-
-    var TargetTypeCollection = Backbone.Collection.extend({
-    	model: TargetType
-    });
-
-    var PublishingControlTabBoxPlugin = Backbone.View.extend({
+function($, giz, publishingControlTab, TargetType, TargetTypeCollection) {
+    
+	var PublishingControlTabBoxPlugin = giz.View.extend({
     	_parent: null,
     	_article: null,
     	_activatedOnce: false,
-    	events: {},
-    	initialize: function() {
+    	_targetTypeCollection: false,
+    	events: {
+    		'.sf-toggle-custom': {'click': 'toggleItem'}
+    	},
+    	init: function() {
     		var self = this;
-    		this.$el.appendTo($('section', publishingControlTab.content.$el));
+    		this.el.appendTo($('section', publishingControlTab.content.el));
     		$(publishingControlTab.content).on('active', function() {
     			self.activate();
     		});
-    		this.render();
+    		this._targetTypeCollection = new TargetTypeCollection;
+    		this._targetTypeCollection.xfilter('*').sync().done(function(){
+    			self.render();
+    		});
     	},
     	render: function() {
-    		this.$el.tmpl('superdesk/article>plugins/publishing-control');
+    		$(this.el).tmpl('superdesk/article>plugins/publishing-control', {
+    			targetTypes: this._targetTypeCollection.feed()
+    		});
     	},
     	setParent: function(editView) {
             this._parent = editView;
         },
         setArticle: function(article) {
+            var self = this;
             this._article = article;
+            this._article.get('TargetType').xfilter('*').sync().done(function(){
+				self._article.get('TargetType').each(function(){
+	            	$('[data-target-type="' + decodeURIComponent(this.get('Key')) + '"]').prop('checked', true);
+	            });
+			});
         },
         activate: function() {
+        	var self = this;
         	if (this._activatedOnce === false) {
-        		//
+        		// design specific code
         		$('.sf-toggle').each(function(i,val){
 			      	var additional_class="";
 			      	if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
@@ -48,23 +56,35 @@ function($, Backbone, giz, publishingControlTab) {
 			        $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
 			        $(val).hide();
 			    });
-			    $('.sf-toggle-custom').click(function(e){
-			        e.preventDefault();
-			        if (!$(this).hasClass("sf-disable")) {
-						$(this).toggleClass('sf-checked');
-				        var own_box = $(this).find(".sf-toggle").first();
-				        if (own_box.prop('checked')==true) {
-				        	own_box.prop('checked',false);
-				        } else {
-				        	own_box.prop('checked',true);
-				        }
-			        }
-			    });
 			    //
 			    this._activatedOnce = true;
+        	}
+        },
+        toggleItem: function(e) {
+        	e.preventDefault();
+        	var item = e.currentTarget;
+	        
+	        // design specific code
+	        if (!$(item).hasClass("sf-disable")) {
+				$(item).toggleClass('sf-checked');
+		        var own_box = $(item).find(".sf-toggle").first();
+		        if (own_box.prop('checked')==true) {
+		        	own_box.prop('checked',false);
+		        } else {
+		        	own_box.prop('checked',true);
+		        }
+	        }
+	    	//
+	    	this.updateArticle(own_box.data('target-type'), own_box.prop('checked'));
+        },
+        updateArticle: function(key, value) {
+        	if (value === true) {
+        		this._article.get('TargetType').update(key);
+        	} else {
+        		this._article.get('TargetType').delete(key);
         	}
         }
     });
     
-    return new PublishingControlTabBoxPlugin(new TargetTypeCollection);
+    return new PublishingControlTabBoxPlugin;
 });
