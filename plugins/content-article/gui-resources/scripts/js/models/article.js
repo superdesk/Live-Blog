@@ -1,7 +1,11 @@
-define(['gizmo/superdesk'], function(giz)
+define(['gizmo/superdesk', 
+		config.guiJs('superdesk/article', 'models/target-types')], function(giz, TargetTypeCollection)
 { 
     return giz.Model.extend({
     	url: new giz.Url('Content/Article'),
+    	defaults: {
+    		TargetType: TargetTypeCollection
+    	},
     	publishSync: function()
 		{
 			var publishHref = this.href+'/Publish';
