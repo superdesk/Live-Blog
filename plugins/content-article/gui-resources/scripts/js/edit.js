@@ -83,7 +83,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
                     load: "superdesk/fix, common/ui, common/format, superdesk/image, superdesk/link, impl/image, common/list", // common/link, common/paste, common/block, common/list, common/table",
                     format: 
                     { 
-                        config: [  'b', 'i', 'u', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
+                        config: [  'b', 'i', 'u', 'del', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]
                     },
                     block:
                     {
