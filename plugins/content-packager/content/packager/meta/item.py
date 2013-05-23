@@ -31,6 +31,7 @@ class ItemMapped(Base, Item):
     Version = Column('version', Integer(unsigned=True))
     ItemClass = Column('item_class', String(255))
     HeadLine = Column('head_line', String(1000))
+    SlugLine = Column('slug_line', String(1000))
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(PersonMapped.Id, ondelete='RESTRICT'), nullable=False)
     FirstCreated = Column('first_created', DateTime)
