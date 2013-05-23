@@ -248,8 +248,8 @@ def getBlogsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'Andrew': 'Election Night 2013',
-                      'Christine': 'Election Night 2013',
+                      'reporter': 'Election Night 2013',
+                      'journalist': 'Election Night 2013',
                      }
 
 @ioc.after(createBlogTypePosts)
@@ -266,7 +266,7 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'Janet': 'Election Night 2013',
+               'admin': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)

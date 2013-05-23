@@ -579,28 +579,9 @@ $.extend(providers.twitter, {
                 }
             })
         },
-        makeClickableLinks: function(results) {
-            var self = this;
-            for ( var i = 0; i < results.length; i++) {
-                results[i].text = self.replaceURLWithHTMLLinks(results[i].text);
-                /*
-                var urls = results[i].entities.urls;
-                for ( var j = 0; j < urls.length; j ++ ) {
-                    var url = urls[j];
-                    results[i].text = results[i].text.replace(url.url, "<a href='" + url.expanded_url + "' target='_blank'>" + url.display_url + "</a>");
-                }
-                */
-
-            }
-            return results;
-        },
-        doWeb : function(qstring) {
-            
-            var skip = false;
-            if ( typeof qstring == 'undefined' ) {
-                skip = true;
-            }
-            
+        doWeb : function(qstring, refresh) {
+            var skip = qstring || false;
+                refresh = refresh || false;
             var self = this;
             var twtVal = $('#twitter-search-web').val();
             if ( twtVal.length < 1  ) {
@@ -635,13 +616,17 @@ $.extend(providers.twitter, {
                     
                     self.data.web = self.data.web.concat(data.results);
                     self.stopLoading('#twt-web-more');
-                    var res = {
-                        results : self.makeClickableLinks(data.results),
-                        page : parseInt(data.page - 1),
-                        ipp : parseInt(data.results_per_page)
-                    };
-                    
-                    if (res.page == 0 && data.results.length > 0) {
+                    var 
+                        posts = [],
+                        page = parseInt(data.page - 1),
+                        ipp = parseInt(data.results_per_page);
+                    for( var item, i = 0, count = data.results.length; i < count; i++ ){
+                        item = data.results[i];
+                        item.type = 'natural'
+                        item.created_at_formated = item.created_at;
+                        posts.push({ Meta: item });
+                    }
+                    if (page == 0 && posts.length > 0) {
                             self.lastWeb = data.results[0];
                             self.iidWeb = setInterval(function(){
                               self.autoRefreshWeb(url);  
