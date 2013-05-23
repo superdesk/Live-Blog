@@ -15,7 +15,6 @@ from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
 from ally.container import ioc, app
 from ally.container.support import entityFor
-from ally.support.util_io import openURI
 from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
@@ -23,7 +22,6 @@ from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
 from livedesk.api.blog_type_post import IBlogTypePostService, \
     BlogTypePostPersist
-from os.path import abspath, dirname, join
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
@@ -192,8 +190,8 @@ def createPostTypes():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'Janet', 'Janet', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'Janet', 'Janet', 'Conclusion', 'To summarize, this is the conclusion...',)
+                   ('default', 'normal', 'admin', 'admin', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'admin', 'admin', 'Conclusion', 'To summarize, this is the conclusion...',)
                    ]
 
 @ioc.after(populateDefaultUsers, createPostTypes)
