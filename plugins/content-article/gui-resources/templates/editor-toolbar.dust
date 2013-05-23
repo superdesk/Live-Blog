@@ -26,6 +26,13 @@
 				class="btn  action emphasis" rel="tooltip" title="_('Italics')"><i class="editoricon-italic"></i></button>
 			<button data-editor-ui-component="underline"
 				class="btn  action underline" rel="tooltip" title="_('Underline')"><i class="editoricon-underline"></i></button>
+			<button data-editor-ui-component="strikethrough"
+				class="btn  action underline" rel="tooltip" title="_('Strikethrough')"><i class="editoricon-strikethrough"></i></button>
+			<button data-editor-ui-component="subscript"
+				class="btn  action underline" rel="tooltip" title="_('Subscript')"><i class="editoricon-subscript"></i></button>
+			<button data-editor-ui-component="superscript"
+				class="btn  action underline" rel="tooltip" title="_('Superscript')"><i class="editoricon-superscript"></i></button>
+				
   		</div>
   		<div class="btn-group">
     		
