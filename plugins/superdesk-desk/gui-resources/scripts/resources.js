@@ -114,6 +114,10 @@ define([
     }]);
 
     resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
+        var Task = $resource('/resources/Desk/Task/:taskId', {taskId: '@Id'}, {
+            update: {method: 'PUT'}
+        });
+
         this.loadSubtasks = function(task) {
             var tasks = $resource('/resources/Desk/Task/:taskId/Task', {taskId: task.Id}, {
                 query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
@@ -126,6 +130,10 @@ define([
 
             return delay.promise;
         };
+
+        this.saveTaskStatus = function(task) {
+            Task.update({Id: task.Id, Status: task.Status.Key});
+        }
     }]);
 
     resources.service('DeskService', ['$resource', '$q', function($resource, $q) {

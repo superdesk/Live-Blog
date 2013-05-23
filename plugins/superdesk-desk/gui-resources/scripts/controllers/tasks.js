@@ -41,22 +41,6 @@ function(angular) {
             $scope.parentTask = parentTask;
         };
 
-        $scope.deleteTask = function() {
-            if ('Id' in $scope.task) {
-                Task.remove({Id: $scope.task.Id});
-                var index = $scope.tasks.indexOf($scope.orig);
-                $scope.tasks.splice(index, 1);
-            }
-        };
-
-        $scope.isUserTask = function(task, user) {
-            return task.User && task.User.Id == localStorage.getItem('superdesk.login.id'); // TODO create user service
-        };
-
-        $scope.isMyTask = function(task) {
-            return !$scope.my || $scope.isUserTask(task);
-        };
-
         $scope.getEditData = function() {
             var data = $scope.task;
 
