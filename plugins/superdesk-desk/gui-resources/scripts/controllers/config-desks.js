@@ -67,7 +67,7 @@ function(angular) {
         $scope.addCard = function(desk, cards) {
             $scope.desk = desk;
             $scope.cards = cards;
-            $scope.card = {Index: cards.length};
+            $scope.card = {};
         };
 
         $scope.saveCard = function(desk, card) {

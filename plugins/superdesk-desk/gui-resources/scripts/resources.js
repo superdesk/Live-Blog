@@ -143,7 +143,7 @@ define([
         });
 
         var DeskCard = $resource('/resources/Desk/Desk/:deskId/Card/:cardId', {deskId: '@deskId', cardId: '@Id'}, {
-            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}},
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*', 'asc': 'order'}},
             save: {method: 'POST', params: {'X-Filter': '*'}}
         });
 
@@ -215,6 +215,10 @@ define([
             query: {method: 'GET', isArray: false, params: {'X-Filter': 'Key'}}
         });
 
+        var CardPosition = $resource('/resources/Desk/Card/:card/Jump?jump=:jump', {card: '@Card', jump: '@jump'}, {
+            update: {method: 'PUT'}
+        });
+
         this.getStatuses = function(card) {
             var delay = $q.defer();
             CardStatus.query({cardId: card.Id}, function(response) {
@@ -239,6 +243,10 @@ define([
         this.removeStatus = function(card, stat) {
             var res = new CardStatus({Card: card.Id, TaskStatus: stat.Key});
             res.$delete();
+        };
+
+        this.moveCard = function(card, diff) {
+            CardPosition.update({Card: card.Id, jump: diff});
         };
     }]);
 

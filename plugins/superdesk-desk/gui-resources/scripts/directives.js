@@ -56,22 +56,23 @@ function(angular, $) {
         };
     });
 
-    module.directive('sdSortable', function() {
+    module.directive('sdSortable', function(CardService) {
         return {
             restrict: 'A',
             require: 'ngModel',
-            link: function(scope, element, attrs) {
-                var ngModel = element.controller('ngModel');
-                var startIndex = NaN;
+            link: function(scope, element, attrs, ngModel) {
+                var startIndex = null;
                 $(element[0]).sortable({
                     delay: 150,
                     start: function(e, ui) {
                         startIndex = $(ui.item).index();
                     },
                     stop: function(e, ui) {
-                        var stopIndex = $(ui.item).index();
-                        var list = ngModel.$modelValue;
-                        console.log(list[startIndex], list[stopIndex]);
+                        var diff = $(ui.item).index() - startIndex;
+                        var model = ngModel.$viewValue[startIndex];
+                        scope.$apply(function() {
+                            CardService.moveCard(model, diff);
+                        });
                     }
                 });
             }
