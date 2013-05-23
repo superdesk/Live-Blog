@@ -17,13 +17,15 @@ from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from ally.api.extension import IterPart
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.sql.expression import not_, func
+from sqlalchemy.sql.operators import desc_op
 from superdesk.desk.meta.card import CardTaskStatusMapped
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
 from superdesk.desk.meta.desk import DeskTaskTypeMapped
 from superdesk.desk.api.card import QCard
 from sqlalchemy.orm.exc import NoResultFound
-from ally.exception import InputError
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
@@ -133,14 +135,38 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         @see ICardService.moveUp
         '''
-        pass
+        cardDb = self.session().query(CardMapped).get(cardId)
+
+        sql = self.session().query(CardMapped)
+        sql = sql.filter(CardMapped.Desk == cardDb.Desk)
+        sql = sql.filter(CardMapped.OrderIndex < cardDb.OrderIndex)
+        sql = sql.order_by(desc_op(CardMapped.OrderIndex))
+        try:
+            upperDb = sql.one()
+        except:
+            raise InputError(Ref(_('Can not move the card up'),))
+
+        cardDb.OrderIndex, upperDb.OrderIndex = upperDb.OrderIndex, cardDb.OrderIndex
+        self.session().flush((cardDb, upperDb))
         
     def moveDown(self, cardId):
         '''
         @see ICardService.moveDown
         '''
-        pass
-    
+        cardDb = self.session().query(CardMapped).get(cardId)
+
+        sql = self.session().query(CardMapped)
+        sql = sql.filter(CardMapped.Desk == cardDb.Desk)
+        sql = sql.filter(CardMapped.OrderIndex > cardDb.OrderIndex)
+        sql = sql.order_by(CardMapped.OrderIndex)
+        try:
+            lowerDb = sql.one()
+        except:
+            raise InputError(Ref(_('Can not move the card down'),))
+
+        cardDb.OrderIndex, lowerDb.OrderIndex = lowerDb.OrderIndex, cardDb.OrderIndex
+        self.session().flush((cardDb, lowerDb))
+
     def _statusId(self, key):
         '''
         Provides the task status id that has the provided key.
