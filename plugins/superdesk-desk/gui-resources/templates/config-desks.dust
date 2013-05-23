@@ -58,7 +58,7 @@
 					</div>
 					<div class="desk-config-tab-content" ng-show="cards">
 						<ul class="board-table plain-table" sd-sortable ng-model="desk.cards">
-		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-id="{{ card.Id }}" ng-controller="CardController">
+		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-index="{{ $index }}" ng-controller="CardController">
 		                     <span class="board-name">{{ card.Name }}</span>
 
                              <div class="dropdown dropdown-simple board-status">

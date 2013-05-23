@@ -69,7 +69,7 @@ function(angular, $) {
                     },
                     stop: function(e, ui) {
                         var diff = $(ui.item).index() - startIndex;
-                        var model = ngModel.$viewValue[startIndex];
+                        var model = ngModel.$viewValue[$(ui.item).attr('data-index')];
                         scope.$apply(function() {
                             CardService.moveCard(model, diff);
                         });
