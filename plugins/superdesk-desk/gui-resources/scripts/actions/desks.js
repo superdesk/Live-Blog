@@ -13,7 +13,7 @@ define([
     'desk/controllers/task',
     'desk/resources',
     'desk/directives',
-    'tmpl!superdesk-desk>desk/single',
+    'tmpl!superdesk-desk>single-desk',
     'tmpl!superdesk-desk>master-desk'
 ],
 function($, Backbone, router,
@@ -68,7 +68,7 @@ function($, Backbone, router,
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
         angular.module('resources').value('deskId', deskId);
-        $('#area-main').tmpl('superdesk-desk>desk/single');
+        $('#area-main').tmpl('superdesk-desk>single-desk');
         $('#area-main').attr('ng-controller', 'TasksController');
         angular.bootstrap(document, ['desks']);
     });

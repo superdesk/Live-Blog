@@ -1,3 +1,0 @@
-<input type="checkbox" id="_user_{id}" class="select-colaborator" name="users[]" value="{id}" group="members" {?selected}checked{/selected}>
-<figure><img src="../assets/images/avatar_default_collaborator.png" width="32" height="32" /></figure>
-<label for="_user_{id}"><span class="add-collaborator-name">{name}</span><span>{email}</span></label>
