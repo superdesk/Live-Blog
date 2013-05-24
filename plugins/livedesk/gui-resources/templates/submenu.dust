@@ -8,8 +8,8 @@
 {/Blogs}
 <li class="divider"></li>
 <li>
-	<a id="submenu-liveblogs-create"><i class="icon-plus-sign icon-white" href="#"></i> _('Create live blog')</a>
+	<a id="submenu-liveblogs-create"><i class="icon-plus-sign icon-white" href="#"></i> _('Create live blog');</a>
 </li>
 <li>
-	<a href="#live-blog-archive">_('Archive')</a>
+	<a href="#live-blog-archive">_('Archive');</a>
 </li>
