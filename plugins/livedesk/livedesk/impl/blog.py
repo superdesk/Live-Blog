@@ -48,7 +48,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         Construct the blog service.
         '''
-        EntityCRUDServiceAlchemy.__init__(self, BlogMapped)
+        EntityCRUDServiceAlchemy.__init__(self, BlogMapped, QBlog)
 
     def getBlog(self, blogId):
         '''
