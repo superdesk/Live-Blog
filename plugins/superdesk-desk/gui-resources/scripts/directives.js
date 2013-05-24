@@ -3,7 +3,8 @@ define([
     'jquery',
     'jqueryui/datepicker',
     'jqueryui/sortable',
-    'jqueryui/droppable'
+    'jqueryui/droppable',
+    'jqueryui/draggable'
 ],
 function(angular, $) {
     'use strict';
@@ -85,13 +86,12 @@ function(angular, $) {
             require: 'ngModel',
             link: function(scope, element, attrs, ngModel) {
                 var $el = $(element[0]);
-                $el.css('position', 'relative');
                 $el.draggable({
                     appendTo: 'body',
                     revert: 'invalid',
                     cursor : 'move',
-                    zIndex: 1000,
                     helper: 'clone',
+                    zIndex: 1000,
                     start: function(e, ui) {
                         $rootScope.draggable = ngModel;
                         $(ui.helper).width($el.width());
