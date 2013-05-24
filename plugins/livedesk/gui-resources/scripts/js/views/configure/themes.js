@@ -23,7 +23,9 @@
         change: function(evt) {
         	var self = this,
         		el = self.el.find('[name="Theme"]'),
-        		theme, 
+        		theme,
+                themePath,
+                themePathArray, 
                 data,
                 blogUrl,
                 idLanguage = $('[name="Language"]').val(),
@@ -48,9 +50,13 @@
             } else {
                 blogUrl = $('[name="FrontendServer"]').val() + blogUrl;
             }
+            themePath = theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val());
+            themePathArray = themePath.split('/');
+            themePathArray.pop()
+            themePath = themePathArray.join('/');
             data = {
                 'Theme': el.val(),
-                'ThemePath': theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val()).replace(el.val(),''),
+                'ThemePath': themePath,
                 'TheBlog': blogUrl,
                 'GuiLivedeskEmbed': $('[name="FrontendServer"]').val() + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
