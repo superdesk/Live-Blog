@@ -9,21 +9,23 @@ Created on May 18, 2013
 Contains the SQL alchemy implementation for card API.
 '''
 
-from ..api.card import ICardService
+from ..api.card import ICardService, Card
 from ..meta.card import CardMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from ally.api.extension import IterPart
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from sqlalchemy.sql.expression import not_, func
+from sqlalchemy.sql.expression import not_, func, exists, and_
+from sqlalchemy.sql.operators import desc_op
 from superdesk.desk.meta.card import CardTaskStatusMapped
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.task_type import TaskTypeTaskStatusMapped
 from superdesk.desk.meta.desk import DeskTaskTypeMapped
 from superdesk.desk.api.card import QCard
 from sqlalchemy.orm.exc import NoResultFound
-from ally.exception import InputError
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
@@ -39,18 +41,20 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         Construct the  service.
         '''
         EntityServiceAlchemy.__init__(self, CardMapped, QCard)
-        
-    def insert(self, card): 
-        if not card.OrderIndex:
-            card.OrderIndex = self.session().query(func.max(CardMapped.OrderIndex)).one()[0]
-        
-        if not card.OrderIndex:
-            card.OrderIndex = 0
-            
-        card.OrderIndex =  card.OrderIndex + 1   
-            
+
+    def insert(self, card):
+        '''
+        @see: ICardService.insert
+        '''
+        card.Order = self.session().query(func.max(CardMapped.Order)).one()[0]
+
+        if not card.Order:
+            card.Order = 0
+
+        card.Order =  card.Order + 1   
+
         return EntityServiceAlchemy.insert(self, card)        
-     
+
     def getByDesk(self, deskId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ICardService.getAll
@@ -133,14 +137,51 @@ class CardServiceAlchemy(EntityServiceAlchemy, ICardService):
         '''
         @see ICardService.moveUp
         '''
-        pass
+        cardDb = self.session().query(CardMapped).get(cardId)
+
+        sql = self.session().query(CardMapped)
+        sql = sql.filter(CardMapped.Desk == cardDb.Desk)
+        sql = sql.filter(CardMapped.Order < cardDb.Order)
+        sql = sql.order_by(desc_op(CardMapped.Order))
+        try:
+            upperDb = sql.limit(1).one()
+        except:
+            raise InputError(Ref(_('Can not move the card up'),))
+
+        cardDb.Order, upperDb.Order = upperDb.Order, cardDb.Order
+        self.session().flush((cardDb, upperDb))
         
     def moveDown(self, cardId):
         '''
         @see ICardService.moveDown
         '''
-        pass
-    
+        cardDb = self.session().query(CardMapped).get(cardId)
+
+        sql = self.session().query(CardMapped)
+        sql = sql.filter(CardMapped.Desk == cardDb.Desk)
+        sql = sql.filter(CardMapped.Order > cardDb.Order)
+        sql = sql.order_by(CardMapped.Order)
+        try:
+            lowerDb = sql.limit(1).one()
+        except:
+            raise InputError(Ref(_('Can not move the card down'),))
+
+        cardDb.Order, lowerDb.Order = lowerDb.Order, cardDb.Order
+        self.session().flush((cardDb, lowerDb))
+
+    def makeJump(self, cardId, jump):
+        '''
+        @see ICardService.makeJump
+        '''
+        if not jump:
+            return
+        if jump > 0:
+            for i in range(jump):
+                self.moveDown(cardId)
+        else:
+            for i in range(-jump):
+                self.moveUp(cardId)
+
     def _statusId(self, key):
         '''
         Provides the task status id that has the provided key.

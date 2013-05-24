@@ -2,7 +2,9 @@ define([
     'angular',
     'jquery',
     'jqueryui/datepicker',
-    'jqueryui/sortable'
+    'jqueryui/sortable',
+    'jqueryui/droppable',
+    'jqueryui/draggable'
 ],
 function(angular, $) {
     'use strict';
@@ -55,22 +57,92 @@ function(angular, $) {
         };
     });
 
-    module.directive('sdSortable', function() {
+    module.directive('sdSortable', function(CardService) {
         return {
             restrict: 'A',
             require: 'ngModel',
-            link: function(scope, element, attrs) {
-                var ngModel = element.controller('ngModel');
-                var startIndex = NaN;
+            link: function(scope, element, attrs, ngModel) {
+                var startIndex = null;
                 $(element[0]).sortable({
                     delay: 150,
                     start: function(e, ui) {
                         startIndex = $(ui.item).index();
                     },
                     stop: function(e, ui) {
-                        var stopIndex = $(ui.item).index();
-                        var list = ngModel.$modelValue;
-                        console.log(list[startIndex], list[stopIndex]);
+                        var diff = $(ui.item).index() - startIndex;
+                        var model = ngModel.$viewValue[$(ui.item).attr('data-index')];
+                        scope.$apply(function() {
+                            CardService.moveCard(model, diff);
+                        });
+                    }
+                });
+            }
+        };
+    });
+
+    module.directive('sdDraggable', function($rootScope) {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                var $el = $(element[0]);
+                $el.draggable({
+                    appendTo: 'body',
+                    revert: 'invalid',
+                    cursor : 'move',
+                    helper: 'clone',
+                    zIndex: 1000,
+                    start: function(e, ui) {
+                        $rootScope.draggable = ngModel;
+                        $(ui.helper).width($el.width());
+                        $(ui.helper).height($el.height());
+                    },
+                    stop: function(e, ui) {
+                        $rootScope.draggable = null;
+                    }
+                });
+            }
+        };
+    });
+
+    module.directive('sdDroppable', function($rootScope, TaskService) {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                var $el = $(element[0]);
+                var statusBox = $el.closest('.board-statuses');
+                $el.droppable({
+                    hoverClass: 'drop-hover-status',
+                    drop: function(e, ui) {
+                        scope.$apply(function() {
+                            var task = $rootScope.draggable.$viewValue;
+                            task.Status.Key = ngModel.$viewValue.Key;
+                            TaskService.saveTaskStatus(task);
+                            $rootScope.draggable.$setViewValue(task);
+                        });
+                    },
+                    activate: function(e, ui) {
+                        statusBox.show();
+                    },
+                    deactivate: function(e, ui) {
+                        statusBox.hide();
+                    }
+                });
+            }
+        };
+    });
+
+    module.directive('sdDateTime', function($filter) {
+        return {
+            scope: {datetime: '=sdDateTime'},
+            link: function(scope, element, attrs) {
+                scope.$watch('datetime', function(datetime) {
+                    var date = new Date(datetime);
+                    if (date.valueOf()) {
+                        element.text($filter('date')(date, 'd.M.yy HH:mm'));
+                    } else {
+                        element.text(datetime);
                     }
                 });
             }

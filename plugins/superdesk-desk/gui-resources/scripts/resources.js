@@ -22,33 +22,12 @@ define([
     }]);
  
     resources.factory('Desk', ['$resource', '$q', function($resource, $q) {
-        var Desk = $resource('/resources/Desk/Desk/:Id', {Id: '@Id'}, {
+        return $resource('/resources/Desk/Desk/:Id', {Id: '@Id'}, {
             query: {method: 'GET', params: {'X-Filter': '*,UserUnassigned'}, isArray: false},
             save: {method: 'POST', params: {'X-Filter': 'Id'}},
             update: {method: 'PUT'}
         });
-
-        var Users = $resource('/resources/Desk/Desk/:deskId/User', {deskId: 'deskId'}, {
-            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
-        });
-
-        Desk.prototype = {
-            getUsers: function() {
-                var delay = $q.defer();
-                Users.query({deskId: this.Id}, function(response) {
-                    delay.resolve(response.UserList);
-                });
-
-                return delay.promise;
-            }
-        };
-
-        return Desk;
     }]);
-
-    resources.factory('TaskList', function($resource) {
-        return $resource('/resources/Desk/Desk/:deskId/Task/?X-Filter=*,User.*');
-    });
 
     resources.factory('Task', ['$resource', function($resource) {
         return $resource('/resources/Desk/Task/:Id', {Id: '@Id'},
@@ -95,25 +74,11 @@ define([
         };
     }]);
 
-    resources.factory('DeskTaskLoader', ['TaskList', 'deskId', '$q', function(TaskList, deskId, $q) {
-        return function() {
-            var delay = $q.defer();
-
-            TaskList.get({deskId: deskId}, function(response) {
-                delay.resolve(response.TaskList);
-            });
-
-            return delay.promise;
-        };
-    }]);
-
-    resources.factory('DeskUserLoader', ['$resource', '$q',  function($resource, $q) {
-        return function(desk) {
-            console.log(desk.User);
-        };
-    }]);
-
     resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
+        var Task = $resource('/resources/Desk/Task/:taskId', {taskId: '@Id'}, {
+            update: {method: 'PUT'}
+        });
+
         this.loadSubtasks = function(task) {
             var tasks = $resource('/resources/Desk/Task/:taskId/Task', {taskId: task.Id}, {
                 query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
@@ -126,6 +91,10 @@ define([
 
             return delay.promise;
         };
+
+        this.saveTaskStatus = function(task) {
+            Task.update({Id: task.Id, Status: task.Status.Key});
+        }
     }]);
 
     resources.service('DeskService', ['$resource', '$q', function($resource, $q) {
@@ -135,7 +104,7 @@ define([
         });
 
         var DeskCard = $resource('/resources/Desk/Desk/:deskId/Card/:cardId', {deskId: '@deskId', cardId: '@Id'}, {
-            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}},
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*', 'asc': 'order'}},
             save: {method: 'POST', params: {'X-Filter': '*'}}
         });
 
@@ -143,10 +112,17 @@ define([
             save: {method: 'POST', params: {'X-Filter': '*'}}
         });
 
+        var DeskTask = $resource('/resources/Desk/Desk/:deskId/Task', {deskId: '@deskId'}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*,User.*'}}
+        });
+
         this.getMembers = function(desk) {
             var delay = $q.defer();
-            DeskMember.query({deskId: desk.Id}, function(response) {
-                delay.resolve(response.UserList);
+
+            $q.when(desk).then(function(desk) {
+                DeskMember.query({deskId: desk.Id}, function(response) {
+                    delay.resolve(response.UserList);
+                });
             });
 
             return delay.promise;
@@ -175,8 +151,11 @@ define([
 
         this.getCards = function(desk) {
             var delay = $q.defer();
-            DeskCard.query({deskId: desk.Id}, function(response) {
-                delay.resolve(response.CardList);
+
+            $q.when(desk).then(function(desk) {
+                DeskCard.query({deskId: desk.Id}, function(response) {
+                    delay.resolve(response.CardList);
+                });
             });
 
             return delay.promise;
@@ -195,6 +174,18 @@ define([
         this.deleteCard = function(card) {
             Card.delete({Id: card.Id});
         };
+
+        this.getTasks = function(desk) {
+            var delay = $q.defer();
+
+            $q.when(desk).then(function(desk) {
+                DeskTask.query({deskId: desk.Id}, function(response) {
+                    delay.resolve(response.TaskList);
+                });
+            });
+
+            return delay.promise;
+        };
     }]);
 
     resources.service('CardService', ['$resource', '$q', function($resource, $q) {
@@ -205,6 +196,10 @@ define([
 
         var AvailableStatus = $resource('/resources/Desk/Card/:cardId/TaskStatus/Unassigned', {cardId: '@cardId'}, {
             query: {method: 'GET', isArray: false, params: {'X-Filter': 'Key'}}
+        });
+
+        var CardPosition = $resource('/resources/Desk/Card/:card/Jump?jump=:jump', {card: '@Card', jump: '@jump'}, {
+            update: {method: 'PUT'}
         });
 
         this.getStatuses = function(card) {
@@ -231,6 +226,10 @@ define([
         this.removeStatus = function(card, stat) {
             var res = new CardStatus({Card: card.Id, TaskStatus: stat.Key});
             res.$delete();
+        };
+
+        this.moveCard = function(card, diff) {
+            CardPosition.update({Card: card.Id, jump: diff});
         };
     }]);
 
