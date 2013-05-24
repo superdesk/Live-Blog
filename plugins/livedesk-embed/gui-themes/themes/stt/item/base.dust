@@ -7,7 +7,7 @@ _('Share');
 	{+head}
 	<div class="result-header">
 		<div class="post_info">
-			<time data-date={CreatedOnISO}>{CreatedOn}</time>
+			<time data-date={PublishedOnISO}>{PublishedOn}</time>
 				{?AuthorImage}
 				<figure style="background:none">
 					<img src="{AuthorImage.href}" height="48" style="max-width:150px">
