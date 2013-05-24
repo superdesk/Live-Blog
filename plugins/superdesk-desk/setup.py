@@ -21,6 +21,9 @@ setup(
                       'internationalization >= 1.0', 'superdesk_user >= 1.0'],
     platforms=['all'],
     zip_safe=True,
+    package_data={
+        '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
+    },
 
     # metadata for upload to PyPI
     author="Martin Saturka",
