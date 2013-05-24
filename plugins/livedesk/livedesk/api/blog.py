@@ -10,7 +10,7 @@ API specifications for livedesk blog.
 '''
 
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.support.api.entity import Entity, IEntityCRUDService
+from ally.support.api.entity import Entity, IEntityCRUDService, QEntity
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
@@ -44,7 +44,7 @@ class Blog(Entity):
 # --------------------------------------------------------------------
 
 @query(Blog)
-class QBlog(Entity):
+class QBlog(QEntity):
     '''
     Provides the query for active blog model.
     '''
@@ -56,7 +56,7 @@ class QBlog(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Blog))
+@service((Entity, Blog), (QEntity, QBlog))
 class IBlogService(IEntityCRUDService):
     '''
     Provides the service methods for the blogs.
