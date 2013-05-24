@@ -41,6 +41,8 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     Type of the sources for the SMS inlet feeds''')
     sms_post_type_key = 'normal'; wire.config('sms_post_type_key', doc='''
     Type of the posts created on the SMS that come via inlet feeds''')
+    sms_user_last_name = 'SMS'; wire.config('sms_user_last_name', doc='''
+    The name that is used as LastName for anonymous users of SMS posts''')
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')
@@ -72,6 +74,8 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
         except:
             user = User()
             user.PhoneNumber = phoneNumber
+            user.FirstName = typeKey
+            user.LastName = self.sms_user_last_name
             user.Name = self._freeSMSUserName()
             user.Password = binascii.b2a_hex(os.urandom(32)).decode()
             userId = self.userService.insert(user)
