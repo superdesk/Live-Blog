@@ -277,11 +277,21 @@ $.extend(providers.twitter, {
                                 }, function(e,o) {
                                     el = $('#twt-timeline-results').append(o).find('.twitter');
                                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                        // var itemWidth = el.width(),
+                                        //     itemHeight = el.height();
+                                        // itemWidth = itemWidth > 500? 500 : itemWidth;
+                                        // var containment = [
+                                        //     75, 
+                                        //     200, 
+                                        //     $(window).width()-itemWidth-30, 
+                                        //     $(window).height() - itemHeight-30
+                                        // ];
                                         el.draggable({
                                             addClasses: false,
                                             revert: 'invalid',
                                             helper: 'clone',
                                             appendTo: 'body',
+                                            //containment: containment,
                                             zIndex: 2700,
                                             clone: true,
                                             start: function(evt, ui) {
