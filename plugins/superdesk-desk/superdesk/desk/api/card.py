@@ -26,7 +26,7 @@ class Card(Entity):
     Provides the card model.
     '''
     Desk = Desk
-    OrderIndex = int
+    Order = int
     Name = str
     Description = str
     UpperLimit = int
@@ -39,7 +39,7 @@ class QCard(QEntity):
     '''
     Provides the query for desk model.
     '''
-    orderIndex = AsEqualOrdered
+    order = AsEqualOrdered
     name = AsLikeOrdered
     description = AsLikeOrdered
     color = AsLikeOrdered
@@ -87,6 +87,12 @@ class ICardService(IEntityService):
         '''
         Overwrite default insert in order to set a value for order
         '''
+
+    @call
+    def update(self, card:Card): 
+        '''
+        Overwrite default update in order to not set a value for order directly
+        '''
         
     @call(method=UPDATE, webName="Up")
     def moveUp(self, cardId:Card.Id):
@@ -99,3 +105,10 @@ class ICardService(IEntityService):
         '''
         Move the card down in the list of desks cards.
         '''       
+
+    @call(method=UPDATE, webName="Jump")
+    def makeJump(self, cardId:Card.Id, jump:int):
+        '''
+        Move the card to the specified position in the list of desks cards.
+        Negative jump goes Up, positive jump goes Down.
+        '''

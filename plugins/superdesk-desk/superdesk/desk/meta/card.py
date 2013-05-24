@@ -15,13 +15,14 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, Text
 from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.mapper import validate
+from ally.container.binder_op import validateManaged
 from superdesk.desk.meta.task_status import TaskStatusMapped
 from superdesk.desk.meta.desk import DeskMapped
 from superdesk.desk.api.card import Card
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=('Order',))
 class CardMapped(Base, Card):
     '''
     Provides the mapping for Card.
@@ -31,11 +32,13 @@ class CardMapped(Base, Card):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Desk = Column('fk_desk_id', ForeignKey(DeskMapped.Id, ondelete='CASCADE'), nullable=False)
-    OrderIndex = Column('order_index', INTEGER(unsigned=True), nullable=True)
+    Order = Column('order', INTEGER(unsigned=True), nullable=True)
     Name = Column('name', String(255), unique=True, nullable=False)
     Description = Column('description', Text, nullable=True)
     UpperLimit = Column('upper_limit', INTEGER(unsigned=True), nullable=True)
     Color = Column('color', String(255), nullable=False)
+
+validateManaged(CardMapped.Order)
 
 # --------------------------------------------------------------------
 
