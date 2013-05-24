@@ -20,6 +20,9 @@ setup(
     install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'ally_core_plugin >= 1.0'],
     platforms=['all'],
     zip_safe=True,
+    package_data={
+        '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
+    },
 
     # metadata for upload to PyPI
     author="Gabriel Nistor",
