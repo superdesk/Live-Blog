@@ -77,6 +77,7 @@ def createSourceTypes():
 SOURCES = {
            'internal': (False, '', '', ''),
            'advertisement': (False, '', '', ''),
+           'sms': (False, '', '', ''),
            'google': (False, 'www.google.com', 'xml', ''),
            'facebook': (False, 'www.facebook.com', 'xml', ''),
            'twitter': (False, 'www.twitter.com', 'xml', ''),
@@ -129,6 +130,7 @@ def getUsersIds():
 
 COLLABORATORS = {
                  'advertisement': 'advertisement',
+                 'sms': 'sms',
                  'internal': 'internal',
                  'google': 'google',
                  'facebook': 'facebook',
