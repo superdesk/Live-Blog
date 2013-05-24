@@ -316,7 +316,8 @@
         	<div class="parent-task-info" ng-show="parentTask.Title">
         		_('Parent task:'); <a href=""><span data-task-info="parent">{{ parentTask.Title }}</span></a>
         	</div>
-        	<ul class="assign-labels clearfix">
+        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" ></textarea>
+        	<ul class="assign-labels clearfix" style="margin-top:5px">
 				<li class="critical" ng-show="task.DueDate">
 					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date" sd-date-time="task.DueDate"></span>
 				</li>
@@ -326,7 +327,6 @@
 			</ul>
         </div>
         <div class="taskmodal-content">
-        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" rows="5" cols="60"></textarea>
         	<section class="modal-mainpane-module" ng-show="task.Id">
         		<header>_('Subtasks');</header>
         		<ul class="subtask-list-view clearfix">
