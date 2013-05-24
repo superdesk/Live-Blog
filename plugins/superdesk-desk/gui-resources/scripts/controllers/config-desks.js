@@ -23,8 +23,13 @@ function(angular) {
         };
 
         $scope.saveDesk = function() {
-            angular.forEach($scope.statuses, function(stat) {
+            angular.forEach($scope.statuses, function(stat, index) {
                 if ('href' in stat) {
+                    return;
+                }
+
+                if (!stat.Key) {
+                    $scope.statuses.splice(index, 1);
                     return;
                 }
 

@@ -202,8 +202,8 @@
 							Statuses
 							<a class="btn btn-mini" href="" ng-click="addTaskStatus(desk)"><i class="icon-plus-sign"></i> New task status</a>
 						</header>
-						<ul>
-				    		<li ng-repeat="status in statuses"><input type="text" ng-model="status.Key" /></li>
+						<ul class="checklist-selection tasktypes">
+				    		<li ng-repeat="status in statuses"><input type="text" ng-model="status.Key" /><br /></li>
 						</ul> 
 					</section>
 					
