@@ -33,6 +33,7 @@ class PersonMapped(Base, Person):
     LastName = Column('last_name', String(255))
     Address = Column('address', String(255))
     EMail = Column('email', String(255))
+    PhoneNumber = Column('phone_number', String(255), nullable=True, unique=True)
     @hybrid_property
     def FullName(self):
         if self.FirstName is None: return self.LastName

@@ -26,7 +26,7 @@ from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
-ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail)
+ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail, UserMapped.PhoneNumber)
 
 @injected
 @setup(IUserService, name='userService')

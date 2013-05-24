@@ -13,6 +13,7 @@ define([
 	'tmpl!livedesk>items/sources/youtube',
 	'tmpl!livedesk>items/sources/instagram',
 	'tmpl!livedesk>items/sources/facebook',
+	'tmpl!livedesk>items/sources/sms',
 	'tmpl!livedesk>items/types/base',
 	'tmpl!livedesk>items/types/link',
 	'tmpl!livedesk>items/types/normal',

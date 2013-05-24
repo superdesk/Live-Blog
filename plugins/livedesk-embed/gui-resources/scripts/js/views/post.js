@@ -21,7 +21,8 @@ define([
 	'tmpl!theme/item/source/youtube',
 	'tmpl!theme/item/source/flickr',
 	'tmpl!theme/item/source/soundcloud',
-	'tmpl!theme/item/source/instagram'
+	'tmpl!theme/item/source/instagram',
+	'tmpl!theme/item/source/sms'
 ], function( $, Gizmo ) {
 	return Gizmo.View.extend ({
 		init: function()
