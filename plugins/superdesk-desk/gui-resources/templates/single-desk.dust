@@ -275,6 +275,8 @@
 		                    </div>
 	                    </div>
                     </div>
+                    <div ng-show="!cards.length"><h3>_("This desk has no cards yet.");</h3></div>
+
 				</div>
 			</div>
 		</div>
