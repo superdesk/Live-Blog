@@ -19,6 +19,7 @@ from ally.internationalization import _
 from ally.api.extension import IterPart
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from ally.support.api.util_service import copy
+from ally.support.util_sys import callerGlobals
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -28,7 +29,10 @@ def createConfigurationImpl(service, mapped):
     '''
     Generator of particular configuration implementations
     '''
-    return type('%sAlchemy' % service.__name__[1:], (ConfigurationServiceAlchemy, service), {'ConfigurationMapped': mapped})
+    namespace = {'ConfigurationMapped': mapped, '__module__': callerGlobals()['__name__']}
+    return type('%sAlchemy' % service.__name__[1:], (ConfigurationServiceAlchemy, service), namespace)
+
+# --------------------------------------------------------------------
 
 @injected
 @setup(IConfigurationService, name='configurationService')
