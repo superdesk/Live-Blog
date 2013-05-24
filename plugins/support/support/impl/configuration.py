@@ -29,6 +29,10 @@ def createConfigurationImpl(service, mapped):
     '''
     Generator of particular configuration implementations
     '''
+    assert issubclass(service, IConfigurationService), 'Invalid service. It should extend the IConfigurationService'
+    assert issubclass(mapped, ConfigurationDescription), 'Invalid DB mapping. It should extend the ConfigurationDescription mapping'
+    assert issubclass(mapped, Configuration), 'Invalid DB mapping. It should extend the Configuration class'
+
     namespace = {'ConfigurationMapped': mapped, '__module__': callerGlobals()['__name__']}
     return type('%sAlchemy' % service.__name__[1:], (ConfigurationServiceAlchemy, service), namespace)
 
