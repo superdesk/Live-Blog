@@ -85,6 +85,7 @@ function(angular, $) {
             require: 'ngModel',
             link: function(scope, element, attrs, ngModel) {
                 var $el = $(element[0]);
+                $el.css('position', 'relative');
                 $el.draggable({
                     appendTo: 'body',
                     revert: 'invalid',
@@ -126,6 +127,22 @@ function(angular, $) {
                     },
                     deactivate: function(e, ui) {
                         statusBox.hide();
+                    }
+                });
+            }
+        };
+    });
+
+    module.directive('sdDateTime', function($filter) {
+        return {
+            scope: {datetime: '=sdDateTime'},
+            link: function(scope, element, attrs) {
+                scope.$watch('datetime', function(datetime) {
+                    var date = new Date(datetime);
+                    if (date.valueOf()) {
+                        element.text($filter('date')(date, 'd.M.yy HH:mm'));
+                    } else {
+                        element.text(datetime);
                     }
                 });
             }

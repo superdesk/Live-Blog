@@ -1,51 +1,47 @@
-<div class="subnav subnav-fixed">
-		<div class="btn-group pull-left" id="desk-select" ng-controller="DesksController">
-            <a href="" data-toggle="dropdown" class="btn dropdown-toggle">{{ desk.Name }}</a>
+	<div class="subnav subnav-fixed">
+
+		<div class="btn-group pull-left" id="desk-select" controller="DesksController">
+            <a href="" data-toggle="dropdown" class="btn dropdown-toggle">_("All desks");</a>
             <ul class="dropdown-menu sf-dropdown">
-                <li><a href="#/desks/">_("All desks");</a></li>
-                <li class="divider"></li>
                 <li ng-repeat="desk in desks"><a ng-href="#/desks/{{ desk.Id }}">{{ desk.Name }}</a></li>
             </ul>
 	    </div>
 
-        <div class="btn-group pull-right">
+      	<div class="btn-group pull-right">
 	        <button class="btn btn-medium dropdown-toggle" data-toggle="dropdown"><i class="icon-settings"></i> <span class="caret"></span></button>
 	        <ul class="dropdown-menu tabconfig-dropdown sf-dropdown sf-dropdown-right">
 	        	<h5 class="dropdown-title">Sidetab view configuration</h5>
                 <li class="tabconfig" target-tab="ingest">
                    	<input type="checkbox" class="sf-checkbox" name="show_tab1" checked="checked"><i class="small-icon-ingest"></i>Ingest feed
-                	<div class="switch switched-left"><input type="checkbox"><div class="switch-inner"></div></div>
+                	<input type="checkbox" class="sf-toggle" name="switch1">
                 </li>
                 <li class="tabconfig" target-tab="chat">
                    <input type="checkbox" class="sf-checkbox" name="show_tab2" checked="checked"><i class="small-icon-chat"></i>Chat
-                	<div class="switch"><input type="checkbox"><div class="switch-inner"></div></div>
+                	<input type="checkbox" class="sf-toggle" name="switch2" checked="checked" >
                 </li>
                 <li class="tabconfig" target-tab="editorial-comments">
                    	<input type="checkbox" class="sf-checkbox" name="show_tab3" checked="checked"><i class="small-icon-editorial"></i>Editorial comments
-                	<div class="switch"><input type="checkbox"><div class="switch-inner"></div></div>
+                   	<input type="checkbox" class="sf-toggle"  checked="checked" name="switch3">
                 </li>            	
           	</ul>
-	    </div>
+	    </div> 
+
 	</div>
 
 
 	<div class="subnav subnav-level2 subnav-fixed">
+      
       <div class="btn-toolbar desk-toolbar">
 
-    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="addTask(desk)"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+    	<a class="btn btn-info pull-right" href="#AddAssignment" data-toggle="modal" ng-show><span class="icon-plus-sign icon-white"></span> New Assignment</a>
 
-
-        <ul class="nav nav-pills pull-left">
-	      <li ng-class="{active: !my}"><a href="" ng-click="my=false">_("Desk assignments");</a></li>
-	      <li ng-class="{active: my}"><a href="" ng-click="my=true">_("My assignments");</a></li>
-	    </ul>
-
-	     <ul class="nav nav-pills pull-left" style="margin-left:10px" >
+	    <ul class="nav nav-pills pull-left" >
 	      <li ng-class="{active: list}"><a href="" id="list-view" ng-click="list=true"><i class="icon-th-list"></i></a></li>
 	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <button type="button" class="btn pull-left" ng-class="{active: compact}" id="compact-view" ng-click="compact=!compact" style="margin-left:10px">_("Compact view");</button>
+	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px" ng-click="compact=!compact">Compact view</a>
+
       </div>
 
    </div>
@@ -58,8 +54,12 @@
 		<div class="tablist left-tablist" tabcontent-area="left-tabpane">
 			<ul class="navigation-tabs">
 				
-				<li tabname="ingest"><a href="" draggable="true" control="tab" rel="tooltip" data-placement="right" data-original-title="Sources"><i class="big-icon-sources"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
-				
+				<li tabname="ingest"><a id="test" href="#ingest-tab" data-toggle="tooltip" draggable="true" control="tab" rel="tooltip" data-placement="right" data-original-title="Sources"><i class="big-icon-sources"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				<script type="text/javascript">
+				$(document).ready(function(){
+					$("#test").tooltip();
+				});
+				</script>
 			</ul>
 
 		</div>
@@ -244,37 +244,35 @@
 
 
 
-		<div class="main-desk-container" ng-class="{'compact-desk': compact}" id="main-desk" style="margin-left:auto;margin-right:auto;max-width:960px;">
-			<div class="desk-content-container single-desk" ng-class="{'desk-list': list}" ng-controller="DeskController">
-				<div class="desk-horizontal-scroll" style="width:870px;">
-                    <div class="desk-container boardcolor-{{ card.Color }}" ng-repeat="card in cards" ng-controller="CardController">
-	                    <div class="desk-header">
-		                    {{ card.Name }}
-	                    </div>
-	                    <div class="desk">
-		                    <div class="desk-content">
-                                <div class="board-statuses">
-                                    <ul>
-                                        <li ng-repeat="status in card.statuses" sd-droppable ng-model="status"><span>{{ status.Key }}</span></li>
-                                    </ul>
-                                </div>
-			                    <ul class="assignments" style="position:relative">
-                                    <li ng-repeat="task in tasks | filter:isCardTask | filter:isMyTask" sd-draggable ng-model="task" class="task-draggable">
-                                        <figure class="assign-avatar" sd-user-image data-width="20" data-height="20" sd-user="task.User"></figure>
-                                        <div class="assign-description">
-                                            <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{ task.Title }}</a>
-                                        </div>
-                                        <ul class="assign-labels clearfix">
-	                                        <li><i class="icon-desk-time icon-white"></i> <span sd-date-time="task.DueDate"></span></li>
-	                                        <li><i class="icon-desk-task icon-white"></i> 3/3</li>
-	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
-                                        </ul>
-                                    </li>
-                                    <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
-                                </ul>
-		                    </div>
-	                    </div>
-                    </div>
+		<div class="main-desk-container" id="main-desk" style="margin-left:auto;margin-right:auto;max-width:960px" ng-class="{'compact-desk': compact}">
+				<div class="desk-content-container" ng-class="{'desk-list': list}">
+					<div class="desk-horizontal-scroll" style="width:870px!important">
+					<div class="desk-container" ng-repeat="desk in desks" ng-controller="DeskController">
+						<div class="desk-header"><a ng-href="#/desks/{{ desk.Id }}">{{ desk.Name }}</a></div>
+						<div class="desk">
+								<section class="boardcolor-{{ card.Color }}" ng-repeat="card in cards" ng-controller="CardController">
+									<header>{{ card.Name }}</header>
+									<ul class="assignments">
+										<li class="task-draggable" ng-repeat="task in tasks | filter:isCardTask">
+											<figure class="assign-avatar" sd-user-image sd-user="task.User" data-width="20" data-height="20"></figure>
+											<div class="assign-description">{{ task.Title }}</div>
+											<ul class="assign-labels clearfix">
+												<li><i class="icon-desk-time icon-white"></i> {{ task.DueDate }}</li>
+												<li><i class="icon-desk-task icon-white"></i> 0/3</li>
+												<li><i class="icon-desk-comments icon-white"></i> 12</li>
+											</ul>
+											<ul class="subtasks" ng-show>
+												<div class="subtask-num-info"><span>5</span></div>
+												<li>Itaque earum rerum hic tenetu</li>
+												<li>Necessitatibus saepe eveniet ut et voluptates repudiandae sint et </li>
+												<li>Repudiandae sint et </li>
+											</ul>
+										</li>
+                                        <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
+									</ul>
+								</section>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -285,9 +283,9 @@
 		<div class="tablist right-tablist" tabcontent-area="right-tabpane">
 			<ul class="navigation-tabs">
 								
-				<li tabname="chat"><a href="" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Chat"><i class="big-icon-chat"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				<li tabname="chat"><a href="#chat-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Chat"><i class="big-icon-chat"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
 
-				<li tabname="editorial-comments"><a href="" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Editorial comments"><i class="big-icon-editorial"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				<li tabname="editorial-comments"><a href="#editorial-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Editorial comments"><i class="big-icon-editorial"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
 				
 
 			</ul>
@@ -303,113 +301,3 @@
 			</section>
 
 		</div>
-
-<div class="modal fade split-popup" id="AddAssignment" style="display:none" ng-controller="EditTaskController">
-  <form name="taskForm">
-  <div class="modal-header">
-    <a href="" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-    <input type="text" placeholder="_('Assignment title');" class="assignment-title" data-task-info="title" ng-model="task.Title" required />
-  </div>
-  <div class="modal-body">
-    <div class="modal-left-pane">
-        <div class="taskmodal-header">
-        	<div class="parent-task-info" ng-show="parentTask.Title">
-        		_('Parent task:'); <a href=""><span data-task-info="parent">{{ parentTask.Title }}</span></a>
-        	</div>
-        	<ul class="assign-labels clearfix">
-				<li class="critical" ng-show="task.DueDate">
-					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date" sd-date-time="task.DueDate"></span>
-				</li>
-				<li ng-show="task.Id">
-					<i class="icon-desk-subtask icon-white"></i> <span>{{ subtasks.length }}</span> <span ng-pluralize count="subtasks.length" when="{'one': '_("Subtask");', 'other': '_("Subtasks");'}"></span> 
-				</li>
-			</ul>
-        </div>
-        <div class="taskmodal-content">
-        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" rows="5" cols="60"></textarea>
-        	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>_('Subtasks');</header>
-        		<ul class="subtask-list-view clearfix">
-        			<li ng-repeat="subtask in subtasks">
-        				<h6><a href="" ng-click="editTask(subtask, task)">{{ subtask.Title }}</a></h6>
-        				<p>{{ subtask.Description }}</p>
-        				<span class="assign-label critical" ng-show="subtask.DueDate"><i class="icon-desk-time icon-white"></i> <span sd-date-time="subtask.DueDate"></span></span>
-        			</li>
-        		</ul>
-        	</section>    
-        	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>Comments</header>
-        		<div class="add-comment-box">
-        			<textarea placeholder="Write a comment"></textarea>
-        		</div>
-        		<ul class="comment-list">
-        			{#Comments}
-        			<li>
-        				<div class="comment-info">
-		    				<figure>
-		    					
-		    				</figure>
-		    				<b>{User.Name}</b>
-		    				<time>{Date}</time>
-		    			</div>
-		    			<p class="comment-text">{Content}</p>
-		    			<div class="action-menu">
-		    				<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
-		    				<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
-		    			</div>
-        			</li>
-					{/Comments}
-        		</ul>
-        	</section>    	
-        </div>
-    </div>
-    <div class="modal-right-pane">
-    	<section class="modal-sidepane-module clearfix">
-    		<header ng-show="task.User">_('Assignee');</header>
-    		<div class="module-sidepane-module-content">
-    			<div class="assignee-info" ng-show="task.User" data-task-info="assignee">
-   					<figure sd-user-image sd-user="task.User" data-width="32" data-height="32"></figure>
-   					<b data-task-info="assignee-name">{{ task.User.Name }}</b>
-    			</div>
-    			<div class="btn-group">
-				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="">
-				    <i class="icon-plus-sign"></i> _('Assign');
-				    <span class="caret"></span>
-				  </a>
-				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
-					<li ng-repeat="user in users" ng-click="task.User=user">{{ user.Name }}</li>
-				  </ul>
-				</div>
-    		</div>
-    	</section>
-    	<section class="modal-sidepane-module clearfix">
-    		<header>_('Status');</header>
-    		<div class="module-sidepane-module-content">
-                <div class="status-info" ng-show="task.Status">
-                    <b>{{ task.Status.Key }}</b>
-                </div>
-    			<div class="btn-group">
-				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="">_('Status');<span class="caret"></span></a>
-				  <ul class="dropdown-menu sf-dropdown sf-dropdown-right" data-list="users">
-					<li ng-repeat="status in statuses" ng-click="task.Status=status">{{ status.Key }}</li>
-				  </ul>
-				</div>
-    		</div>
-    	</section>
-    	<section class="modal-sidepane-module clearfix">
-    		<header>_('Action');</header>
-    		<div class="module-sidepane-module-content">
-    			<input type="text" ng-model="task.DueDate" sd-datepicker />
-    			<a class="btn" href="" data-toggle="datepicker"><i class="icon-desk-time"></i> _('Due Date');</a>
-    			<a class="btn" href="" ng-click="addTask(desk, task)" ng-show="task.Id"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
-    			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask(tasks)" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
-    		</div>
-    	</section>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn" data-dismiss="modal">_('Cancel');</button>
-    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()" ng-disabled="!taskForm.$valid">_('Save Changes');</button>
-  </div>
-  </form>
-</div>

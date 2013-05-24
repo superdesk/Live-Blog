@@ -61,7 +61,7 @@
 		                    <li class="boardcolor-{{ card.Color }}" ng-repeat="card in desk.cards" data-index="{{ $index }}" ng-controller="CardController">
 		                     <span class="board-name">{{ card.Name }}</span>
 
-                             <div class="dropdown dropdown-simple board-status">
+                             <div class="dropdown dropdown-simple board-status" style="min-width:100px">
 	                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span ng-repeat="status in card.statuses">{{ status.Key }}<span ng-show="!$last">, </span></span> <b class="caret"></b></a>
 	                            <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
 	                                <li ng-repeat="status in statuses"><label><input type="checkbox" ng-checked="hasStatus(status)" ng-click="toggleStatus(card, status)"> {{ status.Key }}</label></li>

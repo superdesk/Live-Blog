@@ -8,15 +8,18 @@ define([
     'desk/controllers/edit-task',
     'desk/controllers/card',
     'desk/controllers/desk',
+    'desk/controllers/master',
+    'desk/controllers/desks',
     'desk/resources',
     'desk/directives',
-    'tmpl!superdesk-desk>desk/single'
+    'tmpl!superdesk-desk>desk/single',
+    'tmpl!superdesk-desk>master-desk'
 ],
-function($, Backbone, router, DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController) {
+function($, Backbone, router, DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController, MasterController, DesksController) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
-            var link = $('<a />').text(this.model.get('Name')).attr('href', '#desks/' + this.model.id);
+            var link = $('<a />').text(this.model.get('Name')).attr('href', '#/desks/' + this.model.get('Id'));
             $(this.el).html(link);
             return this;
         }
@@ -25,10 +28,21 @@ function($, Backbone, router, DeskCollection, angular, TasksController, EditTask
     var MenuView = Backbone.View.extend({
         initialize: function() {
             this.collection.on('reset', this.render, this);
+            this.allDesksModel = new Backbone.Model({
+                Name: _('All Desks'),
+                Id: ''
+            });
         },
 
         render: function() {
             var list = $(this.el).empty();
+
+            var allDesksView = new DeskMenuView({model: this.allDesksModel});
+            list.append(allDesksView.render().el);
+            if (this.collection.length) {
+                list.append($('<li />').addClass('divider'));
+            }
+
             this.collection.each(function(desk) {
                 var view = new DeskMenuView({model: desk});
                 list.append(view.render().el);
@@ -36,27 +50,30 @@ function($, Backbone, router, DeskCollection, angular, TasksController, EditTask
         }
     });
 
+    var module = angular.module('desks', ['resources', 'directives']);
+    module.config(['$interpolateProvider', function($interpolateProvider) {
+        $interpolateProvider.startSymbol('{{ ');
+        $interpolateProvider.endSymbol(' }}');
+    }]);
+
+    module.controller('TasksController', TasksController);
+    module.controller('EditTaskController', EditTaskController);
+    module.controller('CardController', CardController);
+    module.controller('DeskController', DeskController);
+    module.controller('MasterController', MasterController);
+    module.controller('DesksController', DesksController);
+
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
-        var module = angular.module('desks', ['resources', 'directives']);
-
-        module.controller('TasksController', TasksController);
-        module.controller('EditTaskController', EditTaskController);
-        module.controller('CardController', CardController);
-        module.controller('DeskController', DeskController);
-
-        module.config(['$interpolateProvider', function($interpolateProvider) {
-            $interpolateProvider.startSymbol('{{ ');
-            $interpolateProvider.endSymbol(' }}');
-        }]);
-
         angular.module('resources').value('deskId', deskId);
-
         $('#area-main').tmpl('superdesk-desk>desk/single');
         $('#area-main').attr('ng-controller', 'TasksController');
         angular.bootstrap(document, ['desks']);
     });
 
-    router.route('desks', 'desks', function allDesks() {
+    router.route('desks/', 'desks', function allDesks() {
+        $('#area-main').tmpl('superdesk-desk>master-desk');
+        $('#area-main').attr('ng-controller', 'MasterController');
+        angular.bootstrap(document, ['desks']);
     });
 
     return {
