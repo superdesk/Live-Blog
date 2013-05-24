@@ -10,9 +10,9 @@ Provides configurations API support blogs.
 '''
 
 from livedesk.api.blog import Blog
-from livedesk.api.domain_livedesk import modelLiveDesk
-from support.api.configuration import Configuration, QConfiguration, IConfigurationService
+from support.api.configuration import IConfigurationService
 from ally.support.api.entity import Entity
+from ally.api.config import service
 
 # --------------------------------------------------------------------
 
@@ -24,8 +24,7 @@ from ally.support.api.entity import Entity
 
 # --------------------------------------------------------------------
 
-@service((Entity, Blog),)
-@service
+@service((Entity, Blog))
 class IBlogConfigurationService(IConfigurationService):
     '''
     Provides the blog configuration service.

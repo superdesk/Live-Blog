@@ -9,24 +9,26 @@ Created on May 22, 2013
 Contains the SQL alchemy meta for the configuration API.
 '''
 
-from ally.container import wire
+from ..api.configuration import Configuration, QConfiguration, IConfigurationService
+from ..meta.configuration import ConfigurationDescription
 from ally.container.ioc import injected
 from ally.container.support import setup
+from ally.support.sqlalchemy.session import SessionSupport
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from ally.api.extension import IterPart
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from ally.support.api.util_service import copy
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.util import aliased
-from sqlalchemy.sql import functions as fn
-from sqlalchemy.sql.expression import func, or_
-from sqlalchemy.sql.operators import desc_op
 
 # --------------------------------------------------------------------
 
 def createConfigurationImpl(service, mapped):
+    '''
+    Generator of particular configuration implementations
+    '''
     return type('%sAlchemy' % service.__name__[1:], (ConfigurationServiceAlchemy, service), {'ConfigurationMapped': mapped})
-    
 
 @injected
 @setup(IConfigurationService, name='configurationService')
@@ -36,16 +38,7 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
     '''
     
     ConfigurationMapped = ConfigurationDescription
-    # 
-
-    def __init__(self, Configuration, ConfigurationMapped, QConfiguration=None):
-        '''
-        Construct the configuration service.
-        '''
-        self.Configuration = Configuration
-        self.ConfigurationMapped = ConfigurationMapped
-        self.QConfiguration = QConfiguration
-        #self.ConfigurationMapped.parent
+    # variable for the DB mapping class to be used
 
     def getByName(self, parentId, name):
         '''
@@ -65,8 +58,8 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
         sql = self.session().query(self.ConfigurationMapped)
         sql = sql.filter(self.ConfigurationMapped.parent == parentId)
 
-        if q and self.QConfiguration:
-            assert isinstance(q, self.QConfiguration), 'Invalid query %s' % q
+        if q:
+            assert isinstance(q, QConfiguration), 'Invalid query'
             sql = buildQuery(sql, q, self.ConfigurationMapped)
 
         sqlLimit = buildLimits(sql, offset, limit)
@@ -74,8 +67,15 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
         return sqlLimit.all()
 
     def insert(self, parentId, configuration):
-        #assert self.modelType.isValid(entity), 'Invalid entity %s, expected %s' % (entity, self.Entity)
-        #assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
+        '''
+        @see: IConfigurationService.insert
+        '''
+        assert isinstance(parentId, int), 'Invalid parentId'
+        assert isinstance(configuration, Configuration), 'Invalid configuration'
+
+        if not configuration.Name:
+            raise InputError(Ref(_('No configuration name'),))
+
         configurationDb = copy(configuration, self.ConfigurationMapped())
         configurationDb.parent = parentId
         try:
@@ -84,21 +84,32 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
         except SQLAlchemyError as e: handle(e, configurationDb)
         return configurationDb.Name
 
-    def update(self, parentId:Entity.Id, configuration:Configuration):
-        #assert self.modelType.isValid(entity), 'Invalid entity %s, expected %s' % (entity, self.Entity)
-        #assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
+    def update(self, parentId, configuration):
+        '''
+        @see: IConfigurationService.update
+        '''
+        assert isinstance(parentId, int), 'Invalid parentId'
+        assert isinstance(configuration, Configuration), 'Invalid configuration'
+
         sql = self.session().query(self.ConfigurationMapped)
         sql = sql.filter(self.ConfigurationMapped.parent == parentId)
         sql = sql.filter(self.ConfigurationMapped.Name == configuration.Name)
         try:
             configurationDb = sql.one()
         except NoResultFound: raise InputError(Ref(_('Unknown configuration'),))
-        configurationDb = copy(configuration, configurationDb)
+
+        configurationDb.Value = configuration.Value
         configurationDb.parent = parentId
         try: self.session().flush((configurationDb,))
         except SQLAlchemyError as e: handle(e, self.ConfigurationMapped)
 
-    def delete(self, parentId:Entity.Id, name:Configuration.Name):
+    def delete(self, parentId, name):
+        '''
+        @see: IConfigurationService.delete
+        '''
+        assert isinstance(parentId, int), 'Invalid parentId'
+        assert isinstance(name, str), 'Invalid configuration name'
+
         sql = self.session().query(self.ConfigurationMapped)
         sql = sql.filter(self.ConfigurationMapped.parent == parentId)
         sql = sql.filter(self.ConfigurationMapped.Name == name)

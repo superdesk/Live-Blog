@@ -9,20 +9,27 @@ Created on May 22, 2013
 Contains the SQL alchemy meta for blog configuration API.
 '''
 
+from ..api.configuration import IBlogConfigurationService
+from ..meta.configuration import BlogConfigurationMapped
+#from support.impl.configuration import createConfigurationImpl
+from support.impl.configuration import ConfigurationServiceAlchemy
+from ally.container.ioc import injected
+from ally.container.support import setup
+
 # --------------------------------------------------------------------
 
-impl = createConfigurationImpl(IBlogConfigurationService, BlogConfigurationMapped)
+@injected
+@setup(IBlogConfigurationService, name='blogConfigurationService')
+class BlogConfigurationServiceAlchemy(ConfigurationServiceAlchemy, IBlogConfigurationService):
+    '''
+    Implementation for @see: IBlogConfigurationService
+    '''
 
-#@injected
-#@setup(IBlogConfigurationService, name='blogConfigurationService')
-#class BlogConfigurationServiceAlchemy(SessionSupport, IBlogConfigurationService):
-#    '''
-#    Implementation for @see: IBlogConfigurationService
-#    '''
-#
-#    def __init__(self):
-#        '''
-#        Construct the blog configuration service.
-#        '''
-#        ConfigurationServiceAlchemy.__init__(self, BlogConfigurationMapped, QBlogConfiguration)
+    ConfigurationMapped = BlogConfigurationMapped
+    # actual DB mapping class to be used
 
+'''
+@injected
+@setup(IBlogConfigurationService, name='blogConfigurationService')
+createConfigurationImpl(IBlogConfigurationService, BlogConfigurationMapped)
+'''

@@ -9,19 +9,17 @@ Created on May 22, 2013
 Contains the SQL alchemy meta for blog configurations API.
 '''
 
-from ..api.configuration import BlogConfiguration
 from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.mapper import validate
-from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
-from sqlalchemy.types import String
+from support.api.configuration import Configuration
+from support.meta.configuration import ConfigurationDescription
+from livedesk.meta.blog import BlogMapped
+from sqlalchemy.schema import Column, ForeignKey
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=('Name',))
 class BlogConfigurationMapped(Base, ConfigurationDescription, Configuration):
     __tablename__ = 'blog_configuration'
+
     parent = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), primary_key=True)
-
-
-
