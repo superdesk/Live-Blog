@@ -49,7 +49,8 @@
                 blogUrl = $('[name="FrontendServer"]').val() + blogUrl;
             }
             data = {
-                'Theme': theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val()),
+                'Theme': el.val(),
+                'ThemePath': theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val()).replace(el.val(),''),
                 'TheBlog': blogUrl,
                 'GuiLivedeskEmbed': $('[name="FrontendServer"]').val() + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
