@@ -180,10 +180,19 @@ define('providers/youtube', [
                                 }, function(e,o) {
                                     el = $('#ytb-src-results').append(o).find('.youtube'); 
                                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
+                                        // var itemWidth = el.width(),
+                                        //     itemHeight = el.height();
+                                        // itemWidth = itemWidth > 500? 500 : itemWidth;
+                                        // var containment = [
+                                        //     75, 
+                                        //     200, 
+                                        //     $(window).width()-itemWidth-30, 
+                                        //     $(window).height() - itemHeight-30
+                                        // ];
                                         el.draggable({
                                             addClasses: false,
                                             revert: 'invalid',
-                                            containment:'document',
+                                            //containment:'document',
                                             helper: 'clone',
                                             appendTo: 'body',
                                             zIndex: 2700,
@@ -265,7 +274,7 @@ define('providers/youtube', [
                                         el.draggable({
                                             addClasses: false,
                                             revert: 'invalid',
-                                            containment:'document',
+                                            //containment:'document',
                                             helper: 'clone',
                                             appendTo: 'body',
                                             zIndex: 2700,
@@ -347,7 +356,7 @@ define('providers/youtube', [
                                         el.draggable({
                                             addClasses: false,
                                             revert: 'invalid',
-                                            containment:'document',
+                                            //containment:'document',
                                             helper: 'clone',
                                             appendTo: 'body',
                                             zIndex: 2700,

@@ -81,7 +81,7 @@ $.extend(providers.flickr, {
 			$(where).html('');
 		},
 		doOriginalUrl : function(data) {
-			console.log('url ', data);
+			//console.log('url ', data);
 			for ( var i=0; i<data.photo.length; i++) {
 				var item = data.photo[i];
 				var fullUrl = str.format(this.infoUrl,{id: item.id, secret: item.secret, apykey: this.apykey});
@@ -144,7 +144,7 @@ $.extend(providers.flickr, {
 									el.draggable({
 										addClasses: false,
 										revert: 'invalid',
-										containment:'document',
+										//containment:'document',
 										helper: 'clone',
 										appendTo: 'body',
 										zIndex: 2700,

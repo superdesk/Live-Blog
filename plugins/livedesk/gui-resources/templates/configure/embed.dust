@@ -9,4 +9,8 @@ var livedesk = {
 	'FrontendServer': '{FrontendServer}'
 };
 </script>
-<script type="text/javascript" data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>
+<script type="text/javascript" src="{GuiLivedeskEmbed}"></script>
+<script type="text/javascript">
+    requirejs.config({baseUrl: "{ThemePath}"});
+    require(["{Theme}"]);
+</script>
