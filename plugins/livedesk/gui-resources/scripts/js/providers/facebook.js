@@ -28,7 +28,7 @@ define('providers/facebook', [
                 this.initialized = true;
             }, 
             render: function() {
-                console.log('render');
+//                console.log('render');
                 var self = this;
                 self.el.on('click', '#fbk-search-controls>li', function(ev){
                   $(this).siblings().removeClass('active') .end().addClass('active');             
@@ -121,7 +121,7 @@ define('providers/facebook', [
                                 el.draggable(
                                 {
                                     revert: 'invalid',
-                                    containment:'document',
+                                    //containment:'document',
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
@@ -148,7 +148,7 @@ define('providers/facebook', [
                             $('#fbk-comments-more').html('');
                         }
                     } else {
-                        console.log('no more');
+                        //console.log('no more');
                         $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
                             $('#fbk-comments-results').append(o);
                         });
@@ -196,19 +196,19 @@ define('providers/facebook', [
                             posts.push({ Meta: item });
                             self.data.post[item.id] = item;
                         }
-                        console.log(posts)
+                        //console.log(posts)
                         $.tmpl('livedesk>items/item', { 
                             Post: posts,
                             Base: 'implementors/sources/facebook',
                             Item: 'sources/facebook'
                         }, function(e,o) {
-                            console.log(e,o)
+                            //console.log(e,o)
                             el = $('#fbk-post-results').append(o).find('.facebook');
                             BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                                 el.draggable(
                                 {
                                     revert: 'invalid',
-                                    containment:'document',
+                                    //containment:'document',
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
