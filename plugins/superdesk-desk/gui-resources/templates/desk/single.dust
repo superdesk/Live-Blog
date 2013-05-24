@@ -259,14 +259,14 @@
                                     </ul>
                                 </div>
 			                    <ul class="assignments" style="position:relative">
-                                    <li ng-repeat="task in tasks | filter:isCardTask | filter:isMyTask" sd-draggable ng-model="task" class="task-draggable">
+                                    <li ng-repeat="task in tasks | filter:isCardTask | filter:isMyTask" sd-draggable ng-model="task" class="task-draggable" ng-controller="TaskController">
                                         <figure class="assign-avatar" sd-user-image data-width="20" data-height="20" sd-user="task.User"></figure>
                                         <div class="assign-description">
                                             <a href="#AddAssignment" ng-click="editTask(task)" data-toggle="modal">{{ task.Title }}</a>
                                         </div>
                                         <ul class="assign-labels clearfix">
 	                                        <li><i class="icon-desk-time icon-white"></i> <span sd-date-time="task.DueDate"></span></li>
-	                                        <li><i class="icon-desk-task icon-white"></i> 3/3</li>
+	                                        <li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
 	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
                                         </ul>
                                     </li>
@@ -313,10 +313,9 @@
   <div class="modal-body">
     <div class="modal-left-pane">
         <div class="taskmodal-header">
-        	<div class="parent-task-info" ng-show="parentTask.Title">
-        		_('Parent task:'); <a href=""><span data-task-info="parent">{{ parentTask.Title }}</span></a>
+        	<div class="parent-task-info">
+        		_('Parent task:'); <a href="" ng-show="parentTask.Title"><span data-task-info="parent">{{ parentTask.Title }}</span></a>
         	</div>
-        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" ></textarea>
         	<ul class="assign-labels clearfix" style="margin-top:5px">
 				<li class="critical" ng-show="task.DueDate">
 					<i class="icon-desk-time icon-white"></i> <span data-task-info="due-date" sd-date-time="task.DueDate"></span>
@@ -326,14 +325,17 @@
 				</li>
 			</ul>
         </div>
-        <div class="taskmodal-content">
+        <div class="taskmodal-content clearfix">
+        	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" ></textarea>
+
         	<section class="modal-mainpane-module" ng-show="task.Id">
         		<header>_('Subtasks');</header>
         		<ul class="subtask-list-view clearfix">
-        			<li ng-repeat="subtask in subtasks">
-        				<h6><a href="" ng-click="editTask(subtask, task)">{{ subtask.Title }}</a></h6>
+        			<li ng-repeat="subtask in subtasks" class="clearfix">
+        				<h6>{{ subtask.Title }}</h6>
         				<p>{{ subtask.Description }}</p>
         				<span class="assign-label critical" ng-show="subtask.DueDate"><i class="icon-desk-time icon-white"></i> <span sd-date-time="subtask.DueDate"></span></span>
+                        <a href="" ng-click="editTask(subtask, task)">_("Open details");</a>
         			</li>
         		</ul>
         	</section>    
@@ -401,7 +403,7 @@
     		<div class="module-sidepane-module-content">
     			<input type="text" ng-model="task.DueDate" sd-datepicker />
     			<a class="btn" href="" data-toggle="datepicker"><i class="icon-desk-time"></i> _('Due Date');</a>
-    			<a class="btn" href="" ng-click="addTask(desk, task)" ng-show="task.Id"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
+    			<a class="btn" href="" ng-click="addTask(desk, orig)" ng-show="task.Id"><i class="icon-desk-subtask"></i>_('Add Subtask');</a>
     			<a class="btn" href="" style="margin-top:30px;" ng-show="task.Id" ng-click="deleteTask(tasks)" data-dismiss="modal"><i class="icon-trash"></i> _('Delete Task');</a>
     		</div>
     	</section>

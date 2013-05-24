@@ -253,19 +253,17 @@
 								<section class="boardcolor-{{ card.Color }}" ng-repeat="card in cards" ng-controller="CardController">
 									<header>{{ card.Name }}</header>
 									<ul class="assignments">
-										<li class="task-draggable" ng-repeat="task in tasks | filter:isCardTask">
+										<li class="task-draggable" ng-repeat="task in tasks | filter:isCardTask" ng-controller="TaskController">
 											<figure class="assign-avatar" sd-user-image sd-user="task.User" data-width="20" data-height="20"></figure>
 											<div class="assign-description">{{ task.Title }}</div>
 											<ul class="assign-labels clearfix">
 												<li><i class="icon-desk-time icon-white"></i> {{ task.DueDate }}</li>
-												<li><i class="icon-desk-task icon-white"></i> 0/3</li>
+												<li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
 												<li><i class="icon-desk-comments icon-white"></i> 12</li>
 											</ul>
-											<ul class="subtasks" ng-show>
-												<div class="subtask-num-info"><span>5</span></div>
-												<li>Itaque earum rerum hic tenetu</li>
-												<li>Necessitatibus saepe eveniet ut et voluptates repudiandae sint et </li>
-												<li>Repudiandae sint et </li>
+											<ul class="subtasks" ng-show="task.subtasks.length" ng-class="{open: open}">
+												<div class="subtask-num-info" ng-click="open=!open"><span>{{ task.subtasks.length }}</span></div>
+												<li ng-repeat="subtask in task.subtasks">{{ subtask.Title }}</li>
 											</ul>
 										</li>
                                         <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>

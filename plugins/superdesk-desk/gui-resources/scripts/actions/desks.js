@@ -10,12 +10,14 @@ define([
     'desk/controllers/desk',
     'desk/controllers/master',
     'desk/controllers/desks',
+    'desk/controllers/task',
     'desk/resources',
     'desk/directives',
     'tmpl!superdesk-desk>desk/single',
     'tmpl!superdesk-desk>master-desk'
 ],
-function($, Backbone, router, DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController, MasterController, DesksController) {
+function($, Backbone, router,
+        DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController, MasterController, DesksController, TaskController) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -62,6 +64,7 @@ function($, Backbone, router, DeskCollection, angular, TasksController, EditTask
     module.controller('DeskController', DeskController);
     module.controller('MasterController', MasterController);
     module.controller('DesksController', DesksController);
+    module.controller('TaskController', TaskController);
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
         angular.module('resources').value('deskId', deskId);

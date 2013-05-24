@@ -26,7 +26,9 @@ function(angular) {
             } else {
                 Task.save(data, function(response) {
                     Task.get({Id: response.Id}, function(task) {
-                        if (!$scope.parentTask) {
+                        if ($scope.parentTask) {
+                            $scope.parentTask.subtasks.push(task);
+                        } else {
                             $scope.tasks.push(task);
                         }
                     });

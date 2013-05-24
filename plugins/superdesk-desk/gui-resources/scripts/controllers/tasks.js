@@ -27,7 +27,7 @@ function(angular) {
             };
 
             $scope.parentTask = parentTask;
-            $scope.subtasks = TaskService.loadSubtasks($scope.orig);
+            $scope.subtasks = task.subtasks;
         };
     };
 });
