@@ -269,6 +269,8 @@
                                         <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
 									</ul>
 								</section>
+
+                                <section ng-show="!cards.length"><header>_("This desk has no cards yet.");</header></section>
 						</div>
 					</div>
 				</div>
