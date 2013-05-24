@@ -19,6 +19,7 @@ from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
 from superdesk.source.api.source import Source
+from support.api.configuration import IConfigurationService
 
 # --------------------------------------------------------------------
 
@@ -136,3 +137,11 @@ class IBlogSourceService:
             The source identifier
         @raise InputError: on invalid source id
         '''
+
+# --------------------------------------------------------------------
+
+@service((Entity, Blog))
+class IBlogConfigurationService(IConfigurationService):
+    '''
+    Provides the blog configuration service.
+    '''
