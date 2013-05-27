@@ -32,7 +32,7 @@
 	<div class="subnav subnav-level2 subnav-fixed">
       <div class="btn-toolbar desk-toolbar">
 
-    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="addTask(desk)"><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+    	<a href="#AddAssignment" class="btn btn-info pull-right" id="add-task" data-toggle="modal" ng-click="addTask(desk)"><span class="icon-plus-sign icon-white"></span> _("New Assignment");</a>
 
 
         <ul class="nav nav-pills pull-left">
@@ -342,7 +342,7 @@
         		</ul>
         	</section>    
         	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>Comments</header>
+        		<header>_("Comments");</header>
         		<div class="add-comment-box">
         			<textarea placeholder="Write a comment"></textarea>
         		</div>
