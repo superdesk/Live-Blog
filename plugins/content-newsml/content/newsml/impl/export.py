@@ -18,6 +18,7 @@ from content.packager.api.item import IItemService, Item
 from io import BytesIO
 from superdesk.user.api.user import IUserService, User
 from content.packager.api.item_content import IItemContentService, ItemContent
+import re
 
 # --------------------------------------------------------------------
 
@@ -75,7 +76,10 @@ class ItemNewsMLService(IItemNewsMLService):
             else: content.append(itemContent.Content)
         lead.extend(content)
         content = ''.join(lead)
-        content = content.replace('<br>', '')
+        content = re.sub('<p[^>]*>', '\n', content)
+        content = re.sub('<br[^>]*>', '\n', content)
+        content = re.sub('<[^>]+>', ' ', content)
+        content = re.sub('&nbsp;', ' ', content)
         return (
 '''<?xml version="1.0" encoding="UTF-8" ?>
 <newsItem guid="''', item.GUId, '''"
