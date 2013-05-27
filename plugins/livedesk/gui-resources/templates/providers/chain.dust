@@ -1,5 +1,5 @@
 <div class="chain-header">
-	<p>_("Select liveblogs:")</p>
+	<p>_("Select liveblogs:");</p>
 	<p class="feed-info">
     </p>
 	<div class="chain-search">
