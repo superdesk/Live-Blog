@@ -72,3 +72,4 @@ def registerAclArticleEdit():
     r = rightArticleEdit()
     r.addActions(menuAction(), modulesAction(), modulesMainAction(), modulesAddAction(), modulesEditAction())
     r.all(IArticleService)
+    r.all(IArticleTargetTypeService)
