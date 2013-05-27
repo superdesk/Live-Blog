@@ -19,9 +19,10 @@ function($, giz, publishingControlTab, TargetType, TargetTypeCollection) {
     	init: function() {
     		var self = this;
     		this.el.appendTo($('section', publishingControlTab.content.el));
-    		$(publishingControlTab.content).on('active', function() {
-    			self.activate();
-    		});
+    		
+    		$(publishingControlTab.content).on('active', function(){ self.activate(); });
+            $(publishingControlTab.content).on('inactive', function(){ self.deactivate(); });
+            
     		this._targetTypeCollection = new TargetTypeCollection;
     		this._targetTypeCollection.xfilter('*').sync().done(function(){
     			self.render();
@@ -44,6 +45,12 @@ function($, giz, publishingControlTab, TargetType, TargetTypeCollection) {
 	            });
 			});
         },
+        
+        deactivate: function()
+        {
+            $(this.el).addClass('hide');
+        },
+        
         activate: function() {
         	var self = this;
         	if (this._activatedOnce === false) {
@@ -59,6 +66,7 @@ function($, giz, publishingControlTab, TargetType, TargetTypeCollection) {
 			    //
 			    this._activatedOnce = true;
         	}
+        	$(this.el).removeClass('hide');
         },
         toggleItem: function(e) {
         	e.preventDefault();

@@ -72,6 +72,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             var self = this;
             this.el.appendTo($('section', mediaTab.content.el));
             $(mediaTab.content).on('active', function(){ self.activate(); });
+            $(mediaTab.content).on('inactive', function(){ self.deactivate(); });
             $(upload).on('complete', function(){
               self.addItems(upload.getRegisteredItems());
             });
@@ -107,6 +108,10 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             return this._articleFileCollection;
         },
         
+        deactivate: function()
+        {
+            $(this.el).addClass('hide');
+        },
         /*!
          * 
          */
@@ -117,6 +122,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             //$('[data-placeholder="media"]', self.el).html('');
             $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
+            $(this.el).removeClass('hide');
         },
         /*!
          * 

@@ -123,12 +123,12 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
 
         _tabs: [],
         _plugins: [],
-        init: function(hash)
+        init: function(data)
         {
             var self = this;
             this._tabs = tabs;
             this._plugins = plugins;
-            this.model = giz.Auth(new Article(hash));
+            this.model = giz.Auth(new Article(data.hash));
             this.model.sync().done(function()
             {                 
                 // pass article model to the plugins
@@ -141,8 +141,15 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             // pass self to the plugins
             for(var i=0; i<self._plugins.length; i++) {
                 self._plugins[i].setParent(this);
+                self._tabs[i].content.setParent && self._tabs[i].content.setParent(this);
             }
         },
+        
+        deactivateTabContents: function(side)
+        {
+            for( var i=0; i<this._tabs.length; i++ ) this._tabs[i].content.deactivate && this._tabs[i].content.deactivate();
+        },
+        
         render: function()
         {
             var self = this,
@@ -257,5 +264,5 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
         }
     });
     
-    return { init: function(articleHash){ return new ArticleView(articleHash); }}; 
+    return { init: function(articleHash){ return new ArticleView({hash: articleHash}); }}; 
 });

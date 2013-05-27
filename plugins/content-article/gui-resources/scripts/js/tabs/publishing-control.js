@@ -27,6 +27,7 @@ define([
     });
     
     var TabContent = giz.View.extend({
+        parent: null,
         tagName: 'div',
         events: {},
         init: function() {
@@ -36,7 +37,11 @@ define([
 
         },
         resetEvents: function() {},
-        toggle: function() {
+        toggle: function() 
+        {
+            
+            this._parent.deactivateTabContents();
+            
             var tabpane = $(this.el).parent();
             if (tabpane.hasClass('open-tabpane')) {
                 $(this.el).hide();
@@ -53,6 +58,10 @@ define([
         },
         activate: function() {
             $(this).trigger('active');
+        },
+        setParent: function(editView)
+        {
+            this._parent = editView;
         }
     });
 
