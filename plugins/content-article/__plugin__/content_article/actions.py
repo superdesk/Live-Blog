@@ -17,7 +17,7 @@ from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
 from gui.action.api.action import Action
-from content.article.api.article import IArticleService
+from content.article.api.article import IArticleService, IArticleTargetTypeService
 
 # --------------------------------------------------------------------
 
