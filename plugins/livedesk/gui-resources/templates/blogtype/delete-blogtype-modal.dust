@@ -1,12 +1,12 @@
 <div id="delete-blogtype" class="modal hide">
   <div class="modal-header"> <a data-dismiss="modal" class="close">x</a>
-    <h3>_("Delete blogtype")</h3>
+    <h3>_("Delete blogtype");</h3>
   </div>
   <div class="modal-body">
-  <p>_("Are you sure you want to delete the blogtype") <strong id="blogtype-name"></strong>?</p>
+  <p>_("Are you sure you want to delete the blogtype"); <strong id="blogtype-name"></strong>?</p>
   </div>
   <div class="modal-footer">
-    <a data-dismiss="modal" class="no btn" href="javascript:void(0)">_("No")</a>
-    <a data-dismiss="modal" class="yes btn btn-primary" href="javascript:void(0)">_("Yes")</a>
+    <a data-dismiss="modal" class="no btn" href="javascript:void(0)">_("No");</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="javascript:void(0)">_("Yes");</a>
   </div>
 </div>

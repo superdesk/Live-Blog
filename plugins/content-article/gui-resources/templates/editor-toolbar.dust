@@ -2,72 +2,72 @@
 	<div class="btn-toolbar">
 		<div class="btn-group headings" data-editor-ui-component="formatBlock">
 			<span data-format-info="true">
-				<button class="btn currentHeading" rel="tooltip" title="_('Text Heading')" data-format-current="true">Change Heading</button>
+				<button class="btn currentHeading" rel="tooltip" title="_('Text Heading');" data-format-current="true">Change Heading</button>
 				<button class="btn dropdown-toggle" data-format-toggle="true" data-toggle="dropdown" rel="tooltip" title="Change Heading">
 					<span class="caret"></span>
 				</button>
 			</span>
     		<ul class="dropdown-menu" data-format-content="true">
-				<li><a href="javascript:void(0)" class="action changeHeading" data-format="p">_('Normal Text')</a></li>
-				<li><a href="javascript:void(0)" class="action changeHeading" data-format="h1">_('Heading')</a></li>
-				<li><a href="javascript:void(0)" class="action changeHeading" data-format="h2">_('Subheading')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h3">_('Subheading 2')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h4">_('Subheading 3')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h5">_('Subheading 4')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h6">_('Subheading 5')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="pre">_('Preformatted')</a></li>
-      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="removeFormat">_('Remove format')</a></li>
+				<li><a href="javascript:void(0)" class="action changeHeading" data-format="p">_('Normal Text');</a></li>
+				<li><a href="javascript:void(0)" class="action changeHeading" data-format="h1">_('Heading');</a></li>
+				<li><a href="javascript:void(0)" class="action changeHeading" data-format="h2">_('Subheading');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h3">_('Subheading 2');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h4">_('Subheading 3');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h5">_('Subheading 4');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="h6">_('Subheading 5');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="pre">_('Preformatted');</a></li>
+      			<li><a href="javascript:void(0)" class="action changeHeading" data-format="removeFormat">_('Remove format');</a></li>
     		</ul>
 		</div>
 		<div class="btn-group">
 			<button data-editor-ui-component="bold"
-				class="btn  action strong" rel="tooltip" title="_('Bold')"><i class="editoricon-bold"></i></button>
+				class="btn  action strong" rel="tooltip" title="_('Bold');"><i class="editoricon-bold"></i></button>
 			<button data-editor-ui-component="italic"
-				class="btn  action emphasis" rel="tooltip" title="_('Italics')"><i class="editoricon-italic"></i></button>
+				class="btn  action emphasis" rel="tooltip" title="_('Italics');"><i class="editoricon-italic"></i></button>
 			<button data-editor-ui-component="underline"
-				class="btn  action underline" rel="tooltip" title="_('Underline')"><i class="editoricon-underline"></i></button>
+				class="btn  action underline" rel="tooltip" title="_('Underline');"><i class="editoricon-underline"></i></button>
 			<button data-editor-ui-component="strikethrough"
-				class="btn  action underline" rel="tooltip" title="_('Strikethrough')"><i class="editoricon-strikethrough"></i></button>
+				class="btn  action underline" rel="tooltip" title="_('Strikethrough');"><i class="editoricon-strikethrough"></i></button>
 			<button data-editor-ui-component="subscript"
-				class="btn  action underline" rel="tooltip" title="_('Subscript')"><i class="editoricon-subscript"></i></button>
+				class="btn  action underline" rel="tooltip" title="_('Subscript');"><i class="editoricon-subscript"></i></button>
 			<button data-editor-ui-component="superscript"
-				class="btn  action underline" rel="tooltip" title="_('Superscript')"><i class="editoricon-superscript"></i></button>
+				class="btn  action underline" rel="tooltip" title="_('Superscript');"><i class="editoricon-superscript"></i></button>
 				
   		</div>
   		<div class="btn-group">
     		
     		<button data-editor-ui-component="insertLink"
-    			class="btn action insertLink" rel="tooltip" title="_('Insert Link')">
+    			class="btn action insertLink" rel="tooltip" title="_('Insert Link');">
     			<i class="editoricon-link"></i>
     		</button>
     			
     		<button 
     			data-editor-ui-component="insertImage"
-    			class="btn  action insertImage-oer" rel="tooltip" title="_('Insert Figure')">
+    			class="btn  action insertImage-oer" rel="tooltip" title="_('Insert Figure');">
     			<i class="editoricon-picture"></i>
     		</button>
     		
-    		<!-- button class="btn action insertMath" rel="tooltip" title="_('Insert Math')">x<sup>2</sup></button>
-    		<button class="btn  action insertNote" rel="tooltip" title="_('Insert Note')">!</button -->
+    		<!-- button class="btn action insertMath" rel="tooltip" title="_('Insert Math');">x<sup>2</sup></button>
+    		<button class="btn  action insertNote" rel="tooltip" title="_('Insert Note');">!</button -->
   		</div>
 		<div class="btn-group">
 			<button data-editor-ui-component="unorderedList" 
-				class="btn action unorderedList" rel="tooltip" title="_('Unordered List')"><i class="editoricon-list-ul"></i></button>
+				class="btn action unorderedList" rel="tooltip" title="_('Unordered List');"><i class="editoricon-list-ul"></i></button>
 			<button data-editor-ui-component="orderedList"
-				class="btn action orderedList" rel="tooltip" title="_('Ordered List')"><i class="editoricon-list-ol"></i></button>
+				class="btn action orderedList" rel="tooltip" title="_('Ordered List');"><i class="editoricon-list-ol"></i></button>
 			<button data-editor-ui-component="outdentList" 
-				class="btn action outdentList" rel="tooltip" title="_('Indent List')"><i class="editoricon-indent-left"></i></button>
+				class="btn action outdentList" rel="tooltip" title="_('Indent List');"><i class="editoricon-indent-left"></i></button>
 			<button data-editor-ui-component="indentList" 
-				class="btn action indentList" rel="tooltip" title="_('Outdent List')"><i class="editoricon-indent-right"></i></button>
+				class="btn action indentList" rel="tooltip" title="_('Outdent List');"><i class="editoricon-indent-right"></i></button>
 		</div>
 		<!-- div class="btn-group">
-			<button class="btn action createTable" rel="tooltip" title="_('Create Table')"><i class="editoricon-table"></i></button>
-    		<button class="btn dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="_('Table Operations')">
+			<button class="btn action createTable" rel="tooltip" title="_('Create Table');"><i class="editoricon-table"></i></button>
+    		<button class="btn dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="_('Table Operations');">
       			<span class="caret"></span>
     		</button>
     		<ul class="dropdown-menu">
-      			<li><a href="javascript:void(0)" class="action addrowbefore">_('Add Row Before')</a></li>
-      			<li><a href="javascript:void(0)" class="action addrowafter">_('Add Row After')</a></li>
+      			<li><a href="javascript:void(0)" class="action addrowbefore">_('Add Row Before');</a></li>
+      			<li><a href="javascript:void(0)" class="action addrowafter">_('Add Row After');</a></li>
     		</ul>
   		</div-->
 	</div>

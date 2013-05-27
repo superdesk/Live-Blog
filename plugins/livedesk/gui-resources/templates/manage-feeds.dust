@@ -2,7 +2,7 @@
 {<body}
 <section class="scroller main-section configure-blog" {ui.content}>
 	<header>
-		<h3>_('Managed feeds')</h3>
+		<h3>_('Managed feeds');</h3>
 	</header>
 
 	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
