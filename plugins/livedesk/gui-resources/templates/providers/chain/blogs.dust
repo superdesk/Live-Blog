@@ -1,5 +1,5 @@
 <div class="chain-header">
-	<p>_("Select liveblogs:")</p>
+	<p>_("Select liveblogs:");</p>
 	<p class="feed-info">
 		{#Sources}
 		<button class="btn btn-mini" data-toggle="button">{Name</button>

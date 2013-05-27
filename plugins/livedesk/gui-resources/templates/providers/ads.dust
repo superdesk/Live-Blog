@@ -12,8 +12,8 @@
 		</div>
 		<div class="image-edit-area"></div>
 		<div class="edit-post-message" style="float:left; margin-top:-10px; width:50%"></div>		
-		<button ci="savepost" class="btn btn-primary pull-right" style="display:none;" type="submit">_('Save &amp; post')</button>
-		<button ci="save" class="btn pull-right" type="submit">_('Save')</button>
+		<button ci="savepost" class="btn btn-primary pull-right" style="display:none;" type="submit">_('Save &amp; post');</button>
+		<button ci="save" class="btn pull-right" type="submit">_('Save');</button>
 </div>
 <ul class="search-result-list ads scroller">
 

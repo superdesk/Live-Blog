@@ -1,10 +1,10 @@
 <div class="search-header">
 	<ul class="search-controls" id="ggl-search-controls">
-	  <li class="active" id="ggl-web-tab"><a href="#ggl-web-tab">_("Web")</a></li>
-	  <li id="ggl-news-tab"><a href="#ggl-news-tab">_("News")</a></li>
-	  <li id="ggl-images-tab"><a href="#ggl-images-tab">_("Images")</a></li>
+	  <li class="active" id="ggl-web-tab"><a href="#ggl-web-tab">_("Web");</a></li>
+	  <li id="ggl-news-tab"><a href="#ggl-news-tab">_("News");</a></li>
+	  <li id="ggl-images-tab"><a href="#ggl-images-tab">_("Images");</a></li>
 	</ul>
-	<input type="text" placeholder="_('Search')" id="google-search-text">
+	<input type="text" placeholder="_('Search');" id="google-search-text">
 </div>
 
 <!--search results for web search -->
