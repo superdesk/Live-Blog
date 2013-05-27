@@ -1,2 +1,15 @@
 {>"livedesk>items/sources/base"/}
-{<ProviderClass}sms{/ProviderClass}
+{<Container}{/Container}
+{<ProviderClass}smspost{/ProviderClass}
+{<ItemInfo}
+	<figure class="avatar">
+		<img src="">
+	</figure>
+	<div class="post-info">
+		<p rel="author">{Meta.Creator.Name}</p> <!-- User full name -->
+		<time>{Meta.CreatedOn}</time> <!-- time of the post -->
+	</div>
+{/ItemInfo}
+{<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
+{<SourceAuthor}{/SourceAuthor}
+{<ContainerIframe}{/ContainerIframe}
