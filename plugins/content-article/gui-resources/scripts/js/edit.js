@@ -132,15 +132,16 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             this.model.sync().done(function()
             {                 
                 // pass article model to the plugins
-                for(var i=0; i<self._plugins.length; i++)
+                for(var i=0; i<self._plugins.length; i++) {
                     self._plugins[i].setArticle(self.model);
+                }
                 self.render();
             });
             
             // pass self to the plugins
-            for(var i=0; i<self._plugins.length; i++)
+            for(var i=0; i<self._plugins.length; i++) {
                 self._plugins[i].setParent(this);
-            
+            }
         },
         render: function()
         {
