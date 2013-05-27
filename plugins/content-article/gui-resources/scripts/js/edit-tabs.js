@@ -15,7 +15,8 @@
  */
 define
 ([
-    config.guiJs('superdesk/article', 'tabs/media')
+    config.guiJs('superdesk/article', 'tabs/media'),
+    config.guiJs('superdesk/article', 'tabs/publishing-control')
 ], 
 function()
 {

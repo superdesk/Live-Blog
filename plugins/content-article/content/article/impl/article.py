@@ -12,19 +12,22 @@ API implementation for article.
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError
+from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import handle
-from content.article.api.article import IArticleService, Article, QArticle
+from ally.support.sqlalchemy.util_service import handle, buildLimits
+from content.article.api.article import IArticleService, Article, QArticle, IArticleTargetTypeService
 from content.article.api.search_provider import IArticleSearchProvider
-from content.article.meta.article import ArticleMapped
+from content.article.meta.article import ArticleMapped, ArticleTargetTypeMapped
+from content.article.meta.target_type import TargetTypeMapped
 from content.packager.api.item import IItemService, Item, CLASS_PACKAGE
 from content.packager.api.item_content import IItemContentService, ItemContent, \
     QItemContent
 from content.publisher.api.publisher import IContentPublisherService
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
+from sqlalchemy.sql.expression import not_
 import json
 from ally.api.extension import IterPart
 from urllib.parse import quote
@@ -131,7 +134,10 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
         assert isinstance(article, Article)
 
         # decode the JSON content
-        rawContent = json.loads(article.Content)
+        try:
+            rawContent = json.loads(article.Content)
+        except:
+            raise InputError(_('Invalid article content'))
         try:
             # create the corresponding item (@see IItemService)
             item = Item()
@@ -216,3 +222,85 @@ class ArticleServiceAlchemy(EntityServiceAlchemy, IArticleService):
 
     def _slugify(self, headline):
         return re.sub('[^\w\s-]', '', headline).strip().lower()
+
+# --------------------------------------------------------------------
+
+@injected
+@setup(IArticleTargetTypeService, name='articleTargetTypeService')
+class ArticleTargetTypeServiceAlchemy(EntityServiceAlchemy, IArticleTargetTypeService):
+    '''
+    Implementation for @see: IArticleTargetTypeService
+    '''
+
+    def __init__(self):
+        '''
+        Construct the article target type service.
+        '''
+
+    def getTargetTypes(self, id, offset=None, limit=None, detailed=False):
+        '''
+        @see: IArticleTargetTypeService.getUsers
+        '''
+
+        sql = self.session().query(TargetTypeMapped).join(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+
+    def getUnassignedTargetTypes(self, id, offset=None, limit=None, detailed=False):
+        '''
+        @see: IArticleTargetTypeService.getUnassignedTargetTypes
+        '''
+        sql = self.session().query(TargetTypeMapped)
+        sql = sql.filter(not_(TargetTypeMapped.id.in_(self.session().query(ArticleTargetTypeMapped.targetType).filter(ArticleTargetTypeMapped.article == id).subquery())))
+
+        entities = buildLimits(sql, offset, limit).all()
+        if detailed: return IterPart(entities, sql.count(), offset, limit)
+
+        return entities
+
+    def attachTargetType(self, id, targetKey):
+        '''
+        @see IArticleTargetTypeService.attachTargetType
+        '''
+        targetId = self._targetTypeId(targetKey)
+
+        sql = self.session().query(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+        sql = sql.filter(ArticleTargetTypeMapped.targetType == targetId)
+        if sql.count() == 1: return
+
+        articleTargetType = ArticleTargetTypeMapped()
+        articleTargetType.article = id
+        articleTargetType.targetType = targetId
+
+        self.session().add(articleTargetType)
+        self.session().flush((articleTargetType,))
+
+    def detachTargetType(self, id, targetKey):
+        '''
+        @see IArticleTargetTypeService.detachTargetType
+        '''
+        targetId = self._targetTypeId(targetKey)
+
+        sql = self.session().query(ArticleTargetTypeMapped)
+        sql = sql.filter(ArticleTargetTypeMapped.article == id)
+        sql = sql.filter(ArticleTargetTypeMapped.targetType == targetId)
+        count_del = sql.delete()
+
+        return (0 < count_del)
+
+   # ----------------------------------------------------------------
+
+    def _targetTypeId(self, key):
+        '''
+        Provides the output target type id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(TargetTypeMapped.id).filter(TargetTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(Ref(_('Invalid output target type %(type)s') % dict(type=key),))

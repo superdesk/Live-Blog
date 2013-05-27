@@ -56,7 +56,6 @@ function($, giz)
             $(this.el).show();
             tabpane.addClass('open-tabpane');
             this.activate();
-
         },
         deactivate: function()
         {
