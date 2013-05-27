@@ -29,8 +29,12 @@ function($, giz)
                     '<span class="badge badge-info hide config-notif">!</span></a>');
         }
     }),
+    /*!
+     * sidebar content container for plugin
+     */
     TabContent = giz.View.extend
     ({
+        _parent: null,
         tagName: 'div',
         init: function()
         {
@@ -45,6 +49,9 @@ function($, giz)
         },
         toggle: function()
         {
+            this._parent.deactivateTabContents(); 
+
+            
             var tabpane = $(this.el).parent();
             if( tabpane.hasClass('open-tabpane') )
             {
@@ -64,6 +71,10 @@ function($, giz)
         activate: function()
         {
             $(this).trigger('active');
+        },
+        setParent: function(editView)
+        {
+            this._parent = editView;
         }
     }),
     tabContent = new TabContent,
