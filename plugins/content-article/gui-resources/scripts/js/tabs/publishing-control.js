@@ -44,19 +44,21 @@ define([
             
             var tabpane = $(this.el).parent();
             if (tabpane.hasClass('open-tabpane')) {
-                $(this.el).hide();
+                $(this.el).addClass('hide');
                 this.deactivate();
                 tabpane.removeClass('open-tabpane');
                 return;
             }
-            $(this.el).show();
+            $(this.el).removeClass('hide');
             tabpane.addClass('open-tabpane');
             this.activate();
         },
         deactivate: function() {
+            $(this.el).addClass('hide');
             $(this).trigger('inactive');
         },
         activate: function() {
+            $(this.el).removeClass('hide');
             $(this).trigger('active');
         },
         setParent: function(editView)

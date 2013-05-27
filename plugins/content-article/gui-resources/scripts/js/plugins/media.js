@@ -101,35 +101,43 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
                 {
                     var m = this.get('MetaData'); 
                     metadatas[m.get('Id')] = m;
-                    self._attachedFiles[m.get('Id')] = this;
+                    self._attachedFiles[m.get('Id')] = this.get('MetaData');
                 });
                 self.addItems(self._attachedFiles);
             });
             return this._articleFileCollection;
         },
         
+        /*!
+         * TODO: remove files from server
+         */
         deactivate: function()
         {
             $(this.el).addClass('hide');
         },
         /*!
-         * 
+         * TODO: render if not rendered
+         * TODO: keep added files but not saved
+         * TODO: get attached files from the server
          */
         activate: function()
         {
+            $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
             this.getNewFileCollection().xfilter('*').sync({data: { article: this._article.get('Id') }});
             !this._isRendered && this.render();
-            //$('[data-placeholder="media"]', self.el).html('');
             $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
             $(this.el).removeClass('hide');
         },
         /*!
-         * 
+         * TODO: reset attached, added and removed
+         * TODO: clear view
          */
         setArticle: function(article)
         {
             this._article = article;
+            $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
+            this._attachedFiles = {}
         },
         /*!
          * store parent edit view
