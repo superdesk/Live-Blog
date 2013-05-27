@@ -33,14 +33,14 @@
       
       <div class="btn-toolbar desk-toolbar">
 
-    	<a class="btn btn-info pull-right" href="#AddAssignment" data-toggle="modal" ng-show><span class="icon-plus-sign icon-white"></span> New Assignment</a>
+    	<a class="btn btn-info pull-right" href="#AddAssignment" data-toggle="modal" ng-show><span class="icon-plus-sign icon-white"></span> _("New Assignment");</a>
 
 	    <ul class="nav nav-pills pull-left" >
 	      <li ng-class="{active: list}"><a href="" id="list-view" ng-click="list=true"><i class="icon-th-list"></i></a></li>
 	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
 	    </ul>
 
-	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px" ng-click="compact=!compact">Compact view</a>
+	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px" ng-click="compact=!compact">_("Compact view");</a>
 
       </div>
 
