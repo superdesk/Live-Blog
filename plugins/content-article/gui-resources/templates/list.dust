@@ -1,3 +1,5 @@
+<div id="article-list-modal-container"></div>
+
 <div class="subnav subnav-fixed">
 
   <input type="text" name="search" class="searchbar-container" style="width:500px;" value="{src}"><button data-action="search" style="display:none"></button>
@@ -89,6 +91,3 @@
       	{/pagination}
       </div>
    </div>
-
-
-

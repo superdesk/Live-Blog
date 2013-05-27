@@ -32,6 +32,14 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 .html('<img src="'+userImages[i].Thumbnail+'" />');
     },
     
+    getDraggableHelper = function(evt)
+    {
+        var listItem = $(evt.currentTarget),
+            helperElem = $('<ul />').css('max-width', '38%');
+        listItem.clone().appendTo(helperElem);
+        return helperElem;
+    },
+    
     // single post item view
     PostView = giz.View.extend
     ({
@@ -79,7 +87,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                             addClasses: false,
                             revert: 'invalid',
                             containment:'document',
-                            helper: 'clone',
+                            helper: getDraggableHelper, //'clone',
                             appendTo: 'body',
                             zIndex: 2700,
                             clone: true,

@@ -12,7 +12,7 @@ Contains the SQL alchemy meta for user API.
 from ..api.user import User
 from ally.container.binder_op import validateManaged, validateRequired
 from ally.support.sqlalchemy.mapper import validate
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.types import String, DateTime
 from superdesk.person.meta.person import PersonMapped
 
@@ -24,7 +24,8 @@ class UserMapped(PersonMapped, User):
     Provides the mapping for User entity.
     '''
     __tablename__ = 'user'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+    __table_args__ = (UniqueConstraint('name', name='uix_user_name'),
+                      dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Name = Column('name', String(150), nullable=False, unique=True)
     CreatedOn = Column('created_on', DateTime, nullable=False)

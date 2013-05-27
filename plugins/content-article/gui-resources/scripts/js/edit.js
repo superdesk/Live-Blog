@@ -113,7 +113,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             var self = this;
             this._tabs = tabs;
             this._plugins = plugins;
-            this.model = new Article(hash);
+            this.model = giz.Auth(new Article(hash));
             this.model.sync().done(function()
             {                 
                 // pass article model to the plugins

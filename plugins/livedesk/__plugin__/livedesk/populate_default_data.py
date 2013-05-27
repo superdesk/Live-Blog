@@ -9,12 +9,12 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
+from os.path import abspath, dirname, join
 from ..superdesk.db_superdesk import alchemySessionCreator
 from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
 from ally.container import ioc, app
 from ally.container.support import entityFor
-from ally.support.util_io import openURI
 from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
@@ -22,7 +22,6 @@ from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
 from livedesk.api.blog_type_post import IBlogTypePostService, \
     BlogTypePostPersist
-from os.path import abspath, dirname, join
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
@@ -34,6 +33,7 @@ from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
+from ally.support.util_io import openURI
 
 # --------------------------------------------------------------------
 
