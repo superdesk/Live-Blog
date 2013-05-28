@@ -10,10 +10,13 @@ Contains the SQL alchemy implementation for comment inlet API.
 '''
 
 from ..api.comment import IBlogCommentService
-from ..api.blog_post import IBlogPostService
+from ..api.blog_post import IBlogPostService, QBlogPost
 from ..meta.blog import BlogConfigurationMapped
+from ..meta.blog_post import BlogPostMapped
+from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.post.api.post import Post
@@ -66,6 +69,18 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         assert isinstance(self.sourceService, ISourceService), 'Invalid source service %s' % self.sourceService
         assert isinstance(self.collaboratorService, ICollaboratorService), 'Invalid collaborator service %s' % self.collaboratorService
         assert isinstance(self.userService, IUserService), 'Invalid user service %s' % self.userService
+
+    def getComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
+        sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.Blog == blogId)
+        sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
+        sql = sql.filter(SourceTypeMapped.Key == self.comment_source_type_key)
+        if q:
+            assert isinstance(q, QBlogPost), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, BlogPostMapped)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def pushMessage(self, blogId, comment):
         '''

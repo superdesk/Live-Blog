@@ -9,8 +9,9 @@ Created on May 27, 2013
 API specifications for blog comment.
 '''
 
-from ..api.blog_post import BlogPost
+from ..api.blog_post import BlogPost, QBlogPost
 from ally.api.config import service, call, INSERT
+from ally.api.type import Iter
 from ally.support.api.keyed import Entity
 from livedesk.api.domain_livedesk import modelLiveDesk
 from livedesk.api.blog import Blog
@@ -36,6 +37,13 @@ class IBlogCommentService:
     '''
     Provides the service methods for the blog comment.
     '''
+
+    @call(webName='Comment')
+    def getComments(self, blogId:Blog.Id, offset:int=None, limit:int=None, detailed:bool=True,
+                    q:QBlogPost=None) -> Iter(BlogPost):
+        '''
+        Lists comment Posts of the specified blog.
+        '''
 
     @call(method=INSERT)
     def pushMessage(self, blogId:Blog.Id, comment:BlogComment) -> BlogPost.Id:
