@@ -26,11 +26,13 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.meta.blog import BlogSourceMapped
+from livedesk.meta.blog import BlogSourceDB
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from superdesk.post.api.post import QPostWithPublished
+from superdesk.post.meta.post import PostMapped
 
 # --------------------------------------------------------------------
 
@@ -141,8 +143,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         source = self.session().query(SourceMapped).get(sourceId)
         if not source:
             raise InputError(Ref(_('Unknown source'),))
-        sql = self.session().query(BlogSourceMapped)
-        sql = sql.filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId)
+        sql = self.session().query(BlogSourceDB)
+        sql = sql.filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId)
         return source
 
     def getSources(self, blogId):
@@ -150,7 +152,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId).all()
+        return sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId).all()
 
     def addSource(self, blogId, source):
         '''
@@ -162,7 +164,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(source, Source), 'Invalid source %s' % source
         
         sourceId = self.sourceService.insert(source)
-        ent = BlogSourceMapped()
+        ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
         try:
@@ -178,7 +180,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
         try:
-            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId).delete() > 0
+            res = self.session().query(BlogSourceDB).filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId).delete() > 0
             if res:
                 sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
@@ -187,4 +189,25 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'),))
+
+    def getChainedPosts(self, blogId, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogSourceService.getChainedPosts
+        '''
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
+        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId)
+
+        if q:
+            assert isinstance(q, QPostWithPublished), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, PostMapped)
+
+            if q and QPostWithPublished.isPublished in q:
+                if q.isPublished.value: sql = sql.filter(PostMapped.PublishedOn != None)
+                else: sql = sql.filter(PostMapped.PublishedOn == None)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
