@@ -65,7 +65,7 @@ BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn
 
 # --------------------------------------------------------------------
 
-class BlogSourceMapped(Base):
+class BlogSourceDB(Base):
     '''
     Provides the mapping for BlogSource.
     '''
