@@ -118,7 +118,6 @@ def thumnail_processor():
     Specify which implementation will be used for thumbnail processor. Currently the following options are available:
         "gm", "ffmpeg", "avconv"
     '''
-    return 'gm'
 
 @wire.wire(ThumbnailProcessorFfmpeg, ThumbnailProcessorAVConv, ThumbnailProcessorGM)
 @ioc.entity

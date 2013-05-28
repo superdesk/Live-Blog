@@ -35,17 +35,6 @@ define
 function(providers, Gizmo, $, BlogAction) 
 {
 		
-    // TODO rethink cause this is very ugly
-    var AuthApp;
-    // force homepage
-    require([config.cjs('views/auth.js')], function(a)
-    {
-        AuthApp = a;
-        $(AuthApp).on('logout', function()
-        {
-            window.location.reload();
-        });
-    });
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -429,6 +418,7 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this,
 					rendered = false,
 					post = self.model.feed(true);
+
 				self.renderReorder();
 				if ( typeof post.Meta === 'string') {
 					post.Meta = JSON.parse(post.Meta);
@@ -505,13 +495,11 @@ function(providers, Gizmo, $, BlogAction)
 				self.collection
 					.on('read readauto', function(evt)
 					{
-						//console.log('read: ',evt.type);
 						self.render();
 						self.toggleMoreVisibility();
 					})
-					.on('addingsauto', function(evt, data)
+					.on('addingsauto update', function(evt, data)
 					{
-						//console.log('addingsauto: ',evt.type, data);
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
@@ -543,11 +531,10 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			more: function(evnt, ui)
 			{
-				var self = this;
-				self.collection
-					.xfilter(self.xfilter)
-					.limit(self.collection._stats.limit)
-					.offset(self.collection._stats.offset)
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
 					.desc('order')
 					.sync();
 			},
@@ -648,7 +635,7 @@ function(providers, Gizmo, $, BlogAction)
 							.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
 						self.addAll(self.collection.getList());
 					});
-				}
+                }
 			},
 			
 			/*!
@@ -744,6 +731,9 @@ function(providers, Gizmo, $, BlogAction)
 		}),
 		ActionsView = Gizmo.View.extend
 		({
+			events: {
+				'[data-action="update"]': { "click": "update" }
+			},
 			init: function() {
 				var self = this,
 					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
@@ -758,6 +748,10 @@ function(providers, Gizmo, $, BlogAction)
 				this.el.tmpl('livedesk>timeline-action-item', { PostTypes: PostTypes }, function(){				
 					var self = this;
 				});
+			},
+			update: function(e) {
+				var element = e.currentTarget;
+				$('[data-info="filter"]').html($(element).html());
 			}
 		}),
 		EditView = Gizmo.View.extend
@@ -971,7 +965,7 @@ function(providers, Gizmo, $, BlogAction)
 				    
 					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
-					
+
 					self.timelineView = new TimelineView
 					({
 						el: $('#timeline-view .results-placeholder', self.el),
@@ -1100,28 +1094,47 @@ function(providers, Gizmo, $, BlogAction)
 				self.textToggleStatus();
 			}
 		});	
-	var editView = new EditView({el: '#area-main'});
 	
-	return function(theBlog)
+	var 
+	
+	editView = new EditView({el: '#area-main'}),
+	currentBlogHref = '',
+	
+	providerSets = 
 	{
-		BlogAction.get('modules.livedesk.blog-publish').fail(function(action) {
-						delete providers["google"];
-						delete providers["colabs"];
-						delete providers["twitter"];
-						delete providers["flickr"];
-						delete providers["youtube"];
-						delete providers["instagram"];
-						delete providers["soundcloud"];
-						delete providers["ads"];
-						delete providers["facebook"];
-						delete providers["chain"];
-						//delete providers["image"];
-					});
+	    'full': providers,
+	    'partial': $.extend({}, {edit: providers.edit})
+	},
+	
+	load = function(theBlog)
+	{
+	    currentBlogHref = theBlog;
+	    BlogAction.clearCache();
 	    BlogAction.setBlogUrl(theBlog);
-	    // stop autoupdate if any
-	    editView.timelineView && editView.timelineView.collection.stop();
-	    
-	    editView.theBlog = theBlog;
-	    editView.postInit();
+		BlogAction.get('modules.livedesk.blog-publish')
+		    .done(function(){ providers = providerSets['full'] })
+		    .fail(function(action){ providers = providerSets['partial'] })
+		    .always(function()
+		    { 
+		        // stop autoupdate if any
+		        editView.timelineView && editView.timelineView.collection.stop();
+		        editView.theBlog = theBlog;
+		        editView.postInit();
+		    });
 	}
+	
+    var AuthApp;
+    require([config.cjs('views/auth.js')], function(a)
+    {
+        AuthApp = a;
+        $(AuthApp)
+        .off('.livedesks')
+        .on('login.livedesk', function()
+        {
+            load(currentBlogHref);
+        });
+    });
+    
+    
+	return load;
 });

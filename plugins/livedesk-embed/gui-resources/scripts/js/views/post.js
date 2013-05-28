@@ -139,6 +139,11 @@ define([
 				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));
 				data.CreatedOnISO = createdOn.getTime();
 			}
+			if(data.PublishedOn) {
+				publishedOn = new Date(Date.parse(data.PublishedOn));
+				data.PublishedOn = publishedOn.format(_('mm/dd/yyyy HH:MM o'));
+				data.PublishedOnISO = publishedOn.getTime();
+			}
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
 			}

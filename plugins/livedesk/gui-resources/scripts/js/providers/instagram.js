@@ -83,7 +83,7 @@ define('providers/instagram', [
                                     el.draggable({
                                         addClasses: false,
                                         revert: 'invalid',
-                                        containment:'document',
+                                        //containment:'document',
                                         helper: 'clone',
                                         appendTo: 'body',
                                         zIndex: 2700,

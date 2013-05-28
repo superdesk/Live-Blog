@@ -97,9 +97,8 @@ define([
 
             this.create({
                 Name: blog.get('Title'),
-                URI: blog.get('href'),
-                Provider: blog.provider
-            });
+                URI: blog.get('href')
+            }, {headers: {'X-Filter': 'Id'}});
         },
 
         /**
@@ -142,13 +141,22 @@ define([
         },
 
         validate: function(attributes) {
+            var errors = [];
             if (!attributes.Name) {
-                return _('Please set the Name');
+                errors.push('Name');
             }
 
-            if (!attributes.URI) {
-                return _('Please set the URL');
+            if (!this.isUrl(attributes.URI)) {
+                errors.push('URI');
             }
+
+            if (errors.length) {
+                throw errors;
+            }
+        },
+
+        isUrl: function(url) {
+            return url && url.match(/^https?:\/\/[a-z]/);
         },
 
         getBlogs: function() {
@@ -298,7 +306,7 @@ define([
         },
 
         initialize: function() {
-            this.model.on('change', this.render, this);
+            this.listenTo(this.model, 'change', this.render);
         },
 
         render: function() {
@@ -332,8 +340,10 @@ define([
 
         delete: function(e) {
             e.preventDefault();
-            this.remove();
-            this.model.destroy();
+            if (confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?"))) {
+                this.model.destroy();
+                this.remove();
+            }
         },
 
         edit: function(e) {

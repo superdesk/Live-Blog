@@ -35,7 +35,7 @@ define('providers/edit', [
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
 	var 
-	uploadView = new UploadView,
+	uploadView = new UploadView({thumbSize: 'large'}),
 	ImagePostType = Gizmo.View.extend
 	({ 
 	    events:
@@ -491,19 +491,6 @@ define('providers/edit', [
 			self.enableSaveButtons();
 			var type = self.el.find('[name="type"]').val();
 			
-			/*if( type == 'image' ) 
-            {
-                imagePostType.show();
-                this.lastType = type;
-                return;
-            }
-            else if(imagePostType.isActive())
-            {
-                imagePostType.restore();
-                this.lastType = type;
-                return;
-            }*/
-
             switch ( type ) {
             	case 'link':
             		self.clear();
@@ -527,6 +514,7 @@ define('providers/edit', [
 						self.el.find('.edit-area').css('display', 'none');
 						self.el.find('.image-edit-area').html(o).css('display', 'inline');
 					});
+					break;
 				default: 
 					if ( this.lastType == 'link' || this.lastType == 'image') {
 						//clear article
@@ -535,28 +523,6 @@ define('providers/edit', [
 					break;
             }
 			
-			/*
-			if ( type == 'link') {
-				//inject template
-				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
-					self.el.find('.url-input-holder').html(o);
-					self.el.find('article.editable').html('').css('height', '113px');
-					self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
-						var keyCode = event.keyCode;
-						if ( keyCode == 13 ) {
-							self.el.find('[ci="save"]').focus();
-
-						}
-					});
-
-				});
-			} else {
-				if ( this.lastType == 'link' ) {
-					//clear article
-					self.clear();
-				}
-			}
-			*/
 			if(!evt) {
 				evt = $.Event("change");
 				evt.target =  self.el.find('[name="type"]');
@@ -641,8 +607,6 @@ define('providers/edit', [
 		},
 		clear: function()
 		{
-			// this.el.find('[name="type"]').val('normal');
-			$('[name="type"] option:first').attr('selected', 'selected');
 			this.el.find('.image-edit-area').html('').css('display', 'none');
 			this.el.find('.edit-area').css('display', 'inline');
 			this.el.find('.edit-block article.editable').html('').css('height', '150px');;

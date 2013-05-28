@@ -83,7 +83,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         return self.session().query(BlogCollaboratorTypeMapped).all()
 
-    def getActions(self, userId, blogId, path=None):
+    def getActions(self, userId, blogId, path=None, origPath=None):
         '''
         @see: IBlogCollaboratorService.getActions
         '''

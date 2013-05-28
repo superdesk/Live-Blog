@@ -87,6 +87,7 @@ SOURCES = {
            'soundcloud': (False, 'www.soundcloud.com', 'xml', 'd98e8886a3f474440649a28ecf79b889'),
            }
 
+
 @ioc.entity
 def getSourcesIds():
     sourcesService = entityFor(ISourceService)

@@ -3,6 +3,7 @@ define([
 	'gizmo/view-events',
 	'livedesk-embed/views/post',
 	'utils/date-format',
+	'utils/ie-polyfill',
 	'livedesk-embed/dispatcher',
 	'jquery/tmpl',
 	'jquery/scrollspy',
@@ -66,7 +67,7 @@ define([
 		},
 		loadingMore: function(evt) {
 			var self = this;
-			console.log(self.flags);
+			//console.log(self.flags);
 			if(self.flags.atEnd || self.flags.loadingMore)
 				return;
 			self.flags.loadingMore = true;
@@ -133,15 +134,7 @@ define([
 		auto: function(){
 			this.model.xfilter().sync({force: true});
 			return this;
-		},
-		ensureStatus: function(){
-			if(this.model.get('ClosedOn')) {
-				var closedOn = new Date(this.model.get('ClosedOn'));
-				this.pause();
-				this.model.get('PostPublished').stop();					
-				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
-			}
-		},                       
+		},                      
 		gotoHash : function() {
 			if (location.hash.length > 0) {
 				var topHash = location.hash;
@@ -173,8 +166,6 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
-							.on('updateauto readauto', self.updateStatus, self)
-							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(postPublished._stats.limit);
 					if(orderhash[1] && ( (hashIndex = orderhash[1].indexOf(self.hashIdentifier)) !== -1)) {
@@ -194,6 +185,11 @@ define([
 			}).on('update', function(e, data){
 				self.ensureStatus();
 				self.renderBlog();
+			}).on('sync',function(){
+				self.updateingStatus();
+			})
+			.on('synced', function(){
+				self.updateStatus();
 			});
 			self.sync();				
 		},
@@ -263,7 +259,9 @@ define([
 		},
 		addOne: function(model)
 		{
-			return this.orderOne(new PostView({model: model, _parent: this}));
+			var view = new PostView({model: model, _parent: this});
+            model.postView = view;
+			return this.orderOne(view);
 		},
 		toggleStatusCount: function()
 		{
@@ -276,13 +274,13 @@ define([
 		},
 		removeAllAutoupdate: function(evt, data)
 		{
-			var self = this;
-			for( var i = 0, count = data.length; i < count; i++ ) {
-				if(data[i].postview) {
-					data[i].postview.remove();
+			for (var i in data) {
+                if ('postView' in data[i]) {
+					data[i].postView.remove();
 				}
 			}
-			self.markScroll();
+
+			this.markScroll();
 		},
 		addAllAutoupdate: function(evt, data)
 		{
@@ -323,21 +321,30 @@ define([
 			}
 			this.toggleMoreVisibility();
 		},
+		ensureStatus: function(){
+			if(this.model.get('ClosedOn')) {
+				var closedOn = new Date(this.model.get('ClosedOn'));
+				this.pause();
+				this.model.get('PostPublished').stop();					
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
+			}
+		}, 
 		updateingStatus: function()
 		{
-
-			this.el.find('#liveblog-status-time').html(_('updating...'));
+			this.el.find('#liveblog-status-time').html(_('updating...')+'');
 		},
 		updateStatus: function()
 		{
 			var self = this,
 				now = new Date();
-			this.el.find('#liveblog-status').fadeOut(function(){
-				var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
-				$(this).find('#liveblog-status-time')
-					.html(_('updated on %s').format([t])).end().fadeIn();
-				$.dispatcher.triggerHandler('after-render',self);
-			});
+			if(this.model.get('ClosedOn') === undefined) {
+				this.el.find('#liveblog-status').fadeOut(function(){
+					var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
+					$(this).find('#liveblog-status-time')
+						.html(_('updated on %s').format([t])).end().fadeIn();
+					$.dispatcher.triggerHandler('after-render',self);
+				});
+			}
 		},
 		renderBlog: function()
 		{
@@ -365,7 +372,7 @@ define([
 			var self = this,
 				data,
 				auxView,
-				postPublished = self.model.get('PostPublished');;
+				postPublished = self.model.get('PostPublished');
 			self.el.tmpl('theme/container');
 			self.renderBlog();
 			self.ensureStatus();

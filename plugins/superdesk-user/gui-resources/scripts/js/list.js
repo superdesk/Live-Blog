@@ -119,11 +119,23 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                         {
                             if(this.get('Name') == 'internal')
                             {
-                                newCollaborator.set('Source', this.get('Id'));
-                                return false;
+                                var collaboratorUrl = new giz.Url('HR/User/{1}/Source/{2}/Collaborator');
+                                var href = collaboratorUrl.get('href').replace('{1}', self.model.get('Id')).replace('{2}', this.get('Id'));
+
+                                var collaboratorList = new Collaborator;
+                                collaboratorList.setHref(href).sync().done(function(){
+                                    if (collaboratorList.data.CollaboratorList.length === 0) {
+                                        newCollaborator.set('Source', this.get('Id'));
+                                        newCollaborator.sync();
+                                        return false;
+                                    } else {
+                                        newCollaborator = new Collaborator;
+                                        newCollaborator.setHref(collaboratorList.data.CollaboratorList[0].href).sync();
+                                        return false;
+                                    }
+                                });
                             }
                         });
-                        newCollaborator.sync(newCollaborator.url.get()); 
                     });
             // ?
             
@@ -378,9 +390,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         },
         checkPass: function(modal)
         {
-            var pass = $(modal+' form input#inputPass', self.el).val();
-            if( pass.length > 0 && $(modal+' form input#inputPassConfirm', self.el).val() !== pass ) return false;
-            return true;
+            var pass = $(modal+' form input#inputPass', this.el).val();
+            return !(pass.length > 0) || $(modal+' form input#inputPassConfirm', this.el).val() === pass;
         },
         checkEmail: function(email)
         {

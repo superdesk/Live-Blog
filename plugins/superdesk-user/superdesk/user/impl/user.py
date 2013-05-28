@@ -83,7 +83,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         sql = self.session().query(UserMapped)
         sql = sql.filter(UserMapped.Name == user.Name)
         sql = sql.filter(UserMapped.DeletedOn == None)
-        if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
+#        if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
 
         userDb = UserMapped()
         userDb.password = user.Password

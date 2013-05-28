@@ -28,7 +28,8 @@ class CollaboratorMapped(Base, Collaborator):
     Provides the mapping for Collaborator.
     '''
     __tablename__ = 'collaborator'
-    __table_args__ = (UniqueConstraint('fk_user_id', 'fk_source_id', name='uix_1'), dict(mysql_engine='InnoDB'))
+    __table_args__ = (UniqueConstraint('fk_user_id', 'fk_source_id', name='uix_user_source'),
+                      dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     User = Column('fk_user_id', ForeignKey(UserMapped.userId, ondelete='CASCADE'))

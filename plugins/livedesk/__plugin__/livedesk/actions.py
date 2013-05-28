@@ -30,6 +30,7 @@ from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.source.api.source import ISourceService
+from livedesk.api.blog_sync import IBlogSyncService
     
 # --------------------------------------------------------------------
 
@@ -120,6 +121,7 @@ def registerAclLivedeskView():
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesArchiveAction(), dashboardAction())
     r.allGet(IBlogTypeService, IBlogTypePostService, IPersonService, IPersonIconService)
     r.allGet(IBlogService, IBlogCollaboratorService, IBlogPostService, filter=filterCollaboratorBlog())
+    r.allGet(ISourceService)
     r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
 
 @gui.setup
@@ -127,6 +129,7 @@ def registerAclManageOwnPost():
     r = rightManageOwnPost()
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction())
     r.allGet(IBlogService, filter=filterCollaboratorBlog())
+    r.allGet(ISourceService)
     r.add(ref(IBlogPostService).delete)
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, filter=filterCollaboratorBlog())
@@ -138,6 +141,9 @@ def registerAclManageOwnPost():
 @gui.setup
 def registerAclLivedeskUpdate():
     r = rightLivedeskUpdate()
+    r.allGet(IBlogSyncService)
+    r.add(ref(IBlogSyncService).insert, ref(IBlogSyncService).update, filter=filterAuthenticated())
+    r.add(ref(IBlogSyncService).delete)
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), modulesBlogEditAction(),
                  dashboardAction(), modulesAddAction(), modulesConfigureAction(), modulesManageCollaboratorsAction(), modulesManageFeedsAction(),
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
