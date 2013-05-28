@@ -31,6 +31,8 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from superdesk.post.api.post import QPostWithPublished
+from superdesk.post.meta.post import PostMapped
 
 # --------------------------------------------------------------------
 
@@ -187,4 +189,25 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'),))
+
+    def getChainedPosts(self, blogId, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogSourceService.getChainedPosts
+        '''
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
+        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        sql = sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId)
+
+        if q:
+            assert isinstance(q, QPostWithPublished), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, PostMapped)
+
+            if q and QPostWithPublished.isPublished in q:
+                if q.isPublished.value: sql = sql.filter(PostMapped.PublishedOn != None)
+                else: sql = sql.filter(PostMapped.PublishedOn == None)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
