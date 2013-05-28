@@ -18,7 +18,6 @@ define([
                     });
             },
             universal: function(obj) {
-                console.log('obj ', obj);
                 var meta =  jQuery.extend(true, {}, obj);
                 delete meta['$idx'];
                 delete meta['$len'];

@@ -217,10 +217,7 @@ $.extend(providers.sms, {
                                 item = $(evt.currentTarget);
                                 $(ui.helper).css('width', item.width());
                                 var itemNo = $(this).attr('data-id');
-                                console.log( itemNo, self.data.sms );
                                 var elData = self.adaptor.universal(self.data.sms[ itemNo ]);
-
-
                                 $(this).data('data', elData );
 
                             }
