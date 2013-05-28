@@ -38,7 +38,7 @@ class UserMapped(PersonMapped, User):
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
     password = Column('password', String(255), nullable=False)
     # Never map over the inherited id
-    typeId = Column('fk_type_id', ForeignKey(UserTypeMapped.id, ondelete='RESTRICT'), nullable=True) #TODO: make nullable=False when the type will be added on UI
+    typeId = Column('fk_type_id', ForeignKey(UserTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     type = relationship(UserTypeMapped, uselist=False, lazy='joined')
 
 validateRequired(UserMapped.Password)
