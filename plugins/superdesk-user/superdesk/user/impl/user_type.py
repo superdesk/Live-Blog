@@ -13,14 +13,13 @@ from ..api.user_type import IUserTypeService
 from ..meta.user_type import UserTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from sql_alchemy.impl.keyed import EntityServiceAlchemy
-
+from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, EntityFindServiceAlchemy
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IUserTypeService, name='userTypeService')
-class UserTypeServiceAlchemy(EntityServiceAlchemy, IUserTypeService):
+class UserTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IUserTypeService):
     '''
     Implementation for @see: IUserTypeService
     '''
@@ -29,4 +28,4 @@ class UserTypeServiceAlchemy(EntityServiceAlchemy, IUserTypeService):
         '''
         Construct the user type service.
         '''
-        EntityServiceAlchemy.__init__(self, UserTypeMapped)
+        EntityGetServiceAlchemy.__init__(self, UserTypeMapped)

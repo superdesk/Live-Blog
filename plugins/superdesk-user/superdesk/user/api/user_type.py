@@ -9,12 +9,13 @@ Created on May 27, 2013
 API specifications for user types.
 '''
 
-from ally.api.config import service, model, model
-from ally.support.api.keyed import Entity, IEntityService
+from ally.api.config import service
+from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
+from superdesk.api.domain_superdesk import modelHR
 
 # --------------------------------------------------------------------
 
-@model
+@modelHR
 class UserType(Entity):
     '''
     Provides the user type model.
@@ -25,7 +26,7 @@ class UserType(Entity):
 # --------------------------------------------------------------------
 
 @service((Entity, UserType))
-class IUserTypeService(IEntityService):
+class IUserTypeService(IEntityGetService, IEntityFindService):
     '''
     Provides the service methods for the user type.
     '''
