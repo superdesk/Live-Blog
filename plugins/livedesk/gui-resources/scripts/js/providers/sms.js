@@ -26,6 +26,7 @@ $.extend(providers.sms, {
     keyword:[],
 	init: function(){
         var self = this;
+        self.data.sms = [];
         this.adaptor.init();
         this.render();
         //trigger click event for sms feed tabs
@@ -150,7 +151,7 @@ $.extend(providers.sms, {
         }
         myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
         //console.log('myUrl ', myUrl );
-        self.data.sms = [];
+        
         $.ajax({
             url: myUrl
         }).done(function(data){
@@ -158,6 +159,7 @@ $.extend(providers.sms, {
             var smss = data.PostList;
             //clean the results
             if ( sd.clearResults) {
+                self.data.sms = [];
                 $('.sms-list[data-feed-id="' + sd.feedId + '"]').html('');
                 $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','none').html('');
             }
@@ -172,6 +174,7 @@ $.extend(providers.sms, {
                 if ( parseInt(self.topIds[sd.feedId]) < parseInt(item.Id) ) {
                     self.topIds[sd.feedId] = parseInt(item.Id);
                 }
+
             }
             if ( posts.length > 0 ) {
                 $.tmpl('livedesk>items/item', {
@@ -184,6 +187,7 @@ $.extend(providers.sms, {
                     } else {
                         el = $('.sms-list[data-feed-id="' + sd.feedId + '"]').append(o).find('.smspost');
                     }
+
                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                         el.draggable(
                         {
@@ -197,8 +201,12 @@ $.extend(providers.sms, {
                                 item = $(evt.currentTarget);
                                 $(ui.helper).css('width', item.width());
                                 var itemNo = $(this).attr('data-id');
+                                console.log( itemNo, self.data.sms );
                                 var elData = self.adaptor.universal(self.data.sms[ itemNo ]);
-                                $(this).data('data', self.adaptor.universal(self.data.sms[ itemNo ]));
+
+
+                                $(this).data('data', elData );
+
                             }
                         });
                     }).fail(function(){

@@ -18,6 +18,7 @@ define([
                     });
             },
             universal: function(obj) {
+                console.log('obj ', obj);
                 var meta =  jQuery.extend(true, {}, obj);
                 delete meta['$idx'];
                 delete meta['$len'];
@@ -26,7 +27,7 @@ define([
                     data: {
                         Creator: localStorage.getItem('superdesk.login.id'),
                         //@TODO Content needs to be given the message value
-                        Content: '',
+                        Content: meta.message,
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
