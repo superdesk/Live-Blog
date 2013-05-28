@@ -109,35 +109,35 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
         },
         
         /*!
-         * TODO: remove files from server
+         * TODO: remove files from server?
          */
         deactivate: function()
         {
             $(this.el).addClass('hide');
         },
         /*!
-         * TODO: render if not rendered
-         * TODO: keep added files but not saved
-         * TODO: get attached files from the server
          */
         activate: function()
         {
             $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
+            // add back temp added files
+            for( var i in this._addedItems) this.addItem(this._addedItems[i]);
+            // get attached files from the server
             this.getNewFileCollection().xfilter('*').sync({data: { article: this._article.get('Id') }});
+            // render if not rendered
             !this._isRendered && this.render();
             $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
             $(this.el).removeClass('hide');
         },
         /*!
-         * TODO: reset attached, added and removed
-         * TODO: clear view
          */
         setArticle: function(article)
         {
             this._article = article;
             $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
-            this._attachedFiles = {}
+            this._attachedFiles = {};
+            this._addedItems = {};
         },
         /*!
          * store parent edit view
@@ -198,7 +198,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             
             // add items if not already in the attachment list
             if(!this._attachedFiles[item.model.get('Id')])
-                this._addedItems[item.model.get('Id')] = true;
+                this._addedItems[item.model.get('Id')] = model;
             
             model.sync({data: {thumbSize: 'medium'}}).done(function()
             { 
