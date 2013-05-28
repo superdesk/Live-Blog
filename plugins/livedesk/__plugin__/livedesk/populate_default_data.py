@@ -34,6 +34,8 @@ from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
 from ally.support.util_io import openURI
+from superdesk.user.meta.user_type import UserTypeMapped
+from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
 
@@ -68,11 +70,29 @@ def createSourceType(key):
     session.close()
 
 
+def createUserType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(UserTypeMapped.Key == key)).scalar():
+        userTypeDb = UserTypeMapped()
+        userTypeDb.Key = key
+        session.add(userTypeDb)
+
+    session.commit()
+    session.close()
+
+
 @app.populate
 def createSourceTypes():
     createSourceType('blog provider')
     createSourceType('chained blog')
+    createSourceType('comment')
 
+@app.populate
+def createUserTypes():
+    createUserType('commentator')
 
 SOURCES = {
            'internal': (False, '', '', ''),
