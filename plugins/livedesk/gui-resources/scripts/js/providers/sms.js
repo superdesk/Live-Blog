@@ -14,6 +14,7 @@ define([
     'tmpl!livedesk>items/implementors/sources/base',
     'tmpl!livedesk>items/implementors/sources/sms',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/generic-error',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/loading'
 ], function( providers, $, Gizmo, BlogAction) {
@@ -91,6 +92,18 @@ $.extend(providers.sms, {
             self.el.tmpl('livedesk>providers/sms', {'items': data.SourceList}, function(){
                 var feeds = data.SourceList;
 
+                if ( feeds.length == 0 ) {
+                    var message = _('No SMS feeds!');
+                    $.tmpl('livedesk>providers/generic-error', {message: message}, function(e,o) {
+                        $('.sms-results-holder').html(o);
+                        return;
+                    }); 
+                }
+
+                //prepare for 0 results
+                self.topIds[0] = 0;
+                self.keyword[0] = '';
+
                 //initialize the 'top cids' arrat
                 for ( var i = 0; i < feeds.length; i ++ ) {
                     self.topIds[feeds[i].Id] = 0;
@@ -146,6 +159,9 @@ $.extend(providers.sms, {
 
         var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
         var keywordSearch = '';
+        if ( isNaN(sd.feedId) ) {
+            sd.feedId = 0;
+        }
         if ( self.keyword[sd.feedId].length > 0 ) {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword[sd.feedId] + '%')
         }
