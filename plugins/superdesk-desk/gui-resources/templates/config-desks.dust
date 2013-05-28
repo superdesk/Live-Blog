@@ -28,11 +28,11 @@
 				<div class="desk-config-tab show" ng-class="{'member-tab': !cards, 'board-tab': cards}">
 					<div class="desk-subheader subnav">
 						<ul class="nav nav-pills pull-left">
-					      <li ng-class="{active: !cards}"><a href="" ng-click="cards=false">Desk members</a></li>
-					      <li ng-class="{active: cards}"><a href="" ng-click="cards=true">Desk boards</a></li>
+					      <li ng-class="{active: !cards}"><a href="" ng-click="cards=false">_("Desk members");</a></li>
+					      <li ng-class="{active: cards}"><a href="" ng-click="cards=true">_("Desk boards");</a></li>
 					    </ul>
-					    <a class="btn btn-info pull-right" href="#addMember" ng-click="addMember(desk)" data-toggle="modal" ng-show="!cards"><span class="icon-plus-sign icon-white"></span> Add Member</a>
-					    <a class="btn btn-info pull-right" href="#addBoard" ng-click="addCard(desk, desk.cards)" data-toggle="modal" ng-show="cards"><span class="icon-plus-sign icon-white"></span> Add Board</a>
+					    <a class="btn btn-info pull-right" href="#addMember" ng-click="addMember(desk)" data-toggle="modal" ng-show="!cards"><span class="icon-plus-sign icon-white"></span> _("Add Member");</a>
+					    <a class="btn btn-info pull-right" href="#addBoard" ng-click="addCard(desk, desk.cards)" data-toggle="modal" ng-show="cards"><span class="icon-plus-sign icon-white"></span> _("Add Board");</a>
 					</div>
 					<div class="desk-config-tab-content" ng-show="!cards">
 						<ul class="plain-table">
@@ -44,7 +44,7 @@
 		                        <a href="" title="delete members" ng-click="removeMember(desk, user)"><i class="icon-remove"></i></a>
 		                      </div>
 
-		                       <div class="dropdown dropdown-simple">
+		                       <div class="dropdown dropdown-simple" ng-show>
 		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Journalist <b class="caret"></b></a>
 		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
 		                              <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="uid1editor"> Editor</li>
@@ -71,8 +71,8 @@
 		                       <div class="dropdown dropdown-simple">
 		                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
 		                          <ul class="dropdown-menu bottom-up pull-right sf-dropdown-simple">
-		                          	<li class="no-bg item-border"> Set limit: <input type="text" placeholder="none" style="width:30px;" ng-model="card.Limit"></li>
-		                            <li><a href="" ng-click="deleteCard(desk.cards, $index)"><i class="icon-trash"></i> Delete</a></li>
+		                          	<li class="no-bg item-border"> _("Set limit:"); <input type="text" placeholder="none" style="width:30px;" ng-model="card.Limit"></li>
+		                            <li><a href="" ng-click="deleteCard(desk.cards, $index)"><i class="icon-trash"></i> _("Delete");</a></li>
 		                          </ul>
 		                      </div>
 
@@ -94,7 +94,7 @@
 <div class="modal hide fade modal modal-wide" id="addMember" ng-controller="AddMemberController">
   <form name="addMember" class="form-horizontal row-fluid" style="margin-top:10px;">
   <div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
-    <h3>Add Desk member</h3>
+    <h3>_("Add Desk member");</h3>
   </div>
   <div class="modal-body modal-body-min">
       <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin:-8px 0 0 0;float:right !important;" ng-model="userSearch">
@@ -114,8 +114,8 @@
         </ul>          
   </div>
   <div class="modal-footer"> 
-  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
-  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveMembers(desk, users)">Save changes</a>
+  	<a href="" class="btn" data-dismiss="modal">_("Cancel");</a> 
+  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveMembers(desk, users)">_("Save changes");</a>
   </div>
   </form>
 </div>
@@ -129,26 +129,26 @@
 <div class="modal hide fade modal" id="addBoard">
   <form name="addBoard">
   <div class="modal-header"> <a class="close" data-dismiss="modal">×</a>
-    <h3>Add Desk board</h3>
+    <h3>_("Add Desk board");</h3>
   </div>
   <div class="modal-body">
       		<input type="text" placeholder="Board name" ng-model="card.Name">
       		<div class="inline-color-list clearfix">
-      			<span>Choose color: </span>
+      			<span>_("Choose color:"); </span>
       			<ul class="simple-color-list clearfix">
                     <li ng-repeat="color in colors" ng-class="{picked: color === card.Color}"><a href="" ng-click="card.Color=color"><span class="color boardcolor-{{ color }}"></span></a></li>
 	      		</ul>
       		</div>
       		<legend></legend>
-      		<p>You can optionaly limit the number of tasks inside a board</p>
+      		<p>_("You can optionaly limit the number of tasks inside a board");</p>
       		<div>
-      			<span style="margin-right:20px;">Set limit: </span><input type="text" placeholder="none" class="inline-input" style="width:50px;" ng-model="card.Limit">
+      			<span style="margin-right:20px;">_("Set limit:"); </span><input type="text" placeholder="none" class="inline-input" style="width:50px;" ng-model="card.Limit">
       		</div>
 
  </div>
   <div class="modal-footer"> 
-  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
-  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveCard(desk, card)">Save changes</a>
+  	<a href="" class="btn" data-dismiss="modal">_("Cancel");</a> 
+  	<a href="" class="btn btn-primary" data-dismiss="modal" ng-click="saveCard(desk, card)">_("Save changes");</a>
   </div>
   </form>
 </div>
@@ -165,8 +165,8 @@
 <div class="modal hide fade modal-wide" id="addDesk">
     <form name="deskForm">
 	<div class="modal-header"> <a href="" class="close" data-dismiss="modal">×</a>
-		<h3 ng-show="!desk.Id">Add New Desk</h3>
-		<h3 ng-show="desk.Id">Edit Desk</h3>
+		<h3 ng-show="!desk.Id">_("Add New Desk");</h3>
+		<h3 ng-show="desk.Id">_("Edit Desk");</h3>
 	</div>
 
 	<div class="modalscreen" id="general-screen" style="display:block">
@@ -432,8 +432,8 @@
 
 
 	<div class="modal-footer"> 
-	  	<a href="" class="btn" data-dismiss="modal">Cancel</a> 
-	  	<button class="btn btn-primary" data-dismiss="modal" ng-click="saveDesk(desk)" ng-disabled="!deskForm.$valid">Save</button>
+	  	<a href="" class="btn" data-dismiss="modal">_("Cancel");</a> 
+	  	<button class="btn btn-primary" data-dismiss="modal" ng-click="saveDesk(desk)" ng-disabled="!deskForm.$valid">_("Save");</button>
 	  </div>
 
     </form>
