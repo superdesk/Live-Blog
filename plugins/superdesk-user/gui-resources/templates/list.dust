@@ -14,7 +14,7 @@
 		<button class="btn" data-action="search" type="button">Search</button>
 	</div>
 	{~s}
-	<button style="margin: 3px 0" class="btn btn-info pull-right add-user"><span class="medium-icon-add"></span> _('Add User');</button>
+	<button class="btn btn-medium btn-info pull-right add-user"><span class="medium-icon-add"></span> _('Add User');</button>
 </div>
 
 <div data-main-table="true">
