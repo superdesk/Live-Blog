@@ -1,0 +1,4 @@
+{>"livedesk>items/base"/}
+{<FastActions}{/FastActions}
+{<ImportantActions}{/ImportantActions}
+{<AdditionalAttributes} data-id="{Meta.Id}"{/AdditionalAttributes}
