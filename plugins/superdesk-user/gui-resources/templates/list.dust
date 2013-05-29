@@ -8,13 +8,13 @@
 <!-- ... -->
 
 <div class="subnav subnav-fixed">
-	<div class="input-append pull-right" style="display:inline-block; margin: 3px 0">
+	<div class="input-append pull-left" style="display:inline-block; margin: 3px 0">
 		<input class="span3" size="16" type="text" name="search" placeholder="_('Search');" style="margin:0;height:28px;" />
 		<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
 		<button class="btn" data-action="search" type="button">Search</button>
 	</div>
 	{~s}
-	<button style="margin: 3px 0" class="btn btn-primary add-user">_('Add User');</button>
+	<button class="btn btn-medium btn-info pull-right add-user"><span class="medium-icon-add"></span> _('Add User');</button>
 </div>
 
 <div data-main-table="true">

@@ -1,7 +1,7 @@
 {+api_key}
 {#Source}
 <li>
-{Name}: <input name="api-key" value="{Key}"/>
+{Name}: <input type="text" name="api-key" value="{Key}"/>
 </li>
 {/Source}
 {/api_key}
