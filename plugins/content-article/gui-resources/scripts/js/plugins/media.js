@@ -101,35 +101,43 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
                 {
                     var m = this.get('MetaData'); 
                     metadatas[m.get('Id')] = m;
-                    self._attachedFiles[m.get('Id')] = this;
+                    self._attachedFiles[m.get('Id')] = this.get('MetaData');
                 });
                 self.addItems(self._attachedFiles);
             });
             return this._articleFileCollection;
         },
         
+        /*!
+         * TODO: remove files from server?
+         */
         deactivate: function()
         {
             $(this.el).addClass('hide');
         },
         /*!
-         * 
          */
         activate: function()
         {
+            $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
+            // add back temp added files
+            for( var i in this._addedItems) this.addItem(this._addedItems[i]);
+            // get attached files from the server
             this.getNewFileCollection().xfilter('*').sync({data: { article: this._article.get('Id') }});
+            // render if not rendered
             !this._isRendered && this.render();
-            //$('[data-placeholder="media"]', self.el).html('');
             $('[data-placeholder="description"]', this.el).removeClass('hide');
             this._isRendered && this.resetEvents();
             $(this.el).removeClass('hide');
         },
         /*!
-         * 
          */
         setArticle: function(article)
         {
             this._article = article;
+            $('[data-placeholder="media"]', this.el).each(function(){ $(this).html(''); });
+            this._attachedFiles = {};
+            this._addedItems = {};
         },
         /*!
          * store parent edit view
@@ -190,7 +198,7 @@ function($, giz, mediaTab, Upload, MA, MACommon, ArticleFile)
             
             // add items if not already in the attachment list
             if(!this._attachedFiles[item.model.get('Id')])
-                this._addedItems[item.model.get('Id')] = true;
+                this._addedItems[item.model.get('Id')] = model;
             
             model.sync({data: {thumbSize: 'medium'}}).done(function()
             { 
