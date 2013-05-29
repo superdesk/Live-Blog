@@ -359,13 +359,13 @@
                         <div ng-hide="edit">
                             <p class="comment-text">{{ comment.Text }}</p>
                             <div class="action-menu">
-                                <a href="" ng-click="edit = true"><i class="icon-pencil"></i> _('Edit');</a>
+                                <a href="" ng-click="edit = true; oldComment = comment.Text"><i class="icon-pencil"></i> _('Edit');</a>
                                 <a href="" ng-click="deleteComment($index)"><i class="icon-trash"></i> _('Delete');</a>
                             </div>
                         </div>
                         <div ng-show="edit" class="add-comment-box focused">
                             <textarea placeholder="_('Write a comment');" ng-model="comment.Text"></textarea>
-                            <a class="btn btn-mini" ng-click="commentText = ''; edit = false">_('Cancel');</a>
+                            <a class="btn btn-mini" ng-click="comment.Text = oldComment; edit = false">_('Cancel');</a>
                             <a class="btn btn-primary btn-mini" ng-click="saveComment(comment); edit = false">_('Save Comment');</a>
                         </div>
                     </li>
