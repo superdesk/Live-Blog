@@ -35,6 +35,12 @@ define([
         );
     }]);
 
+    resources.factory('TaskComment', ['$resource', function($resource) {
+        return $resource('/resources/Desk/TaskComment/:Id', {Id: '@Id'},
+            {update: {method: 'PUT'}, save: {method: 'POST', params: {'X-Filter': 'Id'}}}
+        );
+    }]);
+
     resources.factory('TaskStatus', ['$resource', function($resource) {
         return $resource('/resources/Desk/TaskStatus/:Id', {Id: '@Id'}, {
             query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}},
@@ -94,7 +100,20 @@ define([
 
         this.saveTaskStatus = function(task) {
             Task.update({Id: task.Id, Status: task.Status.Key});
-        }
+        };
+
+        this.loadComments = function(task) {
+            var comments = $resource('/resources/Desk/Task/:taskId/TaskComment', {taskId: task.Id}, {
+                query: {method: 'GET', isArray: false, params: {'X-Filter': '*, User.*'}}
+            });
+
+            var delay = $q.defer();
+            comments.query(function(response) {
+                delay.resolve(response.TaskCommentList);
+            });
+
+            return delay.promise;
+        };
     }]);
 
     resources.service('DeskService', ['$resource', '$q', function($resource, $q) {

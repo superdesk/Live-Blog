@@ -2,7 +2,7 @@ define(['angular'],
 function(angular) {
     'use strict';
 
-    return function($scope, $q, Task, TaskStatusLoader) {
+    return function($scope, $q, Task, TaskStatusLoader, TaskComment) {
         $scope.statuses = TaskStatusLoader();
 
         $scope.getEditData = function() {
@@ -42,6 +42,42 @@ function(angular) {
                 var index = $scope.tasks.indexOf($scope.orig);
                 $scope.tasks.splice(index, 1);
             }
+        };
+
+        $scope.saveComment = function(taskComment) {
+            if (typeof taskComment === 'string') {
+                taskComment = {
+                    Task: $scope.task.Id,
+                    Text: taskComment
+                };
+                taskComment.User = localStorage.getItem('superdesk.login.id');
+            }
+            delete taskComment.CreatedOn;
+            delete taskComment.UpdatedOn;
+            delete taskComment.edit;
+
+            if ('Id' in taskComment) {
+                TaskComment.update(taskComment, function(response) {
+                    TaskComment.get({Id: taskComment.Id}, function(taskCommentNew) {
+                        taskComment.UpdatedOn = taskCommentNew.UpdatedOn;
+                        taskComment.edit = false;
+                    });
+                });
+            } else {
+                TaskComment.save(taskComment, function(response) {
+                    TaskComment.get({Id: response.Id}, function(taskComment) {
+                        taskComment.User = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name')};
+                        $scope.comments.push(taskComment);
+                        $scope.commentText = '';
+                    });
+                });
+            }
+        };
+
+        $scope.deleteComment = function(index) {
+            TaskComment.delete({Id: $scope.comments[index].Id}, function(response) {
+                $scope.comments.splice(index, 1);
+            });
         };
     };
 });

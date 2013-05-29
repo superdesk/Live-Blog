@@ -7,6 +7,9 @@ function(angular) {
             TaskService.loadSubtasks(task).then(function(tasks) {
                 $scope.task.subtasks = tasks;
             });
+            TaskService.loadComments(task).then(function(comments) {
+                $scope.task.comments = comments;
+            });
         });
     };
 });
