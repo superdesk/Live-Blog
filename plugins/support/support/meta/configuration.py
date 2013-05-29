@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 # --------------------------------------------------------------------
 
-def abstract_mapping(): raise Exception('Use a derived class')
+def abstractMapping(): raise Exception('Use a derived class')
 
 class ConfigurationDescription:
     '''
@@ -26,4 +26,4 @@ class ConfigurationDescription:
     Name = declared_attr(lambda cls: Column('name', String(255), primary_key=True))
     Value = declared_attr(lambda cls: Column('value', String(1024)))
     # None REST model attribute --------------------------------------
-    parent = declared_attr(lambda cls: abstract_mapping())
+    parent = declared_attr(lambda cls: abstractMapping())
