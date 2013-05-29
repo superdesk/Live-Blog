@@ -28,6 +28,14 @@ from sqlalchemy.orm.exc import NoResultFound
 def createConfigurationImpl(service, mapped):
     '''
     Generator of particular configuration implementations
+
+    @param service: class
+        The service that implements particular configuration API.
+    @param mapped: class
+        The mapping of Configuration API into particular configuration table.
+
+    @return: The implementation class for the particular configuration API.
+        The created class is from the module that calls the function.
     '''
     assert issubclass(service, IConfigurationService), 'Invalid service. It should extend the IConfigurationService'
     assert issubclass(mapped, ConfigurationDescription), 'Invalid DB mapping. It should extend the ConfigurationDescription mapping'

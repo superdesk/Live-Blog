@@ -9,15 +9,14 @@ Created on May 22, 2013
 Provides configurations API support that can be binded to other entities.
 '''
 
-from ally.api.config import query, service, call, LIMIT_DEFAULT
+from ally.api.config import query, service, call, LIMIT_DEFAULT, model
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity
-from content.packager.api.domain_content import modelContent
 
 # --------------------------------------------------------------------
 
-@modelContent(id='Name')
+@model(id='Name')
 class Configuration:
     '''
     Provides the configuration model.
@@ -78,7 +77,7 @@ class IConfigurationService:
     @call
     def update(self, parentId:Entity.Id, configuration:Configuration):
         '''
-        Update the entity.
+        Update the configuration on parentId.
         
         @param parentId: integer
             The entity to be configured.
@@ -89,11 +88,11 @@ class IConfigurationService:
     @call
     def delete(self, parentId:Entity.Id, name:Configuration.Name) -> bool:
         '''
-        Delete the entity for the provided id.
+        Delete the configuration on parentId for the provided name.
         
         @param parentId: integer
             The entity to be configured.
-        @param configuration: Configuration
+        @param name: configuration name
             The configuration to be deleted.
             
         @return: True if the delete is successful, false otherwise.
