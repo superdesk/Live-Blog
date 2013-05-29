@@ -89,7 +89,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         '''
         # checking if the blog exists
         # checking whether comments are allowed shall be done in gateway
-        if not session.query(exists().where(BlogMapped.Id == blogId)).scalar():
+        if not self.session().query(exists().where(BlogMapped.Id == blogId)).scalar():
             raise InputError(Ref(_('Specified blog does not exist'),))
 
         userName = comment.UserName
