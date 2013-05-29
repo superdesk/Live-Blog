@@ -46,7 +46,7 @@ class IBlogCommentService:
         '''
 
     @call(method=INSERT)
-    def pushMessage(self, blogId:Blog.Id, comment:BlogComment) -> BlogPost.Id:
+    def addComment(self, blogId:Blog.Id, comment:BlogComment) -> BlogPost.Id:
         '''
         Inserts a new blog comment.
         '''
