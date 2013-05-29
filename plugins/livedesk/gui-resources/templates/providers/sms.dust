@@ -1,141 +1,23 @@
 <div class="sms-header">
 	<p>_("Select SMS feed:");</p>
 	<p class="feed-info">
-		<button class="btn btn-mini " data-toggle="button">AP</button> 
-		<button class="btn btn-mini btn-yellow" data-toggle="button">Mark Lister</button> 
-		<button class="btn btn-mini " data-toggle="button">Adam Hops</button>
+		{#items}
+			<button class="btn btn-mini " data-toggle="button" data-feed-id="{Id}" style="margin-bottom:2px">{Name}</button> 
+		{/items}
 	</p>
 	<div class="sms-search">
-		<div class="autopublish">
-			<span>Autopublish:</span><input type="checkbox" class="sf-toggle on-off">
-		</div>
 		<div class="sf-searchbox">
-			<input type="text" placeholder="_('Search');">
-			<a href="#"><i class="icon-remove"></i></a>
+			{#items}
+				<input type="text" placeholder="_('Search');" class="sms-search-query smstab" data-feed-id="{Id}" style="display: none">
+				<!-- <a href="#" class="sms-clear-search"><i class="icon-remove sms-clear-search smstab" data-feed-id="{Id}"></i></a> -->
+			{/items}
 		</div>
 	</div>
-
 </div>
 
-<div class="alert fade in" style="margin-top:145px;margin-right:12px;">
-	<a class="popup-close" data-dismiss="alert">x</a>
-	<strong>This feed is set to autopublish </strong>- all posts are published automatically.
+<div class="sms-results-holder">
+	{#items}
+		<ul class="search-result-list sms-list" data-feed-id="{Id}"></ul>
+		<div class="sms-load-more-holder" data-feed-id="{Id}" ></div>
+	{/items}
 </div>
-
-<script type="text/javascript">
-
-	      /* sf-toggle*/
-	      $('.sf-toggle').each(function(i,val){
-	      	var additional_class="";
-	      	if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
-	      	if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
-	      	if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
-	        $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
-	        $(val).hide();
-	      });
-	      
-	      $('.sf-toggle-custom').click(function(e){
-	        e.preventDefault();
-
-	        if (!$(this).hasClass("sf-disable")) {
-
-	        	$(this).toggleClass('sf-checked');
-		        var own_box = $(this).find(".sf-toggle");        
-		        
-		        if (own_box.prop('checked')==true) 
-		        	{ own_box.prop('checked',false); }
-		        else 
-		        	{ own_box.prop('checked',true); }
-		       
-		        own_box.click();
-		        
-		        if (own_box.prop('checked')==true) 
-		        	{ own_box.prop('checked',false); }
-		        else 
-		        	{ own_box.prop('checked',true); }
-	        }
-	       
-	        return false;
-	        
-	      });
-
-</script>
-
-
-<!--search results for sms -->
-<ul class="search-result-list sms-list scroller" id="sms-search-results">
-
-<li class="draggable smspost post-draggable clearfix">
-	<div class="drag-bar"></div>
-	<div class="tool-box-right">
-		<a href="#" class="close image" data-toggle="modal" title="Delete">x</a>
-	</div>
-	<figure class="avatar"><img data-avatar-id="7" src="//gravatar.com/avatar/34c80178a7d5c234ed1cc1c9d0353196?r=pg&amp;s=36&amp;d=blank&amp;"></figure>
-	<div class="post-info">
-		<p rel="author">Janet Editor</p>
-		<time data-date="">4/25/13 2:34 PM</time> 
-	</div>
-
-	<div class="result-content-full">
-		<div class="result-content">
-			<div class="result-text">
-				Live Blog is a new open source live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and be one of the first to test it!
-			</div>
-		</div>
-	</div>
-
-	<div class="saveonly">
-		<button class="btn btn-small btn-primary" type="submit">Save</button>
-	</div>
-
-</li>	
-<li class="draggable smspost post-draggable clearfix">
-	<div class="drag-bar"></div>
-	<div class="tool-box-right">
-		<a href="#" class="close image" data-toggle="modal" title="Delete">x</a>
-	</div>
-	<figure class="avatar"><img data-avatar-id="7" src="//gravatar.com/avatar/34c80178a7d5c234ed1cc1c9d0353196?r=pg&amp;s=36&amp;d=blank&amp;"></figure>
-	<div class="post-info">
-		<p rel="author">Janet Editor</p>
-		<time data-date="">4/25/13 2:34 PM</time> 
-	</div>
-
-	<div class="result-content-full">
-		<div class="result-content">
-			<div class="result-text">
-				Live Blog is a new open source live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and be one of the first to test it!
-			</div>
-		</div>
-	</div>
-
-	<div class="saveonly">
-		<button class="btn btn-small btn-primary" type="submit">Save</button>
-	</div>
-
-</li>	
-<li class="draggable smspost post-draggable clearfix">
-	<div class="drag-bar"></div>
-	<div class="tool-box-right">
-		<a href="#" class="close image" data-toggle="modal" title="Delete">x</a>
-	</div>
-	<figure class="avatar"><img data-avatar-id="7" src="//gravatar.com/avatar/34c80178a7d5c234ed1cc1c9d0353196?r=pg&amp;s=36&amp;d=blank&amp;"></figure>
-	<div class="post-info">
-		<p rel="author">Janet Editor</p>
-		<time data-date="">4/25/13 2:34 PM</time> 
-	</div>
-
-	<div class="result-content-full">
-		<div class="result-content">
-			<div class="result-text">
-				Live Blog is a new open source live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and be one of the first to test it!
-			</div>
-		</div>
-	</div>
-
-	<div class="saveonly">
-		<button class="btn btn-small btn-primary" type="submit">Save</button>
-	</div>
-
-</li>	
-
-</ul>
