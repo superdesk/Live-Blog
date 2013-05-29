@@ -12,13 +12,13 @@
 				<div class="control-group">
 					<label class="control-label">_('Provider link');</label>
 					<div class="controls output-link">
-						<input readonly="readonly" name="ProviderLink" style="width:600px;height:auto;" value="{ProviderLink}"/>
+						<input type="text" readonly="readonly" name="ProviderLink"  value="{ProviderLink}"/>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">_('Output link');</label>
 					<div class="controls output-link">
-						<input readonly="readonly" name="OutputLink" style="width:600px;height:auto;" value="{OutputLink}"/>
+						<input type="text" readonly="readonly" name="OutputLink"  value="{OutputLink}"/>
 					</div>
 				</div>
 				<div class="control-group">
@@ -28,13 +28,13 @@
 				<div class="control-group">
 					<label class="control-label">_("Embed script");</label>
 					<div class="controls">
-						<textarea id="emebed-script" rows="3" style="width:600px;height:auto;"></textarea>
+						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">_("Frontend server");</label>
 					<div class="controls">
-						<input name="FrontendServer" style="width:600px;height:auto;" value="{EmbedConfig.FrontendServer}"/>
+						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
 					</div>
 				</div>
 				<div class="control-group">

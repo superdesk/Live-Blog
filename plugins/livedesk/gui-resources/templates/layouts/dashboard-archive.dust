@@ -1,5 +1,5 @@
 <div class="archive-blogs-header">
-	<input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search by Title" style="float:left !important;" id="search-archive-text" value="{searchkey}">
+	<input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search by Title" style="float:left !important;" id="search-archive-text" value="{searchkey}">
 	<a href="#" class="btn pull-left" id="search-archive-button">Go!</a>
 	<a href="#" class="btn pull-left" id="search-archive-clear">Clear</a>
 	
@@ -27,7 +27,7 @@
 </ul>
 
 {#pagination}
-<ul class="pagination" style="float:left;">
+<ul class="pagination">
 	<li> <a href="#" data-pagination="first" title="First" id="pag-first">⇤</a> </li>
 	<li> <a href="#" data-pagination="prev" title="Previous" id="pag-prev">←</a> </li> 
 	<li class="active"> <a href="#" data-pagination="currentpages" title="Page {page}" data-offset="0">{page}</a> </li>	
@@ -35,7 +35,7 @@
 	<li> <a href="#" data-pagination="last" title="Last" id="pag-last">⇥</a> </li>
 </ul>
 {/pagination}
-<ul class="pagination ipp" style="margin-left:20px;float:left;">
+<ul class="pagination ipp">
 	<li class="{ippa}"> <a href="#" class="ippli" data-ipp="10">10</a> </li>
 	<li class="{ippb}"> <a href="#" class="ippli" data-ipp="20">20</a> </li>
 	<li class="{ippc}"> <a href="#" class="ippli" data-ipp="50">50</a> </li>
