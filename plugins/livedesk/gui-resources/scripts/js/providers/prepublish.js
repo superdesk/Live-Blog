@@ -23,6 +23,10 @@ define([
             var self = this;
             if($.type(self.data.Meta) === 'string')
                 self.data.Meta = JSON.parse(self.data.Meta);
+            //added ability to change the content before publishing 
+            if ( $('.result-text', self.el).hasClass('editable') ) {
+                self.data.Content = $('.result-text', self.el).html();
+            }
             self.data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
             self.data.Meta = JSON.stringify(self.data.Meta);
             self.parent.insert(self.data, self);

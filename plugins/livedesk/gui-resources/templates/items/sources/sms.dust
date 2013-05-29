@@ -1,5 +1,5 @@
-{>"livedesk>items/sources/base"/}
-{<Container}{/Container}
+{>"livedesk>items/{Base}"/}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}
 {<ProviderClass}smspost{/ProviderClass}
 {<ItemInfo}
 	<figure class="avatar">
@@ -10,6 +10,5 @@
 		<time>{Meta.CreatedOn}</time> <!-- time of the post -->
 	</div>
 {/ItemInfo}
-{<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
 {<SourceAuthor}{/SourceAuthor}
 {<ContainerIframe}{/ContainerIframe}
