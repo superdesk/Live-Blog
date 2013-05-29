@@ -54,13 +54,11 @@ function(angular) {
             }
             delete taskComment.CreatedOn;
             delete taskComment.UpdatedOn;
-            delete taskComment.edit;
 
             if ('Id' in taskComment) {
                 TaskComment.update(taskComment, function(response) {
                     TaskComment.get({Id: taskComment.Id}, function(taskCommentNew) {
                         taskComment.UpdatedOn = taskCommentNew.UpdatedOn;
-                        taskComment.edit = false;
                     });
                 });
             } else {

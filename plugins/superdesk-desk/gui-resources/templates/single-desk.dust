@@ -342,9 +342,9 @@
         		</ul>
         	</section>    
         	<section class="modal-mainpane-module" ng-show="task.Id">
-                <header>Comments</header>
+                <header>_('Comments');</header>
                 <div class="add-comment-box" ng-class="{focused:addComment}">
-                    <textarea id="add-comment" placeholder="Write a comment" ng-model="commentText" ng-click="addComment = true"></textarea>
+                    <textarea id="add-comment" placeholder="_('Write a comment');" ng-model="commentText" ng-click="addComment = true"></textarea>
                     <a class="btn btn-mini" ng-click="commentText = ''; addComment = false">_('Cancel');</a>
                     <a class="btn btn-primary btn-mini" ng-click="saveComment(commentText)" ng-disabled="!commentText">_('Send Comment');</a>
                 </div>
@@ -356,17 +356,17 @@
                             <b>{{ comment.User.Name }}</b>
                             <time>{{ comment.UpdatedOn }}</time>
                         </div>
-                        <div ng-hide="comment.edit">
+                        <div ng-hide="edit">
                             <p class="comment-text">{{ comment.Text }}</p>
                             <div class="action-menu">
-                                <a href="" ng-click="comment.edit = true"><i class="icon-pencil"></i> _('Edit');</a>
+                                <a href="" ng-click="edit = true"><i class="icon-pencil"></i> _('Edit');</a>
                                 <a href="" ng-click="deleteComment($index)"><i class="icon-trash"></i> _('Delete');</a>
                             </div>
                         </div>
-                        <div ng-show="comment.edit" class="add-comment-box focused">
-                            <textarea placeholder="Write a comment" ng-model="comment.Text"></textarea>
-                            <a class="btn btn-mini" ng-click="commentText = ''">_('Cancel');</a>
-                            <a class="btn btn-primary btn-mini" ng-click="saveComment(comment)">_('Save Comment');</a>
+                        <div ng-show="edit" class="add-comment-box focused">
+                            <textarea placeholder="_('Write a comment');" ng-model="comment.Text"></textarea>
+                            <a class="btn btn-mini" ng-click="commentText = ''; edit = false">_('Cancel');</a>
+                            <a class="btn btn-primary btn-mini" ng-click="saveComment(comment); edit = false">_('Save Comment');</a>
                         </div>
                     </li>
                 </ul>
