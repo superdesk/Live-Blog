@@ -14,6 +14,7 @@ define('providers/instagram', [
     'tmpl!livedesk>providers/instagram/image-item',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/generic-error',
     'tmpl!livedesk>providers/loading'
     ], function( providers,  $, BlogAction ) {
        $.extend(providers.instagram, {
@@ -56,16 +57,24 @@ define('providers/instagram', [
                 if ( query == '') {
                     self.data = [];
                     $('#instagram-image-results').html('');
-                    query = 'https://api.instagram.com/v1/tags/' + encodeURIComponent(text) + '/media/recent?client_id=2bba61e66c8c4773b32c765955bd2b8d&callback=?';
+                    query = 'https://api.instagram.com/v1/tags/' + encodeURIComponent(text) + '/media/recent?client_id=' + self.client_id + '&callback=?';
                 } 
                 self.showLoading('#instagram-image-more');
                 $.jsonp({
                     url : query,
                 }).fail(function(data){
                     self.stopLoading('#instagram-image-more');
+                    
                     //handle failure
                 }).done(function(data){
                     self.stopLoading('#instagram-image-more');
+                    if ( data.meta.code == 400 ) {
+                        //request fail
+                        var message = data.meta.error_message;
+                        $.tmpl('livedesk>providers/generic-error', {message: message}, function(e,o) {
+                            $('#instagram-image-results').append(o);
+                        });
+                    }
                     for( var posts = [], i = 0, item=data.data[i], count = data.data.length; i < count; item = data.data[++i] ){
                         var myDate = new Date(item.created_time * 1000);
                         item.created_time_iso = myDate.toLocaleDateString();
