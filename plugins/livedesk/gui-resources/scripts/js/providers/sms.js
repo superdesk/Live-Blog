@@ -208,7 +208,7 @@ $.extend(providers.sms, {
                         el.draggable(
                         {
                             revert: 'invalid',
-                            containment:'document',
+                            //containment:'document',
                             helper: 'clone',
                             appendTo: 'body',
                             zIndex: 2700,
