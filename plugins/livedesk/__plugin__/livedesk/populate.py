@@ -91,7 +91,7 @@ def populateDefaultUsers():
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
 
-    users = userService.getAll(limit=1, q=QUser(name='Janet'))
+    users = userService.getAll(limit=1, q=QUser(name='admin'))
     if not users:
         user = User()
         user.FirstName = 'Janet'
@@ -104,13 +104,14 @@ def populateDefaultUsers():
     userRbacService.assignRole(user.Id, blogRoleAdministratorId())
 
     for name in (('Andrew', 'Reporter'), ('Christine', 'Journalist')):
-        users = userService.getAll(limit=1, q=QUser(name=name[0]))
+        loginName = name[1].lower()
+        users = userService.getAll(limit=1, q=QUser(name=loginName))
         if not users:
             user = User()
             user.FirstName = name[0]
             user.LastName = name[1]
             user.EMail = '%s.%s@email.addr' % name
-            user.Name = name[1].lower()
+            user.Name = loginName
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
         else: user = next(iter(users))
