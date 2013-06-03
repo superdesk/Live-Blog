@@ -12,7 +12,7 @@ Provides file-info links API support that can be binded to other entities.
 from ally.api.config import service, call, LIMIT_DEFAULT, INSERT, DELETE
 from ally.api.type import Iter
 from ally.support.api.entity import Entity
-from superdesk.media_archive.api.meta_info.py import MetaInfo, QMetaInfo
+from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo
 
 # TODO: on DELETE here, should we delete the file, along the file link?
 #   may be when there is no other usage of that file, alike in Newscoop
