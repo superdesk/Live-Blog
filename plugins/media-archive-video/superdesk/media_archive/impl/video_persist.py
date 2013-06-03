@@ -15,6 +15,8 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 from os import remove
 from os.path import exists, splitext, abspath, join
 from sqlalchemy.exc import SQLAlchemyError
@@ -149,7 +151,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             self.session().flush((videoDataEntry,))
         except SQLAlchemyError as e:
             metaDataMapped.IsAvailable = False
-            handle(e, VideoDataEntry)
+            raise InputError(Ref(_('Cannot save the video data'),))
 
         return True
 
