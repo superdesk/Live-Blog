@@ -18,7 +18,7 @@ setup(
     version="1.0",
     packages=find_packages(),
     install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'superdesk >= 1.0',
-                      'internationalization >= 1.0', 'superdesk_user >= 1.0'],
+                      'internationalization >= 1.0', 'superdesk_user >= 1.0', 'support >= 1.0'],
     platforms=['all'],
     zip_safe=True,
     package_data={
