@@ -16,7 +16,7 @@
 			<!-- Chain blog tab content -->
 		
 			<div class="row-fluid">
-				<div class="span8">
+				<div class="span8-width">
 					<div class="manage-feeds-top">
 						<div class="sf-searchbox">
 							<input type="text" placeholder="Search">
@@ -47,7 +47,7 @@
 			<!-- Chain blog tab content -->
 
 			<div class="row-fluid">
-				<div class="span8">
+				<div class="span8-width">
 					<div class="manage-feeds-top">
 						<div class="sf-searchbox">
 							<input type="text" placeholder="Search">
