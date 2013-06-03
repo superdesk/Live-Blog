@@ -11,8 +11,8 @@ Contains the SQL alchemy meta for the file-info links API.
 
 from ..api.file_link import IFileLinkService
 from ..meta.file_link import FileLinkDescription
-from superdesk.media_archive.api.meta_info.py import MetaInfo, QMetaInfo
-from superdesk.media_archive.meta.meta_info.py import MetaInfoMapped
+from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo
+from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
