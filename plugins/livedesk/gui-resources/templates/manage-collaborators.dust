@@ -5,7 +5,7 @@
 <h3>_('Collaborators managment:'); {Title|t}</h3>
 </header>
 <div class="row-fluid">
-  <div class="span8">
+  <div class="internal-collabs">
     <form class="form-horizontal form-large">
       <fieldset>
         <legend>_("Define Collaborators");</legend>
