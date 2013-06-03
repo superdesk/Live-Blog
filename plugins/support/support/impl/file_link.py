@@ -29,6 +29,14 @@ from sqlalchemy.sql.expression import exists, and_
 def createFileLinkImpl(service, mapped):
     '''
     Generator of particular file-link implementations
+
+    @param service: class
+        The service that implements particular file-link API.
+    @param mapped: class
+        The DB mapping for the file-link API into particular file-link table.
+
+    @return: The implementation class for the particular file-link API.
+        The created class is from the module that calls the function.
     '''
     assert issubclass(service, IFileLinkService), 'Invalid service. It should extend the IFileLinkService'
     assert issubclass(mapped, FileLinkDescription), 'Invalid DB mapping. It should extend the FileLinkDescription mapping'
@@ -47,8 +55,6 @@ class FileLinkServiceAlchemy(SessionSupport, IFileLinkService):
     
     FileLinkDB = FileLinkDescription
     # variable for the DB linking class to be used
-
-    metaDataUploadService = IMetaDataUploadService; wire.entity('metaDataUploadService')
 
     def getById(self, parentId, fileInfoId):
         '''
@@ -87,14 +93,14 @@ class FileLinkServiceAlchemy(SessionSupport, IFileLinkService):
 
         fileLink = self.FileLinkDB()
         fileLink.parent = parentId
-        fileLink.file = fileId
+        fileLink.file = fileInfoId
 
         self.session().add(fileLink)
         self.session().flush((fileLink,))
 
-        return
+        return fileInfoId
 
-    def detachFile(self, parentId:Entity.Id, fileInfoId:MetaData.Id):
+    def detachFile(self, parentId, fileInfoId):
         '''
         @see: IFileLinkService.detachFile
         '''

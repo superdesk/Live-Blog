@@ -40,7 +40,7 @@ class IFileLinkService:
 
         @param parentId: integer
             The id of the entity which the file info is linked to.
-        @param fileInfo: integer
+        @param fileInfoId: integer
             The id of the file info to be taken.
         @raise InputError: If the parentId is not valid. 
         '''
@@ -50,16 +50,29 @@ class IFileLinkService:
                q:QMetaInfo=None) -> Iter(MetaInfo):
         '''
         Provides the file infos relating the parentId.
+
+        @param parentId: integer
+            The id of the entity which the file infos are linked to.
         '''
 
     @call(method=INSERT, webName='File')
-    def attachFile(self, parentId:Entity.Id, fileInfoId:MetaInfo.Id):
+    def attachFile(self, parentId:Entity.Id, fileInfoId:MetaInfo.Id) -> MetaInfo.Id:
         '''
         Attaches file info to the parentId
+
+        @param parentId: integer
+            The id of the entity which the file info should be linked to.
+        @param fileInfoId: integer
+            The id of the file info to be linked.
         '''
 
     @call(method=DELETE, webName='File')
     def detachFile(self, parentId:Entity.Id, fileInfoId:MetaInfo.Id) -> bool:
         '''
         Detaches file info from the parentId
+
+        @param parentId: integer
+            The id of the entity which the file info should be unlinked from.
+        @param fileInfoId: integer
+            The id of the file info to be unlinked.
         '''
