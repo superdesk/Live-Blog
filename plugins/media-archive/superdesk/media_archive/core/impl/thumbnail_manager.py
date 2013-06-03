@@ -40,8 +40,8 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
     '''
     original_size = 'original'; wire.config('original_size', doc='''
     Provides the size name for the original sized images from which the thumbnails are created''')
-    thumbnail_sizes = {'tiny' : [16, 16], 'small' : [32, 32], 'medium' : [64, 64],
-                       'large' : [128, 128], 'huge' : [256, 256]}; wire.config('thumbnail_sizes', doc='''
+    thumbnail_sizes = {'tiny' : [0, 16], 'small' : [0, 32], 'medium' : [0, 100],
+                       'large' : [0, 128], 'huge' : [0, 256]}; wire.config('thumbnail_sizes', doc='''
     This is basically just a simple dictionary{string, tuple(integer, integer)} that has as key a path safe name and as
     a value a tuple with the width/height of the thumbnail, example: {'small': [100, 100]}.
     ''')
