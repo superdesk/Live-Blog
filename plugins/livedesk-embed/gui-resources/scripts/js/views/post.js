@@ -129,7 +129,7 @@ define([
 			} else {
 				data.permalink = self._parent.location + '&' + newHash;
 			}
-			if(data.Author.Source.Name !== 'internal') {
+			if(!data.Author.Source.IsModifiable && data.Author.Source.Name !== 'internal') {
 				data.item = "source/"+data.Author.Source.Name;
 			}
 			else if(data.Type)
