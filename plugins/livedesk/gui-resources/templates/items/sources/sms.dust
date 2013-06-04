@@ -1,2 +1,14 @@
-{>"livedesk>items/sources/base"/}
-{<ProviderClass}sms{/ProviderClass}
+{>"livedesk>items/{Base}"/}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}
+{<ProviderClass}smspost{/ProviderClass}
+{<ItemInfo}
+	<figure class="avatar">
+		<img src="">
+	</figure>
+	<div class="post-info">
+		<p rel="author">{Meta.Creator.PhoneNumber} {Meta.Creator.FullName}</p> <!-- User full name -->
+		<time>{Meta.CreatedOn}</time> <!-- time of the post -->
+	</div>
+{/ItemInfo}
+{<SourceAuthor}{/SourceAuthor}
+{<ContainerIframe}{/ContainerIframe}
