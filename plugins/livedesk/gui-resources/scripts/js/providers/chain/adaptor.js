@@ -59,7 +59,6 @@ define([
 
                     }
                 }
-                console.log('obj: ',obj);
                 return obj;
             }
         }
