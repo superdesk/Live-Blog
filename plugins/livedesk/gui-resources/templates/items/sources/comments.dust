@@ -1,0 +1,14 @@
+{>"livedesk>items/{Base}"/}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}
+{<ProviderClass}commentpost{/ProviderClass}
+{<ItemInfo}
+	<figure class="avatar">
+		<img src="">
+	</figure>
+	<div class="post-info">
+		<p rel="author">{Meta.AuthorName}</p> <!-- User full name -->
+		<time>{Meta.CreatedOn}</time> <!-- time of the post -->
+	</div>
+{/ItemInfo}
+{<SourceAuthor}{/SourceAuthor}
+{<ContainerIframe}{/ContainerIframe}
