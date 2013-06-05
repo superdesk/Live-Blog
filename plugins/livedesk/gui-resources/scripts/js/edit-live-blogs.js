@@ -14,6 +14,8 @@ define
 	config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
 	config.guiJs('livedesk', 'models/autocollection'),
+    config.guiJs('livedesk', 'models/user'),
+    config.guiJs('livedesk', 'models/new-collaborator'),
     'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 
     config.guiJs('superdesk/user', 'jquery/avatar'),
@@ -257,7 +259,7 @@ function(providers, Gizmo, $, BlogAction)
 			{
 				var self = this;
 				self.el.data('view', self);
-				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished, Creator.FullName';
 				
 				this.model
@@ -829,7 +831,31 @@ function(providers, Gizmo, $, BlogAction)
 					$('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
 				else if(data !== undefined) {
-					self.timelineView.insert(data);
+					if(data.NewUser && data.NewCollaborator) {
+						var addCollaborator = function(sourceId, userId) {
+								return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
+										Source: sourceId,
+										User: userId
+									})).xfilter('Id').sync();
+							},
+							user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
+							
+						user.xfilter('Id')
+							.sync()
+								.done(function(dataUser){
+									addCollaborator(data.NewCollaborator.Source,dataUser.Id)
+										.done(function(dataCollaborator){
+											delete data.NewUser;
+											delete data.NewCollaborator;
+											data.Author = dataCollaborator.Id;
+											self.timelineView.insert(data);
+										});
+								}).fail(function(dataUser){
+									console.log('Error: ',dataUser);
+								});
+					} else {	
+						self.timelineView.insert(data);
+					}
 				}
 				else if(post !== undefined)
 				{
