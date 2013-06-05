@@ -1,5 +1,5 @@
 {+language_content}
-<select name="Language" class="span3">
+<select name="Language" class="config-small-input">
 <option value="">_('Choose language');</option>
 	{+language_item}
 	{#Languages}

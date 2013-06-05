@@ -54,7 +54,7 @@
                 self.setElement(o);
                 $(self.el).on(self.getEvent('click')+'test', 'h3', function(){
                         var li = $(this).parent().parent();
-                        li.find('.blogtype-content').toggle(300);
+                        li.find('.blogtype-content').toggle();
                         li.toggleClass("collapse-open");
                 });
                 self.postPosts = new PostPostsView({
