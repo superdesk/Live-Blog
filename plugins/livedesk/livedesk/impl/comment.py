@@ -72,6 +72,9 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         assert isinstance(self.userService, IUserService), 'Invalid user service %s' % self.userService
 
     def getComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogCommentService.getComments
+        '''
         sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.Blog == blogId)
         sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
         sql = sql.filter(SourceTypeMapped.Key == self.source_type_key)
@@ -82,6 +85,13 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
+
+    def getOriginalComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogCommentService.getOriginalComments
+        TODO: this is just for enabling the comment-post URL in the resources
+        '''
+        return ()
 
     def addComment(self, blogId, comment):
         '''

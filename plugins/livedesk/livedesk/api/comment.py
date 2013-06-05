@@ -45,6 +45,13 @@ class IBlogCommentService:
         Lists comment Posts of the specified blog.
         '''
 
+    @call(webName='Post')
+    def getOriginalComments(self, blogId:Blog.Id, offset:int=None, limit:int=None, detailed:bool=True,
+                    q:QBlogPost=None) -> Iter(BlogComment):
+        '''
+        Lists original comments of Comment-based Posts of the specified blog.
+        '''
+
     @call(method=INSERT)
     def addComment(self, blogId:Blog.Id, comment:BlogComment) -> BlogPost.Id:
         '''
