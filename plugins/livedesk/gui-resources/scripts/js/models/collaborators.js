@@ -2,6 +2,7 @@ define(['jquery', 'gizmo/superdesk', config.guiJs('livedesk', 'models/collaborat
 function($, Gizmo, Collaborator)
 {
     return Gizmo.Collection.extend({ 
+        _config: { limit: 1000 },
         url: new Gizmo.Url('Superdesk/Collaborator'),
         add: function(data){
            var self = this,
