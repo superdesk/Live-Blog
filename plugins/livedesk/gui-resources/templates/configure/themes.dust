@@ -1,5 +1,5 @@
 {+themes_content}
-<select name="Theme" class="span3">
+<select name="Theme" class="config-small-input">
 <option value="">_('Select');</option>
 	{+theme_item}
 	{#Themes}
