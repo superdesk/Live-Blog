@@ -17,7 +17,6 @@ define([
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/loading'
 ], function( providers, $, Gizmo, BlogAction) {
-    console.log('prov ', providers);
 $.extend(providers.comments, {
     blogId: 0,
     data: [],

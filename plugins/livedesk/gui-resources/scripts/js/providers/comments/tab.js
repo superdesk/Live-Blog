@@ -1,7 +1,7 @@
 define([ 'providers' ], function( providers ) {
 	providers.comments = {
 		className: 'big-icon-sms',
-		tooltip: _('User Comments source'),
+		tooltip: _('Comments'),
 		init: function(theBlog) {
 			var args = arguments;
 			require([ 'providers', 'providers/comments' ], function( providers ) {
