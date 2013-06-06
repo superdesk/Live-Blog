@@ -30,10 +30,11 @@ define([
             this.captcha = $('#' + this.commentTokenId);
 
             this.resetInput();
-            this.initRecaptcha();
 
             this.storage = new CommentCollection();
             this.storage.setHref(this.model.data.CommentPost.href);
+
+            this.loadRecaptcha = true;
         },
 
         togglePopup: function(e) {
@@ -48,7 +49,7 @@ define([
 
         openPopup: function() {
             this.timeline.pause();
-            Recaptcha.reload();
+            this.initRecaptcha();
         },
 
         closePopup: function() {
@@ -81,9 +82,12 @@ define([
         },
 
         initRecaptcha: function() {
-            Recaptcha.create(this.captcha.attr('data-public-key'), this.captcha.attr('id'), {
-                theme: 'clean'
-            });
+            if (this.loadRecaptcha) {
+                this.loadRecaptcha = false;
+                Recaptcha.create(this.captcha.attr('data-public-key'), this.captcha.attr('id'), {
+                    theme: 'clean'
+                });
+            }
         },
 
         isValid: function() {

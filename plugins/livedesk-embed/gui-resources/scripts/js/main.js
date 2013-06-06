@@ -20,12 +20,16 @@ require(['livedesk-embed/concat.min'], function(){
 		}
 
         var timeline = new TimelineView(data);
+        var loadComments = true; // TODO take from blog config
         $.dispatcher.on('after-render', function() {
-            new UserCommentsPopupView({
-                el: '#liveblog-header',
-                timeline: timeline,
-                model: timeline.model
-            });
+            if (loadComments) {
+                loadComments = false;
+                new UserCommentsPopupView({
+                    el: '#liveblog-header',
+                    timeline: timeline,
+                    model: timeline.model
+                });
+            }
         });
 	});
 });
