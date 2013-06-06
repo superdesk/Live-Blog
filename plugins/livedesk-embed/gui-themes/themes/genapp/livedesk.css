@@ -11,7 +11,7 @@ body,html {
 
 
 #livedesk-root {
-    font-size: 12px;
+    font-size: 13px;
     font-family: Arial, Helvetica, sans-serif;
     padding: 0;
     position: relative;
@@ -89,8 +89,8 @@ body,html {
     margin: 5px 0 0 0 ;
 }
 #livedesk-root .liveblog-post-list > figure img {
-    height: 40px ;
-    width: 40px ;
+    height: 40px;
+    width: 40px;
 }
 .liveblog-post-list li .result-content {
     padding:5px 0; 
@@ -101,9 +101,9 @@ body,html {
 }
 
 .liveblog-post-list li .result-text  {
-    font-size: 12px ;
+    font-size: 13px ;
     color:#000000;
-    line-height: 18px;
+    line-height: 16px;
 }
 .liveblog-post-list li .result-text img  {
     max-width: 100%;
@@ -224,7 +224,7 @@ body,html {
 .flickrservice figure figcaption {
     color:#787878;
     padding: 5px 0 0;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 16px;
     max-width: 500px;
 }
@@ -242,9 +242,9 @@ body,html {
 
 .instagramservice .result-content a .result-text,
 .flickrservice .result-content .result-text {
-    font-size: 12px;
+    font-size: 13px;
     color: #000000;
-    line-height: 18px;
+    line-height: 16px;
 }
 
 .instagramservice .result-content a .result-text p,
@@ -337,8 +337,8 @@ body,html {
     padding: 7px 10px !important;
     background: #f5f5f5;
     margin: 0 -5px;
-    font-size: 12px !important;
-    line-height: 16px !important;
+    font-size: 13px !important;
+    line-height: 17px !important;
     color: #484848 !important;
 }
 
@@ -350,8 +350,8 @@ body,html {
 .link .result-text,
 .twitterservice .result-text,
 .googleservice .result-text {
-    font-size: 12px !important;
-    line-height: 16px !important;
+    font-size: 13px !important;
+    line-height: 17px !important;
     color: #484848 !important;
 }
 
@@ -462,8 +462,8 @@ body,html {
 
 .liveblog-post-list .advertisement {
     font-family: Arial,Helvetica,sans-serif ;
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 13px;
+    line-height: 16px;
     overflow: visible;
     position: relative;
 }
@@ -473,7 +473,7 @@ body,html {
     padding: 12px 0 0;
     color:#025bc1;
     text-decoration: none ;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
@@ -549,8 +549,8 @@ color:#484848;
     margin:0;
     margin-top:10px;
     color:#000;
-    line-height: 18px;
-    font-size: 12px;
+    line-height: 16px;
+    font-size: 13px;
 }
 
 .liveblog-post-list li .result-header .editable {
@@ -605,14 +605,14 @@ color:#484848;
 }
 
 .scroller::-webkit-scrollbar, ::-webkit-scrollbar {
-    width: 12px;
-    height: 8px;
+    width: 0px;
+    height: 0px;
     margin: -1px 1px;
     background:#a8a8a8;
 }
 
 .scroller::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb {
-    width: 10px;
+    width: 0px;
     background:#656565;
 }
 
