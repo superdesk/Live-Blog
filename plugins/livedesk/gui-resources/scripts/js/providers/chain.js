@@ -42,7 +42,7 @@
 					start: function(evt, ui) {
 					    item = $(evt.currentTarget);
 					    $(ui.helper).css('width', item.width());
-					    $(this).data('data', providers.chain.adaptor.universal(self.model, self._parent.source));
+					    $(this).data('data', providers.chain.adaptor.universal(self.model, { Id: self._parent.sourceId, URI: self._parent.sourceURI } ));
 					}
 				});
     		}
@@ -227,9 +227,9 @@
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							source: { URI: self.model.href, Id: self.model.get('Id') },
 							collection: self.model.get('PostPublished'),
-                            sourceId: self.model.sourceId
+							sourceId: self.model.sourceId,
+							sourceURI: self.model.href
 					});
 				});
 			}
