@@ -1,6 +1,6 @@
 define([ 'providers' ], function( providers ) {
 	providers.comments = {
-		className: 'big-icon-sms',
+		className: 'big-icon-usercomments',
 		tooltip: _('Comments'),
 		init: function(theBlog) {
 			var args = arguments;
