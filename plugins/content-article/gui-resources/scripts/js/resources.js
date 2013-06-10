@@ -8,6 +8,7 @@ define([
 
     resources.config(['$httpProvider', function($httpProvider) {
         // transforms related resources into ids
+        /*
         $httpProvider.defaults.transformRequest = function(data) {
             var update = {};
             angular.forEach(data, function(value, key) {
@@ -19,12 +20,24 @@ define([
             }, update);
             return angular.toJson(update);
         };
+        */
     }]);
  
-    resources.factory('Article', ['$resource', function($resource) {
-        return $resource('/resources/Article/:Id', {Id: '@Id'}, {
+    resources.factory('Article', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/Content/Article/:Id', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}},
             update: {method: 'PUT'},
             save: {method: 'POST', params: {'X-Filter': 'Id'}}
         });
+    }]);
+
+    resources.factory('ArticleListLoader', ['Article', '$q', function(Article, $q) {
+        return function() {
+            var delay = $q.defer();
+            Article.query(function(response) {
+                delay.resolve(response.DeskList);
+            });
+            return delay.promise;
+        };
     }]);
 });
