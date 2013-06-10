@@ -67,7 +67,7 @@ class ThumbnailProcessorAVConv(IThumbnailProcessor):
 
         elif height:
             assert isinstance(height, int), 'Invalid height %s' % height
-            width = int((4 / 3) * height)
+            width = int((16 / 9) * height)
 
             params.update(width=width, height=height)
             command = self.command_resize % params
