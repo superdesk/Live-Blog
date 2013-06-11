@@ -80,7 +80,7 @@ function($, giz, Article, Upload, tabs, plugins, Action, loadAloha)
             ({
                 plugins: 
                 {
-                    load: "superdesk/fix, common/ui, common/format, superdesk/image, superdesk/link, impl/image, common/list", // common/link, common/paste, common/block, common/list, common/table",
+                    load: "common/ui, common/format, superdesk/link, common/contenthandler, common/paste, common/commands, superdesk/image, impl/image",
                     format: 
                     { 
                         config: [  'b', 'i', 'u', 'del', 'sub', 'sup', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ]

@@ -20,29 +20,29 @@
     		</ul>
 		</div>
 		<div class="btn-group">
-			<button data-editor-ui-component="bold"
+			<button data-editor-ui-component="bold" id="aloha-component-bold" 
 				class="btn  action strong" rel="tooltip" title="_('Bold');"><i class="editoricon-bold"></i></button>
-			<button data-editor-ui-component="italic"
+			<button data-editor-ui-component="italic" id="aloha-component-italic" 
 				class="btn  action emphasis" rel="tooltip" title="_('Italics');"><i class="editoricon-italic"></i></button>
-			<button data-editor-ui-component="underline"
+			<button data-editor-ui-component="underline" id="aloha-component-underline" 
 				class="btn  action underline" rel="tooltip" title="_('Underline');"><i class="editoricon-underline"></i></button>
-			<button data-editor-ui-component="strikethrough"
+			<button data-editor-ui-component="strikethrough" id="aloha-component-strikethrough" 
 				class="btn  action underline" rel="tooltip" title="_('Strikethrough');"><i class="editoricon-strikethrough"></i></button>
-			<button data-editor-ui-component="subscript"
+			<button data-editor-ui-component="subscript" id="aloha-component-subscript" 
 				class="btn  action underline" rel="tooltip" title="_('Subscript');"><i class="editoricon-subscript"></i></button>
-			<button data-editor-ui-component="superscript"
+			<button data-editor-ui-component="superscript" id="aloha-component-superscript" 
 				class="btn  action underline" rel="tooltip" title="_('Superscript');"><i class="editoricon-superscript"></i></button>
 				
   		</div>
   		<div class="btn-group">
     		
-    		<button data-editor-ui-component="insertLink"
+    		<button data-editor-ui-component="insertLink" id="aloha-component-insert-link"
     			class="btn action insertLink" rel="tooltip" title="_('Insert Link');">
     			<i class="editoricon-link"></i>
     		</button>
-    			
+    		
     		<button 
-    			data-editor-ui-component="insertImage"
+    			data-editor-ui-component="insertImage" id="aloha-component-insert-image"
     			class="btn  action insertImage-oer" rel="tooltip" title="_('Insert Figure');">
     			<i class="editoricon-picture"></i>
     		</button>
@@ -51,13 +51,13 @@
     		<button class="btn  action insertNote" rel="tooltip" title="_('Insert Note');">!</button -->
   		</div>
 		<div class="btn-group">
-			<button data-editor-ui-component="unorderedList" 
+			<button data-editor-ui-component="unorderedList" id="aloha-component-unordered-list"
 				class="btn action unorderedList" rel="tooltip" title="_('Unordered List');"><i class="editoricon-list-ul"></i></button>
-			<button data-editor-ui-component="orderedList"
+			<button data-editor-ui-component="orderedList" id="aloha-component-ordered-list"
 				class="btn action orderedList" rel="tooltip" title="_('Ordered List');"><i class="editoricon-list-ol"></i></button>
-			<button data-editor-ui-component="outdentList" 
+			<button data-editor-ui-component="outdentList" id="aloha-component-outdent-list"
 				class="btn action outdentList" rel="tooltip" title="_('Indent List');"><i class="editoricon-indent-left"></i></button>
-			<button data-editor-ui-component="indentList" 
+			<button data-editor-ui-component="indentList" id="aloha-component-indent-list" 
 				class="btn action indentList" rel="tooltip" title="_('Outdent List');"><i class="editoricon-indent-right"></i></button>
 		</div>
 		<!-- div class="btn-group">
@@ -71,6 +71,8 @@
     		</ul>
   		</div-->
 	</div>
+	
+	<input type="text" id="aloha-component-edit-link" style="display:none" />
 </div>
 
 
