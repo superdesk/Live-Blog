@@ -1,8 +1,8 @@
-define(['angular'],
-function(angular) {
+define(['angular', 'https://github.com/enyo/dropzone/raw/master/downloads/dropzone-amd-module.js'],
+function(angular, Dropzone) {
     'use strict';
 
-    return function($scope, $q, Task, TaskStatusLoader, TaskComment) {
+    return function($scope, $q, Task, TaskStatusLoader, TaskService, TaskComment) {
         $scope.statuses = TaskStatusLoader();
 
         $scope.getEditData = function() {
@@ -75,6 +75,14 @@ function(angular) {
         $scope.deleteComment = function(index) {
             TaskComment.delete({Id: $scope.comments[index].Id}, function(response) {
                 $scope.comments.splice(index, 1);
+            });
+        };
+
+        $scope.removeFile = function(index) {
+            // task.files is a promise, but when remove is called it will be resolved already
+            $q.when($scope.task.files, function(files) {
+                TaskService.removeFile($scope.task, files[index]);
+                files.splice(index, 1);
             });
         };
     };

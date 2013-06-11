@@ -1,12 +1,13 @@
 define([
     'angular',
     'jquery',
+    'https://github.com/enyo/dropzone/raw/master/downloads/dropzone-amd-module.js',
     'jqueryui/datepicker',
     'jqueryui/sortable',
     'jqueryui/droppable',
-    'jqueryui/draggable'
-],
-function(angular, $) {
+    'jqueryui/draggable',
+    'bootstrap/tab'
+], function(angular, $, Dropzone) {
     'use strict';
 
     var module = angular.module('directives', ['resources']);
@@ -144,6 +145,81 @@ function(angular, $) {
                     } else {
                         element.text(datetime);
                     }
+                });
+            }
+        };
+    });
+
+    // implements modal stack
+    module.directive('sdModal', function() {
+        var modals = [];
+        return {
+            restrict: 'A',
+            scope: true,
+            link: function(scope, element, attrs) {
+                element.hide().addClass('modal').addClass('fade');
+                var modal = $(element).modal({show: false});
+
+                // hide previously opened modal on show
+                modal.on('show', function() {
+                    if (modals.length) {
+                        var last = modals.pop();
+                        $(last).modal('hide');
+                        modals.push(last);
+                    }
+
+                    modals.push(this);
+                });
+
+                // display previously opened modal on hide
+                modal.on('hide', function() {
+                    modals.pop();
+                    if (modals.length) {
+                        var last = modals.pop();
+                        $(last).modal('show');
+                        modals.push(last);
+                    }
+                });
+
+                if ('modalOpen' in attrs) {
+                    modal.on('show', function() {
+                        scope.$apply(attrs.modalOpen);
+                    });
+                }
+            }
+        };
+    });
+
+    module.directive('sdTab', function() {
+        return {
+            link: function(scope, element, attrs) {
+                $(element).tab();
+            }
+        };
+    });
+
+    module.directive('sdUpload', function(uploadUrl) {
+        return {
+            restrict: 'A',
+            scope: false,
+            link: function(scope, element, attrs) {
+                element.addClass('dropzone-previews');
+
+                var dropzone = new Dropzone(element[0], {
+                    url: uploadUrl,
+                    paramName: 'upload_file',
+                    previewsContainer: element[0],
+                    clickable: element.children()[0]
+                });
+
+                dropzone.on('success', function(file, response) {
+                    scope.$apply(function() {
+                        scope.files.push(response);
+                    });
+                });
+
+                scope.$on('files:reset', function() {
+                    dropzone.removeAllFiles();
                 });
             }
         };

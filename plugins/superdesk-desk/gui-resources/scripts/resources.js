@@ -80,9 +80,21 @@ define([
         };
     }]);
 
+    resources.factory('File', function($resource) {
+        return $resource('/resources/Archive/MetaData/:File', {File: '@Id'});
+    });
+
     resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
         var Task = $resource('/resources/Desk/Task/:taskId', {taskId: '@Id'}, {
             update: {method: 'PUT'}
+        });
+
+        var TaskFile = $resource('/resources/Desk/Task/:Task/MetaInfo', {}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': 'MetaData.*'}}
+        });
+
+        var TaskFileSaver = $resource('/resources/Desk/Task/:Task/MetaInfo/:File/File', {Task: '@Task', File: '@File'}, {
+            save: {method: 'POST', params: {'X-Filter': '*'}}
         });
 
         this.loadSubtasks = function(task) {
@@ -111,8 +123,28 @@ define([
             comments.query(function(response) {
                 delay.resolve(response.TaskCommentList);
             });
+        };
+
+        this.getFiles = function(task) {
+            var delay = $q.defer();
+            TaskFile.query({Task: task.Id}, function(response) {
+                var files = [];
+                angular.forEach(response.MetaInfoList, function(metaInfo) {
+                    files.push(metaInfo.MetaData);
+                });
+
+                delay.resolve(files);
+            });
 
             return delay.promise;
+        };
+
+        this.addFile = function(task, file) {
+            TaskFileSaver.save({Task: task.Id, File: file.Id});
+        };
+
+        this.removeFile = function(task, file) {
+            TaskFileSaver.delete({Task: task.Id, File: file.Id});
         };
     }]);
 
@@ -267,4 +299,8 @@ define([
             return delay.promise;
         };
     }]);
+
+    var userId = localStorage['superdesk.login.id'];
+    var authToken = localStorage['superdesk.login.session'];
+    resources.value('uploadUrl', '/resources/my/HR/User/' + userId + '/MetaData/Upload?X-Filter=*&Authorization=' + authToken);
 });

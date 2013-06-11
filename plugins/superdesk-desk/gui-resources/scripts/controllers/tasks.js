@@ -13,6 +13,7 @@ function(angular) {
             $scope.orig = {};
             $scope.task = {Status: 'to do', Desk: desk, User: null, Parent: parentTask};
             $scope.parentTask = parentTask;
+            $scope.task.files = [];
         };
 
         $scope.editTask = function(task, parentTask) {
@@ -29,6 +30,7 @@ function(angular) {
             $scope.parentTask = parentTask;
             $scope.subtasks = task.subtasks;
             $scope.comments = task.comments;
+            $scope.task.files = TaskService.getFiles(task);
         };
     };
 });

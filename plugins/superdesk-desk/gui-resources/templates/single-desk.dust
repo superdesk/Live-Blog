@@ -306,7 +306,7 @@
 
 		</div>
 
-<div class="modal fade split-popup" id="AddAssignment" style="display:none" ng-controller="EditTaskController">
+<div sd-modal class="split-popup" id="AddAssignment" ng-controller="EditTaskController">
   <form name="taskForm">
   <div class="modal-header">
     <a href="" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
@@ -331,7 +331,7 @@
         	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" ></textarea>
 
         	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>_('Subtasks');</header>
+        		<header><span>_('Subtasks');</span></header>
         		<ul class="subtask-list-view clearfix">
         			<li ng-repeat="subtask in subtasks" class="clearfix">
         				<h6>{{ subtask.Title }}</h6>
@@ -340,7 +340,31 @@
                         <a href="" ng-click="editTask(subtask, task)">_("Open details");</a>
         			</li>
         		</ul>
-        	</section>    
+        	</section>
+
+            <section class="modal-mainpane-module">
+                <header>
+                    <span>_('Attached files');</span>
+                    <div class="module-header-menu">
+                        <a href="#AddFile" ng-click="addFile()" data-toggle="modal"><i class="icon-plus"></i> _('Attach file');</a>
+                    </div>
+                </header>
+                <ul class="attached-files-view">
+                    <li ng-repeat="file in task.files">
+                        <figure><img ng-src="{{ file.Thumbnail.href }}" alt="{{ file.Name }}"></figure>
+                        <h6>{{ file.Name }}</h6>
+                        <div class="attached-file-info">
+                            <span>{{ file.CreatedOn }}</span>
+                            <span>{{ file.Type }}, {{ file.SizeInBytes }}B</span>
+                        </div>
+                        <div class="action-menu">
+                            <a href="" ng-click="removeFile($index)"><i class="icon-trash"></i> _('Remove');</a>
+                        </div>
+                    </li>
+                    <li ng-show="!task.files.length">_("No files yet");</li>
+                </ul>
+            </section>
+
         	<section class="modal-mainpane-module" ng-show="task.Id">
                 <header><span>_('Comments');</span></header>
                 <div class="add-comment-box" ng-class="{focused:addComment}">
@@ -422,4 +446,49 @@
     <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()" ng-disabled="!taskForm.$valid">_('Save Changes');</button>
   </div>
   </form>
+</div>
+
+<div sd-modal class="responsive-popup" id="AddFile" ng-controller="AttachFileController" data-modal-open="reset()">
+  <div class="modal-header">
+    <a href="#" class="close" data-dismiss="modal" aria-hidden="true" ng-click="reset()">&times;</a>
+    <h3>Add Image</h3>
+  </div>
+  <div class="modal-body">
+    <div class="modal-left-pane">
+        <h6>Sources</h6>
+        <ul class="nav-pane-menu">
+          <li class="active"><a href="#addFileUpload" data-toggle="tab">From Computer</a></li>
+          <li><a href="#addFileArchive" data-toggle="tab">From Media Archive</a></li>
+        </ul>
+    </div>
+    <div class="modal-right-pane">
+
+      <div class="uploadimage-screen" id="addFileUpload" sd-tab>
+        <div class="drag-area" sd-upload>
+          <div class="drag-area-title">
+            Drag Your Images Here or Click to select them from folder
+          </div>
+        </div>
+      </div>
+
+      <div class="uploadimage-screen" id="addFileUrl" sd-tab>
+        <input type="text" class="fullwidth-input" placeholder="Enter web address">
+      </div>
+
+      <div class="uploadimage-screen" id="addFileArchive" sd-tab>
+       <input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search Media Archive" style="margin:0;float:left !important;margin-right:20px;">
+       <label class="checkbox label-inline">
+          <input type="checkbox"> Show only my uploads 
+        </label>
+            <ul class="uploads-grid">
+              <li ng-repeat="item in items"><div class="add-button"><i class="icon-plus icon-white"></i></div><img ng-src="pictures/Carla-bruni-sarkozy.jpg" /></li>
+            </ul>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="" class="btn" data-dismiss="modal" ng-click="reset()">Cancel</a>
+    <a href="" class="btn btn-primary" data-dismiss="modal" ng-click="save(task)">OK</a>
+  </div>
 </div>

@@ -65,6 +65,23 @@ function($, Backbone, router,
     module.controller('MasterController', MasterController);
     module.controller('DesksController', DesksController);
     module.controller('TaskController', TaskController);
+    module.controller('AttachFileController', function($scope, $q, TaskService) {
+        $scope.files = [];
+
+        $scope.reset = function() {
+            $scope.files = [];
+            $scope.$emit('files:reset');
+        };
+
+        $scope.save = function(task) {
+            angular.forEach($scope.files, function(file) {
+                TaskService.addFile(task, file);
+                $q.when(task.files, function(files) {
+                    files.push(file);
+                });
+            });
+        };
+    });
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
         angular.module('resources').value('deskId', deskId);
