@@ -96,13 +96,16 @@ class BlogSyncProcess:
         '''
         for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
             assert isinstance(blogSync, BlogSync)
-            syncThread = self.syncThreads.get(blogSync.Blog, None)
-            if syncThread is not None and syncThread.is_alive(): continue
-            self.syncThreads[blogSync.Blog] = Thread(name='blog %d sync' % blogSync.Blog,
-                                                     target=self._syncBlog, args=(blogSync,))
-            self.syncThreads[blogSync.Blog].daemon = True
-            self.syncThreads[blogSync.Blog].start()
-            log.info('Thread %s started for blog id %d', self.syncThreads[blogSync.Blog], blogSync.Blog)
+            try:
+                syncThread = self.syncThreads[blogSync.Blog][blogSync.Source]
+                if syncThread.is_alive(): continue
+            except KeyError: pass
+            thread = Thread(name='blog %d sync' % blogSync.Blog,
+                            target=self._syncBlog, args=(blogSync,))
+            self.syncThreads[blogSync.Blog] = { blogSync.Source: thread }
+            self.syncThreads[blogSync.Blog][blogSync.Source].daemon = True
+            self.syncThreads[blogSync.Blog][blogSync.Source].start()
+            log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
     def _syncBlog(self, blogSync):
         '''
