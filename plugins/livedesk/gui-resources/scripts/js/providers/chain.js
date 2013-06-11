@@ -177,17 +177,16 @@
             
             toggleActive: function(e) {
                 if (this.el.hasClass('active')) {
-                    this.deactivate();
+                    this.deactivate(e);
                 } else {
-                    this.activate();
+                    this.activate(e);
                 }
             },
 
-			deactivate: function() {
-                if (this.model.chainBlogContentView.active) {
-				    this.model.chainBlogContentView.deactivate();
-                    this._parent.setActive(null);
-                }
+			deactivate: function(e) {
+				if(e) e.stopPropagation();
+				this.el.removeClass('active');
+				this.model.chainBlogContentView.deactivate();
 			},
 
 			activate: function() {
@@ -214,7 +213,6 @@
 			},
 			activate: function() {
 				this.active = true;
-
                 var isAuto = autoSources.isAuto(this.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
@@ -314,22 +312,32 @@
 
             toggleAutopublish: function(e) {
                 e.preventDefault();
-                var autopublish = $(e.target).is(':checked');
-                var view = this.activeView;
+                var autopublish = $(e.target).is(':checked'),
+                	view = this.activeView,
+                	CId,
+                	sync,
+                	ret;
                 if (view) {
                     sync = autoSources.findSource(view.model.sourceId);
+                    CId = autoSources.getLastSyncId(view.model.sourceId);
                     if (sync) {
-                        sync.save({Auto: autopublish ? 'True' : 'False'}, {patch: true});
+                        sync.save({Auto: autopublish ? 'True' : 'False', CId: CId}, {patch: true}).done(function(){
+                        	view.model.chainBlogContentView.activate();
+                        });
                     } else {
-                        autoSources.create({
+                        model = autoSources.create({
                         	Blog: this.blog.get('Id'),
                         	Source: view.model.sourceId,
                         	Auto: autopublish ? 'True' : 'False',
                         	Creator: localStorage.getItem('superdesk.login.id')
-                        }, {headers: autoSources.xfilter});
+                        }, { 
+                        	wait: true, 
+                        	headers: autoSources.xfilter,
+                        	success: function(){
+								view.model.chainBlogContentView.activate();
+                        	}
+                        });
                     }
-
-                    view.model.chainBlogContentView.activate();
                 }
             }
 		});
