@@ -13,6 +13,7 @@ from ..superdesk.db_superdesk import alchemySessionCreator
 from ally.container import app
 from ally.container.support import entityFor
 from sqlalchemy.orm.session import Session
+from sqlalchemy.exc import ProgrammingError
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -46,15 +47,17 @@ def upgradeLiveBlog14():
     session = creator()
     assert isinstance(session, Session)
 
+    try:
+        # add phone number column to person
+        session.execute("ALTER TABLE person ADD COLUMN phone_number VARCHAR(255) UNIQUE")
+    except ProgrammingError: return
+
     # set remove provider from blog source
     session.execute("ALTER TABLE livedesk_blog_source DROP FOREIGN KEY livedesk_blog_source_ibfk_3")
     session.execute("ALTER TABLE livedesk_blog_source DROP COLUMN fk_provider")
 
     # set collaborator table character set
     session.execute("ALTER TABLE collaborator CHARACTER SET utf8")
-
-    # add phone number column to person
-    session.execute("ALTER TABLE person ADD COLUMN phone_number VARCHAR(255) UNIQUE")
 
     # add unique constraint to source
     session.execute("ALTER TABLE source ADD UNIQUE uix_source_type_name (`name`, `fk_type_id`)")
