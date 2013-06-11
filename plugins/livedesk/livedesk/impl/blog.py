@@ -9,8 +9,9 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService
-from ..meta.blog import BlogMapped
+from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, IBlogConfigurationService
+from ..meta.blog import BlogMapped, BlogConfigurationMapped
+from support.impl.configuration import createConfigurationImpl
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -195,3 +196,14 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'),))
 
+# --------------------------------------------------------------------
+
+BlogConfigurationServiceAlchemy = createConfigurationImpl(IBlogConfigurationService, BlogConfigurationMapped)
+BlogConfigurationServiceAlchemy = setup(IBlogConfigurationService, name='blogConfigurationService')(BlogConfigurationServiceAlchemy)
+BlogConfigurationServiceAlchemy = injected()(BlogConfigurationServiceAlchemy)
+'''
+Implementation for @see: IBlogConfigurationService
+
+This implementation is automatically generated.
+See the configuration modules of the support package.
+'''
