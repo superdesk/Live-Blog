@@ -2,7 +2,7 @@ define(['backbone', 'gizmo/superdesk', config.guiJs('livedesk', 'models/sync')],
 function(Backbone, Gizmo, SyncModel) {
     return Backbone.Collection.extend({
         model: SyncModel,
-        xfilter: {'X-Filter': 'Id, Auto, Source.Id'},
+        xfilter: {'X-Filter': 'Id, Auto, Source.Id, CId'},
 
         parse: function(response) {
             return response.SyncList;
