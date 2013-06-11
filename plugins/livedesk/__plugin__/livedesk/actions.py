@@ -31,6 +31,7 @@ from superdesk.person.api.person import IPersonService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.source.api.source import ISourceService
 from livedesk.api.blog_sync import IBlogSyncService
+from livedesk.api.comment import IBlogCommentService
 from captcha.acl import captcha
 
 # --------------------------------------------------------------------
