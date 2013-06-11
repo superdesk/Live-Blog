@@ -41,8 +41,14 @@ class URLInfoService(IURLInfoService):
                 urlInfo.URL = url
                 urlInfo.Date = datetime.now()
                 contentType = None
+                charset = 'utf_8'
                 for tag, val in conn.info().items():
-                    if tag == 'Content-Type': contentType = val.split(';')[0].strip().lower(); break
+                    if tag == 'Content-Type':
+                        contentTypeInfo = val.split(';')
+                        contentType = contentTypeInfo[0].strip().lower();
+                        if 2 == len(contentTypeInfo):
+                            charset = contentTypeInfo[1].split('=')[1]
+                        break
                 if not contentType or contentType != 'text/html':
                     req = Request(url)
                     selector = req.get_selector().strip('/')
@@ -54,7 +60,17 @@ class URLInfoService(IURLInfoService):
                     return urlInfo
                 elif contentType == 'text/html': urlInfo.ContentType = contentType
                 extr = HTMLInfoExtractor(urlInfo)
-                try: extr.feed(conn.read().decode())
+                try:
+                    readData = conn.read()
+                    decodedData = ''
+                    try:
+                        decodedData = readData.decode(charset, 'ignore')
+                    except Exception as e:
+                        decodedData = readData.decode('utf_8', 'ignore')
+                    repairPairs = [['<DOCTYPE html PUBLIC "-//W3C//DTD XHTML', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML']]
+                    for onePair in repairPairs:
+                        decodedData = decodedData.replace(onePair[0], onePair[1])
+                    extr.feed(decodedData)
                 except (AssertionError, HTMLParseError, UnicodeDecodeError): pass
                 return extr.urlInfo
         except (URLError, ValueError): raise InputError('Invalid URL %s' % url)
