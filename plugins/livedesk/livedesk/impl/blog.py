@@ -123,7 +123,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
-    sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
+    sources_auto_delete = ['chained blog', ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
 
     sourceService = ISourceService; wire.entity('sourceService')
@@ -150,7 +150,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId).all()
+        sql = sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source)
+        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceMapped.blog).filter(BlogMapped.Id == blogId)
+        return sql.all()
 
     def addSource(self, blogId, source):
         '''
@@ -160,7 +162,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         '''
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
-        
+
         sourceId = self.sourceService.insert(source)
         ent = BlogSourceMapped()
         ent.blog = blogId
