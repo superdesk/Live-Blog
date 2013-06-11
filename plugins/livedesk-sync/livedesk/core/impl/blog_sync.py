@@ -136,7 +136,7 @@ class BlogSyncProcess:
             return
         for post in msg['PostList']:
             try:
-                if post['IsPublished'] != 'True': continue
+                if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
 
                 lPost = BlogPost()
                 lPost.Type = post['Type']['Key']
