@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.source.api.source import Source
+from superdesk.source.api.source import Source, QSource
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from livedesk.meta.blog import BlogSourceMapped
@@ -31,6 +31,7 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from mysql.connector.errors import IntegrityError
 
 # --------------------------------------------------------------------
 
@@ -163,7 +164,12 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
 
-        sourceId = self.sourceService.insert(source)
+        # insert source if it didn't exist yet
+        q = QSource(name=source.Name)
+        sources = self.sourceService.getAll(typeKey=source.Type, q=q)
+        if not sources: sourceId = self.sourceService.insert(source)
+        else: sourceId = sources[0].Id
+
         ent = BlogSourceMapped()
         ent.blog = blogId
         ent.source = sourceId

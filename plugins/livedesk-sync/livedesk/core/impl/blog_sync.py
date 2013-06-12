@@ -31,6 +31,7 @@ from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
 from urllib.error import HTTPError
+from time import sleep
 
 # --------------------------------------------------------------------
 
@@ -96,16 +97,23 @@ class BlogSyncProcess:
         '''
         for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
             assert isinstance(blogSync, BlogSync)
-            try:
-                syncThread = self.syncThreads[blogSync.Blog][blogSync.Source]
-                if syncThread.is_alive(): continue
-            except KeyError: pass
-            thread = Thread(name='blog %d sync' % blogSync.Blog,
-                            target=self._syncBlog, args=(blogSync,))
-            self.syncThreads[blogSync.Blog] = { blogSync.Source: thread }
-            self.syncThreads[blogSync.Blog][blogSync.Source].daemon = True
-            self.syncThreads[blogSync.Blog][blogSync.Source].start()
+            key = (blogSync.Blog, blogSync.Source)
+            thread = self.syncThreads.get(key)
+            if thread:
+                assert isinstance(thread, Thread), 'Invalid thread %s' % thread
+                if thread.is_alive(): continue
+
+            self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
+                                           target=self._syncBlog, args=(blogSync,))
+            self.syncThreads[key].daemon = True
+            self.syncThreads[key].start()
             log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+
+    def _syncBlogLoop(self, blogSync):
+        while True:
+            log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+            self._syncBlog(blogSync)
+            sleep(self.sync_interval)
 
     def _syncBlog(self, blogSync):
         '''

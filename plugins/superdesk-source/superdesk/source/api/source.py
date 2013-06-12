@@ -40,6 +40,7 @@ class QSource(QEntity):
     Provides the query for source model.
     '''
     name = AsLikeOrdered
+    uri = AsLikeOrdered
     isModifiable = AsBoolean
     all = AsLike
     type = AsEqual
