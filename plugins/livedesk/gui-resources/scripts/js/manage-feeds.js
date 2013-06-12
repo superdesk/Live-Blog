@@ -8,11 +8,13 @@ define([
     'tmpl!core>layouts/footer-static',
     'tmpl!livedesk>manage-feeds',
     'tmpl!livedesk>manage-feeds-provider',
+    'tmpl!livedesk>manage-sms-feed',
     'tmpl!livedesk>manage-feeds-external-blog',
 ], function ($, Gizmo, EditProviderView) {
 
     var PROVIDER_TYPE = 'blog provider';
     var BLOG_TYPE = 'chained blog';
+    var SMS_TYPE = 'FrontlineSMS';
 
     var fetchOptions = {headers: {'X-Filter': 'Id, Name, URI'}, reset: true};
 
@@ -431,10 +433,77 @@ define([
         }
     });
 
+    
+    //Starting sms feed stuff
+    var SmsFeed = Source.extend({
+        idAttribute: 'Id',
+        defaults: {
+            Name: 'some feed'
+        }
+    });
+    var SmsFeedsCollection = Backbone.Collection.extend({
+        model: SmsFeed,
+        parse: function(response) {
+            return response.SourceList;
+        }
+    }),
+    SmsFeedView = Backbone.View.extend({
+        tagName: "li",
+        initialize: function() {
+            //nothing to see here
+        },
+        render: function() {
+            var self = this;
+            $.tmpl('livedesk>manage-sms-feed', this.model.toJSON(), function(a,o) {
+                self.$el.append(o);
+            });
+            return this;
+        }
+    }),
+    SmsFeedsView = Backbone.View.extend({
+        tagName: "ul",
+        attributes: {
+            'class': 'sf-checkbox',
+            'set-bg': '1'
+        },
+        initialize: function(){
+            //this.listenTo(this.collection,'reset', this.render);
+        },
+        render: function(){
+            var self = this;
+            this.collection.each(function(SmsFeed){
+                self.addOne(SmsFeed, this);
+            });
+            console.log('done SmsFeedsView ', self.el);
+            return self;
+        },
+        addOne: function(SmsFeed) {
+            var self = this;
+            var smsFeedViewEl = new SmsFeedView({model: SmsFeed}).render().el;
+            console.log('appending ', smsFeedViewEl);
+            self.$el.append(smsFeedViewEl);
+        }
+    }),
+    smsFeedsCollection = new SmsFeedsCollection;
+    smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
+    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    var runSmsFeedsView = function() {
+        smsFeedsView = new SmsFeedsView({collection: smsFeedsCollection});
+        var feedHtml = smsFeedsView.render().el;
+        console.log('html ', feedHtml);
+        $('#sms-feed-main-list').html(feedHtml);
+        console.log($('#sms-feed-main-list'));
+    }
+    smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
+        runSmsFeedsView();
+    });
+
+
     // blog sources
     var sources = new SourceCollection();
 
     return function(blogHref) {
+        console.log('blogHref ', blogHref);
         var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
         blog.sync().done(function() {
             // we need blog specific sources

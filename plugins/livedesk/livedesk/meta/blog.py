@@ -15,6 +15,8 @@ from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.language.meta.language import LanguageEntity
 from superdesk.user.meta.user import UserMapped
+from support.api.configuration import Configuration
+from support.meta.configuration import ConfigurationDescription
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func, case
@@ -76,3 +78,14 @@ class BlogSourceMapped(Base):
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     blog = Column('fk_blog', ForeignKey(BlogMapped.Id), nullable=False)
     source = Column('fk_source', ForeignKey(SourceMapped.Id, ondelete='CASCADE'), nullable=False)
+
+# --------------------------------------------------------------------
+
+@validate(exclude=('Name',))
+class BlogConfigurationMapped(Base, ConfigurationDescription, Configuration):
+    '''
+    Provides the mapping for BlogConfiguration.
+    '''
+    __tablename__ = 'blog_configuration'
+
+    parent = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), primary_key=True)

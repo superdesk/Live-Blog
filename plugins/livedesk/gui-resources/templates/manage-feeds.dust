@@ -6,15 +6,12 @@
 	</header>
 
 	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
-		<li class="active"><a href="#feed">Feeds</a></li>
+		<li class="active"><a href="#sms-feed">SMS Feeds</a></li>
 		<li><a href="#chainblog">Chained Blogs</a></li>
 	</ul>
  
 	<div class="tab-content">
-		<div class="tab-pane active" id="feed">
-		
-			<!-- Chain blog tab content -->
-		
+		<!-- <div class="tab-pane active" id="feed">
 			<div class="row-fluid">
 				<div class="span8-width">
 					<div class="manage-feeds-top">
@@ -36,6 +33,14 @@
 						</li>
 					</ul>
 		      </div>
+		    </div>
+		</div> -->
+		<div class="tab-pane active" id="sms-feed">
+			<!-- Chain blog tab content -->
+			<div class="row-fluid">
+				<div class="span8" id="sms-feed-main-list" style="height:300px!important;width:300px!important;border:1px solid #cccccc!important">
+					
+		      	</div>
 		    </div>
 
 		    <!-- end of chain blog tab content -->
@@ -62,6 +67,7 @@
 		    <!-- end of chain blog tab content -->
 
 		</div>
+
 	</div>
  
 	<script>
