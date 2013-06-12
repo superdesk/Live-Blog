@@ -132,7 +132,7 @@ class BlogSyncProcess:
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
         if blogSync.SyncStart is not None:
-            q.append(('updatedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
+            q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Author.Source.*,Author.User.*'})
@@ -143,7 +143,7 @@ class BlogSyncProcess:
 
         try: msg = json.load(codecs.getreader(self.encodingType)(resp))
         except ValueError as e:
-            log.error('Invalid JSON data %s: %s' % (e, msg))
+            log.error('Invalid JSON data %s' % e)
             return
         for post in msg['PostList']:
             try:
