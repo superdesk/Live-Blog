@@ -6,10 +6,14 @@ define([
     'use strict';
 
     var Comment = Gizmo.Model.extend({
-    });
+        save: function(href, options) {
+            var adapter = function() {
+                return this.syncAdapter.request.apply(this.syncAdapter, arguments);
+            };
 
-    var CommentCollection = Gizmo.Collection.extend({
-        model: Comment
+            return adapter.call(this, href).
+                insert(this.data, options);
+        }
     });
 
     return Gizmo.View.extend({
@@ -31,10 +35,8 @@ define([
 
             this.resetInput();
 
-            this.storage = new CommentCollection();
-            this.storage.setHref(this.model.data.CommentPost.href);
-
             this.loadRecaptcha = true;
+            this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
         },
 
         togglePopup: function(e) {
@@ -65,19 +67,34 @@ define([
         cancel: function(e) {
             this.resetInput();
             this.togglePopup(e);
+            Recaptcha.reload();
         },
 
         send: function(e) {
             e.preventDefault();
 
             if (this.isValid()) {
-                this.storage.insert({
+                var comment = new Comment({
                     UserName: this.username.val(),
-                    CommentText: this.text.val(),
-                    //Challenge: Recaptcha.get_challenge(),
-                    //Response: Recaptcha.get_response()
+                    CommentText: this.text.val()
                 });
-                this.cancel(e);
+
+                var options = {
+                };
+
+                var view = this;
+                comment.save(this.href, {
+                    headers: {
+                        'X-CAPTCHA-Challenge': Recaptcha.get_challenge(),
+                        'X-CAPTCHA-Response': Recaptcha.get_response()
+                    },
+                    success: function() {
+                        view.cancel(e);
+                    },
+                    error: function() {
+                        view.captcha.next('.error').show();
+                    }
+                });
             }
         },
 
