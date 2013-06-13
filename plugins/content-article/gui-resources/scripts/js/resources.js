@@ -35,7 +35,7 @@ define([
         return function() {
             var delay = $q.defer();
             Article.query(function(response) {
-                delay.resolve(response.DeskList);
+                delay.resolve(response.ArticleList);
             });
             return delay.promise;
         };
