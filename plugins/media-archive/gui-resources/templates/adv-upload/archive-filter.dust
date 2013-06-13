@@ -1,4 +1,4 @@
-<input type="text" style="margin:0;float:left !important;margin-right:20px;" placeholder="_('Search Media Archive');" name="search" size="16" class="span3 searchbox" />
+<input type="text" style="margin-right:20px;" placeholder="_('Search Media Archive');" name="search" size="16" class="span3 searchbar-container searchbar-small" />
 
 <!-- label class="checkbox label-inline">
 	<input type="checkbox" name="own-uploads" /> _('Show only my uploads');
