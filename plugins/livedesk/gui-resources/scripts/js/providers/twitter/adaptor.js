@@ -2,8 +2,9 @@ define([
     'providers',
     'jquery',
     config.guiJs('livedesk', 'providers/prepublish'),
+    'codebird',
     'jquery/rest'
-], function(providers, $, PrepublishView) {
+], function(providers, $, PrepublishView, Codebird) {
     
     $.extend(providers.twitter, {
         adaptor: {
@@ -16,6 +17,16 @@ define([
                         if($.isDefined(collabs[0])) 
                             self.author = collabs[0].Id;
                     });
+                var cb = new Codebird;
+                cb.setConsumerKey('vZlOcfAUW7YXlq0RxjWnQ', 'hqMfInpnBYAwBI6qQpPDHUhNtH4gnW5GFLJPyGHO1L4');
+                cb.__call(
+                    'oauth2_token',
+                    {},
+                    function (reply) {
+                        var bearer_token = reply.access_token;
+                        cb.setBearerToken(bearer_token);
+                    });
+                providers.twitter.cb = cb;
             },
             universal: function(obj) {
                 var meta =  jQuery.extend(true, {}, obj);

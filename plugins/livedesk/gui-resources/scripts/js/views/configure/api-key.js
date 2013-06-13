@@ -11,6 +11,9 @@
         render: function(evt) {
             var self = this,
             	data = { Source: self.model.feed() };
+            if(data.Source.Name === 'twitter') {
+                data.Source.Key = JSON.parse(data.Source.Key);
+            }
             $.tmpl('livedesk>configure/api-key',data, function(e,o){
                 self.setElement(o);
             });
