@@ -26,11 +26,13 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source, QSource
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.meta.blog import BlogSourceMapped
+from livedesk.meta.blog import BlogSourceDB
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from superdesk.post.api.post import QPostWithPublished
+from superdesk.post.meta.post import PostMapped
 from mysql.connector.errors import IntegrityError
 
 # --------------------------------------------------------------------
@@ -124,7 +126,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
-    sources_auto_delete = ['chained blog', ]; wire.config('sources_auto_delete', doc='''
+    sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
 
     sourceService = ISourceService; wire.entity('sourceService')
@@ -142,8 +144,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         source = self.session().query(SourceMapped).get(sourceId)
         if not source:
             raise InputError(Ref(_('Unknown source'),))
-        sql = self.session().query(BlogSourceMapped)
-        sql = sql.filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId)
+        sql = self.session().query(BlogSourceDB)
+        sql = sql.filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId)
         return source
 
     def getSources(self, blogId):
@@ -151,8 +153,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        sql = sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source)
-        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceMapped.blog).filter(BlogMapped.Id == blogId)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
         return sql.all()
 
     def addSource(self, blogId, source):
@@ -170,7 +172,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         if not sources: sourceId = self.sourceService.insert(source)
         else: sourceId = sources[0].Id
 
-        ent = BlogSourceMapped()
+        ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
         try:
@@ -186,7 +188,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(sourceId, int), 'Invalid source identifier %s' % sourceId
         try:
-            res = self.session().query(BlogSourceMapped).filter(BlogSourceMapped.blog == blogId).filter(BlogSourceMapped.source == sourceId).delete() > 0
+            res = self.session().query(BlogSourceDB).filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId).delete() > 0
             if res:
                 sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
@@ -195,4 +197,25 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'),))
+
+    def getChainedPosts(self, blogId, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogSourceService.getChainedPosts
+        '''
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
+        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId)
+
+        if q:
+            assert isinstance(q, QPostWithPublished), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, PostMapped)
+
+            if q and QPostWithPublished.isPublished in q:
+                if q.isPublished.value: sql = sql.filter(PostMapped.PublishedOn != None)
+                else: sql = sql.filter(PostMapped.PublishedOn == None)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
