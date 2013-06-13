@@ -136,7 +136,7 @@
       		<div class="inline-color-list clearfix">
       			<span>_("Choose color:"); </span>
       			<ul class="simple-color-list clearfix">
-                    <li ng-repeat="color in colors" ng-class="{picked: color === card.Color}"><a href="" ng-click="card.Color=color"><span class="color boardcolor-{{ color }}"></span></a></li>
+                    <li ng-repeat="color in colors" ng-class="{picked: color == card.Color}"><a href="" ng-click="card.Color=color"><span class="color boardcolor-{{ color }}"></span></a></li>
 	      		</ul>
       		</div>
       		<legend></legend>
