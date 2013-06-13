@@ -13,7 +13,7 @@ from acl.spec import Filter
 from ally.container import ioc, support
 from livedesk.api.blog import Blog
 from livedesk.api.filter_blog import IBlogAdminFilterService, \
-    IBlogCollaboratorFilterService
+    IBlogCollaboratorFilterService, IBlogEditorFilterService
 from superdesk.security.api.filter_authenticated import Authenticated
 
 # --------------------------------------------------------------------
@@ -24,6 +24,13 @@ def filterAdminBlog():
     Provides filtering for the admin users blogs.
     '''
     return Filter(1, Authenticated.Id, Blog.Id, support.entityFor(IBlogAdminFilterService))
+
+@ioc.entity
+def filterEditorBlog():
+    '''
+    Provides filtering for the admin users blogs.
+    '''
+    return Filter(1, Authenticated.Id, Blog.Id, support.entityFor(IBlogEditorFilterService))
 
 @ioc.entity
 def filterCollaboratorBlog():

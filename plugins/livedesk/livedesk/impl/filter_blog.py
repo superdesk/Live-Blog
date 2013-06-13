@@ -13,7 +13,7 @@ from ally.container import wire
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from livedesk.api.filter_blog import IBlogAdminFilterService, \
-    IBlogCollaboratorFilterService
+    IBlogCollaboratorFilterService, IBlogEditorFilterService
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorTypeMapped
@@ -55,6 +55,18 @@ class BlogAdminFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogAdminFilt
     '''
     
     collaborator_types = ['Administrator']; wire.config('collaborator_types', doc='''
+    The collaborator type(s) name associated with the administrator filter.
+    ''')
+    
+    def __init__(self): super().__init__()
+    
+@setup(IBlogEditorFilterService, name='blogEditorFilterService')
+class BlogEditorFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogEditorFilterService):
+    '''
+    Implementation for @see: IBlogEditorFilterService
+    '''
+    
+    collaborator_types = ['Editor']; wire.config('collaborator_types', doc='''
     The collaborator type(s) name associated with the administrator filter.
     ''')
     

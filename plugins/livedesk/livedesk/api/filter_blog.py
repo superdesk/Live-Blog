@@ -38,6 +38,18 @@ class IBlogAdminFilterService(IAclFilter):
         '''
         
 @service
+class IBlogEditorFilterService(IAclFilter):
+    '''
+    Provides the service that checks if the authenticated user has administrative access to a requested blog.
+    '''
+    
+    @call(method=GET, webName='Editor')
+    def isAllowed(self, userId:Authenticated.Id, blogId:Blog.Id) -> HasBlog.HasAccess:
+        '''
+        @see: IAclFilter.isAllowed
+        '''
+        
+@service
 class IBlogCollaboratorFilterService(IAclFilter):
     '''
     Provides the service that checks if the authenticated user has access to a requested blog as a collaborator.

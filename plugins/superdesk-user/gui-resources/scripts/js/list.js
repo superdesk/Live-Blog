@@ -97,9 +97,14 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                     { 
                         if( !action )
                         { 
-                            $('button.edit', self.el).addClass('hide');
-                            $('button.delete', self.el).addClass('hide');
+                            $('[data-action="edit"]', self.el).addClass('hide');
+                            $('[data-action="delete"]', self.el).addClass('hide');
                         }
+                    })
+                    .fail(function()
+                    {
+                        $('[data-action="edit"]', self.el).addClass('hide');
+                        $('[data-action="delete"]', self.el).addClass('hide'); 
                     });
                 });
             $(this.el).prop('model', this.model).prop('view', this);
@@ -765,12 +770,13 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 
                 $(self.el).append(self._dialogs.add);
                 $(self.el).append(self._dialogs.update);
-                
+                                
                 // authentication techniques
                 Action.get('modules.user.update').done(function(action)
                 { 
-                    if( !action ){ $('.add-user', self.el).addClass('hide'); }
-                });
+                    if( !action ) $('.add-user', self.el).addClass('hide');
+                })
+                .fail(function(){ $('.add-user', self.el).addClass('hide'); });
                 $.isFunction(cb) && cb.apply(self);
                 // new ItemView for each models
                 self.renderList();

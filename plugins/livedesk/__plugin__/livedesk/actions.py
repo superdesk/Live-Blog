@@ -14,7 +14,7 @@ from ..gui_core.gui_core import publishedURI
 from ..superdesk_security.acl import filterAuthenticated
 from .acl import filterCollaboratorBlog
 from .service import collaboratorSpecification
-from __plugin__.livedesk.acl import filterAdminBlog
+from __plugin__.livedesk.acl import filterAdminBlog, filterEditorBlog
 from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
@@ -160,11 +160,15 @@ def updateCollaboratorSpecification():
     
     spec.type_filter = []
     spec.type_filter.append(('Administrator', filterAdminBlog()))
+    spec.type_filter.append(('Editor', filterEditorBlog()))
     spec.type_filter.append(('Collaborator', filterCollaboratorBlog()))
     
     spec.type_actions = {}
     spec.type_actions['Collaborator'] = [menuAction(), subMenuAction(), modulesAction(),
                                          modulesArchiveAction(), dashboardAction(), modulesEditAction()]
     spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
+                                modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
+                                modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]
+    spec.type_actions['Editor'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
                                 modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]

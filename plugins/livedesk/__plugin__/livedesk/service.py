@@ -46,7 +46,7 @@ def blogThemeCDM() -> ICDM: return contentDeliveryManager()
 @ioc.entity
 def collaboratorSpecification() -> CollaboratorSpecification:
     b = CollaboratorSpecification()
-    b.collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator')]
+    b.collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator'), NC_('collaborator type', 'Editor')]
     return b
 
 # --------------------------------------------------------------------
