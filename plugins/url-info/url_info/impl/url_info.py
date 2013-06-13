@@ -18,6 +18,8 @@ from ally.container.support import setup
 from urllib.parse import unquote, urljoin
 from urllib.error import URLError
 from ally.exception import InputError
+from ally.container import wire
+import re
 
 # --------------------------------------------------------------------
 
@@ -26,6 +28,18 @@ class URLInfoService(IURLInfoService):
     '''
     @see IURLInfoService
     '''
+
+    # TODO: This is just a hacky way for fixing some broken web sites.
+    #       Manual xml processing would be a more proper way here.
+    html_fixes = [{'from': '<DOCTYPE html PUBLIC "-//W3C//DTD XHTML', 'to': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'}]; wire.config('html_fixes', doc='''
+    Web page repairing: list of "from -> to" string pairs''')
+
+    def __init__(self):
+        '''
+        Construct the URLInfoService service.
+        '''
+        assert isinstance(self.html_fixes, list), 'Invalid html_fixes config %s' % self.html_fixes
+        super().__init__()
 
     def getURLInfo(self, url=None):
         '''
@@ -41,8 +55,14 @@ class URLInfoService(IURLInfoService):
                 urlInfo.URL = url
                 urlInfo.Date = datetime.now()
                 contentType = None
+                charset = 'utf_8'
                 for tag, val in conn.info().items():
-                    if tag == 'Content-Type': contentType = val.split(';')[0].strip().lower(); break
+                    if tag == 'Content-Type':
+                        contentTypeInfo = val.split(';')
+                        contentType = contentTypeInfo[0].strip().lower();
+                        if 2 == len(contentTypeInfo):
+                            charset = contentTypeInfo[1].split('=')[1]
+                        break
                 if not contentType or contentType != 'text/html':
                     req = Request(url)
                     selector = req.get_selector().strip('/')
@@ -54,7 +74,16 @@ class URLInfoService(IURLInfoService):
                     return urlInfo
                 elif contentType == 'text/html': urlInfo.ContentType = contentType
                 extr = HTMLInfoExtractor(urlInfo)
-                try: extr.feed(conn.read().decode())
+                try:
+                    readData = conn.read()
+                    decodedData = ''
+                    try:
+                        decodedData = readData.decode(charset, 'ignore')
+                    except Exception as e:
+                        decodedData = readData.decode('utf_8', 'ignore')
+                    for onePair in self.html_fixes:
+                        decodedData = re.sub(onePair['from'], onePair['to'], decodedData)
+                    extr.feed(decodedData)
                 except (AssertionError, HTMLParseError, UnicodeDecodeError): pass
                 return extr.urlInfo
         except (URLError, ValueError): raise InputError('Invalid URL %s' % url)
