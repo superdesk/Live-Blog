@@ -67,9 +67,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2"  name="article_1"></td>
-                <td class="title_col"><a href="#">Liveblog-Test Baselland</a></td>
+            <tr ng-repeat="article in articles">
+                <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2" name="article_1"></td>
+                <td class="title_col"><a href="#">{$index}</a></td>
                 <td>David Bauer</td>
                 <td>2013-03-10 13:32:20</td>
                 <td>Published</td>
