@@ -33,6 +33,7 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
+from mysql.connector.errors import IntegrityError
 
 # --------------------------------------------------------------------
 
@@ -152,7 +153,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId).all()
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
+        return sql.all()
 
     def addSource(self, blogId, source):
         '''
@@ -162,8 +165,13 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         '''
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
-        
-        sourceId = self.sourceService.insert(source)
+
+        # insert source if it didn't exist yet
+        q = QSource(name=source.Name)
+        sources = self.sourceService.getAll(typeKey=source.Type, q=q)
+        if not sources: sourceId = self.sourceService.insert(source)
+        else: sourceId = sources[0].Id
+
         ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
