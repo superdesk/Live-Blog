@@ -18,10 +18,13 @@ define([
             },
             universal: function(model,source) {
                 var feed = model.feed(true),
-                    UserName = model.get('Author').get('User').Name;
-                    shaUserName = new jsSHA(UserName+source.URI, "ASCII"),
-                    chainUserName = shaUserName.getHash("SHA-1", "HEX"),
-                    sourceName = model.get('Author').get('Source').get('Name');
+                    sourceName = model.get('Author').get('Source').get('Name'),
+                    chainUserName;
+                if(model.get('Author').get('User')) {
+                    var UserName = model.get('Author').get('User').Name,
+                        shaUserName = new jsSHA(UserName+source.URI, "ASCII");
+                        chainUserName = shaUserName.getHash("SHA-1", "HEX");
+                }
                 var self = this,
                     obj = {
                         Creator: localStorage.getItem('superdesk.login.id'),
@@ -38,6 +41,9 @@ define([
                         }
                     }
                 } else {
+                    if(!chainUserName) {
+                        return obj;
+                    }
                     for(var i = 0, found=false, count = self.data.length; i < count; i++) {
                         if(self.data[i].User && self.data[i].User.Name == chainUserName) {
                             obj.Author = self.data[i].Id;

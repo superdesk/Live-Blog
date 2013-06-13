@@ -29,9 +29,8 @@
 	        $(val).hide();
 	      });
 	      
-	      $('.sf-toggle-custom').click(function(e){
+		$('.sf-toggle-custom').click(function(e){
 	        e.preventDefault();
-
 	        if (!$(this).hasClass("sf-disable")) {
 	        	$(this).toggleClass('sf-checked');
 		        var own_box = $(this).find(".sf-toggle");        

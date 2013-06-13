@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.source.api.source import Source
+from superdesk.source.api.source import Source, QSource
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from livedesk.meta.blog import BlogSourceMapped
@@ -31,6 +31,7 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from mysql.connector.errors import IntegrityError
 
 # --------------------------------------------------------------------
 
@@ -123,7 +124,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
-    sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
+    sources_auto_delete = ['chained blog', ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
 
     sourceService = ISourceService; wire.entity('sourceService')
@@ -150,7 +151,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source).filter(BlogMapped.Id == blogId).all()
+        sql = sql.join(BlogSourceMapped, SourceMapped.Id == BlogSourceMapped.source)
+        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceMapped.blog).filter(BlogMapped.Id == blogId)
+        return sql.all()
 
     def addSource(self, blogId, source):
         '''
@@ -160,8 +163,13 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         '''
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
-        
-        sourceId = self.sourceService.insert(source)
+
+        # insert source if it didn't exist yet
+        q = QSource(name=source.Name)
+        sources = self.sourceService.getAll(typeKey=source.Type, q=q)
+        if not sources: sourceId = self.sourceService.insert(source)
+        else: sourceId = sources[0].Id
+
         ent = BlogSourceMapped()
         ent.blog = blogId
         ent.source = sourceId
