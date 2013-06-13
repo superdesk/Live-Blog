@@ -58,6 +58,14 @@ class ThumbnailProcessorFfmpeg(IThumbnailProcessor):
 
             params.update(width=width, height=height)
             command = self.command_resize % params
+
+        elif height:
+            assert isinstance(height, int), 'Invalid height %s' % height
+            width = int((16 / 9) * height)
+
+            params.update(width=width, height=height)
+            command = self.command_resize % params
+
         else: command = self.command_transform % params
 
         destDir = dirname(destination)
