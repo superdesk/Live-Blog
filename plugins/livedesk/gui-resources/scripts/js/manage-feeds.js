@@ -364,8 +364,8 @@ define([
         },
 
         initialize: function() {
-            this.collection.on('reset', this.render, this);
-            this.collection.on('add', this.renderList, this);
+            this.listenTo(this.collection, 'reset', this.render);
+            this.listenTo(this.collection, 'add', this.renderList);
         },
 
         render: function() {
@@ -433,19 +433,17 @@ define([
 
     // blog sources
     var sources = new SourceCollection();
+    var providers = new ProviderCollection([], {url: getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source')});
+    var view = new MainView({collection: providers, el: '#area-main'});
 
     return function(blogHref) {
-        var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
-        blog.sync().done(function() {
+        view.model = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
+        view.model.sync().done(function(data) {
             // we need blog specific sources
-            sources.url = blog.get('Source').href;
+            sources.url = data.Source.href;
 
             // we need sources before rendering providers, so start rendering when sources are ready
             sources.on('reset', function() {
-                var providers = new ProviderCollection();
-                providers.url = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source');
-
-                new MainView({model: blog, collection: providers, el: '#area-main'});
                 providers.fetch(fetchOptions);
             });
 
