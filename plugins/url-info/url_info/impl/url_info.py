@@ -18,6 +18,8 @@ from ally.container.support import setup
 from urllib.parse import unquote, urljoin
 from urllib.error import URLError
 from ally.exception import InputError
+from ally.container import wire
+import re
 
 # --------------------------------------------------------------------
 
@@ -26,6 +28,18 @@ class URLInfoService(IURLInfoService):
     '''
     @see IURLInfoService
     '''
+
+    # TODO: This is just a hacky way for fixing some broken web sites.
+    #       Manual xml processing would be a more proper way here.
+    html_fixes = [{'from': '<DOCTYPE html PUBLIC "-//W3C//DTD XHTML', 'to': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'}]; wire.config('html_fixes', doc='''
+    Web page repairing: list of "from -> to" string pairs''')
+
+    def __init__(self):
+        '''
+        Construct the URLInfoService service.
+        '''
+        assert isinstance(self.html_fixes, list), 'Invalid html_fixes config %s' % self.html_fixes
+        super().__init__()
 
     def getURLInfo(self, url=None):
         '''
@@ -67,9 +81,8 @@ class URLInfoService(IURLInfoService):
                         decodedData = readData.decode(charset, 'ignore')
                     except Exception as e:
                         decodedData = readData.decode('utf_8', 'ignore')
-                    repairPairs = [['<DOCTYPE html PUBLIC "-//W3C//DTD XHTML', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML']]
-                    for onePair in repairPairs:
-                        decodedData = decodedData.replace(onePair[0], onePair[1])
+                    for onePair in self.html_fixes:
+                        decodedData = re.sub(onePair['from'], onePair['to'], decodedData)
                     extr.feed(decodedData)
                 except (AssertionError, HTMLParseError, UnicodeDecodeError): pass
                 return extr.urlInfo
