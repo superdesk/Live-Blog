@@ -67,9 +67,7 @@
 			{/ContentImage}
 			<div class="result-text{+EditableClass} editable {/EditableClass}" {+EditableAttribute} contenteditable="true"{/EditableAttribute}>
 				{+ContainerIframe}
-                <div class="video-container">
 				<iframe src="{+ContainerIframeUrl}{/ContainerIframeUrl}" class='{+ContainerIframeClass}{/ContainerIframeClass}' {+ContainerIframeAttributes}{/ContainerIframeAttributes}></iframe>
-                </div>
 				{/ContainerIframe}
 				{+ContainerAdditional}
 					{+ContainerTitle}
