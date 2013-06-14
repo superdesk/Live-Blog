@@ -1,13 +1,13 @@
 {>"livedesk>items/sources/base"/}
 {<Container}{/Container}
 {<ProviderClass}twitter{/ProviderClass}
-{<ContentImageAlt}{Meta.user.name}{/ContentImageAlt}
-{<ContentImageTitle}{Meta.user.name}{/ContentImageTitle}
-{<ContentImageUrl}{Meta.user.profile_image_url}{/ContentImageUrl}
-{<ContentImageLink}//twitter.com/{Meta.user.screen_name}{/ContentImageLink}
+{<ContentImageAlt}{Meta.from_user}{/ContentImageAlt}
+{<ContentImageTitle}{Meta.from_user}{/ContentImageTitle}
+{<ContentImageUrl}{Meta.profile_image_url}{/ContentImageUrl}
+{<ContentImageLink}//twitter.com/{Meta.from_user}{/ContentImageLink}
 
-{<ContainerTitleLink}//twitter.com/{Meta.user.screen_name}{/ContainerTitleLink}
-{<ContainerTitleName}{Meta.user.name} ({Meta.user.screen_name}){/ContainerTitleName}
+{<ContainerTitleLink}//twitter.com/{Meta.from_user}{/ContainerTitleLink}
+{<ContainerTitleName}{Meta.from_user_name} ({Meta.from_user}){/ContainerTitleName}
 {<ContainerDescriptionText}{Meta.text|s|twitter_all}{/ContainerDescriptionText}
 
 {<SourceIcon}{/SourceIcon}

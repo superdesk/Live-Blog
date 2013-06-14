@@ -11,22 +11,28 @@ define([
             init: function() {
                 var self = this;
                 new $.rest('Data/Collaborator/')
-                    .xfilter('Id')
+                    .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'twitter'}})
                     .done(function(collabs) {
                         if($.isDefined(collabs[0])) 
                             self.author = collabs[0].Id;
+                            try{
+                                self.key = JSON.parse(collabs[0].Source.Key);
+                            } catch(e){
+                                self.key = { 'ConsumerKey': '', 'ConsumerSecret': '' };
+                            }
+                            var cb = new Codebird;
+                            cb.setConsumerKey(self.key.ConsumerKey, self.key.ConsumerSecret);
+                            cb.__call(
+                                'oauth2_token',
+                                {},
+                                function (reply) {
+                                    var bearer_token = reply.access_token;
+                                    cb.setBearerToken(bearer_token);
+                                    self._parent.render();
+                                });
+                            providers.twitter.cb = cb;
                     });
-                var cb = new Codebird;
-                cb.setConsumerKey('vZlOcfAUW7YXlq0RxjWnQ', 'hqMfInpnBYAwBI6qQpPDHUhNtH4gnW5GFLJPyGHO1L4');
-                cb.__call(
-                    'oauth2_token',
-                    {},
-                    function (reply) {
-                        var bearer_token = reply.access_token;
-                        cb.setBearerToken(bearer_token);
-                    });
-                providers.twitter.cb = cb;
             },
             universal: function(obj) {
                 var meta =  jQuery.extend(true, {}, obj);
