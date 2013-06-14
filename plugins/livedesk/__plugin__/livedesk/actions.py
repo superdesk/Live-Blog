@@ -32,7 +32,9 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.source.api.source import ISourceService
 from livedesk.api.blog_sync import IBlogSyncService
 from superdesk.collaborator.api.collaborator import ICollaboratorService
-    
+from livedesk.api.comment import IBlogCommentService
+from __plugin__.captcha.acl import captcha
+
 # --------------------------------------------------------------------
 
 support.listenToEntities(Action, listeners=addAction)
@@ -168,3 +170,10 @@ def updateCollaboratorSpecification():
     spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
                                 modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]
+
+# --------------------------------------------------------------------
+
+@ioc.before(captcha)
+def updateCaptchaForComments():
+   captcha().add(ref(IBlogCommentService).addComment)
+
