@@ -1,7 +1,10 @@
+requirejs.config({
+    paths: {recaptcha: '//www.google.com/recaptcha/api/js/recaptcha_ajax'}
+});
+
 define([
     'jquery',
-    'gizmo/superdesk',
-    '//www.google.com/recaptcha/api/js/recaptcha_ajax.js'
+    'gizmo/superdesk'
 ], function($, Gizmo) {
     'use strict';
 
@@ -79,9 +82,6 @@ define([
                     CommentText: this.text.val()
                 });
 
-                var options = {
-                };
-
                 var view = this;
                 comment.save(this.href, {
                     headers: {
@@ -101,8 +101,11 @@ define([
         initRecaptcha: function() {
             if (this.loadRecaptcha) {
                 this.loadRecaptcha = false;
-                Recaptcha.create(this.captcha.attr('data-public-key'), this.captcha.attr('id'), {
-                    theme: 'clean'
+                var view = this;
+                require(['recaptcha'], function() {
+                    Recaptcha.create(view.captcha.attr('data-public-key'), view.captcha.attr('id'), {
+                        theme: 'clean'
+                    });
                 });
             }
         },
