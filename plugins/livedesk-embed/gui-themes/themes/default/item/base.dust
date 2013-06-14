@@ -12,7 +12,7 @@ _('Share');
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>
 			{/TimeInfo}
 			{+AuthorInfo}
-			<p rel="author">_('by'); {Creator.FullName}</p>
+			<p rel="author">_('by'); {+AuthorName}{Creator.FullName}{/AuthorName}</p>
 			{/AuthorInfo}
 			<a href="#" class="sf-share">_('Share');</a>
 			<a href="{permalink}" rel="bookmark">#</a>
