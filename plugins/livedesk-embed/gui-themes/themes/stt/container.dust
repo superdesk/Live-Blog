@@ -17,12 +17,12 @@ _('Load more posts ...');
                 <form name="comment">
                     <div class="content">
 
-				    <input type="text" placeholder="_('Nickname*');" id="comment-nickname">
+				    <input type="text" placeholder="_('Nickname');" id="comment-nickname">
 				    <div class="error">
 					    _('Please fill in your Nickname.');
 				    </div>
 
-				    <textarea placeholder="_('Your Comment*');" id="comment-text"></textarea>
+				    <textarea placeholder="_('Your Comment');" id="comment-text"></textarea>
 				    <div class="error">
 					    _('Please fill in your Comment text.');
 				    </div>
