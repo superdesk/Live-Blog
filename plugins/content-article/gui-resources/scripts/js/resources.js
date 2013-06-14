@@ -25,7 +25,7 @@ define([
  
     resources.factory('Article', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/Content/Article/:Id', {Id: '@Id'}, {
-            query: {method: 'GET', params: {'X-Filter': '*'}},
+            query: {method: 'GET', params: {'X-Filter': '*,Author.*'}},
             update: {method: 'PUT'},
             save: {method: 'POST', params: {'X-Filter': 'Id'}}
         });

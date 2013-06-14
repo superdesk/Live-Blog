@@ -1,6 +1,27 @@
+<div class="modal modal-wide fade in" id="modal-new-article">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">x</a>
+        <h3>Add Article</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal row-fluid">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label">Title:</label>
+                    <input type="text" class="input input-xlarge" name="title">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="javascript:void(0)" class="btn" data-dismiss="modal">Cancel</a>
+        <a href="javascript:void(0)" class="btn save btn-primary" data-dismiss="modal" data-action="save">Save changes</a>
+    </div>
+</div>
+
 <div class="subnav subnav-fixed">
     <input type="text" name="searchbar" class="searchbar-container" style="width:500px;">
-    <a class="btn btn-medium btn-info pull-right" href="#"><span class="medium-icon-add"></span> Add New Article</a>
+    <a class="btn btn-medium btn-info pull-right" href="" data-toggle="modal" data-target="#modal-new-article"><span class="medium-icon-add"></span> _('Add New Article');</a>
 </div>
 
 <div class="subnav subnav-level2 subnav-fixed">
@@ -45,22 +66,24 @@
         <thead>
             <tr>
                 <th class="chckbx_col"><input type="checkbox" class="sf-checkbox" name="all"></th>
-                <th class="title_col">Title</th>
-                <th>Author</th>
-                <th>Publish date</th>
-                <th>Status</th>
-                <th class="action_col">
+                <th class="title_col" ng-show="settings.fields.title">Title</th>
+                <th ng-show="settings.fields.author">Author</th>
+                <th ng-show="settings.fields.publishDate">Publish date</th>
+                <th ng-show="settings.fields.status">Status</th>
+                <th class="action_col" ng-show="settings.fields.action">
                     <div class="dropdown" style="text-align:right;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-switches"></i> <span class="caret"></span></a>
                         <ul class="dropdown-menu sf-dropdown-simple pull-right" id="columns-switches">
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col1"> Title</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col2"> Author</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col3"> Publish Date</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col4"> Status</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col5"> Read count</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col6"> Importance</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col7"> Collaborators</li>
-                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col8"> Action</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col1" ng-click="saveSettings();" ng-model="settings.fields.title"> _('Title');</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col2" ng-click="saveSettings();" ng-model="settings.fields.author"> _('Author');</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col3" ng-click="saveSettings();" ng-model="settings.fields.publishDate"> _('Publish Date');</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col4" ng-click="saveSettings();" ng-model="settings.fields.status"> _('Status');</li>
+                            <!--
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col5" ng-click="saveSettings();" ng-model="settings.fields.readCount"> _('Read count');</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col6" ng-click="saveSettings();" ng-model="settings.fields.importance"> _('Importance');</li>
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col7" ng-click="saveSettings();" ng-model="settings.fields.collaborators"> _('Collaborators');</li>
+                            -->
+                            <li><input type="checkbox" class="sf-checkbox" set-bg="1" name="show_col8" ng-click="saveSettings();" ng-model="settings.fields.action"> _('Action');</li>
                         </ul>
                     </div>
                 </th>
@@ -69,11 +92,11 @@
         <tbody>
             <tr ng-repeat="article in articles">
                 <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2" name="article_1"></td>
-                <td class="title_col"><a href="#">{$index}</a></td>
-                <td>David Bauer</td>
-                <td>2013-03-10 13:32:20</td>
-                <td>Published</td>
-                <td class="action_col">
+                <td class="title_col" ng-show="settings.fields.title"><a href="#">{{ article.Content.Title }}</a></td>
+                <td ng-show="settings.fields.author">{{ article.Author.FullName }}</td>
+                <td ng-show="settings.fields.publishDate"></td>
+                <td ng-show="settings.fields.status"><span ng-show="article.IsPublished">_('Published');</span><span ng-hide="article.IsPublished">_('Unpublished');</span></td>
+                <td class="action_col" ng-show="settings.fields.action">
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Action <b class="caret"></b></a>
                         <ul class="dropdown-menu sf-dropdown-simple pull-right">
