@@ -82,6 +82,15 @@ class QPost(QPostPublished):
 
 # --------------------------------------------------------------------
 
+@query(Post)
+class QPostWithPublished(QPost):
+    '''
+    Provides the post message query with isPublished option.
+    '''
+    isPublished = AsBoolean
+
+# --------------------------------------------------------------------
+
 @service((Entity, Post))
 class IPostService(IEntityGetCRUDService):
     '''

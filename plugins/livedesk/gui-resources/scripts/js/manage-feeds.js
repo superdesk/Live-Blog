@@ -156,7 +156,7 @@ define([
         },
 
         isUrl: function(url) {
-            return url && url.match(/^https?:\/\/[a-z]/);
+            return url && url.match(/^(https?:)?\/\//);
         },
 
         getBlogs: function() {
