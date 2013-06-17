@@ -13,7 +13,7 @@ from ..superdesk.db_superdesk import alchemySessionCreator
 from ally.container import app
 from ally.container.support import entityFor
 from sqlalchemy.orm.session import Session
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, OperationalError
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -50,7 +50,7 @@ def upgradeLiveBlog14():
     try:
         # add phone number column to person
         session.execute("ALTER TABLE person ADD COLUMN phone_number VARCHAR(255) UNIQUE")
-    except ProgrammingError: return
+    except (ProgrammingError, OperationalError): return
 
     # set remove provider from blog source
     session.execute("ALTER TABLE livedesk_blog_source DROP FOREIGN KEY livedesk_blog_source_ibfk_3")
