@@ -2,10 +2,11 @@ require(['livedesk-embed/concat.min'], function(){
 	require([
 		'jquery',
 		'livedesk-embed/views/timeline',
+        'livedesk-embed/views/user-comments-popup',
 		'livedesk-embed/plugins',
 		'jquery/cookie',
 		'i18n!livedesk_embed'
-	], function( $, TimelineView ){
+	], function( $, TimelineView, UserCommentsPopupView ){
 		var data = { url: livedesk.blog };
 /*		if(livedesk.language) {
 			$.cookie('superdesk.langcode',livedesk.language);
@@ -17,6 +18,18 @@ require(['livedesk-embed/concat.min'], function(){
 			else
 				console.log('Element: ',livedesk.el,' not found!');
 		}
-		new TimelineView(data);	
+
+        var timeline = new TimelineView(data);
+        var loadComments = true; // TODO take from blog config
+        $.dispatcher.on('after-render', function() {
+            if (loadComments) {
+                loadComments = false;
+                new UserCommentsPopupView({
+                    el: '#liveblog-header',
+                    timeline: timeline,
+                    model: timeline.model
+                });
+            }
+        });
 	});
 });
