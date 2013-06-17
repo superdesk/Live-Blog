@@ -1,3 +1,4 @@
 {>"livedesk>items/base"/}
 {<TimeInfoShowed}{PublishedOn}{/TimeInfoShowed}
+{<AuthorName}{AuthorName}{/AuthorName}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}

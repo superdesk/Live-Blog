@@ -18,7 +18,7 @@ _('Share');
 				<figure></figure>
 				{/AuthorImage}
 				{+AuthorInfo}
-				<p rel="author">{Creator.FullName}</p>
+				<p rel="author">{+AuthorName}{Creator.FullName}{/AuthorName}</p>
 				{/AuthorInfo}
 			<a href="#" class="sf-share">_('Share');</a>
 			<a href="{permalink}" rel="bookmark">#</a>
