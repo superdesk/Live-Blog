@@ -13,13 +13,12 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, DateTime
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
-from ally.internationalization import N_
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.api.image_data import ImageData
 
 # --------------------------------------------------------------------
 
-META_TYPE_KEY = N_('image')
+META_TYPE_KEY = 'image'
 # The key used for image meta data
 
 # --------------------------------------------------------------------

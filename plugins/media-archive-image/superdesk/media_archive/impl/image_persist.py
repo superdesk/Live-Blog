@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
 from superdesk.media_archive.meta.image_info import ImageInfoMapped
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
+from superdesk.media_archive.api.image_data import IImageDataService
 
 # --------------------------------------------------------------------
 
@@ -51,6 +52,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
+    imageDataService = IImageDataService; wire.entity('imageDataService')
+    # Provides the image data service
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
@@ -58,6 +61,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.image_supported_files, str), 'Invalid supported files %s' % self.image_supported_files
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
+        assert isinstance(self.imageDataService, IImageDataService), 'Invalid image data service %s' % self.imageDataService
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
@@ -139,6 +143,15 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             handle(e, ImageDataEntry)
 
         return True
+
+    def getTypeName(self):
+        return META_TYPE_KEY
+
+    def getMetaInfoClass(self):
+        return ImageInfoMapped
+
+    def getMetaDataService(self):
+        return self.imageDataService
 
     # ----------------------------------------------------------------
 

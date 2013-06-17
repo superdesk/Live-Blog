@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped, \
     ThumbnailFormat
 from superdesk.media_archive.meta.meta_info import MetaInfo, MetaInfoMapped
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -138,6 +139,9 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
     Base SQL alchemy implementation for meta info type services.
     '''
 
+    metaDataHandlers = list; wire.entity('metaDataHandlers')
+    # The handlers list used by the meta data in order to get the references.
+
     def __init__(self, MetaInfoClass, QMetaInfoClass, MetaDataClass, QMetaDataClass, searchProvider, metaDataService, type):
         '''
         Construct the meta info base service for the provided classes.
@@ -169,6 +173,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         assert isinstance(searchProvider, ISearchProvider), 'Invalid search provider %s' % searchProvider
         assert isinstance(metaDataService, MetaDataServiceBaseAlchemy), 'Invalid meta data service %s' % metaDataService
         assert isinstance(type, str), 'Invalid media type%s' % type
+        assert isinstance(self.metaDataHandlers, list), 'Invalid meta data handlers %s' % self.metaDataHandlers
 
         EntityGetCRUDServiceAlchemy.__init__(self, MetaInfoClass)
 
@@ -220,7 +225,17 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         deletes the current metaInfo from both database and search index
         if there is no other meta info, delete also the related meta data 
         '''
-       
+        # if DELETE request is on a wrong (e.g. the general) URL, finding the right type
+        useType = self._getEntityMediaType(id)
+        if useType != self.type:
+            self.type = useType
+
+            for handler in self.metaDataHandlers:
+                if handler.getTypeName() == self.type:
+                    self.MetaInfo = handler.getMetaInfoClass()
+                    self.metaDataService = handler.getMetaDataService()
+                    break
+
         metaInfo = self.session().query(self.MetaInfo).filter(self.MetaInfo.Id == id).one()    
         metaDataId = metaInfo.MetaData
 
@@ -250,6 +265,14 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
             assert isinstance(qd, self.QMetaData), 'Invalid meta data query %s' % qd
             sql = buildQuery(sql.join(self.MetaData), qd, self.MetaData)
         return sql
+
+    # ----------------------------------------------------------------
+
+    def _getEntityMediaType(self, id):
+        '''
+        Finds the actually used media type name.
+        '''
+        return self.session().query(MetaTypeMapped.Type).join(MetaDataMapped).filter(MetaDataMapped.typeId == MetaTypeMapped.Id).filter(MetaDataMapped.Id == id).one()[0]
 
 # --------------------------------------------------------------------
 

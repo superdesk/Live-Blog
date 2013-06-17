@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     META_TYPE_KEY
 from superdesk.media_archive.meta.audio_info import AudioInfoMapped
+from superdesk.media_archive.api.audio_data import IAudioDataService
 
 # --------------------------------------------------------------------
 
@@ -53,6 +54,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
+    audioDataService = IAudioDataService; wire.entity('audioDataService')
+    # Provides the audio data service
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
@@ -61,6 +64,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.audio_supported_files, str), 'Invalid supported files %s' % self.audio_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
         assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
+        assert isinstance(self.audioDataService, IAudioDataService), 'Invalid audio data service %s' % self.audioDataService
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
@@ -185,6 +189,15 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             handle(e, AudioDataEntry)
 
         return True
+
+    def getTypeName(self):
+        return META_TYPE_KEY
+
+    def getMetaInfoClass(self):
+        return AudioInfoMapped
+
+    def getMetaDataService(self):
+        return self.audioDataService
 
     # ----------------------------------------------------------------
     

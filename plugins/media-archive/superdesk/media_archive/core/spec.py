@@ -94,6 +94,33 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
             Return the MetaInfoMapped created object.
         '''
 
+    @abc.abstractclassmethod
+    def getTypeName(self):
+        '''
+        Provides type name of the media
+
+        @return: str
+            Return the MetaInfoType name.
+        '''
+
+    @abc.abstractclassmethod
+    def getMetaInfoClass(self):
+        '''
+        Provides particular MetaInfoMapped class
+
+        @return: MetaInfo
+            Return the particular MetaInfoMapped class.
+        '''
+
+    @abc.abstractclassmethod
+    def getMetaDataService(self):
+        '''
+        Provides particular IMetaDataService interface
+
+        @return: IMetaDataService
+            Return the particular IMetaDataService interface.
+        '''
+
 # --------------------------------------------------------------------
 
 class IThumbnailManager(IMetaDataReferencer):

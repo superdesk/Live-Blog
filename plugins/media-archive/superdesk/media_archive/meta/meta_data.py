@@ -18,11 +18,10 @@ from sqlalchemy.types import String, DateTime, Integer
 from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.session import openSession
 from superdesk.user.meta.user import UserMapped
-from ally.internationalization import N_
 
 # --------------------------------------------------------------------
 
-META_TYPE_KEY = N_('other')
+META_TYPE_KEY = 'other'
 # The key used for simple meta data objects
 
 # --------------------------------------------------------------------

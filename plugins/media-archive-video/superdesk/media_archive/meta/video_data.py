@@ -13,13 +13,12 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
-from ally.internationalization import N_
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.api.video_data import VideoData
 
 # --------------------------------------------------------------------
 
-META_TYPE_KEY = N_('video')
+META_TYPE_KEY = 'video'
 # The key used for video meta data
 
 # --------------------------------------------------------------------
