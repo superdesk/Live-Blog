@@ -25,7 +25,7 @@
 		{+PostInfo}
 		<div class="post-info">
 			{+AuthorInfo}
-			<p rel="author">{Creator.FullName}</p> <!-- User full name -->
+			<p rel="author">{+AuthorName}{Creator.FullName}{/AuthorName}</p> <!-- User full name -->
 			{/AuthorInfo}
 			{+TimeInfo}
 			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
