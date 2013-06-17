@@ -24,7 +24,7 @@ define([
     }]);
  
     resources.factory('Article', ['$resource', '$q', function($resource, $q) {
-        return $resource('/resources/Content/Article/:Id', {Id: '@Id'}, {
+        return $resource('/resources/Content/Article/:Id/:Action', {Id: '@Id', Action: '@Action'}, {
             query: {method: 'GET', params: {'X-Filter': '*,Author.*'}},
             update: {method: 'PUT'},
             save: {method: 'POST', params: {'X-Filter': 'Id'}}
@@ -32,9 +32,22 @@ define([
     }]);
 
     resources.factory('ArticleListLoader', ['Article', '$q', function(Article, $q) {
-        return function() {
+        return function(offset, limit, searchTerm) {
             var delay = $q.defer();
-            Article.query(function(response) {
+            var parameters = {offset: offset, limit: limit};
+            if (searchTerm !== undefined) {
+                parameters.search = searchTerm;
+            }
+            Article.query(parameters, function(response) {
+                for (var i = 0; i < response.ArticleList.length; i = i + 1) {
+                    response.ArticleList[i].Content = angular.fromJson(response.ArticleList[i].Content);
+                    if (response.ArticleList[i].IsPublished === 'True') {
+                        response.ArticleList[i].IsPublished = true;
+                    } else {
+                        response.ArticleList[i].IsPublished = false;
+                    }
+                }
+                response.ArticleList.count = response.total;
                 delay.resolve(response.ArticleList);
             });
             return delay.promise;
