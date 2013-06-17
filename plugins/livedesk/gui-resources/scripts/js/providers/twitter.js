@@ -244,21 +244,16 @@ $.extend(providers.twitter, {
                 }
                 this.showLoading('#twt-timeline-more');
                 self.resetAutoRefresh();
-                var fullUrl = str.format(this.urlTimeline,{text: encodeURIComponent(text), page: page});
-                $.jsonp({
-                    url : fullUrl,
-                    success : function(data){
+                this.cb.__call(
+                    'statuses_userTimeline',
+                    'include_rts=true&screen_name='+text+'&page='+page,
+                    function(data){
                         self.stopLoading('#twt-timeline-more');
-                        self.data.timeline = self.data.timeline.concat(data);
-                        page = parseInt(page - 1);
-                        var 
-                            posts = [],
-                            ipp = 20;
-                        data =self.adaptOldApiData(data);
+                        var posts = [];
                         for( var item, i = 0, count = data.length; i < count; i++ ){
-                            item = data[i];
+                            item = self.adaptOldApiData(data[i]);
                             item.type = 'timeline'
-                            item.created_at_formated = item.created_at;
+                            self.data.timeline[item.id_str] = item;
                             posts.push({ Meta: item });
                         }
                         if (page == 0 && data.length > 0) {
@@ -271,21 +266,10 @@ $.extend(providers.twitter, {
                              $.tmpl('livedesk>items/item', { 
                                     Post: posts,
                                     Base: 'implementors/sources/twitter',
-                                    Item: 'sources/twitter',
-                                    Page: page,
-                                    Ipp: ipp
+                                    Item: 'sources/twitter'
                                 }, function(e,o) {
                                     el = $('#twt-timeline-results').append(o).find('.twitter');
                                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                        // var itemWidth = el.width(),
-                                        //     itemHeight = el.height();
-                                        // itemWidth = itemWidth > 500? 500 : itemWidth;
-                                        // var containment = [
-                                        //     75, 
-                                        //     200, 
-                                        //     $(window).width()-itemWidth-30, 
-                                        //     $(window).height() - itemHeight-30
-                                        // ];
                                         el.draggable({
                                             addClasses: false,
                                             revert: 'invalid',
@@ -297,11 +281,7 @@ $.extend(providers.twitter, {
                                             start: function(evt, ui) {
                                                 item = $(evt.currentTarget);
                                                 $(ui.helper).css('width', item.width());
-                                                var idx = parseInt($(this).attr('idx'),10), 
-                                                    page = parseInt($(this).attr('page'),10), 
-                                                    ipp = parseInt($(this).attr('ipp'),10),
-                                                    itemNo = parseInt( (page * ipp) + idx );
-                                                $(this).data('data', self.adaptor.universal(self.data.timeline[ itemNo ]));
+                                                $(this).data('data', self.adaptor.universal(self.data.timeline[ $(this).attr('id_str') ]));
                                             }
 
                                         });
@@ -320,13 +300,7 @@ $.extend(providers.twitter, {
                         } else {
                             self.noResults('#twt-timeline-results');
                         }
-                    },
-                    error : function(){
-                        self.stopLoading('#twt-timeline-more');
-                        self.noResults('#twt-timeline-results');
-                        self.resetAutoRefresh();
-                    }
-                })
+                }, true ); // this parameter required
             },
         autoRefreshUser : function(fullUrl) {
             var self = this;
@@ -476,20 +450,17 @@ $.extend(providers.twitter, {
             this.showLoading('#twt-favorites-more');
             var fullUrl = str.format(this.urlFavorites,{text: encodeURIComponent(text), page: page});
             self.resetAutoRefresh();
-            $.jsonp({
-                url: fullUrl,
-                success : function(data) {
+            this.cb.__call(
+                'favorites_list',
+                'screen_name='+text+'&page='+page,
+                function(data) {
                     self.stopLoading('#twt-favorites-more');
-                    self.data.favorites = self.data.favorites.concat(data);
-                     page = parseInt(page - 1);
                     var 
-                        posts = [],
-                        ipp = 20;
-                    data =self.adaptUserData(data);
-                    for( var item, i = 0, count = data.length; i < count; i++ ){
-                        item = data[i];
+                        posts = [];
+                    for( var item, i = 0, count = data.length; i < count; i++ ) {
+                        item = self.adaptOldApiData(data[i]);
                         item.type = 'favourites'
-                        item.created_at_formated = item.created_at;
+                        self.data.favorites[item.id_str] = item;
                         posts.push({ Meta: item });
                     }
                     if (page == 0 && data.length > 0) {                   
@@ -502,9 +473,7 @@ $.extend(providers.twitter, {
                          $.tmpl('livedesk>items/item', { 
                                 Post: posts,
                                 Base: 'implementors/sources/twitter',
-                                Item: 'sources/twitter',
-                                Page: page,
-                                Ipp: ipp
+                                Item: 'sources/twitter'
                             }, function(e,o) {
                                 el = $('#twt-favorites-results').append(o).find('.twitter');
                                 BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
@@ -518,11 +487,7 @@ $.extend(providers.twitter, {
                                         start: function(evt, ui) {
                                             item = $(evt.currentTarget);
                                             $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10), 
-                                                page = parseInt($(this).attr('page'),10), 
-                                                ipp = parseInt($(this).attr('ipp'),10),
-                                                itemNo = parseInt( (page * ipp) + idx );
-                                            $(this).data('data', self.adaptor.universal(self.data.favorites[ itemNo ]));
+                                            $(this).data('data', self.adaptor.universal(self.data.favorites[ $(this).attr('id_str') ]));
                                         }
 
                                     });
@@ -530,26 +495,16 @@ $.extend(providers.twitter, {
                                     el.removeClass('draggable');
                                 });
                         });
-
-
                         //handle load more button
                         if (data.length > 19) {
                             $('#twt-favorites-more').tmpl('livedesk>providers/load-more', {name : 'twitter-favorites-load-more'}, function(){
                                     $(this).find('[name="twitter-favorites-load-more"]').on('click', function(){
-                                        self.doFavorites(parseInt(page + 2), true);
+                                        self.doFavorites(parseInt(page + 1), true);
                                     });
                             });
                         }
-                    } else {
-                        self.noResults('#twt-favorites-results');
                     }
-                },
-                error : function(xOptions, message) {
-                    self.stopLoading('#twt-favorites-more');
-                    self.noResults('#twt-favorites-results');
-                    self.resetAutoRefresh();
-                }
-            });
+                }, true);
         },
         autoRefreshWeb : function(fullUrl) {
             if ( this.isTwitterActive() ) {
