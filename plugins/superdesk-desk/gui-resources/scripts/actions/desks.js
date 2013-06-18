@@ -4,6 +4,9 @@ define([
     'router',
     'desk/models/desk-collection',
     'angular',
+    'desk/resources',
+    'desk/directives',
+    config.guiJs('media-archive', 'resources'),
     'desk/controllers/tasks',
     'desk/controllers/edit-task',
     'desk/controllers/card',
@@ -11,13 +14,11 @@ define([
     'desk/controllers/master',
     'desk/controllers/desks',
     'desk/controllers/task',
-    'desk/resources',
-    'desk/directives',
+    'desk/controllers/attach-file',
     'tmpl!superdesk-desk>single-desk',
     'tmpl!superdesk-desk>master-desk'
 ],
-function($, Backbone, router,
-        DeskCollection, angular, TasksController, EditTaskController, CardController, DeskController, MasterController, DesksController, TaskController) {
+function($, Backbone, router, DeskCollection, angular) {
     var DeskMenuView = Backbone.View.extend({
         tagName: 'li',
         render: function() {
@@ -52,36 +53,20 @@ function($, Backbone, router,
         }
     });
 
-    var module = angular.module('desks', ['resources', 'directives']);
+    var module = angular.module('desks', ['resources', 'directives', 'superdesk.media-archive.resources']);
     module.config(['$interpolateProvider', function($interpolateProvider) {
         $interpolateProvider.startSymbol('{{ ');
         $interpolateProvider.endSymbol(' }}');
     }]);
 
-    module.controller('TasksController', TasksController);
-    module.controller('EditTaskController', EditTaskController);
-    module.controller('CardController', CardController);
-    module.controller('DeskController', DeskController);
-    module.controller('MasterController', MasterController);
-    module.controller('DesksController', DesksController);
-    module.controller('TaskController', TaskController);
-    module.controller('AttachFileController', function($scope, $q, TaskService) {
-        $scope.files = [];
-
-        $scope.reset = function() {
-            $scope.files = [];
-            $scope.$emit('files:reset');
-        };
-
-        $scope.save = function(task) {
-            angular.forEach($scope.files, function(file) {
-                TaskService.addFile(task, file);
-                $q.when(task.files, function(files) {
-                    files.push(file);
-                });
-            });
-        };
-    });
+    module.controller('TasksController', require('desk/controllers/tasks'));
+    module.controller('EditTaskController', require('desk/controllers/edit-task'));
+    module.controller('CardController', require('desk/controllers/card'));
+    module.controller('DeskController', require('desk/controllers/desk'));
+    module.controller('MasterController', require('desk/controllers/master'));
+    module.controller('DesksController', require('desk/controllers/desks'));
+    module.controller('TaskController', require('desk/controllers/task'));
+    module.controller('AttachFileController', require('desk/controllers/attach-file'));
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
         angular.module('resources').value('deskId', deskId);

@@ -448,22 +448,35 @@
   </form>
 </div>
 
+<script type="text/ng-template" id="media-search">
+    <input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search Media Archive" style="margin:0;float:left !important;margin-right:20px;" ng-model="query">
+    <label class="checkbox label-inline"><input type="checkbox" ng-model="is_my"> Show only my uploads</label>
+    <ul class="uploads-grid" style="min-height:300px">
+        <li ng-repeat="item in items" title="{{ item.Name }}" ng-class="{'grid-selected':item.selected}" ng-click="item.selected = !item.selected">
+            <div class="add-button"><i class="icon-white" ng-class="{'icon-plus': !item.selected, 'icon-minus': item.selected}"></i></div>
+            <img ng-src="{{ item.Thumbnail.href }}" />
+        </li>
+    </ul>
+</script>
+
 <div sd-modal class="responsive-popup" id="AddFile" ng-controller="AttachFileController" data-modal-open="reset()">
   <div class="modal-header">
     <a href="#" class="close" data-dismiss="modal" aria-hidden="true" ng-click="reset()">&times;</a>
     <h3>Add Image</h3>
   </div>
   <div class="modal-body">
+
     <div class="modal-left-pane">
         <h6>Sources</h6>
-        <ul class="nav-pane-menu">
-          <li class="active"><a href="#addFileUpload" data-toggle="tab">From Computer</a></li>
-          <li><a href="#addFileArchive" data-toggle="tab">From Media Archive</a></li>
+        <ul class="nav-pane-menu nav">
+          <li class="active"><a href="#upload" data-toggle="tab">From Computer</a></li>
+          <li><a href="#archive" data-toggle="tab" ng-click="searchMedia(task)">From Media Archive</a></li>
         </ul>
     </div>
-    <div class="modal-right-pane">
 
-      <div class="uploadimage-screen" id="addFileUpload" sd-tab>
+    <div class="modal-right-pane tab-content">
+
+      <div class="uploadimage-screen tab-pane active" id="upload">
         <div class="drag-area" sd-upload>
           <div class="drag-area-title">
             Drag Your Images Here or Click to select them from folder
@@ -471,18 +484,7 @@
         </div>
       </div>
 
-      <div class="uploadimage-screen" id="addFileUrl" sd-tab>
-        <input type="text" class="fullwidth-input" placeholder="Enter web address">
-      </div>
-
-      <div class="uploadimage-screen" id="addFileArchive" sd-tab>
-       <input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search Media Archive" style="margin:0;float:left !important;margin-right:20px;">
-       <label class="checkbox label-inline">
-          <input type="checkbox"> Show only my uploads 
-        </label>
-            <ul class="uploads-grid">
-              <li ng-repeat="item in items"><div class="add-button"><i class="icon-plus icon-white"></i></div><img ng-src="pictures/Carla-bruni-sarkozy.jpg" /></li>
-            </ul>
+      <div class="uploadimage-screen tab-pane" id="archive" ng-include="'media-search'">
       </div>
 
     </div>

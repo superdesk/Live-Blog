@@ -161,7 +161,11 @@ define([
                 var modal = $(element).modal({show: false});
 
                 // hide previously opened modal on show
-                modal.on('show', function() {
+                modal.on('show', function(e) {
+                    if (e.relatedTarget) {
+                        return;
+                    }
+
                     if (modals.length) {
                         var last = modals.pop();
                         $(last).modal('hide');
@@ -186,14 +190,6 @@ define([
                         scope.$apply(attrs.modalOpen);
                     });
                 }
-            }
-        };
-    });
-
-    module.directive('sdTab', function() {
-        return {
-            link: function(scope, element, attrs) {
-                $(element).tab();
             }
         };
     });
