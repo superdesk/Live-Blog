@@ -27,7 +27,7 @@ _('Load more posts ...');
 					    _('Please fill in your Comment text.');
 				    </div>
 
-                    <div id="comment-token" data-public-key="6Ld6XOISAAAAAL5vnWzEqSpnaSn1u-UJhGIX1wVL"></div>
+                    <div id="comment-token" data-public-key="6Lcm_-ISAAAAAINaGTCorSJZpqPiUQKNvZt0i8MB"></div>
 				    <div class="error">
 					    _('Please fill in text from image.');
 				    </div>
