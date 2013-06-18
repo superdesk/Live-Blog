@@ -19,6 +19,12 @@
     position: relative;
     margin: 0;
 }
+
+#livedesk-root img {
+    float: none;
+    margin: 0;
+}
+
 #livedesk-root li {
     list-style-type:none;
     color: #212121;
@@ -525,7 +531,7 @@ color:#484848;
 }
 .liveblog-post-list li .result-header p {
     font-weight: normal;
-    font-size: 11px;
+    font-size: 11px !important;
     color:#888;
     padding: 0;
     width: 100%;
@@ -927,3 +933,88 @@ li.loading-more:hover{
         margin: 0;
         padding: 5px 0;
     }
+
+/* comments */
+#comment-btn {
+    background: #95915c;
+    padding: 3px 5px;
+    color:#fff;
+    font-weight: bold;
+    position: absolute;
+    top:5px;
+    right: 80px;
+    z-index: 2001;
+    text-decoration: none;
+    font-size: 11px;
+}
+#livedesk-root .comment-box {
+    position: absolute;
+    top: 40px;
+    right: 25px;
+    z-index: 2003;
+}
+#livedesk-root .comment-box .content {
+    position: relative;
+    background: #fff;
+    padding: 20px 20px 60px 20px;
+    width: 482px;
+    box-sizing: border-box;
+}
+#livedesk-root .comment-box .content:before {
+    content: ' ';
+    height: 0;
+    position: absolute;
+    width: 0;
+    border: 7px solid transparent;
+    border-bottom-color: #FFF;
+    top:-14px;
+    right: 80px;
+}
+#livedesk-root .comment-box input,
+#livedesk-root .comment-box textarea {
+    padding: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 14px;
+    color: #4d4d4d;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-bottom: 20px;
+}
+#livedesk-root .comment-box textarea {
+    min-height: 100px;
+}
+#livedesk-root .comment-box a.button { 
+    padding: 7px 24px;
+    position: absolute;
+    bottom: 20px;
+    margin: 10px 0 0 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: #FFF;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+#livedesk-root .comment-box a.cancel { 
+    right: 110px;
+    background-color: #a8a8a8;
+}
+#livedesk-root .comment-box a.cancel:hover {
+    background-color: #b3b3b3;
+}
+#livedesk-root .comment-box a.send { 
+    right: 20px;
+    background-color: #95915c;
+}
+#livedesk-root .comment-box a.send:hover {
+    background-color: #9e9a62;
+}
+#livedesk-root .comment-box .error {
+    background-color: #ffeded;
+    border: 1px solid #ffabab;
+    color: #393939;
+    font-size: 11px;
+    line-height: 140%;
+    padding: 4px;
+    margin: -10px 0 16px 0;
+}

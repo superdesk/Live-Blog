@@ -27,7 +27,7 @@ class SourceMapped(Base, Source):
     Provides the mapping for Source.
     '''
     __tablename__ = 'source'
-    __table_args__ = (UniqueConstraint('name', 'fk_type_id', name='uix_name_type'), dict(mysql_engine='InnoDB', mysql_charset='utf8'))
+    __table_args__ = (UniqueConstraint('name', 'fk_type_id', name='uix_source_type_name'), dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Type = association_proxy('type', 'Key')

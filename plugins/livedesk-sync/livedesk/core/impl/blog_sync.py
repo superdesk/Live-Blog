@@ -31,6 +31,7 @@ from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
 from urllib.error import HTTPError
+from time import sleep
 
 # --------------------------------------------------------------------
 
@@ -96,13 +97,23 @@ class BlogSyncProcess:
         '''
         for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
             assert isinstance(blogSync, BlogSync)
-            syncThread = self.syncThreads.get(blogSync.Blog, None)
-            if syncThread is not None and syncThread.is_alive(): continue
-            self.syncThreads[blogSync.Blog] = Thread(name='blog %d sync' % blogSync.Blog,
-                                                     target=self._syncBlog, args=(blogSync,))
-            self.syncThreads[blogSync.Blog].daemon = True
-            self.syncThreads[blogSync.Blog].start()
-            log.info('Thread %s started for blog id %d', self.syncThreads[blogSync.Blog], blogSync.Blog)
+            key = (blogSync.Blog, blogSync.Source)
+            thread = self.syncThreads.get(key)
+            if thread:
+                assert isinstance(thread, Thread), 'Invalid thread %s' % thread
+                if thread.is_alive(): continue
+
+            self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
+                                           target=self._syncBlog, args=(blogSync,))
+            self.syncThreads[key].daemon = True
+            self.syncThreads[key].start()
+            log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+
+    def _syncBlogLoop(self, blogSync):
+        while True:
+            log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+            self._syncBlog(blogSync)
+            sleep(self.sync_interval)
 
     def _syncBlog(self, blogSync):
         '''
@@ -121,7 +132,7 @@ class BlogSyncProcess:
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
         if blogSync.SyncStart is not None:
-            q.append(('updatedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
+            q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Author.Source.*,Author.User.*'})
@@ -132,11 +143,11 @@ class BlogSyncProcess:
 
         try: msg = json.load(codecs.getreader(self.encodingType)(resp))
         except ValueError as e:
-            log.error('Invalid JSON data %s: %s' % (e, msg))
+            log.error('Invalid JSON data %s' % e)
             return
         for post in msg['PostList']:
             try:
-                if post['IsPublished'] != 'True': continue
+                if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
 
                 lPost = BlogPost()
                 lPost.Type = post['Type']['Key']

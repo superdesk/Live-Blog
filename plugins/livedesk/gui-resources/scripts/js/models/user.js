@@ -6,7 +6,8 @@ function(Gizmo, Blog, Post, PersonMeta)
 {
     // User
     return Gizmo.Model.extend
-    ({ 
+    ({
+        url: new Gizmo.Url('HR/User'),
         defaults:
         { 
             Blog: Gizmo.Collection.extend(Blog),

@@ -42,7 +42,7 @@
 					start: function(evt, ui) {
 					    item = $(evt.currentTarget);
 					    $(ui.helper).css('width', item.width());
-					    $(this).data('data', providers.chain.adaptor.universal(self.model));
+					    $(this).data('data', providers.chain.adaptor.universal(self.model, { Id: self._parent.sourceId, URI: self._parent.sourceURI } ));
 					}
 				});
     		}
@@ -66,8 +66,9 @@
 						self.el.find('.chainblogs').show();
 					})
 					.auto({
-						headers: { 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, IsModified, ' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName' },
+						headers: { 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
+								'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
+							  	'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName' },
                         data: data
 					});
 			},
@@ -114,17 +115,16 @@
             
             toggleActive: function(e) {
                 if (this.el.hasClass('active')) {
-                    this.deactivate();
+                    this.deactivate(e);
                 } else {
-                    this.activate();
+                    this.activate(e);
                 }
             },
 
-			deactivate: function() {
-                if (this.model.chainBlogContentView.active) {
-				    this.model.chainBlogContentView.deactivate();
-                    this._parent.setActive(null);
-                }
+			deactivate: function(e) {
+				if(e) e.stopPropagation();
+				this.el.removeClass('active');
+				this.model.chainBlogContentView.deactivate();
 			},
 
 			activate: function() {
@@ -151,7 +151,6 @@
 			},
 			activate: function() {
 				this.active = true;
-
                 var isAuto = autoSources.isAuto(this.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
@@ -163,9 +162,10 @@
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
-							el: self.el, 
+							el: self.el,
 							collection: self.model.get('PostPublished'),
-                            sourceId: self.model.sourceId
+							sourceId: self.model.sourceId,
+							sourceURI: self.model.href
 					});
 				});
 			}
@@ -250,17 +250,32 @@
 
             toggleAutopublish: function(e) {
                 e.preventDefault();
-                var autopublish = $(e.target).is(':checked');
-                var view = this.activeView;
+                var autopublish = $(e.target).is(':checked'),
+                	view = this.activeView,
+                	CId,
+                	sync,
+                	ret;
                 if (view) {
                     sync = autoSources.findSource(view.model.sourceId);
+                    CId = autoSources.getLastSyncId(view.model.sourceId);
                     if (sync) {
-                        sync.save({Auto: autopublish ? 'True' : 'False'}, {patch: true});
+                        sync.save({Auto: autopublish ? 'True' : 'False', CId: CId}, {patch: true}).done(function(){
+                        	view.model.chainBlogContentView.activate();
+                        });
                     } else {
-                        autoSources.create({Blog: this.blog.get('Id'), Source: view.model.sourceId, Auto: autopublish ? 'True' : 'False'}, {headers: autoSources.xfilter});
+                        model = autoSources.create({
+                        	Blog: this.blog.get('Id'),
+                        	Source: view.model.sourceId,
+                        	Auto: autopublish ? 'True' : 'False',
+                        	Creator: localStorage.getItem('superdesk.login.id')
+                        }, { 
+                        	wait: true, 
+                        	headers: autoSources.xfilter,
+                        	success: function(){
+								view.model.chainBlogContentView.activate();
+                        	}
+                        });
                     }
-
-                    view.model.chainBlogContentView.activate();
                 }
             }
 		});

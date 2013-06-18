@@ -10,7 +10,8 @@ API specifications for posts.
 '''
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
-from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsRange, AsLikeOrdered
+from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsLikeOrdered, \
+    AsRangeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
@@ -52,7 +53,7 @@ class QWithCId:
           It partially emulates the cId parameter behavior of BlogPosts.
           It should be done more properly at some future.
     '''
-    cId = AsRange
+    cId = AsRangeOrdered
 
 @query(Post)
 class QPostUnpublished(QEntity, QWithCId):
@@ -78,6 +79,15 @@ class QPost(QPostPublished):
     Provides the post message query.
     '''
     deletedOn = AsDateTimeOrdered
+
+# --------------------------------------------------------------------
+
+@query(Post)
+class QPostWithPublished(QPost):
+    '''
+    Provides the post message query with isPublished option.
+    '''
+    isPublished = AsBoolean
 
 # --------------------------------------------------------------------
 

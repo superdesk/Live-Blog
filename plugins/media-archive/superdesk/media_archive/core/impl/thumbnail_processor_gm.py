@@ -36,12 +36,15 @@ class ThumbnailProcessorGM(IThumbnailProcessor):
     The command used to transform the thumbnails''')
     command_resize = '"%(gm)s" convert "%(source)s" -resize %(width)ix%(height)i  "%(destination)s"'
     wire.config('command_resize', doc='''The command used to resize the thumbnails''')
+    command_scale_to_height = '"%(gm)s" convert "%(source)s" -resize x%(height)i  "%(destination)s"'
+    wire.config('command_scale_to_height', doc='''The command used to resize the thumbnails to specific heights''')
     gm_path = join('workspace', 'tools', 'gm', 'bin', 'gm.exe'); wire.config('gm_path', doc='''
     The path where the gm is found''')
 
     def __init__(self):
         assert isinstance(self.command_transform, str), 'Invalid command transform %s' % self.command_transform
         assert isinstance(self.command_resize, str), 'Invalid command resize %s' % self.command_resize
+        assert isinstance(self.command_scale_to_height, str), 'Invalid command resize to height %s' % self.command_scale_to_height
         assert isinstance(self.gm_path, str), 'Invalid gm path %s' % self.gm_path
 
     def processThumbnail(self, source, destination, width=None, height=None):
@@ -58,6 +61,13 @@ class ThumbnailProcessorGM(IThumbnailProcessor):
 
             params.update(width=width, height=height)
             command = self.command_resize % params
+
+        elif height:
+            assert isinstance(height, int), 'Invalid height %s' % height
+
+            params.update(height=height)
+            command = self.command_scale_to_height % params
+
         else: command = self.command_transform % params
 
         destDir = dirname(destination)

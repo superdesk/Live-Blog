@@ -1,4 +1,4 @@
-define(['utils/utf8'],function(utf8){
+define(['utils/utf8-pass'],function(utf8){
 	str = function(str){
 		this.init(str);
 	}

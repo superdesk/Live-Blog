@@ -147,8 +147,9 @@
     margin: 0;
     margin-top: -3px;
 }
-
-
+.smspost h3 {
+    display: none;
+}
 .twitterservice h3 a,
 .googleservice h3 a,
 .linkpost h3 a {
@@ -234,8 +235,26 @@
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
 }
+.smspost .editable.annotation {
+    padding: 0 0 5px;
+    margin-top: 0;
+}
+.smspost .result-text {
+    border: 1px solid #e5e5e5;
+    padding: 7px 10px !important;
+    background: #f5f5f5;
+    margin: 0;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    color: #484848 !important;
+}
 
-.linkpost .result-text,
+.smspost .result-content + .editable.annotation {
+    margin-top: 0 !important;
+}
 .twitterservice .result-text,
 .googleservice .result-text {
     font-size: 12px !important;

@@ -20,6 +20,7 @@ define([
 	'tmpl!theme/item/source/facebook',
 	'tmpl!theme/item/source/youtube',
 	'tmpl!theme/item/source/flickr',
+	'tmpl!theme/item/source/comments',
 	'tmpl!theme/item/source/soundcloud',
 	'tmpl!theme/item/source/instagram',
 	'tmpl!theme/item/source/sms'
@@ -129,11 +130,11 @@ define([
 			} else {
 				data.permalink = self._parent.location + '&' + newHash;
 			}
-			if(data.Author.Source.Name !== 'internal') {
-				data.item = "source/"+data.Author.Source.Name;
+			if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
+				data.item = "posttype/"+data.Type.Key;
 			}
 			else if(data.Type)
-				data.item = "posttype/"+data.Type.Key;
+				data.item = "source/"+data.Author.Source.Name;
 			if(data.CreatedOn) {
 				createdOn = new Date(Date.parse(data.CreatedOn));
 				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));

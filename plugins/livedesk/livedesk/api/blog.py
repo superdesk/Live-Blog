@@ -20,6 +20,9 @@ from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
 from superdesk.source.api.source import Source
 from support.api.configuration import IConfigurationService
+from superdesk.source.api.type import SourceType
+from support.api.configuration import IConfigurationService
+from superdesk.post.api.post import Post, QPostWithPublished
 
 # --------------------------------------------------------------------
 
@@ -136,6 +139,13 @@ class IBlogSourceService:
         @param sourceId: Source.Id
             The source identifier
         @raise InputError: on invalid source id
+        '''
+
+    @call(webName='Chain')
+    def getChainedPosts(self, blogId:Blog.Id, sourceTypeKey:SourceType.Key, offset:int=None, limit:int=None,
+                 detailed:bool=True, q:QPostWithPublished=None) -> Iter(Post):
+        '''
+        Gets all posts from blog-allowed sources of specified SourceType
         '''
 
 # --------------------------------------------------------------------

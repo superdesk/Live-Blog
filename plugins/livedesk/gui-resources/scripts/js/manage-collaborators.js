@@ -61,10 +61,11 @@ define([
 				 * key of the string property to be sorted can be specified in the sortProperty
 				 */
 				self._views.sort(function(a,b){
-				    var aa = a.model.get(self.sortProperty),
-				        bb = b.model.get(self.sortProperty);
-				    if( !aa || !bb ) return false;
-					return aa.toLowerCase() > bb.toLowerCase();
+					if (a.model.get(self.sortProperty)) {
+						return a.model.get(self.sortProperty).toLowerCase() > b.model.get(self.sortProperty).toLowerCase();
+					} else {
+						return false;
+					}
 				});
 				pos = self._views.indexOf(view);
 				if(pos === 0 ) {

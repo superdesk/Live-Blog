@@ -94,7 +94,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     def _localeOf(self, code):
         '''
         Helper that parses the code to a babel locale.
-        
+
         @param code: string
             The language code to provide the locale for.
         @return: Locale|None
@@ -106,7 +106,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     def _localesOf(self, codes):
         '''
         Helper method that based on a language code list will provide a babel locales.
-        
+
         @param codes: string|iter(string)
             The language code to provide the locale for.
         @return: Locale|None
@@ -119,7 +119,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         Helper method that provides the translated language name for locale based on the locales list, the first
         locale will be used if not translation will be available for that than it will fall back to the next.
-        
+
         @param locale: Locale
             The locale to get the translator for.
         @param locales: list[Locale]|tuple(Locale)
@@ -137,7 +137,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     def _populate(self, language, translator):
         '''
         Helper method that populates directly the language with the translation name.
-        
+
         @param language: Language
             The language to be populated with info from the locale.
         @param translator: Locale
@@ -155,7 +155,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if locale.variant: language.Variant = translator.variants.get(locale.variant)
         return language
 
-    def _validateCode(self, language, model, prop, errors):
+    def _validateCode(self, prop, language, errors):
         '''
         Validates the language code on a language instance, this is based on the operator listeners.
         '''

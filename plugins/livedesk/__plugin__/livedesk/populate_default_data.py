@@ -34,6 +34,8 @@ from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
+from superdesk.user.meta.user_type import UserTypeMapped
+from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
 
@@ -68,16 +70,35 @@ def createSourceType(key):
     session.close()
 
 
+def createUserType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(UserTypeMapped.Key == key)).scalar():
+        userTypeDb = UserTypeMapped()
+        userTypeDb.Key = key
+        session.add(userTypeDb)
+
+    session.commit()
+    session.close()
+
+
 @app.populate
 def createSourceTypes():
     createSourceType('blog provider')
     createSourceType('chained blog')
+    createSourceType('comment')
 
+@app.populate
+def createUserTypes():
+    createUserType('commentator')
 
 SOURCES = {
            'internal': (False, '', '', ''),
            'advertisement': (False, '', '', ''),
            'sms': (False, '', '', ''),
+           'comments': (False, '', '', ''),
            'google': (False, 'www.google.com', 'xml', ''),
            'facebook': (False, 'www.facebook.com', 'xml', ''),
            'twitter': (False, 'www.twitter.com', 'xml', ''),
@@ -133,6 +154,7 @@ COLLABORATORS = {
                  'advertisement': 'advertisement',
                  'internal': 'internal',
                  'sms': 'sms',
+                 'comments': 'comments',
                  'google': 'google',
                  'facebook': 'facebook',
                  'twitter': 'twitter',

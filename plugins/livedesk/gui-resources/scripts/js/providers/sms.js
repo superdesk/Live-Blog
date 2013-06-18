@@ -19,7 +19,7 @@ define([
     'tmpl!livedesk>providers/loading'
 ], function( providers, $, Gizmo, BlogAction) {
 $.extend(providers.sms, {
-    interval: 2000,
+    interval: 20000,
     first: true,
     oldSmss: [],
     data: [],
@@ -157,7 +157,6 @@ $.extend(providers.sms, {
             return;
         }
 
-        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
         var keywordSearch = '';
         if ( isNaN(sd.feedId) ) {
             sd.feedId = 0;
@@ -165,6 +164,7 @@ $.extend(providers.sms, {
         if ( self.keyword[sd.feedId].length > 0 ) {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword[sd.feedId] + '%')
         }
+        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
         myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
         //console.log('myUrl ', myUrl );
         
@@ -208,7 +208,7 @@ $.extend(providers.sms, {
                         el.draggable(
                         {
                             revert: 'invalid',
-                            containment:'document',
+                            //containment:'document',
                             helper: 'clone',
                             appendTo: 'body',
                             zIndex: 2700,

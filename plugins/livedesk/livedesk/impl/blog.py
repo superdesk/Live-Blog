@@ -32,6 +32,9 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
 from ally.container import wire
+from superdesk.post.api.post import QPostWithPublished
+from superdesk.post.meta.post import PostMapped
+from mysql.connector.errors import IntegrityError
 
 # --------------------------------------------------------------------
 
@@ -151,7 +154,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         @see: IBlogSourceService.getSources
         '''
         sql = self.session().query(SourceMapped)
-        return sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId).all()
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
+        return sql.all()
 
     def addSource(self, blogId, source):
         '''
@@ -162,13 +167,12 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(blogId, int), 'Invalid blog identifier %s' % blogId
         assert isinstance(source, Source), 'Invalid source %s' % source
 
-        q = QSource()
-        q.name = source.Name
-        sources = self.sourceService.getAll(typeKey=source.Type, offset=0, limit=1, detailed=False, q=q)
-        if sources:
-            sourceId = sources[0].Id
-        else:
-            sourceId = self.sourceService.insert(source)
+        # insert source if it didn't exist yet
+        q = QSource(name=source.Name)
+        sources = self.sourceService.getAll(typeKey=source.Type, q=q)
+        if not sources: sourceId = self.sourceService.insert(source)
+        else: sourceId = sources[0].Id
+
         ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
@@ -195,6 +199,27 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'),))
+
+    def getChainedPosts(self, blogId, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogSourceService.getChainedPosts
+        '''
+        sql = self.session().query(PostMapped)
+        sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
+        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source).filter(BlogMapped.Id == blogId)
+
+        if q:
+            assert isinstance(q, QPostWithPublished), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, PostMapped)
+
+            if q and QPostWithPublished.isPublished in q:
+                if q.isPublished.value: sql = sql.filter(PostMapped.PublishedOn != None)
+                else: sql = sql.filter(PostMapped.PublishedOn == None)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
 # --------------------------------------------------------------------
 
