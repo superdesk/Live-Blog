@@ -945,7 +945,14 @@ li.loading-more:hover{
         padding: 5px 0;
     }
 
-/* comments */
+
+
+
+/*****************************
+USER COMMENTS 
+*****************************/
+
+/* coment send form*/
 #comment-btn {
     background: #95915c;
     padding: 3px 5px;
@@ -1046,4 +1053,23 @@ li.loading-more:hover{
     left: 0;
     bottom: 0;
     right: 0;
+}
+
+/* coment posts */
+.commentspost .result-text {
+    border:1px solid #e5e5e5;
+    border-left: 3px solid #d4d4d4;
+    background: #f5f5f5;
+    padding: 10px; 
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+}
+
+.commentspost .result-text h3 {
+    display: none;
+}
+
+.liveblog-post-list li.commentspost .result-header figure{
+    background: url(img/comment-icon48.png) no-repeat 0 0;
 }
