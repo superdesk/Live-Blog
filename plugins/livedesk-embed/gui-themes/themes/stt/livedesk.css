@@ -983,7 +983,14 @@ li.loading-more:hover{
 #livedesk-root .comment-box textarea {
     min-height: 100px;
 }
-#livedesk-root .comment-box a.button { 
+
+#livedesk-root .comment-box input:focus,
+#livedesk-root .comment-box textarea:focus {
+    border-color: 1px solid #95915c;
+    outline: none;
+}
+
+#livedesk-root .comment-box .button { 
     padding: 7px 24px;
     position: absolute;
     bottom: 20px;
@@ -994,19 +1001,20 @@ li.loading-more:hover{
     color: #FFF;
     text-transform: uppercase;
     text-decoration: none;
+    border: 0;
 }
-#livedesk-root .comment-box a.cancel { 
+#livedesk-root .comment-box .cancel { 
     right: 110px;
     background-color: #a8a8a8;
 }
-#livedesk-root .comment-box a.cancel:hover {
+#livedesk-root .comment-box .cancel:hover {
     background-color: #b3b3b3;
 }
-#livedesk-root .comment-box a.send { 
+#livedesk-root .comment-box .send { 
     right: 20px;
     background-color: #95915c;
 }
-#livedesk-root .comment-box a.send:hover {
+#livedesk-root .comment-box .send:hover {
     background-color: #9e9a62;
 }
 #livedesk-root .comment-box .error {
@@ -1017,4 +1025,14 @@ li.loading-more:hover{
     line-height: 140%;
     padding: 4px;
     margin: -10px 0 16px 0;
+}
+
+.comment-backdrop {
+    display: none;
+    position: absolute;
+    background: rgba(0,0,0,0.7);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
