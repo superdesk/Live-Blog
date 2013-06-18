@@ -20,6 +20,7 @@ from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
+from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
 
 # --------------------------------------------------------------------
 
@@ -27,7 +28,7 @@ def insertSource(name):
     sourcesService = entityFor(ISourceService)
     assert isinstance(sourcesService, ISourceService)
     srcs = sourcesService.getAll(q=QSource(name=name))
-    if srcs: src = next(srcs).Id
+    if srcs: src = next(iter(srcs)).Id
     else:
         src = Source()
         src.Name = name
@@ -57,6 +58,7 @@ def insertTheme():
             t.IsLocal = True
             s.insert(t)
 
+# --------------------------------------------------------------------
 
 @app.populate
 def upgradeLiveBlog14():
@@ -90,8 +92,8 @@ def upgradeLiveBlog14():
 
     insertSource('sms')
 
-@app.populate
-def upgradeLiveBlog14Stage2():
+@app.populate(priority=PRIORITY_FIRST)
+def upgradeLiveBlog14First():
     creator = alchemySessionCreator()
     session = creator()
     assert isinstance(session, Session)
@@ -103,5 +105,7 @@ def upgradeLiveBlog14Stage2():
     session.execute("UPDATE user, user_type SET user.fk_type_id = user_type.id WHERE user_type.key = 'standard'")
     session.execute("ALTER TABLE user CHANGE COLUMN `fk_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
 
+@app.populate(priority=PRIORITY_LAST)
+def upgradeLiveBlog14Last():
     insertTheme()
     insertSource('comments')
