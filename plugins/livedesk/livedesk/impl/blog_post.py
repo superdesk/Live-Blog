@@ -22,6 +22,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost, IterPost
 from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMapped
+from livedesk.meta.blog import BlogMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
@@ -174,6 +175,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.insert
         '''
+        self._checkPostChangeIsAllowed(blogId)
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
@@ -187,6 +189,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.publish
         '''
+        self._checkPostChangeIsAllowed(blogId)
         post = self.getById(blogId, postId)
         assert isinstance(post, Post)
 
@@ -206,6 +209,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.insertAndPublish
         '''
+        self._checkPostChangeIsAllowed(blogId)
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
@@ -220,6 +224,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.unpublish
         '''
+        self._checkPostChangeIsAllowed(blogId)
         post = self.getById(blogId, postId)
         assert isinstance(post, Post)
 
@@ -238,6 +243,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.update
         '''
+        self._checkPostChangeIsAllowed(blogId)
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         self.postService.update(post)
@@ -250,6 +256,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.reorder
         '''
+        self._checkPostChangeIsAllowed(blogId)
         sql = self.session().query(BlogPostMapped.Order)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id == refPostId)
@@ -290,6 +297,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.delete
         '''
+        blogId, = self.session().query(BlogPostEntry.Blog).filter(BlogPostEntry.blogPostId == id)
+        self._checkPostChangeIsAllowed(blogId)
+
         if self.postService.delete(id):
             postEntry = self.session().query(BlogPostEntry).get(id)
             if postEntry:
@@ -400,3 +410,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         for post in posts:
             post = self._addImage(post, thumbSize)
             yield post
+
+    def _checkPostChangeIsAllowed(self, blogId):
+        if not blogId: raise InputError(_('Invalid blog Id'))
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog'))
+        if blog.ClosedOn: raise InputError(_('Blog is closed'))
