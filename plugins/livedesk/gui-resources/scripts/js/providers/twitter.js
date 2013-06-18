@@ -503,28 +503,33 @@ $.extend(providers.twitter, {
                                     });
                             });
                         }
+                    } else {
+                        self.noResults('#twt-favorites-results');
                     }
                 }, true);
         },
-        autoRefreshWeb : function(fullUrl) {
+        autoRefreshWeb : function(qstring) {
+            console.log('refresh: ',qstring);
             if ( this.isTwitterActive() ) {
                 return 1;
             }
             var self = this;
-            $.jsonp({
-                url : fullUrl,
-                success : function(data){
-                    if (data.results.length > 1) {
-                        if (data.results[0].id_str != self.lastWeb.id_str) {
+            console.log('refresh request');
+            this.cb.__call(
+                'search_tweets',
+                qstring,
+                function(data){
+                    if (data.statuses.length > 1) {
+                        if (data.statuses[0].id_str != self.lastWeb.id_str) {
                             self.flashThumb('web');
                             clearInterval(self.iidWeb);
-                            self.doWeb(undefined, true);
+                            self.doWeb(qstring, true);
                         } else {
                             //same result do nothing
                         }
                     }
                 }
-            })
+            );
         },
         doWeb : function(qstring, refresh) {
             var skip = qstring || false;
@@ -566,6 +571,12 @@ $.extend(providers.twitter, {
                         self.data.web[item.id_str] = item;
                         posts.push({ Meta: item });
                     }
+                    if ( refresh && posts.length > 0 ) {
+                        self.lastWeb = data.statuses[0];
+                        self.iidWeb = setInterval(function(){
+                          self.autoRefreshWeb.apply(self,[qstring]);  
+                        }, self.refreshTimer);
+                    }
                     if (posts.length > 0) {
                          $.tmpl('livedesk>items/item', { 
                                 Post: posts,
@@ -601,7 +612,7 @@ $.extend(providers.twitter, {
                         }
                     } else {
                         self.noResults('#twt-web-results');
-                    }      
+                    }     
                 },
                 true // this parameter required
             );
