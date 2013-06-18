@@ -336,14 +336,25 @@
     line-height: 16px !important;
     color: #4d4d4d !important;
 }
-.youtubeservice iframe {
-    width: 100% !important;
-    border: 0;
-}
+
 .youtubeservice .result-text {
     overflow: hidden;
 }
-    
+
+.video-container {     
+    position: relative;     
+    padding-bottom: 56.25%;     
+    padding-top: 30px; 
+    height: 0; 
+    overflow: hidden; } 
+
+.video-container iframe {     
+    position: absolute;     
+    top: 0;     
+    left: 0;     
+    width: 100%;    
+    height: 100%; 
+}    
 
 .liveblog-post-list li.quotation .result-content-full {
     padding-left:205px;
