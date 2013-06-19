@@ -443,7 +443,6 @@ $.extend(providers.twitter, {
                 self.data.favorites = [];
             }
             this.showLoading('#twt-favorites-more');
-            var fullUrl = str.format(this.urlFavorites,{text: encodeURIComponent(text), page: page});
             self.resetAutoRefresh();
             qstring = 'screen_name='+text+'&page='+page;
             this.cb.__call(
