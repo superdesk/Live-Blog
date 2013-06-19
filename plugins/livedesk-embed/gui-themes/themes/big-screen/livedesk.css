@@ -17,6 +17,7 @@ body,html {
     position: relative;
     margin: 0;
     height: 100%  !important;
+    background: #021013;
 }
 #livedesk-root li {
     list-style-type:none;
@@ -34,22 +35,22 @@ body,html {
     bottom: 0;
     left: 0;
     right: 0;
-    padding-top: 29px;
+    padding-bottom: 29px;
     overflow: auto;
-    background: #383838;
+    background: url(img/background-pattern.png) repeat-x 0 0;
 }
 
 
 #livedesk-root .update-time {
     text-transform: uppercase ;
-    color: #b2d179 ;
+    color: #bfe47a ;
+    font-weight: bold;
     font-size: 10px;
     line-height: 23px ;
     padding: 3px 0 3px 8px ;
     margin: 0;
-    min-height: 23px ;
-    max-height: 12px;
-    background: #202020;
+    min-height: 23px;
+    background: #101010;
     position: absolute;
     left: 0;
     right: 0;
@@ -642,6 +643,7 @@ color:#484848;
     color: #b2d279;
 }
 
+
 .new-notification {
     background: #b2d279;
     color: #fff;
@@ -789,8 +791,9 @@ li.loading-more:hover{
     }
 
     #livedesk-root .liveblog-post-list li.wrapup {
-        margin: 5px;
+        margin: 20px 5px 20px;
         padding: 5px 10px 5px 50px;
+
     }
 
 
@@ -830,48 +833,263 @@ li.loading-more:hover{
         margin: 0 -5px;
     }
 
+
+
+
+/* OVERRIDE FOR BIG SCREEN */
+.sf-share {
+    display: none !important;
+}
+.liveblog-post-list li a[rel="bookmark"] {
+    display: none !important;
+}
+#pintotop {
+    display: none !important;
+}
+
+#liveblog-posts {
+    padding:   86px 30px 30px 30px;
+}
 /*
-    .liveblog-post-list li a[rel="bookmark"] {
-        display: block !important;
-        top: auto;
-        right: 10px;
-        bottom: 9px;
-        
-    }
-    .sf-share {
-        display: block !important;
-        top: auto;
-        right: 50px;
-        bottom: 5px;
-        height: 20px;
-        font-size: 12px;
-    }
-    
-    .share-box {
-        top: auto;
-        bottom: 35px;
-        right: auto;
-        left: 0;
-    }
-
-    .twitter-controls {
-        height: 15px;
-        top: auto !important;
-        padding: 5px 0;
-        margin: 0;
-    }
-
-    .twitter-controls .twitter-button {
-        display: block !important;
-        margin-left: 8px;
-    }
-    
-    .liveblog-post-list li input[data-type="permalink"] {
-        top: auto;
-        bottom: 35px;
-        right: 0;
-        display: block;
-        left: 0;
-        width: auto;
-    }
+#liveblog-posts {
+    margin-top: 171px;
+}
+#liveblog-posts:before {
+    display: block;
+    content: " ";
+    position: fixed;
+    top:0px;
+    left: 0;
+    right: 0;
+    height: 171px;
+    background: #fff url(img/newssummitlogo.png) no-repeat center 0;
+}
+.update-time {
+    margin-top: 171px !important;
+}
 */
+
+#livedesk-root .update-time {
+    height: 50px;
+    line-height: 50px;
+    font-size: 20px;
+}
+
+#livedesk-root .liveblog-post-list li {
+     border-radius: 4px;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    -o-border-radius:4px;
+    margin-bottom: 15px;
+    padding: 20px;
+}
+
+.liveblog-post-list li .result-header time {
+    font-size: 20px;
+    color: #85a64c;
+}
+
+.liveblog-post-list li .result-text {
+    font-size: 28px;
+    line-height: 34px;
+    color: #202020;
+}
+
+.normal .result-text {
+    padding-bottom: 10px;
+}
+
+.link .result-content, 
+.twitterservice .result-content,
+.googleservice .result-content,
+.facebookservice .result-content {
+    margin: 0 -20px 20px !important;
+    padding: 20px 20px 10px !important;
+}
+
+.facebookservice figure.profile-thumbnail, 
+.twitterservice figure.profile-thumbnail, 
+.link figure.link-thumbnail {
+    margin-right: 20px;
+    width: 68px;
+    max-width: 68px;
+}
+.facebookservice figure.profile-thumbnail img, 
+.twitterservice figure.profile-thumbnail img, 
+.link figure.link-thumbnail img { 
+    width: 68px;
+    max-width: 68px;
+    max-height: 68px;
+    height: 68px;
+}
+
+.link h3, 
+.googleservice h3, 
+.twitterservice h3, 
+.facebookservice h3 {
+    
+}
+.link h3 a,
+.googleservice h3 a, 
+.twitterservice h3 a,
+.facebookservice h3 a {
+    font-size: 32px !important;
+    line-height: 38px !important;
+    color: #202020 !important;
+} 
+
+ .facebookservice figure + h3 + .result-text, 
+ .twitterservice figure + h3 + .result-text, 
+ .link figure + h3 + .result-text {
+    padding-left: 90px;
+ }
+
+.link .result-text, 
+.googleservice .result-text,
+.twitterservice .result-text, 
+.facebookservice .result-text {
+    font-size: 28px !important;
+    line-height: 34px !important;
+    color: #404040 !important;
+}
+
+.liveblog-post-list li .attributes {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.facebookservice .result-text + .attributes, 
+.twitterservice .result-text + .attributes, 
+.link figure + h3 + .result-text + p {
+    padding-left: 90px;
+}
+
+.link figure + h3 + .result-text + p,
+.twitterservice .result-text + .attributes, 
+.facebookservice .result-text + .attributes,
+.googleservice .result-text + .attributes {
+    margin: 20px 0 10px;
+    font-size: 20px;
+}
+
+.instagramservice .result-content a .result-text p, 
+.flickrservice .result-content .result-text p {
+    font-size: 22px;
+    padding: 15px 0;
+}
+
+.source-icon {
+    width: 24px;
+    height: 24px;
+    background-size: 24px;
+    background-size: 24px;
+}
+
+.liveblog-post-list li .editable {
+    font-size: 28px;
+    margin-top: 15px;
+    padding-bottom: 15px;
+    line-height: 34px;
+}
+
+.youtubeservice .result-text {
+    position: relative;     
+    padding-bottom: 56.25%;     
+    padding-top: 30px; 
+    height: 0; 
+    overflow: hidden;
+}
+.youtubeservice  iframe {
+    position: absolute;     
+    top: 0;     
+    left: 0;     
+    width: 100%;    
+    height: 100%; 
+}
+.youtubeservice h3 {
+    margin: 10px 0;
+}
+.youtubeservice h3 a {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+
+
+#livedesk-root .liveblog-post-list li.advertisement {
+    padding: 20px !important;
+    padding-right: 150px !important;
+}
+.liveblog-post-list .advertisement a {
+    padding: 0 !important;
+    font-size: 28px !important;
+    line-height: 34px !important;
+}
+
+.liveblog-post-list .advertisement:before {
+    font-size: 12px;
+    top: 10px;
+    right: 10px;
+}
+
+.wrapup {
+    padding: 15px !important;
+}
+.wrapup h3 {
+    padding: 5px 5px 5px 50px;
+    font-size: 32px;
+    line-height: 38px;
+}
+.wrapup span.big-toggle {
+    top:25px;
+}
+
+.live-blog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 577px;
+    background: #09232a;
+    border-right: 2px solid #042025;
+}
+
+.right-panel {
+    position: absolute;
+    top:0;
+    right: 0;
+    width: 576px;
+    bottom:0;
+    background: url(img/background-pattern.png) repeat-x 0 0;
+}
+
+.right-panel-logo {
+    margin: 50px 0 0 40px;
+    width: 488px;
+    height: 171px;
+    background:url(img/gen_newssummit_logo.png) no-repeat 0 0;
+}
+
+.right-panel-content {
+
+}
+.right-panel-content p {
+    font-size: 28px;
+    color: #c8dfe8;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 36px;
+    padding: 40px;
+}
+.right-panel-footer {
+    position: absolute;
+    bottom: 0;
+    left: 40px;
+    right: 40px;
+    bottom: 50px;
+    width: 299px;
+    height: 85px;
+    background:url(img/powered_by_superdesk.png) no-repeat 0 0;
+}
+
+.link-preview > figure.link-thumbnail {
+    display: none;
+}
