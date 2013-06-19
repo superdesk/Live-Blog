@@ -23,15 +23,8 @@ define('providers/twitter', [
 ], function( providers,  $, BlogAction ) {
 $.extend(providers.twitter, {
         initialized: false,
-        urlTimeline : 'http://api.twitter.com/1/statuses/following_timeline.json?callback=?&include_entities=true&include_rts=true&screen_name=%(text)s&page=%(page)s',
-        
-        urlUser : 'http://api.twitter.com/1/statuses/user_timeline.json?callback=?&include_entities=true&include_rts=true&screen_name=%(text)s&page=%(page)s',
-        
-        urlFavorites : 'http://api.twitter.com/1/favorites.json?callback=?&screen_name=%(text)s&page=%(page)s',
-        
-        
         //stuff I need for the autorefresh
-        refreshTimer : 3000,
+        refreshTimer : 10000,
         lastTimeline : null,
         //interval Id 
         iidTimeline : -1,
@@ -302,31 +295,31 @@ $.extend(providers.twitter, {
                         }
                 }, true ); // this parameter required
             },
-        autoRefreshUser : function(fullUrl) {
+        autoRefreshUser : function(qstring) {
             var self = this;
             if ( this.isTwitterActive() ) {
                 return 1;
             }
-            $.jsonp({
-                url : fullUrl,
-                success : function(data){
+            self.cb.__call(
+                'statuses_userTimeline',
+                qstring,
+                function(data){
                     if (data.length > 1) {
                         if (data[0].id_str != self.lastUser.id_str) {
-                            //console.log(data[0], ' ',self.lastUser);
                             self.flashThumb('user');
                             clearInterval(self.iidUser);
-                            self.doUser(1, tru);
+                            self.doUser(1, true);
                         } else {
                             //same result do nothing
                         }
                     }
-                }
-            })
+                }, true);
         },
         doUser : function(page, refresh) {
             page = page || 1;
             refresh = refresh || false;
-            var self = this;
+            var self = this,
+                qstring;
             
             if ( $('#twitter-search-user').val() < 1 ){
                 $('#twitter-search-user').val(this.lastSearchItem);
@@ -348,9 +341,10 @@ $.extend(providers.twitter, {
             }
             this.showLoading('#twt-user-more');
             self.resetAutoRefresh();
+            qstring = 'screen_name='+text+'&page='+page;
             this.cb.__call(
                 'statuses_userTimeline',
-                'screen_name='+text+'&page='+page,
+                qstring,
                 function(data){
                     self.stopLoading('#twt-user-more');
                     var posts = [];
@@ -363,7 +357,7 @@ $.extend(providers.twitter, {
                     if (page == 1 && data.length > 0) {                   
                             self.lastUser = data[0];
                             self.iidUser = setInterval(function(){
-                              //self.autoRefreshUser(fullUrl);  
+                                self.autoRefreshUser(qstring);  
                             }, self.refreshTimer);
                         }
                     if (data.length > 0 || page > 1) {
@@ -406,30 +400,31 @@ $.extend(providers.twitter, {
                 true // this parameter required
             );    
         },
-        autoRefreshFavorites : function(fullUrl) {
+        autoRefreshFavorites : function(qstring) {
             if ( this.isTwitterActive() ) {
                 return 1;
             }
             var self = this;
-            $.jsonp({
-                url : fullUrl,
-                success : function(data){
+            self.cb.__call(
+                'favorites_list',
+                qstring,
+                function(data){
                     if (data.length > 1) {
                         if (data[0].id_str != self.lastFavorites.id_str) {
                             self.flashThumb('favorites');
-                            doFavorites(1,true);
                             clearInterval(self.iidFavorites);
+                            self.doFavorites(1, true);
                         } else {
                             //same result do nothing
                         }
                     }
-                }
-            })
+                }, true);
         },
         doFavorites : function(page, refresh) {
             page = page || 1;
             refresh = refresh || false;
-            var self = this;
+            var self = this,
+                qstring;
             if ( $('#twitter-search-favorites').val() < 1 ){
                 $('#twitter-search-favorites').val(this.lastSearchItem);
             }
@@ -450,9 +445,10 @@ $.extend(providers.twitter, {
             this.showLoading('#twt-favorites-more');
             var fullUrl = str.format(this.urlFavorites,{text: encodeURIComponent(text), page: page});
             self.resetAutoRefresh();
+            qstring = 'screen_name='+text+'&page='+page;
             this.cb.__call(
                 'favorites_list',
-                'screen_name='+text+'&page='+page,
+                qstring,
                 function(data) {
                     self.stopLoading('#twt-favorites-more');
                     var 
@@ -463,10 +459,10 @@ $.extend(providers.twitter, {
                         self.data.favorites[item.id_str] = item;
                         posts.push({ Meta: item });
                     }
-                    if (page == 0 && data.length > 0) {                   
+                    if (page == 1 && data.length > 0) {                   
                             self.lastFavorites = data[0];
-                            self.iidUser = setInterval(function(){
-                              self.autoRefreshFavorites(fullUrl);  
+                            self.iidFavorites = setInterval(function(){
+                              self.autoRefreshFavorites(qstring);  
                             }, self.refreshTimer);
                         }
                     if (data.length > 0 || page > 1) {
@@ -509,13 +505,11 @@ $.extend(providers.twitter, {
                 }, true);
         },
         autoRefreshWeb : function(qstring) {
-            console.log('refresh: ',qstring);
             if ( this.isTwitterActive() ) {
                 return 1;
             }
             var self = this;
-            console.log('refresh request');
-            this.cb.__call(
+            self.cb.__call(
                 'search_tweets',
                 qstring,
                 function(data){
@@ -528,8 +522,7 @@ $.extend(providers.twitter, {
                             //same result do nothing
                         }
                     }
-                }
-            );
+                }, true);
         },
         doWeb : function(qstring, refresh) {
             var skip = qstring || false;
@@ -557,9 +550,9 @@ $.extend(providers.twitter, {
                 $('#twt-web-results').html('');
                 self.data.web = [];
             }
-            this.showLoading('#twt-web-more');
+            self.showLoading('#twt-web-more');
             self.resetAutoRefresh();
-            this.cb.__call(
+            self.cb.__call(
                 'search_tweets',
                 qstring,
                 function (data) {
@@ -574,7 +567,7 @@ $.extend(providers.twitter, {
                     if ( refresh && posts.length > 0 ) {
                         self.lastWeb = data.statuses[0];
                         self.iidWeb = setInterval(function(){
-                          self.autoRefreshWeb.apply(self,[qstring]);  
+                          self.autoRefreshWeb(qstring);
                         }, self.refreshTimer);
                     }
                     if (posts.length > 0) {

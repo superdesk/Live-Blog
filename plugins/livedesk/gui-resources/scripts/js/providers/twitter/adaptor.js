@@ -3,7 +3,9 @@ define([
     'jquery',
     config.guiJs('livedesk', 'providers/prepublish'),
     'codebird',
-    'jquery/rest'
+    'jquery/rest',
+    'jquery/tmpl',
+    'tmpl!livedesk>providers/generic-error'
 ], function(providers, $, PrepublishView, Codebird) {
     
     $.extend(providers.twitter, {
@@ -27,9 +29,16 @@ define([
                                 'oauth2_token',
                                 {},
                                 function (reply) {
-                                    var bearer_token = reply.access_token;
-                                    cb.setBearerToken(bearer_token);
-                                    self._parent.render();
+                                    if(reply.httpstatus === 200) {
+                                        var bearer_token = reply.access_token;
+                                        cb.setBearerToken(bearer_token);
+                                        self._parent.render();
+                                    } else {
+                                        //self._parent.render();
+                                        $.tmpl('livedesk>providers/generic-error', {message: reply.errors[0].message}, function(e,o) {
+                                            $(providers.twitter.el).append(o);
+                                        });
+                                    }
                                 });
                             providers.twitter.cb = cb;
                     });
