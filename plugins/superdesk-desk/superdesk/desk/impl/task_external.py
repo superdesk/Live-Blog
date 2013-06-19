@@ -11,6 +11,7 @@ Contains the SQL alchemy implementation for task external link API.
 
 from ..api.task_external import ITaskExternalLinkService, QTaskExternalLink
 from ..meta.task_external import TaskExternalLinkMapped
+from ..meta.task import TaskMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
@@ -41,7 +42,7 @@ class TaskExternalLinkServiceAlchemy(EntityServiceAlchemy, ITaskExternalLinkServ
         '''
         sql = self.session().query(TaskExternalLinkMapped)
         if taskId:
-            sql = sql.join(TaskMapped).filter(TaskMapped.id == taskId)
+            sql = sql.join(TaskMapped).filter(TaskMapped.Id == taskId)
         if q:
             assert isinstance(q, QTaskExternalLink), 'Invalid task external link query %s' % q
             sql = buildQuery(sql, q, TaskExternalLinkMapped)
