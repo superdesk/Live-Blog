@@ -22,6 +22,7 @@ function(angular, Dropzone) {
                     angular.extend($scope.orig, $scope.task);
                     $scope.orig.User = $scope.task.User;
                     $scope.orig.Status = {Key: $scope.task.Status.Key};
+                    $scope.saveLinks();
                 });
             } else {
                 Task.save(data, function(response) {
@@ -78,11 +79,25 @@ function(angular, Dropzone) {
             });
         };
 
-        $scope.removeFile = function(index) {
-            // task.files is a promise, but when remove is called it will be resolved already
-            $q.when($scope.task.files, function(files) {
-                TaskService.removeFile($scope.task, files[index]);
-                files.splice(index, 1);
+        $scope.removeFile = function(files, index) {
+            TaskService.removeFile($scope.task, files[index]);
+            files.splice(index, 1);
+        };
+
+        $scope.addLink = function(links, task) {
+            links.push({Task: task});
+        }
+
+        $scope.removeLink = function(links, index) {
+            TaskService.removeLink(links[index]);
+            links.splice(index, 1);
+        };
+
+        $scope.saveLinks = function() {
+            $q.when($scope.links, function(links) {
+                angular.forEach(links, function(link) {
+                    TaskService.saveLink(link);
+                });
             });
         };
     };

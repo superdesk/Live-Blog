@@ -146,6 +146,38 @@ define([
         this.removeFile = function(task, file) {
             TaskFileSaver.delete({Task: task.Id, File: file.Id});
         };
+
+        var TaskLinkList = $resource('/resources/Desk/Task/:Task/TaskExternalLink', {}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+        });
+
+        this.getLinks = function(task) {
+            var delay = $q.defer();
+            TaskLinkList.query({Task: task.Id}, function(response) {
+                delay.resolve(response.TaskExternalLinkList);
+            });
+
+            return delay.promise;
+        };
+
+        var TaskLink = $resource('/resources/Desk/TaskExternalLink/:Id', {Id: '@Id'}, {
+            save: {method: 'POST', params: {'X-Filter': 'Id'}},
+            update: {method: 'PUT'}
+        });
+
+        this.saveLink = function(link) {
+            if ('Id' in link) {
+                TaskLink.update(link);
+            } else {
+                TaskLink.save(link);
+            }
+        };
+
+        this.removeLink = function(link) {
+            if ('Id' in link) {
+                TaskLink.delete({Id: link.Id});
+            }
+        };
     }]);
 
     resources.service('DeskService', ['$resource', '$q', function($resource, $q) {

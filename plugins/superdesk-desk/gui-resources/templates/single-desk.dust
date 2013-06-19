@@ -342,7 +342,7 @@
         		</ul>
         	</section>
 
-            <section class="modal-mainpane-module">
+            <section class="modal-mainpane-module" ng-show="task.Id">
                 <header>
                     <span>_('Attached files');</span>
                     <div class="module-header-menu">
@@ -350,7 +350,7 @@
                     </div>
                 </header>
                 <ul class="attached-files-view">
-                    <li ng-repeat="file in task.files">
+                    <li ng-repeat="file in task_files">
                         <figure><img ng-src="{{ file.Thumbnail.href }}" alt="{{ file.Name }}"></figure>
                         <h6>{{ file.Name }}</h6>
                         <div class="attached-file-info">
@@ -358,12 +358,37 @@
                             <span>{{ file.Type }}, {{ file.SizeInBytes }}B</span>
                         </div>
                         <div class="action-menu">
-                            <a href="" ng-click="removeFile($index)"><i class="icon-trash"></i> _('Remove');</a>
+                            <a href="" ng-click="removeFile(task_files, $index)"><i class="icon-trash"></i> _('Remove');</a>
                         </div>
                     </li>
-                    <li ng-show="!task.files.length">_("No files yet");</li>
+                    <li ng-show="!task_files.length">_("No files yet");</li>
                 </ul>
             </section>
+
+            <section class="modal-mainpane-module" id="linksmodule" ng-show="task.Id">
+        		<header>
+        			<span>_('Links');</span>
+        			<div class="module-header-menu">
+        				<a class="" id="linkbtn2" ng-click="addLink(task_links, task)"><i class="icon-plus"></i>_('Add Link');</a>
+        			</div>
+        		</header>
+        		<ul class="links-view clearfix">
+        			<li ng-repeat="link in task_links" ng-init="ui.edit=!link.URL">
+        				<h6 class="linkdesc" ng-hide="ui.edit">{{ link.Title }}</h6>
+        				<a class="linkurl" ng-hide="ui.edit" ng-href="{{ link.URL }}" target="_blank">{{ link.URL }}</a>
+        				<fieldset ng-show="ui.edit">
+		    				<input type="text" class="linkdesc" placeholder="_('Link Description');" ng-model="link.Title" >
+		    				<input type="text" class="linkurl" placeholder="_('Link Url');" ng-model="link.URL" >
+		    			</fieldset>
+        				<div class="action-menu">
+        					<a href="" class="okbtn" ng-show="ui.edit" ng-click="ui.edit=false"><i class="icon-ok"></i> _('Ok');</a>
+        					<a href="" class="edtbtn" ng-click="ui.edit=true" ng-hide="ui.edit"><i class="icon-pencil"></i> _('Edit');</a>
+		    				<a href="" ng-click="removeLink(task_links, $index)"><i class="icon-trash"></i> _('Delete');</a>
+		    			</div>
+        			</li>
+                    <li ng-show="!task_links.length">_("No links yet");</li>
+        		</ul>
+        	</section>    
 
         	<section class="modal-mainpane-module" ng-show="task.Id">
                 <header><span>_('Comments');</span></header>
