@@ -48,6 +48,13 @@
     		}
     	}),
 		TimelineView = Gizmo.View.extend({
+
+			headers: {
+                'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
+				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
+					'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName'
+            },
+
 			init: function(){
 				this._views = [];
 				this.collection
@@ -67,9 +74,7 @@
 						self.el.find('.chainblogs').show();
 					})
 					.auto({
-						headers: { 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
-								'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
-							  	'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName' },
+						headers: this.headers,
                         data: data
 					});
 			},
@@ -158,12 +163,17 @@
 				}
 			},
 			search: function(what) {
-				var self = this;
-				if( what !== '') {
-					self.el.find('li').css('display','none');
-					self.el.find("li:contains('"+what+"')").css('display','block');
-				} else {
-					self.el.find('li').css('display','block');
+                var view = this;
+                this.deactivate();
+                this.collection.reset([]);
+                this._views = [];
+				if (what) {
+                    this.collection.sync({data: {search: what}}).done(function() {
+				        view.el.find('.chainblogs').show();
+                    });
+				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
+                    this.collection.sync();
+                    this.activate();
 				}
 			}
 		}),
@@ -234,8 +244,8 @@
 		}),
 		ChainBlogsView = Gizmo.View.extend({
 			events: {
-				'.sf-searchbox a': { click: 'removeSearch'},
-				'.sf-searchbox input': { keypress: 'checkEnter'},
+				'.sf-searchbox a': {click: 'removeSearch'},
+				'.sf-searchbox input': {keypress: 'checkEnter'},
                 '.sf-toggle:checkbox': {change: 'toggleAutopublish'}
 			},
 			init: function(){
@@ -269,13 +279,20 @@
 			},
 
 			removeSearch: function(evt){
+                evt.preventDefault();
 				var input = $(evt.target).parents('.sf-searchbox').find('input');
 					input.val('');
-					this .search('');
+					this.search('');
+                $(this.el).find('.sf-searchbox a').hide();
 			},
 			checkEnter: function(evt){
-				if(evt.which == 13) 
-					this.search($(evt.target).val());
+				if (evt.which == 13) {
+				    this.search($(evt.target).val());
+                }
+
+                if ($(evt.target).val()) {
+                    $(this.el).find('.sf-searchbox a').css('display', 'block');
+                }
 			},
 			setActive: function(view) {
                 this.activeView = view;
