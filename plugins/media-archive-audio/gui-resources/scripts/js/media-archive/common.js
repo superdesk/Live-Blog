@@ -46,14 +46,6 @@ function($, superdesk, giz, base, AudioData, AudioInfo, AudioInfoList)
             return new AudioInfo;
         }
     });
-    // remove view
-    Remove = base.remove.extend
-    ({
-        getInfoCollection: function()
-        {
-            return giz.Auth(new AudioInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'AudioInfo').replace('MetaData', 'AudioData')));
-        }
-    });
-    return {edit: Edit, view: View, remove: Remove};
+    return {edit: Edit, view: View};
 });
 
