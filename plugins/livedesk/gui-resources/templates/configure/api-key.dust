@@ -5,10 +5,10 @@
 		Twitter
 		<ul>
 			<li>
-			Consumer key: <input type="text" name="api-key-consumer-key" value="{Key.ConsumerKey}"/>
+			_('Consumer key');: <input type="text" name="api-key-consumer-key" value="{Key.ConsumerKey}"/>
 			</li>
 			<li>
-			Consumer secret:  <input type="text" name="api-key-consumer-secret" value="{Key.ConsumerSecret}"/>
+			_('Consumer secret');: <input type="text" name="api-key-consumer-secret" value="{Key.ConsumerSecret}"/>
 			</li>
 		</ul>
 	</li>
