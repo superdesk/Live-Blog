@@ -24,6 +24,7 @@ define([
 
         events: {
             '#comment-btn': {click: 'togglePopup'},
+            '#comment-message-btn': {click: 'showAfterMessage'},
             '.button.cancel': {click: 'cancel'},
             '.button.send': {click: 'send'},
             'form': {submit: 'send'}
@@ -31,6 +32,7 @@ define([
 
         init: function() {
             this.popup = $(this.el).find('.comment-box').hide();
+            this.popup_message = $(this.el).find('.comment-box-message').hide();
 
             this.username = $(this.el).find('#comment-nickname');
             this.text = $(this.el).find('#comment-text');
@@ -48,6 +50,7 @@ define([
             e.preventDefault();
             this.popup.toggle();
             this.backdropel.toggle();
+            //this.popup.slideToggle();
             if (this.popup.is(':visible')) {
                 this.openPopup();
             } else {
@@ -75,7 +78,14 @@ define([
             this.togglePopup(e);
             Recaptcha.reload();
         },
-
+        showAfterMessage: function(e) {
+            e.preventDefault();
+            var view = this;
+            this.popup_message.slideDown();
+            setTimeout(function(){
+                view.popup_message.slideUp();
+            }, 5000)
+        },
         send: function(e) {
             e.preventDefault();
 
@@ -93,6 +103,7 @@ define([
                     },
                     success: function() {
                         view.cancel(e);
+                        view.showAfterMessage(e);
                     },
                     error: function() {
                         view.captcha.next('.error').show();

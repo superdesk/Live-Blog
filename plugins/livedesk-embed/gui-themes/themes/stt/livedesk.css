@@ -1044,7 +1044,9 @@ USER COMMENTS
     padding: 4px;
     margin: -10px 0 16px 0;
 }
-
+#livedesk-root .comment-box-message {
+    font-size: 14px;
+}
 .comment-backdrop {
     display: none;
     position: absolute;
