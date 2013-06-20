@@ -1084,10 +1084,10 @@ li.loading-more:hover{
     bottom: 0;
     left: 40px;
     right: 40px;
-    bottom: 50px;
-    width: 299px;
-    height: 85px;
-    background:url(img/powered_by_superdesk.png) no-repeat 0 0;
+    bottom: 30px;
+    width: 295px;
+    height: 122px;
+    background:url(img/gen_livedesk_logo.png) no-repeat 0 0;
 }
 
 .link-preview > figure.link-thumbnail {
