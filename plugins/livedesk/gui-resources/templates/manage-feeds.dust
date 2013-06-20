@@ -38,7 +38,7 @@
 		<div class="tab-pane active" id="sms-feed">
 			<!-- Chain blog tab content -->
 			<div class="row-fluid">
-				<div class="span8" id="sms-feed-main-list" style="height:300px!important;width:300px!important;border:1px solid #cccccc!important">
+				<div class="span8-width" id="sms-feed-main-list">
 					
 		      	</div>
 		    </div>
