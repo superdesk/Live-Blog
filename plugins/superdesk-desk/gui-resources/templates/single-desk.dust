@@ -342,29 +342,35 @@
         		</ul>
         	</section>    
         	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>_("Comments");</header>
-        		<div class="add-comment-box">
-        			<textarea placeholder="Write a comment"></textarea>
-        		</div>
-        		<ul class="comment-list">
-        			{#Comments}
-        			<li>
-        				<div class="comment-info">
-		    				<figure>
-		    					
-		    				</figure>
-		    				<b>{User.Name}</b>
-		    				<time>{Date}</time>
-		    			</div>
-		    			<p class="comment-text">{Content}</p>
-		    			<div class="action-menu">
-		    				<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit');</a>
-		    				<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete');</a>
-		    			</div>
-        			</li>
-					{/Comments}
-        		</ul>
-        	</section>    	
+                <header>_('Comments');</header>
+                <div class="add-comment-box" ng-class="{focused:addComment}">
+                    <textarea id="add-comment" placeholder="_('Write a comment');" ng-model="commentText" ng-click="addComment = true"></textarea>
+                    <a class="btn btn-mini" ng-click="commentText = ''; addComment = false">_('Cancel');</a>
+                    <a class="btn btn-primary btn-mini" ng-click="saveComment(commentText)" ng-disabled="!commentText">_('Send Comment');</a>
+                </div>
+
+                <ul class="comment-list" ng-show="comments.length > 0">
+                    <li ng-repeat="comment in comments">
+                        <div class="comment-info">
+                            <figure sd-user-image sd-user="comment.User" data-width="32" data-height="32"></figure>
+                            <b>{{ comment.User.Name }}</b>
+                            <time>{{ comment.UpdatedOn }}</time>
+                        </div>
+                        <div ng-hide="edit">
+                            <p class="comment-text">{{ comment.Text }}</p>
+                            <div class="action-menu">
+                                <a href="" ng-click="edit = true; oldComment = comment.Text"><i class="icon-pencil"></i> _('Edit');</a>
+                                <a href="" ng-click="deleteComment($index)"><i class="icon-trash"></i> _('Delete');</a>
+                            </div>
+                        </div>
+                        <div ng-show="edit" class="add-comment-box focused">
+                            <textarea placeholder="_('Write a comment');" ng-model="comment.Text"></textarea>
+                            <a class="btn btn-mini" ng-click="comment.Text = oldComment; edit = false">_('Cancel');</a>
+                            <a class="btn btn-primary btn-mini" ng-click="saveComment(comment); edit = false">_('Save Comment');</a>
+                        </div>
+                    </li>
+                </ul>
+            </section>
         </div>
     </div>
     <div class="modal-right-pane">
