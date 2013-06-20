@@ -94,7 +94,7 @@ function(angular, Dropzone) {
         };
 
         $scope.saveLinks = function() {
-            $q.when($scope.links, function(links) {
+            $q.when($scope.task_links, function(links) {
                 angular.forEach(links, function(link) {
                     TaskService.saveLink(link);
                 });
