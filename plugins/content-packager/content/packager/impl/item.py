@@ -26,6 +26,7 @@ from ally.container.ioc import injected
 from ally.container import wire
 from datetime import date
 from ally.internationalization import _
+import time, os, binascii
 
 # --------------------------------------------------------------------
 
@@ -86,7 +87,7 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
 
         # TODO: generate proper guid: generate better itemId, externalise as a service
         itemDb.GUId = self.guid_scheme % {'prefix':self.guid_prefix, 'provider':self.guid_provider,
-                                          'dateId':date.today().strftime('%Y%m%d'), 'itemId':itemDb.SlugLine}
+                                          'dateId':date.today().strftime('%Y%m%d'), 'itemId':self._generateNewsItemId(itemDb)}
         itemDb.FirstCreated = current_timestamp()
         try:
             self.session().add(itemDb)
@@ -172,3 +173,11 @@ class ItemServiceAlchemy(SessionSupport, IItemService):
         sqlLimit = buildLimits(sql, offset, limit)
         if limit == 0: return (), sql.count()
         return sqlLimit.all(), sql.count()
+
+    def _generateNewsItemId(self, item):
+        '''
+        Provides NewsItemId string that should be reasonably unique.
+        It has to be unique for a provider and a single day.
+        Look at 6.3.1.3 (GUID) of the G2 Standards Implementation Guide
+        '''
+        return time.strftime('%H%M%S', time.localtime()) + '-' + binascii.b2a_hex(os.urandom(8)).decode()
