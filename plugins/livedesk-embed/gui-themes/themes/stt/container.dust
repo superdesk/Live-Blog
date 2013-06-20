@@ -59,4 +59,5 @@ _('Load more posts ...');
 			</ol>
 		</div>
 	{/list}
+	<div class="comment-backdrop" id="backdrop"></div>
 </div>
