@@ -13,7 +13,7 @@ define(['angular'], function(angular) {
         $scope.save = function(task) {
             angular.forEach($scope.files, function(file) {
                 TaskService.addFile(task, file);
-                $q.when(task_files, function(files) {
+                $q.when($scope.task_files, function(files) {
                     files.push(file);
                 });
             });
@@ -21,7 +21,7 @@ define(['angular'], function(angular) {
             angular.forEach($scope.items, function(item) {
                 if (item.selected) {
                     TaskService.addFile(task, item);
-                    $q.when(task_files, function(files) {
+                    $q.when($scope.task_files, function(files) {
                         files.push(item);
                     });
                 }
