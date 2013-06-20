@@ -25,7 +25,7 @@
 		{+PostInfo}
 		<div class="post-info">
 			{+AuthorInfo}
-			<p rel="author">{Creator.FullName}</p> <!-- User full name -->
+			<p rel="author">{+AuthorName}{Creator.FullName}{/AuthorName}</p> <!-- User full name -->
 			{/AuthorInfo}
 			{+TimeInfo}
 			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
@@ -76,7 +76,7 @@
 					</h3>
 					{/ContainerTitle}
 					{+ContainerDescription}
-							<div class="result-description" style="word-wrap: break-word">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
+							<div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
 							<!-- p.result-description tag displays for:
 								> internal link
 								> twitter

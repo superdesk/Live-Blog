@@ -1,0 +1,41 @@
+{!
+_('to top');
+_('updated on ');
+_('new posts');
+_('Load top Posts');
+_('Loading posts...');
+_('Load more posts ...');
+!}
+<div class="live-blog">
+	{+header}
+		<div id="liveblog-header">
+			<a id="pintotop" href="#">_('to top');</a>
+			<div id="liveblog-status" class="update-time">
+				<span id="liveblog-status-time">_('updated on ');</span>
+				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
+			</div>
+		</div>
+	{/header}
+	{+list}
+		<div id="liveblog-posts">
+			<ol id="liveblog-post-list" class="liveblog-post-list">
+				<li class="loading-more" id="load-more" style="display:none">
+					<a name="none"></a>
+					<a class="liveblog-more" id="liveblog-more">_('Load top Posts');</a>
+				</li>
+				<li class="loading-more" id="loading-more" style="display:none">
+					<span class="loading">_('Loading posts...');</span>
+				</li>
+			</ol>
+		</div>
+	{/list}
+</div>
+<div class="right-panel">
+	<div class="right-panel-logo">
+	</div>
+	<div class="right-panel-content">
+	    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo</p>
+	</div>
+	<div class="right-panel-footer">
+	</div>
+</div>

@@ -1,3 +1,4 @@
 {>"theme/item/base"/}
 {<item_class}quotation{/item_class}
+{<AuthorName}{AuthorName}{/AuthorName}
 {<reference}{/reference}

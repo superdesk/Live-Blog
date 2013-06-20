@@ -9,7 +9,8 @@
         accepted: [
             'instagram',
             'flickr',
-            'soundcloud'
+            'soundcloud',
+            'twitter'
         ],
         init: function() {
             var self = this;
