@@ -342,7 +342,7 @@
         		</ul>
         	</section>    
         	<section class="modal-mainpane-module" ng-show="task.Id">
-                <header>_('Comments');</header>
+                <header><span>_('Comments');</span></header>
                 <div class="add-comment-box" ng-class="{focused:addComment}">
                     <textarea id="add-comment" placeholder="_('Write a comment');" ng-model="commentText" ng-click="addComment = true"></textarea>
                     <a class="btn btn-mini" ng-click="commentText = ''; addComment = false">_('Cancel');</a>
