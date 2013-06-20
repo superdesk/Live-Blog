@@ -28,6 +28,7 @@ function(angular) {
 
             $scope.parentTask = parentTask;
             $scope.subtasks = task.subtasks;
+            $scope.comments = task.comments;
         };
     };
 });
