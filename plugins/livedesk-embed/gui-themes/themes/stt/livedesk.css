@@ -118,7 +118,8 @@
     width: 40px ;
 }
 .liveblog-post-list li .result-content-full {
-    padding:5px 0 0 160px; 
+    margin-left: 160px;
+    padding: 5px 0 0 0;
     position: relative;
 }
 .liveblog-post-list li figure + .result-content-full {
