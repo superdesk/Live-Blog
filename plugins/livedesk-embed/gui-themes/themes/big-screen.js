@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=2', 
+	urlArgs: 'v=4', 
 	paths: {
 		'theme': 'livedesk-embed/themes/big-screen'
 	}

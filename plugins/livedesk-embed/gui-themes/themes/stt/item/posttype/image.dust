@@ -1,4 +1,5 @@
 {>"theme/item/base"/}
+{<AuthorName}{AuthorName}{/AuthorName}
 {<item_class}normal{/item_class}
 {<AuthorName}{AuthorName}{/AuthorName}
 {<reference}{/reference}
