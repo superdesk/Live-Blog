@@ -6,23 +6,6 @@ define([
 
     var resources = angular.module('resources', ['ngResource']);
 
-    resources.config(['$httpProvider', function($httpProvider) {
-        // transforms related resources into ids
-        /*
-        $httpProvider.defaults.transformRequest = function(data) {
-            var update = {};
-            angular.forEach(data, function(value, key) {
-                if (value && typeof value === 'object') {
-                    this[key] = 'Key' in value ? value.Key : value.Id;
-                } else if (key !== 'href') {
-                    this[key] = value;
-                }
-            }, update);
-            return angular.toJson(update);
-        };
-        */
-    }]);
- 
     resources.factory('Article', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/Content/Article/:Id/:Action', {Id: '@Id', Action: '@Action'}, {
             query: {method: 'GET', params: {'X-Filter': '*,Author.*'}},
