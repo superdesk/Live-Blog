@@ -12,7 +12,7 @@ _('Load more posts ...');
 		<div id="liveblog-header">
 			<a id="pintotop" href="#">_('to top');</a>
             <a id="comment-btn" href="#">_('comment');</a>
-			<a id="comment-message-btn" href="#">_('comment-message');</a>
+
             <div class="comment-box">
                 <form name="comment">
                     <div class="content">
@@ -36,7 +36,7 @@ _('Load more posts ...');
                     <button type="reset" class="button cancel">_('Cancel');</button>
                 </div>
             </div>
-            <div class="comment-box comment-box-message">
+            <div class="comment-box-message">
             	<div class="content ">
             	_('Your message was sent for approval');
             	</div>
@@ -63,4 +63,5 @@ _('Load more posts ...');
 			</ol>
 		</div>
 	{/list}
+	<div class="comment-backdrop" id="backdrop"></div>
 </div>

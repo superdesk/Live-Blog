@@ -42,11 +42,15 @@ define([
 
             this.loadRecaptcha = true;
             this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
+
+            this.backdropel = $("#backdrop");
         },
 
         togglePopup: function(e) {
             e.preventDefault();
-            this.popup.slideToggle();
+            this.popup.toggle();
+            this.backdropel.toggle();
+            //this.popup.slideToggle();
             if (this.popup.is(':visible')) {
                 this.openPopup();
             } else {
