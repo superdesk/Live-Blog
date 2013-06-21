@@ -25,7 +25,7 @@ define([
                     sourceTemplate: 'sources/facebook',
                     data: {
                         Creator: localStorage.getItem('superdesk.login.id'),
-                        Content: obj.message,
+                        Content: null,
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
