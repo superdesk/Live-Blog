@@ -966,20 +966,31 @@ USER COMMENTS
     text-decoration: none;
     font-size: 11px;
 }
-#livedesk-root .comment-box {
+#livedesk-root #comment-message-btn {
+    display: none;
+}
+
+#livedesk-root .comment-box , 
+#livedesk-root .comment-box-message {
     position: absolute;
     top: 40px;
     right: 25px;
     z-index: 2003;
 }
-#livedesk-root .comment-box .content {
+#livedesk-root .comment-box .content, 
+#livedesk-root .comment-box-message .content {
     position: relative;
     background: #fff;
     padding: 20px 20px 60px 20px;
     width: 482px;
     box-sizing: border-box;
 }
-#livedesk-root .comment-box .content:before {
+#livedesk-root .comment-box-message .content {
+    padding: 20px 20px 20px 20px;
+}
+
+#livedesk-root .comment-box .content:before,
+#livedesk-root .comment-box-message .content:before {
     content: ' ';
     height: 0;
     position: absolute;
@@ -1045,7 +1056,9 @@ USER COMMENTS
     padding: 4px;
     margin: -10px 0 16px 0;
 }
-
+#livedesk-root .comment-box-message {
+    font-size: 14px;
+}
 .comment-backdrop {
     display: none;
     position: absolute;
