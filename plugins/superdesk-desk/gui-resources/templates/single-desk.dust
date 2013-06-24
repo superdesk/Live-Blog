@@ -267,7 +267,7 @@
                                         <ul class="assign-labels clearfix">
 	                                        <li><i class="icon-desk-time icon-white"></i> <span sd-date-time="task.DueDate"></span></li>
 	                                        <li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
-	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
+	                                        <li><i class="icon-desk-comments icon-white"></i> {{ task.comments.length }}</li>
                                         </ul>
                                     </li>
                                     <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
