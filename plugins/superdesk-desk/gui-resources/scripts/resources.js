@@ -123,6 +123,8 @@ define([
             comments.query(function(response) {
                 delay.resolve(response.TaskCommentList);
             });
+
+            return delay.promise;
         };
 
         this.getFiles = function(task) {
