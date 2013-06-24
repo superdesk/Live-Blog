@@ -272,7 +272,12 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         '''
         Finds the actually used media type name.
         '''
-        return self.session().query(MetaTypeMapped.Type).join(MetaDataMapped).filter(MetaDataMapped.typeId == MetaTypeMapped.Id).filter(MetaDataMapped.Id == id).one()[0]
+        sql = self.session().query(MetaTypeMapped.Type).join(MetaDataMapped, MetaDataMapped.typeId == MetaTypeMapped.Id)
+        sql = sql.join(MetaInfoMapped, MetaInfoMapped.MetaData == MetaDataMapped.Id).filter(MetaInfoMapped.Id == id)
+        try:
+            return sql.one()[0]
+        except:
+            raise InputError(Ref(_('Unknown meta data type'), ))
 
 # --------------------------------------------------------------------
 
