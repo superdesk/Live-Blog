@@ -53,7 +53,7 @@ function($, Backbone, router, DeskCollection, angular) {
         }
     });
 
-    var module = angular.module('desks', ['resources', 'directives', 'superdesk.media-archive.resources']);
+    var module = angular.module('desks', ['desks.resources', 'desks.directives', 'superdesk.media-archive.resources']);
     module.config(['$interpolateProvider', function($interpolateProvider) {
         $interpolateProvider.startSymbol('{{ ');
         $interpolateProvider.endSymbol(' }}');
@@ -69,7 +69,7 @@ function($, Backbone, router, DeskCollection, angular) {
     module.controller('AttachFileController', require('desk/controllers/attach-file'));
 
     router.route('desks/:id', 'desk', function singleDesk(deskId) {
-        angular.module('resources').value('deskId', deskId);
+        angular.module('desks.resources').value('deskId', deskId);
         $('#area-main').tmpl('superdesk-desk>single-desk');
         $('#area-main').attr('ng-controller', 'TasksController');
         angular.bootstrap(document, ['desks']);

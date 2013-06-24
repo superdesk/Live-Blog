@@ -10,7 +10,7 @@ define([
 ], function(angular, $, Dropzone) {
     'use strict';
 
-    var module = angular.module('directives', ['resources']);
+    var module = angular.module('desks.directives', ['desks.resources']);
 
     module.directive('sdDatepicker', function() {
         return {

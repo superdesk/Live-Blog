@@ -4,7 +4,7 @@ define([
 ],function(angular) {
     'use strict';
 
-    var resources = angular.module('resources', ['ngResource']);
+    var resources = angular.module('articles.resources', ['ngResource']);
 
     resources.factory('Article', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/Content/Article/:Id/:Action', {Id: '@Id', Action: '@Action'}, {

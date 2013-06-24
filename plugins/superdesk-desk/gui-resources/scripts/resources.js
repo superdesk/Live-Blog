@@ -4,7 +4,7 @@ define([
 ],function(angular) {
     'use strict';
 
-    var resources = angular.module('resources', ['ngResource']);
+    var resources = angular.module('desks.resources', ['ngResource']);
 
     resources.config(['$httpProvider', function($httpProvider) {
         // transforms related resources into ids
