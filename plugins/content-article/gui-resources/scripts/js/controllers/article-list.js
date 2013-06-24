@@ -31,6 +31,7 @@ function(angular) {
                     }
                     delete articles.count;
                     $scope.articles = articles;
+                    $scope.allChecked = false;
                 }
             });
             $scope.$watch('searchTerm', function(searchTerm){
