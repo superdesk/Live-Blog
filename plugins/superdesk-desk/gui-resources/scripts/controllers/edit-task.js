@@ -1,8 +1,8 @@
-define(['angular'],
-function(angular) {
+define(['angular', 'https://github.com/enyo/dropzone/raw/master/downloads/dropzone-amd-module.js'],
+function(angular, Dropzone) {
     'use strict';
 
-    return function($scope, $q, Task, TaskStatusLoader, TaskComment) {
+    return function($scope, $q, Task, TaskStatusLoader, TaskService, TaskComment) {
         $scope.statuses = TaskStatusLoader();
 
         $scope.getEditData = function() {
@@ -22,6 +22,7 @@ function(angular) {
                     angular.extend($scope.orig, $scope.task);
                     $scope.orig.User = $scope.task.User;
                     $scope.orig.Status = {Key: $scope.task.Status.Key};
+                    $scope.saveLinks();
                 });
             } else {
                 Task.save(data, function(response) {
@@ -75,6 +76,28 @@ function(angular) {
         $scope.deleteComment = function(index) {
             TaskComment.delete({Id: $scope.comments[index].Id}, function(response) {
                 $scope.comments.splice(index, 1);
+            });
+        };
+
+        $scope.removeFile = function(files, index) {
+            TaskService.removeFile($scope.task, files[index]);
+            files.splice(index, 1);
+        };
+
+        $scope.addLink = function(links, task) {
+            links.push({Task: task});
+        }
+
+        $scope.removeLink = function(links, index) {
+            TaskService.removeLink(links[index]);
+            links.splice(index, 1);
+        };
+
+        $scope.saveLinks = function() {
+            $q.when($scope.task_links, function(links) {
+                angular.forEach(links, function(link) {
+                    TaskService.saveLink(link);
+                });
             });
         };
     };

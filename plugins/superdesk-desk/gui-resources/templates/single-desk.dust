@@ -267,7 +267,7 @@
                                         <ul class="assign-labels clearfix">
 	                                        <li><i class="icon-desk-time icon-white"></i> <span sd-date-time="task.DueDate"></span></li>
 	                                        <li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
-	                                        <li><i class="icon-desk-comments icon-white"></i> 8</li>
+	                                        <li><i class="icon-desk-comments icon-white"></i> {{ task.comments.length }}</li>
                                         </ul>
                                     </li>
                                     <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
@@ -306,7 +306,7 @@
 
 		</div>
 
-<div class="modal fade split-popup" id="AddAssignment" style="display:none" ng-controller="EditTaskController">
+<div sd-modal class="split-popup" id="AddAssignment" ng-controller="EditTaskController">
   <form name="taskForm">
   <div class="modal-header">
     <a href="" class="close" data-action="close" data-dismiss="modal" aria-hidden="true">&times;</a>
@@ -331,7 +331,7 @@
         	<textarea class="taskmodal-description" ng-model="task.Description" placeholder="_("Task description");" ></textarea>
 
         	<section class="modal-mainpane-module" ng-show="task.Id">
-        		<header>_('Subtasks');</header>
+        		<header><span>_('Subtasks');</span></header>
         		<ul class="subtask-list-view clearfix">
         			<li ng-repeat="subtask in subtasks" class="clearfix">
         				<h6>{{ subtask.Title }}</h6>
@@ -340,7 +340,56 @@
                         <a href="" ng-click="editTask(subtask, task)">_("Open details");</a>
         			</li>
         		</ul>
+        	</section>
+
+            <section class="modal-mainpane-module" ng-show="task.Id">
+                <header>
+                    <span>_('Attached files');</span>
+                    <div class="module-header-menu">
+                        <a href="#AddFile" ng-click="addFile()" data-toggle="modal"><i class="icon-plus"></i> _('Attach file');</a>
+                    </div>
+                </header>
+                <ul class="attached-files-view">
+                    <li ng-repeat="file in task_files">
+                        <figure><img ng-src="{{ file.Thumbnail.href }}" alt="{{ file.Name }}"></figure>
+                        <h6>{{ file.Name }}</h6>
+                        <div class="attached-file-info">
+                            <span>{{ file.CreatedOn }}</span>
+                            <span>{{ file.Type }}, {{ file.SizeInBytes }}B</span>
+                        </div>
+                        <div class="action-menu">
+                            <a href="" ng-click="removeFile(task_files, $index)"><i class="icon-trash"></i> _('Remove');</a>
+                        </div>
+                    </li>
+                    <li ng-show="!task_files.length">_("No files yet");</li>
+                </ul>
+            </section>
+
+            <section class="modal-mainpane-module" id="linksmodule" ng-show="task.Id">
+        		<header>
+        			<span>_('Links');</span>
+        			<div class="module-header-menu">
+        				<a class="" id="linkbtn2" ng-click="addLink(task_links, task)"><i class="icon-plus"></i>_('Add Link');</a>
+        			</div>
+        		</header>
+        		<ul class="links-view clearfix">
+        			<li ng-repeat="link in task_links" ng-init="ui.edit=!link.URL">
+        				<h6 class="linkdesc" ng-hide="ui.edit">{{ link.Title }}</h6>
+        				<a class="linkurl" ng-hide="ui.edit" ng-href="{{ link.URL }}" target="_blank">{{ link.URL }}</a>
+        				<fieldset ng-show="ui.edit">
+		    				<input type="text" class="linkdesc" placeholder="_('Link Description');" ng-model="link.Title" >
+		    				<input type="text" class="linkurl" placeholder="_('Link Url');" ng-model="link.URL" >
+		    			</fieldset>
+        				<div class="action-menu">
+        					<a href="" class="okbtn" ng-show="ui.edit" ng-click="ui.edit=false"><i class="icon-ok"></i> _('Ok');</a>
+        					<a href="" class="edtbtn" ng-click="ui.edit=true" ng-hide="ui.edit"><i class="icon-pencil"></i> _('Edit');</a>
+		    				<a href="" ng-click="removeLink(task_links, $index)"><i class="icon-trash"></i> _('Delete');</a>
+		    			</div>
+        			</li>
+                    <li ng-show="!task_links.length">_("No links yet");</li>
+        		</ul>
         	</section>    
+
         	<section class="modal-mainpane-module" ng-show="task.Id">
                 <header><span>_('Comments');</span></header>
                 <div class="add-comment-box" ng-class="{focused:addComment}">
@@ -422,4 +471,51 @@
     <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveTask()" ng-disabled="!taskForm.$valid">_('Save Changes');</button>
   </div>
   </form>
+</div>
+
+<script type="text/ng-template" id="media-search">
+    <input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search Media Archive" style="margin:0;float:left !important;margin-right:20px;" ng-model="query">
+    <label class="checkbox label-inline"><input type="checkbox" ng-model="is_my"> Show only my uploads</label>
+    <ul class="uploads-grid" style="min-height:300px">
+        <li ng-repeat="item in items" title="{{ item.Name }}" ng-class="{'grid-selected':item.selected}" ng-click="item.selected = !item.selected">
+            <div class="add-button"><i class="icon-white" ng-class="{'icon-plus': !item.selected, 'icon-minus': item.selected}"></i></div>
+            <img ng-src="{{ item.Thumbnail.href }}" />
+        </li>
+    </ul>
+</script>
+
+<div sd-modal class="responsive-popup" id="AddFile" ng-controller="AttachFileController" data-modal-open="reset()">
+  <div class="modal-header">
+    <a href="#" class="close" data-dismiss="modal" aria-hidden="true" ng-click="reset()">&times;</a>
+    <h3>Add Image</h3>
+  </div>
+  <div class="modal-body">
+
+    <div class="modal-left-pane">
+        <h6>Sources</h6>
+        <ul class="nav-pane-menu nav">
+          <li class="active"><a href="#upload" data-toggle="tab">From Computer</a></li>
+          <li><a href="#archive" data-toggle="tab" ng-click="searchMedia(task)">From Media Archive</a></li>
+        </ul>
+    </div>
+
+    <div class="modal-right-pane tab-content">
+
+      <div class="uploadimage-screen tab-pane active" id="upload">
+        <div class="drag-area" sd-upload>
+          <div class="drag-area-title">
+            Drag Your Images Here or Click to select them from folder
+          </div>
+        </div>
+      </div>
+
+      <div class="uploadimage-screen tab-pane" id="archive" ng-include="'media-search'">
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="" class="btn" data-dismiss="modal" ng-click="reset()">Cancel</a>
+    <a href="" class="btn btn-primary" data-dismiss="modal" ng-click="save(task)">OK</a>
+  </div>
 </div>

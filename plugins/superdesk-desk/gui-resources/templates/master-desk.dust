@@ -259,7 +259,7 @@
 											<ul class="assign-labels clearfix">
 												<li><i class="icon-desk-time icon-white"></i> {{ task.DueDate }}</li>
 												<li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
-												<li><i class="icon-desk-comments icon-white"></i> 12</li>
+												<li><i class="icon-desk-comments icon-white"></i> {{ task.comments.length }}</li>
 											</ul>
 											<ul class="subtasks" ng-show="task.subtasks.length" ng-class="{open: open}">
 												<div class="subtask-num-info" ng-click="open=!open"><span>{{ task.subtasks.length }}</span></div>
