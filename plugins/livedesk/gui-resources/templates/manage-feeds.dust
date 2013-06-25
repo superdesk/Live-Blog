@@ -8,6 +8,7 @@
 	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
 		<li class="active"><a href="#sms-feed">SMS Feeds</a></li>
 		<li><a href="#chainblog">Chained Blogs</a></li>
+		<!-- <li><a href="#feed">feed</a></li> -->
 	</ul>
  
 	<div class="tab-content">
@@ -38,8 +39,14 @@
 		<div class="tab-pane active" id="sms-feed">
 			<!-- Chain blog tab content -->
 			<div class="row-fluid">
-				<div class="span8-width" id="sms-feed-main-list">
-					
+				<div class="span8-width">
+					<div class="manage-feeds-top">
+						<div class="sf-searchbox">
+							<input type="text" placeholder="Search" id="sms-feed-search">
+		                    <a href="#" id="sms-clear-search"><i class="icon-remove"></i></a>
+						</div>
+					</div>
+					<ul class="feeds-list" id="sms-feed-main-list"></ul>
 		      	</div>
 		    </div>
 

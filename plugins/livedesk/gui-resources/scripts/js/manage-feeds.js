@@ -362,7 +362,9 @@ define([
         events: {
             'click a[href="#AddSource"]': 'renderAdd',
             'change .sf-searchbox > input': 'search',
-            'click .sf-searchbox > a': 'clearSearch'
+            'change #sms-feed-search': 'smsSearch',
+            'click .sf-searchbox > a[id!="sms-clear-search"]': 'clearSearch',
+            'click #sms-clear-search': 'smsClearSearch'
         },
 
         initialize: function() {
@@ -429,9 +431,33 @@ define([
             });
         },
 
+        smsSearch: function(e) {
+            var q = $(e.target).val();
+            var sources = $(this.el).find('li[data-type="sms-feed-li"]').each(function() {
+                var show = true;
+                if (q.length) {
+                    var text = $(this).text();
+                    console.log('sms text is ', text);
+                    var reg = new RegExp(q, 'i');
+                    show = reg.test(text);
+                }
+
+                if (show) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        },
+
         clearSearch: function(e) {
             e.preventDefault();
             $(this.el).find('.sf-searchbox > input').val('').change();
+        },
+
+        smsClearSearch: function(e) {
+            e.preventDefault();
+            $(this.el).find('#sms-feed-search').val('').change();
         }
     });
 
@@ -444,6 +470,8 @@ define([
     
 
     var optionsAllFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    
 
     var SmsFeed = Source.extend({
         idAttribute: 'Id',
@@ -464,7 +492,8 @@ define([
         },
         attributes: {
             'class': 'sf-checkbox',
-            'set-bg': '1'
+            'set-bg': '1',
+            'data-type': 'sms-feed-li'
         },
         checkclick: function() {
             if ( this.$('input').attr('checked') ) {
@@ -487,7 +516,9 @@ define([
             allSourceCollection.fetch(optionsAllSources);
         },
         initialize: function() {
+            var self = this;
             //nothing to see here
+            self.render();
         },
         render: function() {
             var self = this;
@@ -507,7 +538,6 @@ define([
         },
         render: function(){
             var self = this;
-
             if ( this.collection.length == 0 ) {
                 self.$el.append('<li>' + _('No SMS Feeds Available') + '</li>');
             } else {
@@ -515,28 +545,25 @@ define([
                     self.addOne(SmsFeed, this);
                 });    
             }
+            jQ.trigger('managefeeds/allfeedsloaded');
             return self;
         },
         addOne: function(SmsFeed) {
             var self = this;
-            var smsFeedViewEl = new SmsFeedView({model: SmsFeed}).render().el;
+            var smsFeedViewEl = new SmsFeedView({model: SmsFeed}).el;
             self.$el.append(smsFeedViewEl);
         }
-    }),
-    smsFeedsCollection = new SmsFeedsCollection;
-    smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
-    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    });
+    
+    var counter = 0;
     var runSmsFeedsView = function() {
-        smsFeedsView = new SmsFeedsView({collection: smsFeedsCollection});
-        var feedHtml = smsFeedsView.render().el;
+        var self = this;
         jQ.on('managefeeds/templatedone', function(){
-            $('#sms-feed-main-list').html(feedHtml);
-            jQ.trigger('managefeeds/allfeedsloaded');
+            $('#sms-feed-main-list').html('');
+            smsFeedsView = new SmsFeedsView({collection: smsFeedsCollection, el: $('#sms-feed-main-list')}).render();
         });
     };
-    smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
-        runSmsFeedsView();
-    });
+    
 
     //to get all sources
     var SourceModel = Source.extend({
@@ -565,7 +592,6 @@ define([
         }
     });
     var optionsAllSources = {headers: {'X-Filter': 'Type.Key,Name,Id'}, reset: true};
-    allSourceCollection = new AllSourceCollection;
 
     var checkSelectedFeeds = function(selected) {
         for ( var i = 0; i < selected.length; i ++ ) {
@@ -582,12 +608,18 @@ define([
 
     return function(blogHref) {
 
-
             //small hack to get the blog id
             //@TODO get it in a smarter way
             var hackArray = blogHref.split('/');
             var blogId = hackArray[hackArray.length - 1];
 
+            smsFeedsCollection = new SmsFeedsCollection;
+            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
+            smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
+                runSmsFeedsView();
+            });
+
+            allSourceCollection = new AllSourceCollection;
             allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/1/Source');
             allSourceCollection.fetch(optionsAllSources).done(function(response){
                 jQ.on('managefeeds/allfeedsloaded', function(){
