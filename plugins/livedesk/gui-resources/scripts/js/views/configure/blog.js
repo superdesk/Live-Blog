@@ -22,9 +22,19 @@
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
 			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
-            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
+            '.sf-toggle-custom': { click: 'toggleCustom' }
         },
-        init: function() {
+        init: function() {           
+        },
+        toggleCustom: function(e) {
+            e.preventDefault();
+            if (!$(e.target).hasClass("sf-disable")) {
+                $(e.target).toggleClass('sf-checked');
+                var own_box = $(e.target).find(".sf-toggle");        
+                own_box.prop('checked', $(e.target).hasClass('sf-checked'));
+                own_box.change();
+            }
         },
 		selectInput: function(evt) {
 			$(evt.target).select();
@@ -33,7 +43,8 @@
             var self = this,
                 EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
-                    'FrontendServer': self.el.find('[name="FrontendServer"]').val()
+                    'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
+                    'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {
                     Language: self.el.find('[name="Language"]').val(),
@@ -83,6 +94,7 @@
         changeLanguage: function(evt) {
            this.themesView.change(evt); 
         },
+
         render: function() {
             var embedConfig = this.model.get('EmbedConfig');
             if((embedConfig !== undefined) && $.isString(embedConfig)) {
@@ -145,6 +157,17 @@
                 self.themesView = new ThemesView(themesData);
                 // TODO: move this in emebed view or in theme view
                 self.el.find('#emebed-script').focus(function() { $(this).select(); } );
+
+                /* sf-toggle*/
+                self.el.find('.sf-toggle').each(function(i,val){
+                    var additional_class="";
+                    if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
+                    if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
+                    if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
+                    $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
+                    $(val).hide();
+                });
+
             });
         }
     });
