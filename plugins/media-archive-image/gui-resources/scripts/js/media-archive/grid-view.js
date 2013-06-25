@@ -18,7 +18,6 @@ function($, superdesk, giz, ItemView, common)
     ({
         tmpl: 'media-archive-image>media-archive/grid',
         hoverTmpl: 'media-archive-image>media-archive/grid-hover',
-        removeClass: common.remove,
         editClass: common.edit,
         viewClass: common.view
     });

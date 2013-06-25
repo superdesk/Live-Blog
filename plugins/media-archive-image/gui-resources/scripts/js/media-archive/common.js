@@ -46,14 +46,6 @@ function($, superdesk, giz, base, ImageData, ImageInfo, ImageInfoList)
             return new ImageInfo;
         }
     });
-    // remove view
-    Remove = base.remove.extend
-    ({
-        getInfoCollection: function()
-        {
-            return giz.Auth(new ImageInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'ImageInfo').replace('MetaData', 'ImageData')));
-        }
-    });
-    return {edit: Edit, view: View, remove: Remove};
+    return {edit: Edit, view: View};
 });
 

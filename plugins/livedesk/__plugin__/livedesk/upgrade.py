@@ -21,6 +21,7 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
+from __plugin__.livedesk.populate_default_data import createSourceType
 
 # --------------------------------------------------------------------
 
@@ -43,7 +44,6 @@ def insertSource(name):
         coll.User = None
         coll.Source = src
         collaboratorService.insert(coll)
-
 
 def insertTheme():
     s = entityFor(IBlogThemeService)
@@ -109,3 +109,4 @@ def upgradeLiveBlog14First():
 def upgradeLiveBlog14Last():
     insertTheme()
     insertSource('comments')
+    createSourceType('comment')
