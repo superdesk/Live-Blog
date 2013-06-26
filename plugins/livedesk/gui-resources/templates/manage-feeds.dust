@@ -6,8 +6,8 @@
 	</header>
 
 	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
-		<li class="active"><a href="#sms-feed">SMS Feeds</a></li>
-		<li><a href="#chainblog">Chained Blogs</a></li>
+		<li class="active"><a href="#sms-feed">_('SMS Feeds')</a></li>
+		<li><a href="#chainblog">_('Chained Blogs')</a></li>
 		<!-- <li><a href="#feed">feed</a></li> -->
 	</ul>
  

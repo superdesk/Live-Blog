@@ -441,12 +441,7 @@ define([
                     var reg = new RegExp(q, 'i');
                     show = reg.test(text);
                 }
-
-                if (show) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
+                $(this).toggle(show);
             });
         },
 
