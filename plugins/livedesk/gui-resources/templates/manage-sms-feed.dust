@@ -1,0 +1,1 @@
+<input type="checkbox" class="sf-checkbox" data-feed-id="{Id}" data-type="sms-feed" data-name="{Name}" data-checked="0"><label style="margin-left:15px">{Name}</label>
