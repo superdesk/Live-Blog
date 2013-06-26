@@ -4,7 +4,7 @@ define([
 ],function(angular) {
     'use strict';
 
-    var resources = angular.module('resources', ['ngResource']);
+    var resources = angular.module('desks.resources', ['ngResource']);
 
     resources.config(['$httpProvider', function($httpProvider) {
         // transforms related resources into ids
@@ -80,9 +80,21 @@ define([
         };
     }]);
 
+    resources.factory('File', function($resource) {
+        return $resource('/resources/Archive/MetaData/:File', {File: '@Id'});
+    });
+
     resources.service('TaskService', ['$resource', '$q', function($resource, $q) {
         var Task = $resource('/resources/Desk/Task/:taskId', {taskId: '@Id'}, {
             update: {method: 'PUT'}
+        });
+
+        var TaskFile = $resource('/resources/Desk/Task/:Task/MetaInfo', {}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': 'MetaData.*'}}
+        });
+
+        var TaskFileSaver = $resource('/resources/Desk/Task/:Task/MetaInfo/:File/File', {Task: '@Task', File: '@File'}, {
+            save: {method: 'POST', params: {'X-Filter': '*'}}
         });
 
         this.loadSubtasks = function(task) {
@@ -113,6 +125,60 @@ define([
             });
 
             return delay.promise;
+        };
+
+        this.getFiles = function(task) {
+            var delay = $q.defer();
+            TaskFile.query({Task: task.Id}, function(response) {
+                var files = [];
+                angular.forEach(response.MetaInfoList, function(metaInfo) {
+                    files.push(metaInfo.MetaData);
+                });
+
+                delay.resolve(files);
+            });
+
+            return delay.promise;
+        };
+
+        this.addFile = function(task, file) {
+            TaskFileSaver.save({Task: task.Id, File: file.Id});
+        };
+
+        this.removeFile = function(task, file) {
+            TaskFileSaver.delete({Task: task.Id, File: file.Id});
+        };
+
+        var TaskLinkList = $resource('/resources/Desk/Task/:Task/TaskExternalLink', {}, {
+            query: {method: 'GET', isArray: false, params: {'X-Filter': '*'}}
+        });
+
+        this.getLinks = function(task) {
+            var delay = $q.defer();
+            TaskLinkList.query({Task: task.Id}, function(response) {
+                delay.resolve(response.TaskExternalLinkList);
+            });
+
+            return delay.promise;
+        };
+
+        var TaskLink = $resource('/resources/Desk/TaskExternalLink/:Id', {Id: '@Id'}, {
+            save: {method: 'POST', params: {'X-Filter': 'Id'}},
+            update: {method: 'PUT'}
+        });
+
+        this.saveLink = function(link) {
+            if ('Id' in link) {
+                TaskLink.update(link);
+            } else {
+                TaskLink.save(link);
+            }
+        };
+
+        this.removeLink = function(link) {
+            if ('Id' in link) {
+                TaskLink.delete({Id: link.Id});
+            }
         };
     }]);
 
@@ -267,4 +333,8 @@ define([
             return delay.promise;
         };
     }]);
+
+    var userId = localStorage['superdesk.login.id'];
+    var authToken = localStorage['superdesk.login.session'];
+    resources.value('uploadUrl', '/resources/my/HR/User/' + userId + '/MetaData/Upload?X-Filter=*&Authorization=' + authToken);
 });

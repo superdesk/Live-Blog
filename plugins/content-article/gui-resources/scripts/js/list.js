@@ -9,7 +9,7 @@ define([
 ],
 function($, backbone, router, angular, ArticleListController) {
     return function() {
-        var module = angular.module('articles', ['resources']);
+        var module = angular.module('articles', ['articles.resources']);
 
         module.config(['$interpolateProvider', function($interpolateProvider) {
             $interpolateProvider.startSymbol('{{ ');

@@ -27,7 +27,7 @@ define([
 
             // define router when we have menu url
             router.route(data.get('NavBar'), 'config:desks', function() {
-                var module = angular.module('desks.config', ['resources', 'directives']);
+                var module = angular.module('desks.config', ['desks.resources', 'desks.directives']);
 
                 module.config(['$interpolateProvider', function($interpolateProvider) {
                     $interpolateProvider.startSymbol('{{ ');

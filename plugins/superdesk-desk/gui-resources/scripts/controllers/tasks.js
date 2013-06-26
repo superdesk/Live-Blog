@@ -29,6 +29,8 @@ function(angular) {
             $scope.parentTask = parentTask;
             $scope.subtasks = task.subtasks;
             $scope.comments = task.comments;
+            $scope.task_files = TaskService.getFiles(task);
+            $scope.task_links = TaskService.getLinks(task);
         };
     };
 });
