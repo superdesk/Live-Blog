@@ -21,7 +21,7 @@ from superdesk.person.meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('Password', 'CreatedOn', 'DeletedOn', 'Type'))
+@validate(exclude=('Password', 'CreatedOn', 'RetiredOn', 'Type'))
 class UserMapped(PersonMapped, User):
     '''
     Provides the mapping for User entity.
@@ -32,7 +32,7 @@ class UserMapped(PersonMapped, User):
 
     Name = Column('name', String(150), nullable=False, unique=True)
     CreatedOn = Column('created_on', DateTime, nullable=False)
-    DeletedOn = Column('deleted_on', DateTime)
+    RetiredOn = Column('retired_on', DateTime)
     Type = association_proxy('type', 'Key')
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
@@ -43,4 +43,4 @@ class UserMapped(PersonMapped, User):
 
 validateRequired(UserMapped.Password)
 validateManaged(UserMapped.CreatedOn)
-validateManaged(UserMapped.DeletedOn)
+validateManaged(UserMapped.RetiredOn)
