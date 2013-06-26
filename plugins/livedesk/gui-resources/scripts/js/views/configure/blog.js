@@ -164,7 +164,7 @@
                     if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
                     if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
                     if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
-                    $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
+                    $(val).wrap('<div style="float:none" class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
                     $(val).hide();
                 });
 
