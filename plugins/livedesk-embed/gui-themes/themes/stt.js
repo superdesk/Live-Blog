@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=16',
+	urlArgs: 'v=17',
 	paths: {
 		'theme': 'livedesk-embed/themes/stt'
 	}
