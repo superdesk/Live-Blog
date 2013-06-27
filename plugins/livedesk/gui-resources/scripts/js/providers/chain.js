@@ -214,7 +214,7 @@
                     setTimeout(function(){
                         self.activate();
                         self.el.addClass('active');
-                    }, 1);
+                    }, 100);
 				});
 			}
 		}),
