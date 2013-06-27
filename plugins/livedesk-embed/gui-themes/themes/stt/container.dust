@@ -10,6 +10,11 @@ _('Load more posts ...');
 <p gimme="blog.description" class="embeddesc"></p>
 	{+header}
 		<div id="liveblog-header">
+			<div id="liveblog-status" class="update-time">
+				<span id="liveblog-status-time">_('updated on ');</span>
+				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
+			</div>
+			
 			<a id="pintotop" href="#">_('to top');</a>
             <a id="comment-btn" href="#">_('comment');</a>
 
@@ -42,10 +47,7 @@ _('Load more posts ...');
             	</div>
             </div>
 			</div>
-			<div id="liveblog-status" class="update-time">
-				<span id="liveblog-status-time">_('updated on ');</span>
-				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
-			</div>
+			
 			
 		</div>
 	{/header}
