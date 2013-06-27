@@ -36,7 +36,7 @@
 }
 
 #livedesk-root #liveblog-posts {
-    margin-top: 48px;
+    margin-top: 0px;
     max-height: 600px;
     overflow: auto;
 }
@@ -44,6 +44,8 @@
 #livedesk-root #liveblog-header {
     position: relative;
     width: 100%;
+    height: 29px;
+    background: #262626;
 }
 
 
@@ -240,12 +242,20 @@
     margin: 0;
     padding: 0;
 }
+.imagepost .result-content-full .result-content a, 
+.instagramservice .result-content-full .result-content  a,
+.flickrservice .result-content-full .result-content a  {
+    outline: none;
+}
+
 .imagepost figure img,
-.instagramservice figure img,
-.flickrservice figure img,
+.instagramservice .result-content-full .result-content a img,
+.flickrservice .result-content-full .result-content a img,
 .googleservice img {
     padding: 2px;
     border: 1px solid #e0e0e0;
+    *border: 0;
+    *outline: none;
 }
 
 .imagepost figure figcaption,
@@ -358,9 +368,9 @@
 }    
 
 .liveblog-post-list li.quotation .result-content-full {
-    padding-left:205px;
+    padding-left:45px;
     min-height: 40px;
-    background: url("img/quotes.png") no-repeat 160px 5px; 
+    background: url("img/quotes.png") no-repeat 0px 5px; 
 }
 
 .liveblog-post-list li a[rel="bookmark"] {
