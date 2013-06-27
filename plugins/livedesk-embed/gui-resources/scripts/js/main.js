@@ -29,7 +29,7 @@ require(['livedesk-embed/concat.min'], function(){
                     model: timeline.model
                 });
             } else {
-            	this.el.find('#comment-btn,.comment-box').hide();
+            	this.el.find('#comment-btn,.comment-box,.comment-box-message').hide();
             }
         });
 	});

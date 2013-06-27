@@ -24,13 +24,15 @@ define([
 
         events: {
             '#comment-btn': {click: 'togglePopup'},
+            '#comment-message-btn': {click: 'showAfterMessage'},
             '.button.cancel': {click: 'cancel'},
             '.button.send': {click: 'send'},
             'form': {submit: 'send'}
         },
-
+        messageDisplayTime: 2000,
         init: function() {
             this.popup = $(this.el).find('.comment-box').hide();
+            this.popup_message = $(this.el).find('.comment-box-message').hide();
 
             this.username = $(this.el).find('#comment-nickname');
             this.text = $(this.el).find('#comment-text');
@@ -41,13 +43,20 @@ define([
             this.loadRecaptcha = true;
             this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
 
-            this.backdropel = $("#backdrop");
+            this.backdropel = $("#backdrop").data('show-status',true);
         },
 
         togglePopup: function(e) {
+            var view = this,
+                showStatus;
             e.preventDefault();
-            this.popup.toggle();
-            this.backdropel.toggle();
+            view.popup.toggle({ duration: 0, done: function(){
+                showStatus = view.backdropel.data('show-status');
+                view.backdropel.toggle(showStatus);
+                view.backdropel.data('show-status',!showStatus);
+            }});
+            //self.popup.slideToggle();
+            
             if (this.popup.is(':visible')) {
                 this.openPopup();
             } else {
@@ -75,7 +84,20 @@ define([
             this.togglePopup(e);
             Recaptcha.reload();
         },
-
+        showAfterMessage: function(e) {
+            e.preventDefault();
+            var view = this;
+            view.backdropel.data('show-status',true).show();
+            //this.popup_message.slideDown();
+            this.popup_message.show();
+            setTimeout(function(){
+                //view.popup_message.slideUp({ done: function(){
+                    view.popup_message.hide({ duration: 0, done: function(){
+                     view.backdropel.data('show-status',false);
+                    view.backdropel.hide();
+                }});
+            }, view.messageDisplayTime)
+        },
         send: function(e) {
             e.preventDefault();
 
@@ -93,6 +115,7 @@ define([
                     },
                     success: function() {
                         view.cancel(e);
+                        view.showAfterMessage(e);
                     },
                     error: function() {
                         view.captcha.next('.error').show();
