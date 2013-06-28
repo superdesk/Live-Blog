@@ -193,6 +193,9 @@
 }
 .instagramservice .attributes .source-icon {
     background-image: url("img/instagram.png");
+} 
+.soundcloudservice .attributes .source-icon {
+    background-image: url("img/soundcloud-16px.png");
 }  
 
 
@@ -352,19 +355,20 @@
     overflow: hidden;
 }
 
-.video-container {     
+.youtubeservice .video-container {     
     position: relative;     
     padding-bottom: 56.25%;     
     padding-top: 30px; 
     height: 0; 
     overflow: hidden; } 
 
-.video-container iframe {     
+.youtubeservice .video-container iframe {     
     position: absolute;     
     top: 0;     
     left: 0;     
     width: 100%;    
     height: 100%; 
+    border: 0;
 }    
 
 .liveblog-post-list li.quotation .result-content-full {
@@ -830,6 +834,7 @@ li.loading-more:hover{
 
     .compact1 .liveblog-post-list li .result-content-full {
         padding-left: 120px; 
+        margin-left: 0;
     }
 
     .compact1 .liveblog-post-list li.quotation .result-content-full {
@@ -891,6 +896,7 @@ li.loading-more:hover{
     }
     .mobile .liveblog-post-list li .result-content-full {
         padding: 0;
+        margin: 0;
     }
 
     .mobile#livedesk-root .liveblog-post-list li.advertisement {
@@ -1095,5 +1101,8 @@ USER COMMENTS
 }
 
 .liveblog-post-list li.commentspost .result-header figure{
-    background: url(img/comment-icon48.png) no-repeat 0 0;
+    background: url(img/comment-icon48.png) no-repeat 0 0 !important;
+}
+.liveblog-post-list li.commentspost .result-header figure img {
+    display: none !important;
 }
