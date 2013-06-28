@@ -110,3 +110,15 @@ def upgradeLiveBlog14Last():
     insertTheme()
     insertSource('comments')
     createSourceType('comment')
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeLiveBlog14End():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('ALTER TABLE `sd_dev`.`post` CHANGE COLUMN `meta` `meta` TEXT NULL DEFAULT NULL, '
+                        'CHANGE COLUMN `content_plain` `content_plain` TEXT NULL DEFAULT NULL, '
+                        'CHANGE COLUMN `content` `content` TEXT NULL DEFAULT NULL')
+    except (ProgrammingError, OperationalError): return
