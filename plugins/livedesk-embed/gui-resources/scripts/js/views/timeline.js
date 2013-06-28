@@ -214,7 +214,8 @@ define([
 		 * returns the given view.
 		 */
 		orderOne: function(view) {
-			var pos = this._views.indexOf(view);
+            var pos = this.findView(view);
+
 			/*!
 			 * View property order need to be set here
 			 *   because could be multiple updates and 
@@ -237,7 +238,7 @@ define([
 			/*!
 			 * Search it again in find the new position.
 			 */
-			pos = this._views.indexOf(view);
+			pos = this.findView(view);
 			if( pos === 0 ){
 				/*!
 				 * If the view is the first one the it's added after #load-more selector.
@@ -257,6 +258,17 @@ define([
 			}
 			return view;
 		},
+
+        findView: function(view) {
+            for (var i = 0, length = this._views.length; i < length; i++) {
+                if (view.model.href === this._views[i].model.href) {
+                    return i;
+                }
+            }
+
+            return -1;
+        },
+
 		addOne: function(model)
 		{
 			var view = new PostView({model: model, _parent: this});
