@@ -5,15 +5,6 @@ _('Share');
 <li class="{+item_class}default{/item_class}">
 	<a name="{Order}"></a>
 	{+head}
-	<div class="avatar-block">
-		{?AuthorImage}
-			<figure style="background:none">
-				<img src="{AuthorImage.href}" height="48" style="max-width:150px">
-			</figure>
-			{:else}
-			<figure></figure>
-		{/AuthorImage}
-	</div>
 	<div class="result-header">
 		<div class="post_info">
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>

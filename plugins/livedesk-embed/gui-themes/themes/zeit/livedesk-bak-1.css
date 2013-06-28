@@ -714,82 +714,6 @@ li.loading-more:hover{
 }
 
 
-/* **************************
-    remove header
-
-   ************************** */
-
-   #livedesk-root #liveblog-header {
-        display: none;
-    }
-    #liveblog-posts { 
-        padding-top: 0;
-    }
-
-/* **************************
-    avattar related styles
-
-   ************************** */
-.avatar-block {
-    position: absolute;
-    width: 48px;
-    border: 1px solid #e2e2e2;
-    padding: 3px;
-}
-.avatar-block figure {
-    width: 48px;
-    height: 48px;
-    background: url(img/default-liveblog-avatar_48x48.png) no-repeat 0 0 !important;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-}
-.avatar-block figure img {
-    min-width: 48px !important;
-    max-width: 48px !important;
-    height: auto !important;
-    padding: 0 !important;
-    border: 0 !important;
-}
-
-/* **************************
-    overrides of CSS to show
-    avatrar properly
-
-   ************************** */
-
-.result-header {
-    padding-left: 75px;
-}
-.result-content {
-    padding-left: 75px !important;
-}
-.facebookservice .result-content, 
-.twitterservice .result-content, 
-.link .result-content, 
-.googleservice .result-content {
-    margin-left: 75px;
-}
-.quotation .result-content {
-    margin-left: 75px;
-    padding-left: 55px !important;
-}
-.liveblog-post-list li .editable {
-    padding-left: 75px;
-}
-
-
-/* **************************
-    other fixies
-
-   ************************** */
-
-.commentspost .result-text h3 {
-    display: none;
-}
-
-
-
 
 @media screen and (max-width: 768px) {
 
@@ -846,4 +770,3 @@ li.loading-more:hover{
     }
 
 }
-

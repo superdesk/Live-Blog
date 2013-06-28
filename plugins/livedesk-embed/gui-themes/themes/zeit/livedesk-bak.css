@@ -1,12 +1,10 @@
 #livedesk-root {
-    font-size: 16px;
+    font-size: 12px;
     font-family: Arial, Helvetica, sans-serif;
     padding: 0;
     position: relative;
     margin: 0;
-    height:100%;
 }
-
 #livedesk-root li {
     list-style-type:none;
     color: #212121;
@@ -40,7 +38,7 @@
 #livedesk-root .liveblog-post-list li {
     margin: 0 10px 0 0px;
     padding: 7px 5px 5px 5px;
-    border-top: 1px solid #a8a8a8;
+    border-top: 2px solid #a8a8a8;
     color: #444228;
     position: relative;
     font-size: 1px;
@@ -50,7 +48,7 @@
 }
 
 #livedesk-root .liveblog-post-list li:last-child, 
-    border-bottom: 1px solid #a8a8a8;
+    border-bottom: 2px solid #a8a8a8;
 }
 
 #livedesk-root .liveblog-post-list li:first-child {
@@ -77,9 +75,9 @@
 }
 
 .liveblog-post-list li .result-text  {
-    font-size: 16px ;
+    font-size: 14px ;
     color:#000000;
-    line-height: 1.5;
+    line-height: 18px;
 }
 .liveblog-post-list li .result-text img  {
     max-width: 100%;
@@ -105,7 +103,7 @@
 .source-link {
     color: #2D6AAF;
     text-decoration: none;
-    line-height: 16px;
+    line-height: 12px;
 }
 .source-link:hover {
     color: #484848;
@@ -228,9 +226,8 @@
 .youtubeservice h3 a {
     color: #2d6aaf;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: bold;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .youtubeservice .result-text + .attributes .source-icon {
@@ -470,12 +467,11 @@ color:#484848;
 }
 
 .liveblog-post-list li .result-header time {
-    font-weight: 400;
-    font-size: 14px;
+    font-weight: bold;
+    font-size: 11px;
     padding: 0 10px 0 0;
     color:#2d6aaf;
     border-right: 1px solid #e0e0e0;
-    font: Arial, Helvetica, sans-serif;
 }
 .liveblog-post-list li .result-header p {
     font-weight: bold;
@@ -714,82 +710,6 @@ li.loading-more:hover{
 }
 
 
-/* **************************
-    remove header
-
-   ************************** */
-
-   #livedesk-root #liveblog-header {
-        display: none;
-    }
-    #liveblog-posts { 
-        padding-top: 0;
-    }
-
-/* **************************
-    avattar related styles
-
-   ************************** */
-.avatar-block {
-    position: absolute;
-    width: 48px;
-    border: 1px solid #e2e2e2;
-    padding: 3px;
-}
-.avatar-block figure {
-    width: 48px;
-    height: 48px;
-    background: url(img/default-liveblog-avatar_48x48.png) no-repeat 0 0 !important;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-}
-.avatar-block figure img {
-    min-width: 48px !important;
-    max-width: 48px !important;
-    height: auto !important;
-    padding: 0 !important;
-    border: 0 !important;
-}
-
-/* **************************
-    overrides of CSS to show
-    avatrar properly
-
-   ************************** */
-
-.result-header {
-    padding-left: 75px;
-}
-.result-content {
-    padding-left: 75px !important;
-}
-.facebookservice .result-content, 
-.twitterservice .result-content, 
-.link .result-content, 
-.googleservice .result-content {
-    margin-left: 75px;
-}
-.quotation .result-content {
-    margin-left: 75px;
-    padding-left: 55px !important;
-}
-.liveblog-post-list li .editable {
-    padding-left: 75px;
-}
-
-
-/* **************************
-    other fixies
-
-   ************************** */
-
-.commentspost .result-text h3 {
-    display: none;
-}
-
-
-
 
 @media screen and (max-width: 768px) {
 
@@ -846,4 +766,3 @@ li.loading-more:hover{
     }
 
 }
-
