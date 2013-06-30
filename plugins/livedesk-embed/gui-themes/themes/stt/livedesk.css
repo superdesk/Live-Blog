@@ -399,6 +399,8 @@
     left: 50px;
     bottom:20px;
     height: 23px ;
+    font-size: 13px;
+    line-height: 16px;
     border: 1px solid #d0d0d0 ;
     background: #F8F8F8;
     width: 250px ;
