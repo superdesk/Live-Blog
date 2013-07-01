@@ -13,7 +13,7 @@ _('Load more posts ...');
 			<a id="pintotop" href="#">_('to top');</a>
             <a id="comment-btn" href="#">_('comment');</a>
 
-            <div class="comment-box">
+            <div class="comment-box" style="display:none">
                 <form name="comment">
                     <div class="content">
 
@@ -36,7 +36,7 @@ _('Load more posts ...');
                     <button type="reset" class="button cancel">_('Cancel');</button>
                 </div>
             </div>
-            <div class="comment-box-message">
+            <div class="comment-box-message" style="display:none">
             	<div class="content ">
             	_('Your message was sent for approval');
             	</div>
