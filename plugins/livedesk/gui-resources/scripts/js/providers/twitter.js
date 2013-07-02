@@ -46,26 +46,23 @@ $.extend(providers.twitter, {
             this.adaptor._parent = this;
             this.adaptor.init();
             this.resetAutoRefresh();            
+            localStorage.setItem('superdesk.config.providers.twitter.notify', 0);
 		}
+
 		this.initialized = true;
-                // thid.notifyArea = $('.'+providers.twitter.className).parents('li:eq(0)').find('.notifications')
-                //clear new item notification
-                $('a[href="#twitter"] span.notifications').html('').css('display', 'none');
+
+        $('a[href="#twitter"] span.notifications').html('').css('display', 'none');
                 
-                localStorage.setItem('superdesk.config.providers.twitter.notify', 0);
-                
-                $('.'+providers.twitter.className)
-                    .parents('li:eq(0)').find('.config-notif').off('click').on('click', this.configNotif);
+        $('.'+providers.twitter.className)
+            .parents('li:eq(0)').find('.config-notif').off('click').on('click', this.configNotif);
             
-                $('.'+providers.twitter.className)
-                    .parents('li:eq(0)').find('.config-notif')
-                    .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
-                    .tooltip({placement: 'right'});
+        $('.'+providers.twitter.className)
+            .parents('li:eq(0)').find('.config-notif')
+            .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
+            .tooltip({placement: 'right'});
                     
-                    //console.log('notify-', parseFloat(localStorage.getItem('superdesk.config.providers.twitter.notify')));
-                
-                
 	},
+
         /*!
          * configure notifications on/off
          */
@@ -85,32 +82,30 @@ $.extend(providers.twitter, {
         },
         
         isTwitterActive : function() {
-            var activeText = $('.big-icon-twitter').parent().parent().attr('class');
-            if ( activeText == 'active' || parseFloat(localStorage.getItem('superdesk.config.providers.twitter.notify')) == 0 ) {
-                return true;
-            } else {
-                return false;
-            }
+            var twitterTab = $('.big-icon-twitter').closest('li.twitter');
+            return twitterTab.hasClass('active');
         },
+
         resetAutoRefresh : function() {
             this.lastTimeline = null;
-            clearInterval(this.iidTimeline);
+            clearTimeout(this.iidTimeline);
             this.iidTimeline = -1;
             
             this.lastUser = null;
-            clearInterval(this.iidUser);
+            clearTimeout(this.iidUser);
             this.iidUser = -1;
             
             this.lastFavorites = null;
-            clearInterval(this.iidFavorites);
+            clearTimeout(this.iidFavorites);
             this.iidFavorites = -1;
             
             this.lastWeb = null;
-            clearInterval(this.iidWeb);
+            clearTimeout(this.iidWeb);
             this.iidWeb = -1;
             
             
         },
+
 	render: function() {
 		var self = this;
 		this.el.tmpl('livedesk>providers/twitter', {}, function(){
@@ -175,6 +170,11 @@ $.extend(providers.twitter, {
         },
         autoRefreshTimeline : function(fullUrl) {
                 var self = this;
+
+                this.iddTimeline = setTimeout(function() {
+                    self.autoRefreshTimeline(fullUrl);
+                }, this.refreshTimer);
+
                 if ( ! this.isTwitterActive() ) {
                     $.jsonp({
                         url : fullUrl,
@@ -183,7 +183,6 @@ $.extend(providers.twitter, {
                                 if (data[0].id_str !== self.lastTimeline.id_str) {
                                     //console.log( data[0],'-',self.lastTimeline );
                                     self.flashThumb('timeline');
-                                    clearInterval(self.iidTimeline);
                                     self.doTimeline(1, true);
                                 } else {
                                 //same result do nothing
@@ -251,7 +250,7 @@ $.extend(providers.twitter, {
                         }
                         if (page == 0 && data.length > 0) {
                                 self.lastTimeline = data[0];
-                                self.iidTimeline = setInterval(function(){
+                                self.iidTimeline = setTimeout(function(){
                                   self.autoRefreshTimeline(fullUrl);  
                                 }, self.refreshTimer);
                             }
@@ -297,9 +296,15 @@ $.extend(providers.twitter, {
             },
         autoRefreshUser : function(qstring) {
             var self = this;
+
+            this.iidUser = setTimeout(function() {
+                self.autoRefreshUser(qstring);
+            }, this.refreshTimer);
+
             if ( this.isTwitterActive() ) {
                 return 1;
             }
+
             self.cb.__call(
                 'statuses_userTimeline',
                 qstring,
@@ -307,7 +312,6 @@ $.extend(providers.twitter, {
                     if (data.length > 1) {
                         if (data[0].id_str != self.lastUser.id_str) {
                             self.flashThumb('user');
-                            clearInterval(self.iidUser);
                             self.doUser(1, true);
                         } else {
                             //same result do nothing
@@ -356,7 +360,7 @@ $.extend(providers.twitter, {
                     }
                     if (page == 1 && data.length > 0) {                   
                             self.lastUser = data[0];
-                            self.iidUser = setInterval(function(){
+                            self.iidUser = setTimeout(function(){
                                 self.autoRefreshUser(qstring);  
                             }, self.refreshTimer);
                         }
@@ -401,10 +405,16 @@ $.extend(providers.twitter, {
             );    
         },
         autoRefreshFavorites : function(qstring) {
+            var self = this;
+
+            this.iidFavorites = setTimeout(function() {
+                self.autoRefreshFavorites(qstring);
+            }, this.refreshTimer);
+
             if ( this.isTwitterActive() ) {
                 return 1;
             }
-            var self = this;
+
             self.cb.__call(
                 'favorites_list',
                 qstring,
@@ -412,7 +422,6 @@ $.extend(providers.twitter, {
                     if (data.length > 1) {
                         if (data[0].id_str != self.lastFavorites.id_str) {
                             self.flashThumb('favorites');
-                            clearInterval(self.iidFavorites);
                             self.doFavorites(1, true);
                         } else {
                             //same result do nothing
@@ -460,7 +469,7 @@ $.extend(providers.twitter, {
                     }
                     if (page == 1 && data.length > 0) {                   
                             self.lastFavorites = data[0];
-                            self.iidFavorites = setInterval(function(){
+                            self.iidFavorites = setTimeout(function(){
                               self.autoRefreshFavorites(qstring);  
                             }, self.refreshTimer);
                         }
@@ -504,18 +513,23 @@ $.extend(providers.twitter, {
                 }, true);
         },
         autoRefreshWeb : function(qstring) {
-            if ( this.isTwitterActive() ) {
+            var self = this;
+
+            this.iidWeb = setTimeout(function() {
+                self.autoRefreshWeb(qstring);
+            }, this.refreshTimer);
+
+            if (this.isTwitterActive()) {
                 return 1;
             }
-            var self = this;
-            self.cb.__call(
+
+            this.cb.__call(
                 'search_tweets',
                 qstring,
                 function(data){
                     if (data.statuses.length > 1) {
                         if (data.statuses[0].id_str != self.lastWeb.id_str) {
                             self.flashThumb('web');
-                            clearInterval(self.iidWeb);
                             self.doWeb(qstring, true);
                         } else {
                             //same result do nothing
@@ -565,7 +579,7 @@ $.extend(providers.twitter, {
                     }
                     if ( refresh && posts.length > 0 ) {
                         self.lastWeb = data.statuses[0];
-                        self.iidWeb = setInterval(function(){
+                        self.iidWeb = setTimeout(function(){
                           self.autoRefreshWeb(qstring);
                         }, self.refreshTimer);
                     }
