@@ -26,13 +26,25 @@ define(['jquery', 'backbone', 'tmpl!livedesk>manage-feeds-edit'], function($, Ba
             var data = this.getData();
 
             try {
-                if (this.model.isNew()) {
-                    this.collection.create(data, {headers: this.collection.xfilter, wait: true});
-                } else {
-                    this.model.save(data, {patch: true, wait: true});
-                }
+                var view = this;
+                $.getJSON(data.URI).
+                    done(function(response) {
+                        if (!'BlogList' in response) {
+                            view.renderErrors(['URI']);
+                            return;
+                        }
 
-                return this.close(e);
+                        if (view.model.isNew()) {
+                            view.collection.create(data, {headers: view.collection.xfilter, wait: true});
+                        } else {
+                            view.model.save(data, {patch: true, wait: true});
+                        }
+
+                        view.close(e);
+                    }).
+                    fail(function() {
+                        view.renderErrors(['URI']);
+                    });
             } catch (errors) {
                 this.renderErrors(errors);
             }
