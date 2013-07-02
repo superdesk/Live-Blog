@@ -21,7 +21,10 @@ require(['livedesk-embed/concat.min'], function(){
 
         var timeline = new TimelineView(data);
         $.dispatcher.on('after-render', function() {
-        	var embedConfig = JSON.parse(this.model.get('EmbedConfig'));
+        	var embedConfig = false;
+        	try {
+        		embedConfig = JSON.parse(this.model.get('EmbedConfig'));
+        	} catch(e){}
             if (embedConfig && embedConfig.UserComments) {
                 new UserCommentsPopupView({
                     el: '#liveblog-header', 
