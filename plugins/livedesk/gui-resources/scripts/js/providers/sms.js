@@ -97,9 +97,8 @@ $.extend(providers.sms, {
                 self.render();
             });
         });
-
         //switch from assigned feeds to all feeds and back
-        self.el.on('change', '[name="feeds-type"]', function(evt) {
+        self.el.off('change', '[name="feeds-type"]').on('change', '[name="feeds-type"]', function(evt) {
             if ( $('[name="feeds-type"]:checked').val() == 'assigned' ) {
                 self.onlyAssigned = true;
             } else {
@@ -109,29 +108,29 @@ $.extend(providers.sms, {
         });     
 
         //trigger click event for sms feed tabs
-        self.el.on('click', '.feed-info button', function(evt) {
+        self.el.off('click', '.feed-info button').on('click', '.feed-info button', function(evt) {
             $('.sms-header').trigger('useractions/feedclick', this);
         });
         //handle click event on sms feed tabs
-        self.el.on('useractions/feedclick','.sms-header', function(e, feed){
+        self.el.off('useractions/feedclick','.sms-header').on('useractions/feedclick','.sms-header', function(e, feed){
             self.feedTab($(feed));
         });
         //handle keyword search
-        self.el.on('keyup','.sms-search-query', function( e ){
+        self.el.off('keyup','.sms-search-query').on('keyup','.sms-search-query', function( e ){
             var keycode = e.keyCode;
             var feedId = self.getActiveTab();
             var keyword = $('.sms-search-query[data-feed-id="' + feedId + '"]').val();
             if ( keycode == 13 ) {
                 self.keyword[feedId] = keyword;
-                self.getAllSmss({cId: -1, clearResults: true});
+                //self.getAllSmss({cId: -1, clearResults: true});
             }
         });
         //clear keyword search
-        self.el.on('click', '.sms-clear-search', function(evt) {
+        self.el.off('click', '.sms-clear-search').on('click', '.sms-clear-search', function(evt) {
             var feedId = self.getActiveTab();
             $('.sms-search-query[data-feed-id="' + feedId + '"]').val('');
             self.keywords[feedId] = '';
-            self.getAllSmss({cId: -1, clearResults: true});
+            //self.getAllSmss({cId: -1, clearResults: true});
 
         });
 	},
@@ -184,6 +183,7 @@ $.extend(providers.sms, {
             //auto select first sms feed tab
             $('.feed-info [data-feed-id]').first().trigger('click');
 
+
             //prepare the auto refresh thing
             var int = window.setInterval(function(){
                 self.refreshFeeds();
@@ -219,6 +219,7 @@ $.extend(providers.sms, {
         //search data... short name 'sd'
         var sd = $.extend({}, dsd, paramObject);
 
+
         //check to see if the search really needs to be done
         if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults) {
             //no search with results on this feed yet or pagination
@@ -244,7 +245,7 @@ $.extend(providers.sms, {
             var total = data.total;
             var smss = data.PostList;
             //clean the results
-            if ( sd.clearResults) {
+            if ( sd.clearResults ) {
                 self.data.sms = [];
                 $('.sms-list[data-feed-id="' + sd.feedId + '"]').html('');
                 $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','none').html('');
@@ -268,6 +269,9 @@ $.extend(providers.sms, {
                     Base: 'implementors/sources/sms',
                     Item: 'sources/sms'
                 }, function(e, o) {
+
+                    self.first = false;
+
                     if ( sd.prepend ) {
                         el = $('.sms-list[data-feed-id="' + sd.feedId + '"]').prepend(o).find('.smspost');
                     } else {
@@ -302,7 +306,7 @@ $.extend(providers.sms, {
                         $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','block').tmpl('livedesk>providers/load-more', {name : 'sms-load-more-' + sd.feedId}, function(){
                             $(this).find('[name="sms-load-more-' + sd.feedId + '"]').on('click', function(){
                                 var offset = sd.offset + sd.limit;
-                                self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
+                                //self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
                             });
                         });
                     } else {
