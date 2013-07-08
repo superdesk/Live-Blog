@@ -188,6 +188,9 @@ define([
 							var blogTitle = encodeURL(self._parent.model.get('Title'));
 							var myPerm = encodeURL(data.permalink);
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
+							if ( !imgsrc ) {
+								var imgsrc = $('img:first').attr('src');
+							}
 							var summary = encodeURL($('.result-content .result-text:last', self.el).text());
 							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=" + blogTitle;
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
