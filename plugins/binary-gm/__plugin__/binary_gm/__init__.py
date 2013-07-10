@@ -1,12 +1,12 @@
 '''
 Created on Apr 19, 2012
 
-@package: ffmpeg binary
+@package: gm binary
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Ioan v. Pocol
 
-Provides the ffmpeg in the workspace tools.
+Provides the gm in the workspace tools.
 '''
 
 from ally.container import ioc, app
@@ -42,6 +42,31 @@ def gm_dir_path():
 def deploy():
     if gm_dir_path():
         sys, rel, _ver, deployed = deployTool(join(pythonPath(), 'resources', 'gm'), gm_dir_path())
+        if not deployed:
+            import os
+            # an attempt to make a symlink to gm from the tools/gm/bin directory
+            if os.name in ('posix',):
+                gmSystemPath = None
+                sysPath = os.environ.get("PATH")
+                if sysPath:
+                    for onePathDir in sysPath.split(os.pathsep):
+                        gmPathTest = os.path.join(onePathDir, 'gm')
+                        if os.path.isfile(gmPathTest):
+                            gmSystemPath = gmPathTest
+                            break
+                if gmSystemPath:
+                    toolDirCreated = False
+                    try:
+                        os.makedirs(join(gm_dir_path(), 'bin'), 0o777, True)
+                        toolDirCreated = True
+                    except:
+                        toolDirCreated = False
+                    if toolDirCreated:
+                        try:
+                            os.symlink(gmSystemPath, join(gm_dir_path(), 'bin', 'gm.exe'))
+                            deployed = True
+                        except:
+                            pass
         if not deployed:
             log.error('Unable to deploy GraphicsMagic on %s %s!\n    You must install it manually '
                       'and set the proper path in the plugins.properties\n    file for the property '
