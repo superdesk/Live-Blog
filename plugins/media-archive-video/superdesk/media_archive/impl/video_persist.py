@@ -30,6 +30,7 @@ from superdesk.media_archive.meta.video_data import META_TYPE_KEY, \
     VideoDataEntry
 from superdesk.media_archive.meta.video_info import VideoInfoMapped
 import re
+from superdesk.media_archive.api.video_data import IVideoDataService
 
 # --------------------------------------------------------------------
 
@@ -53,6 +54,8 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
+    videoDataService = IVideoDataService; wire.entity('videoDataService')
+    # Provides the video data service
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
@@ -61,6 +64,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.video_supported_files, str), 'Invalid supported files %s' % self.video_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
+        assert isinstance(self.videoDataService, IVideoDataService), 'Invalid video data service %s' % self.videoDataService
 
         self.videoSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.video_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
@@ -154,6 +158,15 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             raise InputError(Ref(_('Cannot save the video data'),))
 
         return True
+
+    def getTypeName(self):
+        return META_TYPE_KEY
+
+    def getMetaInfoClass(self):
+        return VideoInfoMapped
+
+    def getMetaDataService(self):
+        return self.videoDataService
 
     # ----------------------------------------------------------------
     

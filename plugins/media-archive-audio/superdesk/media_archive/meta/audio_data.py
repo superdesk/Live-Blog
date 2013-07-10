@@ -13,13 +13,12 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
-from ally.internationalization import N_
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.api.audio_data import AudioData
 
 # --------------------------------------------------------------------
 
-META_TYPE_KEY = N_('audio')
+META_TYPE_KEY = 'audio'
 # The key used for audio meta data
 
 # --------------------------------------------------------------------
