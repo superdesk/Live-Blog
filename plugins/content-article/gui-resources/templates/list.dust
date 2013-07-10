@@ -43,9 +43,9 @@
         <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">_('Multiple actions');<span class="caret"></span></a>
             <ul class="dropdown-menu sf-dropdown">
-                <li><i class="icon-trash"></i> _('Delete');</li>
-                <li><i class="icon-check"></i> _('Publish');</li>
-                <li><i class="icon-ban-circle"></i> _('Unpublish');</li>
+                <li><a href="" ng-click="deleteArticles()"><i class="icon-trash"></i> _('Delete');</a></li>
+                <li><a href="" ng-click="publishArticles()"><i class="icon-check"></i> _('Publish');</a></li>
+                <li><a href="" ng-click="unpublishArticles()"><i class="icon-ban-circle"></i> _('Unpublish');</a></li>
             </ul>
         </div>
 
@@ -78,7 +78,7 @@
     <table class="sf_table">
         <thead>
             <tr>
-                <th class="chckbx_col"><input type="checkbox" class="sf-checkbox" name="all"></th>
+                <th class="chckbx_col"><input type="checkbox" set-bg="2" ng-click="toggleAll()" ng-model="allChecked"></th>
                 <th class="title_col" ng-show="settings.fields.title">_('Title');</th>
                 <th ng-show="settings.fields.author">_('Author');</th>
                 <th ng-show="settings.fields.publishDate">_('Publish date');</th>
@@ -104,7 +104,7 @@
         </thead>
         <tbody>
             <tr ng-repeat="article in articles">
-                <td class="chckbx_col"><input type="checkbox" class="sf-checkbox" set-bg="2" name="article_1"></td>
+                <td class="chckbx_col"><input type="checkbox" set-bg="2" name="article_1" ng-model="article.checked" ng-click="toggle($index)"></td>
                 <td class="title_col" ng-show="settings.fields.title"><a href="#/article/{{ article.Id }}">{{ article.Content.Title }}</a></td>
                 <td ng-show="settings.fields.author">{{ article.Author.FullName }}</td>
                 <td ng-show="settings.fields.publishDate">{{ article.PublishedOn }}</td>

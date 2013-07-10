@@ -18,11 +18,12 @@ define([
         return function(offset, limit, searchTerm) {
             var delay = $q.defer();
             var parameters = {offset: offset, limit: limit};
-            if (searchTerm !== undefined) {
+            if (searchTerm !== undefined && searchTerm !== '') {
                 parameters.search = searchTerm;
             }
             Article.query(parameters, function(response) {
                 for (var i = 0; i < response.ArticleList.length; i = i + 1) {
+                    response.ArticleList[i].checked = false;
                     response.ArticleList[i].Content = angular.fromJson(response.ArticleList[i].Content);
                     if (response.ArticleList[i].IsPublished === 'True') {
                         response.ArticleList[i].IsPublished = true;
