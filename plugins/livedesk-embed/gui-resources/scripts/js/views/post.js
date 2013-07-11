@@ -231,6 +231,7 @@ define([
 								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
 								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
 								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
+								'emailurl': emailurl,
 								'showPin': showPin
 							}
 							$.tmpl('theme/item/social-share', socialParams, function(e, o){
