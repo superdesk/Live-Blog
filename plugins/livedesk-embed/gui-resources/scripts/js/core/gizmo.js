@@ -46,7 +46,7 @@ define(['jquery', 'utils/class'], function($,Class)
 
 	Url = Class.extend
 	({
-		_construct: function(arg) 
+		_construct: function(arg)
 		{
 			this.data = !this.data ? {root: ''} : this.data;
 			switch( $.type(arg) )
@@ -65,12 +65,12 @@ define(['jquery', 'utils/class'], function($,Class)
 			}
 			return this;
 		},
-		xfilter: function() 
+		xfilter: function()
 		{
 			this.data.xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
 			return this;
 		},
-		root: function(root) 
+		root: function(root)
 		{
 			this.data.root = root;
 			return this;
@@ -79,12 +79,12 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			return this.data.root + this.data.url;
 		},
-		order: function(key, direction) 
+		order: function(key, direction)
 		{
 			this.data.order = direction+'='+key;
 			return this;
 		},
-		filter: function(key, value) 
+		filter: function(key, value)
 		{
 			this.data.filter = key+'='+value;
 			return this;
@@ -93,7 +93,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			this.data.url = format.replace(/(%s)/g, this.data.url);
 		},
-		options: function() 
+		options: function()
 		{
 			var options = {};
 			if(this.data.xfilter)
@@ -110,18 +110,18 @@ define(['jquery', 'utils/class'], function($,Class)
 				{
 									$.support.cors = true;
 					var a;
-					if( source instanceof Url ) 
+					if( source instanceof Url )
 					{
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
 						a = $.ajax(self.href(source.get()), options);
-					} 
-					else 
+					}
+					else
 					{
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
 						a = $.ajax(self.href(source), options);
 					}
 					self.reset();
-					
+
 					options.fail && a.fail(options.fail);
 					options.done && a.done(options.done);
 					options.always && a.always(options.always);
@@ -258,7 +258,7 @@ define(['jquery', 'utils/class'], function($,Class)
 						self.triggerHandler('synced');
 					}
 				}
-				else { 
+				else {
 				// simply read data from server
 				ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 				{
@@ -330,7 +330,7 @@ define(['jquery', 'utils/class'], function($,Class)
 				data = data.data;
 			} else {
 				data = this.parse(data);
-			}		
+			}
 			if(data._parsed) {
 				return;
 			}
@@ -339,7 +339,7 @@ define(['jquery', 'utils/class'], function($,Class)
 				if( this.defaults[i] ) switch(true)
 				{
 					case (typeof this.defaults[i] === 'function') && (this.data[i] === undefined): // a model or collection constructor
-						
+
 						var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
 						if( !this._new && (newModel != this.data[i]) && !(newModel instanceof Collection) )
 							this.changeset[i] = newModel;
@@ -365,7 +365,7 @@ define(['jquery', 'utils/class'], function($,Class)
 						continue;
 						break;
 				}
-				else if( !this._new ) 
+				else if( !this._new )
 				{
 					if( $.type(data[i]) === 'object' )
 					{
@@ -456,7 +456,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * used to remove events from this model
 		 */
-		off: function(evt, handler)		
+		off: function(evt, handler)
 		{
 			$(this).off(evt, handler);
 			return this;
@@ -471,7 +471,7 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).off(evt, handler);
 				$(this).on(evt, handler);
 			}
-			else {			
+			else {
 				$(this).on(evt, function(){
 					handler.apply(obj, arguments);
 				});
@@ -484,14 +484,14 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).off(evt, handler);
 				$(this).one(evt, handler);
 			}
-			else {			
+			else {
 				$(this).one(evt, function(){
 					handler.apply(obj, arguments);
 				});
 			}
 			return this;
 		},
-		
+
 		/*!
 		 * used to trigger model events
 		 * this also calls the model method with the event name
@@ -579,7 +579,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			$(newly).off(event, handler);
 			return newly;
-		};		
+		};
 		newly.triggerHandler = function(event, data){$(newly).triggerHandler(event, data);};
 
 		if(options && options.register) {
@@ -595,19 +595,19 @@ define(['jquery', 'utils/class'], function($,Class)
 	Collection.prototype =
 	{
 		_list: [],
-        _events: {},
+		_events: {},
 		getList: function(){return this._list;},
 		count: function(){return this._list.length;},
 		_construct: function() {
 
 			if( !this.model ) this.model = Model;
 			this._list = [];
-            this._events = {};
+			this._events = {};
 			this.desynced = true;
 			var buildData = buildOptions = function(){void(0);},
 				self = this;
 			for( var i = 0, count = arguments.length; i < count; i++ ) {
-				
+
 				switch( $.type(arguments[i]) )
 				{
 					case 'function': // a model
@@ -687,67 +687,67 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * @param options
 		 */
-        sync: function()
-        {
-            var self = this;
-            return (this.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
-                {		
-                    var attr = self.parseAttributes(data), 
-                    	dataList = self.parse(data);
-                    	list = self._parse(data), 
-                    	changeset = [], 
-                    	removeings = [], 
-                    	updates = [], 
-                    	addings = [], 
-                    	count = self._list.length;
-                     // important or it will infiloop
-                    for( var i=0; i < list.length; i++ )
-                    {
-                        var model = false;
-                        for( var j=0; j<count; j++ ) {
+		sync: function()
+		{
+			var self = this;
+			return (this.href &&
+				this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
+				{
+					var attr = self.parseAttributes(data),
+						dataList = self.parse(data);
+						list = self._parse(data),
+						changeset = [],
+						removeings = [],
+						updates = [],
+						addings = [],
+						count = self._list.length;
+					 // important or it will infiloop
+					for( var i=0; i < list.length; i++ )
+					{
+						var model = false;
+						for( var j=0; j<count; j++ ) {
 							if( list[i].hash() == self._list[j].hash() )
-                            {
+							{
 								model = list[i];
-                                break;
-                            }
+								break;
+							}
 						}
-                        if( !model ) {
-                            if( !list[i].isDeleted() ) {
+						if( !model ) {
+							if( !list[i].isDeleted() ) {
 								self._list.push(list[i]);
 								changeset.push(list[i]);
-                                if( self.hasEvent('addings') ) {
-                                    addings.push(list[i]);
-                                }
+								if( self.hasEvent('addings') ) {
+									addings.push(list[i]);
+								}
 							} else {
-                                if( self.hasEvent('updates') ) {
+								if( self.hasEvent('updates') ) {
 								    updates.push(list[i]);
-                                }					
+								}
 							}
-                        }
-                        else {
-                            if( self.hasEvent('updates') ) {
-                                updates.push(model);
-                            }
-                            if(self.isCollectionDeleted(model)) {
-                                self._list.splice(i,1);
-                                if( self.hasEvent('removeings') ) {
-                                    removeings.push(model);
-                                }
+						}
+						else {
+							if( self.hasEvent('updates') ) {
+								updates.push(model);
+							}
+							if(self.isCollectionDeleted(model)) {
+								self._list.splice(i,1);
+								if( self.hasEvent('removeings') ) {
+									removeings.push(model);
+								}
 
-                            }
-                            if( model.isDeleted()) {
-                                model._remove();                                
-                            } else if( model.isChanged() ){
+							}
+							if( model.isDeleted()) {
+								model._remove();
+							} else if( model.isChanged() ){
 								changeset.push(model);
 							}
-                            else {
-                                model.on('delete', function(){ self.remove(this.hash()); })
-                                        .on('garbage', function(){ this.desynced = true; });
-                            }
-                        }
-                    }
-                    self.desynced = false;
+							else {
+								model.on('delete', function(){ self.remove(this.hash()); })
+										.on('garbage', function(){ this.desynced = true; });
+							}
+						}
+					}
+					self.desynced = false;
 					/**
 					 * If the initial data is empty then trigger READ event
 					 * else UPDATE with the changeset if there are some
@@ -756,32 +756,32 @@ define(['jquery', 'utils/class'], function($,Class)
 						//console.log('read');
 
 						self.triggerHandler('read',[self._list, attr]);
-                    } else {                    
-                        /**
-                         * Trigger handler with changeset extraparameter as a vector of vectors,
-                         * caz jquery will send extraparameters as arguments when calling handler
-                         */
-                        if( updates.length && self.hasEvent('updates') ) {
-                            self.triggerHandler('updates', [updates,attr]);
-                        }
-                        if( addings.length && self.hasEvent('addings') ) {
-                            self.triggerHandler('addings', [addings,attr]);
-                        }
-                        if( removeings.length && self.hasEvent('removeings') ) {
-                            self.triggerHandler('removeings', [removeings,attr]);
-                        }
+					} else {
+						/**
+						 * Trigger handler with changeset extraparameter as a vector of vectors,
+						 * caz jquery will send extraparameters as arguments when calling handler
+						 */
+						if( updates.length && self.hasEvent('updates') ) {
+							self.triggerHandler('updates', [updates,attr]);
+						}
+						if( addings.length && self.hasEvent('addings') ) {
+							self.triggerHandler('addings', [addings,attr]);
+						}
+						if( removeings.length && self.hasEvent('removeings') ) {
+							self.triggerHandler('removeings', [removeings,attr]);
+						}
 						self.triggerHandler('update', [changeset,attr]);
 					}
-                }));
-        },
-        /*!
-         * overwrite this to add other logic in implementation
-         * ex: if a model hasn't a field then this should be removed from the collection
-         */
-        isCollectionDeleted: function(model)
-        {
-            return false;
-        },
+				}));
+		},
+		/*!
+		 * overwrite this to add other logic in implementation
+		 * ex: if a model hasn't a field then this should be removed from the collection
+		 */
+		isCollectionDeleted: function(model)
+		{
+			return false;
+		},
 		/*!
 		 * overwrite this to add other logic upon parse complex type data
 		 */
@@ -789,10 +789,10 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			return model;
 		},
-        parseAttributes: function(data)
-        {
-            return data;
-        },
+		parseAttributes: function(data)
+		{
+			return data;
+		},
 		/**
 		 * should be override by implementation
 		 */
@@ -809,18 +809,18 @@ define(['jquery', 'utils/class'], function($,Class)
 			}
 			return ret;
 		},
-        /*!
-         * the list parser private method, to be called from sync
-         */
-        _parse: function(data)
-        {
-            var list = this.parse(data),
-            newlist = [];
-            for( var i = 0, count = list.length; i < count;  i++ ) {
-                newlist.push( this.modelDataBuild(new this.model(list[i])) );
-            }
-            return newlist;
-        },
+		/*!
+		 * the list parser private method, to be called from sync
+		 */
+		_parse: function(data)
+		{
+			var list = this.parse(data),
+			newlist = [];
+			for( var i = 0, count = list.length; i < count;  i++ ) {
+				newlist.push( this.modelDataBuild(new this.model(list[i])) );
+			}
+			return newlist;
+		},
 		insert: function(model)
 		{
 			this.desynced = false;
@@ -833,13 +833,13 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * used to remove events from this model
 		 */
-		off: function(evt, handler)		
+		off: function(evt, handler)
 		{
 			$(this).off(evt, handler);
-            var arrEvt = evt.split(" ");
-            for(var i = 0, count = arrEvt.length; i < count; i++ ){
-                delete this._events[arrEvt[i]];
-            }
+			var arrEvt = evt.split(" ");
+			for(var i = 0, count = arrEvt.length; i < count; i++ ){
+				delete this._events[arrEvt[i]];
+			}
 			return this;
 		},
 		/*!
@@ -852,15 +852,15 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).off(evt, handler);
 				$(this).on(evt, handler);
 			}
-			else {			
+			else {
 				$(this).on(evt, function(){
 					handler.apply(obj, arguments);
 				});
 			}
-            var arrEvt = evt.split(" ");
-            for(var i = 0, count = arrEvt.length; i < count; i++ ){
-                this._events[arrEvt[i]] = true;
-            }
+			var arrEvt = evt.split(" ");
+			for(var i = 0, count = arrEvt.length; i < count; i++ ){
+				this._events[arrEvt[i]] = true;
+			}
 			return this;
 		},
 		one: function(evt, handler, obj)
@@ -869,13 +869,13 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).off(evt, handler);
 				$(this).one(evt, handler);
 			}
-			else {			
+			else {
 				$(this).one(evt, function(){
 					handler.apply(obj, arguments);
 				});
 			}
 			return this;
-		},	
+		},
 		/*!
 		 * used to trigger model events
 		 * this also calls the model method with the event name
@@ -897,10 +897,10 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * return true is the collection has evt else false
 		 */
-        hasEvent: function(evt)
-        {
-            return $.type(this._events[evt]) === 'undefined' ? false :  this._events[evt];
-        }
+		hasEvent: function(evt)
+		{
+			return $.type(this._events[evt]) === 'undefined' ? false :  this._events[evt];
+		}
 	};
 
 	Collection.extend = cextendFnc = function(props, options)
@@ -915,7 +915,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		// create a new property from original options one
 		newly.prototype.options = $.extend({}, options);
 
-		return newly;		
+		return newly;
 	};
 	// view
 
@@ -996,7 +996,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			$(this.el).off(this.getNamespace());
 			return this;
-		},		
+		},
 		getEvent: function(evnt){
 			return evnt + this.getNamespace();
 		},
@@ -1026,23 +1026,23 @@ define(['jquery', 'utils/class'], function($,Class)
 		checkElement: function()
 		{
 			//console.log('Undefined: ',(this.el === undefined));
-			
+
 			if(this.el === undefined)
 				return false;
-			
+
 			//console.log('Selector: ',this.el.selector, ' length: ',($(this.el.selector).length === 1));
-			
+
 			if((this.el.selector !== undefined) && (this.el.selector != ''))
-				return ($(this.el.selector).length === 1);			
-			
+				return ($(this.el.selector).length === 1);
+
 			//console.log('Visible: ',$(this.el).is(':visible'));
 
 			return ($(this.el).is(':visible'));
-			
+
 			//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
-			
+
 			return ($(this.el).length === 1);
-			
+
 		},
 		setElement: function(el)
 		{
@@ -1061,6 +1061,6 @@ define(['jquery', 'utils/class'], function($,Class)
 			this.delegateEvents();
 		}
 	});
-    
-    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
+
+	return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
 });
