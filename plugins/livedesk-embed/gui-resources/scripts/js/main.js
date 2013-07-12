@@ -16,15 +16,12 @@ requirejs.config({
 	}
 });
 require([
-	'gizmo/superdesk',
+	'gizmo/view-events',
 	'models/blog'
 ], function( Gizmo ){
-	// var blogUrl = liveblog.frontendServer + 'resources/LiveDesk/Blog' + liveblog.id = 1;
-	// 	this.script = d.scripts[d.scripts.length - 1];
-	// 	 = '//tageswoche.com:8080/';
 	var blog = new Gizmo.Register.Blog();
 		blog.url.decorate('%s/'+liveblog.id);
-		console.log(blog.url.get());
-		blog.sync();
-//	$('<div>Hello</div>').insertBefore(liveblog.script);
-});
+		blog.sync({force: true});
+	if(liveblog.el)
+//	$('<div>Hello</div>').insertBefore(liveblog.script); 
+});{force: true}

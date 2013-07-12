@@ -16,14 +16,14 @@ define(['jquery', 'utils/class'], function($,Class)
 		  if (y[p]) {
 			  switch(typeof(y[p])) {
 				  case 'object':
-					  if (compareObj(y[p],x[p])) {return true;}break;
+					  if (compareObj(y[p],x[p])) { return true; } break;
 				  case 'function':
 					  if (typeof(x[p])=='undefined' ||
 						  (y[p].toString() != x[p].toString()))
 						  return true;
 					  break;
 				  default:
-					  if (y[p] != x[p]) {return true;}
+					  if (y[p] != x[p]) { return true; }
 			  }
 		  } else {
 			  if (x[p])
@@ -48,7 +48,7 @@ define(['jquery', 'utils/class'], function($,Class)
 	({
 		_construct: function(arg)
 		{
-			this.data = !this.data ? {root: ''} : this.data;
+			this.data = !this.data ? { root: ''} : { root: this.data.root };
 			switch( $.type(arg) )
 			{
 				case 'string':
@@ -79,6 +79,18 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			return this.data.root + this.data.url;
 		},
+		/**
+		 * @TODO: remove after the get isn't overloaded in
+		 *   actions authenthfication part
+		 */
+		getUrl: function()
+		{
+			return this.data.root + this.data.url;
+		},
+		set: function(url)
+		{
+			this.data.url = url;
+		},
 		order: function(key, direction)
 		{
 			this.data.order = direction+'='+key;
@@ -108,7 +120,7 @@ define(['jquery', 'utils/class'], function($,Class)
 			var self = this,
 				reqFnc = function(data, predefinedOptions, userOptions)
 				{
-									$.support.cors = true;
+					$.support.cors = true;
 					var a;
 					if( source instanceof Url )
 					{
@@ -117,7 +129,7 @@ define(['jquery', 'utils/class'], function($,Class)
 					}
 					else
 					{
-						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
+						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, ($.type(data) == 'object' && Object.keys(data).length ? {data: data} : null));
 						a = $.ajax(self.href(source), options);
 					}
 					self.reset();
@@ -130,16 +142,18 @@ define(['jquery', 'utils/class'], function($,Class)
 
 			return {
 
-				read: function(userOptions){return reqFnc({}, self.readOptions, userOptions);},
+				read: function(userOptions){ return reqFnc({}, self.readOptions, userOptions); },
 
-				update: function(data, userOptions){return reqFnc(data, self.updateOptions, userOptions);},
+				update: function(data, userOptions){ return reqFnc(data, self.updateOptions, userOptions); },
 
-				insert: function(data, userOptions){return reqFnc(data, self.insertOptions, userOptions);},
+				insert: function(data, userOptions){ return reqFnc(data, self.insertOptions, userOptions); },
 
-				remove: function(userOptions){return reqFnc({}, self.removeOptions, userOptions);}
+				remove: function(userOptions){ return reqFnc({}, self.removeOptions, userOptions); }
 			};
 		},
-		href: function(source){return source;},
+		// override this to change the source in any way
+		href: function(source){ return source; },
+		// override this to make some reset before requests
 		reset: $.noop,
 		// bunch of options for each type of operation
 		options: {},
@@ -163,13 +177,14 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			this._clientId = uniqueIdCounter++;
 			this.data = {};
-			this.parseHash(data);
+			//this.exTime = new Date
+			//this.exTime.setMinutes(this.exTime.getMinutes() + 5);
+			this._parseHash(data);
 			this._new = true;
 			var self = this.pushUnique ? this.pushUnique() : this;
 			self._forDelete = false;
 			self.clearChangeset();
 			self._clientHash = null;
-			if( options && typeof options == 'object' ) $.extend(self, options);
 			if( typeof data == 'object' ) {
 				self._parse(data);
 			}
@@ -177,17 +192,19 @@ define(['jquery', 'utils/class'], function($,Class)
 			if(self.isDeleted()){
 				//console.log('pull remove');
 				self._remove();
-			}
-			else if(!$.isEmptyObject(self.changeset)) {
-				//console.log('pull update: ',$.extend({},self.changeset));
+			} else if(!$.isEmptyObject(self.changeset)) {
+				//console.log('_constructor update', self.changeset);
 				self.triggerHandler('update', self.changeset).clearChangeset();
 			}
 			else {
 				//console.log('pull read');
 				self.clearChangeset().triggerHandler('read');
 			}
+			options = $.extend({}, { init: true}, this.options);
+			options.init && this.init.apply(this, arguments);
 			return self;
 		},
+		init: function(){},
 		/*!
 		 * adapter for data sync
 		 */
@@ -198,12 +215,33 @@ define(['jquery', 'utils/class'], function($,Class)
 		feed: function(format, deep, fromData)
 		{
 			var ret = {},
+				deep = typeof format == 'boolean' ? format : deep,
 				feedData = fromData ? fromData : this.data;
 			for( var i in feedData )
-				ret[i] = feedData[i] instanceof Model ?
-						(deep ? feedData[i].feed(deep) : feedData[i].relationHash() || feedData[i].hash()) :
-						feedData[i];
+				if(feedData[i] instanceof Model) {
+					ret[i] = deep ? feedData[i].feed(deep) : feedData[i].relationHash() || feedData[i].hash();
+
+				} else if( typeof feedData[i] === 'function' ) {
+				   // TODO: maybe return the defaults
+				}
+				else {
+
+					ret[i] = feedData[i];
+				}
 			return ret;
+		},
+		/*!
+		 * Property href setter
+		 */
+		setHref: function(href)
+		{
+			this.href = href;
+			return this;
+		},
+		_setToUrl: function(){
+			if(!this.href && this.url) {
+				this.setHref(this.url.get());
+			}
 		},
 		/*!
 		 * data sync call
@@ -211,11 +249,11 @@ define(['jquery', 'utils/class'], function($,Class)
 		sync: function()
 		{
 			//console.log('sync');
-			var self = this, ret = $.Deferred(), dataAdapter = function(){return self.syncAdapter.request.apply(self.syncAdapter, arguments);};
+			var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+			self._setToUrl();
 			this.hash();
 			// trigger an event before sync
 			self.triggerHandler('sync');
-
 			if( this._forDelete ) {// handle delete
 				//console.log('delete');
 				return dataAdapter(arguments[0] || this.href).remove().done(function()
@@ -225,12 +263,18 @@ define(['jquery', 'utils/class'], function($,Class)
 			}
 			if( this._clientHash ) // handle insert
 			{
-				//console.log('insert');
-				var href = arguments[0] || this.href;
-				return dataAdapter(href).insert(this.feed()).done(function(data)
+				//console.log('insert: ',this.feed());
+					var href = arguments[0] || this.href,
+					feed = this.feed();
+
+				if(this.insertExcludes) for(var i=0; i<this.insertExcludes.length; i++) delete feed[this.insertExcludes[i]];
+
+				return dataAdapter(href).insert(feed).done(function(data)
 				{
 					self._changed = false;
+					self._parseHash(data);
 					self._parse(data);
+
 					self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
 					self._clientHash = null;
 					self.triggerHandler('insert')
@@ -242,13 +286,18 @@ define(['jquery', 'utils/class'], function($,Class)
 			if( this._changed ) {// if changed do an update on the server and return
 				//console.log('update');
 				if(!$.isEmptyObject(this.changeset)) {
+					var feed = arguments[1] ? this.feed() : this.feed('json', false, this.changeset);
+					if(this.insertExcludes) for(var i=0; i<this.insertExcludes.length; i++) delete feed[this.insertExcludes[i]];
 					ret = (this.href && dataAdapter(this.href)
-							.update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
+							.update(feed)
 							.done(function()
-					{
-						self.triggerHandler('update', self.changeset).clearChangeset();
-						self.triggerHandler('synced');
-					}));
+							{
+								self.triggerHandler('update', self.changeset).clearChangeset();
+								self.triggerHandler('synced');
+							})
+					);
+				} else {
+					ret.resolve();
 				}
 			}
 			else {
@@ -259,29 +308,29 @@ define(['jquery', 'utils/class'], function($,Class)
 					}
 				}
 				else {
-				// simply read data from server
-				ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
-				{
-					//console.log('Pull: ',$.extend({},data));
-					self._parse(data);
-					/**
-					 * delete should come first of everything
-					 * caz it can be some update data or read data that is telling is a deleted model.
-					 */
-					if(self.isDeleted()){
-						//console.log('pull remove');
-						self._remove();
-					}
-					else if(!$.isEmptyObject(self.changeset)) {
-						//console.log('pull update: ',$.extend({},self.changeset));
-						self.triggerHandler('update', self.changeset).clearChangeset();
-					}
-					else {
-						//console.log('pull read');
-						self.clearChangeset().triggerHandler('read');
-					}
-					self.triggerHandler('synced');
-				}));
+					// simply read data from server
+					ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data) {
+							//console.log('Pull: ',$.extend({},data));
+							self._parse(data);
+							/**
+							 * delete should come first of everything
+							 * caz it can be some update data or read data that is telling is a deleted model.
+							 */
+							if(self.isDeleted()){
+								//console.log('pull remove');
+								self._remove();
+							}
+							else if(!$.isEmptyObject(self.changeset)) {
+								//console.log('pull update: ',$.extend({},self.changeset));
+								self.triggerHandler('update', self.changeset).clearChangeset();
+							}
+							else {
+								//console.log('pull read');
+								self.clearChangeset().triggerHandler('read');
+							}
+							self.triggerHandler('synced');
+						})
+					);
 				}
 			}
 			this._setExpiration();
@@ -326,9 +375,16 @@ define(['jquery', 'utils/class'], function($,Class)
 		 */
 		_parse: function(data)
 		{
+			/*!
+			 * if the data received is a instance of the model then
+			 * use the data from the model
+			 */
 			if(data instanceof Model) {
 				data = data.data;
 			} else {
+				/*!
+				 * call the parse implementation
+				 */
 				data = this.parse(data);
 			}
 			if(data._parsed) {
@@ -365,8 +421,12 @@ define(['jquery', 'utils/class'], function($,Class)
 						continue;
 						break;
 				}
-				else if( !this._new )
+				/*!
+				 * If the model is not a new model then get the change set.
+				 */
+				if( !this._new )
 				{
+					//console.log('Is not new!');
 					if( $.type(data[i]) === 'object' )
 					{
 						if(compareObj(this.data[i], data[i]))
@@ -382,19 +442,25 @@ define(['jquery', 'utils/class'], function($,Class)
 				else
 					this.data[i] = data[i];
 			}
-			this._new = false;
+			/*!
+			 * Set all defaults if it is a new model.
+			 */
+			if( this._new ) {
+				for( i in this.defaults ) {
+					if($.type(this.data[i]) === 'undefined') {
+						this.data[i] = this.defaults[i];
+					}
+				}
+			}
+			this._new = this.href? false : true;
 			data._parsed = true;
 		},
-		parseHash: function(data)
+		_parseHash: function(data)
 		{
-			if(data instanceof Model)
-				return this;
 			if( typeof data == 'string' )
 				this.href = data;
-			else if( data && data.href !== undefined) {
+			else if( data && data.href !== undefined)
 				this.href = data.href;
-				delete data.href;
-			}
 			else if(data && ( data.id !== undefined) && (this.url !== undefined))
 				this.href = this.url + data.id;
 			return this;
@@ -423,7 +489,7 @@ define(['jquery', 'utils/class'], function($,Class)
 				data = key;
 				options = val;
 			}
-			options = $.extend({},{silent: false}, options);
+			options = $.extend({},{ silent: false}, options);
 			this.clearChangeset()._parse(data);
 			this._changed = true;
 			if(!$.isEmptyObject(this.changeset)) {
@@ -452,13 +518,32 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * used to relate models. a general standard key would suffice
 		 */
-		relationHash: function(val){if(val) this.data.Id = val;return this.data.Id;},
+		relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; },
 		/*!
 		 * used to remove events from this model
 		 */
 		off: function(evt, handler)
 		{
 			$(this).off(evt, handler);
+			return this;
+		},
+		/*!
+		 * used to place events who only trigger once  this model,
+		 * scope of the call method is sent as obj argument
+		 */
+		one: function(evt, handler, obj)
+		{
+			if(obj === undefined) {
+				$(this).off(evt, handler);
+				$(this).one(evt, handler);
+			}
+			else {
+				var newhandler = function(){
+					handler.apply(obj, arguments);
+				};
+				$(this).off(evt, newhandler );
+				$(this).one(evt, newhandler );
+			}
 			return this;
 		},
 		/*!
@@ -472,26 +557,14 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).on(evt, handler);
 			}
 			else {
-				$(this).on(evt, function(){
+				var newhandler = function(){
 					handler.apply(obj, arguments);
-				});
+				};
+				$(this).off(evt, newhandler );
+				$(this).on(evt, newhandler );
 			}
 			return this;
 		},
-		one: function(evt, handler, obj)
-		{
-			if(obj === undefined) {
-				$(this).off(evt, handler);
-				$(this).one(evt, handler);
-			}
-			else {
-				$(this).one(evt, function(){
-					handler.apply(obj, arguments);
-				});
-			}
-			return this;
-		},
-
 		/*!
 		 * used to trigger model events
 		 * this also calls the model method with the event name
@@ -530,7 +603,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		set: function(key, val)
 		{
 			var self = this;
-			$(val).on('sync get get-prop set-prop', function(){self.refresh(this);});
+			$(val).on('sync get get-prop set-prop', function(){ self.refresh(this); });
 			self.refresh(val);
 			if( !this.items[key] ) this.items[key] = val;
 			return this.items[key];
@@ -572,7 +645,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		newly.prototype.Class = newly;
 		newly.on = function(event, handler, obj)
 		{
-			$(newly).on(event, function(){handler.apply(obj, arguments);});
+			$(newly).on(event, function(){ handler.apply(obj, arguments); });
 			return newly;
 		};
 		newly.off = function(event, handler)
@@ -580,7 +653,7 @@ define(['jquery', 'utils/class'], function($,Class)
 			$(newly).off(event, handler);
 			return newly;
 		};
-		newly.triggerHandler = function(event, data){$(newly).triggerHandler(event, data);};
+		newly.triggerHandler = function(event, data){ $(newly).triggerHandler(event, data); };
 
 		if(options && options.register) {
 			Register[options.register] = newly;
@@ -591,20 +664,21 @@ define(['jquery', 'utils/class'], function($,Class)
 
 		return newly;
 	};
-
+	var uniqueCollectionCount = 0;
 	Collection.prototype =
 	{
 		_list: [],
 		_events: {},
-		getList: function(){return this._list;},
-		count: function(){return this._list.length;},
-		_construct: function() {
-
+		getList: function(){ return this._list; },
+		count: function(){ return this._list.length; },
+		_construct: function()
+		{
+			this._clientId = uniqueCollectionCount++;
 			if( !this.model ) this.model = Model;
 			this._list = [];
 			this._events = {};
 			this.desynced = true;
-			var buildData = buildOptions = function(){void(0);},
+			var buildData = buildOptions = function(){ void(0); },
 				self = this;
 			for( var i = 0, count = arguments.length; i < count; i++ ) {
 
@@ -632,6 +706,12 @@ define(['jquery', 'utils/class'], function($,Class)
 
 		},
 		init: function(){},
+		reset: function(models, options) {
+			if(!$.isArray(models))  models = [models];
+			models = this._parse(models);
+			this._list = models;
+			return this;
+		},
 		get: function(key)
 		{
 			var dfd = $.Deferred(),
@@ -658,7 +738,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		},
 		syncAdapter: Sync,
 		/*!
-		 *
+		 * Property href setter
 		 */
 		setHref: function(href)
 		{
@@ -684,12 +764,18 @@ define(['jquery', 'utils/class'], function($,Class)
 				ret[i] = this._list[i].feed(format, deep);
 			return ret;
 		},
+		_setToUrl: function(){
+			if(!this.href && this.url) {
+				this.setHref( this.url.get() );
+			}
+		},
 		/*!
 		 * @param options
 		 */
 		sync: function()
 		{
 			var self = this;
+			self._setToUrl();
 			return (this.href &&
 				this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 				{
@@ -719,31 +805,47 @@ define(['jquery', 'utils/class'], function($,Class)
 								if( self.hasEvent('addings') ) {
 									addings.push(list[i]);
 								}
-							} else {
 								if( self.hasEvent('updates') ) {
-								    updates.push(list[i]);
+									updates.push(list[i]);
+								}
+							}
+							else {
+								if( !list[i].isDeleted() ) {
+									//console.log('is not delete');
+									self._list.push(list[i]);
+									changeset.push(list[i]);
+									if( self.hasEvent('addings') ) {
+										addings.push(list[i]);
+									}
+								} else {
+									//console.log('is delete');
+									if( self.hasEvent('updates') ) {
+										updates.push(list[i]);
+									}
 								}
 							}
 						}
 						else {
+							//console.log('is in collection');
 							if( self.hasEvent('updates') ) {
 								updates.push(model);
 							}
 							if(self.isCollectionDeleted(model)) {
-								self._list.splice(i,1);
+								self._list.splice(j,1);
 								if( self.hasEvent('removeings') ) {
 									removeings.push(model);
 								}
 
-							}
-							if( model.isDeleted()) {
-								model._remove();
-							} else if( model.isChanged() ){
-								changeset.push(model);
-							}
-							else {
-								model.on('delete', function(){ self.remove(this.hash()); })
-										.on('garbage', function(){ this.desynced = true; });
+							} else {
+								if( model.isDeleted()) {
+									model._remove();
+								} else if( model.isChanged() ){
+									changeset.push(model);
+								}
+								else {
+									model.on('delete', function(){ self.remove(this.hash()); })
+											.on('garbage', function(){ this.desynced = true; });
+								}
 							}
 						}
 					}
@@ -770,6 +872,9 @@ define(['jquery', 'utils/class'], function($,Class)
 						if( removeings.length && self.hasEvent('removeings') ) {
 							self.triggerHandler('removeings', [removeings,attr]);
 						}
+						if( self.hasEvent('modified') ) {
+							self.triggerHandler('modified', [list,attr]);
+						}
 						self.triggerHandler('update', [changeset,attr]);
 					}
 				}));
@@ -795,6 +900,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		},
 		/**
 		 * should be override by implementation
+		 * is important that the parse deletes the list itself
 		 */
 		parse: function(data)
 		{
@@ -804,6 +910,11 @@ define(['jquery', 'utils/class'], function($,Class)
 				if( $.isArray(data[i]) )
 				{
 					ret = data[i];
+					/*!
+					 * Important that the data is delete from the list itself
+					 * if not deleted the list we could get a very big object
+					 */
+					delete data[i];
 					break;
 				}
 			}
@@ -827,6 +938,7 @@ define(['jquery', 'utils/class'], function($,Class)
 			if( !(model instanceof Model) ) model = this.modelDataBuild(new this.model(model));
 			this._list.push(model);
 			model.hash();
+			this._setToUrl();
 			var x = model.sync(this.href);
 			return x;
 		},
@@ -846,23 +958,6 @@ define(['jquery', 'utils/class'], function($,Class)
 		 * used to place events on this model,
 		 * scope of the call method is sent as obj argument
 		 */
-		on: function(evt, handler, obj)
-		{
-			if(obj === undefined) {
-				$(this).off(evt, handler);
-				$(this).on(evt, handler);
-			}
-			else {
-				$(this).on(evt, function(){
-					handler.apply(obj, arguments);
-				});
-			}
-			var arrEvt = evt.split(" ");
-			for(var i = 0, count = arrEvt.length; i < count; i++ ){
-				this._events[arrEvt[i]] = true;
-			}
-			return this;
-		},
 		one: function(evt, handler, obj)
 		{
 			if(obj === undefined) {
@@ -870,9 +965,38 @@ define(['jquery', 'utils/class'], function($,Class)
 				$(this).one(evt, handler);
 			}
 			else {
-				$(this).one(evt, function(){
+				var newhandler = function(){
 					handler.apply(obj, arguments);
-				});
+				};
+				$(this).off(evt, newhandler );
+				$(this).one(evt, newhandler );
+			}
+			var arrEvt = evt.split(" ");
+			for(var i = 0, count = arrEvt.length; i < count; i++ ){
+				this._events[arrEvt[i]] = true;
+			}
+			return this;
+		},
+		/*!
+		 * used to place events on this model,
+		 * scope of the call method is sent as obj argument
+		 */
+		on: function(evt, handler, obj)
+		{
+			if(obj === undefined) {
+				$(this).off(evt, handler);
+				$(this).on(evt, handler);
+			}
+			else {
+				var newhandler = function(){
+					handler.apply(obj, arguments);
+				};
+				$(this).off(evt, newhandler );
+				$(this).on(evt, newhandler );
+			}
+			var arrEvt = evt.split(" ");
+			for(var i = 0, count = arrEvt.length; i < count; i++ ){
+				this._events[arrEvt[i]] = true;
 			}
 			return this;
 		},
@@ -931,10 +1055,12 @@ define(['jquery', 'utils/class'], function($,Class)
 	View = Render.extend
 	({
 		tagName: 'div',
-		attributes: {className: '', id: ''},
+		attributes: { className: '', id: ''},
 		namespace: 'view',
 		_constructor: function(data, options)
 		{
+			if(this.events && data && data.events)
+				$.extend(data.events, this.events);
 			$.extend(this, data);
 			this._clientId = uniqueIdView++;
 			options = $.extend({}, {init: true, events: true, ensure: true}, options);
@@ -968,7 +1094,7 @@ define(['jquery', 'utils/class'], function($,Class)
 			} else
 				this.el = $(this.el);
 		},
-		init: function(){return this;},
+		init: function(){ return this; },
 		resetEvents: function()
 		{
 			this.undelegateEvents();
@@ -984,8 +1110,9 @@ define(['jquery', 'utils/class'], function($,Class)
 					var other = one[evnt], sel = null, dat = {}, fn;
 					if(typeof other === 'string') {
 						fn  = other;
-						//console.log($.type(self[fn]), ', ', this.getEvent(evnt), ', ',selector, ', ',fn);
+						//console.log(this.el, $.type(self[fn]), ', ', this.getEvent(evnt), ', ',selector, ', ',fn);
 						if($.isFunction(self[fn])) {
+							//console.log(this.el, evnt, selector);
 							$(this.el).on(this.getEvent(evnt), selector, self[fn].bind(self));
 						}
 					}
@@ -1041,7 +1168,7 @@ define(['jquery', 'utils/class'], function($,Class)
 
 			//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
 
-			return ($(this.el).length === 1);
+			//return ($(this.el).length === 1);
 
 		},
 		setElement: function(el)
@@ -1056,7 +1183,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		},
 		resetElement: function(el)
 		{
-				this.el = $(el);
+			this.el = $(el);
 			this._ensureElement();
 			this.delegateEvents();
 		}
