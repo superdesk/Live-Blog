@@ -15,6 +15,10 @@ define([
                     .done(function(collabs) {
                         if($.isDefined(collabs[0])) 
                             self.author = collabs[0].Id;
+                            //we need to get the appId
+                            //for now it's hardcoded
+                            self.appId = '540742825976268';
+                            self._parent.loadFbConnect('540742825976268');
                     });
             },
             universal: function(obj) {

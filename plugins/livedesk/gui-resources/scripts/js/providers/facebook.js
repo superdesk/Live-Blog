@@ -19,14 +19,60 @@ define('providers/facebook', [
     ], function( providers, common, $, BlogAction) {
         $.extend(providers.facebook, common, {
             client_id : 'd913360f3cad924d67e1ad1887c00855',
+            appId: 0,
+            //token: 'CAAHrzYAOocwBAF8TtFKMMFppR2XRPNFSSeMJWj2V9P7PCJ2SVHXabvd2WZCvIskLtqrcHk0ShaZCCHoaBy5wSGBeofruzwEFe4YZAoktXA7eBwALQr7UNP5WIg48JQmvPJjQZBMZCiBJrBFD33SbsP6YaC55hTWIZD',
+            token: '',            
             data: [],
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {
-                    this.render();
+                    //this.render();
+                    this.adaptor._parent = this;
                     this.adaptor.init();
                 }
                 this.initialized = true;
-            }, 
+            },
+            loadFbConnect: function(appId) {
+                var self = this;
+                self.appId = appId;
+                console.log(appId);
+                window.fbAsyncInit = function() {
+                    // init the FB JS SDK
+                    FB.init({
+                    appId      : self.appId,                        // App ID from the app dashboard
+                    status     : true,                                 // Check Facebook Login status
+                    xfbml      : true                                  // Look for social plugins on the page
+                    });
+                    // Additional initialization code such as adding Event Listeners goes here
+                    console.log('should go now to fblogin');
+                    self.fbLogin();
+                };
+                require(['facebook-connect']);
+            },
+            fbLogin: function(){
+                var self = this;
+                FB.getLoginStatus(function(response) {
+                    if (response.status === 'connected') {
+                        self.token = response.authResponse.accessToken;
+                        self.render();
+                    } else if (response.status === 'not_authorized') {
+                        console.log('not_authorized');
+                        FB.login(function(response) {
+                            if (response.authResponse) {
+                                console.log('Welcome!  Fetching your information.... ');
+                                FB.api('/me', function(response) {
+                                    console.log('Good to see you, ' + response.name + '.');
+                                });
+                                self.token = response.authResponse.accessToken;
+                                self.render();
+                            } else {
+                                console.log('User cancelled login or did not fully authorize.');
+                            }
+                        });
+                    } else {
+                        console.log('not logged in to facebook');
+                    }
+                });
+            },
             render: function() {
 //                console.log('render');
                 var self = this;
@@ -71,7 +117,7 @@ define('providers/facebook', [
                 if ( query == '') {
                     //new search
                     self.data.comments = [];
-                    query = '//graph.facebook.com/comments/?limit=500&ids=' + encodeURIComponent(text) ;
+                    query = 'https://graph.facebook.com/comments/?limit=500&access_token=' + self.token + '&ids=' + encodeURIComponent(text) ;
                     $('#fbk-comments-results').html('');
                 }
                 query += '&callback=?'
@@ -168,7 +214,7 @@ define('providers/facebook', [
                 if ( query == '') {
                     //new search
                     self.data.post = [];
-                    query = '//graph.facebook.com/search?type=post&limit=20&q=' + encodeURIComponent(text) ;
+                    query = 'https://graph.facebook.com/search?type=post&access_token=' + self.token + '&limit=20&q=' + encodeURIComponent(text) ;
                     $('#fbk-post-results').html('');
                 }
                 query += '&callback=?'
