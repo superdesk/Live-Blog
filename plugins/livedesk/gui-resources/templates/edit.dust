@@ -30,13 +30,13 @@
         </div>
         <div class="pull-right">
 
-            <div class="btn-group">
-                <span class="timeline-controls">
-            		<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you won't get disturbed by new incoming posts");'>_("Pin");</button>
-            	</span>
+            <div class="btn-group timeline-controls">
+            
+            	<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you will not get disturbed by new incoming posts");'>_("Pin");</button>
+            
 
-                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span></button>
-                <ul class="dropdown-menu filter-posts"><!-- List is populated from another template --></ul>
+                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span> <b class="caret"></b></button>
+                <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
             </div>
         	
 		</div>
