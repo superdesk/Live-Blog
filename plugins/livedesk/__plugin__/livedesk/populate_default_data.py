@@ -290,6 +290,7 @@ def createBlogCollaborators():
 
 BLOG_ADMINS = {
                'admin': 'Election Night 2013',
+               'editor': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)

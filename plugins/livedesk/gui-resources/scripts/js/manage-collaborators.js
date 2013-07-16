@@ -165,7 +165,6 @@ define([
 			self.el.find('.searchbox').val('');
 			self.collection
 				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
-				.limit(self.collection.config("limit"))
 				.sync();
 		},
 		addOne: function(model) {
