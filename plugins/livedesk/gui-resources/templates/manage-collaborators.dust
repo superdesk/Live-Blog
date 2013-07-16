@@ -2,7 +2,7 @@
 {<body} 
 <section class="scroller main-section configure-blog" {ui.content}>
 <header>
-<h3>_('Collaborators managment:'); {Title|t}</h3>
+<h3>_('Collaborators management:'); {Title|t}</h3>
 </header>
 <div class="row-fluid">
   <div class="internal-collabs">
