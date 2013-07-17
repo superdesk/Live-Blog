@@ -13,15 +13,16 @@ define('providers/facebook', [
     'tmpl!livedesk>items/implementors/sources/facebook',
     'tmpl!livedesk>providers/facebook',
     'tmpl!livedesk>providers/facebook/item',
+    'tmpl!livedesk>providers/facebook/connect',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
     ], function( providers, common, $, BlogAction) {
         $.extend(providers.facebook, common, {
-            client_id : 'd913360f3cad924d67e1ad1887c00855',
             appId: 0,
-            //token: 'CAAHrzYAOocwBAF8TtFKMMFppR2XRPNFSSeMJWj2V9P7PCJ2SVHXabvd2WZCvIskLtqrcHk0ShaZCCHoaBy5wSGBeofruzwEFe4YZAoktXA7eBwALQr7UNP5WIg48JQmvPJjQZBMZCiBJrBFD33SbsP6YaC55hTWIZD',
-            token: '',            
+            token: '',
+            tokenInterval: 0,
+            tokenRefreshTime: 3000,         
             data: [],
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {
@@ -31,61 +32,96 @@ define('providers/facebook', [
                 }
                 this.initialized = true;
             },
-            loadFbConnect: function(appId) {
+            fbInit: function() {
                 var self = this;
-                self.appId = appId;
-                console.log(appId);
-                window.fbAsyncInit = function() {
-                    // init the FB JS SDK
-                    FB.init({
+                FB.init({
                     appId      : self.appId,                        // App ID from the app dashboard
                     status     : true,                                 // Check Facebook Login status
                     xfbml      : true                                  // Look for social plugins on the page
-                    });
-                    // Additional initialization code such as adding Event Listeners goes here
-                    console.log('should go now to fblogin');
-                    self.fbLogin();
-                };
-                require(['facebook-connect']);
+                });
             },
-            fbLogin: function(){
+            loadFbConnect: function(appId) {
+                var self = this;
+                self.appId = appId;
+                if ( typeof(FB) != 'undefined' ) {
+                    self.fbInit();
+                    self.fbConnect();
+                } else {
+                    window.fbAsyncInit = function() {
+                        self.fbInit();
+                        self.fbConnect();
+                    };
+                    require(['facebook-connect']);
+                }
+            },
+            fbConnect: function(){
                 var self = this;
                 FB.getLoginStatus(function(response) {
                     if (response.status === 'connected') {
                         self.token = response.authResponse.accessToken;
                         self.render();
                     } else if (response.status === 'not_authorized') {
-                        console.log('not_authorized');
-                        FB.login(function(response) {
-                            if (response.authResponse) {
-                                console.log('Welcome!  Fetching your information.... ');
-                                FB.api('/me', function(response) {
-                                    console.log('Good to see you, ' + response.name + '.');
-                                });
-                                self.token = response.authResponse.accessToken;
-                                self.render();
-                            } else {
-                                console.log('User cancelled login or did not fully authorize.');
-                            }
-                        });
+                        //not authorized
+                        self.fbLogin();
                     } else {
-                        console.log('not logged in to facebook');
+                        //not logged in to facebook
+                        self.fbLogin();
                     }
                 });
             },
-            render: function() {
-//                console.log('render');
+            fbLogin: function() {
                 var self = this;
-                self.el.on('click', '#fbk-search-controls>li', function(evt){
+                this.el.tmpl('livedesk>providers/facebook/connect', {}, function() {
+                    self.el.off('click','#connect-with-facebook').off('click').on('click','#connect-with-facebook', function(e){
+                        FB.login(function(response) {
+                            if (response.authResponse) {
+                                self.token = response.authResponse.accessToken;
+                                self.render();
+                            }
+                        });
+                    })
+                });
+            },
+            refreshToken: function() {
+                FB.getLoginStatus(function(response) {
+                    if (response.status === 'connected') {
+                        self.token = response.authResponse.accessToken;
+                    } else if (response.status === 'not_authorized') {
+                        //not authorized
+                        self.fbLogin();
+                    } else {
+                        //not logged in to facebook
+                        self.fbLogin();
+                    }
+                }); 
+            },
+            render: function() {
+                var self = this;
+
+                //set an interval to refresh the authToken
+                if ( self.tokenInterval ) {
+                    window.clearInterval(self.tokenInterval);
+                }
+                self.tokenInterval = window.setInterval(function(){
+                    self.refreshToken();
+                }, self.tokenRefreshTime);
+
+                self.el.off('click', '#fbk-search-controls>li').on('click', '#fbk-search-controls>li', function(evt){
                     evt.preventDefault();
-                  $(this).siblings().removeClass('active') .end().addClass('active');             
-                  var selected = $(this).attr('data-fbktab');
-                      self.el.find('[data-fbkholder]').css('display', 'none');
+                    $(this).siblings().removeClass('active') .end().addClass('active');             
+                    var selected = $(this).attr('data-fbktab');
+                    if ( selected == 'fb-logout' ) {
+                        FB.logout(function(response) {
+                            window.clearInterval(self.tokenInterval);
+                            self.fbConnect();
+                        });
+                    };
+                    self.el.find('[data-fbkholder]').css('display', 'none');
                       //show only the one we need
-                      $('[data-fbkholder="' + selected + '"]').css('display', 'inline');
-                })
+                    $('[data-fbkholder="' + selected + '"]').css('display', 'inline');
+                });
                 this.el.tmpl('livedesk>providers/facebook', {}, function(){
-                    self.el.on('keyup','.facebook-search-text', function(e){
+                    self.el.off('keyup','.facebook-search-text').on('keyup','.facebook-search-text', function(e){
                         if(e.keyCode == 13 && $(this).val().length > 0) {
                             self.startSearch();
                         }
@@ -187,7 +223,7 @@ define('providers/facebook', [
                         });
                         if (data.paging) {
                             $('#fbk-comments-more').tmpl('livedesk>providers/load-more', {name : 'fbk-comments-load-more'}, function(){
-                                $(this).find('[name="fbk-comments-load-more"]').on('click', function(){
+                                $(this).find('[name="fbk-comments-load-more"]').off('click').on('click', function(){
                                     self.doComments(data.paging.next)
                                 });
                             });
