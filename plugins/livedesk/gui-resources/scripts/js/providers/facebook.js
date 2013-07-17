@@ -153,7 +153,7 @@ define('providers/facebook', [
                 if ( query == '') {
                     //new search
                     self.data.comments = [];
-                    query = 'https://graph.facebook.com/comments/?limit=500&access_token=' + self.token + '&ids=' + encodeURIComponent(text) ;
+                    query = 'https://graph.facebook.com/comments/?limit=20&access_token=' + self.token + '&ids=' + encodeURIComponent(text) ;
                     $('#fbk-comments-results').html('');
                 }
                 query += '&callback=?'
@@ -167,12 +167,20 @@ define('providers/facebook', [
                     });
                 }).done(function(data){
                     //console.log(' de text ', data[text].comments);
-
                     var resTrue = false;
                     try {
                        if (data[text].comments.data.length > 0) {
                             resTrue = true;
+                            data = data[text].comments;
                        }
+                    }
+                    catch (e) {
+                       //console.log('error ', e);
+                    }
+                    try {
+                        if ( data.data.length > 0 ) {
+                            resTrue = true;
+                        }
                     }
                     catch (e) {
                        //console.log('error ', e);
@@ -180,7 +188,7 @@ define('providers/facebook', [
 
                     self.stopLoading('#fbk-comments-more');
                     if (resTrue/*data[text].comments.data.length > 0*/) {
-                        data = data[text].comments;
+                        //data = data[text].comments;
                         //prepare the data for dragging to timeline
                         results = new Array();
                         for ( var i = 0; i < data.data.length; i++ ) {
@@ -221,7 +229,7 @@ define('providers/facebook', [
                                 el.removeClass('draggable').css('cursor','');
                             });
                         });
-                        if (data.paging) {
+                        if (data.paging.next) {
                             $('#fbk-comments-more').tmpl('livedesk>providers/load-more', {name : 'fbk-comments-load-more'}, function(){
                                 $(this).find('[name="fbk-comments-load-more"]').off('click').on('click', function(){
                                     self.doComments(data.paging.next)
