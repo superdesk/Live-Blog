@@ -2,6 +2,7 @@
     <ul class="search-controls" id="fbk-search-controls">
         <li class="active" data-fbktab="post"><a href="#">_('Search');</a></li>
         <li data-fbktab="comments"><a href="#">_('Facebook Comments');</a></li>
+        <li data-fbktab="fb-logout"><a href="#">_('Facebook Logout');</a></li>
     </ul>
 <input type="text" placeholder="_('Search for Facebook public updates');" class="facebook-search-text" data-fbkholder="post">
 <input type="text" placeholder="_('Enter a URL with Facebook comments on it');" class="facebook-search-text" data-fbkholder="comments" style="display: none">
