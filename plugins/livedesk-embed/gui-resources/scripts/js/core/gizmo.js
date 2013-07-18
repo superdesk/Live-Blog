@@ -1,4 +1,4 @@
-define(['jquery', 'utils/class'], function($,Class)
+define(['jquery', 'utils/class', 'utils/extend' ], function($,Class)
 {
 	function compareObj(x, y)
 	{
@@ -424,16 +424,14 @@ define(['jquery', 'utils/class'], function($,Class)
 				/*!
 				 * If the model is not a new model then get the change set.
 				 */
-				if( !this._new )
+				else if( !this._new )
 				{
 					//console.log('Is not new!');
-					if( $.type(data[i]) === 'object' )
-					{
+					if( $.type(data[i]) === 'object' ) {
 						if(compareObj(this.data[i], data[i]))
 							this.changeset[i] = data[i];
 					}
-					else if( this.data[i] != data[i] )
-					{
+					else if( this.data[i] != data[i] ) {
 						this.changeset[i] = data[i];
 					}
 				}

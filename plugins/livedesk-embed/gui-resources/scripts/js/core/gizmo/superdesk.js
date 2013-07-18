@@ -131,7 +131,8 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
     ({      
         _construct: function()
         {
-            this.data = !this.data ? { root: liveblog.frontendServer+'/resources/'} : this.data;
+            this.data = !this.data ? { 
+                root: (liveblog.restServer? liveblog.restServer : liveblog.frontendServer)+'/resources/'} : this.data;
             Gizmo.Url.prototype._construct.apply(this, arguments);
         }
     });

@@ -1,5 +1,12 @@
 var requirejs;
 liveblog.version = 1 ;// = {Version};
+if( window && (window.location.href.indexOf('liveblog-debug') !== -1) 
+	&& (window['localStorage'] !== null) && window['localStorage'].getItem('liveblog-debug') ) {
+	var loadJs = liveblog.loadJs, script = liveblog.script;
+	liveblog = 	JSON.parse(window['localStorage'].getItem('liveblog-debug'));
+	liveblog.loadJs = loadJs;
+	liveblog.script = script;
+}
 liveblog.runner = function() {
 	requirejs = {
 		baseUrl: this.baseUrl,
@@ -7,12 +14,4 @@ liveblog.runner = function() {
 	}
 	this.loadJs('//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.6/require.min.js').setAttribute('data-main','main');
 }
-// liveblog.githubversion = function(reply) {
-// 	this.version = reply && reply.data? reply.data[0].sha: this.version;
-// 	requirejs.urlArgs = 'version=' + this.version;
-// 	if(require)
-// 		require.config( { urlArgs: requirejs.urlArgs } );
-// }
-// liveblog.branch = 'devel';
-// liveblog.loadJs('https://api.github.com/repos/sourcefabric/superdesk/commits?callback=liveblog.githubversion&per_page=1&sha='+liveblog.branch);
 liveblog.runner();

@@ -67,11 +67,11 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		auto: function(params)
 		{
 			var self = this;
-			ret = this.stop().start(params);
+			this.stop();
 			this._idInterval = setInterval(function(){
 				self.start(params);
 			}, this._timeInterval);
-			return ret;
+			return self;
 		},
 		start: function(params)
 		{
