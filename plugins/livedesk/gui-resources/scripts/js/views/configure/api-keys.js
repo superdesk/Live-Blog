@@ -10,7 +10,8 @@
             'instagram',
             'flickr',
             'soundcloud',
-            'twitter'
+            'twitter',
+            'facebook'
         ],
         init: function() {
             var self = this;

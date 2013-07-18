@@ -158,4 +158,17 @@ define([
             return $(this.el).find('.error:visible').length === 0;
         }
     });
+    return function(config) {
+        $.dispatcher.on('after-render', function() {
+            if (config && config.UserComments) {
+                new UserCommentsPopupView({
+                    el: '#liveblog-header', 
+                    timeline: timeline,
+                    model: timeline.model
+                });
+            } else {
+                this.el.find('#comment-btn,.comment-box').hide();
+            }
+        });
+    }
 });

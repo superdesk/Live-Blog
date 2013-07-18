@@ -1,7 +1,7 @@
 define([
 	'gizmo/superdesk',
-	'livedesk-embed/collections/autocollection',
-	'livedesk-embed/models/post'
+	'collections/autocollection',
+	'models/post'
 ], function(Gizmo) {
 	return Gizmo.Register.AutoCollection.extend({
 		parse: function(data){
