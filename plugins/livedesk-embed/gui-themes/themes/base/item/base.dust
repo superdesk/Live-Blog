@@ -69,7 +69,7 @@
 {/publishedDateContainer}
 
 {<postDateContainer}
-  {+publishedDateContainere}{/publishedDateContainer}
+  {+publishedDateContainer}{/publishedDateContainer}
 {/postDateContainer}
 
 {<userNameContainer}
@@ -88,8 +88,8 @@
 {<publisherAvatar}
 {?AuthorImage}
 <figure class="post-publisher-avatar">
-  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/
-<figure class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
+</figure>
 {:else}
 <figure class="post-publisher-avatar"></figure>
 {/AuthorImage}
@@ -152,10 +152,14 @@
   > facebook
 --!}
 {<externalAvatar}
+  {+externalAvatarContainer}{/externalAvatarContainer}
+{/externalAvatar}
+
+{<externalAvatarContainer}
   <figure class="post-external-avatar">
     <img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}">
   </figure>
-{/externalAvatar}
+{/externalAvatarContainer}
 
 {!-- displayed for:
   > isntagram
