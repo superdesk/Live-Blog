@@ -87,11 +87,11 @@
 
 {<publisherAvatar}
 {?AuthorImage}
-<figure class="post-publisher-avatar">
-  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/
-<figure class="post-publisher-avatar">
+<div class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
+</div>
 {:else}
-<figure class="post-publisher-avatar"></figure>
+<div class="post-publisher-avatar"></div>
 {/AuthorImage}
 {/publisherAvatar}
 
@@ -152,9 +152,9 @@
   > facebook
 --!}
 {<externalAvatar}
-  <figure class="post-external-avatar">
+  <div class="post-external-avatar">
     <img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}">
-  </figure>
+  </div>
 {/externalAvatar}
 
 {!-- displayed for:
@@ -164,9 +164,9 @@
 --!}
 {<extenalImageContainer}
 <a class="post-external-image-link" href="{+externalImageLink}{/externalImageLink}" target="_blank">
-  <figure class="post-external-image">
+  <div class="post-external-image">
     <img alt="{+externalImageAlt}{/externalImageAlt}" class="post-external-image-img" src="{+externalImageSrc}{/externalImageSrc}">
-  </figure>
+  </div>
 </a>
 {/extenalImageContainer}
 
