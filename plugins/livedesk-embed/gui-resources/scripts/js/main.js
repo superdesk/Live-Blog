@@ -51,18 +51,28 @@ require([
 			 */
 			liveblog.language = liveblog.language? liveblog.language: blog.get('Language').Code;
 			liveblog.theme 	 = liveblog.theme? liveblog.theme: embedConfig.theme;
+
 			require([
 				'utils/date-format',
+				'utils/find-enviroment',
 				'../../themes/'+liveblog.theme,
 				'i18n!livedesk_embed'
-			], function(dateFormat, theme){
-				if(!theme.enviroments) {
-					liveblog.enviroment = ''
-				} else {
-					//
-				}
+			], function(dateFormat, findEnviroment, theme){
 				dateFormat.masks.postDate = 'mm/dd/yyyy HH:MM';
-				new BlogView({ el: liveblog.el, model: blog });
+				var run = function(){
+					new BlogView({ el: liveblog.el, model: blog });
+				}
+				if(theme && theme.enviroments) {
+					if(!liveblog.enviroment) {
+						var enviroment = findEnviroment();
+						liveblog.enviroment = theme.enviroments[enviroment]? theme.enviroments[enviroment] : theme.enviroments['default'];
+					}
+					require(['../../themes/' + liveblog.theme + '/' + liveblog.enviroment], function(){
+						run();
+					});
+				} else {
+					run();
+				}
 			});
 	});
 });
