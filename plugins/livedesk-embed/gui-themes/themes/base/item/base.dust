@@ -1,0 +1,242 @@
+ {+mainContainer}
+<li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
+  {+main}
+    <a name="{Order}"></a>
+    {+headerContainer}
+      <div class="post-header">
+      {+header}
+        {+postDateContainer}{/postDateContainer}
+        {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
+      {/header}
+      </div>
+    {/headerContainer}
+    {+contentContainer}
+      <div class="post-content">
+      {+content}
+        
+        {+contentSideContainer}
+          <div class="post-content-side">
+            {+contentSide}
+              {+userAvatar}{/userAvatar}
+            {/contentside}
+          </div>
+        {/contentSideContainer}
+        
+        {+contentMainContainer}
+          <div class="post-content-main">
+            {+contentMainBody}
+              {+commentBefore}{/commentBefore}
+              {+contentMainFull}
+              <div class="post-content-full">
+                {+contentFull}
+                  {+contentCoreContainer}
+                  <div class="post-core-content">
+                    {+contentCore}
+                    {/contentCore}
+                  </div>
+                  {/contentCoreContainer}
+                  {+contentAttrContainer}
+
+                  {/contentAttrContainer}
+                {/contentFull}
+              </div>
+              {/contentMainFull}
+              {+commentAfter}{/commentAfter}
+            {/contentMainBody}
+          </div>
+        {/contentMainContainer}
+
+      {/content}
+      </div>
+    {/contentContainer}
+    {+footerContainer}
+      <div class="post-footer">
+      {+footer}
+      {/footer}
+      </div>
+    {/footerContainer}
+  {/main}
+</li>
+{/mainContainer}
+
+{! -- Main blocks !}
+{<createdDateContainer}
+<span class="post-datetime"><time data-date="{CreatedOnISO}">{CreatedOn}</time></span>
+{/createdDateContainer}
+
+{<publishedDateContainer}
+<span class="post-datetime"><time data-date="{PublishedOnISO}">{PublishedOn}</time></span>
+{/publishedDateContainer}
+
+{<postDateContainer}
+  {+publishedDateContainer}{/publishedDateContainer}
+{/postDateContainer}
+
+{<userNameContainer}
+  {+publisherNameContainer}{/publisherNameContainer}
+{/userNameContainer}
+
+{<publisherNameContainer}
+<span class="post-publisher-name">{+publisherName}{Creator.FullName}{/publisherName}</span>
+{/publisherNameContainer}
+
+
+{<userAvatar}
+  {+publisherAvatar}{/publisherAvatar}
+{/userAvatar}
+
+{<publisherAvatar}
+{?AuthorImage}
+<<<<<<< HEAD
+<div class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
+</div>
+=======
+<figure class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
+</figure>
+>>>>>>> 87aaf676ee2033506240410a7f129057cb6ffd22
+{:else}
+<div class="post-publisher-avatar"></div>
+{/AuthorImage}
+{/publisherAvatar}
+
+
+{<commentBefore}
+{?Meta.annotation.before}
+  <div class="post-comment comment-before">{Meta.annotation.before}</div>
+{/Meta.annotation.before}
+{/commentBefore}
+
+{<commentAfter}
+{?Meta.annotation.after}
+  <div class="post-comment comment-after">{Meta.annotation.after}</div>
+{/Meta.annotation.after}
+{/commentAfter}
+
+{! -- Content blocks !}
+
+{<contentAttr}
+<div class="attributes">
+  <i class="source-icon"></i>
+  {+contentAttrCode}
+    <span>{+contentAttrName}{Author.Source.Name}{/contentAttrName}</span>
+  {/contentAttrCode}
+</div>
+{/contentAttr}
+
+{!-- displayed for:
+   normal(text), 
+   quote(text), 
+   sms(text), 
+   user comments(text), 
+   advertisment(text), 
+   wrapup(text) 
+--!}
+
+{<contentText}
+<p class="post-text">{Content|s}</p>
+{/contentText}
+
+{!-- wrapup post only, for open add class "wrapup-open" to post --!}
+
+{<wrapupIcon}
+<span class="big-toggle"></span>
+{/wrapupIcon}
+
+{!-- External Content blocks -- !}
+
+{<contentExternalContainer}
+  <div class="post-external">
+  {+contentExternal}
+  {/contentExternal}
+  </div>
+{/contentExternalContainer}
+
+{!-- displayed for:
+  > twitter
+  > facebook
+--!}
+{<externalAvatar}
+  <div class="post-external-avatar">
+    <img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}">
+  </div>
+{/externalAvatar}
+
+{!-- displayed for:
+  > isntagram
+  > google image
+  > flickr
+--!}
+{<extenalImageContainer}
+<a class="post-external-image-link" href="{+externalImageLink}{/externalImageLink}" target="_blank">
+  <div class="post-external-image">
+    <img alt="{+externalImageAlt}{/externalImageAlt}" class="post-external-image-img" src="{+externalImageSrc}{/externalImageSrc}">
+  </div>
+</a>
+{/extenalImageContainer}
+
+{!-- displayed for:
+  > soundcloud
+  > youtube
+--!}
+{<externalIframeContainer}
+<div class="post-frame-container">
+  {+externalIframe}{/externalIframe}
+</div>
+{/externalIframeContainer}
+
+{!-- for google and youtube only  > its the title of link, image, video...    --!}
+{<externalInfoTitleContainer}
+  <a href="{+externalInfoTitleSrc}{/externalInfoTitleSrc}">{+externalInfoTitle}{/externalInfoTitle}</a>  
+{/externalInfoTitleContainer}
+
+{!-- for twitter and facebook only > its the name of original creator of post --!}
+{<externalInfoNameContainer}
+<a href="post-creator-name">{+externalInfoName}{/externalInfoName}</a> 
+{/externalInfoNameContainer}
+
+{!-- displayed for:
+  > twitter
+  > facebook
+  > google (all)
+  > youtube
+--!}
+
+{<externalInfoContainer}
+<h5>
+  {+externalInfo}{/externalInfo}
+</h5>
+{/externalInfo}
+
+{!-- displayed for:
+  > twitter
+  > facebook
+  > google (all)
+  > instagram (description, hashtags...)
+--!}
+
+{<externalTextContainer}
+<div class="post-text">
+  {+externalText}{/externalText}
+</div>
+{/externalTextContainer}
+
+{<shareContainer}
+<div class="post-buttons">
+  {+share}
+    {+socialShare}{/socialShare}
+    {+permanentLinkShare}{/permanentLink}
+  {/share}
+</div>
+{/shareContainer}
+
+{<permanentLink}
+<a href="#" class="permalink" rel="bookmark">#</a>
+<input type="text" data-type="permalink" style="visibility: hidden;" value="daaadsfasdfasdf asdfadfsdf">
+{/permanentLink}
+
+{<socialShare}
+<a href="#" class="sf-share">_('Share');</a>
+{/socialShare}

@@ -3,6 +3,7 @@ define('providers/enabled', [
     'order!providers/edit/tab',
     'order!providers/colabs/tab',
 	'order!providers/google/tab',
+	'order!providers/comments/tab',
 	'order!providers/facebook/tab',
 	'order!providers/twitter/tab',
 	'order!providers/flickr/tab',

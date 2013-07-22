@@ -1,0 +1,49 @@
+{>"themeBase/container"/}
+{<mainContainer}
+<div id="livedesk-root" class="mobile">
+	{+main}
+	<div class="liveblog-container">
+		{!-- 
+			liveblog header - optional block
+			(title, description ...)
+		--!}
+		{+headerContainer}
+		<div class="liveblog-header">
+			{+header}
+				{+blogTitle}{/blogTitle}
+				{+blogDescription}{/blogDescription}
+			{/header}
+		</div>
+		{/headerContainer}
+		
+		{+contentContainer}
+		<div class="liveblog-content">
+			{+content}
+				{+contentTopContainer}
+				<div class="liveblog-content-top">
+					{+contentTop}
+						{+status}{/status}
+						{+actionTotop}{/actionTotop}
+					{/contentTop}
+				</div>
+				{/contentTopContainer}
+
+				{+contentMiddleContainer}
+				<div class="liveblog-content-middle"> 
+					{+contentMiddle}
+						{+postsList}{/postsList}
+					{/contentMiddle}
+				</div>
+				{/contentMiddleContainer}
+
+				{+contentBottomContainer}
+				{/contentBottomContainer}
+			{/content}
+		{/contentContainer}
+
+		{+footer}
+		{/footer}
+	</div>
+	{/container}
+</div>
+{/mainContainer}

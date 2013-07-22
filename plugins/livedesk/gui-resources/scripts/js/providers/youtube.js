@@ -125,12 +125,12 @@ define('providers/youtube', [
             cleanContent : function(results) {
                 for(var i = 0; i < results.length; i ++) {
                     if ( results[i].video ) {
-                        results[i].video.description = this.trimDesc(results[i].video.description);
+                        //results[i].video.description = this.trimDesc(results[i].video.description);
                         var upDate = new Date(results[i].video.uploaded);
                         results[i].video.uploaded = upDate.toDateString();
                         results[i].uploader = results[i].video.uploader;
                     } else {
-                        results[i].description = this.trimDesc(results[i].description);
+                        //results[i].description = this.trimDesc(results[i].description);
                         var upDate = new Date(results[i].uploaded);
                         results[i].uploaded = upDate.toDateString();
                     }

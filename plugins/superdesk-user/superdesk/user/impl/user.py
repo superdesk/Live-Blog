@@ -11,6 +11,7 @@ Implementation for user services.
 
 from ally.api.criteria import AsLike
 from ally.api.extension import IterPart
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
@@ -23,6 +24,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
+from superdesk.user.meta.user_type import UserTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -34,6 +36,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
     '''
     @see: IUserService
     '''
+    default_user_type_key = 'standard'; wire.config('default_user_type_key', doc='''
+    Default user type for users without specified the user type key''')
+
     def __init__(self):
         '''
         Construct the service
@@ -88,8 +93,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         userDb = UserMapped()
         userDb.password = user.Password
         userDb.CreatedOn = current_timestamp()
+        userDb.typeId = self._userTypeId(user.Type)
         try:
-            self.session().add(copy(user, userDb))
+            self.session().add(copy(user, userDb, exclude=('Type',)))
             self.session().flush((userDb,))
         except SQLAlchemyError as e: handle(e, userDb)
         user.Id = userDb.Id
@@ -112,7 +118,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             sql = sql.filter(UserMapped.DeletedOn == None)
             if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
             
-            self.session().flush((copy(user, userDb),))
+            userDb.typeId = self._userTypeId(user.Type)
+            self.session().flush((copy(user, userDb, exclude=('Type',)),))
         except SQLAlchemyError as e: handle(e, userDb)
 
     def delete(self, id):
@@ -142,3 +149,18 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             userDb.password = password.NewPassword
             self.session().flush((userDb,))
         except SQLAlchemyError as e: handle(e, userDb)
+
+    # ----------------------------------------------------------------
+
+    def _userTypeId(self, key):
+        '''
+        Provides the user type id that has the provided key.
+        '''
+        if not key: key = self.default_user_type_key
+
+        try:
+            sql = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(Ref(_('Invalid user type %(userType)s') % dict(userType=key), ref=User.Type))
+

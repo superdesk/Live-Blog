@@ -14,7 +14,7 @@ from ..gui_core.gui_core import publishedURI
 from ..superdesk_security.acl import filterAuthenticated
 from .acl import filterCollaboratorBlog
 from .service import collaboratorSpecification
-from __plugin__.livedesk.acl import filterAdminBlog
+from __plugin__.livedesk.acl import filterAdminBlog, filterClosedBlog
 from acl.right_action import RightAction
 from ally.container import ioc, support
 from ally.internationalization import NC_
@@ -32,7 +32,9 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.source.api.source import ISourceService
 from livedesk.api.blog_sync import IBlogSyncService
 from superdesk.collaborator.api.collaborator import ICollaboratorService
-    
+from livedesk.api.comment import IBlogCommentService
+from __plugin__.captcha.acl import captcha
+
 # --------------------------------------------------------------------
 
 support.listenToEntities(Action, listeners=addAction)
@@ -124,6 +126,7 @@ def registerAclLivedeskView():
     r.allGet(IBlogService, IBlogCollaboratorService, IBlogPostService, filter=filterCollaboratorBlog())
     r.allGet(ISourceService)
     r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
+    r.allGet(IBlogPostService, filter=filterClosedBlog())
 
 @gui.setup
 def registerAclManageOwnPost():
@@ -131,12 +134,15 @@ def registerAclManageOwnPost():
     r.addActions(menuAction(), subMenuAction(), modulesAction(), modulesEditAction(), dashboardAction())
     r.allGet(IBlogService, filter=filterCollaboratorBlog())
     r.allGet(ISourceService)
-    r.add(ref(IBlogPostService).delete)
+    r.add(ref(IBlogPostService).delete, filter=filterClosedBlog())
     # TODO: add: filter=filterOwnPost(), also the override crates problems, this should have been on IPostService
     r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, filter=filterCollaboratorBlog())
     r.add(ref(IBlogPostService).publish, ref(IBlogPostService).insertAndPublish, ref(IBlogPostService).unpublish,
           ref(IBlogPostService).reorder, ref(IBlogCollaboratorService).addCollaborator,
           ref(IBlogCollaboratorService).addCollaboratorAsDefault, filter=filterAdminBlog())
+    r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, ref(IBlogPostService).publish,
+          ref(IBlogPostService).insertAndPublish, ref(IBlogPostService).unpublish, ref(IBlogPostService).reorder,
+          filter=filterClosedBlog())
     r.add(ref(IBlogPostService).update)  # TODO: add: filter=filterOwnPost()
 
 @gui.setup
@@ -150,6 +156,7 @@ def registerAclLivedeskUpdate():
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
     r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
           IPersonService, IPersonIconService, ISourceService, ICollaboratorService)
+    r.all(IBlogPostService, filter=filterClosedBlog())
 
 # --------------------------------------------------------------------
 
@@ -168,3 +175,10 @@ def updateCollaboratorSpecification():
     spec.type_actions['Administrator'] = [menuAction(), subMenuAction(), modulesAction(),
                                 modulesBlogEditAction(), modulesEditAction(), dashboardAction(), modulesAddAction(), modulesConfigureAction(),
                                 modulesManageCollaboratorsAction(), modulesManageFeedsAction(), modulesBlogPublishAction(), modulesBlogPostPublishAction()]
+
+# --------------------------------------------------------------------
+
+@ioc.before(captcha)
+def updateCaptchaForComments():
+   captcha().add(ref(IBlogCommentService).addComment)
+

@@ -31,7 +31,7 @@ class VideoDataDefinition:
     __tablename__ = 'archive_video_data'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = declared_attr(lambda cls: Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), primary_key=True))
+    Id = declared_attr(lambda cls: Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id, ondelete='CASCADE'), primary_key=True))
     Length = declared_attr(lambda cls: Column('length', Integer))
     VideoEncoding = declared_attr(lambda cls: Column('video_encoding', String(255)))
     Width = declared_attr(lambda cls: Column('width', Integer))
