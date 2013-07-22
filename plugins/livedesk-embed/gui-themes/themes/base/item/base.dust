@@ -232,7 +232,7 @@
 
 {<permanentLink}
 <a href="#" class="permalink" rel="bookmark">#</a>
-<input type="text" data-type="permalink" style="visibility: hidden;" value="daaadsfasdfasdf asdfadfsdf">
+<input type="text" data-type="permalink" value="">
 {/permanentLink}
 
 {<socialShare}
