@@ -6,11 +6,11 @@ body, html {
 	padding: 0;
 }
 body {
-background: #f0f0f0;
+background: #fff;
 }
 
 .container {
-	width: 600px;
+	width: 700px;
 	margin-left: 20px;
 	margin-top: 20px;
 	overflow: hidden; //quirks fix
@@ -26,7 +26,7 @@ background: #f0f0f0;
 @lb-width	: 100%;
 @lb-background: #fff;
 
-@lb-color 	: #08c;
+@lb-color 	: #95915c;
 @lb-color2 	: #a8a8a8;
 
 @postlist-minheight : 0;	//default 0
@@ -52,8 +52,8 @@ background: #f0f0f0;
 @publisher-avatar-width : 48px;
 
 
-@show-left-column : true;	// true/false
-@left-column-width : 70px; 	// (avatar width)
+@show-left-column : true;		// true/false
+@left-column-width : 150px; 	// (avatar width)
 
 
 @content-minheight : 0px;	//Min height of post main content
@@ -108,7 +108,7 @@ background: #f0f0f0;
 	}
 	a {
 		text-decoration: none;
-		color: #08c;
+		color: @lb-color;
 	}
 	figure, img {
 		margin: 0;
@@ -131,8 +131,13 @@ background: #f0f0f0;
 		.liveblog-header, .liveblog-footer {
 			padding: 5px;
 			h3 {
-				font-size: 1.375em;
+				font-size: 2em;
 				padding-bottom: 5px;
+				font-weight: normal;
+				font-family: 'Futura HV','Cabin',arial,serif;
+				line-height: 40px;
+				margin-bottom: 5px;
+				border-bottom:1px solid #ccc;
 			}
 			p {
 				font-size: @user-text-size;
@@ -155,7 +160,7 @@ background: #f0f0f0;
 					padding-left: 5px;
 				}
 				.button {
-					background: #101010;
+					background: @lb-color;
 					font-size: 11px;
 					font-weight: bold;
 					padding: 0 10px;
@@ -184,7 +189,7 @@ background: #f0f0f0;
 
 						padding: @post-padding-top @post-padding-right @post-padding-bottom @post-padding-left;
 
-						border-top :2px solid #d4d4d4;
+						border-top :1px solid #d0d0d0;
 						padding-top: @post-padding-top;
 						margin-bottom: @post-padding-top; 
 
@@ -192,18 +197,24 @@ background: #f0f0f0;
 						.post-datetime {
 							font-size: 0.6875em;
 							font-weight: bold;
-							color:@lb-color;	
-							padding-right: 10px;
-							border-right: 1px solid #a0a0a0;
-							margin-right: 10px;
+							color:#262626;							
 							height: 12px;
-							display: inline-block;
+							display: block;
 							line-height: 12px;
+							padding-bottom: 5px;
 						}
 						.post-publisher-name {
 							font-size: 0.6875em;
-							font-weight: bold;
-							color:@lb-color2;	
+							display: block;
+							color:#888;	
+							margin: 3px 0 10px;
+						}
+						.logo-badge {
+							width: 26px;
+							height: 8px;
+							background: url(img/stt-logo.png) no-repeat 0 0;
+							display: block;
+							margin: 10px 0 5px 0;
 						}
 						.post-buttons {
 							position: absolute;
@@ -261,10 +272,7 @@ background: #f0f0f0;
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							padding: 2px;
-							border: 1px solid #e8e8e8;
-							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
-							float: left;
+							background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0;
 							img {
 								width: @publisher-avatar-width;
 								max-width: @publisher-avatar-width;
@@ -285,6 +293,7 @@ background: #f0f0f0;
 							.post-content-side {
 								float: left;
 								display: @display-left-column;
+								width: @left-column-width;
 							}
 							.post-content-main {
 								margin-left: @left-column-width;
@@ -349,6 +358,7 @@ background: #f0f0f0;
 						&.twitter, &.facebook {
 							.post-external {
 								padding-left: 50px;
+								min-height: 42px;
 								.post-external-avatar {
 									width: 42px;
 									height: 42px;
@@ -446,10 +456,10 @@ background: #f0f0f0;
 							}
 						}
 						&.wrapup {
-							background: #e8e8e8;
+							background: #909090;
 							border: 0;
 							margin: 0;
-							padding:5px 20px;
+							padding:20px;
 							.post-header, .post-content-side, .post-footer {
 								display: none;
 							}
@@ -469,7 +479,7 @@ background: #f0f0f0;
 										}
 										.post-text {
 											font-weight: bold;
-											color: #262626;
+											color: #fff;
 											padding-left: 40px;
 										}
 									}
@@ -519,12 +529,11 @@ background: #f0f0f0;
 								font-size: 1em;
 								padding-bottom: 2px;
 								a {
-									font-size: 0.875em;
-									color:#222;
+									font-size: 0.92em;
 								}
 							}
 							.result-text {
-								font-size: 0.875em;
+								font-size: 0.92em;
 							}
 							.attributes {
 								a {
@@ -533,6 +542,7 @@ background: #f0f0f0;
 									line-height: 16px;
 									height: 16px;
 									vertical-align: top;
+									color:#000;
 								}
 							}
 						}
@@ -575,236 +585,6 @@ background: #f0f0f0;
 
 	}
 
-
-	/* quirks mode fixies 
-
-		maxheight won't work, instead, height param is used
-	*/
-	&.quirks {
-		width: auto;
-		.liveblog-container {
-			.liveblog-content {
-				.liveblog-content-middle {
-					height: @postlist-maxheight;  
-
-					.liveblog-postlist {
-						li {
-							.post-buttons {
-								margin-right: 20px;
-								display: block !important;
-							}
-							.post-content-side {
-								margin-top: 15px;
-							}
-
-							.post-external {
-								position: relative;
-							}
-							.post-external-avatar-img {
-								display: block;
-								width: 42px;
-								height: 42px;
-								position: absolute;
-								left:-50px;
-								top: 0px;
-							}
-
-							&.instagram, &.flickr, &.googleimage {
-								.post-external-image-link {
-									max-width: 100%;
-									.post-external-image-img {
-										max-width: 100%;
-										margin-bottom: 5px;
-										display: block;
-										width: 100%;
-									}
-								}
-							}
-							&.wrapup {
-								.post-core-content {
-									position: relative;
-									.big-toggle {
-										float: none !important;
-										position: absolute;
-										top:0;
-										left:0;
-									}
-									.post-text {
-										margin-top: -15px;
-									}
-								}
-							}
-
-							&.youtube {
-								.post-external {
-									.post-frame-container {
-										iframe {
-											padding-top: 0px;
-											padding-bottom: 60.25%;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-
-	&.mobile {
-		background: none;
-		.liveblog-container {
-			.liveblog-content {
-				.liveblog-content-middle {
-					margin: 0 7px;
-					height: @postlist-maxheight;  
-
-					.liveblog-postlist {
-						li {
-							padding: 0;
-							margin-top: 10px;
-							background: #fff;
-							border: 1px solid #d8d8d8;
-							.border-radius(5px); 
-
-							.post-publisher-name {
-								color: #787878;
-								font-size: 0.875em;
-								line-height: 100%;
-								display: block;
-								padding: 2px 0 6px;
-							}
-
-							.post-datetime {
-								color: @lb-color2;
-								display: block;
-								border-right: 0;
-								font-weight: normal
-
-							}
-							@publisher-avatar-width-mobile : 32px;
-							.post-publisher-avatar {
-								display: none;
-								float: left;
-								margin-right: 6px;
-
-								width: @publisher-avatar-width-mobile;
-								max-width: @publisher-avatar-width-mobile;
-								min-height: @publisher-avatar-width-mobile;
-								max-height: none;
-								padding: 1px;
-								border: 1px solid #e8e8e8;
-								img {
-									width: @publisher-avatar-width-mobile;
-									max-width: @publisher-avatar-width-mobile;
-									height: auto;
-								}
-							}
-
-							.post-header {
-								padding: 5px;
-								border-bottom: 1px solid #e8e8e8;
-								min-height: @publisher-avatar-width-mobile + 4px;
-								.border-radius(5px 5px 0 0);
-				
-							}
-							.post-footer {
-								height: 30px;
-								border-top: 1px solid #e8e8e8;
-						
-								.border-radius(0 0 5px 5px);
-								position: relative;
-							}
-
-							.post-buttons {
-								display: block;
-								left:10px;
-								right: auto;
-								top:5px;
-								.sf-share {
-
-								}
-							}
-
-							.post-content {
-								padding: 10px;
-
-								.post-content-main {
-									margin: 0;
-								}
-
-								.post-content-full {
-
-								}
-							}
-
-							&.googleimage, &.flickr, &.instagram {
-								.post-content {
-									padding-top:0px; 
-									.post-core-content {
-										margin: 0 -10px -10px ;
-										.post-external {
-											h5, .post-text {
-												padding: 0 10px;
-											}
-											.post-external-image {
-												margin-bottom: 10px;
-											}
-										}
-										.attributes {
-											padding: 0 10px 10px;
-										}
-									}
-								}
-							}
-							.post-external-avatar {
-								display: none;
-							}
-							&.twitter, &.facebook, &.googlesearch, &.googlenews {
-								.post-content {
-									padding: 0;
-									.post-comment {
-										padding: 10px;
-									}
-									.post-core-content {
-										border: 0;
-										padding: 10px;
-										.post-external {
-											padding: 0;
-										}
-										.attributes {
-											margin-left:0; 
-										}
-									}
-								}
-							}
-							&.wrapup {
-								background: #686868;
-								.big-toggle {
-									margin: 5px;
-								}
-							}
-							&.usercomments {
-								.post-publisher-avatar {
-									background-size: 32px 32px;
-								}
-							}
-							&.soundcloud {
-								.post-frame-container {
-									margin: 0 -10px;
-								}
-							}
-
-
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 
