@@ -1,5 +1,5 @@
  {+mainContainer}
-<li class="{+itemClass}{/itemClass}">
+<li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
   {+main}
     <a name="{Order}"></a>
     {+headerContainer}

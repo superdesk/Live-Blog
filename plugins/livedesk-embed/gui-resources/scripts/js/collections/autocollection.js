@@ -6,7 +6,13 @@ define(['gizmo/superdesk'], function(Gizmo) {
 	({
 		_timeInterval: 10000,
 		_idInterval: 0,
-		_stats: {},
+		_stats: {
+			limit: 15, 
+			offset: 0, 
+			lastCId: 0, 
+			firstOrder: Infinity, 
+			total: 0
+		},
 		/*!
 		 * for auto refresh
 		 */
@@ -16,7 +22,6 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		},
 		init: function(){ 
 			var self = this;
-			self.resetStats();
 			self.model.on('publish reorder', function(evt, post){
 				if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 					self._stats.lastCId++;
@@ -80,7 +85,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				requestOptions = $.extend(true, {
 					data: {
 						'cId.since': this._stats.lastCId, 
-						'order.start': this._stats.firstOrder
+						//'order.start': this._stats.firstOrder
 					}, 
 					headers:  {
 						'X-Filter': self._xfilter,
@@ -89,11 +94,11 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				},params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
-				delete requestOptions.data['order.start'];
+				//delete requestOptions.data['order.start'];
 			}
-			if(this._stats.firstOrder === Infinity) {
-				delete requestOptions.data['order.start'];	
-			}
+			// if(this._stats.firstOrder === Infinity) {
+			// 	delete requestOptions.data['order.start'];	
+			// }
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();

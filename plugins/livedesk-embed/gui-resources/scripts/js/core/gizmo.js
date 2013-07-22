@@ -1060,6 +1060,7 @@ define(['jquery', 'utils/class', 'utils/extend' ], function($,Class)
 			if(this.events && data && data.events)
 				$.extend(data.events, this.events);
 			$.extend(this, data);
+			//console.log('events:',this.events);
 			this._clientId = uniqueIdView++;
 			options = $.extend({}, {init: true, events: true, ensure: true}, options);
 			options.ensure && this._ensureElement();
@@ -1102,6 +1103,7 @@ define(['jquery', 'utils/class', 'utils/extend' ], function($,Class)
 		{
 			var self = this;
 			if (!(events || (events = this.getProperty('events')))) return;
+			//console.log('events: ',events);
 			for(var selector in events) {
 				var one = events[selector];
 				for(var evnt in one) {

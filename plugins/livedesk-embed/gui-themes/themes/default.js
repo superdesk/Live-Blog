@@ -6,7 +6,7 @@ requirejs.config({
 require([
 	'jquery/tmpl',
 	// 'tmpl!theme/item/base',
-	// 'tmpl!theme/item/posttype/normal',
+	'tmpl!theme/item/posttype/normal',
 	// 'tmpl!theme/item/posttype/image',
 	// 'tmpl!theme/item/posttype/wrapup',
 	// 'tmpl!theme/item/posttype/quote',

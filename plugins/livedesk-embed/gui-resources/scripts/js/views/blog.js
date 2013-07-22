@@ -2,19 +2,23 @@ define([
 	'jquery',
 	'gizmo/view-events',
 	'views/posts',
+	'dispatcher',
 	'jquery/tmpl',
 	'models/blog',
 	'tmpl!themeBase/container'
-], function($, Gizmo, PostsView) {
-	return Gizmo.View.extend({
+], function($, Gizmo, PostsViewDef) {
+	var PostsView = PostsViewDef(),
+		BlogView = Gizmo.View.extend({
+		_config: {
+			timeInterval: 10000,
+			idInterval: 0,
+			xfilter: 'Description, Title, EmbedConfig, Language.Code'
+		},
 		init: function() {
 			var self = this;
-			self._timeInterval = 10000;
-			self._idInterval =  0;
-			self.xfilter = 'Description, Title, EmbedConfig, Language.Code';
 			if( !self.model ) {
 				blog.url.decorate('%s/' + liveblog.id);
-				blog.xfilter(self.xfilter);
+				blog.xfilter(self._config.xfilter);
 			}
 			self.model.on('update', function(e, data){
 				self.ensureStatus();
@@ -32,19 +36,19 @@ define([
 		{
 			var self = this;
 			ret = self.stop();
-			self._idInterval = setInterval(function(){
+			self._config.idInterval = setInterval(function(){
 				self.start(params);
-			}, self._timeInterval);
+			}, self._config.timeInterval);
 			return ret;
 		},
 		start: function(){
 			var self = this;
-			self.model.xfilter(self.xfilter).sync({force: true});
+			self.model.xfilter(self._config.xfilter).sync({force: true});
 			return self;
 		},
 		stop: function(){
 			var self = this;
-			clearInterval(self._idInterval);
+			clearInterval(self._config.idInterval);
 			return self;
 		},			
 
@@ -76,6 +80,7 @@ define([
 			var self = this,
 				postsView;
 			self.el.tmpl('themeBase/container', self.model.feed(), function(){
+				$.dispatcher.triggerHandler('after-render-blog-view', self);
 				self.update();
 				postsView = new PostsView({ 
 					el: $('[data-gimme="posts.list"]',self.el),
@@ -89,4 +94,6 @@ define([
 			$('[data-gimme="blog.description"]', self.el).html(self.model.get('Description'));
 		}
 	});
+	$.dispatcher.triggerHandler('class-blog-view',BlogView);
+	return BlogView;
 });

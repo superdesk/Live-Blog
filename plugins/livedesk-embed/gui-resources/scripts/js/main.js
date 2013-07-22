@@ -20,10 +20,10 @@ requirejs.config({
 require([
 	'jquery',
 	'gizmo/view-events',
-	'views/blog',
 	'jquery/xdomainrequest',
+	'plugins/button-pagination',
 	'models/blog'
-], function( $, Gizmo, BlogView ){
+], function( $, Gizmo ){
 	/*!
 	 * Ensure that a element is there for liveblog to rezide.
 	 * if the provided element isn't there or is a wrong one create one element just
@@ -54,10 +54,11 @@ require([
 
 			require([
 				'utils/date-format',
+				'views/blog',
 				'utils/find-enviroment',
 				'../../themes/'+liveblog.theme,
 				'i18n!livedesk_embed'
-			], function(dateFormat, findEnviroment, theme){
+			], function(dateFormat, BlogView, findEnviroment, theme){
 				dateFormat.masks.postDate = 'mm/dd/yyyy HH:MM';
 				var run = function(){
 					new BlogView({ el: liveblog.el, model: blog });
