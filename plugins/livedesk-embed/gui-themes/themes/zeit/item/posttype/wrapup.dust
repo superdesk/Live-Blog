@@ -1,7 +1,0 @@
-{>"theme/item/base"/}
-{<item_class}wrapup open{/item_class}
-{<head}{/head}
-{<body}
-	<span class="big-toggle"></span>
-	<h3>{Content|s}</h3>
-{/body}
