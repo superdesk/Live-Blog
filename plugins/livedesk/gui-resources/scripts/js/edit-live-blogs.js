@@ -479,6 +479,7 @@ function(providers, Gizmo, $, BlogAction)
 
 		TimelineView = Gizmo.View.extend
 		({
+			stack: [],
 			events: 
 			{
 				'ul.post-list': { sortstop: 'sortstop' },
@@ -558,46 +559,50 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			addOne: function(model)
 			{	
-				if(model.postview && model.postview.checkElement()) {
-					return;
-				}
-				var self = this,
-					current = new PostView({model: model, _parent: self}),
-					count = self._views.length;
-				model.postview = current;
-				current.order =  parseFloat(model.get('Order'));
-				if(isNaN(current.order)) {
-					current.order = 0.0;
-				}
-				if(!count) {
-					this.el.find('ul.post-list').append(current.el);
-					self._views = [current];
-				} else {
-					var next, prev;
-					for(i=0; i<count; i++) {
-						if(current.order>self._views[i].order) {
-							prev = self._views[i];
-							prevIndex = i;
-						} else if(current.order<self._views[i].order) {
-							next = self._views[i];
-							nextIndex = i;
-							break;
-						}						
+				if (localStorage.getItem('superdesk.config.timeline.autorefresh') == 1) {
+					if(model.postview && model.postview.checkElement()) {
+						return;
 					}
-					if(next) {
-						current.el.insertAfter(next.el);
-						next.prev = current;
-						current.next = next;
-						self._views.splice(nextIndex, 0, current);
-						
-					} else if(prev) {
-						current.el.insertBefore(prev.el);
-						prev.next = current;
-						current.prev = prev;
-						self._views.splice(prevIndex+1, 0, current);
-					}				
+					var self = this,
+						current = new PostView({model: model, _parent: self}),
+						count = self._views.length;
+					model.postview = current;
+					current.order =  parseFloat(model.get('Order'));
+					if(isNaN(current.order)) {
+						current.order = 0.0;
+					}
+					if(!count) {
+						this.el.find('ul.post-list').append(current.el);
+						self._views = [current];
+					} else {
+						var next, prev;
+						for(i=0; i<count; i++) {
+							if(current.order>self._views[i].order) {
+								prev = self._views[i];
+								prevIndex = i;
+							} else if(current.order<self._views[i].order) {
+								next = self._views[i];
+								nextIndex = i;
+								break;
+							}						
+						}
+						if(next) {
+							current.el.insertAfter(next.el);
+							next.prev = current;
+							current.next = next;
+							self._views.splice(nextIndex, 0, current);
+							
+						} else if(prev) {
+							current.el.insertBefore(prev.el);
+							prev.next = current;
+							current.prev = prev;
+							self._views.splice(prevIndex+1, 0, current);
+						}				
+					}
+					$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
+				} else {
+					this.stack.push(model);
 				}
-				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
 			},
 			removeAllAutoupdate: function(evt, data)
 			{
@@ -704,11 +709,12 @@ function(providers, Gizmo, $, BlogAction)
 			stoppedHeight: false,
 			autorefreshHandle: function(newH)
 			{
-			    if( parseFloat(localStorage.getItem('superdesk.config.timeline.autorefresh')) ) return;
-			    
-			    var x = $('.live-blog-content').parents(':eq(0)').scrollTop();
-			        $('.live-blog-content').parents(':eq(0)').scrollTop( x + newH );
-			    
+			    if (parseFloat(localStorage.getItem('superdesk.config.timeline.autorefresh'))) {
+			    	return;
+			    } else {
+			    	var x = $('.live-blog-content').parents(':eq(0)').scrollTop();
+			    	$('.live-blog-content').parents(':eq(0)').scrollTop( x + newH );
+			    }
 			},
 			/*!
 			 * configure autorefresh on timeline
@@ -718,13 +724,14 @@ function(providers, Gizmo, $, BlogAction)
 			configAutorefresh: function(button)
             {
 			    var cnfAuto = localStorage.getItem('superdesk.config.timeline.autorefresh');
-	            if( !parseFloat(cnfAuto) )
-	            {
+	            if (!parseFloat(cnfAuto)) {
 	                localStorage.setItem('superdesk.config.timeline.autorefresh', 1);
 	                $(button).removeClass('active');
-	            }
-	            else
-	            {
+	                for (var i = 0; i < this.stack.length; i = i + 1) {
+	                	this.addOne(this.stack[i]);
+	                }
+	                this.stack = [];
+	            } else {
 	                this.stoppedHeight = false;
 	                localStorage.setItem('superdesk.config.timeline.autorefresh', 0);
 	                $(button).addClass('active');

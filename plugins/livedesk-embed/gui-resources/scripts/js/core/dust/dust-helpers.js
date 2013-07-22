@@ -100,6 +100,9 @@ var helpers = {
 dust.helpers = helpers;
 
 dust.filters.t = function(string){ return $('<div>'+string+'</div>').text(); }
+dust.filters.trim50 = function(string){ return string.trunc(50, true);}
+dust.filters.trim150 = function(string){ return string.trunc(150, true);}
+dust.filters.trim200 = function(string){ return string.trunc(200, true);}
 dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
 
 function getAnnotation(idx)

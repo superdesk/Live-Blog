@@ -1,0 +1,8 @@
+{>"themeBase/item/base"/}
+{<header}
+	{+userAvatar}{/userAvatar}
+	{+postDateContainer}{/postDateContainer}
+	{+userNameContainer}{/userNameContainer}
+{/header}
+{<contentSideContainer}{/contentSideContainer}
+{<externalAvatar}{/externalAvatar}

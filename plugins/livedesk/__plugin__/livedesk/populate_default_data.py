@@ -34,6 +34,8 @@ from superdesk.source.api.source import ISourceService, QSource, Source
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
+from superdesk.user.meta.user_type import UserTypeMapped
+from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
 
@@ -68,19 +70,38 @@ def createSourceType(key):
     session.close()
 
 
+def createUserType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(UserTypeMapped.Key == key)).scalar():
+        userTypeDb = UserTypeMapped()
+        userTypeDb.Key = key
+        session.add(userTypeDb)
+
+    session.commit()
+    session.close()
+
+
 @app.populate
 def createSourceTypes():
     createSourceType('blog provider')
     createSourceType('chained blog')
+    createSourceType('comment')
 
+@app.populate
+def createUserTypes():
+    createUserType('commentator')
 
 SOURCES = {
            'internal': (False, '', '', ''),
            'advertisement': (False, '', '', ''),
            'sms': (False, '', '', ''),
+           'comments': (False, '', '', ''),
            'google': (False, 'www.google.com', 'xml', ''),
            'facebook': (False, 'www.facebook.com', 'xml', ''),
-           'twitter': (False, 'www.twitter.com', 'xml', ''),
+           'twitter': (False, 'www.twitter.com', 'xml', '{"ConsumerKey":"uLW0hK2KZosj8Yl4F17uKg","ConsumerSecret":"iRuM0j8pyUTYgbpwPLqAl9wTBn5JzQB4zLJaiUaEdyE"}'),
            'flickr': (False, 'www.flickr.com', 'xml', 'abf46ef4c670460e95d09cf368606b8a'),
            'youtube': (False, 'www.youtube.com', 'xml', ''),
            'instagram': (False, 'www.instagram.com', 'xml', 'daa5f588be7c4ce4b5771ec8653bcf44'),
@@ -133,6 +154,7 @@ COLLABORATORS = {
                  'advertisement': 'advertisement',
                  'internal': 'internal',
                  'sms': 'sms',
+                 'comments': 'comments',
                  'google': 'google',
                  'facebook': 'facebook',
                  'twitter': 'twitter',
@@ -268,6 +290,7 @@ def createBlogCollaborators():
 
 BLOG_ADMINS = {
                'admin': 'Election Night 2013',
+               'editor': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)
