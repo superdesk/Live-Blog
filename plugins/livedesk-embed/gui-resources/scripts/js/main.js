@@ -59,7 +59,9 @@ require([
 				'../../themes/'+liveblog.theme,
 				'i18n!livedesk_embed'
 			], function(dateFormat, BlogView, findEnviroment, theme){
-				dateFormat.masks.postDate = 'mm/dd/yyyy HH:MM';
+				dateFormat.masks['post-date'] = _('mm/dd/yyyy HH:MM');
+				dateFormat.masks['status-date'] = _('HH:MM');
+				dateFormat.masks['closed-date'] = _('mm/dd/yyyy HH:MM');
 				var run = function(){
 					new BlogView({ el: liveblog.el, model: blog });
 				}

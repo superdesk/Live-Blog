@@ -2,7 +2,7 @@ define([
 	'jquery',
 	'dispatcher'
 ], function($){
-	$.dispatcher.on('class-posts-view', function(evt, PostView){
+	$.dispatcher.on('posts-view.class', function(evt, PostView){
 		var view = this.prototype;
 		view._config.limit = 2;
 		view._flags.loadingNextPage = false;
@@ -12,7 +12,7 @@ define([
 			if(self._flags.loadingNextPage || self._flags.atEnd ){
 				return;	
 			}
-			$.dispatcher.triggerHandler('posts-view-loading', self);
+			$.dispatcher.triggerHandler('posts-view.loading', self);
 			self._flags.loadingNextPage = true;
 			return self.collection
 					.xfilter(self._config.xfilter)
@@ -24,7 +24,7 @@ define([
 							self._flags.atEnd = true;
 						}
 						self._flags.loadingNextPage = false;
-						$.dispatcher.triggerHandler('posts-view-loaded', self);
+						$.dispatcher.triggerHandler('posts-view.loaded', self);
 					});
 		}
 		view.hasNextPage = function(){

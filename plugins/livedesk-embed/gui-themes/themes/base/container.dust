@@ -59,7 +59,7 @@
 
 {! -- predefined blocks for content top block !}
 {<status}
-<p data-gimme=".status" class="update-time"></p>
+<p data-gimme="blog.status" class="update-time"></p>
 {/status}
 
 {<actionTotop}

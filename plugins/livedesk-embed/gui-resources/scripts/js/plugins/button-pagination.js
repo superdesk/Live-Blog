@@ -5,7 +5,7 @@ define([
 	'tmpl!themeBase/item/base',
 	'tmpl!themeBase/plugins/button-pagination'
 ], function($){
-	$.dispatcher.on('after-render-blog-view', function(evt, blogView){
+	$.dispatcher.on('blog-view.after-render', function(evt, blogView){
 		var view = self,
 			data = {};
 		data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
@@ -13,7 +13,7 @@ define([
 			$('[data-gimme="posts.list"]',view.el).append(o);
 		});
 	});
-	$.dispatcher.on('class-posts-view', function(){
+	$.dispatcher.on('posts-view.class', function(){
 		var view = this.prototype;
 		view.events['[data-gimme="posts.nextPage"]'] = {
 			'click': 'buttonNextPage'
@@ -35,9 +35,4 @@ define([
 			});
 		}
 	});
-
-	// $.dispatcher.on('posts-view-loading', function(){
-	// 	console.log('loading');
-	// 	$('[data-gimme="posts.nextPage"]').addClass('loading');
-	// });
 });

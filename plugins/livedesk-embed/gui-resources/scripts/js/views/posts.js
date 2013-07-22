@@ -8,7 +8,10 @@ define([
 		var PostView = PostViewDef(),
 			PostsView = Gizmo.View.extend({
 			events: {},
-			_flags: {},
+			_flags: {
+				autoRender: true,
+				addAllPending: false
+			},
 			_config: {
 				timeInterval: 10000,
 				data: {
@@ -21,6 +24,7 @@ define([
 							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
 							   'Meta, IsPublished, Creator.FullName'
 			},
+			pendingAutoupdates: [],
 			init: function() {
 				var self = this;
 				self._views = [];
@@ -36,19 +40,19 @@ define([
 				self.collection
 					.on('read readauto', self.render, self)
 					.on('addings', self.addAll, self)
-					.on('addingsauto',self.addAllAutoupdate, self)
+					.on('addingsauto',self.addingsAuto, self)
+					.on('removeingsauto', self.removeAllAutoupdate, self)
 					.xfilter(self._config.xfilter)
-					//.auto()
+					.auto()
 					.autosync({ data: self._config.data });
-			},
-			
+			},	
 			removeOne: function(view) {
 				var 
 					self = this,
 					pos = self._views.indexOf(view),
 					pos2 = self.collection._list.indexOf(view.model);
 				if(pos !== -1 ) {
-					self.collection.total--;					
+					self.collection._stats.total--;					
 					self._views.splice(pos,1);
 					if(pos2 !== -1) 
 						self.collection._list.splice(pos2,1);
@@ -132,20 +136,40 @@ define([
 
 				this.markScroll();
 			},
+			addingsAuto: function(evt, data) {
+				var self = this,
+					firstOrder = self.collection._stats.firstOrder;
+				if(data.length) {
+					for(var i = 0, count = data.length; i < count; i++) {
+						if(self.collection._stats.firstOrder < data[i].get('Order')) {
+							self.pendingAutoupdates.push(data[i]);
+						}
+						else {
+							self.collection.remove(data[i].hash());
+						}
+					}
+				}
+				self.addAllAutoupdate(evt);
+			},
+			addAllPending: function(evt) {
+				var self = this;
+				if(!self._flags.addAllPending && self.pendingAutoupdates.length) {
+					self._flags.addAllPending = true;
+					for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
+						this.addOne(this.pendingAutoupdates[i]);
+					}
+					$.dispatcher.triggerHandler('posts-view.added-pending',self);
+					self.pendingAutoupdates = [];
+				}
+				self._flags.addAllPending = false;
+			},
 
-			addAllAutoupdate: function(evt, data) {
-				// if(this.autoRender) {
-				// 	if(data.length) {
-				// 		for(var i = 0, count = data.length; i < count; i++) {
-				// 			this.addOne(data[i]);
-				// 			this.model.get('PostPublished').total++;
-				// 		}
-				// 		this.markScroll();
-				// 	}
-				// } else if(data.length !== 0){
-				// 	this.pendingAutoupdates = this.pendingAutoupdates.concat(data);
-				// 	this.toggleStatusCount();
-				// }
+			addAllAutoupdate: function(evt) {
+				var self = this;
+				if(self._flags.autoRender) {
+					self.addAllPending(evt);
+					$.dispatcher.triggerHandler('posts-view.added-auto',self);
+				}
 			},
 
 			addAll: function(evt, data) {
@@ -160,7 +184,7 @@ define([
 				self.addAll(evt, data);
 			}
 		});
-		$.dispatcher.triggerHandler('class-posts-view',PostsView);
+		$.dispatcher.triggerHandler('posts-view.class',PostsView);
 		return PostsView;
 	}
 });

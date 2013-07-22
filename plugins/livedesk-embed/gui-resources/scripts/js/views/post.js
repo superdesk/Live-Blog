@@ -70,12 +70,12 @@ define([
 				}
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
-					data.CreatedOn = createdOn.format(_('postDate'));
+					data.CreatedOn = createdOn.format(_('post-date'));
 					data.CreatedOnISO = createdOn.getTime();
 				}
 				if(data.PublishedOn) {
 					publishedOn = new Date(Date.parse(data.PublishedOn));
-					data.PublishedOn = publishedOn.format(_('postDate'));
+					data.PublishedOn = publishedOn.format(_('post-date'));
 					data.PublishedOnISO = publishedOn.getTime();
 				}
 				if(data.Content && liveblog.adminServer) {
