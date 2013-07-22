@@ -171,7 +171,7 @@ background: #fff;
 					}
 				}
 			}
-			
+
 			.liveblog-content-top {
 				display: none;
 			}
@@ -555,6 +555,41 @@ background: #fff;
 							}
 						}
 
+						&.load-next, &.load-previous {
+							height: auto !important;
+							text-align: center;
+							padding: 20px;
+							.load-more {
+								width: 180px;
+								height: 35px;
+								line-height: 35px;
+								background: #969696;
+								color: #fff !important;
+								display: inline-block;
+								font-weight: bold;
+								font-size: 0.875em;
+								vertical-align: top;
+								&:hover {
+									background: #787878;
+								}
+							}
+							.loading-image {
+								min-width: 50px;
+								height: 35px;
+								vertical-align: top;
+								display: none;
+								background: url(img/loading-large.gif) no-repeat 0 0;
+							}
+							&.loading {
+								.load-more {
+									display: none;
+								}
+								.loading-image {
+									display: inline-block;
+								}
+							}
+						}
+						
 
 						&.twitter {
 							.attributes .source-icon { background: #fff url(img/twitter-16px.png) no-repeat 0 0;}
