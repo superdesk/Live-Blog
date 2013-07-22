@@ -7,6 +7,7 @@
       {+header}
         {+postDateContainer}{/postDateContainer}
         {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
       {/header}
       </div>
     {/headerContainer}
@@ -221,3 +222,21 @@
   {+externalText}{/externalText}
 </div>
 {/externalTextContainer}
+
+{<shareContainer}
+<div class="post-buttons">
+  {+share}
+    {+socialShare}{/socialShare}
+    {+permanentLinkShare}{/permanentLink}
+  {/share}
+</div>
+{/shareContainer}
+
+{<permanentLink}
+<a href="#" class="permalink" rel="bookmark">#</a>
+<input type="text" data-type="permalink" style="visibility: hidden;" value="daaadsfasdfasdf asdfadfsdf">
+{/permanentLink}
+
+{<socialShare}
+<a href="#" class="sf-share">_('Share');</a>
+{/socialShare}

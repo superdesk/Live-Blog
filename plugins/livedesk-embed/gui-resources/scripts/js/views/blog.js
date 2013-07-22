@@ -82,7 +82,8 @@ define([
 				self.update();				
 				postsView = new PostsView({ 
 					el: $('[data-gimme="posts.list"]',self.el),
-					collection: self.model.get('PostPublished')
+					collection: self.model.get('PostPublished'),
+					_parent: self
 				});
 			});
 		},
