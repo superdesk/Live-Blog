@@ -20,6 +20,7 @@ from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
 from superdesk.source.api.source import Source
 from superdesk.source.api.type import SourceType
+from support.api.configuration import IConfigurationService
 from superdesk.post.api.post import Post, QPostWithPublished
 
 # --------------------------------------------------------------------
@@ -145,3 +146,11 @@ class IBlogSourceService:
         '''
         Gets all posts from blog-allowed sources of specified SourceType
         '''
+
+# --------------------------------------------------------------------
+
+@service((Entity, Blog))
+class IBlogConfigurationService(IConfigurationService):
+    '''
+    Provides the blog configuration service.
+    '''

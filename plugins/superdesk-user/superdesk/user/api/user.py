@@ -15,6 +15,7 @@ from ally.support.api.entity import IEntityService, QEntity, Entity
 from datetime import datetime
 from superdesk.api.domain_superdesk import modelHR
 from superdesk.person.api.person import Person, QPerson
+from superdesk.user.api.user_type import UserType
 
 # --------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ class User(Person):
     '''    
     Provides the user model.
     '''
+    Type = UserType
     Name = str
     CreatedOn = datetime
     DeletedOn = datetime

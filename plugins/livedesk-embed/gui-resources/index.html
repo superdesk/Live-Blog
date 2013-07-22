@@ -10,10 +10,7 @@
         <![endif]-->
     </head>
     <body>
-		<div class="container">
-			<div id="livedesk-root"></div>
-		</div>
-		<script>
+		<script type="text/javascript">
 		config = new function()
 		{
 		    // this.server_tech = true;
@@ -51,9 +48,6 @@
 			this.guiJs = replace(this.gui('%s/scripts/js/%s'));
 			
 		};
-		</script>
-		<!-- Blog configuration should go from configuration -->
-		<script type="text/javascript">
 			var path = window.location.href.toString().split(window.location.host)[1],
 				attributes = path.split('?')[1],
 				objd,
@@ -92,29 +86,33 @@
 				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
 			};
 		</script>
-		<style>
-		body {
-			margin: 0;
-			padding: 0;
-		}
-		.container {
-			height: auto;
-			width: 620px;
-			margin: 20px 0 0 20px;
-		}
-		</style>
-		<script>
-		if(po === undefined){
-			(function (d, s, id) {
-			    var js, fjs = d.getElementsByTagName(s)[0];
-			    if (d.getElementById(id)) return;
-			    js = d.createElement(s);
-			    js.id = id;
-			    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/'+theme);
-			    js.src = config.coreScripts('require.js');
-			    fjs.parentNode.insertBefore(js, fjs);
-			}(document, "script", "livedesk-jssdk"));
-		}
+		<div class="container"> 
+		</div>
+		<script type="text/javascript">
+		//<![CDATA[
+			var liveblog = (function(d){
+				var self = this;
+				self.data = {
+					id: id,
+					el: '.container',
+					theme: theme,
+					language: language,
+					script: d.scripts[d.scripts.length - 1],
+					frontendServer: config.api_url
+				};
+				self.data.baseUrl = self.data.frontendServer + '/content/lib/livedesk-embed/scripts/js/';
+				self.data.loadJs = function(path) {
+							var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+							ls.type = "text/javascript"; s.async = true;
+							ls.src = path.indexOf('//') === -1 ? 
+								self.data.baseUrl + path + '.js?version=' + (self.data.version || parseInt((new Date()).getTime()/600000)):
+								path;
+							s.parentNode.insertBefore( ls, s ); return ls;
+				}
+				self.data.loadJs('loader');
+				return self.data;
+			})(document);
+		//]]>
 		</script>
 		<div id="here"></div>
 		<script>

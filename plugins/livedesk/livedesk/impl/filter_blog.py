@@ -13,7 +13,7 @@ from ally.container import wire
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from livedesk.api.filter_blog import IBlogAdminFilterService, \
-    IBlogCollaboratorFilterService
+    IBlogCollaboratorFilterService, IBlogStatusFilterService
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorTypeMapped
@@ -24,13 +24,13 @@ class BlogFilterServiceAlchemyBase(SessionSupport):
     '''
     Generic implementation for blog filter service.
     '''
-    
+
     collaborator_types = list
-    
+
     def __init__(self):
         assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
         super().__init__()
-    
+
     def isAllowed(self, userId, blogId):
         '''
         @see: IBlogAdminFilterService.isAllowed
@@ -39,7 +39,7 @@ class BlogFilterServiceAlchemyBase(SessionSupport):
         sql = sql.filter(BlogMapped.Id == blogId)
         sql = sql.filter(BlogMapped.Creator == userId)
         if sql.count() > 0: return True
-        
+
         sql = self.session().query(BlogCollaboratorMapped.Id)
         sql = sql.join(BlogCollaboratorTypeMapped)
         sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
@@ -53,21 +53,40 @@ class BlogAdminFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogAdminFilt
     '''
     Implementation for @see: IBlogAdminFilterService
     '''
-    
+
     collaborator_types = ['Administrator']; wire.config('collaborator_types', doc='''
     The collaborator type(s) name associated with the administrator filter.
     ''')
-    
+
     def __init__(self): super().__init__()
-        
+
 @setup(IBlogCollaboratorFilterService, name='blogCollaboratorFilterService')
 class BlogCollaboratorFilterServiceAlchemy(BlogFilterServiceAlchemyBase, IBlogCollaboratorFilterService):
     '''
     Implementation for @see: IBlogCollaboratorFilterService
     '''
-    
+
     collaborator_types = ['Administrator', 'Collaborator']; wire.config('collaborator_types', doc='''
     The collaborator type(s) name associated with the collaborator filter.
     ''')
-    
+
     def __init__(self): super().__init__()
+
+# --------------------------------------------------------------------
+
+@setup(IBlogStatusFilterService, name='blogStatusFilterService')
+class BlogStatusFilterServiceAlchemy(IBlogStatusFilterService, SessionSupport):
+    '''
+    Implementation for blog status filter service.
+    '''
+
+    def __init__(self):
+        super().__init__()
+
+    def isAllowed(self, userId, blogId):
+        '''
+        @see: IBlogStatusFilterService.isAllowed
+        '''
+        sql = self.session().query(BlogMapped.Id)
+        sql = sql.filter(BlogMapped.Id == blogId).filter(BlogMapped.ClosedOn == None)
+        return sql.count() > 0

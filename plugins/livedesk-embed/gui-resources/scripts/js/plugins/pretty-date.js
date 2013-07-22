@@ -34,19 +34,23 @@ define(['jquery', 'livedesk-embed/dispatcher' ], function($){
 			weeks_diff < 4 		&& gettext("%(weeks)s weeks ago").format({ weeks: weeks_diff}) ||
 			weeks_diff > 4 		&& date.format('mm/dd/yyyy HH:MM');
 	}
-	var interval;
-	$.dispatcher.on('after-render', function(){
-			var self = this,
-				render = function(){
-					self.el.find('[data-date]').each(function(){
-						$(this).text(prettyDate($(this).attr('data-date')));
-					});
-				}
-			/*!
-			 * First run the handler and then run the timer on the handler every 5 sec.
-			 */
-			render();
-			clearInterval(interval);
-			interval = setInterval(render, 5000);
-	});
+	return function(config) {
+		if (config && config.PrettyDate) {
+			var interval;
+			$.dispatcher.on('after-render', function(){
+					var self = this,
+						render = function(){
+							self.el.find('[data-date]').each(function(){
+								$(this).text(prettyDate($(this).attr('data-date')));
+							});
+						}
+					/*!
+					 * First run the handler and then run the timer on the handler every 5 sec.
+					 */
+					render();
+					clearInterval(interval);
+					interval = setInterval(render, 5000);
+			});
+		}
+	}
 });

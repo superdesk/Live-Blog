@@ -1,0 +1,14 @@
+{!
+_('to top');
+_('updated on ');
+_('new posts');
+_('Load top Posts');
+_('Loading posts...');
+_('Load more posts ...');
+_('by');
+_('Share');
+_('Favorites');
+_('Retweet');
+_('Reply');
+!}
+

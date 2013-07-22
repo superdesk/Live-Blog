@@ -1,0 +1,8 @@
+{>"themeBase/item/posttype/base"/}
+{<itemClass}wrapup{/itemClass}
+{<contenteBaseBefore}
+	{+wrapupIcon}{/wrapupIcon}
+{/contenteBaseBefore}
+{<contentSideContainer}{/contentSideContainer}
+{<headerContainer}{/headerContainer}
+{<footerContainer}{/footerContainer}

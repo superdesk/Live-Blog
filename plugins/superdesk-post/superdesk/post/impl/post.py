@@ -42,6 +42,13 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     default_source_name = 'internal'; wire.config('default_source_name', doc='''
     The default source name used when a source was not supplied''')
 
+    meta_max_size = 65535; wire.config('meta_max_size', doc='''
+    The maximal size for the meta part of a post; limited only by db system if zero.''')
+    content_max_size = 65535; wire.config('content_max_size', doc='''
+    The maximal size for the content part of a post; limited only by db system if zero.''')
+    content_plain_max_size = 65535; wire.config('content_plain_max_size', doc='''
+    The maximal size for the content plain part of a post; limited only by db system if zero.''')
+
     def __init__(self):
         '''
         Construct the post service.
@@ -173,11 +180,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
 
-        # TODO: implement the proper fix using SQLAlchemy compilation rules
-        nohigh = { i: None for i in range(0x10000, 0x110000) }
-        if postDb.Meta: postDb.Meta = postDb.Meta.translate(nohigh)
-        if postDb.Content: postDb.Content = postDb.Content.translate(nohigh)
-        if postDb.ContentPlain: postDb.ContentPlain = postDb.ContentPlain.translate(nohigh)
+        postDb = self._adjustTexts(postDb)
 
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
         if not postDb.Author:
@@ -208,7 +211,9 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         if Post.Type in post: postDb.typeId = self._typeId(post.Type)
         if post.UpdatedOn is None: postDb.UpdatedOn = current_timestamp()
 
-        self.session().flush((copy(post, postDb, exclude=COPY_EXCLUDE),))
+        copy(post, postDb, exclude=COPY_EXCLUDE)
+        postDb = self._adjustTexts(postDb)
+        self.session().flush((postDb,))
 
     def delete(self, id):
         '''
@@ -274,3 +279,23 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
                     sql = sql.filter(PostMapped.Id < q.cId.until)
             sql = buildQuery(sql, q, PostMapped)
         return sql
+
+    def _adjustTexts(self, postDb):
+        '''
+        Corrects the Meta, Content, ContentPlain fields
+        '''
+        # TODO: implement the proper fix using SQLAlchemy compilation rules
+        nohigh = { i: None for i in range(0x10000, 0x110000) }
+        if postDb.Meta:
+            postDb.Meta = postDb.Meta.translate(nohigh)
+            if self.meta_max_size and (len(postDb.Meta) > self.meta_max_size):
+                raise InputError(Ref(_('Too long Meta part'),)) # can not truncate json data
+        if postDb.Content:
+            postDb.Content = postDb.Content.translate(nohigh)
+            if self.content_max_size and (len(postDb.Content) > self.content_max_size):
+                raise InputError(Ref(_('Too long Content part'),)) # can not truncate structured data
+        if postDb.ContentPlain:
+            postDb.ContentPlain = postDb.ContentPlain.translate(nohigh)
+            if self.content_plain_max_size: postDb.ContentPlain = postDb.ContentPlain[:self.content_plain_max_size]
+
+        return postDb

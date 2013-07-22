@@ -48,3 +48,15 @@ class IBlogCollaboratorFilterService(IAclFilter):
         '''
         @see: IAclFilter.isAllowed
         '''
+
+@service
+class IBlogStatusFilterService(IAclFilter):
+    '''
+    Provides the service that checks if the blog is open/close and post operations are permitted.
+    '''
+
+    @call(method=GET, webName='Status')
+    def isAllowed(self, userId:Authenticated.Id, blogId:Blog.Id) -> HasBlog.HasAccess:
+        '''
+        @see: IAclFilter.isAllowed
+        '''

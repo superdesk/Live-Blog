@@ -1,2 +1,2 @@
 {>"livedesk>items/implementors/sources/base"/}
-{<AdditionalAttributes}  idx="{@idx}{.}{/idx}" page="{Page}" ipp="{Ipp}"{/AdditionalAttributes}
+{<AdditionalAttributes}  id_str="{Meta.id_str}"{/AdditionalAttributes}

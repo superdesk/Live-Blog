@@ -20,12 +20,12 @@ define([
             universal: function(obj) {
                 var meta =  jQuery.extend(true, {}, obj);
                 delete meta['$idx'];
-                delete meta['$len'];                
+                delete meta['$len'];
                 return new PrepublishView({
                     sourceTemplate: 'sources/facebook',
                     data: {
                         Creator: localStorage.getItem('superdesk.login.id'),
-                        Content: obj.message,
+                        Content: meta.message,
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
