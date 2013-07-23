@@ -3,9 +3,9 @@
 {<headerContainer}
 {/headerContainer}
 
-
 {<contentSide}
     {+postDateContainer}{/postDateContainer}
     {+userAvatar}{/userAvatar}
     {+userNameContainer}{/userNameContainer}
+    <a class="logo-badge" href="#" title="by STT"></a>
 {/contentside}
