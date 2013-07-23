@@ -159,3 +159,9 @@ class IPostService(IEntityGetCRUDService):
         '''
         Provides all posts of a source type.
         '''
+
+    @call
+    def update(self, post:Post):
+        '''
+        Updates the post.
+        '''
