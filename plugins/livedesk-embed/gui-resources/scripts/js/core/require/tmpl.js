@@ -70,11 +70,10 @@ define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], f
                 //IE with conditional comments on cannot handle the
                 //sourceURL trick, so skip it if enabled.
                 /*@if (@_jscript) @else @*/
-                if (!config.isBuild) {
-                    text += "\r\n//@ sourceURL=" + path;
-                }
+                // if (!config.isBuild) {
+                //     text += "\r\n//@ sourceURL=" + path;
+                // }
                 /*@end@*/
-
                 load.fromText('tmpl!' + name, text);
             });
         }

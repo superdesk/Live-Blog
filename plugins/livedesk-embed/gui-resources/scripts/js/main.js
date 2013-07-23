@@ -21,7 +21,6 @@ require([
 	'jquery',
 	'gizmo/view-events',
 	'jquery/xdomainrequest',
-	'plugins/button-pagination',
 	'models/blog'
 ], function( $, Gizmo ){
 	/*!
