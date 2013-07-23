@@ -84,7 +84,7 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				params = params || {},
 				requestOptions = $.extend(true, {
 					data: {
-						'cId.since': this._stats.lastCId, 
+						'cId.since': this._stats.lastCId 
 						//'order.start': this._stats.firstOrder
 					}, 
 					headers:  {
