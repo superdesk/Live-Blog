@@ -216,6 +216,34 @@ background: #fff;
 								color: #585858;
 								float: right;
 							}
+							.share-box {
+								display: none;
+								background: #F8F8F8;
+								padding: 10px;
+								border: 1px solid #D0D0D0;
+								position: absolute;
+								top: 22px;
+								right: 10px;
+								z-index: 5;
+								width: 170px;
+								height: 24px;
+								.social {
+									width: 24px;
+									height: 24px;
+									display: inline-block;
+									margin-right: 5px;
+									&.facebook { background: url(img/social_facebook_color.png) no-repeat; }
+									&.twitter { background: url(img/social_twitter_color.png) no-repeat; }
+									&.linkedin { background: url(img/social_linkedin_color.png) no-repeat; }
+									&.pinterest { background: url(img/social_pinterest_color.png) no-repeat; }
+									&.google { background: url(img/social_google_color.png) no-repeat; }
+									&.email { background: url(img/social_email_color.png) no-repeat; }
+									&:last-child {
+										margin-right: 0;
+									}
+
+								}
+							}
 							.permalink {
 								display: none;
 							}
