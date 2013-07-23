@@ -115,7 +115,6 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         # take (or make) the user (for user name) part of creator and collaborator
         userTypeId, = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == self.user_type_key).one()
         try:
-            #sql = self.session().query(UserMapped.userId, UserMapped.DeletedOn)
             sql = self.session().query(UserMapped.userId, UserMapped.RetiredOn)
             sql = sql.filter(UserMapped.typeId == userTypeId)
             sql = sql.filter(UserMapped.FirstName == userName)

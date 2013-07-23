@@ -49,7 +49,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.getById
         '''
         user = self.session().query(UserMapped).get(id)
-        #if not user or user.DeletedOn is not None: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
@@ -62,7 +61,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         else: entities = None
         if detailed or entities is None:
             sql = self.session().query(UserMapped)
-            #sql = sql.filter(UserMapped.DeletedOn == None)
             if q:
                 assert isinstance(q, QUser), 'Invalid query %s' % q
                 sql = buildQuery(sql, q, UserMapped)
@@ -90,14 +88,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
 
-        '''
-        # this should be tested automaically, since the name has a unique constraint
-        sql = self.session().query(UserMapped)
-        sql = sql.filter(UserMapped.Name == user.Name)
-        #sql = sql.filter(UserMapped.DeletedOn == None)
-        if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
-        '''
-
         userDb = UserMapped()
         userDb.password = user.Password
         userDb.CreatedOn = current_timestamp()
@@ -117,20 +107,10 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         assert isinstance(user, User), 'Invalid user %s' % user
 
         userDb = self.session().query(UserMapped).get(user.Id)
-        #if not userDb or userDb.DeletedOn is not None:
         if not userDb:
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
-            '''
-            # this should be checked automatically, since there is a unique constraint on name
-            sql = self.session().query(UserMapped)
-            sql = sql.filter(UserMapped.Id != user.Id)
-            sql = sql.filter(UserMapped.Name == user.Name)
-            sql = sql.filter(UserMapped.DeletedOn == None)
-            if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
-            '''
-
             userDb.typeId = self._userTypeId(user.Type)
             self.session().flush((copy(user, userDb, exclude=('Type',)),))
         except SQLAlchemyError as e: handle(e, userDb)
@@ -140,10 +120,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.delete
         '''
         userDb = self.session().query(UserMapped).get(id)
-        #if not userDb or userDb.DeletedOn is not None: return False
         if not userDb or userDb.RetiredOn is not None: return False
         assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-        #userDb.DeletedOn = current_timestamp()
         userDb.RetiredOn = current_timestamp()
         self.session().merge(userDb)
         return True
@@ -156,7 +134,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         try: userDb = self.session().query(UserMapped).filter(UserMapped.Id == id).one() #.filter(UserMapped.password == password.OldPassword).one()
         except NoResultFound: userDb = None
         
-        #if not userDb or userDb.DeletedOn is not None:
         if not userDb:
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Invalid user id or old password'), ref=User.Id))

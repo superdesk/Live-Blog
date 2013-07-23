@@ -39,7 +39,6 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         @see: ICollaboratorService.getAll
         '''
         sql = self.session().query(CollaboratorMapped)
-        #sql = sql.outerjoin(UserMapped).filter(UserMapped.DeletedOn == None)
         sql = sql.outerjoin(UserMapped).filter(UserMapped.RetiredOn == None)
         if userId is not None: sql = sql.filter(CollaboratorMapped.User == userId)
         if sourceId is not None: sql = sql.filter(CollaboratorMapped.Source == sourceId)

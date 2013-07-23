@@ -182,7 +182,6 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         if sql.delete() > 0:
             commitNow()  # We make sure that the delete has been performed
 
-            #try: user = self.session().query(UserMapped).filter(UserMapped.Name == authentication.UserName).filter(UserMapped.DeletedOn == None).one()
             try: user = self.session().query(UserMapped).filter(UserMapped.Name == authentication.UserName).filter(UserMapped.RetiredOn == None).one()
             except NoResultFound: user = None
 

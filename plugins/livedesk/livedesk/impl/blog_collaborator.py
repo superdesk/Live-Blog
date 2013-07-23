@@ -116,7 +116,6 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
-        #sql = sql.filter(UserMapped.DeletedOn == None)
         sql = sql.filter(UserMapped.RetiredOn == None)
         return sql.all()
 
@@ -127,7 +126,6 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)
         sql = sql.filter(not_(CollaboratorMapped.Id.in_(sqlBlog)))
-        #sql = sql.filter(UserMapped.DeletedOn == None)
         sql = sql.filter(UserMapped.RetiredOn == None)
         sql = sql.order_by(CollaboratorMapped.Name)
         if excludeSources: sql = sql.filter(CollaboratorMapped.User != None)
