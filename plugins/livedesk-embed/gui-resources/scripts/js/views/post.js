@@ -92,7 +92,23 @@ define([
 
 				item = (require.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
 				data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
-
+				/*!
+				 * @TODO: move this into plugins ASAP
+				 */
+				data.HashIdentifier = self._parent.hashIdentifier
+				var blogConfig = self._parent._parent._config;
+				newHash = blogConfig.hashIdentifier + data.Order;
+				if(blogConfig.location.indexOf('?') === -1) {
+					data.permalink = blogConfigt.location + '?' + newHash ;
+				} else if(blogConfig.location.indexOf(blogConfig.hashIdentifier) !== -1) {
+					regexHash = new RegExp(blogConfig.hashIdentifier+'[^&]*');
+					data.permalink = blogConfig.location.replace(regexHash,newHash);
+				} else {
+					data.permalink = blogConfig.location + '&' + newHash;
+				}
+				/*!
+				 * @END TODO
+				 */
 				$.tmpl(item, data, function(e, o){
 					 self.setElement(o);
 					 /*!
@@ -170,6 +186,9 @@ define([
 						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
 						$(this).next('.share-box').toggle();
 					});
+					/*!
+					 * @END TODO
+					 */
 				});
 						
 			}
