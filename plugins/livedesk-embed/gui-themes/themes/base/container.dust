@@ -59,11 +59,15 @@
 
 {! -- predefined blocks for content top block !}
 {<status}
-<p data-gimme=".status" class="update-time"></p>
+<p data-gimme="blog.status" class="update-time"></p>
 {/status}
 
 {<actionTotop}
-<a data-gimme="posts.to-top" class="pintotop button" href="javascript:void(0);">_('to top');</a>
+<a data-gimme="posts.to-top" class="pintotop button">_('to top');</a>
 {/actionTotop}
 
-{<postsList}<ul data-gimme="posts.list" class="liveblog-postlist"></ul>{/postsList}
+{<postsList}
+<ul data-gimme="posts.list" class="liveblog-postlist">
+	{#Plugins.posts.list}{>"{.}"/}{/Plugins.posts.list}
+</ul>
+{/postsList}

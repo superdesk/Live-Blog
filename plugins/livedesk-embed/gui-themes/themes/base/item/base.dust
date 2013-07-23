@@ -1,5 +1,5 @@
  {+mainContainer}
-<li class="{+itemClass}{/itemClass}">
+<li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
   {+main}
     <a name="{Order}"></a>
     {+headerContainer}
@@ -7,6 +7,7 @@
       {+header}
         {+postDateContainer}{/postDateContainer}
         {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
       {/header}
       </div>
     {/headerContainer}
@@ -219,3 +220,21 @@
   {+externalText}{/externalText}
 </div>
 {/externalTextContainer}
+
+{<shareContainer}
+<div class="post-buttons">
+  {+share}
+    {+socialShare}{/socialShare}
+    {+permanentLinkShare}{/permanentLink}
+  {/share}
+</div>
+{/shareContainer}
+
+{<permanentLinkShare}
+<a href="#" class="permalink" rel="bookmark">#</a>
+<input type="text" data-type="permalink" value="{permalink}">
+{/permanentLinkShare}
+
+{<socialShare}
+<a href="#" class="sf-share">_('Share');</a>
+{/socialShare}

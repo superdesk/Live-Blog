@@ -12,6 +12,7 @@ liveblog.runner = function() {
 		baseUrl: this.baseUrl,
 		urlArgs: 'version=' + this.version
 	}
-	this.loadJs('//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.6/require.min.js').setAttribute('data-main','main');
+	//this.loadJs('//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.6/require.min.js').setAttribute('data-main','main');
+	this.loadJs('core/require').setAttribute('data-main','main');
 }
 liveblog.runner();
