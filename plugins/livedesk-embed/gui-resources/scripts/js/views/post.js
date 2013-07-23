@@ -33,7 +33,30 @@ define([
 				self.el.remove();
 				self.model.off('read update delete');
 				return self;			
-			},		
+			},
+			toggleWrap: function(e, forceToggle) {
+				if (typeof forceToggle != 'boolean' ) {
+					forceToggle = false;
+				}
+				this._toggleWrap($(e).closest('li').first(), forceToggle);
+			},
+			_toggleWrap: function(item, forceToggle) {
+				if (typeof forceToggle != 'boolean' ) {
+					forceToggle = false;
+				}
+				if (item.hasClass('open')) {
+					var collapse = true;
+					if ( collapse ) {
+						item.removeClass('open').addClass('closed');
+						item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').hide();
+					} else {
+						//don't collapse wrap'
+					}
+				} else {
+					item.removeClass('closed').addClass('open');
+					item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').show();
+				}
+			},	
 			render: function(evt, data)
 			{
 				var self = this, 

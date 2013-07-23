@@ -1,5 +1,5 @@
 {>"themeBase/item/posttype/base"/}
-{<itemClass}wrapup{/itemClass}
+{<itemClass}wrapup open{/itemClass}
 {<contenteBaseBefore}
 	{+wrapupIcon}{/wrapupIcon}
 {/contenteBaseBefore}
