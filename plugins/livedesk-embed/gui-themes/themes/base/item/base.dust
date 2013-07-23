@@ -230,10 +230,10 @@
 </div>
 {/shareContainer}
 
-{<permanentLink}
+{<permanentLinkShare}
 <a href="#" class="permalink" rel="bookmark">#</a>
-<input type="text" data-type="permalink" value="">
-{/permanentLink}
+<input type="text" data-type="permalink" value="{permalink}">
+{/permanentLinkShare}
 
 {<socialShare}
 <a href="#" class="sf-share">_('Share');</a>
