@@ -99,7 +99,7 @@ define([
 				var blogConfig = self._parent._parent._config;
 				newHash = blogConfig.hashIdentifier + data.Order;
 				if(blogConfig.location.indexOf('?') === -1) {
-					data.permalink = blogConfigt.location + '?' + newHash ;
+					data.permalink = blogConfig.location + '?' + newHash ;
 				} else if(blogConfig.location.indexOf(blogConfig.hashIdentifier) !== -1) {
 					regexHash = new RegExp(blogConfig.hashIdentifier+'[^&]*');
 					data.permalink = blogConfig.location.replace(regexHash,newHash);
