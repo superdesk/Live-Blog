@@ -42,6 +42,10 @@ $.extend(providers.twitter, {
         
 	data: [],
 	init: function(){
+        this.notificationButton = $('.'+providers.twitter.className).
+            parents('li:eq(0)').
+            find('.config-notif');
+                
 		if(!this.initialized || !this.el.children(":first").length) {
             this.adaptor._parent = this;
             this.adaptor.init();
@@ -52,15 +56,12 @@ $.extend(providers.twitter, {
 		this.initialized = true;
 
         $('a[href="#twitter"] span.notifications').html('').css('display', 'none');
-                
-        $('.'+providers.twitter.className)
-            .parents('li:eq(0)').find('.config-notif').off('click').on('click', this.configNotif);
+        
+        this.notificationButton.off('click').on('click', this.configNotif);
             
-        $('.'+providers.twitter.className)
-            .parents('li:eq(0)').find('.config-notif')
-            .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
-            .tooltip({placement: 'right'});
-                    
+        this.notificationButton.
+            attr('title',_('Click to turn notifications on or off <br />while this tab is hidden')).
+            tooltip({placement: 'right'});
 	},
 
         /*!
@@ -111,7 +112,7 @@ $.extend(providers.twitter, {
 		this.el.tmpl('livedesk>providers/twitter', {}, function(){
 			self.el.on('click', '#twt-search-controls>li', function(evt){
               evt.preventDefault();
-			  $(this).siblings().removeClass('active') .end().addClass('active');			  
+			  $(this).siblings().removeClass('active').end().addClass('active');
 			  var myArr = $(this).attr('id').split('-');
 			  //hide all ggl result holders
 			  self.el.find('.scroller').css('visibility', 'hidden');
@@ -129,6 +130,8 @@ $.extend(providers.twitter, {
 					self.startSearch(true);
 				}
 			});
+
+            self.notificationButton.css('display', '');
 		});  
 	},
         showLoading : function(where) {
