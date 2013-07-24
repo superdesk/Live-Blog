@@ -25,6 +25,7 @@ define([
 				item.css('display','none');
 			}
 		}
+
 		view.buttonNextPage = function(evt){
 			var self = this,
 				item = $('[data-gimme="posts.nextPage"]',self.el);
@@ -34,5 +35,8 @@ define([
 				self.checkNextPage();
 			});
 		}
+	});
+	$.dispatcher.on('posts-view.rendered', function(){
+		this.checkNextPage();
 	});
 });

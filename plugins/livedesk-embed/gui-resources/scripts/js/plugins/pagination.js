@@ -34,7 +34,7 @@ define([
 		}
 		view.hasNextPage = function(){
 			var self = this;
-			return !self._flags.atEnd;
+			return self._views.length < self.collection._stats.total;
 		}
 	});
 });
