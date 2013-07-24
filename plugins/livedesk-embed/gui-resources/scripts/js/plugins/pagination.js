@@ -14,6 +14,11 @@ define([
 			}
 			$.dispatcher.triggerHandler('posts-view.loading', self);
 			self._flags.loadingNextPage = true;
+			if(self.filters) {
+				$.each(self.filters, function(method, args) {
+					self.collection[method].apply(self.collection, args);
+				});
+			}
 			return self.collection
 					.xfilter(self._config.xfilter)
 					.limit(self._config.limit)
