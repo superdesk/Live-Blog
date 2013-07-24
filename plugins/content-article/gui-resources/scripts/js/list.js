@@ -5,6 +5,7 @@ define([
     'angular',
     config.guiJs('superdesk/article', 'controllers/article-list'),
     config.guiJs('superdesk/article', 'resources'),
+    config.guiJs('superdesk/article', 'directives/checkbox'),
     'tmpl!superdesk/article>list'
 ],
 function($, backbone, router, angular, ArticleListController) {
