@@ -961,9 +961,9 @@ function(providers, Gizmo, $, BlogAction)
 				if((mfeed.EmbedConfig !== undefined) && $.isString(mfeed.EmbedConfig))
 					embedConfig = JSON.parse(mfeed.EmbedConfig);
 
-				if(embedConfig.FrontendServer !== undefined)
+				if(embedConfig.FrontendServer === undefined)
 					embedConfig.FrontendServer = config.api_url;
-
+				
 				var
 				data = $.extend({}, this.model.feed(), 
 				{
