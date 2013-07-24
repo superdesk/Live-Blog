@@ -44,16 +44,16 @@ define([
 				if (typeof forceToggle != 'boolean' ) {
 					forceToggle = false;
 				}
-				if (item.hasClass('open')) {
+				if (item.hasClass('wrapup-open')) {
 					var collapse = true;
 					if ( collapse ) {
-						item.removeClass('open').addClass('closed');
+						item.removeClass('wrapup-open');
 						item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').hide();
 					} else {
 						//don't collapse wrap'
 					}
 				} else {
-					item.removeClass('closed').addClass('open');
+					item.addClass('wrapup-open');
 					item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').show();
 				}
 			},	
