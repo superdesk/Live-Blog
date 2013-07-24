@@ -40,7 +40,7 @@ define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], f
     } 
 
     return {
-        pluginBuilder: 'tmpl-build',
+        pluginBuilder: 'core/require/tmpl-build',
         write: function (pluginName, name, write) {
             if (buildMap.hasOwnProperty(name)) {
                 var text = buildMap[name];
