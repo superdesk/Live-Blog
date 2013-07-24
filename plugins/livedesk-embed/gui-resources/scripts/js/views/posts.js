@@ -13,6 +13,7 @@ define([
 				addAllPending: false
 			},
 			_config: {
+				filters: {},
 				timeInterval: 10000,
 				data: {
 					thumbSize: 'medium'
@@ -26,7 +27,10 @@ define([
 			},
 			pendingAutoupdates: [],
 			init: function() {
-				var self = this;
+				var self = this,
+					blogConfig = self._parent._config,
+					orderParam = blogConfig.location.split('?'),
+					orderHash =  blogConfig.location.split('#');
 				self._views = [];
 				self._pendingAutoupdates = [];
 				if(self._config.limit) {
@@ -36,16 +40,41 @@ define([
 				if(self._config.offset) {
 					self.collection.offset(self._config.offset);
 					//self.collection._stats.offset = self._config.offset;
-				}
+				}	
 				self.collection
 					.on('read readauto', self.render, self)
 					.on('addings', self.addAll, self)
 					.on('addingsauto',self.addingsAuto, self)
 					.on('removeingsauto', self.removeAllAutoupdate, self)
-					.xfilter(self._config.xfilter)
-					.auto()
-					.autosync({ data: self._config.data });
-			},	
+					.xfilter(self._config.xfilter);
+				if(orderHash[1] && ( (hashIndex = orderHash[1].indexOf(blogConfig.hashIdentifier)) !== -1) ||
+					orderParam[1] && ( (hashIndex = orderParam[1].indexOf(blogConfig.hashIdentifier)) !== -1)
+					) {
+
+					var order;
+					if(orderHash[1]) {
+						order = parseFloat(orderHash[1].substr(hashIndex+blogConfig.hashIdentifier.length));
+					} else if(orderParam[1]) {
+						order = parseFloat(orderParam[1].substr(hashIndex+blogConfig.hashIdentifier.length));
+					}
+					console.log('order:',order);
+					self.filters = {end: [order, 'order']};
+					self.collection
+						.one('rendered', self.showLiner, self)
+						.end(order, 'order')
+						.sync({ data: { thumbSize: 'medium'} });
+				} else {
+					self.collection
+						.auto()
+						.autosync({ data: self._config.data });
+				}
+			},
+			showLiner: function()
+			{
+				var self = this;
+				console.log($('[data-gimme="posts.beforePage"]',self.el));
+				$('[data-gimme="posts.beforePage"]',self.el).css('display','block');
+			},
 			removeOne: function(view) {
 				var 
 					self = this,
@@ -104,8 +133,8 @@ define([
 					 */
 					if( this._views.length === 1) {
 						if(this.el.children().length){
-							var before = $('[data-gimme="before.posts"]:last',this.el),
-								after = $('[data-gimme="after.posts"]:first',this.el)
+							var before = $('[data-gimme="posts.beforePage"]:last',this.el),
+								after = $('[data-gimme="posts.afterPage"]:first',this.el)
 							if(before.length)
 								before.after(view.el);
 							else if (after.length)
@@ -181,6 +210,7 @@ define([
 
 			render: function(evt, data) {		
 				var self = this;
+				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
 			}
 		});
