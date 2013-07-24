@@ -5,7 +5,7 @@ requirejs.config({
 });
 require([
 	'jquery/tmpl',
-	'plugins/button-pagination'
+	'plugins/scroll-pagination'
 	// 'tmpl!theme/item/base',
 	//'tmpl!theme/item/posttype/normal',
 	// 'tmpl!theme/item/posttype/image',
