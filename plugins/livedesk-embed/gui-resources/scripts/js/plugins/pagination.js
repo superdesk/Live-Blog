@@ -4,7 +4,7 @@ define([
 ], function($){
 	$.dispatcher.on('posts-view.class', function(evt, PostView){
 		var view = this.prototype;
-		view._config.limit = 2;
+		view._config.limit = 10;
 		view._flags.loadingNextPage = false;
 		view._flags.atEnd = false;
 		view.nextPage = function(){
