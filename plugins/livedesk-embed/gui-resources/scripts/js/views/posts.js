@@ -212,6 +212,7 @@ define([
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
+				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
 		$.dispatcher.triggerHandler('posts-view.class',PostsView);

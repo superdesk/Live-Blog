@@ -1,0 +1,1 @@
+java -classpath js.jar;compiler.jar -Xss128m org.mozilla.javascript.tools.shell.Main r.js -o core.js
