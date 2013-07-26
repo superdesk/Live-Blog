@@ -51,7 +51,8 @@ require(['core.min'], function(){
 				require([
 					'../../themes/'+liveblog.theme,
 					'utils/find-enviroment',
-					'core'
+					'core',
+					'i18n!livedesk_embed'
 				], function(theme, findEnviroment, core){
 					if(theme && theme.enviroments) {
 						if(!liveblog.enviroment) {
