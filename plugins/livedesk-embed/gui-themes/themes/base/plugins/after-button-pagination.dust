@@ -5,7 +5,7 @@
 	{+loadingNext}{/loadingNext}
 {/main}
 {<loadNext}
-	<a class="load-more">_('Load more posts');</a>
+	<a class="load-more">_('Load more posts ...');</a>
 {/loadNext}
 {<loadingNext}
 	<span class="loading-image"></span>
