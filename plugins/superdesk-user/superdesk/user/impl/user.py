@@ -61,6 +61,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         else: entities = None
         if detailed or entities is None:
             sql = self.session().query(UserMapped)
+
+            activeUsers = True
             if q:
                 assert isinstance(q, QUser), 'Invalid query %s' % q
                 sql = buildQuery(sql, q, UserMapped)
@@ -72,11 +74,13 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                     elif AsLike.ilike in q.all:
                         for col in ALL_NAMES:
                             filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
-                    if AsBoolean.value in q.active:
-                        sql = sql.filter(UserMapped.Active == q.active.value)
-                    else:
-                        sql = sql.filter(UserMapped.Active == True)
                     sql = sql.filter(filter)
+
+                if QUser.inactive in q:
+                    if AsBoolean.value in q.inactive:
+                        activeUsers = not q.inactive.value
+
+            sql = sql.filter(UserMapped.Active == activeUsers)
 
             if entities is None: entities = buildLimits(sql, offset, limit).all()
             if detailed: return IterPart(entities, sql.count(), offset, limit)

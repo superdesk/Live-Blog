@@ -48,7 +48,7 @@ class QUser(QPerson):
     name = AsLikeOrdered
     all = AsLike
     createdOn = AsDateTimeOrdered
-    active = AsBoolean
+    inactive = AsBoolean
 
 # --------------------------------------------------------------------
 
