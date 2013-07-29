@@ -1,12 +1,10 @@
 <div class="search-header">
     <ul class="search-controls" id="twt-search-controls">
         <li class="active" id="twt-web-tab"><a href="#">_('Search');</a></li>
-        <li id="twt-timeline-tab"><a href="#">_('Timeline');</a></li>
         <li id="twt-user-tab"><a href="#">_('User');</a></li>
         <li id="twt-favorites-tab"><a href="#">_('Favorites');</a></li>
     </ul>
 <input type="text" placeholder="_('Search');" class="twitter-search-text" id="twitter-search-web">
-<input type="text" placeholder="_('Enter a twitter username');" class="twitter-search-text" id="twitter-search-timeline" style="display: none">
 <input type="text" placeholder="_('Enter a twitter username');" class="twitter-search-text" id="twitter-search-user" style="display: none">
 <input type="text" placeholder="_('Enter a twitter username');" class="twitter-search-text" id="twitter-search-favorites" style="display: none">
 </div>
@@ -17,11 +15,6 @@
 <ul id="twt-web-more" class="sources-show-more"></ul>
 </ul>
 
-<!-- search results for twitter timeline search -->
-<ul class="search-result-list scroller" id="twt-timeline-holder" style="visibility: hidden">
-<ul id="twt-timeline-results" class="search-result-list clearfix"></ul>
-<ul id="twt-timeline-more" class="sources-show-more"></ul>
-</ul>
 
 <!-- search results for twitter user search -->
 <ul class="search-result-list scroller" id="twt-user-holder" style="visibility: hidden">

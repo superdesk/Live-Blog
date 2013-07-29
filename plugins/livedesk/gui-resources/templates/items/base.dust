@@ -78,7 +78,7 @@
 					</h3>
 					{/ContainerTitle}
 					{+ContainerDescription}
-							<div class="result-description" style="word-wrap: break-word">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
+							<div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
 							<!-- p.result-description tag displays for:
 								> internal link
 								> twitter

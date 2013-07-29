@@ -48,6 +48,7 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-person-icon
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-post
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-source
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-user
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%support
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%url-info
 
 python distribution\application.py -dump

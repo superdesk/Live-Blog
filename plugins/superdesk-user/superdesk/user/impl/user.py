@@ -9,8 +9,9 @@ Created on Mar 6, 2012
 Implementation for user services.
 '''
 
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLike, AsBoolean
 from ally.api.extension import IterPart
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
@@ -23,6 +24,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
+from superdesk.user.meta.user_type import UserTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -34,6 +36,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
     '''
     @see: IUserService
     '''
+    default_user_type_key = 'standard'; wire.config('default_user_type_key', doc='''
+    Default user type for users without specified the user type key''')
+
     def __init__(self):
         '''
         Construct the service
@@ -44,7 +49,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.getById
         '''
         user = self.session().query(UserMapped).get(id)
-        if not user or user.DeletedOn is not None: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
@@ -56,7 +61,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         else: entities = None
         if detailed or entities is None:
             sql = self.session().query(UserMapped)
-            sql = sql.filter(UserMapped.DeletedOn == None)
+
+            activeUsers = True
             if q:
                 assert isinstance(q, QUser), 'Invalid query %s' % q
                 sql = buildQuery(sql, q, UserMapped)
@@ -70,6 +76,12 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                             filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
                     sql = sql.filter(filter)
 
+                if QUser.inactive in q:
+                    if AsBoolean.value in q.inactive:
+                        activeUsers = not q.inactive.value
+
+            sql = sql.filter(UserMapped.Active == activeUsers)
+
             if entities is None: entities = buildLimits(sql, offset, limit).all()
             if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
@@ -80,16 +92,12 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
 
-        sql = self.session().query(UserMapped)
-        sql = sql.filter(UserMapped.Name == user.Name)
-        sql = sql.filter(UserMapped.DeletedOn == None)
-#        if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
-
         userDb = UserMapped()
         userDb.password = user.Password
         userDb.CreatedOn = current_timestamp()
+        userDb.typeId = self._userTypeId(user.Type)
         try:
-            self.session().add(copy(user, userDb))
+            self.session().add(copy(user, userDb, exclude=('Type',)))
             self.session().flush((userDb,))
         except SQLAlchemyError as e: handle(e, userDb)
         user.Id = userDb.Id
@@ -98,21 +106,17 @@ class UserServiceAlchemy(SessionSupport, IUserService):
     def update(self, user):
         '''
         @see: IUserService.update
+        Should not this be handeled automatically via entity service?
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
 
         userDb = self.session().query(UserMapped).get(user.Id)
-        if not userDb or userDb.DeletedOn is not None:
+        if not userDb:
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
-            sql = self.session().query(UserMapped)
-            sql = sql.filter(UserMapped.Id != user.Id)
-            sql = sql.filter(UserMapped.Name == user.Name)
-            sql = sql.filter(UserMapped.DeletedOn == None)
-            if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
-            
-            self.session().flush((copy(user, userDb),))
+            userDb.typeId = self._userTypeId(user.Type)
+            self.session().flush((copy(user, userDb, exclude=('Type',)),))
         except SQLAlchemyError as e: handle(e, userDb)
 
     def delete(self, id):
@@ -120,9 +124,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.delete
         '''
         userDb = self.session().query(UserMapped).get(id)
-        if not userDb or userDb.DeletedOn is not None: return False
+        if not userDb or not userDb.Active: return False
         assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-        userDb.DeletedOn = current_timestamp()
+        userDb.Active = False
         self.session().merge(userDb)
         return True
    
@@ -134,7 +138,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         try: userDb = self.session().query(UserMapped).filter(UserMapped.Id == id).one() #.filter(UserMapped.password == password.OldPassword).one()
         except NoResultFound: userDb = None
         
-        if not userDb or userDb.DeletedOn is not None:
+        if not userDb:
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Invalid user id or old password'), ref=User.Id))
         
@@ -142,3 +146,18 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             userDb.password = password.NewPassword
             self.session().flush((userDb,))
         except SQLAlchemyError as e: handle(e, userDb)
+
+    # ----------------------------------------------------------------
+
+    def _userTypeId(self, key):
+        '''
+        Provides the user type id that has the provided key.
+        '''
+        if not key: key = self.default_user_type_key
+
+        try:
+            sql = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(Ref(_('Invalid user type %(userType)s') % dict(userType=key), ref=User.Type))
+

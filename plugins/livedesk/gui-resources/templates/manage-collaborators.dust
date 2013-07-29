@@ -25,7 +25,7 @@
   </div>
   <div class="modal-body modal-body-min">
 
-    <input class="span3 searchbar-container searchbar-small" size="16" type="text" name="search" placeholder="Search" style="margin-top:-5px;float:right !important;">
+    <input class="span3 searchbar-container searchbar-small searchbox" size="16" type="text" name="search" placeholder="Search" style="margin-top:-5px;float:right !important;">
 
     <form class="form-horizontal row-fluid" style="margin-top:10px;">
 
