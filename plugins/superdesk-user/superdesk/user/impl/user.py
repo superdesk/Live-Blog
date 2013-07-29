@@ -9,7 +9,7 @@ Created on Mar 6, 2012
 Implementation for user services.
 '''
 
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLike, AsBoolean
 from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
@@ -72,10 +72,10 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                     elif AsLike.ilike in q.all:
                         for col in ALL_NAMES:
                             filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
-                    if (AsLike.value in q.retired) and q.retired.value:
-                        sql = sql.filter(UserMapped.RetiredOn != None)
+                    if AsBoolean.value in q.active:
+                        sql = sql.filter(UserMapped.Active == q.active.value)
                     else:
-                        sql = sql.filter(UserMapped.RetiredOn == None)
+                        sql = sql.filter(UserMapped.Active == True)
                     sql = sql.filter(filter)
 
             if entities is None: entities = buildLimits(sql, offset, limit).all()
@@ -120,9 +120,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.delete
         '''
         userDb = self.session().query(UserMapped).get(id)
-        if not userDb or userDb.RetiredOn is not None: return False
+        if not userDb or not userDb.Active: return False
         assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-        userDb.RetiredOn = current_timestamp()
+        userDb.Active = False
         self.session().merge(userDb)
         return True
    

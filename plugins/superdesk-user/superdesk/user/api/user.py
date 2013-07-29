@@ -27,7 +27,7 @@ class User(Person):
     Type = UserType
     Name = str
     CreatedOn = datetime
-    RetiredOn = datetime
+    Active = bool
     Password = str
 
 @modelHR
@@ -48,7 +48,7 @@ class QUser(QPerson):
     name = AsLikeOrdered
     all = AsLike
     createdOn = AsDateTimeOrdered
-    retired = AsBoolean
+    active = AsBoolean
 
 # --------------------------------------------------------------------
 
