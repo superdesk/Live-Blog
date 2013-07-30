@@ -1,13 +1,8 @@
-requirejs.config({
-	paths: 	{
-		'theme': '../../themes/default'
-	}
-});
-require([
-	'jquery/tmpl',
-	'plugins/scroll-pagination'
+define([
+	// 'jquery/tmpl',
+	// 'plugins/scroll-pagination',
 	// 'tmpl!theme/item/base',
-	//'tmpl!theme/item/posttype/normal',
+	// 'tmpl!theme/item/posttype/normal',
 	// 'tmpl!theme/item/posttype/image',
 	// 'tmpl!theme/item/posttype/wrapup',
 	// 'tmpl!theme/item/posttype/quote',
@@ -25,16 +20,17 @@ require([
 	// 'tmpl!theme/item/source/comments',
 	// 'tmpl!theme/item/source/soundcloud',
 	// 'tmpl!theme/item/source/instagram',
-	// 'tmpl!theme/item/source/sms'
+	// 'tmpl!theme/item/source/sms',
+	'css!theme/liveblog'
 ], function(){
-	function loadCss(url) {
-		var link = document.createElement("link");
-		link.type = "text/css";
-		link.rel = "stylesheet";
-		link.href = url;
-		document.getElementsByTagName("head")[0].appendChild(link);
-	}
-	loadCss(require.toUrl('theme/liveblog.css'));//'css!theme/livedesk',
+	// function loadCss(url) {
+	// 	var link = document.createElement("link");
+	// 	link.type = "text/css";
+	// 	link.rel = "stylesheet";
+	// 	link.href = url;
+	// 	document.getElementsByTagName("head")[0].appendChild(link);
+	// }
+	// loadCss(require.toUrl('theme/liveblog.css'));//,
 	return {
 		//enviroments: [ 'mobile', 'desktop', 'quirks' ],
 		plugins: [ 'scroll', 'pagination' ]

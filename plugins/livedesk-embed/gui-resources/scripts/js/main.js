@@ -47,9 +47,13 @@ require(['core.min'], function(){
 				 */
 				liveblog.language = liveblog.language? liveblog.language: blog.get('Language').Code;
 				liveblog.theme 	 = liveblog.theme? liveblog.theme: embedConfig.theme;
-
+				requirejs.config({
+					paths: 	{
+						'theme': '../../themes/' + liveblog.theme//+'.min'
+					}
+				});
 				require([
-					'../../themes/'+liveblog.theme,
+					'theme',
 					'utils/find-enviroment',
 					'core',
 					'i18n!livedesk_embed'
@@ -59,7 +63,13 @@ require(['core.min'], function(){
 							var enviroment = findEnviroment();
 							liveblog.enviroment = theme.enviroments[enviroment]? theme.enviroments[enviroment] : theme.enviroments['default'];
 						}
-						require(['../../themes/' + liveblog.theme + '/' + liveblog.enviroment], function(){
+						requirejs.undef('theme');
+						requirejs.config({
+							paths: 	{
+								'theme': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment
+							}
+						});
+						require(['theme'], function(){
 							core(blog);
 						});
 					} else {
