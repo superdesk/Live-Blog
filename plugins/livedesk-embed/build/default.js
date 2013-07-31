@@ -20,14 +20,12 @@
 		'gettext': 'core/gettext',
 		'gizmo': 'core/gizmo'
     },
-    frontendServer: '../themes/bugulina',
-    version: 2,
 	baseUrl: '../gui-resources/scripts/js',
 	mainConfigFile: '../gui-themes/themes/default.js',
 	name: 'theme',
 	out: '../gui-themes/themes/default.min.js',
 	preserveLicenseComments: false,
-	optimize: 'none',
+	optimize: 'closure',
 	excludeShallow: [
 		'jquery',
 		'jquery/utils',

@@ -99,7 +99,6 @@ define(['core/require/normalize'], function(normalize) {
     var pathname = window.location.pathname.split('/');
     pathname.pop();
     pathname = pathname.join('/') + '/';
-    console.log('base_url: ',require.toUrl('base_url'));
     var baseParts = require.toUrl('base_url').split('/');
     baseParts.pop();
     var baseUrl = baseParts.join('/') + '/';

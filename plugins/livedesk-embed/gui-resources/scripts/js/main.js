@@ -28,9 +28,9 @@ require(['core.min'], function(){
 		if( !liveblog.el || ($(liveblog.el).length === 0)) {
 			liveblog.el = $('<div></div>').insertBefore(liveblog.script);
 		}
-
 		var blog = new Gizmo.Register.Blog(), 
-			embedConfig = {};
+			embedConfig = {}
+			min = require.specified("core")? '.min': '';
 		blog.url.decorate('%s/' + liveblog.id);
 		blog
 			.xfilter('Description, Title, EmbedConfig, Language.Code')
@@ -49,11 +49,12 @@ require(['core.min'], function(){
 				liveblog.theme 	 = liveblog.theme? liveblog.theme: embedConfig.theme;
 				requirejs.config({
 					paths: 	{
-						'theme': '../../themes/' + liveblog.theme//+'.min'
+						'themeFile': '../../themes/' + liveblog.theme + min,
+						'theme': '../../themes/' + liveblog.theme
 					}
 				});
 				require([
-					'theme',
+					'themeFile',
 					'utils/find-enviroment',
 					'core',
 					'i18n!livedesk_embed'
@@ -62,14 +63,18 @@ require(['core.min'], function(){
 						if(!liveblog.enviroment) {
 							var enviroment = findEnviroment();
 							liveblog.enviroment = theme.enviroments[enviroment]? theme.enviroments[enviroment] : theme.enviroments['default'];
+						} else {
+
 						}
 						requirejs.undef('theme');
+						requirejs.undef('themeFile');
 						requirejs.config({
 							paths: 	{
+								'themeFile': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment + min,
 								'theme': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment
 							}
 						});
-						require(['theme'], function(){
+						require(['themeFile'], function(){
 							core(blog);
 						});
 					} else {

@@ -92,11 +92,11 @@ define(['require', 'core/require/normalize'], function(req, normalize) {
   // NB add @media query support for media imports
   var importRegEx = /@import\s*(url)?\s*(('([^']*)'|"([^"]*)")|\(('([^']*)'|"([^"]*)"|([^\)]*))\))\s*;?/g;
 
-  var loadCSSFile = function(fileUrl) {
+  var loadCSSFile = function(fileUrl, modulePath) {
     var css = loadFile(fileUrl);
 
     // normalize the css (except import statements)
-    css = normalize(css, fileUrl, baseUrl, cssBase);
+    css = normalize(css, fileUrl, baseUrl, cssBase, modulePath);
 
     // detect all import statements in the css and normalize
     var importUrls = [];
@@ -128,7 +128,7 @@ define(['require', 'core/require/normalize'], function(req, normalize) {
     // load the import stylesheets and substitute into the css
     for (var i = 0; i < importUrls.length; i++)
       (function(i) {
-        var importCSS = loadCSSFile(importUrls[i]);
+        var importCSS = loadCSSFile(importUrls[i], modulePath);
         css = css.substr(0, importIndex[i]) + importCSS + css.substr(importIndex[i] + importLength[i]);
         var lenDiff = importCSS.length - importLength[i];
         for (var j = i + 1; j < importUrls.length; j++)
@@ -139,9 +139,11 @@ define(['require', 'core/require/normalize'], function(req, normalize) {
   }
   
 
-  var baseUrl;  
-  var cssBase;
-  var curModule;
+  var baseUrl,
+      cssBase,
+      curModule,
+      modulePath,
+      modulePathParts;
   cssAPI.load = function(name, req, load, config, parse) {
     if (!baseUrl)
       baseUrl = config.baseUrl;
@@ -161,7 +163,9 @@ define(['require', 'core/require/normalize'], function(req, normalize) {
     
     //store config
     cssAPI.config = cssAPI.config || config;
-
+    modulePathParts = name.split('/');
+    modulePathParts.pop();
+    modulePath = modulePathParts.join('/')+'/';
     name += !parse ? '.css' : '.less';
 
     var fileUrl = req.toUrl(name);
@@ -171,7 +175,7 @@ define(['require', 'core/require/normalize'], function(req, normalize) {
       return;
 
     //add to the buffer
-    _cssBuffer[name] = loadCSSFile(fileUrl);
+    _cssBuffer[name] = loadCSSFile(fileUrl, modulePath);
 
     // parse if necessary
     if (parse)
