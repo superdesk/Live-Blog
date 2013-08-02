@@ -58,4 +58,4 @@ def updateDemoEmbedFile():
         except:
             log.exception('Error publishing demo client file')
         else:
-            assert log.debug('Client demo script published:', embed_server_url() + getPublishedLib('livedesk-embed/' + file)) or True
+            assert log.debug('Client demo script published: \'%s\'', embed_server_url() + getPublishedLib('livedesk-embed/' + file)) or True
