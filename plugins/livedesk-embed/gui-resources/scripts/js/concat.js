@@ -23,6 +23,7 @@ requirejs.config({
 require([
 	'jquery',
 	'livedesk-embed/views/timeline',
+	'livedesk-embed/views/user-comments-popup',
 	'livedesk-embed/plugins',
 	'jquery/cookie'
 ], function(){});
