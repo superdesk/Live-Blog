@@ -179,7 +179,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         try:
             self.session().add(ent)
             self.session().flush((ent,))
-        except SQLAlchemyError as e: handle(e, ent)
+        except SQLAlchemyError as e:
+            raise InputError(Ref(_('Cannot add blog-source link.'),))
         return sourceId
 
     def deleteSource(self, blogId, sourceId):
@@ -193,7 +194,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             if res:
                 sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
-                    self.sourceService.delete(sourceId)
+                    try:
+                        self.sourceService.delete(sourceId)
+                    except InputError: pass
             return res
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
