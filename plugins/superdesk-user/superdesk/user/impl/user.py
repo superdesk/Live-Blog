@@ -76,8 +76,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                             filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
                     sql = sql.filter(filter)
 
-                if QUser.inactive in q:
-                    if AsBoolean.value in q.inactive:
+                if (QUser.inactive in q) and (AsBoolean.value in q.inactive):
                         activeUsers = not q.inactive.value
 
             sql = sql.filter(UserMapped.Active == activeUsers)
