@@ -187,9 +187,29 @@ define([
 						if ( added != 'yes') {
 							var blogTitle = encodeURL(self._parent.model.get('Title'));
 							var myPerm = encodeURL(data.permalink);
-							var imgsrc = $('.result-content img:first', self.el).attr('src');
+							var imgSrc = $('.result-content img:first', self.el).attr('src');
+							var mediaSrc = '';
+							var showPin = false;
+							if ( imgSrc ) {
+								var imgObj = new Image();
+								imgObj.src = imgSrc;
+								if ( imgObj.width >= 100 && imgObj.height >= 200 ) {
+									mediaSrc = imgSrc;
+									showPin = true;
+								}
+							}
+							if ( !showPin ) {
+								var ifrSrc = $('iframe', self.el).attr('src');
+								if ( ifrSrc ) {
+									ifrSrc = ifrSrc.toString();
+									if ( ifrSrc.indexOf("youtube") != -1) {
+										mediaSrc = data.Meta.thumbnail.hqDefault;
+										showPin = true;
+									}	
+								}
+							}
 							var summary = encodeURL($('.result-content .result-text:last', self.el).text());
-							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=" + blogTitle;
+							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + mediaSrc + "&description=" + blogTitle;
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
 							var emailurl = "mailto:?to=&subject=" + _('Check out this Live Blog') + "&body=" + myPerm;
 							var fburl = "http://www.facebook.com/sharer.php?s=100";
@@ -211,7 +231,8 @@ define([
 								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
 								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
 								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
-								'emailurl': emailurl
+								'emailurl': emailurl,
+								'showPin': showPin
 							}
 							$.tmpl('theme/item/social-share', socialParams, function(e, o){
 								share.after(o);

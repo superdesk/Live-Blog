@@ -22,6 +22,8 @@ from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
 from __plugin__.media_archive.actions import rightMediaArchiveUpload
+from __plugin__.livedesk.actions import rightLivedeskUpdate
+from __plugin__.superdesk_user.actions import rightUserView
 
 # --------------------------------------------------------------------
 
@@ -53,7 +55,35 @@ def blogRoleCollaboratorId():
         return roleService.insert(collaborator)
     return collaborator.Id
 
+@ioc.entity
+def blogRoleEditorId():
+    roleService = support.entityFor(IRoleService)
+    assert isinstance(roleService, IRoleService)
+
+    roles = roleService.getAll(limit=1, q=QRole(name='Editor'))
+    try: editor = next(iter(roles))
+    except StopIteration:
+        editor = Role()
+        editor.Name = NC_('security role', 'Editor')
+        editor.Description = NC_('security role', 'Role that allows editor stuff')
+        return roleService.insert(editor)
+    return editor.Id
+
+
 # --------------------------------------------------------------------
+
+@app.populate
+def populateEditorRole():
+    roleService = support.entityFor(IRoleService)
+    assert isinstance(roleService, IRoleService)
+    roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskView()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveView()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveUpload()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskUpdate()))
+    roleService.assignRight(blogRoleEditorId(), rightId(rightUserView()))
+    roleService.assignRole(blogRoleAdministratorId(), blogRoleEditorId())
 
 @app.populate
 def populateCollaboratorRole():
@@ -91,19 +121,7 @@ def populateDefaultUsers():
     userRbacService = support.entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
 
-    users = userService.getAll(limit=1, q=QUser(name='admin'))
-    if not users:
-        user = User()
-        user.FirstName = 'Janet'
-        user.LastName = 'Editor'
-        user.EMail = 'Janet.Editor@email.addr'
-        user.Name = 'admin'
-        user.Password = hashlib.sha512(b'a').hexdigest()
-        user.Id = userService.insert(user)
-    else: user = next(iter(users))
-    userRbacService.assignRole(user.Id, blogRoleAdministratorId())
-
-    for name in (('Andrew', 'Reporter'), ('Christine', 'Journalist')):
+    for name in (('Janet', 'Admin'), ('Diane', 'Editor'), ('Andrew', 'Reporter'), ('Christine', 'Journalist')):
         loginName = name[1].lower()
         users = userService.getAll(limit=1, q=QUser(name=loginName))
         if not users:
@@ -115,4 +133,9 @@ def populateDefaultUsers():
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
         else: user = next(iter(users))
-        userRbacService.assignRole(user.Id, blogRoleCollaboratorId())
+        if user.Name == 'admin':
+            userRbacService.assignRole(user.Id, blogRoleAdministratorId())
+        elif user.Name == 'editor':
+            userRbacService.assignRole(user.Id, blogRoleEditorId())
+        else:
+            userRbacService.assignRole(user.Id, blogRoleCollaboratorId())
