@@ -5,8 +5,7 @@ define
     'router',
     'angular',
     config.guiJs('superdesk/user', 'controllers/user-list'),
-    config.guiJs('superdesk/article', 'resources'),
-    config.guiJs('superdesk/article', 'directives/checkbox'),
+    config.guiJs('superdesk/user', 'resources'),
     'tmpl!superdesk/user>list',
     'angular-bootstrap'
 ],
@@ -24,7 +23,7 @@ function($, backbone, router, angular, UserListController) {
 
         module.controller('UserListController', UserListController);
 
-        $('#area-main').tmpl('superdesk/article>list');
+        $('#area-main').tmpl('superdesk/user>list');
         $('#area-main').attr('ng-controller', 'UserListController');
         angular.bootstrap(document, ['users']);
     };
