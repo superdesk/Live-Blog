@@ -28,7 +28,7 @@ $.extend(providers.comments, {
         this.adaptor.init();
         self.data.comments = [];
         $.ajax({
-            url: blogUrl[0]
+            url: typeof blogUrl === 'string' ? blogUrl : blogUrl[0]
         }).done(function(data){
             self.blogId = data.Id;
             self.render();
