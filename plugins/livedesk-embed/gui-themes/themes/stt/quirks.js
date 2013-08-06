@@ -4,7 +4,7 @@ requirejs.config({
 	}
 });
 define([
-	//'tmpl!theme/container',
+	'tmpl!theme/container',
 	'tmpl!theme/item/base',
 	'css!theme/liveblog'
 ], function(){
