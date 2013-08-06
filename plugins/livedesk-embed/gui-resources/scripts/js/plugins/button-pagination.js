@@ -66,10 +66,10 @@ define([
 			var self = this,
 				item = $('[data-gimme="posts.beforePage"]',self.el);
 			item.addClass('loading');
-			$(self.el).html('');			
+			$(self.el).html('');
+			self._flags.beforePage = false;
 			self.beforePage().done(function(){
 				item.removeClass('loading');
-				self._flags.beforePage = false;
 				item.css(propName,propValue.hide);
 			});
 

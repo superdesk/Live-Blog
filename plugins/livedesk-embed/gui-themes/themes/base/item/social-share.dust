@@ -1,4 +1,4 @@
-<div class="share-box">
+<div data-gimme="post.share-social" class="share-box" style="visibility:hidden">
 	<a href="#" class='social facebook' target='_blank' title="_('Share this post on Facebook');" onclick="{fbclick}"></a>
 	<a href="#" class='social twitter' target='_blank' title="_('Share this post on Twitter');" onclick="{twtclick}"></a>
 	<a href="#" class='social linkedin' title="_('Share this post on Linkedin');" onclick="{linclick}"></a>

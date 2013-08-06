@@ -127,6 +127,7 @@ define([
 
 			addingsAuto: function(evt, data) {
 				var self = this;
+				console.log(data);
 				if(data.length) {
 					self.pendingAutoupdates.concat(data);
 				}
@@ -136,6 +137,7 @@ define([
 				var self = this;
 				if(!self._flags.addAllPending && self.pendingAutoupdates.length) {
 					self._flags.addAllPending = true;
+					console.log('add: ',this.pendingAutoupdates);
 					for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
 						this.addOne(this.pendingAutoupdates[i]);
 					}
@@ -164,7 +166,6 @@ define([
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
-				console.log('render');
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});

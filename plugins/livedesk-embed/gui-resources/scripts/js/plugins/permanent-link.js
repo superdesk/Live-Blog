@@ -12,18 +12,22 @@ define([
 	});
 	$.dispatcher.on('posts-view.class', function(evt){
 		var view = this.prototype;
-		
-		view.events['[data-gimme="post.share-permalink-action"]'] = { "click": "permalinkAction" }
+		view.events['[data-gimme="post.share-permalink"]'] = { "click focus": "permalinkInput" }
+		view.permalinkInput = function(evt){
+			$(evt.target).select();
+		}
+
+		view.events['[data-gimme="post.permalink"]'] = { "click": "permalinkAction" }
 		view.permalinkAction = function(evt){
 			evt.preventDefault();
 			var self = this,
-				input = $('[data-gimme="post.share-permalink-input"]',self.el);
-				if(input.css(propName) === propValue.show) {
-					input.css(propName, propValue.hide );
+				box = $('[data-gimme="post.share-permalink"]',self.el);
+				if(box.css(propName) === propValue.show) {
+					box.css(propName, propValue.hide );
 				} else {
-					input.css(propName, propValue.show );
-					input.trigger(self.getEvent('focus'));
-					// $('.result-header .share-box', self.el).fadeOut('fast');
+					$('[data-gimme^="post.share"]',self.el).css(propName, propValue.hide);
+					box.css(propName, propValue.show );
+					box.trigger(self.getEvent('focus'));
 				}		
 			}
 	});

@@ -48,7 +48,6 @@ define([
 		}
 		view.hasNextPage = function(){
 			var self = this;
-			console.log(self._views.length,self.collection._stats.total);
 			return self._views.length < self.collection._stats.total;
 		}
 	});

@@ -227,13 +227,13 @@
 
 {<permanentLinkShare}
   {+permanentLink}
-    <a data-gimme="post.share-permalink-action" href="{permalink}" rel="bookmark" class="permalink">#</a>
-    <input data-gimme="post.share-permalink-input" type="text" style="visibility:hidden" value="{permalink}">
+    <a data-gimme="post.permalink" href="{permalink}" rel="bookmark" class="permalink">#</a>
+    <input data-gimme="post.share-permalink" type="text" style="visibility:hidden" value="{permalink}">
   {/permanentLink}
 {/permanentLinkShare}
 
 {<socialShare}
   {+social}
-  <a data-gimme="post.share-social" href="#" class="sf-share">_('Share');</a>
+  <a data-gimme="post.social" href="#" class="sf-share">_('Share');</a>
   {/social}
 {/socialShare}

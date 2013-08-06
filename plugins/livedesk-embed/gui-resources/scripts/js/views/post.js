@@ -102,15 +102,10 @@ define([
 					}
 				});
 				$.tmpl(item, data, function(e, o){
-					 self.setElement(o);
-					var li = $('.result-header', self.el).parent();
-					li.hover(function(){
-						//hover in
-					}, function(){
-						$(this).find('.share-box').fadeOut(100);
-						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
-					});
-
+					self.setElement(o);
+					/*!
+					 * @TODO Move this into a plugin
+					 */
 					var sharelink = $('.sf-share', self.el);
 					sharelink.on(self.getEvent('click'), function(evt){
 					    evt.preventDefault();
@@ -153,7 +148,19 @@ define([
 								share.attr('data-added', 'yes');	
 							});
 						}
+						var propName = 'visibility',
+							propValue = { 'show': 'visible', 'hide': 'hidden' },
+							box = $('[data-gimme="post.share-social"]',self.el);
+						if(box.css(propName) === propValue.show) {
+							box.css(propName, propValue.hide );
+						} else {
+							$('[data-gimme^="post.share"]',self.el).css(propName, propValue.hide);
+							box.css(propName, propValue.show );
+						}
 					});
+					/*!
+					 * @END TODO
+					 */
 				});
 						
 			}
