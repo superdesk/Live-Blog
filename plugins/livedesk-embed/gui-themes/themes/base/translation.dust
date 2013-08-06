@@ -10,5 +10,10 @@ _('Share');
 _('Favorites');
 _('Retweet');
 _('Reply');
+_('Share this post on Facebook');
+_('Share this post on Twitter');
+_('Share this post on Linkedin');
+_('Share this post on Pinterest');
+_('Share this post on Google+');
+_('Share this post via Email');
 !}
-

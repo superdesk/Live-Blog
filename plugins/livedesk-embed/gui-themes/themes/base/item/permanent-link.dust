@@ -1,0 +1,2 @@
+<a href="{permalink}" rel="bookmark">#</a>
+<input type="text" data-gimme="post.permalink" style="visibility:hidden" value="{permalink}">

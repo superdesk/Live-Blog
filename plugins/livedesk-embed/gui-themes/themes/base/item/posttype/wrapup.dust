@@ -1,8 +1,6 @@
 {>"themeBase/item/posttype/base"/}
-{<itemClass}wrapup{/itemClass}
+{<additionalAttributes}data-gimme="post.wrapup" data-wrapup-open="wrapup-open"{/additionalAttributes}
+{<itemClass}wrapup wrapup-open{/itemClass}
 {<contenteBaseBefore}
 	{+wrapupIcon}{/wrapupIcon}
 {/contenteBaseBefore}
-{<contentSideContainer}{/contentSideContainer}
-{<headerContainer}{/headerContainer}
-{<footerContainer}{/footerContainer}

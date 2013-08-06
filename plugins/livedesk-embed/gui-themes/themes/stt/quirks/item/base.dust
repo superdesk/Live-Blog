@@ -1,1 +1,12 @@
 {>"themeBase/item/base"/}
+{<userAvatar}
+{?AuthorImage}
+<div class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
+</div>
+{:else}
+<div class="post-publisher-avatar">
+  <img src="http://localhost:8080/content/lib/livedesk-embed/themes/stt/quirks/img/avatar0.png" class="post-publisher-avatar-img">
+</div>
+{/AuthorImage}
+{/userAvatar}

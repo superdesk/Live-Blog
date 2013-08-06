@@ -17,35 +17,33 @@ define([
 				data: {
 					thumbSize: 'medium'
 				},
-				xfilter: 'PublishedOn, DeletedOn, Order, Id,' +
-							   'CId, Content, CreatedOn, Type, '+
-							   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
-							   'IsModified, AuthorImage,' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
-							   'Meta, IsPublished, Creator.FullName'
+				collection: {
+					xfilter: 'PublishedOn, DeletedOn, Order, Id,' +
+								   'CId, Content, CreatedOn, Type, '+
+								   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
+								   'IsModified, AuthorImage,' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
+								   'Meta, IsPublished, Creator.FullName'
+				}
 			},
 			pendingAutoupdates: [],
 			init: function() {
 				var self = this;
 				self._views = [];
-				self._pendingAutoupdates = [];
-				if(self._config.limit) {
-					self.collection.limit(self._config.limit);
-					self.collection._stats.limit = self._config.limit;
-				}
-				if(self._config.offset) {
-					self.collection.offset(self._config.offset);
-					//self.collection._stats.offset = self._config.offset;
-				}
+				$.each(self._config.collection, function(key, value) {
+					if($.isArray(value))
+						self.collection[key].apply(self.collection, value);
+					else
+						self.collection[key](value);
+				});
 				self.collection
 					.on('read readauto', self.render, self)
 					.on('addings', self.addAll, self)
 					.on('addingsauto',self.addingsAuto, self)
 					.on('removeingsauto', self.removeAllAutoupdate, self)
-					.xfilter(self._config.xfilter)
 					.auto()
 					.autosync({ data: self._config.data });
-			},	
+			},
 			removeOne: function(view) {
 				var 
 					self = this,
@@ -104,8 +102,8 @@ define([
 					 */
 					if( this._views.length === 1) {
 						if(this.el.children().length){
-							var before = $('[data-gimme="before.posts"]:last',this.el),
-								after = $('[data-gimme="after.posts"]:first',this.el)
+							var before = $('[data-gimme="posts.beforePage"]:last',this.el),
+								after = $('[data-gimme="posts.afterPage"]:first',this.el)
 							if(before.length)
 								before.after(view.el);
 							else if (after.length)
@@ -127,27 +125,10 @@ define([
 				return view;
 			},
 
-			removeAllAutoupdate: function(evt, data) {
-				for (var i in data) {
-	                if ('postView' in data[i]) {
-						data[i].postView.remove();
-					}
-				}
-
-				this.markScroll();
-			},
 			addingsAuto: function(evt, data) {
-				var self = this,
-					firstOrder = self.collection._stats.firstOrder;
+				var self = this;
 				if(data.length) {
-					for(var i = 0, count = data.length; i < count; i++) {
-						if(self.collection._stats.firstOrder < data[i].get('Order')) {
-							self.pendingAutoupdates.push(data[i]);
-						}
-						else {
-							self.collection.remove(data[i].hash());
-						}
-					}
+					self.pendingAutoupdates.concat(data);
 				}
 				self.addAllAutoupdate(evt);
 			},
@@ -169,7 +150,7 @@ define([
 				if(self._flags.autoRender) {
 					self.addAllPending(evt);
 					$.dispatcher.triggerHandler('posts-view.added-auto',self);
-				}
+				} 
 			},
 
 			addAll: function(evt, data) {
@@ -181,7 +162,9 @@ define([
 
 			render: function(evt, data) {		
 				var self = this;
+				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
+				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
 		$.dispatcher.triggerHandler('posts-view.class',PostsView);

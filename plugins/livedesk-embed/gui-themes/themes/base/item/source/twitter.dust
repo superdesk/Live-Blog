@@ -28,9 +28,9 @@
 {/externalAvatarSrc}
 
 
-<!-- displayed for:
+{!-- displayed for:
 	> twitter
--->
+--!}
 {<externalTwitterActions}
 <div class="twitter-controls"> <!-- twitter buttons -->
 	<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>
