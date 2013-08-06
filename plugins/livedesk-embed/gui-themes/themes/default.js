@@ -1,6 +1,6 @@
 define([
 	'plugins/wrappup-toggle',
-	'plugins/pagination',
+	'plugins/button-pagination',
 	'plugins/permanent-link',
 	'css!theme/liveblog'
 ], function(){

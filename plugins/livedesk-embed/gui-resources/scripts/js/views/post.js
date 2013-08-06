@@ -95,7 +95,6 @@ define([
 				item = (require.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
 				data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 				$.each(self.data, function(key, value){
-					console.log(key,value);
 					if($.isFunction(value)){
 						data[key] = value.call(self, data);	
 					} else {

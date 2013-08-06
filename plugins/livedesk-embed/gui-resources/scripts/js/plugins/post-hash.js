@@ -27,12 +27,13 @@ define([
 	});
 	$.dispatcher.on('posts-view.class', function(evt){
 		var view = this.prototype;
-		view._config.hashIdentifier = hash;
+		//view._config.hashIdentifier = hash;
 		/*!
 		 * Find if the liveblog was accessed with a hash identifier
 		 *   then use it as a prameter on the collection for the first request.
 		 */
 		if((hashIndex = href.indexOf(hash+'=')) !== -1) {
+			view._flags.beforePage = true;
 			view._config.collection.end = [ parseFloat(href.substr(hashIndex + hash.length + 1)), 'order'];
 			view._flags.autoRender = 'false';
 		}

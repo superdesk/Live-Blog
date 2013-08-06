@@ -164,6 +164,7 @@ define([
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
+				console.log('render');
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
