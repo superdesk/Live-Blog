@@ -69,7 +69,7 @@ def upgradeUser():
     try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
     except (ProgrammingError, OperationalError): pass
 
-    try: session.execute('ALTER TABLE user ADD COLUMN active BOOLEAN NOT NULL')
+    try: session.execute('ALTER TABLE user ADD COLUMN active TINYINT(1) NOT NULL')
     except (ProgrammingError, OperationalError): pass
 
 @app.populate
