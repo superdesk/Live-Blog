@@ -49,7 +49,8 @@
             var self = this,
                 EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
-                    'FrontendServer': self.el.find('[name="FrontendServer"]').val()
+                    'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
+                    'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {
                     Language: self.el.find('[name="Language"]').val(),
