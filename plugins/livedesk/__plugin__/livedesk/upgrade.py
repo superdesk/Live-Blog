@@ -12,6 +12,8 @@ Contains upgrade functions
 from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
 from ..superdesk.db_superdesk import alchemySessionCreator
+from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
+from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
 from ally.container import app
 from ally.container.support import entityFor
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
@@ -106,6 +108,16 @@ def upgradeLiveBlog14():
     session.execute("ALTER TABLE user ADD UNIQUE uix_user_name (`name`)")
 
     insertSource('sms')
+
+@app.populate(priority=PRIORITY_FIRST)
+def upgradeInternationalizationSourceType():
+    creator = alchemySessionCreatorInternationalization()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
+    except (ProgrammingError, OperationalError): pass
 
 @app.populate(priority=PRIORITY_NORMAL)
 def upgradeLiveBlog14First():
