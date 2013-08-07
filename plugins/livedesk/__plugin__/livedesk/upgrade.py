@@ -131,36 +131,48 @@ def upgradeMediaArchiveDeleteFix():
 
     try: session.execute('ALTER TABLE `archive_audio_data` DROP FOREIGN KEY `archive_audio_data_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_audio_data` ADD CONSTRAINT `archive_audio_data_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_audio_data` ADD CONSTRAINT `archive_audio_data_ibfk_1` '
                     'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `archive_meta_data` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
 
     try: session.execute('ALTER TABLE `archive_audio_info` DROP FOREIGN KEY `archive_audio_info_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_audio_info` ADD CONSTRAINT `archive_audio_info_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_audio_info` ADD CONSTRAINT `archive_audio_info_ibfk_1` '
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
 
     try: session.execute('ALTER TABLE `archive_image_data` DROP FOREIGN KEY `archive_image_data_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_image_data` ADD CONSTRAINT `archive_image_data_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_image_data` ADD CONSTRAINT `archive_image_data_ibfk_1` '
                     'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `archive_meta_data` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
 
     try: session.execute('ALTER TABLE `archive_image_info` DROP FOREIGN KEY `archive_image_info_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_image_info` ADD CONSTRAINT `archive_image_info_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_image_info` ADD CONSTRAINT `archive_image_info_ibfk_1` '
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
 
     try: session.execute('ALTER TABLE `archive_video_data` DROP FOREIGN KEY `archive_video_data_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_video_data` ADD CONSTRAINT `archive_video_data_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_video_data` ADD CONSTRAINT `archive_video_data_ibfk_1` '
                     'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `archive_meta_data` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
 
     try: session.execute('ALTER TABLE `archive_video_info` DROP FOREIGN KEY `archive_video_info_ibfk_1`')
     except (ProgrammingError, OperationalError): pass
-    session.execute('ALTER TABLE `archive_video_info` ADD CONSTRAINT `archive_video_info_ibfk_1` '
+    try:
+        session.execute('ALTER TABLE `archive_video_info` ADD CONSTRAINT `archive_video_info_ibfk_1` '
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
+    except (ProgrammingError, OperationalError): pass
