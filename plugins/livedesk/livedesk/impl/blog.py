@@ -184,7 +184,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         q = QSource(name=source.Name)
         sources = self.sourceService.getAll(typeKey=source.Type, q=q)
         if not sources: sourceId = self.sourceService.insert(source)
-        else: sourceId = sources[0].Id
+        else:
+            source.Id = sourceId = sources[0].Id
+            self.sourceService.update(source)
 
         ent = BlogSourceDB()
         ent.blog = blogId
