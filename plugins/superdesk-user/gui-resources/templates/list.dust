@@ -1,81 +1,49 @@
-<!-- ... -->
-<style>
-	.table .btn-group{ visibility: hidden; display: inline; position: static }
-	.table tr:hover .btn-group{ visibility: visible; }
-	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }
-	.pagination .ipp:after{ content: "_('items per page');"; float: left; line-height: 35px; margin: 0 8px; }   
-</style>
-<!-- ... -->
-
 <div class="subnav subnav-fixed">
-	<div class="input-append pull-left" style="display:inline-block; margin: 3px 0">
-		<input class="span3" size="16" type="text" name="search" placeholder="_('Search');" style="margin:0;height:28px;" />
-		<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
-		<button class="btn" data-action="search" type="button">Search</button>
-	</div>
-	{~s}
-	<button class="btn btn-medium btn-info pull-right add-user"><span class="medium-icon-add"></span> _('Add User');</button>
+    <input type="text" name="searchbar" class="searchbar-container" style="width:500px;" ng-model="searchTerm">
+    <a class="btn btn-medium btn-info pull-right" href="" data-toggle="modal" data-target="#modal-create-article"><span class="medium-icon-add"></span> _('Add User');</a>
 </div>
 
-<div data-main-table="true">
-    <div style="padding: 70px 20px 20px;">
-		
-		<table class="table table-hover table-sort table-buttons-control sf_table" style="table-layout:auto" >
-			<thead>
-				<tr>
-	    			<th>#</th>
-	        		<th data-sort="firstName">_('First Name');</th>
-	        		<th data-sort="lastName">_('Last Name');</th>
-	        		<th data-sort="name">_('Login');</th>
-	        		<th data-sort="email">_('E-Mail');</th>
-	        		<th data-sort="createdOn">_('Created On');</th>
-	        		<th></th>
-				</tr>
-			</thead>
-			<tbody>
-			
-			</tbody>
-			<tfoot>
-			{#pagination}
-				<tr>
-					<td colspan="8" class="pagination">
-					{?currentpages}
-					<ul class="{className}">
-						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First');">&#8676;</a> </li>
-						<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous');">&larr;</a> </li> 
-						{#currentpages}
-						<li class="{className}"> 
-							<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page'); {page}" data-offset="{offset}">{page}</a> 
-						</li>	
-						{/currentpages}
-						<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next');">&rarr;</a> </li>
-						<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last');">&#8677;</a> </li>
-					</ul>
-					<ul class="ipp" style="margin:0 8px">
-						{#ipp}
-						<li class="{isipp}"> <a href="javascript:void(0)" data-ipp="{.}">{.}</a> </li>
-						{/ipp}
-					</ul>
-					{/currentpages}
-					</td>
-				</tr> 
-			{/pagination}
-			</tfoot>
-		</table>
-	</div>
+<div class="subnav subnav-level2 subnav-fixed">
+    <div class="btn-toolbar">
+        <div class="btn-group pull-right" style="margin-left:20px;">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-settings"></i> <span class="caret"></span></a>
+            <ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+                <li><a href="" ng-click="settings.itemsPerPage = 25"><i class="icon-th-large"></i> _('25 items per page');</a></li>
+                <li><a href="" ng-click="settings.itemsPerPage = 50"><i class="icon-th-large"></i> _('50 items per page');</a></li>
+            </ul>
+        </div>
+
+        <div class="btn-group pull-right" style="margin-left:20px;">
+            <button class="btn" ng-click="page = page - 1" ng-disabled="page == 1"><i class="icon-chevron-left"></i></button>
+            <button class="btn" ng-click="page = page + 1" ng-disabled="page == pageMax"><i class="icon-chevron-right"></i></button>
+        </div>
+
+        <div class="page-info pull-right">
+            Page <input type="text" value="1" ng-model="page" /> of {{ pageMax }}
+        </div>
+
+    </div>
 </div>
 
-<div class="modal hide fade" id="user-delete-modal">
-    <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    	<h3>_('Delete user');</h3>
-    </div>
-    <div class="modal-body">
-    	<p>_('Are you sure you want to delete this user?');</p>
-    </div>
-    <div class="modal-footer">
-    	<button class="btn" data-action="close">_('Close');</button>
-    	<button class="btn btn-danger" data-action="delete">_('Delete');</button>
-    </div>
+<div class="main-content-container">
+    <table class="sf_table">
+        <thead>
+            <tr>
+                <th>_('First Name');</th>
+                <th>_('Last Name');</th>
+                <th>_('Login');</th>
+                <th>_('Email');</th>
+                <th>_('Created On');</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="user in users">
+                <td>{{ user.FirstName }}</td>
+                <td>{{ user.LastName }}</td>
+                <td>{{ user.Name }}</td>
+                <td>{{ user.EMail }}</td>
+                <td>{{ user.CreatedOn }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
-{>"core>layouts/footer"/}
