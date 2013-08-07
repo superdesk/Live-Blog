@@ -99,7 +99,8 @@ define([
 
             this.create({
                 Name: blog.get('Title'),
-                URI: blog.get('href')
+                URI: blog.get('href'),
+                OriginURI: blog.provider.get('href')
             }, {headers: {'X-Filter': 'Id'}});
         },
 
@@ -334,7 +335,7 @@ define([
             var provider = this.model;
 
             this.collection.each(function(blog) {
-                blog.provider = provider.id;
+                blog.provider = provider;
                 var view = new ExternalBlogView({model: blog});
                 list.append(view.render().el);
             });
@@ -569,7 +570,8 @@ define([
     });
     SourceModel.bind('remove', function(){
         console.log('hamster');
-    })
+    });
+
     var AllSourceCollection = Backbone.Collection.extend({
         model: SourceModel,
         parse: function(response) {
