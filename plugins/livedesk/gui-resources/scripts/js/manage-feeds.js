@@ -100,7 +100,7 @@ define([
             this.create({
                 Name: blog.get('Title'),
                 URI: blog.get('href'),
-                OriginURI: blog.provider.get('href')
+                OriginURI: blog.provider.get('URI')
             }, {headers: {'X-Filter': 'Id'}});
         },
 
