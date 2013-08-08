@@ -1,3 +1,4 @@
+<div class="comment-backdrop" id="backdrop"></div>
 <div class="comment-box" style="display:none">
     <form name="comment">
         <div class="content">
