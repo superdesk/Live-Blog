@@ -55,6 +55,7 @@ define([
 					if(pos2 !== -1) 
 						self.collection._list.splice(pos2,1);
 				}
+				self.triggerHandler('remove',[view.model]);
 				return self;
 			},
 
@@ -128,7 +129,7 @@ define([
 			addingsAuto: function(evt, data) {
 				var self = this;
 				if(data.length) {
-					self.pendingAutoupdates.concat(data);
+					self.pendingAutoupdates = self.pendingAutoupdates.concat(data);
 				}
 				self.addAllAutoupdate(evt);
 			},
@@ -140,6 +141,7 @@ define([
 						this.addOne(this.pendingAutoupdates[i]);
 					}
 					$.dispatcher.triggerHandler('posts-view.added-pending',self);
+	            	self.triggerHandler('addingsauto',[self.pendingAutoupdates]);
 					self.pendingAutoupdates = [];
 				}
 				self._flags.addAllPending = false;
@@ -155,6 +157,7 @@ define([
 
 			addAll: function(evt, data) {
 				var i, self = this;
+				self.triggerHandler('addings',[data]);
 				for(i = 0, count = data.length; i < count; i++) {
 					this.addOne(data[i]);
 				}
