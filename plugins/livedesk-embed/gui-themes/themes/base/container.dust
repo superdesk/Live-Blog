@@ -22,6 +22,9 @@
 				{+contentTopContainer}
 				<div class="liveblog-content-top">
 					{+contentTop}
+						{+userCommentBox}{/userCommentBox}
+						{+userCommentBoxMessage}{/userCommentBoxMessage}
+						{+userCommentBackdrop}{/userCommentBackdrop}					
 						{+status}{/status}
 						{+statusNewPost}{/statusNewPost}
 						{+actionTotop}{/actionTotop}
@@ -83,6 +86,18 @@
 {<actionUserComment}
 <a data-gimme="blog.comment" href="#" class="comment button">_('comment');</a>
 {/actionUserComment}
+
+{<userCommentBox}
+<div data-gimme="blog.comment-box"></div>
+{/userCommentBox}
+
+{<userCommentBoxMessage}
+<div data-gimme="blog.comment-box-message"></div>
+{/userCommentBoxMessage}
+
+{<userCommentBackdrop}
+<div data-gimme="blog.comment-box-backdrop"></div>
+{/userCommentBackdrop}
 
 {<postsList}
 <ul data-gimme="posts.list" class="liveblog-postlist">
