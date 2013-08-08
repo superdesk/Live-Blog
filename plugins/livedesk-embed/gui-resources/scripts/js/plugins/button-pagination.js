@@ -53,10 +53,14 @@ define([
 		}
 
 		view.buttonNextPage = function(evt){
-			var self = this,
-				item = $('[data-gimme="posts.nextPage"]',self.el);
+			var self = this;
+			if(self._flags.buttonNextPage)
+				return;
+			self._flags.buttonNextPage = true;
+			var item = $('[data-gimme="posts.nextPage"]',self.el)
 			item.addClass('loading');	
 			self.nextPage().done(function(){
+				self._flags.buttonNextPage = false;
 				item.removeClass('loading');
 				self.checkNextPage();
 			});

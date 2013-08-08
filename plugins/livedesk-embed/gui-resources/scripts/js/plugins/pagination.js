@@ -4,7 +4,7 @@ define([
 ], function($){
 	$.dispatcher.on('posts-view.class', function(evt){
 		var view = this.prototype;
-		view._config.collection.limit = 2;
+		view._config.collection.limit = 10;
 		view._flags.loadingNextPage = false;
 		view._flags.atEnd = false;
 		view.beforePage = function(){

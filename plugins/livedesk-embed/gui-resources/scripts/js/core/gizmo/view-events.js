@@ -1,5 +1,5 @@
 define([ 'jquery', 'gizmo/superdesk' ], function( $, Gizmo) {
-	return $.extend({ View: Gizmo.View.extend({
+	var ViewEvents = Gizmo.View.extend({
 		/*!
 		 * used to remove events from this view
 		 */
@@ -57,5 +57,7 @@ define([ 'jquery', 'gizmo/superdesk' ], function( $, Gizmo) {
 			$(this).triggerHandler(evt, data);
 			return this;
 		}
-	})},Gizmo);
+	});
+	Gizmo.View = ViewEvents;
+	return Gizmo;
 });
