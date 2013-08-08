@@ -178,6 +178,15 @@ background: #fff;
 					}
 				}
 			}
+			.liveblog-content-top {
+				.button {
+					&.comment {
+						top:0;
+						left: auto;
+						right: 80px;
+					}
+				}
+			}
 			.liveblog-content-middle {
 				max-height: @postlist-maxheight;
 				min-height: @postlist-minheight;
@@ -617,6 +626,111 @@ background: #fff;
 			}
 			
 		}
+
+		/* user comments */
+
+		
+		.comment-backdrop {
+		    display: none;
+		    position: absolute;
+		    background: rgba(0,0,0,0.7);
+		    top: 30px;
+		    left: 0;
+		    bottom: 40px;
+		    right: 0;
+		    z-index: 2;
+		}
+
+		.comment-box , 
+		.comment-box-message {
+		    position: absolute;
+		    top: 40px;
+		    right: 25px;
+		    z-index: 2003;
+		    .content {
+		    	position: relative;
+			    background: #fff;
+			    padding: 20px 20px 60px 20px;
+			    width: 482px;
+			    box-sizing: border-box;
+			    &:before {
+			    	content: ' ';
+				    height: 0;
+				    position: absolute;
+				    width: 0;
+				    border: 7px solid transparent;
+				    border-bottom-color: #FFF;
+				    top:-14px;
+				    right: 80px;
+			    }
+			    
+		    }
+		}
+		.comment-box {
+			input, textarea {
+		    	padding: 5px;
+			    box-sizing: border-box;
+			    width: 100%;
+			    font-size: 14px;
+			    color: #4d4d4d;
+			    font-family: Arial, Helvetica, sans-serif;
+			    margin-bottom: 20px;
+			    &:focus {
+			    	border-color: 1px solid #95915c;
+		    		outline: none;
+			    }
+		    }
+		    textarea {
+		    	min-height: 100px;
+		    }
+		    .button { 
+			    padding: 7px 24px;
+			    position: absolute;
+			    bottom: 20px;
+			    margin: 10px 0 0 4px;
+			    font-size: 12px;
+			    font-weight: bold;
+			    color: #FFF;
+			    text-transform: uppercase;
+			    text-decoration: none;
+			    border: 0;
+			    &:hover {
+			    	cursor: pointer;
+			    }
+			    &.cancel {
+			    	right: 110px;
+		    		background-color: #a8a8a8;
+		    		&:hover {
+		    			background-color: #b3b3b3;
+		    		}
+			    }
+			    &.send {
+			    	right: 20px;
+		    		background-color: #95915c;
+		    		&:hover {
+		    			background-color: #a09c69;
+		    		}
+			    }
+			}
+
+			.error {
+			    background-color: #ffeded;
+			    border: 1px solid #ffabab;
+			    color: #393939;
+			    font-size: 11px;
+			    line-height: 140%;
+			    padding: 4px;
+			    margin: -10px 0 16px 0;
+			}
+
+		}
+		.comment-box-message {
+		    font-size: 14px;
+		    .content {
+			    padding: 20px 20px 20px 20px;
+			}
+		}
+		/* end of comments */
 
 	}
 
