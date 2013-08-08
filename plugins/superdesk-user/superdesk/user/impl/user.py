@@ -49,7 +49,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.getById
         '''
         user = self.session().query(UserMapped).get(id)
-        if not user or user.DeletedOn is not None: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
