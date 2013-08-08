@@ -19,20 +19,12 @@ define([
             var delay = $q.defer();
             var parameters = {offset: offset, limit: limit};
             if (searchTerm !== undefined && searchTerm !== '') {
-                parameters.search = searchTerm;
+                parameters['all.ilike'] = searchTerm;
             }
             User.query(parameters, function(response) {
-                /*
                 for (var i = 0; i < response.UserList.length; i = i + 1) {
                     response.UserList[i].checked = false;
-                    response.UserList[i].Content = angular.fromJson(response.UserList[i].Content);
-                    if (response.ArticleList[i].IsPublished === 'True') {
-                        response.ArticleList[i].IsPublished = true;
-                    } else {
-                        response.ArticleList[i].IsPublished = false;
-                    }
                 }
-                */
                 response.UserList.count = response.total;
                 delay.resolve(response.UserList);
             });

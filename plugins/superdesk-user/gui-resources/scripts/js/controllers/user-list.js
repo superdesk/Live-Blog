@@ -5,7 +5,7 @@ function(angular) {
     return function($scope, $q, User, UserListLoader) {
         
         $scope.initialize = function() {
-            $('body').removeClass().addClass('article-list'); // hack, should be removed after templates are fixed
+            $('body').removeClass().addClass('users'); // hack, should be removed after templates are fixed
 
             $scope.loadSettings();
 
@@ -47,8 +47,37 @@ function(angular) {
             $scope.settings = angular.fromJson(localStorage.getItem('superdesk.userList.settings'));
             if ($scope.settings === null) {
                 $scope.settings = {
-                    itemsPerPage: 25
+                    itemsPerPage: 25,
+                    fields: {
+                        avatar: true,
+                        name: true,
+                        username: true,
+                        email: true,
+                        group: true,
+                        contributor: true,
+                        since: true,
+                        permissions: true
+                    }
                 };
+            }
+        };
+
+        $scope.toggle = function(index) {
+            if ($scope.users[index].checked === false) {
+                $scope.allChecked = false;
+            } else {
+                var allChecked = true;
+                for (var i = 0; i < $scope.users.length; i = i + 1) {
+                    if ($scope.users[i].checked === false) {
+                        allChecked = false;
+                    }
+                }
+                $scope.allChecked = allChecked;
+            }
+        };
+        $scope.toggleAll = function() {
+            for (var i = 0; i < $scope.users.length; i = i + 1) {
+                $scope.users[i].checked = $scope.allChecked;
             }
         };
 
