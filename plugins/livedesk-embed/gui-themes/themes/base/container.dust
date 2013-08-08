@@ -22,6 +22,7 @@
 				<div class="liveblog-content-top">
 					{+contentTop}
 						{+status}{/status}
+						{+statusNewPost}{/statusNewPost}
 						{+actionTotop}{/actionTotop}
 					{/contentTop}
 				</div>
@@ -36,12 +37,20 @@
 				{/contentMiddleContainer}
 
 				{+contentBottomContainer}
+				<div class="liveblog-content-bottom">
+					{+contentBottom}
+					{+actionUserComment}{/actionUserComment}
+					{/contentBottom}
+				</div>
 				{/contentBottomContainer}
 			{/content}
 		{/contentContainer}
-
-		{+footer}
-		{/footer}
+		{+footerContainer}
+		<div class="liveblog-footer">
+			{+footer}
+			{/footer}
+		</div>
+		{/footerContainer}
 	</div>
 	{/container}
 </div>
@@ -62,9 +71,18 @@
 <p data-gimme="blog.status" class="update-time"></p>
 {/status}
 
+{<statusNewPost}
+<a data-gimme="posts.pending-message" class="new-posts-label"></a>
+{/statusNewPost}
+
 {<actionTotop}
 <a data-gimme="posts.to-top" class="pintotop button">_('to top');</a>
 {/actionTotop}
+
+{<actionUserComment}
+<a data-gimme="blog.comment" href="#" class="comment button">_('comment');</a>
+{>"themeBase/plugins/user-comment"/}
+{/actionUserComment}
 
 {<postsList}
 <ul data-gimme="posts.list" class="liveblog-postlist">
