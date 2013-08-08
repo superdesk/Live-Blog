@@ -15,9 +15,8 @@ define([
 			monthNames: _("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,January,February,March,April,May,June,July,August,September,October,November,December").toString().split(",")
 		};
 		return function(blog){
-			console.log(plugins);
 			$.each(plugins, function(key, value){
-				value();
+				value(blog.get('EmbedConfig'));
 			})
 			var BlogView = BlogViewDef();
 			new BlogView({ el: liveblog.el, model: blog });

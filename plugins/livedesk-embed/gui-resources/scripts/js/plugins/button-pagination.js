@@ -1,14 +1,28 @@
 define([
-	'jquery', 
-	'dispatcher', 
+	'jquery',
+	'plugins',
 	'plugins/pagination',
+	'dispatcher', 
 	'tmpl!themeBase/item/base',
 	'tmpl!themeBase/plugins/after-button-pagination',
 	'tmpl!themeBase/plugins/before-button-pagination'
-], function($){
-	plugins['button-pagination'] = function(config) {
+], function($, plugins, paginationPlugin){
+	delete plugins['pagination'];
+	return plugins['button-pagination'] = function(config) {
+
+		paginationPlugin(config);
 		var propName = 'display',
 			propValue = { 'show': 'block', 'hide': 'none' };
+
+		$.dispatcher.on('blog-view.class', function(evt){
+			var view = this.prototype;
+			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" }
+			view.toTop = function(evt) {
+				var self = this,
+				new_position = self.el.offset();
+				window.scrollTo(new_position.left,new_position.top);
+			}
+		});
 
 		$.dispatcher.on('posts-view.rendered', function(evt){
 			var view = self,

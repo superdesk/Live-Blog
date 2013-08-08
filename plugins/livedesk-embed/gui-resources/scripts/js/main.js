@@ -41,7 +41,10 @@ require(['core.min'], function(){
 				 */
 				try {
 					embedConfig = JSON.parse(blog.get('EmbedConfig'));
-				} catch(e){}
+					blog.data['EmbedConfig'] = embedConfig;
+				} catch(e){
+					blog.data['EmbedConfig'] = {};
+				}
 				/*!
 				 * Set defaults for language and theme.
 				 */

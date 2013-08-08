@@ -3,7 +3,8 @@ define([
 	'plugins',
 	'dispatcher'
 ], function($, plugins){
-	plugins['wrapup-toggle'] = function(config) {
+	return plugins['wrapup-toggle'] = function(config) {
+
 		var effects = { 
 			hide: 'slideUp',
 			show: 'slideDown'

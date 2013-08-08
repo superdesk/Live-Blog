@@ -21,8 +21,3 @@
         <button type="reset" class="button cancel">_('Cancel');</button>
     </div>
 </div>
-<div class="comment-box-message" style="display:none">
-	<div class="content ">
-	_('Your message was sent for approval');
-	</div>
-</div>

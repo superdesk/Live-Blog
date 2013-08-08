@@ -21,9 +21,9 @@ define([
 
     return Gizmo.View.extend({
         commentTokenId: 'comment-token',
-
+        namespace: 'user-comments',
         events: {
-            '#comment-btn': {click: 'togglePopup'},
+            '[data-gimme="blog.comment"]': {click: 'togglePopup'},
             '#comment-message-btn': {click: 'showAfterMessage'},
             '.button.cancel': {click: 'cancel'},
             '.button.send': {click: 'send'},
@@ -31,6 +31,7 @@ define([
         },
         messageDisplayTime: 2000,
         init: function() {
+//            console.log('init');
             this.popup = $(this.el).find('.comment-box').hide();
             this.popup_message = $(this.el).find('.comment-box-message').hide();
 
@@ -65,12 +66,12 @@ define([
         },
 
         openPopup: function() {
-            this.timeline.pause();
+            this.blogview.stop();
             this.initRecaptcha();
         },
 
         closePopup: function() {
-            this.timeline.sync();
+            this.blogview.auto();
         },
 
         resetInput: function() {
@@ -87,13 +88,13 @@ define([
         showAfterMessage: function(e) {
             e.preventDefault();
             var view = this;
-            view.backdropel.data('show-status',true).show();
+            view.backdropel.data('show-status',false).show();
             //this.popup_message.slideDown();
             this.popup_message.show();
             setTimeout(function(){
                 //view.popup_message.slideUp({ done: function(){
                     view.popup_message.hide({ duration: 0, done: function(){
-                     view.backdropel.data('show-status',false);
+                     view.backdropel.data('show-status',true);
                     view.backdropel.hide();
                 }});
             }, view.messageDisplayTime)
@@ -158,17 +159,4 @@ define([
             return $(this.el).find('.error:visible').length === 0;
         }
     });
-    return function(config) {
-        $.dispatcher.on('after-render', function() {
-            if (config && config.UserComments) {
-                new UserCommentsPopupView({
-                    el: '#liveblog-header', 
-                    timeline: timeline,
-                    model: timeline.model
-                });
-            } else {
-                this.el.find('#comment-btn,.comment-box').hide();
-            }
-        });
-    }
 });

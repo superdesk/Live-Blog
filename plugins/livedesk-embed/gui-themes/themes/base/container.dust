@@ -17,16 +17,18 @@
 		
 		{+contentContainer}
 		<div class="liveblog-content">
-			{>"themeBase/plugins/user-comment"/}
+			{+userComment}
+				{+userCommentBox}{/userCommentBox}
+				{+userCommentBoxMessage}{/userCommentBoxMessage}
+				{+userCommentBackdrop}{/userCommentBackdrop}
+			{/userComment}
 			{+content}
 				{+contentTopContainer}
 				<div class="liveblog-content-top">
 					{+contentTop}
-						{+userCommentBox}{/userCommentBox}
-						{+userCommentBoxMessage}{/userCommentBoxMessage}
-						{+userCommentBackdrop}{/userCommentBackdrop}					
 						{+status}{/status}
 						{+statusNewPost}{/statusNewPost}
+						{+actionUserComment}{/actionUserComment}
 						{+actionTotop}{/actionTotop}
 					{/contentTop}
 				</div>
@@ -44,6 +46,7 @@
 				<div class="liveblog-content-bottom">
 					{+contentBottom}
 					{+actionUserComment}{/actionUserComment}
+					{+actionTotop}{/actionTotop}
 					{/contentBottom}
 				</div>
 				{/contentBottomContainer}

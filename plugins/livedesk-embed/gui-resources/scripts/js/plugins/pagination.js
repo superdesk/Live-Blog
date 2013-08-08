@@ -2,11 +2,14 @@ define([
 	'jquery',
 	'plugins',
 	'dispatcher'
-], function($){
-	plugins['pagination'] = function(config) {
+], function($, plugins){
+	return plugins['pagination'] = function(config) {
 		$.dispatcher.on('posts-view.class', function(evt){
 			var view = this.prototype;
-			view._config.collection.limit = 10;
+			if(liveblog.limit)
+				view._config.collection.limit = parseInt(liveblog.limit);
+			else
+				view._config.collection.limit = 15;
 			view._flags.loadingNextPage = false;
 			view._flags.atEnd = false;
 			view.beforePage = function(){
@@ -36,7 +39,7 @@ define([
 						self.collection[key].apply(self.collection, value);
 					else
 						self.collection[key](value);
-				});	
+				});
 				return self.collection
 						.offset(self.collection._stats.offset)
 						.sync({ data: self._config.data }).done(function(data) {
