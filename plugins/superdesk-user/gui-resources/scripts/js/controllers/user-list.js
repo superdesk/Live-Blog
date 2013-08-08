@@ -5,6 +5,8 @@ function(angular) {
     return function($scope, $q, User, UserListLoader) {
         
         $scope.initialize = function() {
+            $('body').removeClass().addClass('article-list'); // hack, should be removed after templates are fixed
+
             $scope.loadSettings();
 
             $scope.pageMax = 1;
