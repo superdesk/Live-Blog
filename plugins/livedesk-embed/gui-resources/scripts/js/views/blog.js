@@ -73,6 +73,17 @@ define([
 							.html(_('updated on %s').format([t]));
 				}
 			},
+			hideNewPosts: function(){
+				$('[data-gimme="posts.pending-message"]',self.el)
+					.html('')
+					.hide();
+			},
+			showNewPosts: function(n){
+				var self = this;
+				$('[data-gimme="posts.pending-message"]',self.el)
+					.html(ngettext('one new post', '%(count)s new posts',n ).format( { count: n}))
+					.show();
+			},
 			render: function(){
 				var self = this,
 					postsView;

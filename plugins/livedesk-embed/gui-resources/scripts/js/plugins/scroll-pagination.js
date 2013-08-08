@@ -13,7 +13,6 @@ define([
 	});
 	$.dispatcher.on('posts-view.rendered',function(){
 		var view = this;
-		console.log(view);
 		view.on('addingsauto addings remove', view.scrollRefresh, view)
 		view.scrollRefresh();
 	});
@@ -23,7 +22,6 @@ define([
 		view.events[''] = { "scroll": "scrollFn"}
 		view._scroll = {}
 		view.scrollRefresh = function(evt){
-			console.log('refresh');
 			var self = this,
 				el = $(self.el).children(':not([data-gimme="posts.beforePage"])').first();
 			self._scroll = {

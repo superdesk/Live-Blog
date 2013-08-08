@@ -137,6 +137,7 @@ define([
 				var self = this;
 				if(!self._flags.addAllPending && self.pendingAutoupdates.length) {
 					self._flags.addAllPending = true;
+					self._parent.hideNewPosts();
 					for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
 						this.addOne(this.pendingAutoupdates[i]);
 					}
@@ -152,7 +153,9 @@ define([
 				if(self._flags.autoRender) {
 					self.addAllPending(evt);
 					$.dispatcher.triggerHandler('posts-view.added-auto',self);
-				} 
+				} else {
+					self._parent.showNewPosts(self.pendingAutoupdates.length);
+				}
 			},
 
 			addAll: function(evt, data) {

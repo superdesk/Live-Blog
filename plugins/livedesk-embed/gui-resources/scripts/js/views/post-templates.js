@@ -21,5 +21,6 @@ define([
 	'tmpl!themeBase/item/source/comments',
 	'tmpl!themeBase/item/source/soundcloud',
 	'tmpl!themeBase/item/source/instagram',
-	'tmpl!themeBase/item/source/sms'
+	'tmpl!themeBase/item/source/sms',
+	'tmpl!themeBase/plugins/user-comment'
 ], function(){});
