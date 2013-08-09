@@ -1,13 +1,1 @@
-{>"theme/item/base"/}
-{<item_class}commentspost{/item_class}
-{<reference}{/reference}
-{<TimeInfo}
-  <time>{Meta.CreatedOn}</time>
-{/TimeInfo}
-{<AuthorInfo}
-<p rel="author">_('by'); {Meta.AuthorName}</p>
-{/AuthorInfo}
-{<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/body_top}
-{<body_bottom}
-	{?Meta.annotation.after}<div class="editable annotation">{Meta.annotation.after|s}</div>{/Meta.annotation.after}
-{/body_bottom}
+{>"themeBase/item/source/comments"/}

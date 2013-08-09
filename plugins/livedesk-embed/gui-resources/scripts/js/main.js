@@ -1,6 +1,8 @@
 requirejs.config({
 	paths: 	{
 		'themeBase': '../../themes/base',
+		
+		'require': 'core/require',
 
 		'tmpl': 'core/require/tmpl',
 		'css': 'core/require/css',
@@ -41,7 +43,10 @@ require(['core.min'], function(){
 				 */
 				try {
 					embedConfig = JSON.parse(blog.get('EmbedConfig'));
-				} catch(e){}
+					blog.data['EmbedConfig'] = embedConfig;
+				} catch(e){
+					blog.data['EmbedConfig'] = {};
+				}
 				/*!
 				 * Set defaults for language and theme.
 				 */
@@ -58,7 +63,7 @@ require(['core.min'], function(){
 					'utils/find-enviroment',
 					'core',
 					'i18n!livedesk_embed'
-				], function(theme, findEnviroment, core){
+				], function(theme, findEnviroment, core, plugins){
 					if(theme && theme.enviroments) {
 						if(!liveblog.enviroment) {
 							var enviroment = findEnviroment();

@@ -1,11 +1,12 @@
 define([
 	'jquery',
 	'gizmo/superdesk',
+	'dust',
 	'jquery/tmpl',
 	'jquery/utils',
 	'utils/encode_url',
 	'views/post-templates'
-], function( $, Gizmo ) {
+], function( $, Gizmo, dust ) {
 	return function(){
 		var PostView = Gizmo.View.extend ({
 			data: {},
@@ -92,8 +93,9 @@ define([
 				else
 					item = "/item/source/"+data.Author.Source.Name;
 
-				item = (require.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
-				data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
+				item = (dust.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
+				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
+				data.frontendServer = liveblog.frontendServer;
 				$.each(self.data, function(key, value){
 					if($.isFunction(value)){
 						data[key] = value.call(self, data);	

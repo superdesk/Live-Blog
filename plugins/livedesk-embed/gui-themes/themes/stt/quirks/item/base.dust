@@ -6,6 +6,7 @@
 </div>
 {:else}
 <div class="post-publisher-avatar">
+	<img src="{frontendServer}/content/lib/livedesk-embed/themes/stt/quirks/img/default-liveblog-avatar_48.png" class="post-publisher-avatar-img">
 </div>
 {/AuthorImage}
 {/userAvatar}

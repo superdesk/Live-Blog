@@ -29,7 +29,7 @@ define(['jquery', 'dust/core'], function ($, dust) {
         tmpl: function(selector, data, callback) {
         	if(selector.indexOf('themeBase') !== -1) {
         		var theme = selector.replace('themeBase', 'theme');
-        		if(require.defined(theme))
+        		if(dust.isRegistred(theme))
         			selector = theme;
         	}
 			dust.render(selector, data, callback);

@@ -1,4 +1,3 @@
-<div class="comment-backdrop" id="backdrop"></div>
 <div class="comment-box" style="display:none">
     <form name="comment">
         <div class="content">
@@ -21,9 +20,4 @@
         <button type="submit" class="button send">_('Send');</button>
         <button type="reset" class="button cancel">_('Cancel');</button>
     </div>
-</div>
-<div class="comment-box-message" style="display:none">
-	<div class="content ">
-	_('Your message was sent for approval');
-	</div>
 </div>
