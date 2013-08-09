@@ -1,4 +1,5 @@
 <div class="sms-header">
+	<p>_("All feeds");<input type="radio" name="feeds-type" value="all" {allAvailable}>&nbsp;<input type="radio" name="feeds-type" value="assigned" {onlyAssigned}">_("Assigned feeds");</p>
 	<p>_("Select SMS feed:");</p>
 	<p class="feed-info">
 		{#items}

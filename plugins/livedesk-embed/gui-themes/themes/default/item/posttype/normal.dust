@@ -1,4 +1,2 @@
-{>"theme/item/base"/}
-{<item_class}normal{/item_class}
-{<AuthorName}{AuthorName}{/AuthorName}
-{<reference}{/reference}
+{>"themeBase/item/posttype/normal"/}
+{<contentSideContainer}{/contentSideContainer}

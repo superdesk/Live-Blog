@@ -1,6 +1,1 @@
-{>"theme/item/base"/}
-{<item_class}advertisement{/item_class}
-{<head}{/head}
-{<body}	
-	{Content|s}
-{/body}
+{>"themeBase/item/source/advertisement"/}

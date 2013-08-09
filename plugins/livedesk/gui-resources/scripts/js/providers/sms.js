@@ -22,38 +22,115 @@ $.extend(providers.sms, {
     interval: 20000,
     first: true,
     oldSmss: [],
+    onlyAssigned: true,
+    assignedFeeds: [],
+    allFeeds: [],
     data: [],
+    blogId: 1,
     topIds: [],
+    smsType: 'FrontlineSMS',
     keyword:[],
-	init: function(){
+    prepareAuxData: function(feeds) {
+        var self = this;
+        //prepare for 0 results
+        self.topIds[0] = 0;
+        self.keyword[0] = '';
+
+        //initialize the 'top cids' array
+        for ( var i = 0; i < feeds.length; i ++ ) {
+            self.topIds[feeds[i].Id] = 0;
+            self.keyword[feeds[i].Id] = '';
+        }
+    },
+    getAssignedFeeds: function() {
+        var self = this;
+        var dfd = $.Deferred();
+        var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
+        myUrl = url.get() + '?X-filter=Type.Key,Name,Id';
+        self.assignedFeeds = [];
+        $.ajax({
+            url: myUrl,
+            success: function(data) {
+                var sources = data.SourceList;
+                for ( var i = 0; i < sources.length; i ++) {
+                    var source = sources[i];
+                    //console.log('source ', source);
+                    if ( source.Type.Key == self.smsType ) {
+                        self.assignedFeeds.push( source );
+                    }
+                }
+                self.prepareAuxData(self.assignedFeeds);
+                dfd.resolve();
+            }
+        });
+        return dfd.promise();
+    },
+    getAllFeeds: function() {
+        //get all feeds and generate 'holders'
+        var self = this;
+        var dfd = $.Deferred();
+        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+        feedsUrl = url.get() + '?X-Filter=Id,Name';
+        $.ajax({
+            url: feedsUrl,
+            success: function(data) {
+                self.allFeeds = data.SourceList;
+                self.prepareAuxData(self.allFeeds);
+                dfd.resolve();
+            }
+        });
+        return dfd.promise();
+    },
+	init: function(blogHref){
         var self = this;
         self.data.sms = [];
         this.adaptor.init();
-        this.render();
+
+        var hackArray = blogHref.split('/');
+        this.blogId = hackArray[hackArray.length - 1];
+
+        //get assigned feeds
+        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+
+        this.getAssignedFeeds().done(function(){
+            self.getAllFeeds().done(function(){
+                self.render();
+            });
+        });
+        //switch from assigned feeds to all feeds and back
+        self.el.off('change', '[name="feeds-type"]').on('change', '[name="feeds-type"]', function(evt) {
+            if ( $('[name="feeds-type"]:checked').val() == 'assigned' ) {
+                self.onlyAssigned = true;
+            } else {
+                self.onlyAssigned = false;
+            }
+            self.render();
+        });     
+
         //trigger click event for sms feed tabs
-        self.el.on('click', '.feed-info button', function(evt) {
+        self.el.off('click', '.feed-info button').on('click', '.feed-info button', function(evt) {
             $('.sms-header').trigger('useractions/feedclick', this);
         });
         //handle click event on sms feed tabs
-        self.el.on('useractions/feedclick','.sms-header', function(e, feed){
+        self.el.off('useractions/feedclick','.sms-header').on('useractions/feedclick','.sms-header', function(e, feed){
             self.feedTab($(feed));
         });
         //handle keyword search
-        self.el.on('keyup','.sms-search-query', function( e ){
+        self.el.off('keyup','.sms-search-query').on('keyup','.sms-search-query', function( e ){
             var keycode = e.keyCode;
             var feedId = self.getActiveTab();
             var keyword = $('.sms-search-query[data-feed-id="' + feedId + '"]').val();
             if ( keycode == 13 ) {
                 self.keyword[feedId] = keyword;
-                self.getAllSmss({cId: -1, clearResults: true});
+                //self.getAllSmss({cId: -1, clearResults: true});
             }
         });
         //clear keyword search
-        self.el.on('click', '.sms-clear-search', function(evt) {
+        self.el.off('click', '.sms-clear-search').on('click', '.sms-clear-search', function(evt) {
             var feedId = self.getActiveTab();
             $('.sms-search-query[data-feed-id="' + feedId + '"]').val('');
             self.keywords[feedId] = '';
-            self.getAllSmss({cId: -1, clearResults: true});
+            //self.getAllSmss({cId: -1, clearResults: true});
 
         });
 	},
@@ -83,42 +160,35 @@ $.extend(providers.sms, {
     },
     render: function(){
         var self = this;
-        //get all feeds and generate 'holders'
-        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
-        feedsUrl = url.get() + '?X-Filter=Id,Name';
-        $.ajax({
-            url: feedsUrl,
-        }).done(function(data){
-            self.el.tmpl('livedesk>providers/sms', {'items': data.SourceList}, function(){
-                var feeds = data.SourceList;
 
-                if ( feeds.length == 0 ) {
-                    var message = _('No SMS feeds!');
-                    $.tmpl('livedesk>providers/generic-error', {message: message}, function(e,o) {
-                        $('.sms-results-holder').html(o);
-                        return;
-                    }); 
-                }
+        if ( self.onlyAssigned ) {
+            var feeds = self.assignedFeeds;
+            var onlyAssigned = 'checked="checked"';
+            var allAvailable = '';
+        } else {
+            var feeds = self.allFeeds;
+            var onlyAssigned = '';
+            var allAvailable = 'checked="checked"';
+        }
 
-                //prepare for 0 results
-                self.topIds[0] = 0;
-                self.keyword[0] = '';
+        self.el.tmpl('livedesk>providers/sms', {'items': feeds, 'onlyAssigned': onlyAssigned, 'allAvailable': allAvailable}, function(){
+            if ( feeds.length == 0 ) {
+                var message = _('No SMS feeds!');
+                $.tmpl('livedesk>providers/generic-error', {message: message}, function(e,o) {
+                    $('.sms-results-holder').html(o);
+                    return;
+                }); 
+            }
 
-                //initialize the 'top cids' arrat
-                for ( var i = 0; i < feeds.length; i ++ ) {
-                    self.topIds[feeds[i].Id] = 0;
-                    self.keyword[feeds[i].Id] = '';
-                }
+            //auto select first sms feed tab
+            $('.feed-info [data-feed-id]').first().trigger('click');
 
-                //auto select first sms feed tab
-                $('.feed-info [data-feed-id]').first().trigger('click');
 
-                //prepare the auto refresh thing
-                var int = window.setInterval(function(){
-                    self.refreshFeeds();
-                },self.interval);
+            //prepare the auto refresh thing
+            var int = window.setInterval(function(){
+                self.refreshFeeds();
+            },self.interval);
 
-            });
         });
     },
     refreshFeeds: function() {
@@ -149,6 +219,7 @@ $.extend(providers.sms, {
         //search data... short name 'sd'
         var sd = $.extend({}, dsd, paramObject);
 
+
         //check to see if the search really needs to be done
         if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults) {
             //no search with results on this feed yet or pagination
@@ -174,7 +245,7 @@ $.extend(providers.sms, {
             var total = data.total;
             var smss = data.PostList;
             //clean the results
-            if ( sd.clearResults) {
+            if ( sd.clearResults ) {
                 self.data.sms = [];
                 $('.sms-list[data-feed-id="' + sd.feedId + '"]').html('');
                 $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','none').html('');
@@ -198,6 +269,9 @@ $.extend(providers.sms, {
                     Base: 'implementors/sources/sms',
                     Item: 'sources/sms'
                 }, function(e, o) {
+
+                    self.first = false;
+
                     if ( sd.prepend ) {
                         el = $('.sms-list[data-feed-id="' + sd.feedId + '"]').prepend(o).find('.smspost');
                     } else {
@@ -232,7 +306,7 @@ $.extend(providers.sms, {
                         $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','block').tmpl('livedesk>providers/load-more', {name : 'sms-load-more-' + sd.feedId}, function(){
                             $(this).find('[name="sms-load-more-' + sd.feedId + '"]').on('click', function(){
                                 var offset = sd.offset + sd.limit;
-                                self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
+                                //self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
                             });
                         });
                     } else {

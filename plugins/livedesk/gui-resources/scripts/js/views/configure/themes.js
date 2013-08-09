@@ -40,24 +40,9 @@
         			break;
         		}
         	}
-            blogUrl = self.theBlog;
-            /*!
-             * If the blog url doesn't have servername in it add it
-             *   else replace with the frontend server.
-             */
-            if(blogUrl.indexOf(config.api_url) !== -1) {
-                blogUrl = blogUrl.replace(config.api_url,$('[name="FrontendServer"]').val());
-            } else {
-                blogUrl = $('[name="FrontendServer"]').val() + blogUrl;
-            }
-            themePath = theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val());
-            themePathArray = themePath.split('/');
-            themePathArray.pop()
-            themePath = themePathArray.join('/');
             data = {
                 'Theme': el.val(),
-                'ThemePath': themePath,
-                'TheBlog': blogUrl,
+                'Id': self._parent.model.get('Id'),
                 'GuiLivedeskEmbed': $('[name="FrontendServer"]').val() + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
                 'FrontendServer': $('[name="FrontendServer"]').val(),
