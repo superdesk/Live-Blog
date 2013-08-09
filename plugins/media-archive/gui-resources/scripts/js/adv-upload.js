@@ -239,6 +239,11 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         },
         /*!
          * init -> renders
+         * @param {Object} options Options for add image popup.
+         *
+         *   Available options:
+         *
+         *   - showArchive - {Boolean} - Show archive for selecting existing image.
          */
         init: function(options)
         {
