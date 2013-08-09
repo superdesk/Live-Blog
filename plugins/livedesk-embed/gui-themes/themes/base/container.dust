@@ -1,0 +1,69 @@
+{+mainContainer}
+<div id="livedesk-root">
+	{+main}
+	<div class="liveblog-container">
+		{!-- 
+			liveblog header - optional block
+			(title, description ...)
+		--!}
+		{+headerContainer}
+		<div class="liveblog-header">
+			{+header}
+				{+blogTitle}{/blogTitle}
+				{+blogDescription}{/blogDescription}
+			{/header}
+		</div>
+		{/headerContainer}
+		
+		{+contentContainer}
+		<div class="liveblog-content">
+			{+content}
+				{+contentTopContainer}
+				<div class="liveblog-content-top">
+					{+contentTop}
+						{+status}{/status}
+						{+actionTotop}{/actionTotop}
+					{/contentTop}
+				</div>
+				{/contentTopContainer}
+
+				{+contentMiddleContainer}
+				<div class="liveblog-content-middle"> 
+					{+contentMiddle}
+						{+postsList}{/postsList}
+					{/contentMiddle}
+				</div>
+				{/contentMiddleContainer}
+
+				{+contentBottomContainer}
+				{/contentBottomContainer}
+			{/content}
+		{/contentContainer}
+
+		{+footer}
+		{/footer}
+	</div>
+	{/container}
+</div>
+{/mainContainer}
+
+{! -- predefined blocks for block header !}
+
+{<blogTitle}
+<h3 data-gimme="blog.title"></h3>
+{/blogTitle}
+
+{<blogDescription}
+<p data-gimme="blog.description"></p>
+{/blogDescription}
+
+{! -- predefined blocks for content top block !}
+{<status}
+<p data-gimme=".status" class="update-time"></p>
+{/status}
+
+{<actionTotop}
+<a data-gimme="posts.to-top" class="pintotop button" href="javascript:void(0);">_('to top');</a>
+{/actionTotop}
+
+{<postsList}<ul data-gimme="posts.list" class="liveblog-postlist"></ul>{/postsList}
