@@ -14,7 +14,7 @@
         <div class="control-group">
             <div class="controls">
                 <input type="text" name="URL" value="{uri}" class="fullwidth-input" required data-field="URI">
-                <span class="help-inline hide">_("Please provide a valid URL");</span>
+                <span class="help-inline hide">_("Please provide a valid Blog Provider URL");</span>
             </div>
         </div>
     </form>

@@ -26,8 +26,12 @@ define(['jquery', 'dust/core'], function ($, dust) {
     });
     $.extend
     ({
-        tmpl: function(selector, data, callback)
-        {
+        tmpl: function(selector, data, callback) {
+        	if(selector.indexOf('themeBase') !== -1) {
+        		var theme = selector.replace('themeBase', 'theme');
+        		if(dust.isRegistred(theme))
+        			selector = theme;
+        	}
 			dust.render(selector, data, callback);
         },
 		tmplFn: function(selector) {
