@@ -53,8 +53,10 @@
 							<th class="name_col" ng-show="settings.fields.name">Name</th>
 							<th class="username_col" ng-show="settings.fields.username">Username</th>
 							<th class="email_col resp-hide" ng-show="settings.fields.email">Email</th>
+							<!--
 							<th class="resp-hide" ng-show="settings.fields.group">User group</th>
 							<th class="small_col resp-hide" ng-show="settings.fields.contributor">Contributor</th>
+							-->
 							<th class="small_col resp-hide" ng-show="settings.fields.since">Member since</th>
 							<th class="action_col">
 
@@ -65,8 +67,10 @@
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.name"> Name</li>
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.username"> Username</li>
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.email"> Email</li>
+										<!--
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.group"> User Group</li>
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.contributor"> Contributor</li>
+										-->
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.since"> Member Since</li>
 										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.permissions"> Permissions</li>
 									</ul>
@@ -83,8 +87,10 @@
 							<td class="name_col" ng-show="settings.fields.name"><a href="#">{{ user.FullName }}</a></td>
 							<td ng-show="settings.fields.username">{{ user.Name }}</td>
 							<td class="email_col resp-hide" ng-show="settings.fields.email"><a href="">{{ user.EMail }}</a></td>
+							<!--
 							<td class="resp-hide" ng-show="settings.fields.group">??</td>
 							<td class="resp-hide" ng-show="settings.fields.contributor">??</td>
+							-->
 							<td class="resp-hide" ng-show="settings.fields.since">{{ user.CreatedOn }}</td>
 							<td class="action_col" ng-show="settings.fields.permissions">
 								<div class="dropdown">
@@ -111,3 +117,9 @@
 		</div>
     </div>
 </div>
+<!-- should be removed after tabs are implemented with angular-bootstrap -->
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('#userTabs a:first').tab('show');
+  });
+</script>
