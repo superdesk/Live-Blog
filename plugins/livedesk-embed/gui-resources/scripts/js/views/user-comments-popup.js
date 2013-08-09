@@ -116,7 +116,11 @@ define([
                     success: function() {
                         view.showAfterMessage(e);
                     },
-                    error: function() {
+                    error: function(response) {
+                        if (response.status === 401) {
+                            Recaptcha.reload();
+                        }
+
                         view.captcha.next('.error').show();
                     }
                 });
