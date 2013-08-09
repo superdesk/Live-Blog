@@ -83,7 +83,7 @@
 
 						<tr ng-repeat="user in users">
 							<td><input type="checkbox" class="sf-checkbox" set-bg="2" ng-model="user.checked" ng-click="toggle($index)"></td>
-							<td ng-show="settings.fields.avatar"><figure class="avatar"><sdUserImage /></figure></td>
+							<td ng-show="settings.fields.avatar"><figure class="avatar" sd-user-image sd-user="user" data-width="22" data-height="22"></figure></td>
 							<td class="name_col" ng-show="settings.fields.name"><a href="#">{{ user.FullName }}</a></td>
 							<td ng-show="settings.fields.username">{{ user.Name }}</td>
 							<td class="email_col resp-hide" ng-show="settings.fields.email"><a href="">{{ user.EMail }}</a></td>

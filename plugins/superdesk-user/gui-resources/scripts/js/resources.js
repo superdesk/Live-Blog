@@ -31,4 +31,20 @@ define([
             return delay.promise;
         };
     }]);
+
+    resources.service('UserService', ['$resource', '$q', function($resource, $q) {
+        var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+
+        this.getImage = function(user) {
+            var delay = $q.defer();
+
+            UserImage.get({userId: user.Id}, function(image) {
+                delay.resolve(image);
+            }, function() {
+                delay.reject();
+            });
+
+            return delay.promise;
+        };
+    }]);
 });

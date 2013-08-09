@@ -22,7 +22,6 @@ function(angular) {
                 }
             }, true);
             $scope.$watch('users', function(users){
-                console.log(users);
                 if (users !== undefined) {
                     $scope.pageMax = Math.ceil(users.count / $scope.settings.itemsPerPage);
                     if ($scope.pageMax === 0) {
