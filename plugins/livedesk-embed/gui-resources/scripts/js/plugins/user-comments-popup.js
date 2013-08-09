@@ -29,7 +29,7 @@ define([
             '.button.send': {click: 'send'},
             'form': {submit: 'send'}
         },
-        messageDisplayTime: 2000,
+        messageDisplayTime: 5000,
         init: function() {
 //            console.log('init');
             this.popup = $(this.el).find('.comment-box').hide();
@@ -86,17 +86,17 @@ define([
             Recaptcha.reload();
         },
         showAfterMessage: function(e) {
-            e.preventDefault();
             var view = this;
             view.backdropel.data('show-status',false).show();
-            //this.popup_message.slideDown();
+            view.popup.toggle();
             this.popup_message.show();
             setTimeout(function(){
-                //view.popup_message.slideUp({ done: function(){
-                    view.popup_message.hide({ duration: 0, done: function(){
-                     view.backdropel.data('show-status',true);
-                    view.backdropel.hide();
-                }});
+                view.popup_message.hide({ duration: 0, done: function(){
+                view.backdropel.data('show-status',false);
+                view.backdropel.hide();
+                view.popup.toggle();
+                view.cancel(e);
+            }});
             }, view.messageDisplayTime)
         },
         send: function(e) {
@@ -115,10 +115,12 @@ define([
                         'X-CAPTCHA-Response': Recaptcha.get_response()
                     },
                     success: function() {
-                        view.cancel(e);
                         view.showAfterMessage(e);
                     },
-                    error: function() {
+                    error: function(response) {
+                        if (response.status === 401) {
+                            Recaptcha.reload();
+                        }
                         view.captcha.next('.error').show();
                     }
                 });
