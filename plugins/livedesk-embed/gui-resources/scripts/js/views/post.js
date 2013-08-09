@@ -68,6 +68,7 @@ define([
 						data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 					}
 				}
+
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
 					data.CreatedOn = createdOn.format(_('post-date'));

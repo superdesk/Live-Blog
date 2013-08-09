@@ -110,3 +110,51 @@ def upgradeLiveBlog14Last():
     insertTheme()
     insertSource('comments')
     createSourceType('comment')
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeLiveBlog14End():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('ALTER TABLE `sd_dev`.`post` CHANGE COLUMN `meta` `meta` TEXT NULL DEFAULT NULL, '
+                        'CHANGE COLUMN `content_plain` `content_plain` TEXT NULL DEFAULT NULL, '
+                        'CHANGE COLUMN `content` `content` TEXT NULL DEFAULT NULL')
+    except (ProgrammingError, OperationalError): return
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeMediaArchiveDeleteFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    session.execute('ALTER TABLE `archive_audio_data` DROP FOREIGN KEY `archive_audio_data_ibfk_1`')
+    session.execute('ALTER TABLE `archive_audio_data` ADD CONSTRAINT `archive_audio_data_ibfk_1` '
+                    'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `sd_dev`.`archive_meta_data` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
+
+    session.execute('ALTER TABLE `archive_audio_info` DROP FOREIGN KEY `archive_audio_info_ibfk_1`')
+    session.execute('ALTER TABLE `archive_audio_info` ADD CONSTRAINT `archive_audio_info_ibfk_1` '
+                    'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `sd_dev`.`archive_meta_info` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
+
+    session.execute('ALTER TABLE `archive_image_data` DROP FOREIGN KEY `archive_image_data_ibfk_1`')
+    session.execute('ALTER TABLE `archive_image_data` ADD CONSTRAINT `archive_image_data_ibfk_1` '
+                    'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `sd_dev`.`archive_meta_data` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
+
+    session.execute('ALTER TABLE `archive_image_info` DROP FOREIGN KEY `archive_image_info_ibfk_1`')
+    session.execute('ALTER TABLE `archive_image_info` ADD CONSTRAINT `archive_image_info_ibfk_1` '
+                    'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `sd_dev`.`archive_meta_info` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
+
+    session.execute('ALTER TABLE `archive_video_data` DROP FOREIGN KEY `archive_video_data_ibfk_1`')
+    session.execute('ALTER TABLE `archive_video_data` ADD CONSTRAINT `archive_video_data_ibfk_1` '
+                    'FOREIGN KEY (`fk_metadata_id` ) REFERENCES `sd_dev`.`archive_meta_data` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
+
+    session.execute('ALTER TABLE `archive_video_info` DROP FOREIGN KEY `archive_video_info_ibfk_1`')
+    session.execute('ALTER TABLE `archive_video_info` ADD CONSTRAINT `archive_video_info_ibfk_1` '
+                    'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `sd_dev`.`archive_meta_info` (`id` ) '
+                    'ON DELETE CASCADE ON UPDATE RESTRICT')
