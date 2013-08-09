@@ -2,11 +2,12 @@ define([
 	'jquery',
 	'plugins',
 	'plugins/pagination',
+	'dust',
 	'dispatcher', 
 	'tmpl!themeBase/item/base',
 	'tmpl!themeBase/plugins/after-button-pagination',
 	'tmpl!themeBase/plugins/before-button-pagination'
-], function($, plugins, paginationPlugin){
+], function($, plugins, paginationPlugin, dust){
 	delete plugins['pagination'];
 	return plugins['button-pagination'] = function(config) {
 
@@ -27,7 +28,7 @@ define([
 		$.dispatcher.on('posts-view.rendered', function(evt){
 			var view = self,
 				data = {};
-			data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
+			data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 			$.tmpl('themeBase/plugins/before-button-pagination', data, function(e,o){
 				$(o)
 					.css(propName,propValue.hide)

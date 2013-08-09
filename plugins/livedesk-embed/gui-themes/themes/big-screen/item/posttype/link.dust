@@ -1,3 +1,1 @@
-{>"theme/item/base"/}
-{<item_class}link{/item_class}
-{<AuthorName}{AuthorName}{/AuthorName}
+{>"themeBase/item/posttype/link"/}

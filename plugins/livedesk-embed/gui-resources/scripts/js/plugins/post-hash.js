@@ -27,6 +27,7 @@ define([
 				}
 				return permalink;
 			}
+			view.data.permalink = view.getHash;
 		});
 		$.dispatcher.on('posts-view.class', function(evt){
 			var view = this.prototype;

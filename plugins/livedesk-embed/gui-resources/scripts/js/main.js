@@ -1,6 +1,8 @@
 requirejs.config({
 	paths: 	{
 		'themeBase': '../../themes/base',
+		
+		'require': 'core/require',
 
 		'tmpl': 'core/require/tmpl',
 		'css': 'core/require/css',

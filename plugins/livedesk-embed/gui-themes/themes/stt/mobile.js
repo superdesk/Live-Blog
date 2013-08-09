@@ -1,8 +1,3 @@
-requirejs.config({
-	paths: 	{
-		'theme': '../../themes/stt/mobile'
-	}
-});
 define([
 	'tmpl!theme/container',
 	'plugins/wrappup-toggle',

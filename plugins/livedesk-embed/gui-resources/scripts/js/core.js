@@ -5,7 +5,8 @@ define([
 	'utils/find-enviroment',
 	'plugins',
 	'jquery/xdomainrequest',
-	'i18n'
+	'i18n',
+	'css'
 ], function($, dateFormat, BlogViewDef, findEnviroment, plugins){
 		dateFormat.masks['post-date'] = _('mm/dd/yyyy HH:MM');
 		dateFormat.masks['status-date'] = _('HH:MM');

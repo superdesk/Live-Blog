@@ -10,11 +10,7 @@ define([
 		postHashPlugin(config);
 		var propName = 'visibility',
 			propValue = { 'show': 'visible', 'hide': 'hidden' };
-		
-		$.dispatcher.on('post-view.class', function(evt){
-			var view = this.prototype;
-			view.data.permalink = view.getHash;
-		});
+
 		$.dispatcher.on('posts-view.class', function(evt){
 			var view = this.prototype;
 			view.events['[data-gimme="post.share-permalink"]'] = { "click focus": "permalinkInput" }
