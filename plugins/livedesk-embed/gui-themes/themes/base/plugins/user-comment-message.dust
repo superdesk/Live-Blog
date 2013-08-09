@@ -1,4 +1,4 @@
-<div class="comment-box-message" style="display:none">
+<div class="comment-box-message">
 	<div class="content ">
 	_('Your message was sent for approval');
 	</div>

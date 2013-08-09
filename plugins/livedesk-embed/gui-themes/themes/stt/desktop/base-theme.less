@@ -192,6 +192,9 @@ background: #fff;
 				min-height: @postlist-minheight;
 				overflow: auto;
 				overflow-x: hidden !important; 
+				&.liveblog-scroll {
+					height: 500px;
+				}
 
 				.liveblog-postlist {
 					li {
@@ -316,7 +319,7 @@ background: #fff;
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0;
+							background: url(img/default-liveblog-avatar.png) no-repeat 0 0;
 							img {
 								width: @publisher-avatar-width;
 								max-width: @publisher-avatar-width;
@@ -643,6 +646,7 @@ background: #fff;
 
 		.comment-box , 
 		.comment-box-message {
+			display: none;
 		    position: absolute;
 		    top: 40px;
 		    right: 25px;
@@ -734,6 +738,179 @@ background: #fff;
 
 	}
 
+	&.mobile {
+		background: none;
+		.liveblog-container {
+			.liveblog-content {
+				.liveblog-content-middle {
+					margin: 0 7px;
+					height: auto;  
+
+					.liveblog-postlist {
+						li {
+							padding: 0;
+							margin-top: 10px;
+							background: #fff;
+							border: 1px solid #d8d8d8;
+							.border-radius(5px); 
+
+							.post-publisher-name {
+								color: #787878;
+								font-size: 0.875em;
+								line-height: 100%;
+								display: block;
+								padding: 2px 0 6px;
+								font-weight: bold;
+								margin: 0;
+							}
+
+							.post-datetime {
+								color: @lb-color2;
+								display: block;
+								border-right: 0;
+								font-weight: normal
+
+							}
+							@publisher-avatar-width-mobile : 32px;
+							.post-publisher-avatar {
+								float: left;
+								margin-right: 10px;
+								background-size: @publisher-avatar-width-mobile;
+								width: @publisher-avatar-width-mobile;
+								max-width: @publisher-avatar-width-mobile;
+								min-height: @publisher-avatar-width-mobile;
+								max-height: none;
+								padding: 1px;
+								border: 1px solid #e8e8e8;
+								img {
+									width: @publisher-avatar-width-mobile;
+									max-width: @publisher-avatar-width-mobile;
+									height: auto;
+								}
+							}
+
+							.post-header {
+								padding: 5px;
+								border-bottom: 1px solid #e8e8e8;
+								min-height: @publisher-avatar-width-mobile + 4px;
+								.border-radius(5px 5px 0 0);
+				
+							}
+							.post-footer {
+								height: 30px;
+								border-top: 1px solid #e8e8e8;
+						
+								.border-radius(0 0 5px 5px);
+								position: relative;
+							}
+
+							.post-buttons {
+								display: block;
+								right:15px;
+								top:5px;
+								.permalink {
+
+								}
+								.sf-share {
+									margin-right: 20px;
+								}
+								.share-box {
+									top: -55px;
+								}
+								input {
+									top: -37px;
+								}
+							}
+
+							.post-content {
+								margin: 0 !important;
+								padding: 10px;
+
+								.post-content-main {
+									margin: 0;
+								}
+
+								.post-content-full {
+
+								}
+							}
+
+							&.googleimage, &.flickr, &.instagram {
+								.post-content {
+									padding-top:0px; 
+									.post-core-content {
+										margin: 0 -10px -10px ;
+										.post-external {
+											h5, .post-text {
+												padding: 0 10px;
+											}
+											.post-external-image {
+												margin-bottom: 10px;
+											}
+										}
+										.attributes {
+											padding: 0 10px 10px;
+										}
+									}
+								}
+							}
+							.post-external-avatar {
+								display: none;
+							}
+							&.twitter, &.facebook, &.googlesearch, &.googlenews {
+								.post-content {
+									padding: 0;
+									.post-comment {
+										padding: 10px;
+									}
+									.post-core-content {
+										border: 0;
+										padding: 10px;
+										.post-external {
+											padding: 0;
+										}
+										.attributes {
+											margin-left:0; 
+										}
+									}
+								}
+							}
+							&.wrapup {
+								background: #686868;
+								.big-toggle {
+									margin: 5px;
+								}
+							}
+							&.usercomments {
+								.post-publisher-avatar {
+									background-size: 32px 32px;
+								}
+							}
+							&.soundcloud {
+								.post-frame-container {
+									margin: 0 -10px;
+								}
+							}
+
+
+						}
+					}
+				}
+			}
+		}
+		.comment-box {
+			left: 5px;
+			right: 5px;
+			.content {
+				padding: 5px 5px 60px 5px;
+				width: auto;
+			}
+			#recaptcha_area{
+				overflow: hidden;
+			}
+		}
+	}
+
 	/* quirks mode fixies 
 
 		maxheight won't work, instead, height param is used
@@ -803,6 +980,10 @@ background: #fff;
 					}
 				}
 			}
+		}
+
+		.comment-backdrop {
+			background: #212121;
 		}
 	}
 

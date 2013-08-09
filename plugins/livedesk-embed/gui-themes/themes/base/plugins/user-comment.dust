@@ -1,23 +1,23 @@
-<div class="comment-box" style="display:none">
+<div class="comment-box">
     <form name="comment">
         <div class="content">
+		    <input type="text" placeholder="_('Nickname');" id="comment-nickname">
+		    <div class="error">
+			    _('Please fill in your Nickname.');
+		    </div>
 
-	    <input type="text" placeholder="_('Nickname');" id="comment-nickname">
-	    <div class="error">
-		    _('Please fill in your Nickname.');
-	    </div>
+		    <textarea placeholder="_('Your Comment');" id="comment-text"></textarea>
+		    <div class="error">
+			    _('Please fill in your Comment text.');
+		    </div>
 
-	    <textarea placeholder="_('Your Comment');" id="comment-text"></textarea>
-	    <div class="error">
-		    _('Please fill in your Comment text.');
-	    </div>
+	        <div id="comment-token" data-public-key="6Le3_OISAAAAAFHYywwPBTceM563QA62HOSvxz4B"></div>
+		    <div class="error">
+			    _('Please fill in text from image.');
+		    </div>
 
-        <div id="comment-token" data-public-key="6Le3_OISAAAAAFHYywwPBTceM563QA62HOSvxz4B"></div>
-	    <div class="error">
-		    _('Please fill in text from image.');
-	    </div>
-
-        <button type="submit" class="button send">_('Send');</button>
-        <button type="reset" class="button cancel">_('Cancel');</button>
-    </div>
+	        <button type="submit" class="button send">_('Send');</button>
+        	<button type="reset" class="button cancel">_('Cancel');</button>
+        </div>
+    </form>
 </div>
