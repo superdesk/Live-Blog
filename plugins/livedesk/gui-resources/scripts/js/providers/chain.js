@@ -88,6 +88,9 @@
 					self.el.html(o);
 					self.addAll(evt, self.collection._list);
 				});
+				//dynamically get size of header and set top space for list
+	            var top_space = $('.chain-header').outerHeight() + 20;
+	            $('.post-list.chainblogs').css({'top': top_space});
 			},
 			removeOne:function(view) {
 				var 
