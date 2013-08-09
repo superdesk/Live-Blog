@@ -222,13 +222,13 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         /*!
          * init -> renders
          */
-        init: function()
+        init: function(options)
         {
             var self = this;
                 this.listView = new ListView({thumbSize: this.thumbSize});
             $(this.listView).on('register-item', function(){ self.registerItem.apply(self, arguments); });
             this.listView._parent = this;
-            this.render();
+            this.render($.extend({showArchive: true}, options));
         },
         /*!
          * activates
@@ -245,10 +245,10 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         /*!
          * renders stuff
          */
-        render: function()
+        render: function(options)
         {
             var self = this;
-            $(self.el).tmpl('media-archive>adv-upload/main', {UploadAction: ''}, function()
+            $(self.el).tmpl('media-archive>adv-upload/main', options, function()
             {
                 self.listView.renderPlaceholder = $('[data-placeholder="media-archive"]', self.el);
                 self.listView.itemsPlaceholder = '[data-placeholder="media-archive-items"]';

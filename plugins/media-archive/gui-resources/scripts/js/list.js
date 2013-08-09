@@ -619,7 +619,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             // put adv upload loading here to fix circular dependency
             require([config.guiJs('media-archive', 'adv-upload')], function(UploadView) {
                 if (!('uploadView' in self)) {
-                    self.uploadView = new UploadView();
+                    self.uploadView = new UploadView({showArchive: false});
                 }
 
                 self.uploadView.activate().then(function(imgData) {

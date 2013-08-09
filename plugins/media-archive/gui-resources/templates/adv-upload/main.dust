@@ -10,9 +10,11 @@
           			<a screen-id="1" href="javascript:void(0)">_('From Computer');</a>
           		</li>
 				<!-- li><a screen-id="2" href="#">From Web</a></li -->
+                {?showArchive}
           		<li>
           			<a screen-id="3" href="javascript:void(0)">_('From Media Archive');</a>
           		</li>
+                {/showArchive}
         	</ul>
     	</div>
 		<div class="modal-right-pane">
@@ -41,6 +43,7 @@
         		<input type="text" placeholder="Enter web address" class="fullwidth-input" />
 			</div -->
 
+            {?showArchive}
       		<div screen-id="3" class="uploadimage-screen hide">
         
         		<span data-placeholder="media-archive-filter">
@@ -52,6 +55,7 @@
             	</div>
             	
     		</div>
+            {/showArchive}
 		</div>
 	</div>
 	<div class="modal-footer">
