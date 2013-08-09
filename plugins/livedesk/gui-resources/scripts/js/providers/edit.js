@@ -327,9 +327,6 @@ define('providers/edit', [
 			    PostTypes = Gizmo.Collection.extend({model: PostType});
 			self.meta = {};
 			self.theBlog = self.blogUrl;
-			$(uploadView).on('complete', function(){
-				self.handleImageUpload();
-			});
 
 			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
 			
@@ -349,9 +346,8 @@ define('providers/edit', [
 			});
 			self.blog.sync();
 		},
-		handleImageUpload: function() {
+		handleImageUpload: function(imgData) {
 			var self = this;
-			var imgData = uploadView.getRegisteredItems();
 			var myData = false;
 			for ( var propName in imgData) {
 				myData = imgData[propName].data;
@@ -370,7 +366,10 @@ define('providers/edit', [
 
 		},
 		openUploadScreen: function() {
-			uploadView.activate();
+			var self = this;
+			uploadView.activate().then(function(data) {
+				self.handleImageUpload(data);
+			});
             $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
 		},
 		addBlogTypePosts: function(evt){

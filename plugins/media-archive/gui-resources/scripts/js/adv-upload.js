@@ -142,29 +142,21 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         uploadComplete: function(event)
         {
-            var content = false;
-            // either get it from the responseXML or responseText
-            try
-            { 
-                var xml = $(event.target.responseXML.firstChild),
-                    content = xml.find('Thumbnail');
-                    id = $('>Id', xml).get(0).text();
-            }
-            catch(e){ 
-                var txt = $(event.target.responseText),
-                    content = txt.find('thumbnail'),
-                    id = txt.find('Id:eq(0)').text();
-            }
-            if(!content) return;
+            var data = $.parseJSON(event.target.responseText);
+            var content = data.Thumbnail;
+            var id = data.Id;
+
             var img = new Image,
                 self = this; 
-            img.src = content.attr('href');
+            img.src = content.href;
+
             img.onload = function()
             {
                 $('form', self.el).addClass('hide');
                 $('[data-placeholder="preview-area"]', self.el).removeClass('hide');
                 $('[data-placeholder="preview"]', self.el).html(img); 
             };
+
             img.onerror = function(){  };
             
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+id);
@@ -211,10 +203,13 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         upload: function()
         {
             var self = this;
+
             var xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
                         'upload_file', 
-                        $("form", self.el).attr('action'), 
-                        self.uploadingDisplay );
+                        this.getUploadEndpoint(),
+                        self.uploadingDisplay,
+                        'json');
+
             xhr.onload = function(){
                 $('[data-action="browse"]').val('');
                 self.uploadComplete.apply(self, arguments);
@@ -222,7 +217,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         },
         complete: function()
         {
-            $(this).triggerHandler('complete');
+            this.delay.resolve(this.returnImageList);
         },
         /*!
          * init -> renders
@@ -240,9 +235,12 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          */
         activate: function()
         {
+            this.delay = $.Deferred();
             this.cancelUpload();
             this.returnImageList = {};
             this.listView.activate();
+            $(this.el).addClass('modal hide fade responsive-popup').modal();
+            return this.delay.promise();
         },
         /*!
          * renders stuff
@@ -250,7 +248,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         render: function()
         {
             var self = this;
-            $(self.el).tmpl('media-archive>adv-upload/main', {UploadAction: self.getUploadEndpoint()}, function()
+            $(self.el).tmpl('media-archive>adv-upload/main', {UploadAction: ''}, function()
             {
                 self.listView.renderPlaceholder = $('[data-placeholder="media-archive"]', self.el);
                 self.listView.itemsPlaceholder = '[data-placeholder="media-archive-items"]';
