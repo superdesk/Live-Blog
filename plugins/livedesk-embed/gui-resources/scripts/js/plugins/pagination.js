@@ -2,9 +2,9 @@ define([
 	'jquery',
 	'dispatcher'
 ], function($){
-	$.dispatcher.on('posts-view.class', function(evt, PostView){
+	$.dispatcher.on('posts-view.class', function(evt){
 		var view = this.prototype;
-		view._config.limit = 10;
+		view._config.collection.limit = 10;
 		view._flags.loadingNextPage = false;
 		view._flags.atEnd = false;
 		view.nextPage = function(){
@@ -14,15 +14,13 @@ define([
 			}
 			$.dispatcher.triggerHandler('posts-view.loading', self);
 			self._flags.loadingNextPage = true;
-			if(self.filters) {
-				$.each(self.filters, function(method, args) {
-					self.collection[method].apply(self.collection, args);
-				});
-			}
+			$.each(self._config.collection, function(key, value) {
+				if($.isArray(value))
+					self.collection[key].apply(self.collection, value);
+				else
+					self.collection[key](value);
+			});	
 			return self.collection
-					.xfilter(self._config.xfilter)
-					.limit(self._config.limit)
-					.offset(self.collection._stats.offset)
 					.sync().done(function(data) {
 						var total = self.collection._stats.total;
 						if(self._views.length >= total) {

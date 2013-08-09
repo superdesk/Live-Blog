@@ -13,6 +13,14 @@ define(['gizmo/superdesk'], function(Gizmo) {
 			firstOrder: Infinity, 
 			total: 0
 		},
+		limit: function(value) {
+			this._stats.limit = value;
+			return Gizmo.Collection.prototype.limit.call(this, value);
+		},
+		offset: function(value) {
+			this._stats.offset = value;
+			return Gizmo.Collection.prototype.offset.call(this, value);
+		},
 		/*!
 		 * for auto refresh
 		 */
@@ -166,7 +174,16 @@ define(['gizmo/superdesk'], function(Gizmo) {
 								self._list.push(list[i]);
 								changeset.push(list[i]);
                             if( self.hasEvent('addingsauto') ) {
-                                addings.push(list[i]);
+                            	/*!
+                            	 * @TODO: check that this applies everywhere
+                            	 */
+								if( (self._stats.firstOrder === Infinity) ||
+									(self._stats.firstOrder < parseFloat(list[i].get('Order')))) {
+									addings.push(list[i]);
+								}
+								else {
+									self.remove(list[i].hash());
+								}        
                             }
 						} else {
                             if( self.hasEvent('updatesauto') ) {

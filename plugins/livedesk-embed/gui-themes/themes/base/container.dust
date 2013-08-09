@@ -1,5 +1,5 @@
 {+mainContainer}
-<div id="livedesk-root">
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes}>
 	{+main}
 	<div class="liveblog-container">
 		{!-- 

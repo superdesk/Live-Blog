@@ -53,6 +53,7 @@
 				objd,
 				id = 1,
 				po,
+				enviroment,
 				theme = 'default',
 				plugins = 'pretty-date',
 				language = 'en';	
@@ -62,6 +63,9 @@
 					objd = parts[i].split('=');
 					if(objd[0].toLowerCase() === 'id') {
 						id = objd[1];
+					}
+					if(objd[0].toLowerCase() === 'enviroment') {
+						enviroment = objd[1];
 					}
 					if(objd[0].toLowerCase() === 'theme') {
 						theme = objd[1];
@@ -77,41 +81,37 @@
 					}
 				}
 			}
-			//console.log(po,theme, plugins, language);
-			var livedesk = {
-				'plugins': plugins, 
-				'language': language,
-				'server': function(){ return config.api_url; },
-				'FrontendServer': config.api_url,
-				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
-			};
 		</script>
 		<div class="container"> 
 		</div>
 		<script type="text/javascript">
 		//<![CDATA[
-			var liveblog = (function(d){
-				var self = this;
-				self.data = {
-					id: id,
-					el: '.container',
-					theme: theme,
-					language: language,
-					script: d.scripts[d.scripts.length - 1],
-					frontendServer: config.api_url
-				};
-				self.data.baseUrl = self.data.frontendServer + '/content/lib/livedesk-embed/scripts/js/';
-				self.data.loadJs = function(path) {
-							var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
-							ls.type = "text/javascript"; s.async = true;
-							ls.src = path.indexOf('//') === -1 ? 
-								self.data.baseUrl + path + '.js?version=' + (self.data.version || parseInt((new Date()).getTime()/600000)):
-								path;
-							s.parentNode.insertBefore( ls, s ); return ls;
-				}
-				self.data.loadJs('loader');
-				return self.data;
-			})(document);
+			if(po === undefined){
+				var liveblog = (function(d){
+					var self = this;
+					self.data = {
+						id: id,
+						el: '.container',
+						theme: theme,
+						language: language,
+						script: d.scripts[d.scripts.length - 1],
+						frontendServer: config.api_url
+					};
+					if(enviroment)
+						self.data.enviroment = enviroment;
+					self.data.baseUrl = self.data.frontendServer + '/content/lib/livedesk-embed/scripts/js/';
+					self.data.loadJs = function(path) {
+								var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+								ls.type = "text/javascript"; s.async = true;
+								ls.src = path.indexOf('//') === -1 ? 
+									self.data.baseUrl + path + '.js?version=' + (self.data.version || parseInt((new Date()).getTime()/600000)):
+									path;
+								s.parentNode.insertBefore( ls, s ); return ls;
+					}
+					self.data.loadJs('loader');
+					return self.data;
+				})(document);
+			}
 		//]]>
 		</script>
 		<div id="here"></div>

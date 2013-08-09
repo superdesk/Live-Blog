@@ -7,7 +7,8 @@ define([
 	'views/post-templates'
 ], function( $, Gizmo ) {
 	return function(){
-		return Gizmo.View.extend ({
+		var PostView = Gizmo.View.extend ({
+			data: {},
 			init: function()
 			{
 				var self = this;
@@ -33,29 +34,6 @@ define([
 				self.el.remove();
 				self.model.off('read update delete');
 				return self;			
-			},
-			toggleWrap: function(e, forceToggle) {
-				if (typeof forceToggle != 'boolean' ) {
-					forceToggle = false;
-				}
-				this._toggleWrap($(e).closest('li').first(), forceToggle);
-			},
-			_toggleWrap: function(item, forceToggle) {
-				if (typeof forceToggle != 'boolean' ) {
-					forceToggle = false;
-				}
-				if (item.hasClass('wrapup-open')) {
-					var collapse = true;
-					if ( collapse ) {
-						item.removeClass('wrapup-open');
-						item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').hide();
-					} else {
-						//don't collapse wrap'
-					}
-				} else {
-					item.addClass('wrapup-open');
-					item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').show();
-				}
 			},	
 			render: function(evt, data)
 			{
@@ -116,47 +94,16 @@ define([
 
 				item = (require.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
 				data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
-				/*!
-				 * @TODO: move this into plugins ASAP
-				 */
-				data.HashIdentifier = self._parent.hashIdentifier
-				var blogConfig = self._parent._parent._config;
-				newHash = blogConfig.hashIdentifier + data.Order;
-				if(blogConfig.location.indexOf('?') === -1) {
-					data.permalink = blogConfig.location + '?' + newHash ;
-				} else if(blogConfig.location.indexOf(blogConfig.hashIdentifier) !== -1) {
-					regexHash = new RegExp(blogConfig.hashIdentifier+'[^&]*');
-					data.permalink = blogConfig.location.replace(regexHash,newHash);
-				} else {
-					data.permalink = blogConfig.location + '&' + newHash;
-				}
-				/*!
-				 * @END TODO
-				 */
+				$.each(self.data, function(key, value){
+					console.log(key,value);
+					if($.isFunction(value)){
+						data[key] = value.call(self, data);	
+					} else {
+						data[key] = value;
+					}
+				});
 				$.tmpl(item, data, function(e, o){
 					 self.setElement(o);
-					 /*!
-					  * @TODO: move this into plugins ASAP
-					  */
-					var input = $('input[data-type="permalink"]',self.el);
-					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
-						evt.preventDefault();
-						if(input.css('visibility') === 'visible') {
-							input.css('visibility', 'hidden' );
-						} else {
-							input.css('visibility', 'visible' );
-							input.trigger(self.getEvent('focus'));
-							$('.result-header .share-box', self.el).fadeOut('fast');
-						}
-						
-					});
-					input.on(self.getEvent('focus')+' '+self.getEvent('click'), function() {
-						$(this).select();
-					});
-					$('.big-toggle', self.el).off( self.getEvent('click') ).on(self.getEvent('click'), function(){
-						self.toggleWrap(this, true);
-					});
-
 					var li = $('.result-header', self.el).parent();
 					li.hover(function(){
 						//hover in
@@ -207,15 +154,12 @@ define([
 								share.attr('data-added', 'yes');	
 							});
 						}
-						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
-						$(this).next('.share-box').toggle();
 					});
-					/*!
-					 * @END TODO
-					 */
 				});
 						
 			}
 		});
+		$.dispatcher.triggerHandler('post-view.class',PostView);
+		return PostView;
 	}
 });

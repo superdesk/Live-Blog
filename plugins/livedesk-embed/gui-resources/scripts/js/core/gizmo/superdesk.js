@@ -74,7 +74,7 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
     },	
 	end = function(value, key) // change id implementation
     {
-		if(key === undefined)
+        if(key === undefined)
 			key = 'CId';
 		return param.call(this, value, key+'.end');
     },	

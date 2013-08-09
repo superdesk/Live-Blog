@@ -7,7 +7,6 @@
       {+header}
         {+postDateContainer}{/postDateContainer}
         {+userNameContainer}{/userNameContainer}
-        {+shareContainer}{/shareContainer}
       {/header}
       </div>
     {/headerContainer}
@@ -88,15 +87,9 @@
 
 {<publisherAvatar}
 {?AuthorImage}
-<<<<<<< HEAD
 <div class="post-publisher-avatar">
   <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
 </div>
-=======
-<figure class="post-publisher-avatar">
-  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
-</figure>
->>>>>>> 87aaf676ee2033506240410a7f129057cb6ffd22
 {:else}
 <div class="post-publisher-avatar"></div>
 {/AuthorImage}
@@ -222,21 +215,3 @@
   {+externalText}{/externalText}
 </div>
 {/externalTextContainer}
-
-{<shareContainer}
-<div class="post-buttons">
-  {+share}
-    {+socialShare}{/socialShare}
-    {+permanentLinkShare}{/permanentLink}
-  {/share}
-</div>
-{/shareContainer}
-
-{<permanentLinkShare}
-<a href="#" class="permalink" rel="bookmark">#</a>
-<input type="text" data-type="permalink" value="{permalink}">
-{/permanentLinkShare}
-
-{<socialShare}
-<a href="#" class="sf-share">_('Share');</a>
-{/socialShare}

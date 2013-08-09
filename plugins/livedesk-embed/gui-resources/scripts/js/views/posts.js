@@ -13,67 +13,36 @@ define([
 				addAllPending: false
 			},
 			_config: {
-				filters: {},
 				timeInterval: 10000,
 				data: {
 					thumbSize: 'medium'
 				},
-				xfilter: 'PublishedOn, DeletedOn, Order, Id,' +
-							   'CId, Content, CreatedOn, Type, '+
-							   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
-							   'IsModified, AuthorImage,' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
-							   'Meta, IsPublished, Creator.FullName'
+				collection: {
+					xfilter: 'PublishedOn, DeletedOn, Order, Id,' +
+								   'CId, Content, CreatedOn, Type, '+
+								   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
+								   'IsModified, AuthorImage,' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
+								   'Meta, IsPublished, Creator.FullName'
+				}
 			},
 			pendingAutoupdates: [],
 			init: function() {
-				var self = this,
-					blogConfig = self._parent._config,
-					orderParam = blogConfig.location.split('?'),
-					orderHash =  blogConfig.location.split('#');
+				var self = this;
 				self._views = [];
-				self._pendingAutoupdates = [];
-				if(self._config.limit) {
-					self.collection.limit(self._config.limit);
-					self.collection._stats.limit = self._config.limit;
-				}
-				if(self._config.offset) {
-					self.collection.offset(self._config.offset);
-					//self.collection._stats.offset = self._config.offset;
-				}	
+				$.each(self._config.collection, function(key, value) {
+					if($.isArray(value))
+						self.collection[key].apply(self.collection, value);
+					else
+						self.collection[key](value);
+				});
 				self.collection
 					.on('read readauto', self.render, self)
 					.on('addings', self.addAll, self)
 					.on('addingsauto',self.addingsAuto, self)
 					.on('removeingsauto', self.removeAllAutoupdate, self)
-					.xfilter(self._config.xfilter);
-				if(orderHash[1] && ( (hashIndex = orderHash[1].indexOf(blogConfig.hashIdentifier)) !== -1) ||
-					orderParam[1] && ( (hashIndex = orderParam[1].indexOf(blogConfig.hashIdentifier)) !== -1)
-					) {
-
-					var order;
-					if(orderHash[1]) {
-						order = parseFloat(orderHash[1].substr(hashIndex+blogConfig.hashIdentifier.length));
-					} else if(orderParam[1]) {
-						order = parseFloat(orderParam[1].substr(hashIndex+blogConfig.hashIdentifier.length));
-					}
-					console.log('order:',order);
-					self.filters = {end: [order, 'order']};
-					self.collection
-						.one('rendered', self.showLiner, self)
-						.end(order, 'order')
-						.sync({ data: { thumbSize: 'medium'} });
-				} else {
-					self.collection
-						.auto()
-						.autosync({ data: self._config.data });
-				}
-			},
-			showLiner: function()
-			{
-				var self = this;
-				console.log($('[data-gimme="posts.beforePage"]',self.el));
-				$('[data-gimme="posts.beforePage"]',self.el).css('display','block');
+					.auto()
+					.autosync({ data: self._config.data });
 			},
 			removeOne: function(view) {
 				var 
@@ -156,27 +125,10 @@ define([
 				return view;
 			},
 
-			removeAllAutoupdate: function(evt, data) {
-				for (var i in data) {
-	                if ('postView' in data[i]) {
-						data[i].postView.remove();
-					}
-				}
-
-				this.markScroll();
-			},
 			addingsAuto: function(evt, data) {
-				var self = this,
-					firstOrder = self.collection._stats.firstOrder;
+				var self = this;
 				if(data.length) {
-					for(var i = 0, count = data.length; i < count; i++) {
-						if(self.collection._stats.firstOrder < data[i].get('Order')) {
-							self.pendingAutoupdates.push(data[i]);
-						}
-						else {
-							self.collection.remove(data[i].hash());
-						}
-					}
+					self.pendingAutoupdates.concat(data);
 				}
 				self.addAllAutoupdate(evt);
 			},
@@ -198,7 +150,7 @@ define([
 				if(self._flags.autoRender) {
 					self.addAllPending(evt);
 					$.dispatcher.triggerHandler('posts-view.added-auto',self);
-				}
+				} 
 			},
 
 			addAll: function(evt, data) {
