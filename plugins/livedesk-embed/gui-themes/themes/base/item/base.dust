@@ -69,7 +69,7 @@
 {/publishedDateContainer}
 
 {<postDateContainer}
-  {+publishedDateContainere}{/publishedDateContainer}
+  {+publishedDateContainer}{/publishedDateContainer}
 {/postDateContainer}
 
 {<userNameContainer}
@@ -87,9 +87,15 @@
 
 {<publisherAvatar}
 {?AuthorImage}
+<<<<<<< HEAD
 <div class="post-publisher-avatar">
   <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
 </div>
+=======
+<figure class="post-publisher-avatar">
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
+</figure>
+>>>>>>> 87aaf676ee2033506240410a7f129057cb6ffd22
 {:else}
 <div class="post-publisher-avatar"></div>
 {/AuthorImage}

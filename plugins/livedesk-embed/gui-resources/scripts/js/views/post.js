@@ -43,7 +43,7 @@ define([
 				self._parent.orderOne(self);
 			}
 			if(data.Meta) {
-				data.Meta = JSON.parse(data.Meta);
+				data.Meta = $.parseJSON(data.Meta);
 			}
 			if(data.Meta && data.Meta.annotation) {
 				if(data.Meta.annotation[1] === null) {
