@@ -623,8 +623,8 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
                 }
 
                 self.uploadView.activate().then(function(imgData) {
-                    for (var id in imgData) {
-                        self.uploaded(id);
+                    for (var i = 0; i < imgData.length; i++) {
+                        self.uploaded(imgData[i].data.Id);
                     }
                 });
             });

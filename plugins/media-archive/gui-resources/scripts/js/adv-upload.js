@@ -171,7 +171,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             $('form', this.el).removeClass('hide');
             $('[data-placeholder="preview-area"]', this.el).addClass('hide');
             $('[data-placeholder="preview"]', this.el).html('');
-            delete this.returnImageList[this.lastUpload];
+            this.removeImageById(this.lastUpload);
         },
         /*!
          * triggers file input
@@ -180,16 +180,34 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             $('[data-action="browse"]', this.el).trigger('click');
         },
+
+        findImageById: function(id) {
+            for (var i = 0; i < this.returnImageList.length; i++) {
+                if (this.returnImageList[i].data.Id === id) {
+                    return i;
+                }
+            }
+        },
+
+        removeImageByPos: function(pos) {
+            this.returnImageList.splice(pos, 0);
+        },
+
+        removeImageById: function(id) {
+            var pos = this.findImageById(id);
+            if (pos !== undefined) {
+                this.removeImageByPos(pos);
+            }
+        },
         
-        returnImageList: {},
+        returnImageList: [],
         registerItem: function(evt, model)
         {
-            var id = model.get('Id');
-            var itm = this.returnImageList[id];
-            if (itm) {
-                delete this.returnImageList[id];
+            var pos = this.findImageById(model.data.Id);
+            if (pos !== undefined) {
+                this.removeImageByPos(pos);
             } else {
-                this.returnImageList[id] = model;
+                this.returnImageList.push(model);
             }
         },
         getRegisteredItems: function()
@@ -237,7 +255,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             this.delay = $.Deferred();
             this.cancelUpload();
-            this.returnImageList = {};
+            this.returnImageList = [];
             this.listView.activate();
             $(this.el).addClass('modal hide fade responsive-popup').modal();
             return this.delay.promise();

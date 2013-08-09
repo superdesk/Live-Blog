@@ -348,12 +348,8 @@ define('providers/edit', [
 		},
 		handleImageUpload: function(imgData) {
 			var self = this;
-			var myData = false;
-			for ( var propName in imgData) {
-				myData = imgData[propName].data;
-				break;
-			}
-			if ( myData ) {
+			if (imgData.length) {
+				var myData = imgData[0].data;
 				self.el.find('.upload-url').val(myData.Content.href);
 				$.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
 					self.el.find('.upload-image-container .uploaded-image').html(o);
@@ -370,7 +366,6 @@ define('providers/edit', [
 			uploadView.activate().then(function(data) {
 				self.handleImageUpload(data);
 			});
-            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
 		},
 		addBlogTypePosts: function(evt){
 			var self = this, 
