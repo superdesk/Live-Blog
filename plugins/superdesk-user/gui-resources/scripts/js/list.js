@@ -5,6 +5,7 @@ define
     'router',
     'angular',
     config.guiJs('superdesk/user', 'controllers/user-list'),
+    config.guiJs('superdesk/user', 'controllers/user-detail'),
     config.guiJs('superdesk/user', 'resources'),
     config.guiJs('superdesk/user', 'directives'),
     'tmpl!superdesk/user>list',
@@ -13,7 +14,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, backbone, router, angular, UserListController) {
+function($, backbone, router, angular, UserListController, UserDetailController) {
     return function() {
         var module = angular.module('users', ['users.resources', 'users.directives', 'ui.bootstrap']);
 
@@ -23,6 +24,7 @@ function($, backbone, router, angular, UserListController) {
         }]);
 
         module.controller('UserListController', UserListController);
+        module.controller('UserDetailController', UserDetailController);
 
         $('#area-main').tmpl('superdesk/user>list');
         $('#area-main').attr('ng-controller', 'UserListController');

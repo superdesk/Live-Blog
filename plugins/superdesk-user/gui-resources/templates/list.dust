@@ -83,8 +83,8 @@
 
 						<tr ng-repeat="user in users">
 							<td><input type="checkbox" class="sf-checkbox" set-bg="2" ng-model="user.checked" ng-click="toggle($index)"></td>
-							<td ng-show="settings.fields.avatar"><figure class="avatar" sd-user-image sd-user="user" data-width="22" data-height="22"></figure></td>
-							<td class="name_col" ng-show="settings.fields.name"><a href="#">{{ user.FullName }}</a></td>
+							<td ng-show="settings.fields.avatar"><figure class="avatar" sd-user-image sd-user="user"></figure></td>
+							<td class="name_col" ng-show="settings.fields.name"><a href="" ng-click="$parent.selectedUserId = user.Id">{{ user.FullName }}</a></td>
 							<td ng-show="settings.fields.username">{{ user.Name }}</td>
 							<td class="email_col resp-hide" ng-show="settings.fields.email"><a href="">{{ user.EMail }}</a></td>
 							<!--
@@ -115,8 +115,839 @@
 	    <div class="tab-pane" id="deleted_users">
 	        
 		</div>
+
+		<div class="user-details-pane" ng-controller="UserDetailController">
+		  <a href="" class="close" ng-click="unloadUser()"><i class="icon-remove"></i></a>
+		  <div class="user-details-header">
+		    <ul class="nav nav-tabs userDetail-tabs" id="userDetailsTabs">
+
+		      <!-- menu items for user profile -->
+		      <li class="active"><a href="#userd-overview" class="author-view-hide" data-toggle="tab">Overview</a></li>
+		      <li class=""><a href="#userd-profile" class="author-view-hide" data-toggle="tab">Profile</a></li>
+
+		      <!-- menu items for author profile -->
+		      <li><a href="#authord-profile" class="author-view-show" data-toggle="tab">Author Profile</a></li>
+		      <li><a href="#userd-author" class="author-view-show" data-toggle="tab">Articles</a></li>
+
+		    </ul>
+		  </div>
+
+
+
+		  <div class="user-details-content tab-content">
+
+		    <!-- overview TAB -->
+		    <div class="tab-pane clearfix active" id="userd-overview">
+		      <!-- left column -->
+		      <div class="user-tab-column">
+		        <div class="header-info">
+		          <figure class="large-user-avatar" sd-user-image sd-user="user" sd-width="206" sd-height="206"></figure>
+		        </div>
+		        <div class="info-item"><span class="info-label">twitter</span><span class="info-value">@davidbauer</span></div>
+		        <div class="info-item"><span class="info-label">google+</span><span class="info-value">david.bauer</span></div>
+		        <section class="stats-box">
+		          <header>Articles</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num">187</span>
+		              <span class="stat-text">posted articles</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">168</span>
+		              <span class="stat-text">verified</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">19</span>
+		              <span class="stat-text">unverified</span>
+		            </li>
+		          </ul>
+		        </section>
+		        <section class="stats-box">
+		          <header>Blog Posts</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num">66</span>
+		              <span class="stat-text">posted blogs</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">64</span>
+		              <span class="stat-text">verified</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">2</span>
+		              <span class="stat-text">unverified</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </div>
+		      <!-- right column -->
+		      <div class="user-tab-column">
+		        <div class="header-info">
+		          <h2>{{ user.FullName }}</h2>
+		          <h5>{{ user.Name }}</h5>
+		          <ul class="user-roles" ng-repeat="role in user.roleList">
+		            <li>{{ role.Name }}</li>
+		          </ul>
+		          <div class="info-item"><span class="info-value"><a href="mailto:{{ user.EMail }}">{{ user.EMail }}</a></span></div>
+		          <div class="info-item"><span class="info-label">Member since</span><span class="info-value">{{ user.CreatedOn }}</span></div>
+		          <button class="btn" style="margin-top:15px;" href="#userd-permissions" data-toggle="tab" id="permissionsOverview">Permissions</button>
+		        </div>
+		       <div class="info-item"><span class="info-label">skype</span><span class="info-value">dbauer82</span></div>
+		       <div class="info-item"><span class="info-label">phone</span><span class="info-value">061 561 61 61</span></div>
+		       <section class="stats-box">
+		          <header>SMS</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num">382</span>
+		              <span class="stat-text">posted sms feeds</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">300</span>
+		              <span class="stat-text">verified</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">82</span>
+		              <span class="stat-text">unverified</span>
+		            </li>
+		          </ul>
+		        </section>
+		        <section class="stats-box">
+		          <header>Tweets</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num">711</span>
+		              <span class="stat-text">posted tweets</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">711</span>
+		              <span class="stat-text">verified</span>
+		            </li>
+		            <li>
+		              <span class="stat-num">0</span>
+		              <span class="stat-text">unverified</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </div>
+		    </div>
+
+		    <!-- user profile TAB -->
+		    <div class="tab-pane user-profile clearfix" id="userd-profile">
+		      <header>
+		        <button class="btn btn-light pull-left">View Public</button>
+		        <button class="btn btn-light pull-left tablink switch-user-author" style="margin-left:10px;" tabtarget="#authord-profile">Author Profile</button>
+		        <button class="btn pull-right" href="#userd-profile-edit" data-toggle="tab"><i class="icon-pencil"></i></button>
+		        <button class="btn pull-right" href="#userd-permissions" data-toggle="tab" id="permissionsProfile">Permissions</button>
+		      </header>
+		      <div class="details-info">
+		          <div class="header-info small clearfix">
+		            <figure class="small-user-avatar">
+		              <img src="pictures/David-Bauer.jpg">
+		            </figure>
+		            <h2>David Bauer</h2>
+		            <h5>davidbauer</h5>
+		            <ul class="user-roles">
+		              <li>journalist</li>
+		              <li>administrator</li>
+		            </ul>
+		            <div class="info-item"><span class="info-label">Member since</span><span class="info-value">23.03.2011.</span></div>
+		          </div>
+		          <div class="header-info-about show-more-source">
+		            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+		          </div>
+		          <button class="show-more">Show More</button>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              General
+		            </div>
+		            <div class="info-item"><span class="info-label">date of birth</span><span class="info-value">23.09.1976.</span></div>
+		            <div class="info-item"><span class="info-label">place of birth</span><span class="info-value">Basel, Switzerland</span></div>
+		            <div class="info-item"><span class="info-label">company</span><span class="info-value">TagesWoche</span></div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Contact Information
+		            </div>
+		            <div class="info-item"><span class="info-label">email</span><span class="info-value"><a href="#">david.bauer@tageswoche.ch</a></span></div>
+		            <div class="info-item"><span class="info-label">skype</span><span class="info-value">davidbauer76</span></div>
+		            <div class="info-item"><span class="info-label">phone</span><span class="info-value">061 561 61 61</span></div>
+		            <div class="info-item"><span class="info-label">web</span><span class="info-value"><a href="#">www.davidbauer.ch</a></span></div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Social
+		            </div>
+		            <div class="info-item"><span class="info-label">facebook</span><span class="info-value"><a href="#">https://www.facebook.com/davidbauer</a></span></div>
+		            <div class="info-item"><span class="info-label">twitter</span><span class="info-value">@davidbauer</span></div>
+		            <div class="info-item"><span class="info-label">google+</span><span class="info-value">david.bauer</span></div>
+		          </div>
+		      </div>
+
+		    </div>
+
+		    <div class="tab-pane user-profile user-profile-edit clearfix" id="userd-profile-edit">
+		      <header>
+		            <figure class="small-user-avatar">
+		              <img src="pictures/David-Bauer.jpg">
+		            </figure>
+		            <button class="btn btn-info pull-right" href="#userd-profile" data-toggle="tab">Done</button>
+		      </header>
+		      <div class="details-info">
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              General
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="general-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Date of birth</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Place of birth</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Date of birth</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">name</span>
+		              <span class="info-value info-editable" contenteditable="true">David Bauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">username</span>
+		              <span class="info-value info-editable" contenteditable="true">davidbauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item password">
+		              <span class="info-label">password</span>
+		              <span class="info-value info-editable" contenteditable="true">nikola</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">member since</span>
+		              <span class="info-value info-editable" contenteditable="true">23.03.2011.</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">date of birth</span>
+		              <span class="info-value info-editable" contenteditable="true">23.09.1976.</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">place of birth</span>
+		              <span class="info-value info-editable" contenteditable="true">Basel, Switzerland</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">company</span>
+		              <span class="info-value info-editable" contenteditable="true">TagesWoche</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">user type</span>
+		              <span class="info-value info-editable" contenteditable="true">administrator</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Contact Information
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="contact-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> email</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> skype</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> phone</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> web</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">email</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">david.bauer@tageswoche.ch</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">skype</span>
+		              <span class="info-value info-editable" contenteditable="true">davidbauer76</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">phone</span>
+		              <span class="info-value info-editable" contenteditable="true">061 561 61 61</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">web</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">www.davidbauer.ch</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Social
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="contact-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> facebook</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> twitter</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> google+</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">facebook</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">https://www.facebook.com/davidbauer</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">twitter</span>
+		              <span class="info-value info-editable" contenteditable="true">@davidbauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">google+</span>
+		              <span class="info-value info-editable" contenteditable="true">david.bauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Details
+		            </div>
+		            <div class="info-item">
+		              <p class="info-editable" contenteditable="true">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+		            </div>
+		          </div>
+		      </div>
+
+		    </div>
+		    <div class="tab-pane user-permissions" id="userd-permissions">
+		      <header>
+		        <figure>
+		          <img src="pictures/David-Bauer.jpg">
+		        </figure>
+		        <h2>David Bauer</h2>
+		        <h5>davidbauer</h5>
+		        <button class="btn btn-info pull-right" href="#userd-profile" data-toggle="tab" id="permissionsDone">Done</button>
+		      </header>
+		      <div class="details-section">
+		        <div class="details-section-header">
+		          Permissions
+		        </div>
+		        <div class="user-permission-tab  tabs-left">
+		          <ul class="nav nav-tabs" id="userPermissionsTabs">
+		            <li class="active"><a href="#userp-authoring" data-toggle="tab">Authoring</a></li>
+		            <li><a href="#userp-structure" data-toggle="tab">Structure</a></li>
+		            <li><a href="#userp-layout" data-toggle="tab">Layout</a></li>
+		            <li><a href="#userp-users" data-toggle="tab">Users</a></li>
+		            <li><a href="#userp-system" data-toggle="tab">System</a></li>
+		            <li><a href="#userp-plugin" data-toggle="tab">Plugin</a></li>
+		          </ul>
+		        </div>
+		        <div class="user-permission-content  tab-content">
+		          <div class="tab-pane active" id="userp-authoring">
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Articles</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>write</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>publish</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>archive</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Images</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>add</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>attach</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Comments</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>add</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>reply</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>approve</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Feedback Messages</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>review only</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>review &amp; reply</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Files</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>create</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>attach</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>buy from stock</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Rich-Text Editor</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>live edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>responsive view</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>zen mode</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>locations</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>scratchpad</li>
+		                </ul>
+		              </div>
+		            </div>
+
+
+		          </div>
+		          <div class="tab-pane" id="userp-structure">
+		            Structure permissions
+		          </div>
+		          <div class="tab-pane" id="userp-layout">
+		            Layout permissions
+		          </div>
+		          <div class="tab-pane" id="userp-users">
+		            Users permissions
+		          </div>
+		          <div class="tab-pane" id="userp-system">
+		            System permissions
+		          </div>
+		          <div class="tab-pane" id="userp-plugin">
+		            Plugin permissions
+		          </div>
+		        </div>
+		      </div>
+		    </div>
+		    
+
+
+
+		    <div class="tab-pane author-profile" id="authord-profile">
+		      <header>
+		        <button class="btn pull-right" href="#authord-profile-edit" data-toggle="tab"><i class="icon-pencil"></i></button>
+		        <button class="btn btn-light pull-right tablink switch-user-author" style="margin-left:10px;" tabtarget="#userd-profile">View User Profile</button>
+		      </header>
+
+
+		      <div class="details-info">
+		        
+		        <div class="clearfix">
+		          <div class="user-tab-column">
+		            <div class="header-info">
+		              <figure class="large-user-avatar">
+		                <img src="pictures/David-Bauer.jpg">
+		              </figure>
+		            </div>
+		          </div>
+
+
+		          <div class="user-tab-column">
+		            <div class="header-info">
+		              <h2>David Bauer</h2>
+		              <h5>davidbauer</h5>
+		              <ul class="user-roles">
+		                <li>writer</li>
+		                <li>columnist</li>
+		              </ul>
+		              <section class="stats-box">
+		                <ul class="stats-list">
+		                  <li>
+		                    <span class="stat-num">187</span>
+		                    <span class="stat-text">total articles</span>
+		                  </li>
+		                </ul>
+		              </section>
+		              <a class="view-user-articles" href="#userd-author" data-toggle="tab">View Articles</a>
+		            </div>
+		          </div>
+		        </div>
+		        
+
+
+		        <div class="details-section">
+		            <div class="details-section-header">
+		              General
+		            </div>
+		            <div class="info-item"><span class="info-label">date of birth</span><span class="info-value">23.09.1976.</span></div>
+		            <div class="info-item"><span class="info-label">place of birth</span><span class="info-value">Basel, Switzerland</span></div>
+		            <div class="info-item"><span class="info-label">company</span><span class="info-value">TagesWoche</span></div>
+		        </div>
+
+		        <div class="details-section">
+		            <div class="details-section-header">
+		              Biography
+		            </div>
+		            <div class="show-more-source">
+		              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+		            </div>
+		            <button class="show-more">Show More</button>
+		        </div>
+
+		        <div class="details-section">
+		          <div class="details-section-header">
+		            Contact Information
+		          </div>
+		          <div class="info-item"><span class="info-label">email</span><span class="info-value"><a href="#">david.bauer@tageswoche.ch</a></span></div>
+		          <div class="info-item"><span class="info-label">skype</span><span class="info-value">davidbauer76</span></div>
+		          <div class="info-item"><span class="info-label">phone</span><span class="info-value">061 561 61 61</span></div>
+		          <div class="info-item"><span class="info-label">web</span><span class="info-value"><a href="#">www.davidbauer.ch</a></span></div>
+		        </div>
+
+		        <div class="details-section">
+		          <div class="details-section-header">
+		            Social
+		          </div>
+		          <div class="info-item"><span class="info-label">facebook</span><span class="info-value"><a href="#">https://www.facebook.com/davidbauer</a></span></div>
+		          <div class="info-item"><span class="info-label">twitter</span><span class="info-value">@davidbauer</span></div>
+		          <div class="info-item"><span class="info-label">google+</span><span class="info-value">david.bauer</span></div>
+		        </div>
+		     
+		      </div>
+		    </div>
+
+		    <div class="tab-pane user-author" id="userd-author">
+		      <header>
+		        <figure>
+		          <img src="pictures/David-Bauer.jpg">
+		        </figure>
+		        <h2>David Bauer</h2>
+		        <h5>davidbauer</h5>
+		        <section class="stats-box stats-small stats-static">
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num">187</span>
+		              <span class="stat-text">total articles</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </header>
+		      <div class="details-pane">
+		        <div class="author-module">
+		          <div class="sf-module-header">
+		            <i class="icon-chevron-down toggle-module-close"></i>
+		            <i class="icon-chevron-right toggle-module-open"></i>
+		            <span class="sf-module-title">Author<i>(187)</i></span>
+		          </div>
+		          <div class="sf-module-content">
+		            <ul class="author-articles">
+		              <li>
+		                <time>18.02.2010.</time>
+		                <a href="#">Turkey and Russia furious at revelations of UK spying</a>
+		              </li>
+		               <li>
+		                <time>23.04.2010.</time>
+		                <a href="#">Revealed: how the UK spied on its G20 allies at London summits</a>
+		              </li>
+		               <li>
+		                <time>28.06.2010</time>
+		                <a href="#">How US spies targeted Russian leader Medvedev</a>
+		              </li>
+		               <li>
+		                <time>22.08.2010</time>
+		                <a href="#">Hague: arms to Syrian rebels can be controlled</a>
+		              </li>
+		               <li>
+		                <time>12.09.2010</time>
+		                <a href="#">G8 has a chance to tackle the forgotten scandal of hunger</a>
+		              </li>
+		               <li>
+		                <time>09.11.2010</time>
+		                <a href="#">La Via Campesina celebrates 20 years of standing up for food 
+		sovereignty</a>
+		              </li>
+		               <li>
+		                <time>17.01.2011.</time>
+		                <a href="#">Apple discloses US data requests following Prism leaks</a>
+		              </li>
+		               <li>
+		                <time>12.09.2010</time>
+		                <a href="#">Turkish government says it may use army to end protests</a>
+		              </li>
+		               <li>
+		                <time>09.11.2010</time>
+		                <a href="#">Google to tackle child sexual abuse images on web</a>
+		              </li>
+		               <li>
+		                <time>17.01.2011</time>
+		                <a href="#">George Lucas wins first Emmy for Star Wars: Clone War</a>
+		              </li>
+		              <li>
+		                <time>18.02.2010.</time>
+		                <a href="#">Turkey and Russia furious at revelations of UK spying</a>
+		              </li>
+		               <li>
+		                <time>23.04.2010.</time>
+		                <a href="#">Revealed: how the UK spied on its G20 allies at London summits</a>
+		              </li>
+		               <li>
+		                <time>28.06.2010</time>
+		                <a href="#">How US spies targeted Russian leader Medvedev</a>
+		              </li>
+		               <li>
+		                <time>22.08.2010</time>
+		                <a href="#">Hague: arms to Syrian rebels can be controlled</a>
+		              </li>
+		               <li>
+		                <time>12.09.2010</time>
+		                <a href="#">G8 has a chance to tackle the forgotten scandal of hunger</a>
+		              </li>
+		               <li>
+		                <time>09.11.2010</time>
+		                <a href="#">La Via Campesina celebrates 20 years of standing up for food 
+		sovereignty</a>
+		              </li>
+		               <li>
+		                <time>17.01.2011.</time>
+		                <a href="#">Apple discloses US data requests following Prism leaks</a>
+		              </li>
+		               <li>
+		                <time>12.09.2010</time>
+		                <a href="#">Turkish government says it may use army to end protests</a>
+		              </li>
+		               <li>
+		                <time>09.11.2010</time>
+		                <a href="#">Google to tackle child sexual abuse images on web</a>
+		              </li>
+		               <li>
+		                <time>17.01.2011</time>
+		                <a href="#">George Lucas wins first Emmy for Star Wars: Clone War</a>
+		              </li>
+		            </ul>
+		          </div>
+		        </div>
+
+		        <div class="author-module">
+		          <div class="sf-module-header">
+		            <i class="icon-chevron-down toggle-module-close"></i>
+		            <i class="icon-chevron-right toggle-module-open"></i>
+		            <span class="sf-module-title">Photographer<i>(0)</i></span>
+		          </div>
+		          <div class="sf-module-content">
+		            There is no images
+		          </div>
+		        </div>
+		       
+
+		      </div>
+		    </div>
+
+
+		    <!-- author profile edit tab -->
+		    <div class="tab-pane  author-profile-edit clearfix" id="authord-profile-edit">
+		      <header>
+		            <figure class="small-user-avatar">
+		              <img src="pictures/David-Bauer.jpg">
+		            </figure>
+		            <button class="btn btn-info pull-right" href="#authord-profile" data-toggle="tab">Done</button>
+		      </header>
+		      <div class="details-info">
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              General
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="general-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Date of birth</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Place of birth</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> Date of birth</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">name</span>
+		              <span class="info-value info-editable" contenteditable="true">David Bauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">username</span>
+		              <span class="info-value info-editable" contenteditable="true">davidbauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item password">
+		              <span class="info-label">password</span>
+		              <span class="info-value info-editable" contenteditable="true">nikola</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">member since</span>
+		              <span class="info-value info-editable" contenteditable="true">23.03.2011.</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">date of birth</span>
+		              <span class="info-value info-editable" contenteditable="true">23.09.1976.</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">place of birth</span>
+		              <span class="info-value info-editable" contenteditable="true">Basel, Switzerland</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">company</span>
+		              <span class="info-value info-editable" contenteditable="true">TagesWoche</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">user type</span>
+		              <span class="info-value info-editable" contenteditable="true">administrator</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Biography
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right">
+		                  <li><a href="#translateBiography" data-toggle="modal"><i class="icon-edit"></i> Translate</a></li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="details-section-menu" style="right:50px;">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#">english <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right">
+		                  <li>french</li>
+		                  <li>deutsch</li>
+		                  <li>arabic</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="info-item">
+		              <p class="info-editable" contenteditable="true">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Contact Information
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="contact-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> email</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> skype</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> phone</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> web</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">email</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">david.bauer@tageswoche.ch</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">skype</span>
+		              <span class="info-value info-editable" contenteditable="true">davidbauer76</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">phone</span>
+		              <span class="info-value info-editable" contenteditable="true">061 561 61 61</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">web</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">www.davidbauer.ch</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              Social
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="contact-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> facebook</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> twitter</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> google+</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">facebook</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">https://www.facebook.com/davidbauer</a></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">twitter</span>
+		              <span class="info-value info-editable" contenteditable="true">@davidbauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">google+</span>
+		              <span class="info-value info-editable" contenteditable="true">david.bauer</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox sf-checked"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" checked="checked" style="display: none;"></span>
+		            </div>
+		          </div>
+		          
+		      </div>
+
+		    </div>
+
+
+		  </div>
+		</div>
     </div>
 </div>
+
 <!-- should be removed after tabs are implemented with angular-bootstrap -->
 <script type="text/javascript">
   $(document).ready(function(){

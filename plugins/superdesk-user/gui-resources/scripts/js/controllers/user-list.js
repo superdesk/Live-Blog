@@ -9,6 +9,8 @@ function(angular) {
 
             $scope.loadSettings();
 
+            $scope.selectedUserId = null;
+
             $scope.pageMax = 1;
             $scope.page = 1;
 

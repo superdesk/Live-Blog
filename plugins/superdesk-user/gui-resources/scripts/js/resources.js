@@ -13,6 +13,56 @@ define([
             save: {method: 'POST', params: {'X-Filter': 'Id'}}
         });
     }]);
+    
+    resources.factory('Role', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/Role', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}},
+            update: {method: 'PUT'},
+            save: {method: 'POST', params: {'X-Filter': 'Id'}}
+        });
+    }]);
+
+    resources.factory('Post', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/Post', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}}
+        });
+    }]);
+
+    resources.factory('PostPublished', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/Post/Published', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}}
+        });
+    }]);
+
+    resources.factory('PostUnpublished', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/Post/Unpublished', {Id: '@Id'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}}
+        });
+    }]);
+
+    resources.factory('UserDetailLoader',
+    ['User', 'Role', 'Post', 'PostPublished', 'PostUnpublished', '$q',
+    function(User, Role, Post, PostPublished, PostUnpublished, $q) {
+        return function(userId) {
+            var delay = $q.defer();
+            User.query({Id: userId}, function(user) {
+                Role.query({Id: userId}, function(role) {
+                    user.roleList = role.RoleList;
+                    Post.query({Id: userId}, function(post) {
+                        user.postList = post.PostList;
+                        PostPublished.query({Id: userId}, function(postPublished) {
+                            user.postPublishedList = postPublished.PostList;
+                            PostUnpublished.query({Id: userId}, function(postUnpublished) {
+                                user.postUnpublishedList = postUnpublished.PostList;
+                                delay.resolve(user);
+                            });
+                        });
+                    });
+                });
+            });
+            return delay.promise;
+        };
+    }]);
 
     resources.factory('UserListLoader', ['User', '$q', function(User, $q) {
         return function(offset, limit, searchTerm) {
