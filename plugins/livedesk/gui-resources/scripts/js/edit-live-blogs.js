@@ -838,31 +838,33 @@ function(providers, Gizmo, $, BlogAction)
 					$('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
 				else if(data !== undefined) {
-					if(data.NewUser && data.NewCollaborator) {
-						var addCollaborator = function(sourceId, userId) {
-								return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
-										Source: sourceId,
-										User: userId
-									})).xfilter('Id').sync();
-							},
-							user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
-							
-						user.xfilter('Id')
-							.sync()
-								.done(function(dataUser){
-									addCollaborator(data.NewCollaborator.Source,dataUser.Id)
-										.done(function(dataCollaborator){
-											delete data.NewUser;
-											delete data.NewCollaborator;
-											data.Author = dataCollaborator.Id;
-											self.timelineView.insert(data);
-										});
-								}).fail(function(dataUser){
-									console.log('Error: ',dataUser);
-								});
-					} else {	
-						self.timelineView.insert(data);
-					}
+					$.when(data).then(function(data) {
+						if(data.NewUser && data.NewCollaborator) {
+							var addCollaborator = function(sourceId, userId) {
+									return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
+											Source: sourceId,
+											User: userId
+										})).xfilter('Id').sync();
+								},
+								user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
+
+							user.xfilter('Id')
+								.sync()
+									.done(function(dataUser){
+										addCollaborator(data.NewCollaborator.Source,dataUser.Id)
+											.done(function(dataCollaborator){
+												delete data.NewUser;
+												delete data.NewCollaborator;
+												data.Author = dataCollaborator.Id;
+												self.timelineView.insert(data);
+											});
+									}).fail(function(dataUser){
+										console.log('Error: ',dataUser);
+									});
+						} else {
+							self.timelineView.insert(data);
+						}
+					});
 				}
 				else if(post !== undefined)
 				{
