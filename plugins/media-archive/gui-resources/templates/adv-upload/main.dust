@@ -23,10 +23,10 @@
 					<input type="file" data-action="browse" style="display:none" />
 					<div class="drag-area">
 						<div class="drag-area-title">
-		            		_('Drag Your Images Here');
+		            		_('Drag Your File Here');
 		          		</div>
 		          		<div class="drag-area-button">
-		            		<button type="button" class="btn" data-proxy="browse"><i class="icon-upload"></i> _('or Select them from folder');</button>
+		            		<button type="button" class="btn" data-proxy="browse"><i class="icon-upload"></i> _('or Select file from folder');</button>
 		          		</div>
 		        	</div>
 	        	</form>
