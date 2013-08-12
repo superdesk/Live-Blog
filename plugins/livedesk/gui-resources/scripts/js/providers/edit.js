@@ -35,114 +35,6 @@ define('providers/edit', [
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
 	var 
-	uploadView = new UploadView({thumbSize: 'large'}),
-	ImagePostType = Gizmo.View.extend
-	({ 
-	    events:
-	    {
-	        ".upload-image-container": { 'click': 'add' },
-	        "[data-image-source] li": { 'click': 'changeSource' },
-            "[data-action='upload']": { 'change': '_upload' }
-	    },
-	    _restorePlace: null,
-	    _isActive: false,
-	    _currentSource: null,
-	    changeSource: function(evt)
-	    {
-	        this._currentSource = $(evt.currentTarget).attr('data-source');
-	        switch(this._currentSource)
-	        {
-	            case 'url': $('.upload-url', this.el).focus();
-	        }
-	    },
-	    add: function(evt)
-	    {
-	        switch(this._currentSource)
-	        {
-	            case 'computer': 
-	                $('[data-action="upload"]').trigger('click');
-	            break;
-	            
-	            case 'media-archive': 
-	                
-	            break;
-	            
-	            case 'url': 
-	                $('.upload-url', this.el).focus();
-	            break;
-	        }
-	    },
-	    
-	    save: function()
-	    {
-	        
-	    },
-	        
-	    // -- upload
-        browse: function(evt)
-        {
-            $(evt.target).siblings('[type="file"]').trigger('click');
-        },
-        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
-        _upload: function(evt)
-        {
-            var uploadInput = $(evt.target),
-                files = uploadInput[0].files,
-                self = this; 
-            for( var i=0; i<files.length; i++)
-            {
-                xhr = uploadCom.upload( files[i], 'upload_file', this.uploadEndPoint,
-                        // display some progress type visual
-                        function(){ $('[data-action="browse"]', self.el).val(_('Uploading...')); }, 'json');
-                xhr.onload = function(event) 
-                { 
-                    $('[data-action="browse"]', this.el).val(_('Browse'));
-                    try // either get it from the responseXML or responseText
-                    {
-                        var content = JSON.parse(event.target.responseText);
-                    }
-                    catch(e)
-                    {
-                        var content = JSON.parse(event.target.response);
-                    }
-                    if(!content) return;
-                    $(self).triggerHandler('uploaded', [content.Id]);
-                    self._latestUpload = content;
-                    
-                    $('.uploaded-image', self.el).html('<img src="'+content.Thumbnail.href+'" />');
-                    $('.upload-url', self.el).val(content.Content.href)
-                };
-            }
-            $('[data-action="upload"]', this.el).val('');
-        },
-        _latestUpload: null,
-        // -- upload
-        
-	    show: function()
-	    {
-	        this._restorePlace = $(this.el).html();
-	        var self = this;
-	        $.tmpl('livedesk>providers/edit/image', {}, function(e, o)
-	        {
-	            $(self.el).html(o);
-	            if(self._currentSource == null)
-	                self._currentSource = $('[data-image-source] li').eq(0).attr('data-source');
-	        });
-	        this._isActive = true;
-	    },
-	    isActive: function()
-	    {
-	        return this._isActive;
-	    },
-	    restore: function()
-	    {
-	        $(this.el).html(this._restorePlace);
-	        this._isActive = false;
-	    }
-	    
-	}),
-	imagePostType = new ImagePostType,
-	
 	OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
@@ -308,7 +200,6 @@ define('providers/edit', [
 		}
 	}),
 	collections = {},
-    // uploadView = new UploadView,
 	EditView = Gizmo.View.extend({
 		postView: null,
 
@@ -363,6 +254,7 @@ define('providers/edit', [
 		},
 		openUploadScreen: function() {
 			var self = this;
+			var uploadView = new UploadView({thumbSize: 'large'});
 			uploadView.activate().then(function(data) {
 				self.handleImageUpload(data);
 			});

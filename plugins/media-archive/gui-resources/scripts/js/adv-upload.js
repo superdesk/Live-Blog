@@ -2,7 +2,6 @@ define
 ([
     'jquery', 
     'gizmo/superdesk',
-    config.guiJs('media-archive', 'upload'),
     config.guiJs('media-archive', 'list'),
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/meta-data'),
@@ -11,8 +10,38 @@ define
     'tmpl!media-archive>adv-upload/archive-list-item',
     'tmpl!media-archive>adv-upload/archive-filter'
 ], 
-function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
+function($, gizmo, MA, MetaDataInfo, MetaData)
 {
+    'use strict';
+
+    /*!
+     * upload one file to server
+     * @param {object} file The object to append to FormData (form.files[i])
+     * @param {string} filename The key of the file in post data
+     * @param {string} path Server path to upload to
+     * @param {function} startCb Callback for upload start, falls back to format if string and !format 
+     */
+    function upload(file, filename, path, startCb)
+    {
+        var delay = new $.Deferred();
+        var fd = new FormData();
+        var format = typeof startCb == 'string' && !format ? startCb : (format ? format : 'json');
+        fd.append(filename || 'upload_file', file);
+        var xhr = new XMLHttpRequest();
+        // replace or add format we want as response in url // path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';
+        xhr.open('POST', (path+' ').replace(/(((\.[\w\d-]+)?\?)|(\s$))/,'.'+format+'$1'), true);
+        xhr.setRequestHeader('X-Filter', 'Content');
+        startCb && startCb.apply(this);
+        xhr.send(fd);
+
+        xhr.onload = function(event) {
+            var data = $.parseJSON(event.target.responseText);
+            delay.resolve(data);
+        };
+
+        return delay.promise();
+    }
+
     var 
     FilterView = gizmo.View.extend
     ({
@@ -140,9 +169,8 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         /*!
          * handler on upload complete
          */
-        uploadComplete: function(event)
+        uploadComplete: function(data)
         {
-            var data = $.parseJSON(event.target.responseText);
             var content = data.Thumbnail;
             var id = data.Id;
 
@@ -221,17 +249,15 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         upload: function()
         {
             var self = this;
-
-            var xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
-                        'upload_file', 
-                        this.getUploadEndpoint(),
-                        self.uploadingDisplay,
-                        'json');
-
-            xhr.onload = function(){
+            upload(
+                $('[data-action="browse"]', self.el)[0].files[0],
+                'upload_file',
+                this.getUploadEndpoint(),
+                self.uploadingDisplay
+            ).then(function(data) {
                 $('[data-action="browse"]').val('');
-                self.uploadComplete.apply(self, arguments);
-            };
+                self.uploadComplete(data);
+            });
         },
         complete: function()
         {
