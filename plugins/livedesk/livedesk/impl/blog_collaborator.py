@@ -110,14 +110,16 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         try: return sql.one()
         except NoResultFound: raise InputError(Ref(_('No collaborator'), ref=BlogCollaboratorMapped.Id))
 
-    def getAll(self, blogId):
+    def getAll(self, blogId, offset=None, limit=None, detailed=True):
         '''
         @see: IBlogCollaboratorService.getAll
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         sql = sql.filter(UserMapped.DeletedOn == None)
-        return sql.all()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qu=None, qs=None):
         '''
@@ -133,7 +135,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         if qs: sql = buildQuery(sql, qs, SourceMapped)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sql.all()
+        return sqlLimit.all()
 
     def addCollaboratorAsDefault(self, blogId, collaboratorId):
         '''
