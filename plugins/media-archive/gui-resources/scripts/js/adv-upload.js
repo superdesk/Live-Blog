@@ -190,7 +190,7 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+id);
             meta.sync({data: {thumbSize: 'large'}}).done(function()
             { 
-                self.lastUpload = meta.get('Id');
+                self.lastUpload = meta;
                 self.registerItem(null, meta);
             });
         },
@@ -199,7 +199,13 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
             $('form', this.el).removeClass('hide');
             $('[data-placeholder="preview-area"]', this.el).addClass('hide');
             $('[data-placeholder="preview"]', this.el).html('');
-            this.removeImageById(this.lastUpload);
+            if (this.lastUpload) {
+                this.removeImage(this.lastUpload);
+                this.removeImageById(this.lastUpload.get('Id'));
+            }
+        },
+        removeImage: function(meta) {
+            meta.remove().sync();
         },
         /*!
          * triggers file input
