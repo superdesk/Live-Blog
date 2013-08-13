@@ -61,6 +61,18 @@ def insertTheme():
 # --------------------------------------------------------------------
 
 @app.populate
+def upgradeUser():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
+    except (ProgrammingError, OperationalError): pass
+
+    try: session.execute('ALTER TABLE user ADD COLUMN active TINYINT(1) NOT NULL')
+    except (ProgrammingError, OperationalError): pass
+
+@app.populate
 def upgradeLiveBlog14():
     creator = alchemySessionCreator()
     session = creator()
