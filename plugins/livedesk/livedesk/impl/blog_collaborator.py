@@ -116,7 +116,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
-        sql = sql.filter(UserMapped.DeletedOn == None)
+        sql = sql.filter(UserMapped.Active == True)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -128,7 +128,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)
         sql = sql.filter(not_(CollaboratorMapped.Id.in_(sqlBlog)))
-        sql = sql.filter(UserMapped.DeletedOn == None)
+        sql = sql.filter(UserMapped.Active == True)
         sql = sql.order_by(CollaboratorMapped.Name)
         if excludeSources: sql = sql.filter(CollaboratorMapped.User != None)
         if qu: sql = buildQuery(sql, qu, UserMapped)
