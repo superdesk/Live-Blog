@@ -38,7 +38,7 @@ define
 
         refresh: function()
         {
-            this.model.href = localStorage.getItem('superdesk.login.selfHref')+'/Blog';
+            this.model.href = localStorage.getItem('superdesk.login.selfHref')+'/Blog?isOpen=true';
             this.model._list = [];
             this.model.xfilter('Title, Id').sync();
         },
