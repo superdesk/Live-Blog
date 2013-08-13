@@ -62,7 +62,6 @@ define([
                                 if (collabs.length) {
                                     obj.Author = collabs[0].Id;
                                     self.data.push(collabs[0]);
-                                    delay.resolve(obj);
                                 } else {
                                     obj.NewUser = {
                                         Name: chainUserName,
@@ -76,6 +75,8 @@ define([
                                         Source: source.Id
                                     };
                                 }
+
+                                delay.resolve(obj);
                             });
 
                         return delay.promise();
