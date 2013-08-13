@@ -56,6 +56,7 @@ class QBlog(Entity):
     liveOn = AsDateOrdered
     lastUpdatedOn = AsDateOrdered
     isLive = AsBoolean
+    isOpen = AsBoolean
 
 # --------------------------------------------------------------------
 
