@@ -18,7 +18,7 @@ define([
                 $(command.dialog).prepend(output);
 
                 $('form#editoruploadform [type=button]', command.dialog).on('click', function() {
-                    var upload = new AdvancedUpload();
+                    var upload = new AdvancedUpload({thumbSize: 'medium'});
                     upload.activate().then(function(data) {
                         $('body').css('cursor', 'auto');
 
