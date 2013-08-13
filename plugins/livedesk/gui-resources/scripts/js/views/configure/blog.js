@@ -22,21 +22,11 @@
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
 			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
-            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
-            '.sf-toggle-custom': { click: 'toggleCustom' }
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
         },
-        init: function() {           
+        init: function() {
         },
-        toggleCustom: function(e) {
-            e.preventDefault();
-            if (!$(e.target).hasClass("sf-disable")) {
-                $(e.target).toggleClass('sf-checked');
-                var own_box = $(e.target).find(".sf-toggle");        
-                own_box.prop('checked', $(e.target).hasClass('sf-checked'));
-                own_box.change();
-            }
-        },
-		selectInput: function(evt) {
+        selectInput: function(evt) {
 			$(evt.target).select();
 		},
         save: function(evt){
@@ -164,8 +154,18 @@
                     if ($(val).attr("checked")=="checked")  additional_class += " sf-checked ";
                     if ($(val).hasClass("on-off")) additional_class +=" on-off-toggle ";
                     if ($(val).hasClass("sf-disable")) additional_class += " sf-disable ";
-                    $(val).wrap('<div class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
+                    $(val).wrap('<div style="float:none" class="sf-toggle-custom ' + additional_class + '"><div class="sf-toggle-custom-inner"></div></div>');
                     $(val).hide();
+
+                    $(val).parent().parent().on("click", function(e){
+                        e.preventDefault();
+                        if (!$(e.target).hasClass("sf-disable")) {
+                            $(e.target).toggleClass('sf-checked');
+                            var own_box = $(e.target).find(".sf-toggle");        
+                            own_box.prop('checked', $(e.target).hasClass('sf-checked'));
+                            own_box.change();
+                        }
+                    });
                 });
 
             });

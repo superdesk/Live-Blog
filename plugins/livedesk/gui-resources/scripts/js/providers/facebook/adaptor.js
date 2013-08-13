@@ -10,11 +10,18 @@ define([
             init: function() {
                 var self = this;
                 new $.rest('Data/Collaborator/')
-                    .xfilter('Id')
+                    .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'facebook'}})
                     .done(function(collabs) {
-                        if($.isDefined(collabs[0])) 
+                        self.appId = '';
+                        if($.isDefined(collabs[0])) {
                             self.author = collabs[0].Id;
+                            //self.appId = '540742825976268';
+                            if ( collabs[0].Source.Key ) {
+                                self.appId = collabs[0].Source.Key;
+                            }
+                            self._parent.loadFbConnect(self.appId);
+                        } 
                     });
             },
             universal: function(obj) {

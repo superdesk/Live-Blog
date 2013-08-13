@@ -1,6 +1,5 @@
 {+themes_content}
 <select name="Theme" class="config-small-input">
-<option value="">_('Select');</option>
 	{+theme_item}
 	{#Themes}
 	    <option value="{Name}"{@if cond="'{Name}'==='{selected}'"} selected{/if}>{Name}</option>

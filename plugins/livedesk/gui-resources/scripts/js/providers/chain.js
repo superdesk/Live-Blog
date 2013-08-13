@@ -204,7 +204,7 @@
 
 			activate: function() {
 				this.active = true;
-				this.model.chainBlogContentView.activate();
+                this.model.chainBlogContentView.activate();
 				this._parent.setActive(this);
 			},
 
@@ -212,6 +212,12 @@
 				var self = this;
 				$.tmpl('livedesk>providers/chain/blog-link', { Blog: self.model.feed(true)}, function(e,o) {
 					self.setElement(o);
+                    // small hack to select a chainbloglink as soon as its rendered.
+                    // refactoring is needed, but until then this should work fine.
+                    setTimeout(function(){
+                        self.activate();
+                        self.el.addClass('active');
+                    }, 100);
 				});
 			}
 		}),
@@ -324,7 +330,7 @@
 						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
 						self.chainBlogLinkViews.push(chainBlogLinkView);
 						self.chainBlogContentViews.push(chainBlogContentView);
-						$linkEl.prepend(chainBlogLinkView.el);
+                        $linkEl.prepend(chainBlogLinkView.el);
 						chainBlogContentView.el.insertAfter($contentEl);
 					});
 				});
