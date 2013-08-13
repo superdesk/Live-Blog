@@ -66,10 +66,13 @@ def upgradeUser():
     session = creator()
     assert isinstance(session, Session)
 
-    try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
+    try:
+        session.execute('ALTER TABLE user ADD COLUMN active TINYINT(1) NOT NULL DEFAULT 1')
+        session.execute('UPDATE user SET active = 1 WHERE deleted_on IS NULL')
+        session.execute('UPDATE user SET active = 0 WHERE deleted_on IS NOT NULL')
     except (ProgrammingError, OperationalError): pass
 
-    try: session.execute('ALTER TABLE user ADD COLUMN active TINYINT(1) NOT NULL')
+    try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
     except (ProgrammingError, OperationalError): pass
 
 @app.populate
