@@ -13,6 +13,10 @@ from livedesk.api.blog_media import BlogMedia, BlogMediaType, IBlogMediaService,
 from livedesk.meta.blog_media import BlogMediaMapped, BlogMediaTypeMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, EntityFindServiceAlchemy
+from ally.exception import InputError, Ref
+from ally.internationalization import _
+from ally.support.sqlalchemy.util_service import buildLimits
+from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 
@@ -46,14 +50,39 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         '''
         EntityServiceAlchemy.__init__(self, BlogMediaMapped)
 
-    def getAll(self, blogId, typeId=None, offset=None, limit=None, detailed=True):
+    def getAll(self, blogId, typeKey=None, offset=None, limit=None, detailed=False):
         '''
         @see: IBlogMediaService.getAll
         '''
-        return ()
+        sql = self.session().query(BlogMediaMapped)
+        sql = sql.filter(BlogMediaMapped.Blog == blogId)
+        if typeKey:
+            sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaMapped.Key == typeKey)
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
+    # TODO: the type_based insert/update methods
 
     def exchange(self, firstId, secondId):
         '''
         @see: IBlogMediaService.exchange
         '''
-        return
+        firstMedia = self.session().query(BlogMediaMapped).get(firstId)
+        if not firstMedia: raise InputError(Ref(_('Unknown blog media id'), ref=BlogMedia.Id))
+        assert isinstance(firstMedia, BlogMediaMapped), 'Invalid blog media %s' % firstMedia
+
+        secondMedia = self.session().query(BlogMediaMapped).get(secondId)
+        if not secondMedia: raise InputError(Ref(_('Unknown blog media id'), ref=BlogMedia.Id))
+        assert isinstance(secondMedia, BlogMediaMapped), 'Invalid blog media %s' % secondMedia
+
+        if firstMedia.Blog != secondMedia.Blog:
+            raise InputError(Ref(_('Blog media have to be of the same blog'),))
+
+        if firstMedia.MetaInfo != secondMedia.MetaInfo:
+            raise InputError(Ref(_('Blog media have to be of the same type'),))
+
+        firstMedia.Rank, secondMedia.Rank = secondMedia.Rank, firstMedia.Rank
+
+        self.session().flush((firstMedia, secondMedia))

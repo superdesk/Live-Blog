@@ -58,7 +58,7 @@ class IBlogMediaService(IEntityService):
     '''
 
     @call
-    def getAll(self, blogId:Blog, typeId:BlogMediaType=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(BlogMedia):
+    def getAll(self, blogId:Blog.Id, typeKey:BlogMediaType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(BlogMedia):
         '''
         Provides all blogs media.
         '''
