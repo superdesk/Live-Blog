@@ -35,7 +35,7 @@ class BlogMediaTypeMapped(Base, BlogMediaType):
 
 # --------------------------------------------------------------------
 
-@validate(exclude=['Type'])
+@validate(exclude=['Type', 'Rank'])
 class BlogMediaMapped(Base, BlogMedia):
     '''
     Provides the mapping for BlogMedia.

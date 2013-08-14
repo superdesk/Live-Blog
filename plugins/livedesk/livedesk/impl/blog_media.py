@@ -15,11 +15,14 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, EntityFindServiceAlchemy
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import buildLimits
+from ally.support.sqlalchemy.util_service import buildLimits, handle
+from ally.support.api.util_service import copy
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 
 # --------------------------------------------------------------------
 
@@ -59,6 +62,7 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         sql = sql.filter(BlogMediaMapped.Blog == blogId)
         if typeKey:
             sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaMapped.Key == typeKey)
+        sql = sql.order_by(BlogMediaMapped.Id)
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -73,8 +77,14 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         copy(media, mediaDb, exclude=('Type',))
         mediaDb.typeId = self._typeId(media.Type)
 
-        self.session().add(mediaDb)
-        self.session().flush((mediaDb,))
+        if (not BlogMedia.Rank in media) or (media.Rank < 1):
+            mediaDb.Rank = self._nextRank(0, mediaDb.Blog, mediaDb.typeId)
+
+        try:
+            self.session().add(mediaDb)
+            self.session().flush((mediaDb,))
+        except SQLAlchemyError as e: handle(e, mediaDb)
+
         media.Id = mediaDb.Id
         return media.Id
 
@@ -86,10 +96,15 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         mediaDb = self.session().query(BlogMediaMapped).get(media.Id)
         if not mediaDb: raise InputError(Ref(_('Unknown blog media id'), ref=BlogMedia.Id))
 
-        if BlogMedia.Type in media: mediaDb.typeId = self._typeId(media.Type)
-    
         copy(media, mediaDb, exclude=('Type',))
-        self.session().flush((mediaDb,))
+        if BlogMedia.Type in media: mediaDb.typeId = self._typeId(media.Type)
+
+        if (BlogMedia.Rank in media) and (media.Rank < 1):
+            mediaDb.Rank = self._nextRank(mediaDb.Id, mediaDb.Blog, mediaDb.typeId)
+    
+        try:
+            self.session().flush((mediaDb,))
+        except SQLAlchemyError as e: handle(e, mediaDb)
 
     def exchange(self, firstId, secondId):
         '''
@@ -106,12 +121,19 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         if firstMedia.Blog != secondMedia.Blog:
             raise InputError(Ref(_('Blog media have to be of the same blog'),))
 
-        if firstMedia.MetaInfo != secondMedia.MetaInfo:
+        if firstMedia.Type != secondMedia.Type:
             raise InputError(Ref(_('Blog media have to be of the same type'),))
 
-        firstMedia.Rank, secondMedia.Rank = secondMedia.Rank, firstMedia.Rank
+        firstRank, secondRank = secondMedia.Rank, firstMedia.Rank
 
-        self.session().flush((firstMedia, secondMedia))
+        try:
+            firstMedia.Rank = 0
+            self.session().flush((firstMedia,))
+
+            firstMedia.Rank, secondMedia.Rank = firstRank, secondRank
+            self.session().flush((secondMedia,))
+            self.session().flush((firstMedia,))
+        except SQLAlchemyError as e: handle(e, mediaDb)
 
     # ----------------------------------------------------------------
 
@@ -124,3 +146,8 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
             return sql.one()[0]
         except NoResultFound:
             raise InputError(Ref(_('Invalid blog media type %(type)s') % dict(type=key), ref=BlogMedia.Type))
+
+    def _nextRank(self, entryId, blogId, typeId):
+        maxRank, = self.session().query(func.max(BlogMediaMapped.Rank)).filter(BlogMediaMapped.Id != entryId).filter(BlogMediaMapped.Blog == blogId).filter(BlogMediaMapped.typeId == typeId).one()
+        if not maxRank: maxRank = 0
+        return maxRank + 1

@@ -43,7 +43,7 @@ class BlogMedia(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, BlogMediaType),)
+@service((EntityKeyed, BlogMediaType),)
 class IBlogMediaTypeService(IEntityGetService, IEntityFindService):
     '''
     Provides the service methods for the blog media types.
