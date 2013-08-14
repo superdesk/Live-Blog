@@ -19,6 +19,7 @@ from ally.support.sqlalchemy.util_service import buildLimits
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
@@ -63,7 +64,32 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    # TODO: the type_based insert/update methods
+    def insert(self, media:BlogMedia):
+        '''
+        @see: IBlogMediaService.insert
+        '''
+        assert isinstance(media, BlogMedia), 'Invalid blog media %s' % media
+        mediaDb = BlogMediaMapped()
+        copy(media, mediaDb, exclude=('Type',))
+        mediaDb.typeId = self._typeId(media.Type)
+
+        self.session().add(mediaDb)
+        self.session().flush((mediaDb,))
+        media.Id = mediaDb.Id
+        return media.Id
+
+    def update(self, media:BlogMedia):
+        '''
+        @see: IBlogMediaService.update
+        '''
+        assert isinstance(media, BlogMedia), 'Invalid blog media %s' % media
+        mediaDb = self.session().query(BlogMediaMapped).get(media.Id)
+        if not mediaDb: raise InputError(Ref(_('Unknown blog media id'), ref=BlogMedia.Id))
+
+        if BlogMedia.Type in media: mediaDb.typeId = self._typeId(media.Type)
+    
+        copy(media, mediaDb, exclude=('Type',))
+        self.session().flush((mediaDb,))
 
     def exchange(self, firstId, secondId):
         '''
@@ -86,3 +112,15 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         firstMedia.Rank, secondMedia.Rank = secondMedia.Rank, firstMedia.Rank
 
         self.session().flush((firstMedia, secondMedia))
+
+    # ----------------------------------------------------------------
+
+    def _typeId(self, key):
+        '''
+        Provides the blog media type id that has the provided key.
+        '''
+        try:
+            sql = self.session().query(BlogMediaTypeMapped.id).filter(BlogMediaTypeMapped.Key == key)
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(Ref(_('Invalid blog media type %(type)s') % dict(type=key), ref=BlogMedia.Type))

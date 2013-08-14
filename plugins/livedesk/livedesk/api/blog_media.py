@@ -63,6 +63,18 @@ class IBlogMediaService(IEntityService):
         Provides all blogs media.
         '''
 
+    @call
+    def insert(self, media:BlogMedia) -> BlogMedia.Id:
+        '''
+        Inserts blog media.
+        '''
+
+    @call
+    def update(self, media:BlogMedia):
+        '''
+        Updates blog media.
+        '''
+
     @call(method=UPDATE, webName='Exchange')
     def exchange(self, firstId:BlogMedia.Id, secondId:BlogMedia.Id):
         '''
