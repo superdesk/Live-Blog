@@ -30,8 +30,11 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
+from ally.api.model import Content
 from urllib.error import HTTPError
+from urllib import urlretrieve
 from time import sleep
+import os, shutil
 
 # --------------------------------------------------------------------
 
@@ -158,6 +161,8 @@ class BlogSyncProcess:
                 lPost.Content = post['Content'] if 'Content' in post else None
                 lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
 
+                self._updateIcon(lPost.Author, post['Author'])
+
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
                 blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
@@ -213,3 +218,52 @@ class BlogSyncProcess:
                 c = Collaborator()
                 c.Source = sources[0].Id
                 return self.collaboratorService.insert(c)
+
+    def self._updateIcon(userId, authorJSON):
+        '''
+        '''
+        iconFileURL = None
+        try:
+            metaDataIconJSON = authorJSON['User']['MetaDataIcon']
+            metaDataIconURL = metaDataIconJSON.get('href', '')
+            if not metaDataIconURL:
+                return
+
+            req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+            try: resp = urlopen(req)
+            except (HTTPError, socket.error) as e:
+                return
+
+            try: msg = json.load(codecs.getreader(self.encodingType)(resp))
+            except ValueError as e:
+                log.error('Invalid JSON data %s' % e)
+                return
+
+            iconFileURL = msg['Content'].get('href', '')
+
+        except KeyError:
+            return
+
+        if not iconFileURL:
+            return
+
+        tmpIconFileName = iconFileURL.split('/')[-1]
+        if not tmpIconFileName:
+            return
+
+        tmpIconDirPath = tempfile.mkdtemp()
+        tmpIconFilePath = os.path.join(tmpIconDirPath, tmpIconFileName)
+        try:
+            urlretrieve(iconFileURL, tmpIconFileName)
+        except (HTTPError, socket.error) as e:
+            log.error('Can not read chained icon image data %s' % e)
+            shutil.rmtree(patmpIconDirPath, True)
+            return
+
+        Content(name)
+
+        shutil.rmtree(patmpIconDirPath, True)
+
+
+
+
