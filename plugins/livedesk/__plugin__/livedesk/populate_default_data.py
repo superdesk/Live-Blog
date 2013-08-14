@@ -100,8 +100,8 @@ SOURCES = {
            'sms': (False, '', '', ''),
            'comments': (False, '', '', ''),
            'google': (False, 'www.google.com', 'xml', ''),
-           'facebook': (False, 'www.facebook.com', 'xml', ''),
-           'twitter': (False, 'www.twitter.com', 'xml', ''),
+           'facebook': (False, 'www.facebook.com', 'xml', 'change-this-to-a-real-appid'),
+           'twitter': (False, 'www.twitter.com', 'xml', '{"ConsumerKey":"uLW0hK2KZosj8Yl4F17uKg","ConsumerSecret":"iRuM0j8pyUTYgbpwPLqAl9wTBn5JzQB4zLJaiUaEdyE"}'),
            'flickr': (False, 'www.flickr.com', 'xml', 'abf46ef4c670460e95d09cf368606b8a'),
            'youtube': (False, 'www.youtube.com', 'xml', ''),
            'instagram': (False, 'www.instagram.com', 'xml', 'daa5f588be7c4ce4b5771ec8653bcf44'),
@@ -290,6 +290,7 @@ def createBlogCollaborators():
 
 BLOG_ADMINS = {
                'admin': 'Election Night 2013',
+               'editor': 'Election Night 2013',
                }
 
 @ioc.after(createBlogTypePosts)

@@ -24,9 +24,9 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @ioc.config
-def ui_demo_embed_file():
+def ui_demo_embed_files():
     ''' the demo client html file '''
-    return 'index.html'
+    return ['index.html','right-panel.html']
 
 @ioc.config
 def themes_path():
@@ -47,14 +47,15 @@ def publishJS():
 @ioc.after(publishJS)
 def updateDemoEmbedFile():
     if not publish_gui_resources(): return  # No publishing is allowed
-    try:
-        bootPath = lib_folder_format() % 'livedesk-embed/'
-        with openURI(getGuiPath(ui_demo_embed_file())) as f:
-            out = f.read().replace(b'{server_url}', bytes(embed_server_url(), 'utf-8'))
-            out = out.replace(b'{gui}', bytes(gui_folder_format(), 'utf-8'));
-            out = out.replace(b'{lib_core}', bytes(lib_folder_format() % 'core/', 'utf-8'));
-            cdmGUI().publishContent(bootPath + ui_demo_embed_file(), BytesIO(out))
-    except:
-        log.exception('Error publishing demo client file')
-    else:
-        assert log.debug('Client demo script published:', embed_server_url() + getPublishedLib('livedesk-embed/' + ui_demo_embed_file())) or True
+    bootPath = lib_folder_format() % 'livedesk-embed/'
+    for file in ui_demo_embed_files():
+        try:        
+            with openURI(getGuiPath(file)) as f:
+                out = f.read().replace(b'{server_url}', bytes(embed_server_url(), 'utf-8'))
+                out = out.replace(b'{gui}', bytes(gui_folder_format(), 'utf-8'));
+                out = out.replace(b'{lib_core}', bytes(lib_folder_format() % 'core/', 'utf-8'));
+                cdmGUI().publishContent(bootPath + file, BytesIO(out))
+        except:
+            log.exception('Error publishing demo client file')
+        else:
+            assert log.debug('Client demo script published: \'%s\'', embed_server_url() + getPublishedLib('livedesk-embed/' + file)) or True
