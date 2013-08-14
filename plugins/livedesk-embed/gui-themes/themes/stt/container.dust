@@ -10,11 +10,45 @@ _('Load more posts ...');
 <p gimme="blog.description" class="embeddesc"></p>
 	{+header}
 		<div id="liveblog-header">
-			<a id="pintotop" href="#">_('to top');</a>
 			<div id="liveblog-status" class="update-time">
 				<span id="liveblog-status-time">_('updated on ');</span>
 				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
 			</div>
+			
+			<a id="pintotop" href="#">_('to top');</a>
+            <a id="comment-btn" href="#">_('comment');</a>
+
+            <div class="comment-box" style="display:none">
+                <form name="comment">
+                    <div class="content">
+
+				    <input type="text" placeholder="_('Nickname');" id="comment-nickname">
+				    <div class="error">
+					    _('Please fill in your Nickname.');
+				    </div>
+
+				    <textarea placeholder="_('Your Comment');" id="comment-text"></textarea>
+				    <div class="error">
+					    _('Please fill in your Comment text.');
+				    </div>
+
+                    <div id="comment-token" data-public-key="6Le3_OISAAAAAFHYywwPBTceM563QA62HOSvxz4B"></div>
+				    <div class="error">
+					    _('Please fill in text from image.');
+				    </div>
+
+                    <button type="submit" class="button send">_('Send');</button>
+                    <button type="reset" class="button cancel">_('Cancel');</button>
+                </div>
+            </div>
+            <div class="comment-box-message" style="display:none">
+            	<div class="content ">
+            	_('Your message was sent for approval');
+            	</div>
+            </div>
+			</div>
+			
+			
 		</div>
 	{/header}
 <div class="live-blog clearfix">
@@ -31,4 +65,5 @@ _('Load more posts ...');
 			</ol>
 		</div>
 	{/list}
+	<div class="comment-backdrop" id="backdrop"></div>
 </div>

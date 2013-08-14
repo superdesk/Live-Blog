@@ -2,20 +2,12 @@ define([
 	'jquery',
 	'jquery/i18n',
 	'jquery/utils',
-	'jquery/cookie',
 	'jquery/xdomainrequest'
 ], function($){
 	
     var buildMap = {},
-	apiUrl = livedesk.FrontendServer,
-	langCode = $.cookie('superdesk.langcode');
-    if(livedesk.language) {
-       langCode = livedesk.language;
-    }
-    if(!langCode) {
-		langCode = $.browser.language.substring(0,2);
-	}
-	$.cookie('superdesk.langcode',langCode);
+	apiUrl = liveblog.frontendServer,
+    langCode = liveblog.language;
 	//resources/Admin/Plugin/superdesk_country/JSONLocale/ro
 	//API
     return {

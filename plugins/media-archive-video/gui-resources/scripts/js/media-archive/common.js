@@ -46,14 +46,6 @@ function($, superdesk, giz, base, VideoData, VideoInfo, VideoInfoList)
             return new VideoInfo;
         }
     });
-    // remove view
-    Remove = base.remove.extend
-    ({
-        getInfoCollection: function()
-        {
-            return giz.Auth(new VideoInfoList(this.model.get('MetaInfo').href.replace('MetaInfo', 'VideoInfo').replace('MetaData', 'VideoData')));
-        }
-    });
-    return {edit: Edit, view: View, remove: Remove};
+    return {edit: Edit, view: View};
 });
 

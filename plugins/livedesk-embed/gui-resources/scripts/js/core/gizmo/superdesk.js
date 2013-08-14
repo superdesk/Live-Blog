@@ -14,20 +14,6 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
         reset: syncReset
     }),
     
-    // display auth view
-    authLock = function()
-    {
-        var args = arguments,
-            self = this;
-
-        // reset headers on success
-        AuthApp.success = function()
-        { 
-            //self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
-        };
-        AuthApp.require.apply(self, arguments); 
-    },
-    
     authSync = $.extend({}, newSync, 
     {
         options: 
@@ -88,7 +74,7 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
     },	
 	end = function(value, key) // change id implementation
     {
-		if(key === undefined)
+        if(key === undefined)
 			key = 'CId';
 		return param.call(this, value, key+'.end');
     },	
@@ -139,7 +125,18 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
     AuthCollection = Gizmo.Collection.extend
     ({
         xfilter: xfilter, since: since, until: until, start: start, end: end, syncAdapter: authSync
+    }),
+ // set url helper property with superdesk path
+    Url = Gizmo.Url.extend
+    ({      
+        _construct: function()
+        {
+            this.data = !this.data ? { 
+                root: (liveblog.restServer? liveblog.restServer : liveblog.frontendServer)+'/resources/'} : this.data;
+            Gizmo.Url.prototype._construct.apply(this, arguments);
+        }
     });
+
     // finally add unique container model
     Model.extend = function()
     {
@@ -162,7 +159,7 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
         Collection: Collection, AuthCollection: AuthCollection, 
         Sync: newSync, AuthSync: authSync,
 		View: Gizmo.View,
-		Url: Gizmo.Url,
+		Url: Url,
 		Register: Gizmo.Register
     };
 });

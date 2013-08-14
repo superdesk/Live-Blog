@@ -12,22 +12,26 @@
 }
 
 #livedesk-root .update-time {
-    border: 1px solid #a8a8a8 ;
-    border-width:2px 0 ;
     text-transform: uppercase ;
-    color: #666 ;
-    font-size: 12px;
-    line-height: 19px ;
+    color: #c8c8c8 ;
+    font-size: 11px;
+    line-height: 23px ;
     padding: 3px 0 3px 5px ;
+
     margin: 0;
-    min-height: 19px ;
-    max-height: 19px;
-    background: #e8e8e8;
+    min-height: 23px ;
+    max-height: 23px;
+
     position: absolute;
     left: 0;
     right: 0;
     z-index: 2000;
 }
+
+#liveblog-header {
+    height: 29px;
+    background: #656565;
+} 
 
 #livedesk-root .liveblog-post-list {
     list-style-type: none;
@@ -37,8 +41,8 @@
 }
 
 #livedesk-root .liveblog-post-list li {
-    margin: 0 10px 0 0px;
-    padding: 7px 5px 5px 5px;
+    margin: 0 10px 5px 0px;
+    padding: 12px 5px 5px 5px;
     border-top: 2px solid #a8a8a8;
     color: #444228;
     position: relative;
@@ -78,7 +82,7 @@
 .liveblog-post-list li .result-text  {
     font-size: 14px ;
     color:#000000;
-    line-height: 18px;
+    line-height: 20px;
 }
 .liveblog-post-list li .result-text img  {
     max-width: 100%;
@@ -135,7 +139,10 @@
 }
 .instagramservice .attributes .source-icon {
     background-image: url("img/instagram.png");
-}  
+}
+.soundcloudservice .attributes .source-icon {
+    background-image: url("img/soundcloud-16px.png");
+}
 
 .link h3,
 .googleservice h3, 
@@ -151,7 +158,9 @@
 .googleservice h3 {
     padding-bottom: 3px;
 }
-
+.smspost h3 {
+    display: none;
+}
 .facebookservice h3 a,
 .twitterservice h3 a,
 .googleservice h3 a,
@@ -221,6 +230,24 @@
 }
 
 
+.imagepost .result-content-full .result-content a, 
+.instagramservice .result-content  a,
+.flickrservice .result-content a  {
+    outline: none;
+}
+/*
+.imagepost figure img,*/
+.googleservice img,
+.instagramservice .result-content a img,
+.flickrservice .result-content a img
+ {
+    padding: 2px;
+    border: 1px solid #e0e0e0;
+    outline: none;
+    *border: 0;
+    *outline: none;
+}
+
 .youtubeservice h3 {
     margin: 5px 0;
 }
@@ -287,7 +314,26 @@
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
 }
+.smspost .editable.annotation {
+    padding: 0 0 5px;
+    margin-top: 0;
+}
+.smspost .result-text {
+    border: 1px solid #e5e5e5;
+    padding: 7px 10px !important;
+    background: #f5f5f5;
+    margin: 0;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    color: #484848 !important;
+}
 
+.smspost .result-content + .editable.annotation {
+    margin-top: 0 !important;
+}
 
 .facebookservice .result-text,
 .link .result-text,
@@ -298,9 +344,20 @@
     color: #484848 !important;
 }
 
-.youtubeservice iframe {
-    width: 100% !important;
-    border: 0;
+.youtubeservice .video-container {     
+    position: relative;     
+    padding-bottom: 56.25%;     
+    padding-top: 30px; 
+    height: 0; 
+    overflow: hidden; } 
+
+.youtubeservice .video-container iframe {     
+    position: absolute;     
+    top: 0;     
+    left: 0;     
+    width: 100%;    
+    height: 100%; 
+    border:0;
 }
 .youtubeservice .result-text {
     overflow: hidden;
@@ -460,7 +517,6 @@ color:#484848;
 
 
 #liveblog-posts {
-    padding-top: 29px;
     max-height: 500px;
     overflow: auto;
 }
@@ -495,7 +551,7 @@ color:#484848;
     margin:0;
     margin-top:10px;
     color:#000;
-    line-height: 18px;
+    line-height: 20px;
     font-size: 14px;
 }
 
@@ -572,17 +628,14 @@ color:#484848;
 
 
 #pintotop {
-    background: #656565;
-    padding: 3px 5px;
+    background: #202020;
+    padding: 8px 5px 7px;
     color:#fff;
     font-weight: bold;
     position: absolute;
-    top:5px;
-    right: 5px;
+    top:0px;
+    right: 0px;
     z-index: 2001;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
     text-decoration: none;
     font-size: 11px;
 }
@@ -591,13 +644,13 @@ color:#484848;
     background: #3676be;
     color:#fff;
     padding: 3px 5px;
-     -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
     text-decoration: none;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
     margin-left: 20px;
+}
+.new-notification:hover {
+    cursor: pointer;
 }
 
 li.loading-more {

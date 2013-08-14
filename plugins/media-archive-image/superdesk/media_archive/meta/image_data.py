@@ -31,7 +31,7 @@ class ImageDataDefinition:
     __tablename__ = 'archive_image_data'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = declared_attr(lambda cls: Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), primary_key=True))
+    Id = declared_attr(lambda cls: Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id, ondelete='CASCADE'), primary_key=True))
     Width = declared_attr(lambda cls: Column('width', Integer))
     Height = declared_attr(lambda cls: Column('height', Integer))
     CreationDate = declared_attr(lambda cls: Column('creation_date', DateTime))

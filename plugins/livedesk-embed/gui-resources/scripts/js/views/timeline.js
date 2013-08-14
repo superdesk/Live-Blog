@@ -151,7 +151,7 @@ define([
 			self.rendered = false;
 			if($.type(self.url) === 'string')
 				self.model = new Gizmo.Register.Blog(self.url.replace('my/',''));				
-			self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+			self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, ' +
 							   'AuthorImage, AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished, Creator.FullName';
 			//self.xfilter = 'CId';								   
 			self.model.on('read', function()
@@ -214,7 +214,8 @@ define([
 		 * returns the given view.
 		 */
 		orderOne: function(view) {
-			var pos = this._views.indexOf(view);
+            var pos = this.findView(view);
+
 			/*!
 			 * View property order need to be set here
 			 *   because could be multiple updates and 
@@ -237,7 +238,7 @@ define([
 			/*!
 			 * Search it again in find the new position.
 			 */
-			pos = this._views.indexOf(view);
+			pos = this.findView(view);
 			if( pos === 0 ){
 				/*!
 				 * If the view is the first one the it's added after #load-more selector.
@@ -257,6 +258,17 @@ define([
 			}
 			return view;
 		},
+
+        findView: function(view) {
+            for (var i = 0, length = this._views.length; i < length; i++) {
+                if (view.model.href === this._views[i].model.href) {
+                    return i;
+                }
+            }
+
+            return -1;
+        },
+
 		addOne: function(model)
 		{
 			var view = new PostView({model: model, _parent: this});

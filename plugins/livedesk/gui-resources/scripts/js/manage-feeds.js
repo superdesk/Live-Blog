@@ -8,11 +8,13 @@ define([
     'tmpl!core>layouts/footer-static',
     'tmpl!livedesk>manage-feeds',
     'tmpl!livedesk>manage-feeds-provider',
+    'tmpl!livedesk>manage-sms-feed',
     'tmpl!livedesk>manage-feeds-external-blog',
 ], function ($, Gizmo, EditProviderView) {
 
     var PROVIDER_TYPE = 'blog provider';
     var BLOG_TYPE = 'chained blog';
+    var SMS_TYPE = 'FrontlineSMS';
 
     var fetchOptions = {headers: {'X-Filter': 'Id, Name, URI'}, reset: true};
 
@@ -156,7 +158,7 @@ define([
         },
 
         isUrl: function(url) {
-            return url && url.match(/^https?:\/\/[a-z]/);
+            return url && url.match(/^(https?:)?\/\//);
         },
 
         getBlogs: function() {
@@ -360,12 +362,14 @@ define([
         events: {
             'click a[href="#AddSource"]': 'renderAdd',
             'change .sf-searchbox > input': 'search',
-            'click .sf-searchbox > a': 'clearSearch'
+            'change #sms-feed-search': 'smsSearch',
+            'click .sf-searchbox > a[id!="sms-clear-search"]': 'clearSearch',
+            'click #sms-clear-search': 'smsClearSearch'
         },
 
         initialize: function() {
-            this.collection.on('reset', this.render, this);
-            this.collection.on('add', this.renderList, this);
+            this.listenTo(this.collection, 'reset', this.render);
+            this.listenTo(this.collection, 'add', this.renderList);
         },
 
         render: function() {
@@ -383,7 +387,9 @@ define([
                 submenuActive4: 'active'
             };
 
-            $(this.el).tmpl('livedesk>manage-feeds', data);
+            $(this.el).tmpl('livedesk>manage-feeds', data, function(){
+                jQ.trigger('managefeeds/templatedone');
+            });
         },
 
         renderList: function() {
@@ -425,27 +431,205 @@ define([
             });
         },
 
+        smsSearch: function(e) {
+            var q = $(e.target).val();
+            var sources = $(this.el).find('li[data-type="sms-feed-li"]').each(function() {
+                var show = true;
+                if (q.length) {
+                    var text = $(this).text();
+                    console.log('sms text is ', text);
+                    var reg = new RegExp(q, 'i');
+                    show = reg.test(text);
+                }
+                $(this).toggle(show);
+            });
+        },
+
         clearSearch: function(e) {
             e.preventDefault();
             $(this.el).find('.sf-searchbox > input').val('').change();
+        },
+
+        smsClearSearch: function(e) {
+            e.preventDefault();
+            $(this.el).find('#sms-feed-search').val('').change();
         }
     });
 
+    
+    //Starting sms feed stuff
+
+    //empty jQuery object
+    var jQ = $({});
+
+    
+
+    var optionsAllFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
+    
+
+    var SmsFeed = Source.extend({
+        idAttribute: 'Id',
+        defaults: {
+            Name: 'some feed'
+        }
+    });
+    var SmsFeedsCollection = Backbone.Collection.extend({
+        model: SmsFeed,
+        parse: function(response) {
+            return response.SourceList;
+        }
+    }),
+    SmsFeedView = Backbone.View.extend({
+        tagName: "li",
+        events: {
+            'change [data-type="sms-feed"]': 'checkclick'
+        },
+        attributes: {
+            'class': 'sf-checkbox',
+            'set-bg': '1',
+            'data-type': 'sms-feed-li'
+        },
+        checkclick: function() {
+            if ( this.$('input').attr('checked') ) {
+                //we add
+                var name = this.model.get('Name');
+                var newSource = {
+                    Name: this.model.get('Name'),
+                    Type: SMS_TYPE,
+                    IsModifiable: 'True',
+                    URI: name
+                };
+                allSourceCollection.create(newSource, { wait: true, success: this.assigned } );
+            } else {
+                //we remove
+                var other = allSourceCollection.get(this.model.get('Id'));
+                other.destroy();
+            }
+        },
+        assigned: function() {
+            allSourceCollection.fetch(optionsAllSources);
+        },
+        initialize: function() {
+            var self = this;
+            //nothing to see here
+            self.render();
+        },
+        render: function() {
+            var self = this;
+            $.tmpl('livedesk>manage-sms-feed', this.model.toJSON(), function(a,o) {
+                self.$el.append(o);
+            });
+            return this;
+        }
+    }),
+    SmsFeedsView = Backbone.View.extend({
+        tagName: "ul",
+        attributes: {
+            'class': 'feeds-list'
+        },
+        initialize: function(){
+            //this.listenTo(this.collection,'reset', this.render);
+        },
+        render: function(){
+            var self = this;
+            if ( this.collection.length == 0 ) {
+                self.$el.append('<li>' + _('No SMS Feeds Available') + '</li>');
+            } else {
+                this.collection.each(function(SmsFeed){
+                    self.addOne(SmsFeed, this);
+                });    
+            }
+            jQ.trigger('managefeeds/allfeedsloaded');
+            return self;
+        },
+        addOne: function(SmsFeed) {
+            var self = this;
+            var smsFeedViewEl = new SmsFeedView({model: SmsFeed}).el;
+            self.$el.append(smsFeedViewEl);
+        }
+    });
+    
+    var counter = 0;
+    var runSmsFeedsView = function() {
+        var self = this;
+        jQ.on('managefeeds/templatedone', function(){
+            $('#sms-feed-main-list').html('');
+            smsFeedsView = new SmsFeedsView({collection: smsFeedsCollection, el: $('#sms-feed-main-list')}).render();
+        });
+    };
+    
+
+    //to get all sources
+    var SourceModel = Source.extend({
+        idAttribute: 'Id',
+        defaults: {
+            Name: 'some feed'
+        } 
+    });
+    SourceModel.bind('remove', function(){
+        console.log('hamster');
+    })
+    var AllSourceCollection = Backbone.Collection.extend({
+        model: SourceModel,
+        parse: function(response) {
+            return response.SourceList;
+        },
+        filterType: function(xType) {
+            return this.filter(function(source) {
+                return source.get('Type').Key == xType;
+            });
+        },
+        getById: function(Id){
+           return this.filter(function(val) {
+              return val.get("Id") == Id;
+            })
+        }
+    });
+    var optionsAllSources = {headers: {'X-Filter': 'Type.Key,Name,Id'}, reset: true};
+
+    var checkSelectedFeeds = function(selected) {
+        for ( var i = 0; i < selected.length; i ++ ) {
+            var select = selected[i];
+            var feedId = select.id;
+            $('[data-type="sms-feed"][data-feed-id="' + feedId + '"]').attr("checked", "checked").attr("data-checked", 1);
+        }
+    };
+
     // blog sources
     var sources = new SourceCollection();
+    var providers = new ProviderCollection([], {url: getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source')});
+    var view = new MainView({collection: providers, el: '#area-main'});
 
     return function(blogHref) {
-        var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
-        blog.sync().done(function() {
+
+            //small hack to get the blog id
+            //@TODO get it in a smarter way
+            var hackArray = blogHref.split('/');
+            var blogId = hackArray[hackArray.length - 1];
+
+            smsFeedsCollection = new SmsFeedsCollection;
+            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
+            smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
+                runSmsFeedsView();
+            });
+
+            allSourceCollection = new AllSourceCollection;
+            allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/1/Source');
+            allSourceCollection.fetch(optionsAllSources).done(function(response){
+                jQ.on('managefeeds/allfeedsloaded', function(){
+                    var smsSources = allSourceCollection.filterType(SMS_TYPE);
+                    checkSelectedFeeds(smsSources);
+                });
+            });
+
+            view.model = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
+            view.model.sync().done(function(data) {
             // we need blog specific sources
-            sources.url = blog.get('Source').href;
+            sources.url = data.Source.href;
 
             // we need sources before rendering providers, so start rendering when sources are ready
             sources.on('reset', function() {
-                var providers = new ProviderCollection();
-                providers.url = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source');
-
-                new MainView({model: blog, collection: providers, el: '#area-main'});
                 providers.fetch(fetchOptions);
             });
 
