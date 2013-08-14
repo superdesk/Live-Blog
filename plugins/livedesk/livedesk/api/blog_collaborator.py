@@ -72,7 +72,7 @@ class IBlogCollaboratorService:
         '''
 
     @call
-    def getAll(self, blogId:Blog) -> Iter(BlogCollaborator):
+    def getAll(self, blogId:Blog, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(BlogCollaborator):
         '''
         Provides all the blog collaborators.
         '''

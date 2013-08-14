@@ -190,6 +190,9 @@ $.extend(providers.sms, {
             },self.interval);
 
         });
+        //dynamically get size of header and set top space for list
+        var top_space = $('#sms .sms-header').outerHeight() + 20;
+        $('.sms-results-holder').css({'top': top_space});
     },
     refreshFeeds: function() {
         var self = this;
