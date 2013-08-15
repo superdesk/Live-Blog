@@ -6,15 +6,23 @@ define([
 
     var resources = angular.module('users.resources', ['ngResource']);
 
+    resources.factory('Role', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/RBAC/Role/:Id/:Action', {Id: '@Id', Action: '@Action'}, {
+            query: {method: 'GET', params: {'X-Filter': '*'}},
+            update: {method: 'PUT'},
+            save: {method: 'POST', params: {'X-Filter': 'Id'}}
+        });
+    }]);
+
     resources.factory('User', ['$resource', '$q', function($resource, $q) {
-        return $resource('/resources/HR/User/:Id/:Action', {Id: '@Id', Action: '@Action'}, {
+        return $resource('/resources/HR/User/:Id/:Action/:Action2', {Id: '@Id', Action: '@Action', Action2: '@Action2'}, {
             query: {method: 'GET', params: {'X-Filter': '*'}},
             update: {method: 'PUT'},
             save: {method: 'POST', params: {'X-Filter': 'Id'}}
         });
     }]);
     
-    resources.factory('Role', ['$resource', '$q', function($resource, $q) {
+    resources.factory('UserRole', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/HR/User/:Id/Role', {Id: '@Id'}, {
             query: {method: 'GET', params: {'X-Filter': '*'}},
             update: {method: 'PUT'},
@@ -41,12 +49,12 @@ define([
     }]);
 
     resources.factory('UserDetailLoader',
-    ['User', 'Role', 'Post', 'PostPublished', 'PostUnpublished', '$q',
-    function(User, Role, Post, PostPublished, PostUnpublished, $q) {
+    ['User', 'UserRole', 'Post', 'PostPublished', 'PostUnpublished', '$q',
+    function(User, UserRole, Post, PostPublished, PostUnpublished, $q) {
         return function(userId) {
             var delay = $q.defer();
             User.query({Id: userId}, function(user) {
-                Role.query({Id: userId}, function(role) {
+                UserRole.query({Id: userId}, function(role) {
                     user.roleList = role.RoleList;
                     Post.query({Id: userId}, function(post) {
                         user.postList = post.PostList;
@@ -77,6 +85,17 @@ define([
                 }
                 response.UserList.count = response.total;
                 delay.resolve(response.UserList);
+            });
+            return delay.promise;
+        };
+    }]);
+
+    resources.factory('RoleListLoader', ['Role', '$q', function(Role, $q) {
+        return function() {
+            var delay = $q.defer();
+            var parameters = {};
+            Role.query(parameters, function(response) {
+                delay.resolve(response.RoleList);
             });
             return delay.promise;
         };
