@@ -11,6 +11,7 @@ body
 	background: #fff;
 }
 
+/* ? */
 .container
 {
 	width: 560px;
@@ -23,9 +24,9 @@ body
 {
 	width: 100%;
 	background: #fff;
-	font-size: 100%;
+/*	font-size: 100%;
 	line-height: 130%;
-	font-family: Arial,Helvetica,sans-serif;
+	font-family: Arial,Helvetica,sans-serif;*/
 	margin: 10px 0;
 }
 
@@ -47,7 +48,7 @@ body
 #livedesk-root a
 {
 	text-decoration: none;
-	color: #08c;
+	color: #08c;  /* twitter */
 }
 
 #livedesk-root figure,
@@ -61,6 +62,7 @@ body
 
 #livedesk-root blockquote {
 	border: none;
+	padding-bottom: 0px; 
 }
 
 #livedesk-root .liveblog-container
@@ -160,13 +162,14 @@ body
 	display:none;
 }
 
-/* FONT SIZE FIX */
+/* FONT SIZE FIX 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.link .result-text
 {
-	font-size: 1em;
-	line-height: 1.5em /* #D# */
+/*	font-size: 1em;
+	line-height: 1.5em /* #D# 
 }
+*/
 
 /* CONTENT GESAMT */
 #livedesk-root .liveblog-container .liveblog-content
@@ -223,15 +226,6 @@ body
 }
 */
 
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content
-{
-	min-height: 0;
-	zoom: 1;
-/*	margin-top: 10px; MULTI */
-	margin-top: 5px; /* SINGLE */
-}
-
-
 /* HAUPT-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle
 {
@@ -246,9 +240,8 @@ body
 {
 	border-top: 1px solid #ccc;
 	background: #fff;
-/*	padding: 10px 0 20px; MULTI */
-	padding: 0 0 20px 0; /* SINGLE */
-/*	padding: 0 20px 20px 20px; /* SINGLE */
+/*	padding: 10px 0 20px 0;  MULTI */
+	padding: 0px 0 20px 0; /* SINGLE */
 }
 
 /* #D#
@@ -265,8 +258,15 @@ body
 }
 
 
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content
+{
+	min-height: 0;
+	zoom: 1;
+/*	margin-top: 10px; MULTI */
+	margin-top: 5px; /* SINGLE */
+}
 
-/* SIDE -> SINGLE: DISPLAY: NONE
+/* SIDE -> SINGLE: DISPLAY: NONE 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-side
 {
 	float: left;
@@ -274,7 +274,7 @@ body
 }
 
 
-AVATAR -> SINGLE: DISPLAY: NONE
+/* AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-avatar
 {
 	width: 48px;
@@ -294,7 +294,7 @@ AVATAR -> SINGLE: DISPLAY: NONE
 	height: auto;
 	display: block;
 }
-*/
+
 
 /* MAIN (NICHT SIDE) -> SINGLE: KEIN SIDE - KEIN MARGIN
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-main
@@ -307,21 +307,21 @@ AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-info
 {
 	font-family: Arial,Helvetica,sans-serif;
-	margin-bottom: 5px;
-/*	margin-right: -20px; SINGLE */
+/*	margin-bottom: 8px; MULTI */
+	margin-bottom: 18px; /* SINGLE */
+	padding-top: 5px;
+	line-height: 12px;
 	position: relative;
-	height: 17px; /* SINGLE */
+	width: 100%;
 }
 
-/* DATUM -> SINGLE: DISPLAY: NONE
+
+/* DATUM -> SINGLE: DISPLAY: NONE 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-datetime
 {
+	margin-right: 15px;
 	font-size: 0.75em;
 	color: #222;
-	margin-right: 15px;
-	height: 12px;
-	display: inline-block;
-	line-height: 12px;
 }
 
 /* AUTOR -> SINGLE: DISPLAY: NONE
@@ -331,7 +331,6 @@ AVATAR -> SINGLE: DISPLAY: NONE
 	text-transform: uppercase;
 	color: #222;
 }
-
 */
 
 /* SHARE BUTTONS */
@@ -369,8 +368,8 @@ AVATAR -> SINGLE: DISPLAY: NONE
 	display: none;
 	position: absolute;
 	z-index: 5;
-/*	top: -7px; MULTI  #D# */
-	top: -6px; /* SINGLE  #D# */
+/*	top: -7px; /* MULTI #D# */
+	top: -6px; /* SINGLE #D# */
 	right: 0px; /* #D# */
 	width: 170px;
 /*	height: 24px; #D# */
@@ -380,16 +379,7 @@ AVATAR -> SINGLE: DISPLAY: NONE
 	background: #ffffff;
 /*	border: 1px solid #d0d0d0; */
 	border: 1px solid #d0d0d0;  /* #D# */
-/* #D# alternativ
-	border-top: 1px solid #f5f5f5;	
 
-	-webkit-border-bottom-right-radius: 10px;
-	-webkit-border-bottom-left-radius: 10px;
-	-moz-border-radius-bottomright: 10px;  
-	-moz-border-radius-bottomleft: 10px;
-	border-bottom-right-radius: 10px;  
-	border-bottom-left-radius: 10px;
-/* #D# ENDE */
 }
 
 /* SHARE ICONS GENERELL */
@@ -417,16 +407,16 @@ AVATAR -> SINGLE: DISPLAY: NONE
 /* KOMPLETTER POST-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content-full
 {
- 	font-size: 1em; 
-/* 	line-height: 130%; #D# */
+/* 	font-size: 1em; 
+/* 	line-height: 130%; #D# 
  	line-height: 1.5em; /* #D# */
 }
 
 /* TEXT GENERELL */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-text
 {
-	font-size: 1em; 
-/*	line-height: 150%; #D# */
+/*	font-size: 1em; 
+/*	line-height: 150%; #D# 
  	line-height: 1.5em; /* #D# */
 }
 
@@ -451,6 +441,8 @@ AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-core-content a:visited,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-core-content a:hover
  {
+	display: inline;
+	width: auto;
 	color: #08c;
 	text-decoration: none;
 }
@@ -460,24 +452,29 @@ AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before
 {
 /*	padding-bottom: 8px; #D# */
-/* 	padding-bottom: 0px; MULTI #D# */
-		padding-bottom: 5px; /* SINGLE #D# */
+	padding-bottom: 0px; /* MULTI #D# 
+/*	padding-bottom: 5px; /* SINGLE #D# */
 }
 
 /* NACH FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-after
 {
-/*	padding-top: 8px; /* MULTI */
+/*	padding-top: 8px; MULTI */
 	padding-top: 13px; /* SINGLE */
 }
 
 /* FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external
 {
-	margin-top: 10px;
+/*	margin-top: 15px; MULTI */
+	margin-top: 22px; /* SINGLE */
+/*	width: 100%; MULTI */
 	margin-left: 30px; /* SINGLE */
-/* 	max-width: 560px; MULTI */
- 	max-width: 460px; /* SINGLE */
+	width: 460px; /* SINGLE */
+/*	line-height: 130%; #D# */
+	font-size: 0.75em;
+ 	line-height: 1.5em; /* #D# */
+
 }
 
 /* BOX (TWITTER / GOOGLE / FACEBOOK) */
@@ -485,22 +482,20 @@ AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.facebook .post-external,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.google .post-external
 {
-	padding: 10px;
+	padding: 10px 0;
+/*	width: 99%;  MULTI */
 /*	background: #f2f2f2; #D# */
 	background: #f5f5f5; /* #D# */
 	border: 1px solid #e5e5e5;  /* #D# */
 	border-radius: 5px;
 	font-family: Arial,Helvetica,sans-serif;
-	font-size: 0.75em;
-/*	line-height: 130%; #D# */
- 	line-height: 1.5em; /* #D# */
- 	max-width: 440px; /* SINGLE */
 }
 
-/* twittwer - SINGLE GGF. NOCH KÜRZER */
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-external
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-external > *,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.facebook .post-external > *,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.google .post-external > *
 {
-/*	max-width: 66%;*/
+	margin: 0 10px;
 }
 
 /* I-FRAME */
@@ -508,6 +503,12 @@ AVATAR -> SINGLE: DISPLAY: NONE
 {
 	line-height: 0;
 }
+
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external .post-frame-container iframe
+{
+	border-bottom: 0; /* IPAD */
+}
+
 
 /* youtube */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.youtube .post-external .post-frame-container
@@ -581,8 +582,8 @@ AVATAR -> SINGLE: DISPLAY: NONE
 	width: 100%;
 	padding: 7px 0 0 0;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 0.75em;
-	line-height: 1.166667em;
+	line-height: 1.16667em;
+	color: #454545;
 	font-weight: normal;
 }
 
@@ -591,8 +592,6 @@ AVATAR -> SINGLE: DISPLAY: NONE
 {
 	padding: 7px 0 0 0;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 0.75em;
-	line-height: 1.16667em;
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.youtube .post-external h5 a
@@ -611,8 +610,8 @@ AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .attributes
 {
 /*	margin-top: 5px; #D# */
-/*	margin: 10px 0 3px 0; #D# MULTI */
-	margin: 10px 0 3px 30px; /* SINGLE */
+/*	margin: 10px 0 3px 0; /* MULTI #D# */
+	margin: 10px 0 3px 5%; /* SINGLE */
 	line-height: 1em;
 }
 
@@ -895,4 +894,98 @@ AVATAR -> SINGLE: DISPLAY: NONE
 /* ??? */
 .article-body li {
 	margin-bottom: 0 !important;
+}
+
+/* < 480 px */
+
+/* MOBILE */
+@media only screen and (max-width: 480px) {
+
+	/* 'TEILEN', TWITTER-BUTTONS: KEIN HOVER */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li:hover .post-buttons,
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter:hover .twitter-controls {
+		display:none !important;
+	}
+
+	/* INFO: DATUM / AUTOR */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-info 
+	{
+		margin-bottom: 10px;
+	}
+	
+	/* FREMD-CONTENT */	
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external {
+		font-size: 0.8125em;
+		line-height: 1.30769em;
+		color: #454545;
+		
+		margin-left: 0px; /* SINGLE */
+		width: 99%; /* SINGLE */
+		
+	}
+	
+		/* FREMD-CONTENT: ATTRIBUTE (SOURCE / ICON) */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .attributes
+	{
+		margin: 15px 0 3px 0; /* #D# */
+	}
+	
+	/* VOR FREMD-CONTENT */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before
+	{
+		padding-bottom: 5px; /* #D# */
+	}
+
+	/* NACH FREMD-CONTENT */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-after
+	{
+		padding-top: 13px;
+	}
+}
+
+/* MOBILE < 360 */
+@media only screen and (max-width: 360px) {
+
+	/* CONTENT-SIDE: DISPLAY: NONE */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-side
+	{
+		display: none !important;
+	}
+	
+	/* CONTENT-MAIN: FULL-WIDTH */
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-main
+	{
+		margin-left: 0;
+	}
+
+	/* INFO: DATUM / AUTOR - NUR MULTI 
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-info 
+	{
+		float: left;
+		width: 100%;
+	}
+
+	/* DATUM - NUR MULTI
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-datetime
+	{
+		display: inline-block;
+		float: left;
+		width: auto;
+		margin-bottom: 8px;
+		color: #454545;
+	}
+
+	/* AUTOR - NUR MULTI
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-name
+	{
+		display: inline-block;
+		float: left;
+		width: auto;
+		color: #454545;
+	}
+
+	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content-full
+	{
+		clear: both;
+	}*/
 }
