@@ -29,12 +29,12 @@ from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
+from superdesk.media_archive.api.image_data import IImageDataService
+from superdesk.person_icon.api.person_icon import IPersonIconService
 from ally.exception import InputError
-from ally.api.model import Content
 from urllib.error import HTTPError
-from urllib import urlretrieve
 from time import sleep
-import os, shutil
+from icon_content import IconContent
 
 # --------------------------------------------------------------------
 
@@ -62,6 +62,10 @@ class BlogSyncProcess:
     # blog post service used to retrive collaborator
 
     userService = IUserService; wire.entity('userService')
+
+    imageDataService = IImageDataService; wire.entity('imageDataService')
+
+    personIconService = IPersonIconService; wire.entity('personIconService')
 
     syncThreads = {}
     # dictionary of threads that perform synchronization
@@ -219,8 +223,9 @@ class BlogSyncProcess:
                 c.Source = sources[0].Id
                 return self.collaboratorService.insert(c)
 
-    def self._updateIcon(userId, authorJSON):
+    def _updateIcon(self, userId, authorJSON):
         '''
+        Setting the icon of the user
         '''
         iconFileURL = None
         try:
@@ -248,22 +253,13 @@ class BlogSyncProcess:
             return
 
         tmpIconFileName = iconFileURL.split('/')[-1]
-        if not tmpIconFileName:
+        if tmpIconFileName:
+            tmpIconFileName = '_' + tmpIconFileName
+
+        iconHnd = IconContent(iconFileURL, 'icon_' + str(userId) + tmpIconFileName)
+        imageData = self.imageDataService.insert(userId, iconHnd, 'http')
+
+        if (not imageData) or (not imageData.Id):
             return
 
-        tmpIconDirPath = tempfile.mkdtemp()
-        tmpIconFilePath = os.path.join(tmpIconDirPath, tmpIconFileName)
-        try:
-            urlretrieve(iconFileURL, tmpIconFileName)
-        except (HTTPError, socket.error) as e:
-            log.error('Can not read chained icon image data %s' % e)
-            shutil.rmtree(patmpIconDirPath, True)
-            return
-
-        Content(name)
-
-        shutil.rmtree(patmpIconDirPath, True)
-
-
-
-
+        self.personIconService.setIcon(userId, imageData.Id)
