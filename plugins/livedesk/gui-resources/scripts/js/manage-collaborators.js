@@ -137,6 +137,7 @@ define([
 		init: function(){
 			var self = this;
 			self.collection
+				.limit(self.collection.config("limit"))
 				.on('read', self.render, self)
 				.on('modified', self.render, self);
 
@@ -302,7 +303,7 @@ define([
 			self.collection
 				.one('read', self.render, self)
 				.xfilter('Id,Type,Name,User.Id,User.FullName,User.EMail')
-				//.limit(self.collection.config("limit"))
+				.limit(self.collection.config("limit"))
 				.sync();
 			self.blogTypesCollaborator = new Gizmo.Register.BlogCollaaboratorTypes();
 			self.blogTypesCollaborator.sync();
