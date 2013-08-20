@@ -29,12 +29,10 @@ from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
-from superdesk.media_archive.api.image_data import IImageDataService
-from superdesk.person_icon.api.person_icon import IPersonIconService
 from ally.exception import InputError
 from urllib.error import HTTPError
 from time import sleep
-from icon_content import IconContent
+from icon_content import ChainedIconContent
 
 # --------------------------------------------------------------------
 
@@ -62,10 +60,6 @@ class BlogSyncProcess:
     # blog post service used to retrive collaborator
 
     userService = IUserService; wire.entity('userService')
-
-    imageDataService = IImageDataService; wire.entity('imageDataService')
-
-    personIconService = IPersonIconService; wire.entity('personIconService')
 
     syncThreads = {}
     # dictionary of threads that perform synchronization
@@ -152,6 +146,8 @@ class BlogSyncProcess:
         except ValueError as e:
             log.error('Invalid JSON data %s' % e)
             return
+
+        authorsForIcons = {}
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
@@ -165,7 +161,8 @@ class BlogSyncProcess:
                 lPost.Content = post['Content'] if 'Content' in post else None
                 lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
 
-                self._updateIcon(lPost.Author, post['Author'])
+                if lPost.Author not in authorsForIcons:
+                    authorsForIcons[lPost.Author] = post['Author']
 
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
@@ -179,6 +176,8 @@ class BlogSyncProcess:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
+
+        self._updateIcons(authorsForIcons)
 
     def _getCollaboratorForAuthor(self, author, source):
         '''
@@ -223,43 +222,46 @@ class BlogSyncProcess:
                 c.Source = sources[0].Id
                 return self.collaboratorService.insert(c)
 
-    def _updateIcon(self, userId, authorJSON):
+    def _updateIcons(self, authorsData):
         '''
         Setting the icon of the user
         '''
-        iconFileURL = None
-        try:
-            metaDataIconJSON = authorJSON['User']['MetaDataIcon']
-            metaDataIconURL = metaDataIconJSON.get('href', '')
-            if not metaDataIconURL:
-                return
+        userIcons = {}
+        for userId in authorsData:
+            authorJSON = authorsData[userId]
+            userIcons[userId] = {'created': None, 'url': None, 'name': None}
 
-            req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
-            try: resp = urlopen(req)
-            except (HTTPError, socket.error) as e:
-                return
+            try:
+                metaDataIconJSON = authorJSON['User']['MetaDataIcon']
+                metaDataIconURL = metaDataIconJSON.get('href', '')
+                if not metaDataIconURL:
+                    continue
 
-            try: msg = json.load(codecs.getreader(self.encodingType)(resp))
-            except ValueError as e:
-                log.error('Invalid JSON data %s' % e)
-                return
+                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+                try:
+                    resp = urlopen(req)
+                except (HTTPError, socket.error) as e:
+                    continue
 
-            iconFileURL = msg['Content'].get('href', '')
+                try:
+                    msg = json.load(codecs.getreader(self.encodingType)(resp))
+                except ValueError as e:
+                    log.error('Invalid JSON data %s' % e)
+                    continue
 
-        except KeyError:
-            return
+                userIcons[userId]['created'] = msg.get('CreatedOn', None)
+                userIcons[userId]['url'] = msg['Content'].get('href', None)
 
-        if not iconFileURL:
-            return
+                if userIcons[userId]['url']:
+                    iconFileName = userIcons[userId]['url'].split('/')[-1]
+                    if iconFileName:
+                        iconFileName = '_' + iconFileName
+                    userIcons[userId]['name'] = 'icon_' + str(userId) + iconFileName
 
-        tmpIconFileName = iconFileURL.split('/')[-1]
-        if tmpIconFileName:
-            tmpIconFileName = '_' + tmpIconFileName
+            except KeyError:
+                continue
 
-        iconHnd = IconContent(iconFileURL, 'icon_' + str(userId) + tmpIconFileName)
-        imageData = self.imageDataService.insert(userId, iconHnd, 'http')
-
-        if (not imageData) or (not imageData.Id):
-            return
-
-        self.personIconService.setIcon(userId, imageData.Id)
+        for userId in userIcons:
+            iconInfo = userIcons[userId]
+            iconHandler = IconContent(userId, iconInfo['created'], iconInfo['url'], iconInfo['name'])
+            iconHandler.synchronizeIcon()

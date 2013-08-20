@@ -14,6 +14,10 @@ import logging
 from urllib.request import urlopen
 from ally.api.model import Content
 from urllib.error import HTTPError
+from ally.container.ioc import injected
+from ally.container.support import setup
+from superdesk.media_archive.api.meta_data import IMetaDataService
+from superdesk.person_icon.api.person_icon import IPersonIconService
 
 # --------------------------------------------------------------------
 
@@ -21,12 +25,18 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class IconContent(Content):
+@injected
+@setup(name='chainedIconContent')
+class ChainedIconContent(Content):
     '''
     Simple remote icon content taking
     '''
 
-    def __init__(self, contentURL, fileName):
+    metaDataService = IMetaDataService; wire.entity('metaDataService')
+
+    personIconService = IPersonIconService; wire.entity('personIconService')
+
+    def __init__(self, userId, createdOn, contentURL, fileName):
         '''
         Constructs the content.
 
@@ -35,6 +45,8 @@ class IconContent(Content):
         @param fileName: string
             The name of file under that the icon should be saved.
         '''
+        self._user = userId
+        self._created = createdOn
         self._url = contentURL
         self._response = None
         self.name = fileName
@@ -75,3 +87,47 @@ class IconContent(Content):
         @see: Content.next
         '''
         return None
+
+    def synchronizeIcon(self):
+        '''
+        Synchronizing local icon according to the remote one
+        '''
+
+        if not self._user:
+            return
+
+        shouldRemoveOld = False
+        needToUploadNew = False
+
+        try:
+            metaDataLocal = self.personIconService.getByPersonId(self._user)
+            localId = metaDataLocal.Id
+            localCreated = metaDataLocal.CreatedOn
+        except:
+            localId = None
+            localCreated = None
+
+        if not localId:
+            if self._url:
+                needToUploadNew = True
+
+        else:
+            if self._url:
+                if (not self._created) or (not localCreated) or (localCreated < self._created):
+                    shouldRemoveOld = True
+                    needToUploadNew = True
+            else:
+                shouldRemoveOld = True
+
+        if shouldRemoveOld:
+            try:
+                self.personIconService.detachIcon(self._user)
+                self.metaDataService.delete(localId)
+            except: pass
+
+        if needToUploadNew:
+            imageData = self.metaDataService.insert(self._user, self, 'http')
+            if (not imageData) or (not imageData.Id):
+                return
+            self.personIconService.setIcon(self._user, imageData.Id)
+
