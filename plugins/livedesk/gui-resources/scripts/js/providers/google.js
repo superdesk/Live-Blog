@@ -158,34 +158,36 @@ define('providers/google', [
                 }
             }
         },
-        showLoading: function(where) {
-            $(where).tmpl('livedesk>providers/loading');
+        
+        showLoading: function(el) {
+            el.tmpl('livedesk>providers/loading');
         },
 
-        stopLoading : function(where) {
-            $(where).html('');
+        stopLoading : function(el) {
+            el.html('');
         },
 
         doSearch: function(type, start) {
             var self = this;
+            var showMore = $('#ggl-' + type + '-holder').find('.sources-show-more');
             var text = $('#google-search-text').val();
             if (text.length < 1) {
                 return;
             }
 
-            $('#ggl-' + type + '-more').html('');
+            showMore.html('');
             start = parseInt(start, 10) || 0;
             if (start === 0) {
                 $('#ggl-' + type + '-results').html('');
             }
 
             var currentDate = new Date();
-            this.showLoading('#ggl-' + type + '-more');
+            this.showLoading(showMore);
 
             var provider = this.getProvider(type);
             provider.search(text, start).
                 then(function(posts, cpage, pages) {
-                    self.stopLoading('#ggl-' + type + '-more');
+                    self.stopLoading(showMore);
                     //data.responseData.date = currentDate;
                     if (posts.length > 0 ) {
                          $.tmpl('livedesk>items/item', {
@@ -235,15 +237,15 @@ define('providers/google', [
                                     el.removeClass('draggable');
                                 });
                         });
-                        
+
                         cpage += 1;
-                        for (var i=0; i< pages.length; i++) {
+                        for (var i = 0; i < pages.length; i++) {
                             var page = pages[i];
                             if (cpage < page.label) {
                                 //show load more results
-                                $('#ggl-' + type + '-more').tmpl('livedesk>providers/google-more', function(){
-                                    $(this).find('[name="more_results"]').on('click', function(){
-                                        self.doSearch(type, page.start)
+                                showMore.tmpl('livedesk>providers/google-more', function() {
+                                    $(this).find('[name="more_results"]').on('click', function() {
+                                        self.doSearch(type, page.start);
                                     });
                                 });
                                 break;
