@@ -5,6 +5,9 @@
 	<div class="chain-search">
 		<div class="autopublish">
 			<span>_("Autopublish:");</span><input type="checkbox" name="autopublish" value="on" class="sf-toggle on-off">
+			<!--
+			<a class="btn btn-flat active" style="float:right"><i class="icon-trash"></i> View deleted items</a>
+			-->
 		</div>
 		<div class="sf-searchbox">
 			<input type="text" placeholder="_('Search');">

@@ -1,6 +1,9 @@
 {#Post}
 <li class="{+DraggableClass}draggable{/DraggableClass} {+ProviderClass}{/ProviderClass} {+ImplementorClass}{/ImplementorClass} clearfix" {+AdditionalAttributes}{/AdditionalAttributes}>
 	<div class="drag-bar"></div>
+	
+	<!-- user posts verification interface goes here -->
+
 	{+FastActions}
 	<div class="tool-box-right">
 		<a href="{+FastActionsDeleteModal}#delete-post{/FastActionsDeleteModal}" class="close image" data-toggle="modal" title="Delete">x</a>
