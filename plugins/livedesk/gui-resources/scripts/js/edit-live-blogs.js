@@ -9,6 +9,7 @@ define
     'gizmo/superdesk',
     'jquery',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('media-archive', 'upload'),
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -34,7 +35,7 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction) 
+function(providers, Gizmo, $, BlogAction, upload) 
 {
 		
     /*!
@@ -1067,7 +1068,7 @@ function(providers, Gizmo, $, BlogAction)
 					});
 					return command;
 				},
-				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : upload.texteditor }),
 				content = $(this.el).find('[is-content]'),
 				titleInput = content.find('section header h2'),
 				descrInput = content.find('article#blog-intro');
