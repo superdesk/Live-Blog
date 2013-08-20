@@ -32,7 +32,7 @@ from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
 from urllib.error import HTTPError
 from time import sleep
-from icon_content import ChainedIconContent
+from .icon_content import ChainedIconContent
 
 # --------------------------------------------------------------------
 

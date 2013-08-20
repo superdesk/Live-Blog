@@ -19,6 +19,7 @@ from ally.container.support import setup
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
