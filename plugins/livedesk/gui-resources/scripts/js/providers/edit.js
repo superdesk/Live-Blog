@@ -256,7 +256,6 @@ define('providers/edit', [
 			var self = this;
 			var uploadView = new UploadView({thumbSize: 'medium'});
 			uploadView.activate().then(function(data) {
-                console.log(data);
 				self.handleImageUpload(data);
 			});
 		},
