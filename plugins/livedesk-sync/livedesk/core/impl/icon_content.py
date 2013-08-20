@@ -17,6 +17,7 @@ from urllib.error import HTTPError
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.media_archive.api.meta_data import IMetaDataService
+from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 
 # --------------------------------------------------------------------
@@ -33,6 +34,8 @@ class ChainedIconContent(Content):
     '''
 
     metaDataService = IMetaDataService; wire.entity('metaDataService')
+
+    metaInfoService = IMetaInfoService; wire.entity('metaInfoService')
 
     personIconService = IPersonIconService; wire.entity('personIconService')
 
@@ -122,12 +125,13 @@ class ChainedIconContent(Content):
         if shouldRemoveOld:
             try:
                 self.personIconService.detachIcon(self._user)
-                self.metaDataService.delete(localId)
+                self.metaInfoService.delete(localId)
             except: pass
 
         if needToUploadNew:
-            imageData = self.metaDataService.insert(self._user, self, 'http')
-            if (not imageData) or (not imageData.Id):
-                return
-            self.personIconService.setIcon(self._user, imageData.Id)
-
+            try:
+                imageData = self.metaDataService.insert(self._user, self, 'http')
+                if (not imageData) or (not imageData.Id):
+                    return
+                self.personIconService.setIcon(self._user, imageData.Id)
+            except: pass
