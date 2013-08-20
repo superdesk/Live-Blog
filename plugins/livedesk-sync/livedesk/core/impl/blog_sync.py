@@ -263,5 +263,5 @@ class BlogSyncProcess:
 
         for userId in userIcons:
             iconInfo = userIcons[userId]
-            iconHandler = IconContent(userId, iconInfo['created'], iconInfo['url'], iconInfo['name'])
-            iconHandler.synchronizeIcon()
+            iconHandler = ChainedIconContent()
+            iconHandler.synchronizeIcon(userId, iconInfo['created'], iconInfo['url'], iconInfo['name'])
