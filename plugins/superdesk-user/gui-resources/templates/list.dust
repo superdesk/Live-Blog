@@ -116,7 +116,7 @@
 	        
 		</div>
 
-		<div class="user-details-pane" ng-controller="UserDetailController">
+		<div class="user-details-pane" ng-class="{open: enabled}" ng-controller="UserDetailController">
 		  <a href="" class="close" ng-click="unloadUser()"><i class="icon-remove"></i></a>
 		  <div class="user-details-header">
 		    <ul class="nav nav-tabs userDetail-tabs" id="userDetailsTabs">

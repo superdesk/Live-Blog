@@ -8,6 +8,8 @@ function(angular, sha) {
     return function($scope, $q, User, UserDetailLoader, RoleListLoader) {
         
         $scope.initialize = function() {
+            $scope.enabled = false;
+
             $scope.roleList = RoleListLoader();
             
             $scope.$watch('selectedUserId', function(selectedUserId) {
@@ -16,7 +18,7 @@ function(angular, sha) {
                     for (var i in $scope.roleList) {
                         $scope.newUser.roles[$scope.roleList[i].Id] = false;
                     }
-                    $('.user-details-pane').addClass('open');
+                    $scope.enabled = true;
                     $('#profile-button').tab('show');
                     $('#edit-profile-button').tab('show');
                 } else if (selectedUserId !== null) {
@@ -51,13 +53,13 @@ function(angular, sha) {
 
         $scope.loadUser = function(userId) {
             $scope.user = UserDetailLoader(userId);
-            $('.user-details-pane').addClass('open');
+            $scope.enabled = true;
         };
 
         $scope.unloadUser = function() {
             $scope.$parent.selectedUserId = null;
             $scope.user = {};
-            $('.user-details-pane').removeClass('open');
+            $scope.enabled = false;
         };
 
         $scope.saveUser = function() {
