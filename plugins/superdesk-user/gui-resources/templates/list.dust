@@ -1,81 +1,696 @@
-<!-- ... -->
-<style>
-	.table .btn-group{ visibility: hidden; display: inline; position: static }
-	.table tr:hover .btn-group{ visibility: visible; }
-	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }
-	.pagination .ipp:after{ content: "_('items per page');"; float: left; line-height: 35px; margin: 0 8px; }   
-</style>
-<!-- ... -->
-
 <div class="subnav subnav-fixed">
-	<div class="input-append pull-left" style="display:inline-block; margin: 3px 0">
-		<input class="span3" size="16" type="text" name="search" placeholder="_('Search');" style="margin:0;height:28px;" />
-		<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
-		<button class="btn" data-action="search" type="button">Search</button>
+	<div class="btn-group pull-left" style="margin-right:20px;" id="switch-user-type">
+	    <a class="btn btn-medium active">_('Users');</a>
+	    <a class="btn btn-medium ">_('Authors');</a>
 	</div>
-	{~s}
-	<button class="btn btn-medium btn-info pull-right add-user"><span class="medium-icon-add"></span> _('Add User');</button>
+
+	<input type="text" name="searchbar" class="searchbar-container" style="width:500px;" placeholder="Search" ng-model="searchTerm">
+
+	<a class="btn btn-medium btn-info pull-right" href="" ng-click="selectedUserId = 0"><span class="medium-icon-add"></span> _('Add New User');</a>
 </div>
 
-<div data-main-table="true">
-    <div style="padding: 70px 20px 20px;">
-		
-		<table class="table table-hover table-sort table-buttons-control sf_table" style="table-layout:auto" >
-			<thead>
-				<tr>
-	    			<th>#</th>
-	        		<th data-sort="firstName">_('First Name');</th>
-	        		<th data-sort="lastName">_('Last Name');</th>
-	        		<th data-sort="name">_('Login');</th>
-	        		<th data-sort="email">_('E-Mail');</th>
-	        		<th data-sort="createdOn">_('Created On');</th>
-	        		<th></th>
-				</tr>
-			</thead>
-			<tbody>
-			
-			</tbody>
-			<tfoot>
-			{#pagination}
-				<tr>
-					<td colspan="8" class="pagination">
-					{?currentpages}
-					<ul class="{className}">
-						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First');">&#8676;</a> </li>
-						<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous');">&larr;</a> </li> 
-						{#currentpages}
-						<li class="{className}"> 
-							<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page'); {page}" data-offset="{offset}">{page}</a> 
-						</li>	
-						{/currentpages}
-						<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next');">&rarr;</a> </li>
-						<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last');">&#8677;</a> </li>
-					</ul>
-					<ul class="ipp" style="margin:0 8px">
-						{#ipp}
-						<li class="{isipp}"> <a href="javascript:void(0)" data-ipp="{.}">{.}</a> </li>
-						{/ipp}
-					</ul>
-					{/currentpages}
-					</td>
-				</tr> 
-			{/pagination}
-			</tfoot>
-		</table>
-	</div>
+<div class="tab-background-container">
+	<div class="content-topnav">
+      <ul class="nav nav-tabs dashboard-tabs" id="userTabs">
+        <li><a href="#active_users" data-toggle="tab">_('Active');</a></li>
+        <li><a href="#pending_users" data-toggle="tab">_('Pending');</a></li>
+        <li><a href="#deleted_users" data-toggle="tab">_('Deleted');</a></li>
+      </ul>
+    </div>
+
+    <div class="tab-content user-tabs">
+      	<div class="tab-pane" id="active_users">
+        	<div class="tab-submenu">
+	            <div class="btn-group pull-left" style="margin-right:20px;" id="switch-user-subtype">
+	              <a class="btn">_('Community');</a>
+	              <a class="btn active">_('Staff');</a>
+	            </div>
+	            <div class="btn-group pull-left">
+	              <button class="btn dropdown-toggle" data-toggle="dropdown">_('User group'); <span class="caret"></span></button>
+	              <ul class="dropdown-menu">
+	                <li><a href="#">_('Photographer');</a></li>
+	                <li><a href="#">_('Journalist');</a></li>
+	                <li><a href="#">_('Editor');</a></li>
+	                <li><a href="#">_('Administrator');</a></li>
+	              </ul>
+	            </div>
+
+	            <div class="btn-group pull-right" style="margin-left:20px;">
+		            <button class="btn" ng-click="page = page - 1" ng-disabled="page == 1"><i class="icon-chevron-left"></i></button>
+		            <button class="btn" ng-click="page = page + 1" ng-disabled="page == pageMax"><i class="icon-chevron-right"></i></button>
+		        </div>
+
+		        <div class="page-info pull-right">
+		            Page <input type="text" value="1" ng-model="page" /> of {{ pageMax }}
+		        </div>
+        	</div>
+        	<div class="tab-table">
+				<table class="sf_table user-table">
+					<thead>
+						<tr>
+							<th class="chckbx_col"><input type="checkbox" ng-click="toggleAll()" ng-model="allChecked"></th>
+							<th class="avatar_col" ng-show="settings.fields.avatar"></th>
+							<th class="name_col" ng-show="settings.fields.name">_('Name');</th>
+							<th class="username_col" ng-show="settings.fields.username">_('Username');</th>
+							<th class="email_col resp-hide" ng-show="settings.fields.email">_('Email');</th>
+							<!--
+							<th class="resp-hide" ng-show="settings.fields.group">User group</th>
+							<th class="small_col resp-hide" ng-show="settings.fields.contributor">Contributor</th>
+							-->
+							<th class="small_col resp-hide" ng-show="settings.fields.since">_('Member since');</th>
+							<th class="action_col">
+
+								<div class="dropdown" style="text-align:right;" >
+									<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-switches"></i> <span class="caret"></span></a>
+									<ul class="dropdown-menu sf-dropdown-simple pull-right" id="columns-switches">
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" checked="checked" ng-click="saveSettings();" ng-model="settings.fields.avatar"> _('Avatar');</li>
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.name"> _('Name');</li>
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.username"> _('Username');</li>
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.email"> _('Email');</li>
+										<!--
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.group"> User Group</li>
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.contributor"> Contributor</li>
+										-->
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.since"> _('Member Since');</li>
+										<li><input type="checkbox" class="sf-checkbox" set-bg="1" ng-click="saveSettings();" ng-model="settings.fields.permissions"> _('Permissions');</li>
+									</ul>
+								</div>
+
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+
+						<tr ng-repeat="user in users">
+							<td><input type="checkbox" class="sf-checkbox" set-bg="2" ng-model="user.checked" ng-click="toggle($index)"></td>
+							<td ng-show="settings.fields.avatar"><figure class="avatar" sd-user-image sd-user="user"></figure></td>
+							<td class="name_col" ng-show="settings.fields.name"><a href="" ng-click="$parent.selectedUserId = user.Id">{{ user.FullName }}</a></td>
+							<td ng-show="settings.fields.username">{{ user.Name }}</td>
+							<td class="email_col resp-hide" ng-show="settings.fields.email"><a href="">{{ user.EMail }}</a></td>
+							<!--
+							<td class="resp-hide" ng-show="settings.fields.group">??</td>
+							<td class="resp-hide" ng-show="settings.fields.contributor">??</td>
+							-->
+							<td class="resp-hide" ng-show="settings.fields.since">{{ user.CreatedOn }}</td>
+							<td class="action_col" ng-show="settings.fields.permissions">
+								<div class="dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
+									<ul class="dropdown-menu sf-dropdown-simple pull-right">
+										<li><a href="#"><i class="icon-eye-open"></i> _('View details');</a></li>
+										<li><a href="#"><i class="icon-pencil"></i> _('Edit details');</a></li>
+										<li><a href="#"><i class="icon-ban-circle"></i> _('Permissions');</a></li>
+										<li><a href="#"><i class="icon-trash"></i> _('Delete');</a></li>                      
+									</ul>
+								</div>
+							</td>
+						</tr>
+
+					</tbody>
+				</table>
+        	</div>
+        </div>
+        <div class="tab-pane" id="pending_users">
+        
+		</div>
+	    <div class="tab-pane" id="deleted_users">
+	        
+		</div>
+
+		<div class="user-details-pane" ng-class="{open: enabled}" ng-controller="UserDetailController">
+		  <a href="" class="close" ng-click="unloadUser()"><i class="icon-remove"></i></a>
+		  <div class="user-details-header">
+		    <ul class="nav nav-tabs userDetail-tabs" id="userDetailsTabs">
+
+		      <!-- menu items for user profile -->
+		      <li class="active"><a href="#userd-overview" class="author-view-hide" data-toggle="tab">_('Overview');</a></li>
+		      <li class=""><a href="#userd-profile" class="author-view-hide" data-toggle="tab" id="profile-button">_('Profile');</a></li>
+
+		      <!-- menu items for author profile -->
+		      <!--
+		      <li><a href="#authord-profile" class="author-view-show" data-toggle="tab">Author Profile</a></li>
+		      <li><a href="#userd-author" class="author-view-show" data-toggle="tab">Articles</a></li>
+		  	  -->
+
+		    </ul>
+		  </div>
+
+
+
+		  <div class="user-details-content tab-content">
+
+		    <!-- overview TAB -->
+		    <div class="tab-pane clearfix active" id="userd-overview">
+		      <!-- left column -->
+		      <div class="user-tab-column">
+		        <div class="header-info">
+		          <figure class="large-user-avatar" sd-user-image sd-user="user" sd-width="206" sd-height="206"></figure>
+		        </div>
+		        <div class="info-item"><span class="info-label">_('twitter');</span><span class="info-value"></span></div>
+		        <div class="info-item"><span class="info-label">_('google+');</span><span class="info-value"></span></div>
+		        <section class="stats-box">
+		          <header>_('Articles');</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('posted articles');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('verified');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('unverified');</span>
+		            </li>
+		          </ul>
+		        </section>
+		        <section class="stats-box">
+		          <header>_('Blog Posts');</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('posted blogs');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('verified');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('unverified');</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </div>
+		      <!-- right column -->
+		      <div class="user-tab-column">
+		        <div class="header-info">
+		          <h2>{{ user.FullName }}</h2>
+		          <h5>{{ user.Name }}</h5>
+		          <ul class="user-roles" ng-repeat="role in user.roleList">
+		            <li>{{ role.Name }}</li>
+		          </ul>
+		          <div class="info-item"><span class="info-value"><a href="mailto:{{ user.EMail }}">{{ user.EMail }}</a></span></div>
+		          <div class="info-item"><span class="info-label">_('Member since');</span><span class="info-value">{{ user.CreatedOn }}</span></div>
+		          <!--<button class="btn" style="margin-top:15px;" href="#userd-permissions" data-toggle="tab" id="permissionsOverview">Permissions</button>-->
+		        </div>
+		       <div class="info-item"><span class="info-label">_('skype');</span><span class="info-value"></span></div>
+		       <div class="info-item"><span class="info-label">_('phone');</span><span class="info-value">{{ user.PhoneNumber }}</span></div>
+		       <section class="stats-box">
+		          <header>_('SMS');</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('posted sms feeds');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('verified');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('unverified');</span>
+		            </li>
+		          </ul>
+		        </section>
+		        <section class="stats-box">
+		          <header>_('Tweets');</header>
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('posted tweets');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('verified');</span>
+		            </li>
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('unverified');</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </div>
+		    </div>
+
+		    <!-- user profile TAB -->
+		    <div class="tab-pane user-profile clearfix" id="userd-profile">
+		      <header>
+		        <button class="btn btn-light pull-left">_('View Public');</button>
+		        <button class="btn btn-light pull-left tablink switch-user-author" style="margin-left:10px;" tabtarget="#authord-profile">_('Author Profile');</button>
+		        <button class="btn pull-right" href="#userd-profile-edit" data-toggle="tab" id="edit-profile-button"><i class="icon-pencil"></i></button>
+		        <!--<button class="btn pull-right" href="#userd-permissions" data-toggle="tab" id="permissionsProfile">Permissions</button>-->
+		      </header>
+		      <div class="details-info">
+		          <div class="header-info small clearfix">
+		            <figure class="small-user-avatar" sd-user-image sd-user="user"></figure>
+		            <h2>{{ user.FullName }}</h2>
+		            <h5>{{ user.Name }}</h5>
+		            <ul class="user-roles" ng-repeat="role in user.roleList">
+			          <li>{{ role.Name }}</li>
+			        </ul>
+		            <div class="info-item"><span class="info-label">_('Member since');</span><span class="info-value">{{ user.CreatedOn }}</span></div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('General');
+		            </div>
+		            <div class="info-item"><span class="info-label">_('date of birth');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('place of birth');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('company');</span><span class="info-value"></span></div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('Contact Information');
+		            </div>
+		            <div class="info-item"><span class="info-label">_('email');</span><span class="info-value"><a href="#">{{ user.EMail }}</a></span></div>
+		            <div class="info-item"><span class="info-label">_('skype');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('phone');</span><span class="info-value">{{ user.PhoneNumber }}</span></div>
+		            <div class="info-item"><span class="info-label">_('web');</span><span class="info-value"><a href=""></a></span></div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('Social');
+		            </div>
+		            <div class="info-item"><span class="info-label">_('facebook');</span><span class="info-value"><a href="#"></a></span></div>
+		            <div class="info-item"><span class="info-label">_('twitter');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('google+');</span><span class="info-value"></span></div>
+		          </div>
+		      </div>
+
+		    </div>
+
+		    <div class="tab-pane user-profile user-profile-edit clearfix" id="userd-profile-edit">
+		      <header>
+		            <figure class="small-user-avatar" sd-user-image sd-user="user"></figure>
+		            <button href="#userd-profile" class="btn btn-info pull-right" data-toggle="tab" ng-click="saveUser()">_('Done');</button>
+		      </header>
+		      <div class="details-info">
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('General');
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('First name');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userFirstName" style="min-width: 50px;">{{ user.FirstName }}</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('Last Name');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userLastName" style="min-width: 50px;">{{ user.LastName }}</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('User Name');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userName" style="min-width: 50px;">{{ user.Name }}</span>
+		            </div>
+		            <div class="info-item password">
+		              <span class="info-label">_('Password');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userPassword" style="min-width: 50px;"></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('user type');</span>
+		              <span class="info-value info-editable">
+		              	<span ng-repeat="role in roleList" ng-show="user">
+		              		<input type="checkbox" ng-model="user.roles[role.Id]"> {{ role.Name }}<br>
+		              	</span>
+		              	<span ng-repeat="role in roleList" ng-hide="user">
+		              		<input type="checkbox" ng-model="newUser.roles[role.Id]"> {{ role.Name }}<br>
+		              	</span>
+		              </span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('Contact Information');
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('email');</span>
+		              <span class="info-value info-editable" id="userEmail" contenteditable="true" style="min-width: 50px;">{{ user.EMail }}</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('phone');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userPhone" style="min-width: 50px;">{{ user.PhoneNumber }}</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('address');</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userAddress" style="min-width: 50px;">{{ user.Address }}</span>
+		            </div>
+		          </div>
+		      </div>
+
+		    </div>
+		    <div class="tab-pane user-permissions" id="userd-permissions">
+		      <header>
+		        <figure sd-user-image sd-user="user"></figure>
+		        <h2>David Bauer</h2>
+		        <h5>davidbauer</h5>
+		        <button class="btn btn-info pull-right" href="#userd-profile" data-toggle="tab" id="permissionsDone">Done</button>
+		      </header>
+		      <div class="details-section">
+		        <div class="details-section-header">
+		          Permissions
+		        </div>
+		        <div class="user-permission-tab  tabs-left">
+		          <ul class="nav nav-tabs" id="userPermissionsTabs">
+		            <li class="active"><a href="#userp-authoring" data-toggle="tab">Authoring</a></li>
+		            <li><a href="#userp-structure" data-toggle="tab">Structure</a></li>
+		            <li><a href="#userp-layout" data-toggle="tab">Layout</a></li>
+		            <li><a href="#userp-users" data-toggle="tab">Users</a></li>
+		            <li><a href="#userp-system" data-toggle="tab">System</a></li>
+		            <li><a href="#userp-plugin" data-toggle="tab">Plugin</a></li>
+		          </ul>
+		        </div>
+		        <div class="user-permission-content  tab-content">
+		          <div class="tab-pane active" id="userp-authoring">
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Articles</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>write</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>publish</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>archive</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Images</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>add</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>attach</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Comments</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>add</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>reply</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>approve</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Feedback Messages</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>review only</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>review &amp; reply</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Files</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>create</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>attach</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>buy from stock</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>delete</li>
+		                </ul>
+		              </div>
+		            </div>
+
+		            <div class="settings-module">
+		              <div class="sf-module-header">
+		                <i class="icon-chevron-down toggle-module-close"></i>
+		                <i class="icon-chevron-right toggle-module-open"></i>
+		                <span class="sf-module-title">Rich-Text Editor</span>
+		              </div>
+		              <div class="sf-module-content">
+		                <ul class="settings-checklist">
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>live edit</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>responsive view</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>zen mode</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>locations</li>
+		                   <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span>scratchpad</li>
+		                </ul>
+		              </div>
+		            </div>
+
+
+		          </div>
+		          <div class="tab-pane" id="userp-structure">
+		            Structure permissions
+		          </div>
+		          <div class="tab-pane" id="userp-layout">
+		            Layout permissions
+		          </div>
+		          <div class="tab-pane" id="userp-users">
+		            Users permissions
+		          </div>
+		          <div class="tab-pane" id="userp-system">
+		            System permissions
+		          </div>
+		          <div class="tab-pane" id="userp-plugin">
+		            Plugin permissions
+		          </div>
+		        </div>
+		      </div>
+		    </div>
+		    
+
+
+
+		    <div class="tab-pane author-profile" id="authord-profile">
+		      <header>
+		        <button class="btn pull-right" href="#authord-profile-edit" data-toggle="tab"><i class="icon-pencil"></i></button>
+		        <button class="btn btn-light pull-right tablink switch-user-author" style="margin-left:10px;" tabtarget="#userd-profile">_('View User Profile');</button>
+		      </header>
+
+
+		      <div class="details-info">
+		        
+		        <div class="clearfix">
+		          <div class="user-tab-column">
+		            <div class="header-info">
+		              <figure class="large-user-avatar" sd-user-image sd-user="user" sd-width="206" sd-height="206"></figure>
+		            </div>
+		          </div>
+
+
+		          <div class="user-tab-column">
+		            <div class="header-info">
+		              <h2>{{ user.FullName }}</h2>
+		              <h5>{{ user.Name }}</h5>
+		              <ul class="user-roles" ng-repeat="role in user.roleList">
+			            <li>{{ role.Name }}</li>
+			          </ul>
+		              <section class="stats-box">
+		                <ul class="stats-list">
+		                  <li>
+		                    <span class="stat-num"></span>
+		                    <span class="stat-text">_('total articles');</span>
+		                  </li>
+		                </ul>
+		              </section>
+		              <a class="view-user-articles" href="#userd-author" data-toggle="tab">_('View Articles');</a>
+		            </div>
+		          </div>
+		        </div>
+		        
+
+
+		        <div class="details-section">
+		            <div class="details-section-header">
+		              _('General');
+		            </div>
+		            <div class="info-item"><span class="info-label">_('date of birth');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('place of birth');</span><span class="info-value"></span></div>
+		            <div class="info-item"><span class="info-label">_('company');</span><span class="info-value"></span></div>
+		        </div>
+
+		        <div class="details-section">
+		            <div class="details-section-header">
+		              _('Biography');
+		            </div>
+		            <div class="show-more-source">
+		              
+		            </div>
+		            <button class="show-more">_('Show More');</button>
+		        </div>
+
+		        <div class="details-section">
+		          <div class="details-section-header">
+		            _('Contact Information');
+		          </div>
+		          <div class="info-item"><span class="info-label">_('email');</span><span class="info-value"><a href="#">{{ user.EMail }}</a></span></div>
+		          <div class="info-item"><span class="info-label">_('skype');</span><span class="info-value"></span></div>
+		          <div class="info-item"><span class="info-label">_('phone');</span><span class="info-value"></span></div>
+		          <div class="info-item"><span class="info-label">_('web');</span><span class="info-value"><a href="#"></a></span></div>
+		        </div>
+
+		        <div class="details-section">
+		          <div class="details-section-header">
+		            _('Social');
+		          </div>
+		          <div class="info-item"><span class="info-label">_('facebook');</span><span class="info-value"><a href="#"></a></span></div>
+		          <div class="info-item"><span class="info-label">_('twitter');</span><span class="info-value"></span></div>
+		          <div class="info-item"><span class="info-label">_('google+');</span><span class="info-value"></span></div>
+		        </div>
+		     
+		      </div>
+		    </div>
+
+		    <div class="tab-pane user-author" id="userd-author">
+		      <header>
+		        <figure sd-user-image sd-user="user"></figure>
+		        <h2>{{ user.FullName }}</h2>
+		        <h5>{{ user.Name }}</h5>
+		        <section class="stats-box stats-small stats-static">
+		          <ul class="stats-list">
+		            <li>
+		              <span class="stat-num"></span>
+		              <span class="stat-text">_('total articles');</span>
+		            </li>
+		          </ul>
+		        </section>
+		      </header>
+		      <div class="details-pane">
+		        <div class="author-module">
+		          <div class="sf-module-header">
+		            <i class="icon-chevron-down toggle-module-close"></i>
+		            <i class="icon-chevron-right toggle-module-open"></i>
+		            <span class="sf-module-title">_('Author');<i></i></span>
+		          </div>
+		          <div class="sf-module-content">
+		            <ul class="author-articles">
+		              <li>
+		                <time></time>
+		                <a href="#"></a>
+		              </li>
+		            </ul>
+		          </div>
+		        </div>
+
+		        <div class="author-module">
+		          <div class="sf-module-header">
+		            <i class="icon-chevron-down toggle-module-close"></i>
+		            <i class="icon-chevron-right toggle-module-open"></i>
+		            <span class="sf-module-title">Photographer<i>()</i></span>
+		          </div>
+		          <div class="sf-module-content">
+		            _('There is no images');
+		          </div>
+		        </div>
+		       
+
+		      </div>
+		    </div>
+
+
+		    <!-- author profile edit tab -->
+		    <div class="tab-pane  author-profile-edit clearfix" id="authord-profile-edit">
+		      <header>
+		            <figure class="small-user-avatar" sd-user-image sd-user="user"></figure>
+		            <button class="btn btn-info pull-right" href="#authord-profile" data-toggle="tab">_('Done');</button>
+		      </header>
+		      <div class="details-info">
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('General');
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="general-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> _('Date of birth');</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> _('Place of birth');</li>
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> _('Date of birth');</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('name');</span>
+		              <span class="info-value info-editable" contenteditable="true">David Bauer</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('username');</span>
+		              <span class="info-value info-editable" contenteditable="true">davidbauer</span>
+		            </div>
+		            <div class="info-item password">
+		              <span class="info-label">_('password');</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('member since');</span>
+		              <span class="info-value info-editable" contenteditable="true">23.03.2011.</span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('user type');</span>
+		              <span class="info-value info-editable" contenteditable="true">administrator</span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="info-item">
+		              <p class="info-editable" contenteditable="true"></p>
+		            </div>
+		          </div>
+		          <div class="details-section">
+		            <div class="details-section-header">
+		              _('Contact Information');
+		            </div>
+		            <div class="details-section-menu">
+		              <div class="dropdown">
+		                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
+		                <ul class="dropdown-menu sf-dropdown-simple pull-right" id="contact-fields-switches">
+		                  <li><span class="sf-checkbox-custom "><input type="checkbox" class="sf-checkbox" set-bg="1" style="display: none;"></span> _('email');</li>
+		                </ul>
+		              </div>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('email');</span>
+		              <span class="info-value info-editable"><a href="#" contenteditable="true">{{ user.EMail }}</a></span>
+		            </div>
+		            <div class="info-item">
+		              <span class="info-label">_('phone');</span>
+		              <span class="info-value info-editable" contenteditable="true"></span>
+		              <span class="sf-checkbox-custom  privacy-switch-checkbox"><input type="checkbox" class="sf-checkbox privacy-switch-checkbox" style="display: none;"></span>
+		            </div>
+		          </div>
+		      </div>
+
+		    </div>
+
+
+		  </div>
+		</div>
+    </div>
 </div>
 
-<div class="modal hide fade" id="user-delete-modal">
-    <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    	<h3>_('Delete user');</h3>
-    </div>
-    <div class="modal-body">
-    	<p>_('Are you sure you want to delete this user?');</p>
-    </div>
-    <div class="modal-footer">
-    	<button class="btn" data-action="close">_('Close');</button>
-    	<button class="btn btn-danger" data-action="delete">_('Delete');</button>
-    </div>
-</div>
-{>"core>layouts/footer"/}
+<!-- should be removed after tabs are implemented with angular-bootstrap -->
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('#userTabs a:first').tab('show');
+  });
+</script>
