@@ -32,6 +32,9 @@ from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
 from urllib.error import HTTPError
 from time import sleep
+from superdesk.media_archive.api.meta_data import IMetaDataUploadService
+from superdesk.media_archive.api.meta_info import IMetaInfoService
+from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
 
 # --------------------------------------------------------------------
@@ -60,6 +63,12 @@ class BlogSyncProcess:
     # blog post service used to retrive collaborator
 
     userService = IUserService; wire.entity('userService')
+
+    metaDataService = IMetaDataUploadService; wire.entity('metaDataService')
+
+    metaInfoService = IMetaInfoService; wire.entity('metaInfoService')
+
+    personIconService = IPersonIconService; wire.entity('personIconService')
 
     syncThreads = {}
     # dictionary of threads that perform synchronization
@@ -266,5 +275,72 @@ class BlogSyncProcess:
 
         for userId in userIcons:
             iconInfo = userIcons[userId]
-            iconHandler = ChainedIconContent()
-            iconHandler.synchronizeIcon(userId, iconInfo['created'], iconInfo['url'], iconInfo['name'])
+            self._synchronizeIcon(userId, iconInfo)
+
+    def _synchronizeIcon(self, userId, iconInfo):
+        '''
+        Synchronizing local icon according to the remote one
+        '''
+        if not userId:
+            return
+
+        shouldRemoveOld = False
+        needToUploadNew = False
+
+        try:
+            metaDataLocal = self.personIconService.getByPersonId(userId, 'http')
+        except InputError:
+            import sys
+            sys.stderr.write('no mDL on user: ' + str(userId) + '\n')
+            metaDataLocal = None
+
+        if metaDataLocal:
+            localId = metaDataLocal.Id
+            localCreated = str(metaDataLocal.CreatedOn)
+        else:
+            import sys
+            sys.stderr.write('did not get mDL\n')
+            localId = None
+            localCreated = None
+
+        if not localId:
+            if iconInfo['url']:
+                needToUploadNew = True
+
+        else:
+            if iconInfo['url']:
+                import sys
+                sys.stderr.write('remote created: ' + str(iconInfo['created']) + '\n')
+                sys.stderr.write('local created: ' + str(localCreated) + '\n')
+                if (not iconInfo['created']) or (not localCreated) or (localCreated < iconInfo['created']):
+                    shouldRemoveOld = True
+                    needToUploadNew = True
+            else:
+                shouldRemoveOld = True
+
+        if shouldRemoveOld:
+            try:
+                import sys
+                sys.stderr.write('should remove old one\n')
+
+                self.personIconService.detachIcon(userId)
+                self.metaInfoService.delete(localId)
+            except InputError:
+                log.error('Can not remove old icon for chained user %s' % userId)
+
+        if needToUploadNew:
+            try:
+                import sys
+                sys.stderr.write('should upload new one\n')
+
+                iconContent = ChainedIconContent()
+                iconContent.setIconInfo(iconInfo['url'], iconInfo['name'])
+
+                imageData = self.metaDataService.insert(userId, iconContent, 'http')
+                if (not imageData) or (not imageData.Id):
+                    sys.stderr.write('could not get the image data\n')
+                    sys.stderr.write(str(imageData) + '\n')
+                    return
+                self.personIconService.setIcon(userId, imageData.Id)
+            except InputError:
+                log.error('Can not upload icon for chained user %s' % userId)
