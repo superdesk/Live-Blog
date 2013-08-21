@@ -261,7 +261,10 @@ class BlogSyncProcess:
                     log.error('Invalid JSON data %s' % e)
                     continue
 
-                userIcons[userId]['created'] = msg.get('CreatedOn', None)
+                try:
+                    userIcons[userId]['created'] = datetime.strptime(msg.get('CreatedOn', None), '%m/%d/%y %I:%M %p')
+                except:
+                    userIcons[userId]['created'] = None
                 userIcons[userId]['url'] = msg['Content'].get('href', None)
 
                 if userIcons[userId]['url']:
@@ -296,7 +299,7 @@ class BlogSyncProcess:
 
         if metaDataLocal:
             localId = metaDataLocal.Id
-            localCreated = str(metaDataLocal.CreatedOn)
+            localCreated = metaDataLocal.CreatedOn
         else:
             import sys
             sys.stderr.write('did not get mDL\n')
