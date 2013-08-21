@@ -147,7 +147,7 @@ class BlogSyncProcess:
             log.error('Invalid JSON data %s' % e)
             return
 
-        authorsForIcons = {}
+        usersForIcons = {}
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
@@ -155,14 +155,17 @@ class BlogSyncProcess:
                 lPost = BlogPost()
                 lPost.Type = post['Type']['Key']
                 lPost.Creator = blogSync.Creator
-                lPost.Author = self._getCollaboratorForAuthor(post['Author'], source)
+                lPost.Author, userId = self._getCollaboratorForAuthor(post['Author'], source)
                 lPost.Meta = post['Meta'] if 'Meta' in post else None
                 lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 lPost.Content = post['Content'] if 'Content' in post else None
                 lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
 
-                if lPost.Author not in authorsForIcons:
-                    authorsForIcons[lPost.Author] = post['Author']
+                if userId and (userId not in usersForIcons):
+                    try:
+                        usersForIcons[userId] = post['Author']['User']
+                    except KeyError:
+                        pass
 
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
@@ -177,7 +180,7 @@ class BlogSyncProcess:
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
 
-        self._updateIcons(authorsForIcons)
+        self._updateIcons(usersForIcons)
 
     def _getCollaboratorForAuthor(self, author, source):
         '''
@@ -207,32 +210,32 @@ class BlogSyncProcess:
                 userId = localUser[0].Id
             c = Collaborator()
             c.User, c.Source = userId, source.Id
-            try: return self.collaboratorService.insert(c)
+            try: return [self.collaboratorService.insert(c), userId]
             except InputError:
                 collabs = self.collaboratorService.getAll(userId, source.Id)
-                return collabs[0].Id
+                return [collabs[0].Id, userId]
         except KeyError:
             q = QSource(name=author['Source']['Name'], isModifiable=False)
             sources = self.sourceService.getAll(q=q)
             if not sources: raise Exception('Invalid source %s' % q.name)
             collabs = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
-            if collabs: return collabs[0].Id
+            if collabs: return [collabs[0].Id, None]
             else:
                 c = Collaborator()
                 c.Source = sources[0].Id
-                return self.collaboratorService.insert(c)
+                return [self.collaboratorService.insert(c), None]
 
-    def _updateIcons(self, authorsData):
+    def _updateIcons(self, usersData):
         '''
         Setting the icon of the user
         '''
         userIcons = {}
-        for userId in authorsData:
-            authorJSON = authorsData[userId]
+        for userId in usersData:
+            userJSON = usersData[userId]
             userIcons[userId] = {'created': None, 'url': None, 'name': None}
 
             try:
-                metaDataIconJSON = authorJSON['User']['MetaDataIcon']
+                metaDataIconJSON = userJSON['MetaDataIcon']
                 metaDataIconURL = metaDataIconJSON.get('href', '')
                 if not metaDataIconURL:
                     continue
