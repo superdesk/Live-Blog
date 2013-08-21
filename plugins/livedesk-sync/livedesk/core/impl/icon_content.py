@@ -105,12 +105,16 @@ class ChainedIconContent(Content):
 
         shouldRemoveOld = False
         needToUploadNew = False
+        import sys
+        sys.stderr.write('in synchronizing:\n')
+        sys.stderr.write(str([userId, createdOn, contentURL, fileName]) + '\n')
 
-        try:
-            metaDataLocal = self.personIconService.getByPersonId(self.inner['user'])
+        metaDataLocal = self.personIconService.getByPersonId(self.inner['user'], 'http')
+        if metaDataLocal:
             localId = metaDataLocal.Id
             localCreated = metaDataLocal.CreatedOn
-        except:
+        else:
+            sys.stderr.write('did not get mDL\n')
             localId = None
             localCreated = None
 
@@ -134,8 +138,12 @@ class ChainedIconContent(Content):
 
         if needToUploadNew:
             #try:
+                import sys
+                sys.stderr.write('should upload new one\n')
                 imageData = self.metaDataService.insert(self.inner['user'], self, 'http')
                 if (not imageData) or (not imageData.Id):
+                    sys.stderr.write('could not get the image data\n')
+                    sys.stderr.write(str(imageData) + '\n')
                     return
                 self.personIconService.setIcon(self.inner['user'], imageData.Id)
             #except: pass
