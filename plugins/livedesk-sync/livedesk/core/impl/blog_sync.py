@@ -293,16 +293,12 @@ class BlogSyncProcess:
         try:
             metaDataLocal = self.personIconService.getByPersonId(userId, 'http')
         except InputError:
-            import sys
-            sys.stderr.write('no mDL on user: ' + str(userId) + '\n')
             metaDataLocal = None
 
         if metaDataLocal:
             localId = metaDataLocal.Id
             localCreated = metaDataLocal.CreatedOn
         else:
-            import sys
-            sys.stderr.write('did not get mDL\n')
             localId = None
             localCreated = None
 
@@ -312,9 +308,6 @@ class BlogSyncProcess:
 
         else:
             if iconInfo['url']:
-                import sys
-                sys.stderr.write('remote created: ' + str(iconInfo['created']) + '\n')
-                sys.stderr.write('local created: ' + str(localCreated) + '\n')
                 if (not iconInfo['created']) or (not localCreated) or (localCreated < iconInfo['created']):
                     shouldRemoveOld = True
                     needToUploadNew = True
@@ -323,9 +316,6 @@ class BlogSyncProcess:
 
         if shouldRemoveOld:
             try:
-                import sys
-                sys.stderr.write('should remove old one\n')
-
                 self.personIconService.detachIcon(userId)
                 self.metaInfoService.delete(localId)
             except InputError:
@@ -333,16 +323,11 @@ class BlogSyncProcess:
 
         if needToUploadNew:
             try:
-                import sys
-                sys.stderr.write('should upload new one\n')
-
                 iconContent = ChainedIconContent()
                 iconContent.setIconInfo(iconInfo['url'], iconInfo['name'])
 
                 imageData = self.metaDataService.insert(userId, iconContent, 'http')
                 if (not imageData) or (not imageData.Id):
-                    sys.stderr.write('could not get the image data\n')
-                    sys.stderr.write(str(imageData) + '\n')
                     return
                 self.personIconService.setIcon(userId, imageData.Id)
             except InputError:
