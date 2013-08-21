@@ -5,6 +5,7 @@ define([
 	'jquery/tmpl',
 	'jquery/utils',
 	'utils/encode_url',
+	'utils/date-format',
 	'views/post-templates'
 ], function( $, Gizmo, dust ) {
 	return function(){
