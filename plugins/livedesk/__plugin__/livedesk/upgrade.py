@@ -22,7 +22,7 @@ from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
-from ally.container.app import PRIORITY_LAST, PRIORITY_NORMAL
+from ally.container.app import PRIORITY_LAST, PRIORITY_NORMAL, PRIORITY_FIRST
 from __plugin__.livedesk.populate_default_data import createSourceType
 
 # --------------------------------------------------------------------
