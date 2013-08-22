@@ -28,7 +28,7 @@ $.extend(providers.comments, {
         this.adaptor.init();
         self.data.comments = [];
         $.ajax({
-            url: blogUrl[0]
+            url: typeof blogUrl === 'string' ? blogUrl : blogUrl[0]
         }).done(function(data){
             self.blogId = data.Id;
             self.render();
@@ -53,7 +53,7 @@ $.extend(providers.comments, {
         });
         //dynamically get size of header and set top space for list
         var top_space = $('#comments .sms-header').outerHeight() + 20;
-        $('.comments-results-holder').css({'top': top_space});        
+        $('.comments-results-holder').css({'top': top_space});     
     },
     refreshComments: function() {
         var self = this;

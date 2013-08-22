@@ -5,6 +5,15 @@ _('new posts');
 _('Load top Posts');
 _('Loading posts...');
 _('Load more posts ...');
+_('comment');
+_('Send');
+_('Cancel');
+_('Nickname');
+_('Your Comment');
+_('Please fill in your Nickname.');
+_('Please fill in your Comment text.');
+_('Please fill in text from image.');
+_('Your message was sent for approval');
 !}
 <div gimme="blog.title" class="embedtitle"></div>
 <p gimme="blog.description" class="embeddesc"></p>

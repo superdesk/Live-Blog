@@ -14,14 +14,14 @@ from ..meta.user_type import UserTypeMapped
 from ally.container.binder_op import validateManaged, validateRequired
 from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
-from sqlalchemy.types import String, DateTime
+from sqlalchemy.types import String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.person.meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('Password', 'CreatedOn', 'DeletedOn', 'Type'))
+@validate(exclude=('Password', 'CreatedOn', 'Active', 'Type'))
 class UserMapped(PersonMapped, User):
     '''
     Provides the mapping for User entity.
@@ -32,7 +32,7 @@ class UserMapped(PersonMapped, User):
 
     Name = Column('name', String(150), nullable=False, unique=True)
     CreatedOn = Column('created_on', DateTime, nullable=False)
-    DeletedOn = Column('deleted_on', DateTime)
+    Active = Column('active', Boolean, nullable=False, default=True)
     Type = association_proxy('type', 'Key')
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
@@ -43,4 +43,4 @@ class UserMapped(PersonMapped, User):
 
 validateRequired(UserMapped.Password)
 validateManaged(UserMapped.CreatedOn)
-validateManaged(UserMapped.DeletedOn)
+validateManaged(UserMapped.Active)

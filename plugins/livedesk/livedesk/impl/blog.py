@@ -13,6 +13,7 @@ from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, IBlogConfi
 from ..meta.blog import BlogMapped, BlogConfigurationMapped
 from support.impl.configuration import createConfigurationImpl
 from ally.api.extension import IterPart
+from ally.api.criteria import AsBoolean
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
@@ -117,6 +118,13 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogMapped)
+
+            if (QBlog.isOpen in q) and (AsBoolean.value in q.isOpen):
+                if q.isOpen.value:
+                    sql = sql.filter(BlogMapped.ClosedOn == None)
+                else:
+                    sql = sql.filter(BlogMapped.ClosedOn != None)
+
         return sql
 
 # --------------------------------------------------------------------
@@ -179,7 +187,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         try:
             self.session().add(ent)
             self.session().flush((ent,))
-        except SQLAlchemyError as e: handle(e, ent)
+        except SQLAlchemyError as e:
+            raise InputError(Ref(_('Cannot add blog-source link.'),))
         return sourceId
 
     def deleteSource(self, blogId, sourceId):
@@ -193,7 +202,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             if res:
                 sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
-                    self.sourceService.delete(sourceId)
+                    try:
+                        self.sourceService.delete(sourceId)
+                    except InputError: pass
             return res
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True

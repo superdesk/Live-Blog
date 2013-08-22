@@ -18,6 +18,7 @@ from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from superdesk.source.meta.source import SourceMapped
 from ally.api.extension import IterPart
 from superdesk.user.meta.user import UserMapped
+from sqlalchemy.sql.expression import or_
 
 # --------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         @see: ICollaboratorService.getAll
         '''
         sql = self.session().query(CollaboratorMapped)
-        sql = sql.outerjoin(UserMapped).filter(UserMapped.DeletedOn == None)
+        sql = sql.outerjoin(UserMapped).filter(or_(UserMapped.Active == True, UserMapped.Active == None))
         if userId is not None: sql = sql.filter(CollaboratorMapped.User == userId)
         if sourceId is not None: sql = sql.filter(CollaboratorMapped.Source == sourceId)
         if qu is not None: sql = buildQuery(sql.join(UserMapped), qu, UserMapped)

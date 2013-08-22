@@ -121,6 +121,7 @@ define([
                         if (response.status === 401) {
                             Recaptcha.reload();
                         }
+
                         view.captcha.next('.error').show();
                     }
                 });

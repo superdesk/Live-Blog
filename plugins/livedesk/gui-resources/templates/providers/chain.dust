@@ -1,4 +1,5 @@
 <div class="chain-header">
+	{?sourceBlogs}
 	<p>_("Select liveblogs:");</p>
 	<p class="feed-info">
     </p>
@@ -14,6 +15,9 @@
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
+	{:else}
+	<p>_("No liveblogs");</p>
+	{/sourceBlogs}
 </div>
 <div class="alert fade in" style="margin-top:145px;margin-right:12px;display:none" id="automod-info">
 	<a class="popup-close" data-dismiss="alert">x</a>

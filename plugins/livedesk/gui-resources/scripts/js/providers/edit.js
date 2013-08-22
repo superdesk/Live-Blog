@@ -551,6 +551,7 @@ define('providers/edit', [
 			}).done(function(){
 				self.meta = {};
 				self.clear();
+                self.changetype();
 			});
 		},
 		save: function(evt){
@@ -574,6 +575,7 @@ define('providers/edit', [
 			}).done(function(){
 				self.meta = {};
 				self.clear();
+                self.changetype();
 			});			
 		}
 	});	
