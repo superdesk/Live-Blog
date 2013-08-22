@@ -11,6 +11,7 @@ body
 	background: #fff;
 }
 
+/* ? */
 .container
 {
 	width: 560px;
@@ -47,7 +48,7 @@ body
 #livedesk-root a
 {
 	text-decoration: none;
-	color: #08c;
+	color: #08c;  /* twitter */
 }
 
 #livedesk-root figure,
@@ -61,7 +62,7 @@ body
 
 #livedesk-root blockquote {
 	border: none;
-	padding-bottom: 0px;
+	padding-bottom: 0px; 
 }
 
 #livedesk-root .liveblog-container
@@ -151,18 +152,24 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.advertisement .post-footer,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.usercomments .post-publisher-avatar img,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.load-next.loading .load-more,
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.load-previous.loading .load-more
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.load-previous.loading .load-more,
+
+/* SINGLE */
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist .post-content-side,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-datetime,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-name
 {
 	display:none;
 }
 
-/* FONT SIZE FIX */
+/* FONT SIZE FIX 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.link .result-text
 {
 /*	font-size: 1em;
-	line-height: 1.5em /* #D# */
+	line-height: 1.5em /* #D# 
 }
+*/
 
 /* CONTENT GESAMT */
 #livedesk-root .liveblog-container .liveblog-content
@@ -233,7 +240,8 @@ body
 {
 	border-top: 1px solid #ccc;
 	background: #fff;
-	padding: 10px 0 20px;
+/*	padding: 10px 0 20px 0;  MULTI */
+	padding: 0px 0 20px 0; /* SINGLE */
 }
 
 /* #D#
@@ -254,10 +262,11 @@ body
 {
 	min-height: 0;
 	zoom: 1;
-	margin-top: 10px;
+/*	margin-top: 10px; MULTI */
+	margin-top: 5px; /* SINGLE */
 }
 
-/* SIDE */
+/* SIDE -> SINGLE: DISPLAY: NONE 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-side
 {
 	float: left;
@@ -265,7 +274,7 @@ body
 }
 
 
-/* AVATAR */
+/* AVATAR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-avatar
 {
 	width: 48px;
@@ -287,17 +296,19 @@ body
 }
 
 
-/* MAIN (NICHT SIDE) */
+/* MAIN (NICHT SIDE) -> SINGLE: KEIN SIDE - KEIN MARGIN
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content .post-content-main
 {
 	margin-left:70px;
 }
+*/
 
-/* HEADER (DATUM / AUTOR / TEILEN)*/
+/* HEADER (DATUM / AUTOR / TEILEN) -> SINGLE: NUR TEILEN */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-info
 {
 	font-family: Arial,Helvetica,sans-serif;
-	margin-bottom: 8px;
+/*	margin-bottom: 8px; MULTI */
+	margin-bottom: 18px; /* SINGLE */
 	padding-top: 5px;
 	line-height: 12px;
 	position: relative;
@@ -305,7 +316,7 @@ body
 }
 
 
-/* DATUM */
+/* DATUM -> SINGLE: DISPLAY: NONE 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-datetime
 {
 	margin-right: 15px;
@@ -313,13 +324,14 @@ body
 	color: #222;
 }
 
-/* AUTOR */
+/* AUTOR -> SINGLE: DISPLAY: NONE
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-name
 {
 	font-size: 0.75em;
 	text-transform: uppercase;
 	color: #222;
 }
+*/
 
 /* SHARE BUTTONS */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons
@@ -341,6 +353,7 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .sf-share
 {
 	position: relative;
+	top: 2px; /* SINGLE */
 	z-index: 10; /* #D# */
 	padding-right: 10px; /* #D# */
 	font-size: 12px;
@@ -355,7 +368,8 @@ body
 	display: none;
 	position: absolute;
 	z-index: 5;
-	top: -7px; /* #D# */
+/*	top: -7px; /* MULTI #D# */
+	top: -6px; /* SINGLE #D# */
 	right: 0px; /* #D# */
 	width: 170px;
 /*	height: 24px; #D# */
@@ -365,16 +379,7 @@ body
 	background: #ffffff;
 /*	border: 1px solid #d0d0d0; */
 	border: 1px solid #d0d0d0;  /* #D# */
-/* #D# alternativ
-	border-top: 1px solid #f5f5f5;	
 
-	-webkit-border-bottom-right-radius: 10px;
-	-webkit-border-bottom-left-radius: 10px;
-	-moz-border-radius-bottomright: 10px;  
-	-moz-border-radius-bottomleft: 10px;
-	border-bottom-right-radius: 10px;  
-	border-bottom-left-radius: 10px;
-/* #D# ENDE */
 }
 
 /* SHARE ICONS GENERELL */
@@ -436,7 +441,7 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-core-content a:visited,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-core-content a:hover
  {
- 	display: inline;
+	display: inline;
 	width: auto;
 	color: #08c;
 	text-decoration: none;
@@ -447,23 +452,29 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before
 {
 /*	padding-bottom: 8px; #D# */
-	padding-bottom: 0px; /* #D# */
+	padding-bottom: 0px; /* MULTI #D# 
+/*	padding-bottom: 5px; /* SINGLE #D# */
 }
 
 /* NACH FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-after
 {
-	padding-top: 8px;
+/*	padding-top: 8px; MULTI */
+	padding-top: 13px; /* SINGLE */
 }
 
 /* FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external
 {
-	margin-top: 15px;
-	width: 100%;
-	font-size: 0.75em;
+/*	margin-top: 15px; MULTI */
+	margin-top: 22px; /* SINGLE */
+/*	width: 100%; MULTI */
+	margin-left: 30px; /* SINGLE */
+	width: 460px; /* SINGLE */
 /*	line-height: 130%; #D# */
+	font-size: 0.75em;
  	line-height: 1.5em; /* #D# */
+
 }
 
 /* BOX (TWITTER / GOOGLE / FACEBOOK) */
@@ -472,7 +483,7 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.google .post-external
 {
 	padding: 10px 0;
-	width: 99%;
+/*	width: 99%;  MULTI */
 /*	background: #f2f2f2; #D# */
 	background: #f5f5f5; /* #D# */
 	border: 1px solid #e5e5e5;  /* #D# */
@@ -599,7 +610,8 @@ body
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .attributes
 {
 /*	margin-top: 5px; #D# */
-	margin: 10px 0 3px 0; /* #D# */
+/*	margin: 10px 0 3px 0; /* MULTI #D# */
+	margin: 10px 0 3px 5%; /* SINGLE */
 	line-height: 1em;
 }
 
@@ -906,6 +918,10 @@ body
 		font-size: 0.8125em;
 		line-height: 1.30769em;
 		color: #454545;
+		
+		margin-left: 0px; /* SINGLE */
+		width: 99%; /* SINGLE */
+		
 	}
 	
 		/* FREMD-CONTENT: ATTRIBUTE (SOURCE / ICON) */
@@ -942,14 +958,14 @@ body
 		margin-left: 0;
 	}
 
-	/* INFO: DATUM / AUTOR */
+	/* INFO: DATUM / AUTOR - NUR MULTI 
 	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-info 
 	{
 		float: left;
 		width: 100%;
 	}
 
-	/* DATUM */
+	/* DATUM - NUR MULTI
 	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-datetime
 	{
 		display: inline-block;
@@ -959,7 +975,7 @@ body
 		color: #454545;
 	}
 
-	/* AUTOR */
+	/* AUTOR - NUR MULTI
 	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-publisher-name
 	{
 		display: inline-block;
@@ -971,5 +987,5 @@ body
 	#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content-full
 	{
 		clear: both;
-	}
+	}*/
 }

@@ -6,7 +6,7 @@
     },
  	paths: {
 		'themeBase': '../../../gui-themes/themes/base',
-		
+
 		'require': 'core/require',
 
 		'tmpl': 'core/require/tmpl',

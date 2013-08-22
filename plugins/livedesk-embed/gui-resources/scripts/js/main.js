@@ -31,7 +31,7 @@ require(['core.min'], function(){
 			liveblog.el = $('<div></div>').insertBefore(liveblog.script);
 		}
 		var blog = new Gizmo.Register.Blog(), 
-			embedConfig = {}
+			embedConfig = {};
 			min = require.specified("core")? '.min': '';
 		blog.url.decorate('%s/' + liveblog.id);
 		blog
@@ -60,6 +60,7 @@ require(['core.min'], function(){
 				});
 				require([
 					'themeFile',
+					
 					'utils/find-enviroment',
 					'core',
 					'i18n!livedesk_embed'
@@ -77,7 +78,7 @@ require(['core.min'], function(){
 							paths: 	{
 								'themeFile': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment + min,
 								'theme': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment
-							}
+						    }
 						});
 						require(['themeFile'], function(){
 							core(blog);
