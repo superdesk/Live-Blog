@@ -10,6 +10,7 @@ define
     'jquery',
     config.guiJs('livedesk', 'action'),
     config.guiJs('media-archive', 'upload'),
+    'router',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -35,9 +36,8 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction, upload) 
+function(providers, Gizmo, $, BlogAction, upload, router)
 {
-		
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -511,8 +511,12 @@ function(providers, Gizmo, $, BlogAction, upload)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
-					.desc('order')					
-					.auto();
+					.desc('order');
+
+				if (self._parent.model.isOpen()) {
+					self.collection.auto();
+				}
+
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -947,7 +951,7 @@ function(providers, Gizmo, $, BlogAction, upload)
 				this.model.set(data).sync().done(function() {
 					content.find('.tool-box-top .update-success').removeClass('hide');
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-					self.textToggleStatus();
+					router.reload();
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
@@ -996,6 +1000,7 @@ function(providers, Gizmo, $, BlogAction, upload)
 						self.el.find('[data-target="configure-blog"]').css('display', 'none');
 						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
 					});
+
 					// refresh twitter share button
 					require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
@@ -1018,7 +1023,8 @@ function(providers, Gizmo, $, BlogAction, upload)
 						theBlog: self.theBlog
 					});
 					self.providers.render();
-					
+
+
 					self.actions = new ActionsView
 					({
 						el: $('.filter-posts', self.el),
@@ -1054,7 +1060,10 @@ function(providers, Gizmo, $, BlogAction, upload)
 						});
 					self.responsiveTabs();
 					$.superdesk.hideLoader();
-					
+
+					self.el.find('.blog-closed-disabled').
+						css('display', self.model.isClosed() ? 'block' : 'none');
+					$('#site-live-info').toggle(self.model.isOpen());
 				});
 				/** text editor initialization */
 				var editorImageControl = function()
