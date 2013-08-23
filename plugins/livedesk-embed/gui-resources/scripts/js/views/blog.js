@@ -64,7 +64,9 @@ define([
 					}
 				},
 				updateingStatus: function() {
-					$('[data-gimme="blog.status"]',this.el).html(_('updating...')+'');
+					if (!this.model.get('ClosedOn')) {
+						$('[data-gimme="blog.status"]',this.el).html(_('updating...')+'');
+					}
 				},
 				updateStatus: function() {
 					var self = this,
