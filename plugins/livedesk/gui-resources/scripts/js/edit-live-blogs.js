@@ -239,12 +239,21 @@ function(providers, Gizmo, $, BlogAction)
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
+
+				// @FIX LB-814: Image post does allow comments to be added in a wrong place
+				// @part 2
+				if ('image' in self) {
+					var separator = data.Content.length && data.Content[0] == "\n" ? '' : "\n";
+					data.Content = self.image.wrap('<div>').parent().html() + separator + data.Content;
+				}
+
 				this.model.set(data).sync().done(function(){
 					//handle done
 				}).fail(function(data){
 					//handle fail
 					self.handleError(data);
 				});
+
 				this.el.find('.actions').stop().fadeOut(100, function(){
 					$('.editable').removeData('previous');
 				});
@@ -433,6 +442,13 @@ function(providers, Gizmo, $, BlogAction)
 					self.setElement(o);
 						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+
+							// @FIX LB-814: Image post does allow comments to be added in a wrong place
+							if (self.model.data.Type.data.Key === 'image') {
+								var editable = $('.editable', self.el);
+								var image = $('a', editable);
+								self.image = image.insertBefore(editable);
+							}
 						}).fail(function(action){
 							self.el.find('.unpublish,.close').remove();
 							if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
