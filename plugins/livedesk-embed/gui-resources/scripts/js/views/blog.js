@@ -59,7 +59,6 @@ define([
 				ensureStatus: function(){
 					if(this.model.get('ClosedOn')) {
 						var closedOn = new Date(this.model.get('ClosedOn'));
-						this.pause();
 						this.model.get('PostPublished').stop();					
 						$('[data-gimme="blog.status"]',this.el).html(_('The liveblog coverage was stopped ')+closedOn.format(_('closed-date')));
 					}
