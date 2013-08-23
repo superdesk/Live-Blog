@@ -1,1 +1,17 @@
-{>"themeBase/item/source/google/news"/}
+{>"themeBase/item/source/google"/}
+{<itemClassAdditional}googlenews{/itemClassAdditional}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+externalTextContainer}{/externalTextContainer}
+
+{/contentExternal}
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+{/externalInfo}
+{<externalInfoTitle}{Meta.title|s}{/externalInfoTitle}
+{<externalInfoTitleSrc}{Meta.unescapedUrl}{/externalInfoTitleSrc}
+{<externalText}{Content|s}{/externalText}

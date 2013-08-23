@@ -1,1 +1,11 @@
-{>"themeBase/item/source/sms"/}
+{>"themeBase/item/source/base"/}
+{<itemClass}sms{/itemClass}
+{<contentCore}
+	{+contenteBaseBefore}{/contenteBaseBefore}
+	{+contentText}{/contentText}
+{/contentCore}
+
+{<postDateContainer}
+  {+createdDateContainer}{/createdDateContainer}
+{/postDateContainer}
+{<publisherName}{Meta.Creator.Name}{/publisherName}
