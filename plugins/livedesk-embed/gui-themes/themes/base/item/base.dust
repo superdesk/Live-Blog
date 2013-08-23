@@ -154,7 +154,6 @@
 --!}
 {<externalAvatar}
   <div class="post-external-avatar">
-  <div class="post-external-avatar">
     <img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}">
   </div>
 {/externalAvatar}

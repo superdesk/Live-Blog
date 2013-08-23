@@ -31,7 +31,7 @@ require(['core.min'], function(){
 			liveblog.el = $('<div></div>').insertBefore(liveblog.script);
 		}
 		var blog = new Gizmo.Register.Blog(), 
-			embedConfig = {};
+			embedConfig = {},
 			min = require.specified("core")? '.min': '';
 		blog.url.decorate('%s/' + liveblog.id);
 		blog

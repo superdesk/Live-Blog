@@ -1,1 +1,17 @@
-{>"themeBase/item/source/soundcloud"/}
+{>"themeBase/item/source/base"/}
+{<itemClass}soundcloud{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalIframeContainer}{/externalIframeContainer}
+{/contentExternal}
+
+{<externalIframe}
+<iframe width="100%" height="166" scrolling="no" frameborder="no" src="http://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F{Meta.id}&show_artwork=true"></iframe>
+{/externalIframe}
+
+{<contentAttrName}
+soundcloud.com
+{/contentAttrName}

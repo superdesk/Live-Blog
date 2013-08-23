@@ -4,7 +4,6 @@ define([
 	'plugins/permanent-link',
 	'plugins/user-comments',
 	'css!theme/liveblog'
-	'plugins/scroll-pagination'
 ], function(){
 	return {
 		//enviroments: [ 'mobile', 'desktop', 'quirks' ],

@@ -12,15 +12,12 @@ define([
 			BlogView = Gizmo.View.extend({
 				events: {},
 				_config: {
-				location: '',
-				hashIdentifier: 'livedeskitem=',
 					timeInterval: 10000,
 					idInterval: 0,
 					xfilter: 'Description, Title, EmbedConfig, Language.Code'
 				},
 				init: function() {
 					var self = this;
-				self._config.location = window.location.href;
 					if( !self.model ) {
 						blog.url.decorate('%s/' + liveblog.id);
 						blog.xfilter(self._config.xfilter);

@@ -1,1 +1,5 @@
-{>"themeBase/item/source/google"/}
+{>"themeBase/item/source/base"/}
+{<itemClass}google {+itemClassAdditional}{/itemClassAdditional}{/itemClass}
+{<contentAttrName}
+google.com
+{/contentAttrName}

@@ -1,1 +1,44 @@
-{>"themeBase/item/source/twitter"/}
+{>"themeBase/item/source/base"/}
+{<itemClass}twitter{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalAvatar}{/externalAvatar}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+externalTextContainer}{/externalTextContainer}
+	{+externalTwitterActions}{/externalTwitterActions}
+{/contentExternal}
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+	{+externalInfoUser}{/externalInfoUser}
+{/externalInfo}
+{<externalInfoTitle}{Meta.from_user_name}{/externalInfoTitle}
+{<externalInfoTitleSrc}http://twitter.com/{Meta.from_user}{/externalInfoTitleSrc}
+{<externalText}{Meta.text|twitter_all|s}{/externalText}
+
+{!--  for twitter only -- !}
+{<externalInfoUser}
+  <span>@{Meta.from_user}</span>
+{/externalInfoUser}
+
+{<externalAvatarSrc}
+{Meta.user.profile_image_url}
+{/externalAvatarSrc}
+
+
+{!-- displayed for:
+	> twitter
+--!}
+{<externalTwitterActions}
+<div class="twitter-controls"> <!-- twitter buttons -->
+	<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>
+	<a href="http://twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank" class="twitter-button retweet">_('Retweet');</a>
+	<a href="http://twitter.com/intent/tweet?in_reply_to={Meta.id_str}" target="_blank" class="twitter-button reply">_('Reply');</a>
+</div>
+{/externalTwitterActions}
+
+{<contentAttrName}
+twitter.com
+{/contentAttrName}
