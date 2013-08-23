@@ -87,12 +87,22 @@ define([
 				}
 				
 				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
-					item = "/item/posttype/"+data.Type.Key;
+					if(data.Type.Key === 'advertisement') {
+						item = "/item/posttype/infomercial";
+					}
+					else {
+						item = "/item/posttype/"+data.Type.Key;
+					}
 				}
 				else if(data.Author.Source.Name === 'google')
 					item = "/item/source/google/"+data.Meta.type;
-				else
-					item = "/item/source/"+data.Author.Source.Name;
+				else {
+					if(data.Author.Source.Name === 'advertisement') {
+						item = "/item/source/infomercial";
+					} else {
+						item = "/item/source/"+data.Author.Source.Name;
+					}
+				}
 
 				item = (dust.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
 				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';

@@ -9,22 +9,6 @@ define([
 		
 		buttonPaginationPlugin(config);
 		$.dispatcher.on('blog-view.class', function(evt){
-		data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
-		$.tmpl('themeBase/plugins/before-button-pagination', data, function(e,o){
-			$(o)
-				.css('display','none')
-				.prependTo('[data-gimme="posts.list"]',view.el);
-		});
-		$.tmpl('themeBase/plugins/after-button-pagination', data, function(e,o){
-			$(o)
-				.appendTo('[data-gimme="posts.list"]',view.el);
-		});
-		$('[data-gimme="posts.list"]')
-			.css('overflow-y','auto')
-			.css('overflow-x','hidden')
-			.css('height', '500px');
-	});
-	$.dispatcher.on('posts-view.class', function(){
 			var view = this.prototype;
 			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" }
 			view.toTop = function(evt) {
@@ -44,7 +28,6 @@ define([
 			var view = this;
 			view.on('addingsauto addings remove', view.scrollRefresh, view)
 			view.scrollRefresh();
-		}
 		});
 		$.dispatcher.on('posts-view.class', function(evt){
 			var view = this.prototype;
