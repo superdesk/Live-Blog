@@ -150,6 +150,9 @@ class BlogSyncProcess:
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
             return
+        if str(resp.status) != '200':
+            log.error('Read problem on %s, status: %s' % (source.URI, resp.status))
+            return
 
         try: msg = json.load(codecs.getreader(self.encodingType)(resp))
         except ValueError as e:
@@ -254,6 +257,8 @@ class BlogSyncProcess:
                     resp = urlopen(req)
                 except (HTTPError, socket.error) as e:
                     continue
+                if str(resp.status) != '200':
+                    continue
 
                 try:
                     msg = json.load(codecs.getreader(self.encodingType)(resp))
@@ -323,9 +328,7 @@ class BlogSyncProcess:
 
         if needToUploadNew:
             try:
-                iconContent = ChainedIconContent()
-                iconContent.setIconInfo(iconInfo['url'], iconInfo['name'])
-
+                iconContent = ChainedIconContent(iconInfo['url'], iconInfo['name'])
                 imageData = self.metaDataService.insert(userId, iconContent, 'http')
                 if (not imageData) or (not imageData.Id):
                     return

@@ -14,6 +14,8 @@ import logging
 from urllib.request import urlopen
 from ally.api.model import Content
 from urllib.error import HTTPError
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
@@ -25,10 +27,9 @@ class ChainedIconContent(Content):
     '''
     Simple remote icon content taking
     '''
+    __slots__ = ('_url', '_response')
 
-    inner = {}
-
-    def setIconInfo(self, contentURL, fileName):
+    def __init__(self, contentURL, fileName):
         '''
         Initialize the content.
 
@@ -37,40 +38,43 @@ class ChainedIconContent(Content):
         @param fileName: string
             The name of file under that the icon should be saved.
         '''
-        self.inner['url'] = contentURL
-        self.inner['response'] = None
-        self.name = fileName
-        self.charSet = 'binary'
-        self.type = 'image'
-        self.length = 0
+        Content.__init__(self, fileName, 'image', 'binary', 0)
+
+        self._url = contentURL
+        self._response = None
 
     def read(self, nbytes=None):
         '''
         @see: Content.read
         '''
-        if not self.inner['response']:
-            try: self.inner['response'] = urlopen(self.inner['url'])
+        if not self._response:
+            try: self._response = urlopen(self._url)
             except (HTTPError, socket.error) as e:
                 log.error('Can not read icon image data %s' % e)
-                return
-            if not self.inner['response']:
+                raise InputError(Ref(_('Can not open icon URL'),))
+            if not self._response:
                 log.error('Can not read icon image data %s' % e)
-                return
+                raise InputError(Ref(_('Can not open icon URL'),))
+            if str(self._response.status) != '200':
+                raise InputError(Ref(_('Can not open icon URL'),))
 
-            self.type = self.inner['response'].getheader('Content-Type')
+            self.type = self._response.getheader('Content-Type')
             if not self.type:
                 self.type = 'image'
-            self.length = self.inner['response'].getheader('Content-Length')
+            self.length = self._response.getheader('Content-Length')
             if not self.length:
                 self.length = 0
 
-        if self.inner['response'].closed:
+        if (not self._response) or self._response.closed:
             return ''
 
-        if nbytes:
-            return self.inner['response'].read(nbytes)
-
-        return self.inner['response'].read()
+        try:
+            if nbytes:
+                return self._response.read(nbytes)
+            return self._response.read()
+        except (HTTPError, socket.error) as e:
+            log.error('Can not read icon image data %s' % e)
+            raise InputError(Ref(_('Can not read from icon URL'),))
 
     def next(self):
         '''
