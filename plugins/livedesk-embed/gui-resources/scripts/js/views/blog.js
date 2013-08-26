@@ -31,8 +31,8 @@ define([
 					.on('synced', function(){
 						self.updateStatus();
 					});
-					self.render();
 					self.auto();
+					self.render();
 				},
 				auto: function(params)
 				{
@@ -41,7 +41,6 @@ define([
 					self._config.idInterval = setInterval(function(){
 						self.start(params);
 					}, self._config.timeInterval);
-					self.postsView.collection.auto();
 					return ret;
 				},
 				start: function(){
@@ -52,16 +51,17 @@ define([
 				stop: function(){
 					var self = this;
 					clearInterval(self._config.idInterval);
-					self.postsView.collection.stop();
 					return self;
 				},			
 
 				ensureStatus: function(){
-					if(this.model.get('ClosedOn')) {
-						var closedOn = new Date(this.model.get('ClosedOn'));
-						this.pause();
-						this.model.get('PostPublished').stop();					
-						$('[data-gimme="blog.status"]',this.el).html(_('The liveblog coverage was stopped ')+closedOn.format(_('closed-date')));
+					var self = this,
+						closedOn;
+					if(self.model.get('ClosedOn')) {
+						closedOn = new Date(self.model.get('ClosedOn'));
+						self.stop();
+						self.model.get('PostPublished').stop();
+						$('[data-gimme="blog.status"]',self.el).html(_('The liveblog coverage was stopped ')+closedOn.format(_('closed-date')));
 					}
 				},
 				updateingStatus: function() {
@@ -91,14 +91,14 @@ define([
 					var self = this;
 					self.el.tmpl('themeBase/container', self.model.feed(), function(){
 						$.dispatcher.triggerHandler('blog-view.rendered-before', self);
-						self.ensureStatus();
-						self.updateStatus();
-						self.update();				
+						self.update();
 						self.postsView = new PostsView({ 
 							el: $('[data-gimme="posts.list"]',self.el),
 							collection: self.model.get('PostPublished'),
 							_parent: self
 						});
+						self.ensureStatus();
+						self.updateStatus();
 						$.dispatcher.triggerHandler('blog-view.rendered-after', self);
 					});
 				},
