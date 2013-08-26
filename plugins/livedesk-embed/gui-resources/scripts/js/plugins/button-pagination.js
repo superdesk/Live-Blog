@@ -6,7 +6,7 @@ define([
 	'tmpl!themeBase/plugins/after-button-pagination'
 ], function($){
 	$.dispatcher.on('blog-view.after-render', function(evt, blogView){
-		var view = self,
+		var view = this,
 			data = {};
 		data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 		$.tmpl('themeBase/plugins/after-button-pagination', data, function(e,o){
