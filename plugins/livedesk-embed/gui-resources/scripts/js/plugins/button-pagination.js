@@ -26,7 +26,7 @@ define([
 		});
 
 		$.dispatcher.on('posts-view.rendered', function(evt){
-			var view = self,
+			var view = this,
 				data = {};
 			data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 			$.tmpl('themeBase/plugins/before-button-pagination', data, function(e,o){
