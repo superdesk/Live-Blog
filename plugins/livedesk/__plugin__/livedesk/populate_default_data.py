@@ -35,6 +35,7 @@ from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
 from superdesk.user.meta.user_type import UserTypeMapped
+from livedesk.meta.blog_media import BlogMediaTypeMapped
 from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
@@ -93,6 +94,23 @@ def createSourceTypes():
 @app.populate
 def createUserTypes():
     createUserType('commentator')
+
+def createBlogMediaType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(BlogMediaTypeMapped.Key == key)).scalar():
+        blogMediaTypeDb = BlogMediaTypeMapped()
+        blogMediaTypeDb.Key = key
+        session.add(blogMediaTypeDb)
+
+    session.commit()
+    session.close()
+
+@app.populate
+def createBlogMediaTypes():
+    createBlogMediaType('top_banner')
 
 SOURCES = {
            'internal': (False, '', '', ''),
