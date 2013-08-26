@@ -35,7 +35,7 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from mysql.connector.errors import IntegrityError
+from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
 
@@ -137,6 +137,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
+    blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
+    Key of the source type for blog providers''')
 
     sourceService = ISourceService; wire.entity('sourceService')
     # The source service used to manage all operations on sources
@@ -164,6 +166,17 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         sql = self.session().query(SourceMapped)
         sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
         sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
+
+        sql_legacy = sql
+
+        provider = aliased(SourceMapped)
+        sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
+        sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
+        sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+        sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
+        sql = sql.union(sql_legacy)
+
         return sql.all()
 
     def addSource(self, blogId, source):
@@ -179,7 +192,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         q = QSource(name=source.Name)
         sources = self.sourceService.getAll(typeKey=source.Type, q=q)
         if not sources: sourceId = self.sourceService.insert(source)
-        else: sourceId = sources[0].Id
+        else:
+            source.Id = sourceId = sources[0].Id
+            self.sourceService.update(source)
 
         ent = BlogSourceDB()
         ent.blog = blogId
