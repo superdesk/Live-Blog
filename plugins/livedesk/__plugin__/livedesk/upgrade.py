@@ -15,8 +15,10 @@ from ..superdesk.db_superdesk import alchemySessionCreator
 from ally.container import app
 from ally.container.support import entityFor
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
+from livedesk.meta.blog_media import BlogMediaTypeMapped
 from sqlalchemy.exc import ProgrammingError, OperationalError
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -184,3 +186,20 @@ def upgradeMediaArchiveDeleteFix():
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
     except (ProgrammingError, OperationalError): pass
+
+def createBlogMediaType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(BlogMediaTypeMapped.Key == key)).scalar():
+        blogMediaTypeDb = BlogMediaTypeMapped()
+        blogMediaTypeDb.Key = key
+        session.add(blogMediaTypeDb)
+
+    session.commit()
+    session.close()
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogMedia():
+    createBlogMediaType('top_banner')
