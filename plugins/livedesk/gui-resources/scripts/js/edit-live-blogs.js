@@ -997,6 +997,7 @@ function(providers, Gizmo, $, BlogAction)
 						submenuActive1: 'active'
 					},
 					OutputLink: embedConfig.FrontendServer,
+					OutputLinkAlt: document.URL.split(':')[0] + embedConfig.FrontendServer,
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
 				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
