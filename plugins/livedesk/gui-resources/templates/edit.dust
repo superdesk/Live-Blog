@@ -20,7 +20,7 @@
     <section class="blog-section">
     	<div class="tool-box-top">
 			<a href="https://twitter.com/share" class="twitter-share-button" target="_blank" 
-				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
+				data-count="horizontal" data-url="{OutputLinkAlt}" data-text="{Title|t}">Tweet</a>
             <div class="pull-right update-success hide">
     			_("Blog information updated!");
     		</div>
