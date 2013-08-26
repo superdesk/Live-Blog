@@ -28,6 +28,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped, \
     ThumbnailFormat
 from superdesk.media_archive.meta.meta_info import MetaInfo, MetaInfoMapped
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 # --------------------------------------------------------------------
 
@@ -220,13 +221,16 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         deletes the current metaInfo from both database and search index
         if there is no other meta info, delete also the related meta data 
         '''
-       
+
         metaInfo = self.session().query(self.MetaInfo).filter(self.MetaInfo.Id == id).one()    
         metaDataId = metaInfo.MetaData
 
-        self.session().delete(metaInfo)
-        self.session().commit()
-        
+        try:
+            self.session().delete(metaInfo)
+            self.session().commit()
+        except (OperationalError, IntegrityError):
+            raise InputError(Ref(_('Can not delete because in use'),))
+
         self.searchProvider.delete(id, self.type)
         
         if self.session().query(MetaInfoMapped).filter(MetaInfoMapped.MetaData == metaDataId).count() == 0:
