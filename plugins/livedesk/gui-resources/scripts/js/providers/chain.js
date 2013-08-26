@@ -126,6 +126,17 @@
 				 */
 				view.order = parseFloat(view.model.get('Order'));
 
+                // ignore deleted/unpublished posts
+                if (isNaN(view.order)) {
+                    if (pos > -1) {
+                        this.views[pos].undelegateEvents();
+                        this.views[pos].el.remove();
+                        this._views.splice(pos, 1);
+                    }
+
+                    return;
+                }
+
 				/*!
 				 * If the view isn't in the _views vector
 				 *   add it.
