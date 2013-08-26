@@ -100,46 +100,66 @@
 					self._views.splice(pos,1);
 				}
 			},
+
+            findView: function(view) {
+                for (var i = 0, length = this._views.length; i < length; i++) {
+                    if (view.model.href === this._views[i].model.href) {
+                        return i;
+                    }
+                }
+
+                return -1;
+            },
+
 			/*!
 			 * Order given view in timeline
 			 * If the view is the first one the it's added after #load-more selector
 			 * returns the given view.
 			 */
 			orderOne: function(view) {
-				var pos = this._views.indexOf(view);
+				var pos = this.findView(view);
+
 				/*!
 				 * View property order need to be set here
 				 *   because could be multiple updates and 
 				 *   orderOne only works for one update.
 				 */
 				view.order = parseFloat(view.model.get('Order'));
+
+                // ignore deleted/unpublished posts
+                if (isNaN(view.order)) {
+                    if (pos > -1) {
+                        this.views[pos].undelegateEvents();
+                        this.views[pos].el.remove();
+                        this._views.splice(pos, 1);
+                    }
+
+                    return;
+                }
+
 				/*!
 				 * If the view isn't in the _views vector
 				 *   add it.
 				 */
-				if ( pos === -1 ) {
+				if (pos === -1) {
 					this._views.push(view);
 				}
+
 				/*!
 				 * Sort the _view vector descendent by view property order.
 				 */
-				this._views.sort(function(a,b){
+				this._views.sort(function(a,b) {
 					return b.order - a.order;
 				});
-				/*!
-				 * Search it again in find the new position.
-				 */
-				 for( var order = [], i = 0, count = this._views.length; i < count; i++ ){
-				 	order.push(this._views[i].order);
-				 }
-				pos = this._views.indexOf(view);
-				if( pos === 0 ){
+
+				pos = this.findView(view);
+				if (pos === 0) {
 					/*!
 					 * If the view is the first one the it's added after #load-more selector.
 					 *   else
 					 *   Reposition the dom element before the old (postion 1) first element.
 					 */
-					if( this._views.length === 1) {
+					if (this._views.length === 1) {
 						this.el.find('.chainblogs').html(view.el);
 					} else {
 						view.el.insertBefore(this._views[1].el);
@@ -148,8 +168,9 @@
 					/*!
 					 * Reposition the dom element after the previous element.
 					 */
-					view.el.insertAfter(this._views[pos-1].el);
+					view.el.insertAfter(this._views[pos - 1].el);
 				}
+
 				return view;
 			},
 			addOne: function(model) {
