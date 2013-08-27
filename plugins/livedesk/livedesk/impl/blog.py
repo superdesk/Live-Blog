@@ -167,12 +167,14 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
         sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
 
-        sql_legacy = sql
-
         provider = aliased(SourceMapped)
         sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
         sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
         sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+        sql_legacy = self.session().query(SourceMapped)
+        sql_legacy = sql_legacy.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql_legacy = sql_legacy.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
 
         sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
         sql = sql.union(sql_legacy)

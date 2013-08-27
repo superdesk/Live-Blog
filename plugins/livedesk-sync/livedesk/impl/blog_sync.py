@@ -47,12 +47,19 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
             sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
-        sql_legacy = sql
 
         provider = aliased(SourceMapped)
         sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
         sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
         sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+
+        sql_legacy = self.session().query(BlogSyncMapped)
+        if q:
+            assert isinstance(q, QBlogSync), 'Invalid blog sync query %s' % q
+            sql_legacy = buildQuery(sql_legacy, q, BlogSyncMapped)
+
+        sql_legacy = sql_legacy.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
 
         sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
         sql = sql.union(sql_legacy)
@@ -69,12 +76,15 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         if q: sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
-        sql_legacy = sql
 
         provider = aliased(SourceMapped)
         sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
         sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
         sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+        sql_legacy = self.session().query(BlogSyncMapped).filter(BlogSyncMapped.Blog == blog)
+        if q: sql_legacy = buildQuery(sql_legacy, q, BlogSyncMapped)
+        sql_legacy = sql_legacy.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
 
         sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
         sql = sql.union(sql_legacy)
