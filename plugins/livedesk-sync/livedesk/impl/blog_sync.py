@@ -20,6 +20,7 @@ from superdesk.source.meta.type import SourceTypeMapped
 from ally.api.extension import IterPart
 from ally.container import wire
 from sqlalchemy.orm.util import aliased
+from sqlalchemy.sql.expression import or_
 
 # --------------------------------------------------------------------
 
@@ -47,15 +48,12 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
             sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
-        sql_legacy = sql
 
-        provider = aliased(SourceMapped)
-        sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
-        sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
-        sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+        sql_prov = self.session().query(SourceMapped.URI)
+        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
-        sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
-        sql = sql.union(sql_legacy)
+        sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -69,15 +67,12 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         if q: sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
-        sql_legacy = sql
 
-        provider = aliased(SourceMapped)
-        sql = sql.join(provider, provider.URI == SourceMapped.OriginURI)
-        sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == provider.typeId)
-        sql = sql.filter(SourceTypeMapped.Key == self.blog_provider_type)
+        sql_prov = self.session().query(SourceMapped.URI)
+        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
-        sql_legacy = sql_legacy.filter(SourceMapped.OriginURI == None)
-        sql = sql.union(sql_legacy)
+        sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)

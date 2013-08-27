@@ -1,8 +1,6 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
   <div id="role-blog-publish" style="display: none;">
-  	<a class="btn btn-medium pull-right btn-danger {isOffline}" data-toggle="modal" data-status="live" href="#put-live">_('Take offline');</a>
-  	<a class="btn btn-medium btn-primary pull-right {isLive}" data-toggle="modal" href="#put-live" data-status="offline">_('Go live');</a>
   	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog');</a>
   </div>
 	<ul class="nav nav-pills pull-left">	
