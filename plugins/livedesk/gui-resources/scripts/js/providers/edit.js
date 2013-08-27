@@ -161,7 +161,10 @@ define('providers/edit', [
 			this.posts.model.on('insert', function(evt, model){
 				self.addOne(model);
 			});
-			this.posts.sync();
+
+			if (this._parent.blog.isOpen()) {
+				this.posts.sync();
+			}
 		},
 		render: function(evt, data){
 			if ( data === undefined)
@@ -484,11 +487,9 @@ define('providers/edit', [
 				collections.posts =  posts;
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 				
-				self.changetype();
-				
-				// this breaks the edit area when navigation between providers
-				//imagePostType.setElement( $(this).find('.edit-area') )
-				
+				if (self.blog.isOpen()) {
+					self.changetype();
+				}
 			} );
 		},
 		clear: function()
