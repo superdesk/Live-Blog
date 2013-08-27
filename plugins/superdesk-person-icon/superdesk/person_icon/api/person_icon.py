@@ -9,7 +9,7 @@ Created on Mar 6, 2012
 The API specifications for the person icon.
 '''
 
-from ally.api.config import service, call, INSERT
+from ally.api.config import service, call, INSERT, DELETE
 from ally.api.type import Scheme
 from ally.support.api.entity import Entity
 from superdesk.api.domain_superdesk import modelHR
@@ -58,4 +58,12 @@ class IPersonIconService:
         @raise InputError: If the any of the identifiers is not valid.
         @return: PersonIcon.Id
             Returns the identifier of the person for which the association took place.
+        '''
+
+    @call(method=DELETE)
+    def detachIcon(self, personIconId:PersonIcon.Id) -> bool:
+        '''
+        @param personIconId: PersonIcon.Id
+            The identifier of the person icon
+        @return: actual removal success
         '''

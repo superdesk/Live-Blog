@@ -15,3 +15,4 @@ from livedesk.core.impl.blog_sync import BlogSyncProcess
 # --------------------------------------------------------------------
 
 support.createEntitySetup(BlogSyncProcess)
+
