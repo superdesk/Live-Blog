@@ -20,7 +20,7 @@ from superdesk.api.domain_superdesk import modelData
 @modelData
 class Tag(Entity):
     '''
-    Provides the user model.
+    Provides the tag model.
     '''
     Type = TagType
 

@@ -9,41 +9,39 @@ Created on August 26, 2013
 API specifications for livedesk blog post tags.
 '''
 
-from ally.api.config import service, query, call
-from ally.api.criteria import AsLike
-from ally.support.api.entity import Entity, IEntityService, QEntity
-from superdesk.tag.api.type import TagType
-#from superdesk.api.domain_superdesk import modelData
+from ally.api.config import service, call
+from ally.support.api.entity import Entity, IEntityService
+from livedesk.api.blog import Blog
+from livedesk.api.domain_livedesk import modelLiveDesk
+from superdesk.tag.api.tag import Tag
+from superdesk.post.api.post import Post
 
 # --------------------------------------------------------------------
 
-@modelData
-class Tag(Entity):
+@modelLiveDesk
+class BlogPostTag(Entity):
     '''
-    Provides the user model.
+    Provides the blog post tag model.
     '''
-    Type = TagType
+    Blog = Blog
+    Post = Post
+    Tag = Tag
 
 # --------------------------------------------------------------------
 
-@query(Tag)
-class QTag(QEntity):
-    '''
-    Query for tag service
-    '''
-    key = AsLike
+# No query
 
 # --------------------------------------------------------------------
 
-@service((Entity, Tag), (QEntity, QTag))
-class ITagService(IEntityGetService, IEntityFindService):
+@service((Entity, BlogPostTag))
+class IBlogPostTagService(IEntityService):
     '''
-    Tag model service interface
+    BlogPostTag model service interface
     '''
 
     @call
-    def getAll(self, typeKey:TagType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-               q:QTag=None) -> Iter(Source):
+    def getAll(self, blogId:Blog.Id=None, postId:Post.Id=None, tagType:TagTypeKey.Key=None, offset:int=None,
+               limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(BlogPostTag):
         '''
-        Provides all the available tags.
+        Provides all the available blog post tags.
         '''
