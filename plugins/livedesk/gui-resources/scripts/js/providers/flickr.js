@@ -88,6 +88,7 @@ $.extend(providers.flickr, {
 				$.ajax({
 					url : fullUrl,
 					dataType: 'json',
+					global: false,
 					success : function(data){
 						var url = data.photo.urls.url[0]
 						if (url.type == 'photopage') {
@@ -122,7 +123,7 @@ $.extend(providers.flickr, {
 			
 			var fullUrl = str.format(this.url,{start: start, text: text, apykey: this.apykey, license : license, per_page : this.per_page});
 			this.showLoading('#flickr-image-more');
-			$.getJSON(fullUrl, {}, function(data){
+			$.ajax({dataType: 'json', url: fullUrl, global: false, success: function(data){
 					self.stopLoading('#flickr-image-more');
 					for( var item, posts = [], i = 0, count = data.photos.photo.length; i < count; i++ ){
 						item = data.photos.photo[i];
@@ -190,8 +191,7 @@ $.extend(providers.flickr, {
 					}
 					
 					
-			});
-
+			}});
 		},
 		
 });

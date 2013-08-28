@@ -153,8 +153,9 @@ define('providers/youtube', [
                 }
                 var fullUrl = 'http://gdata.youtube.com/feeds/api/videos?v=2&max-results=20&alt=jsonc&orderby='+ relevance +'&q='+key+'&start-index='+start;
                 $.ajax({
-                    url : fullUrl,
+                    url: fullUrl,
                     dataType: 'json',
+                    global: false,
                     success : function(myData){
                         self.stopLoading('#ytb-src-more');
                         var myJson = myData,
@@ -244,7 +245,8 @@ define('providers/youtube', [
                 
                 var fullUrl = 'http://gdata.youtube.com/feeds/api/users/'+key+'/favorites?v=2&max-results=20&alt=jsonc&start-index='+start;
                 $.ajax({
-                    url : fullUrl,
+                    url: fullUrl,
+                    global: false,
                     dataType: 'json',
                     success : function(myData){
                         self.stopLoading('#ytb-fav-more');
@@ -324,7 +326,8 @@ define('providers/youtube', [
                 }
                 var fullUrl = 'http://gdata.youtube.com/feeds/api/users/'+key+'/uploads?v=2&max-results=20&alt=jsonc&start-index='+start;
                 $.ajax({
-                    url : fullUrl,
+                    url: fullUrl,
+                    global: false,
                     dataType: 'json',
                     success : function(myData){
                         self.stopLoading('#ytb-usr-more');
