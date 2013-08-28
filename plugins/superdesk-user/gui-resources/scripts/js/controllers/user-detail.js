@@ -42,6 +42,7 @@ function(angular, sha) {
                         }
                     }
                     $scope.user = user;
+                    console.log($scope.user);
                 }
             });
             $scope.$watch('roleList', function(roleList){
@@ -52,14 +53,18 @@ function(angular, sha) {
         };
 
         $scope.loadUser = function(userId) {
+            console.log(userId);
             $scope.user = UserDetailLoader(userId);
             $scope.enabled = true;
+            $('#overview-button').tab('show');
         };
 
         $scope.unloadUser = function() {
             $scope.$parent.selectedUserId = null;
-            $scope.user = {};
+            $scope.user = undefined;
             $scope.enabled = false;
+            
+            $('#overview-button').tab('show');
         };
 
         $scope.saveUser = function() {

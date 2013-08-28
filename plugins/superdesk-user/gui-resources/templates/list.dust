@@ -122,7 +122,7 @@
 		    <ul class="nav nav-tabs userDetail-tabs" id="userDetailsTabs">
 
 		      <!-- menu items for user profile -->
-		      <li class="active"><a href="#userd-overview" class="author-view-hide" data-toggle="tab">_('Overview');</a></li>
+		      <li class="active"><a href="#userd-overview" class="author-view-hide" data-toggle="tab" id="overview-button">_('Overview');</a></li>
 		      <li class=""><a href="#userd-profile" class="author-view-hide" data-toggle="tab" id="profile-button">_('Profile');</a></li>
 
 		      <!-- menu items for author profile -->
