@@ -45,7 +45,7 @@ class QWithCId:
     '''
     cId = AsRangeOrdered
     search = AsLike
-    hidden = AsBoolean
+    isHidden = AsBoolean
 
 @query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):

@@ -13,13 +13,17 @@ from ..api.comment import IBlogCommentService
 from ..api.blog_post import IBlogPostService, QBlogPost
 from ..meta.blog import BlogMapped
 from ..meta.blog_post import BlogPostMapped
+from livedesk.meta.blog_post_tag import BlogPostTagMapped
+from superdesk.tag.meta.tag import TagMapped
+from superdesk.tag.meta.type import TagTypeMapped
 from ally.api.extension import IterPart
+from ally.api.criteria import AsBoolean
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, and_
 from superdesk.post.api.post import Post
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -35,6 +39,7 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
+from __plugin__.livedesk.populate_default_data import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
 
@@ -71,6 +76,9 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         assert isinstance(self.collaboratorService, ICollaboratorService), 'Invalid collaborator service %s' % self.collaboratorService
         assert isinstance(self.userService, IUserService), 'Invalid user service %s' % self.userService
 
+        self.tagTypeKeyView = view_tag_type_key()
+        self.tagKeyViewHidden = view_hidden_tag_key()
+
     def getComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IBlogCommentService.getComments
@@ -81,6 +89,25 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         if q:
             assert isinstance(q, QBlogPost), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogPostMapped)
+
+            if (BlogPostMapped.isHidden in q) and (AsBoolean.value in q.isHidden):
+                hiddenId = self._takeHiddenId()
+                hiddenSQL = exists().where(and_(BlogPostTagMapped.Post == BlogPostMapped.Id, BlogPostTagMapped.Blog == blogId, BlogPostTagMapped.typeId == hiddenId))
+                if q.isHidden.value:
+                    sql = sql.filter(hiddenSQL)
+                else:
+                    sql = sql.filter(~hiddenSQL)
+
+            if (BlogPostMapped.search in q) and q.search:
+                for searchValue in [q.search.ilike, q.search.like]:
+                    if not searchValue:
+                        continue
+                    if not '%' in searchValue:
+                        if not searchValue.endswith('%'):
+                            searchValue = searchValue + '%'
+                        if not searchValue.startswith('%'):
+                            searchValue = '%' + searchValue
+                    sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -178,3 +205,14 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             except:
                 return userName
 
+    def _takeHiddenId(self):
+        '''
+        Provides Id of the tag that specifies hidden posts
+        '''
+        sql = self.session().query(TagMapped.id).filter(TagMapped.Key == self.tagKeyViewHidden)
+        sql = sql.join(TagTypeMapped, TagTypeMapped.id == TagMapped.typeId).filter(TagTypeMapped.Key == self.tagTypeKeyView)
+
+        try:
+            return sql.one()[0]
+        except:
+            NoResultFound: raise InputError(_('No tag for hidden posts'))

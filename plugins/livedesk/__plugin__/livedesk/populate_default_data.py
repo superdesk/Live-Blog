@@ -37,6 +37,9 @@ import csv
 from superdesk.user.meta.user_type import UserTypeMapped
 from livedesk.meta.blog_media import BlogMediaTypeMapped
 from sqlalchemy.sql.expression import exists
+from ally.exception import InputError
+from ally.internationalization import _
+from ally.container.app import PRIORITY_LAST
 
 # --------------------------------------------------------------------
 
@@ -355,3 +358,83 @@ def createBlogPosts():
             blogPostService.insert(getBlogsIds()[blog], pst)
             pst.Id = None
         blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+
+@ioc.config
+def view_tag_type_key():
+    ''' The tag type key used for post visibility '''
+    return 'visibility'
+
+@ioc.config
+def view_hidden_tag_key():
+    ''' The tag key used for setting a post visibility as hidden '''
+    return 'hidden'
+
+@ioc.config
+def status_tag_type_key():
+    ''' The tag type key used for post status '''
+    return 'status'
+
+@ioc.config
+def status_tag_keys():
+    ''' The tag key used for setting a post status '''
+    return ['idle', 'working', 'finished']
+
+@ioc.config
+def verification_tag_type_key():
+    ''' The tag type key used for post verification '''
+    return 'verification'
+
+@ioc.config
+def verification_tag_keys():
+    ''' The tag key used for setting a post verification '''
+    return ['unconfirmed', 'confirmed', 'reliable source', 'multiple reports', 'not true']
+
+
+
+def createTagType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(TagTypeMapped.Key == key)).scalar():
+        tagTypeDb = TagTypeMapped()
+        tagTypeDb.Key = key
+        session.add(tagTypeDb)
+
+    session.commit()
+    session.close()
+
+def createTag(key, typeKey):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    createTagType(typeKey)
+
+    try: typeId, = session.query(TagTypeMapped.id).filter(TagTypeMapped.Key == typeKey).one()[0]
+    except NoResultFound: raise InputError(_('Not tag type %s for tag %s') % (typeKey, key))
+
+    if not session.query(exists().where(and_(TagMapped.Key == key, TagTypeMapped.typeId == typeId))).scalar():
+        tagDb = TagMapped()
+        tagDb.Key = key
+        session.add(tagDb)
+
+    session.commit()
+    session.close()
+
+@app.populate(priority=PRIORITY_LAST)
+def createVisibilityTags():
+    createTagType(view_tag_type_key())
+    createTag(view_hidden_tag_key(), view_tag_type_key())
+
+@app.populate(priority=PRIORITY_LAST)
+def createStatusTags():
+    createTagType(status_tag_type_key())
+    for statusTagKey in status_tag_keys():
+        createTag(statusTagKey, status_tag_type_key())
+
+@app.populate(priority=PRIORITY_LAST)
+def createVerificationTags():
+    createTagType(verification_tag_type_key())
+    for verificationTagKey in verification_tag_keys():
+        createTag(verificationTagKey, verification_tag_type_key())

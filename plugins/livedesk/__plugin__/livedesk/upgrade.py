@@ -25,7 +25,7 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_LAST, PRIORITY_NORMAL, PRIORITY_FIRST
-from __plugin__.livedesk.populate_default_data import createSourceType
+from __plugin__.livedesk.populate_default_data import createSourceType, createVisibilityTags, createStatusTags, createVerificationTags
 
 # --------------------------------------------------------------------
 
@@ -215,3 +215,9 @@ def createBlogMediaType(key):
 @app.populate(priority=PRIORITY_LAST)
 def upgradeBlogMedia():
     createBlogMediaType('top_banner')
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeTags():
+    createVisibilityTags()
+    createStatusTags()
+    createVerificationTags()
