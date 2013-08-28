@@ -99,13 +99,13 @@
 
 {<commentBefore}
 {?Meta.annotation.before}
-  <div class="post-comment comment-before">{Meta.annotation.before}</div>
+  <div class="post-comment comment-before">{Meta.annotation.before|s}</div>
 {/Meta.annotation.before}
 {/commentBefore}
 
 {<commentAfter}
 {?Meta.annotation.after}
-  <div class="post-comment comment-after">{Meta.annotation.after}</div>
+  <div class="post-comment comment-after">{Meta.annotation.after|s}</div>
 {/Meta.annotation.after}
 {/commentAfter}
 
