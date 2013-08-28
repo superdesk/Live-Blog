@@ -19,26 +19,25 @@
     </section>
     <section class="blog-section">
     	<div class="tool-box-top">
+        <!--
 			<a href="https://twitter.com/share" class="twitter-share-button" target="_blank" 
 				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
-            <div class="pull-right update-success hide">
+                -->
+            <div class="pull-right alert alert-success hide update-success">
     			_("Blog information updated!");
     		</div>
-    		<div class="pull-right update-error hide">
+    		<div class="pull-right  alert alert-error hide update-error">
     			_("There was a problem updating the information!");
     		</div>
         </div>
-        <div class="pull-right">
+        <div class="pull-right timeline-controls">
 
-            <div class="btn-group timeline-controls">
+            <button data-toggle="autorefresh" class="btn-flat" title='_("Pin timeline so you will not get disturbed by new incoming posts");'>_("Pin");</button>
             
-            	<button data-toggle="autorefresh" class="btn" title='_("Pin timeline so you will not get disturbed by new incoming posts");'>_("Pin");</button>
-            
-
-                <button data-toggle="dropdown" class="btn dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span> <b class="caret"></b></button>
+            <div class="dropdown pull-right">
+                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span> <b class="caret"></b></button>
                 <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
             </div>
-        	
 		</div>
         <ul class="nav nav-tabs">
 			<li class="active"><a href="#timeline-view" data-toggle="tab">_("Timeline");</a></li>
