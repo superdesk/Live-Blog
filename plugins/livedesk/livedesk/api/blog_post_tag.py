@@ -45,3 +45,5 @@ class IBlogPostTagService(IEntityService):
         '''
         Provides all the available blog post tags.
         '''
+
+    # TODO: basic crud operations with the type key use

@@ -16,14 +16,16 @@ from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from superdesk.tag.meta.tag import TagMapped
+from ally.support.sqlalchemy.mapper import validate
 
 # --------------------------------------------------------------------
 
+@validate(exclude=('Type',))
 class BlogPostTagMapped(Base, BlogPostTag):
     '''
     Provides the mapping for BlogPostTagMapped definition.
     '''
-    __tablename__ = 'livedesk_post_tag_type'
+    __tablename__ = 'livedesk_post_tag'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
