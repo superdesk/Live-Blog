@@ -41,7 +41,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         },
         init: function()
         {
-            this.collection = Gizmo.Auth(new Gizmo.Register.LiveBlogs({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog/Live'}));
+            this.collection = Gizmo.Auth(new Gizmo.Register.LiveBlogs({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog?isOpen=true'}));
             this.collection.on('read update', this.render, this);
             this.ipp = 10;
         },
@@ -68,7 +68,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             page = typeof page == 'undefined' ? 0 : page;
 
             offset = page * self.ipp;
-            var archive = Gizmo.Auth(new BLOGSArchive({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog'}));
+            var archive = Gizmo.Auth(new BLOGSArchive({href: localStorage.getItem('superdesk.login.selfHref')+'/Blog?isOpen=false'}));
             archive.getInfoSync(title, offset, self.ipp, order).done(function(dataArchive){
                 //pagination
                 var total = dataArchive.total;

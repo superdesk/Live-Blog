@@ -15,6 +15,7 @@ define('providers/soundcloud', [
     'tmpl!livedesk>providers/soundcloud/sound-item',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/api-key-error',
     'tmpl!livedesk>providers/loading'
     ], function( providers, common, $, BlogAction) {
         $.extend(providers.soundcloud, common, {
@@ -55,7 +56,7 @@ define('providers/soundcloud', [
                     url : query,
                 }).fail(function(data){
                     self.stopLoading('#soundcloud-sound-more');
-                    $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
+                    $.tmpl('livedesk>providers/api-key-error', {}, function(e,o) {
                         $('#soundcloud-sound-results').append(o);
                     });
                 }).done(function(data){
