@@ -92,7 +92,7 @@ def createSourceTypes():
     createSourceType('comment')
 
 @app.populate
-def createUserTypes():
+def createLiveBlogUserTypes():
     createUserType('commentator')
 
 def createBlogMediaType(key):

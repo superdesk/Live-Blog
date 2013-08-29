@@ -24,7 +24,7 @@ from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
-from ally.container.app import PRIORITY_LAST, PRIORITY_NORMAL, PRIORITY_FIRST
+from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
 from __plugin__.livedesk.populate_default_data import createSourceType
 
 # --------------------------------------------------------------------
@@ -64,7 +64,7 @@ def insertTheme():
 
 # --------------------------------------------------------------------
 
-@app.populate
+@app.populate(priority=PRIORITY_FIRST)
 def upgradeUser():
     creator = alchemySessionCreator()
     session = creator()
@@ -121,7 +121,7 @@ def upgradeInternationalizationSourceType():
         session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
     except (ProgrammingError, OperationalError): pass
 
-@app.populate(priority=PRIORITY_NORMAL)
+@app.populate(priority=PRIORITY_FIRST)
 def upgradeLiveBlog14First():
     creator = alchemySessionCreator()
     session = creator()
