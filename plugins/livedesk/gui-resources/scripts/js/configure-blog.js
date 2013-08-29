@@ -11,5 +11,6 @@ define([
     {
     	configBlogView.theBlog = theBlog;
         configBlogView.refresh();
+        configBlogView.resetEvents();
     }
 });

@@ -9,6 +9,8 @@ define
     'gizmo/superdesk',
     'jquery',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('media-archive', 'upload'),
+    'router',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -34,9 +36,8 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction) 
+function(providers, Gizmo, $, BlogAction, upload, router)
 {
-		
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -510,8 +511,12 @@ function(providers, Gizmo, $, BlogAction)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
-					.desc('order')					
-					.auto();
+					.desc('order');
+
+				if (self._parent.model.isOpen()) {
+					self.collection.auto();
+				}
+
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -838,31 +843,33 @@ function(providers, Gizmo, $, BlogAction)
 					$('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
 				else if(data !== undefined) {
-					if(data.NewUser && data.NewCollaborator) {
-						var addCollaborator = function(sourceId, userId) {
-								return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
-										Source: sourceId,
-										User: userId
-									})).xfilter('Id').sync();
-							},
-							user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
-							
-						user.xfilter('Id')
-							.sync()
-								.done(function(dataUser){
-									addCollaborator(data.NewCollaborator.Source,dataUser.Id)
-										.done(function(dataCollaborator){
-											delete data.NewUser;
-											delete data.NewCollaborator;
-											data.Author = dataCollaborator.Id;
-											self.timelineView.insert(data);
-										});
-								}).fail(function(dataUser){
-									console.log('Error: ',dataUser);
-								});
-					} else {	
-						self.timelineView.insert(data);
-					}
+					$.when(data).then(function(data) {
+						if(data.NewUser && data.NewCollaborator) {
+							var addCollaborator = function(sourceId, userId) {
+									return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
+											Source: sourceId,
+											User: userId
+										})).xfilter('Id').sync();
+								},
+								user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
+
+							user.xfilter('Id')
+								.sync()
+									.done(function(dataUser){
+										addCollaborator(data.NewCollaborator.Source,dataUser.Id)
+											.done(function(dataCollaborator){
+												delete data.NewUser;
+												delete data.NewCollaborator;
+												data.Author = dataCollaborator.Id;
+												self.timelineView.insert(data);
+											});
+									}).fail(function(dataUser){
+										console.log('Error: ',dataUser);
+									});
+						} else {
+							self.timelineView.insert(data);
+						}
+					});
 				}
 				else if(post !== undefined)
 				{
@@ -944,7 +951,7 @@ function(providers, Gizmo, $, BlogAction)
 				this.model.set(data).sync().done(function() {
 					content.find('.tool-box-top .update-success').removeClass('hide');
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-					self.textToggleStatus();
+					router.reload();
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
@@ -993,6 +1000,7 @@ function(providers, Gizmo, $, BlogAction)
 						self.el.find('[data-target="configure-blog"]').css('display', 'none');
 						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
 					});
+
 					// refresh twitter share button
 					require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
@@ -1015,7 +1023,8 @@ function(providers, Gizmo, $, BlogAction)
 						theBlog: self.theBlog
 					});
 					self.providers.render();
-					
+
+
 					self.actions = new ActionsView
 					({
 						el: $('.filter-posts', self.el),
@@ -1051,7 +1060,10 @@ function(providers, Gizmo, $, BlogAction)
 						});
 					self.responsiveTabs();
 					$.superdesk.hideLoader();
-					
+
+					self.el.find('.blog-closed-disabled').
+						css('display', self.model.isClosed() ? 'block' : 'none');
+					$('#site-live-info').toggle(self.model.isOpen());
 				});
 				/** text editor initialization */
 				var editorImageControl = function()
@@ -1067,7 +1079,7 @@ function(providers, Gizmo, $, BlogAction)
 					});
 					return command;
 				},
-				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : upload.texteditor }),
 				content = $(this.el).find('[is-content]'),
 				titleInput = content.find('section header h2'),
 				descrInput = content.find('article#blog-intro');

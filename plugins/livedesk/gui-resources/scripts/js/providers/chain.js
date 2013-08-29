@@ -203,7 +203,8 @@
 			},
 
 			activate: function() {
-				this.active = true;
+				localStorage.setItem('selectedChainedBlog', this.model.get('Id'));
+                this.active = true;
                 this.model.chainBlogContentView.activate();
 				this._parent.setActive(this);
 			},
@@ -214,10 +215,13 @@
 					self.setElement(o);
                     // small hack to select a chainbloglink as soon as its rendered.
                     // refactoring is needed, but until then this should work fine.
-                    setTimeout(function(){
-                        self.activate();
-                        self.el.addClass('active');
-                    }, 100);
+                    var selectedChainedBlog = localStorage.getItem('selectedChainedBlog');
+                    if (selectedChainedBlog === self.model.get('Id') || selectedChainedBlog === null) {
+                        setTimeout(function(){
+                            self.activate();
+                            self.el.addClass('active');
+                        }, 100);
+                    }
 				});
 			}
 		}),
@@ -313,14 +317,18 @@
 			},
 			render: function() {
 				var self = this;
-				$.tmpl('livedesk>providers/chain', {}, function(e,o){
+				var sourceBlogs = false;
+                if (self.sourceBlogs._list.length > 0) {
+                    sourceBlogs = true;
+                }
+                $.tmpl('livedesk>providers/chain', {sourceBlogs: sourceBlogs}, function(e,o){
 						$(self.el).html(o);
 					var chainBlog,
 						chainBlogLinkView,
 						$linkEl = self.el.find('.feed-info'),
 						$contentEl = self.el.find('.chain-header');
-					
-					self.sourceBlogs.each(function(id,sourceBlog){
+
+                    self.sourceBlogs.each(function(id,sourceBlog){
 						chainBlog = new Gizmo.Register.Blog();
 						chainBlog.defaults.PostPublished = Gizmo.Register.AutoPosts;
 						chainBlog.setHref(sourceBlog.get('URI').href);

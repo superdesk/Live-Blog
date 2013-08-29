@@ -1,1 +1,2 @@
-{>"themeBase/item/posttype/quote"/}
+{>"themeBase/item/posttype/base"/}
+{<itemClass}quote{/itemClass}

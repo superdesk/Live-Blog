@@ -115,12 +115,12 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         # take (or make) the user (for user name) part of creator and collaborator
         userTypeId, = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == self.user_type_key).one()
         try:
-            sql = self.session().query(UserMapped.userId, UserMapped.DeletedOn)
+            sql = self.session().query(UserMapped.userId, UserMapped.Active)
             sql = sql.filter(UserMapped.typeId == userTypeId)
             sql = sql.filter(UserMapped.FirstName == userName)
-            userId, isDeleted = sql.one()
-            if isDeleted is not None:
-                raise InputError(Ref(_('The commentator user was disabled'),))
+            userId, isActive = sql.one()
+            if not isActive:
+                raise InputError(Ref(_('The commentator user was inactivated'),))
         except:
             user = User()
             user.FirstName = userName

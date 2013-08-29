@@ -16,7 +16,6 @@ define
     config.guiJs('media-archive', 'models/meta-type'),
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/query-criteria'),
-    config.guiJs('media-archive', 'add'),
     config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive', 'types/_default/grid-view'),
     config.guiJs('media-archive', 'types/_default/list-view'),
@@ -30,7 +29,7 @@ define
     'tmpl!core>layouts/footer-static',
     'tmpl!core>layouts/footer-dinamic'
 ],
-function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add, Common, DefaGridView, DefaListView)
+function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, QueryCriteria, Common, DefaGridView, DefaListView)
 {
     var // collections
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),
@@ -504,7 +503,6 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             this.filterView = this.getFilterView();
             var self = this;
             $(this.filterView).on('trigger-search', function(){ self.search.call(self) });
-            $(Add).on('uploaded', function(e, Id){ self.uploaded.call(self, Id); });
         },
         getFilterView: function(){ return new FilterView; },
         getSearchTerm: function(){ return 'abc'; },
@@ -616,7 +614,20 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
          */
         add: function()
         {
-            Add.activate();
+            var self = this;
+
+            // put adv upload loading here to fix circular dependency
+            require([config.guiJs('media-archive', 'adv-upload')], function(UploadView) {
+                if (!('uploadView' in self)) {
+                    self.uploadView = new UploadView({showArchive: false});
+                }
+
+                self.uploadView.activate().then(function(imgData) {
+                    for (var i = 0; i < imgData.length; i++) {
+                        self.uploaded(imgData[i].data.Id);
+                    }
+                });
+            });
         },
         /*!
          * using this to popup edit upon upload

@@ -1,2 +1,2 @@
-{>"themeBase/item/posttype/normal"/}
-{<contentSideContainer}{/contentSideContainer}
+{>"themeBase/item/posttype/base"/}
+{<itemClass}normal{/itemClass}

@@ -17,6 +17,7 @@ define([
                     });
             },
             universal: function(model,source) {
+                var delay = new $.Deferred();
                 var feed = model.feed(true),
                     sourceName = model.get('Author').get('Source').get('Name'),
                     chainUserName;
@@ -42,8 +43,10 @@ define([
                     }
                 } else {
                     if(!chainUserName) {
-                        return obj;
+                        delay.resolve(obj);
+                        return delay.promise();
                     }
+
                     for(var i = 0, found=false, count = self.data.length; i < count; i++) {
                         if(self.data[i].User && self.data[i].User.Name == chainUserName) {
                             obj.Author = self.data[i].Id;
@@ -51,21 +54,37 @@ define([
                             break;
                         }
                     }
-                    if(!found) {
-                        obj.NewUser = {
-                            Name: chainUserName,
-                            FirstName: model.get('Author').get('User').FirstName,
-                            LastName: model.get('Author').get('User').LastName,
-                            EMail: model.get('Author').get('User').EMail,
-                            Password: '*'
-                        };
-                        obj.NewCollaborator = {
-                            Source: source.Id
-                        }
 
+                    if(!found) {
+                        new $.rest('Data/Collaborator/?qu.name=' + chainUserName).
+                            xfilter('Id,Source.Name,Name,User.Name').
+                            done(function(collabs) {
+                                if (collabs.length) {
+                                    obj.Author = collabs[0].Id;
+                                    self.data.push(collabs[0]);
+                                } else {
+                                    obj.NewUser = {
+                                        Name: chainUserName,
+                                        FirstName: model.get('Author').get('User').FirstName,
+                                        LastName: model.get('Author').get('User').LastName,
+                                        EMail: model.get('Author').get('User').EMail,
+                                        Password: '*'
+                                    };
+
+                                    obj.NewCollaborator = {
+                                        Source: source.Id
+                                    };
+                                }
+
+                                delay.resolve(obj);
+                            });
+
+                        return delay.promise();
                     }
                 }
-                return obj;
+
+                delay.resolve(obj);
+                return delay.promise();
             }
         }
     });
