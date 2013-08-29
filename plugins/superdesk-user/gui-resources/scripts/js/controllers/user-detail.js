@@ -43,7 +43,6 @@ function(angular, sha) {
                         }
                     }
                     $scope.user = user;
-                    console.log($scope.user);
                 }
             });
             $scope.$watch('roleList', function(roleList){
@@ -67,41 +66,23 @@ function(angular, sha) {
 
         $scope.saveUser = function() {
             var user = {};
-            if ($scope.user !== undefined) {
-                //user.Id = $scope.user.Id;
-                user = $scope.user;
+            var fields = ['Id', 'FirstName', 'LastName', 'Name', 'Password', 'EMail', 'PhoneNumber', 'Address'];
+            for (var i = 0; i < fields.length; i = i + 1) {
+                user[fields[i]] = $scope.user[fields[i]];
+            }
+            if (user.Password !== undefined) {
+                user.Password = (new sha(user.Password, 'ASCII')).getHash('SHA-512', 'HEX');
             }
             
-            /*
-            // should be without jquery, but angular has some problems with contenteditable
-            // and there is a directive to solve this problem, but it's causing more problems.
-            // this should be changed.
-            user.FirstName = $('#userFirstName').html();
-            user.LastName = $('#userLastName').html();
-            user.Name = $('#userName').html();
-            user.EMail = $('#userEmail').html();
-            user.PhoneNumber = $('#userPhone').html();
-            user.Address = $('#userAddress').html();
-
-            for (var i in user) {
-                if (user[i] === '') {
-                    delete user[i];
-                }
-            }
-            */
-
             if (user.Id === undefined) {
-                user.Password = (new sha($('#userPassword').html(), 'ASCII')).getHash('SHA-512', 'HEX');
                 var result = User.save(user);
                 user.Id = result.Id;
             } else {
                 User.update(user);
-                user.Password = $('#userPassword').html();
-                if (user.Password !== '') {
-                    user.Password = (new sha($('#userPassword').html(), 'ASCII')).getHash('SHA-512', 'HEX');
-                    User.update({Id: user.Id, Action: 'Password', NewPassword: user.Password});
-                }
-                User.delete({Id: user.Id, Action: 'Role'});
+            }
+
+            if (user.Password !== undefined) {
+                User.update({Id: user.Id, Action: 'Password', NewPassword: user.Password});
             }
 
             if ($scope.user !== undefined) {
