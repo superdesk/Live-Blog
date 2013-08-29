@@ -11,21 +11,31 @@ function(angular, sha) {
             $scope.enabled = false;
 
             $scope.roleList = RoleListLoader();
-            
-            $scope.$watch('selectedUserId', function(selectedUserId) {
-                if (selectedUserId === 0) {
+
+            $scope.$on('userDetail', function(event, userId, tab) {
+                if (tab === undefined) {
+                    tab = 'overview';
+                }
+
+                if (userId === 0) {
                     $scope.newUser = {roles: {}};
                     for (var i in $scope.roleList) {
                         $scope.newUser.roles[$scope.roleList[i].Id] = false;
                     }
                     $scope.enabled = true;
-                    $('#profile-button').tab('show');
-                    $('#edit-profile-button').tab('show');
-                } else if (selectedUserId !== null) {
+                } else {
+                    $scope.loadUser(userId);
+                }
+
+                if (tab === 'overview') {
                     $('#overview-button').tab('show');
-                    $scope.loadUser(selectedUserId);
+                } else if (tab === 'profile') {
+                    $('#profile-button').tab('show');
+                } else if (tab === 'editProfile') {
+                    $('#edit-profile-button').tab('show');
                 }
             });
+
             $scope.$watch('user', function(user){
                 if (user !== undefined) {
                     user.roles = {};
@@ -45,6 +55,7 @@ function(angular, sha) {
                     $scope.user = user;
                 }
             });
+            
             $scope.$watch('roleList', function(roleList){
                 if (roleList !== undefined) {
                     $scope.roleList = roleList;
