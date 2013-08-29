@@ -292,19 +292,19 @@
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('First name');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userFirstName" style="min-width: 50px;">{{ user.FirstName }}</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userFirstName" ng-model="user.FirstName" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('Last Name');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userLastName" style="min-width: 50px;">{{ user.LastName }}</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userLastName" ng-model="user.LastName" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('User Name');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userName" style="min-width: 50px;">{{ user.Name }}</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userName" ng-model="user.Name" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item password">
 		              <span class="info-label">_('Password');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userPassword" style="min-width: 50px;"></span>
+		              <span class="info-value info-editable" contenteditable="true" id="userPassword" ng-model="user.Password" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('user type');</span>
@@ -324,15 +324,15 @@
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('email');</span>
-		              <span class="info-value info-editable" id="userEmail" contenteditable="true" style="min-width: 50px;">{{ user.EMail }}</span>
+		              <span class="info-value info-editable" id="userEmail" contenteditable="true" ng-model="user.EMail" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('phone');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userPhone" style="min-width: 50px;">{{ user.PhoneNumber }}</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userPhone" ng-model="user.PhoneNumber" style="min-width: 50px;"></span>
 		            </div>
 		            <div class="info-item">
 		              <span class="info-label">_('address');</span>
-		              <span class="info-value info-editable" contenteditable="true" id="userAddress" style="min-width: 50px;">{{ user.Address }}</span>
+		              <span class="info-value info-editable" contenteditable="true" id="userAddress" ng-model="user.Address" style="min-width: 50px;"></span>
 		            </div>
 		          </div>
 		      </div>

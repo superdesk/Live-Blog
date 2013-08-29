@@ -22,6 +22,7 @@ function(angular, sha) {
                     $('#profile-button').tab('show');
                     $('#edit-profile-button').tab('show');
                 } else if (selectedUserId !== null) {
+                    $('#overview-button').tab('show');
                     $scope.loadUser(selectedUserId);
                 }
             });
@@ -53,7 +54,6 @@ function(angular, sha) {
         };
 
         $scope.loadUser = function(userId) {
-            console.log(userId);
             $scope.user = UserDetailLoader(userId);
             $scope.enabled = true;
             $('#overview-button').tab('show');
@@ -63,16 +63,16 @@ function(angular, sha) {
             $scope.$parent.selectedUserId = null;
             $scope.user = undefined;
             $scope.enabled = false;
-            
-            $('#overview-button').tab('show');
         };
 
         $scope.saveUser = function() {
             var user = {};
             if ($scope.user !== undefined) {
-                user.Id = $scope.user.Id;
+                //user.Id = $scope.user.Id;
+                user = $scope.user;
             }
             
+            /*
             // should be without jquery, but angular has some problems with contenteditable
             // and there is a directive to solve this problem, but it's causing more problems.
             // this should be changed.
@@ -88,6 +88,7 @@ function(angular, sha) {
                     delete user[i];
                 }
             }
+            */
 
             if (user.Id === undefined) {
                 user.Password = (new sha($('#userPassword').html(), 'ASCII')).getHash('SHA-512', 'HEX');
