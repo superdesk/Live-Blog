@@ -11,7 +11,7 @@ APIs for person.
 
 from ally.api.config import service, query
 from ally.api.criteria import AsLikeOrdered
-from ally.support.api.entity import Entity, IEntityService, QEntity
+from ally.support.api.entity_ided import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelHR
 
 # --------------------------------------------------------------------

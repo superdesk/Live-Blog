@@ -3,17 +3,14 @@ Created on Dec 21, 2012
 
 @author: chupy
 '''
-# --------------------------------------------------------------------
 
-class A:
-    
-    def keys(self):
-        print('keys')
-        return ('1', '2')
-    
-    def __getitem__(self, key):
-        print('__getitem__')
-        return None
+import hashlib
+import binascii
+import os
+import re
 
 if __name__ == '__main__':
-    print('loasasDsfdksd'.title())
+    a = hashlib.md5()
+    print(a.update(b'afdasdasdfqegfqegf'))
+    print(a.update(121212))
+    print(a.hexdigest().upper())

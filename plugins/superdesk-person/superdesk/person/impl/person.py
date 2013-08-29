@@ -6,6 +6,7 @@ Created on Mar 6, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
 
+SQL alchemy implementation for person APIs.
 '''
 from superdesk.person.api.person import IPersonService, QPerson
 from ally.container.ioc import injected
@@ -19,7 +20,7 @@ from ..meta.person import PersonMapped
 @setup(IPersonService, name='personService')
 class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     '''
-    @see: IUserService
+    Implementation for @see: IPersonService
     '''
     def __init__(self):
         EntityServiceAlchemy.__init__(self, PersonMapped, QPerson)

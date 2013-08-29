@@ -9,22 +9,17 @@ Created on Jan 9, 2012
 Contains the services for superdesk.
 '''
 
-from ..plugin.registry import addService
-from .db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
-from ally.container import support, bind, ioc
-from itertools import chain
+from ..plugin.registry import registerService
+from .database import binders
+from ally.container import support, bind
 
 # --------------------------------------------------------------------
 
 SERVICES = 'superdesk.*.api.**.I*Service'
-@ioc.entity
-def binders(): return [bindSuperdeskSession]
-@ioc.entity
-def bindersService(): return list(chain((bindSuperdeskValidations,), binders()))
 
 bind.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.*.impl.**.*')
-support.listenToEntities(SERVICES, listeners=addService(bindersService))
+support.listenToEntities(SERVICES, listeners=registerService)
 support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------

@@ -16,7 +16,7 @@ from ally.api.criteria import AsRangeOrdered, AsLike, AsDateOrdered
 from ally.api.type import Iter
 
 # --------------------------------------------------------------------
-
+#TODO: use as configuration in implementation.
 CLASS_TEXT = 'icls:text'
 CLASS_PACKAGE = 'icls:composite'
 

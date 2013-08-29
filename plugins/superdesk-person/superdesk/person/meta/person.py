@@ -39,7 +39,6 @@ class PersonMapped(Base, Person):
         if self.FirstName is None: return self.LastName
         if self.LastName is None: return self.FirstName
         return self.FirstName + ' ' + self.LastName
-
     # Expression for hybrid ------------------------------------
     FullName.expression = lambda cls : case([(cls.FirstName == None, cls.LastName)], else_=
                                             case([(cls.LastName == None, cls.FirstName)], else_=

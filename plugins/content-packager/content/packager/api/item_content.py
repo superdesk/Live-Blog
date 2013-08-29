@@ -12,7 +12,7 @@ API specifications for content.
 from content.packager.api.domain_content import modelContent
 from ally.support.api.entity import Entity, QEntity, IEntityService
 from ally.api.config import query, service
-from ally.api.criteria import AsLike, AsRangeOrdered, AsEqual
+from ally.api.criteria import AsLike, AsRangeOrdered
 from ally.api.type import Reference
 from content.packager.api.item import Item
 
@@ -38,7 +38,6 @@ class QItemContent(QEntity):
     '''
     Provides the item content query.
     '''
-    item = AsEqual
     contentType = AsLike
     residRef = AsLike
     size = AsRangeOrdered

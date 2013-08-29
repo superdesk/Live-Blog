@@ -17,7 +17,7 @@ from superdesk.media_archive.api.meta_data import MetaData
 from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
-
+#TODO: Gabriel: this is wrong, there should not be a person icon.
 @modelHR
 class PersonIcon(Entity):
     '''
@@ -46,7 +46,7 @@ class IPersonIconService:
             Returns the entity identified by the id parameter.
         '''
 
-    @call(method=INSERT)
+    @call(method=INSERT) #TODO: Gabriel: this should be just update.
     def setIcon(self, personId:Person.Id, metaDataId:MetaData.Id) -> PersonIcon.Id:
         '''
         Associates the icon referenced by the metadata identifier with the person.

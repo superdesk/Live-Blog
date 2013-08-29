@@ -11,7 +11,7 @@ API specifications for item group.
 
 from content.packager.api.domain_content import modelContent
 from ally.api.config import query, service, call, LIMIT_DEFAULT
-from ally.api.criteria import AsLike, AsEqual
+from ally.api.criteria import AsLike
 from ally.api.type import Iter
 from content.packager.api.item import Item
 from ally.support.api.entity import Entity, IEntityService, QEntity
@@ -35,7 +35,6 @@ class QItemGroup(QEntity):
     '''
     Provides the item group query.
     '''
-    item = AsEqual
     localId = AsLike
     role = AsLike
     mode = AsLike

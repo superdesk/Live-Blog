@@ -11,7 +11,7 @@ The API specifications for the user.
 
 from ally.api.config import service, query, UPDATE, call, model
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike
-from ally.support.api.entity import IEntityService, QEntity, Entity
+from ally.support.api.entity_ided import IEntityService, QEntity, Entity
 from datetime import datetime
 from superdesk.api.domain_superdesk import modelHR
 from superdesk.person.api.person import Person, QPerson

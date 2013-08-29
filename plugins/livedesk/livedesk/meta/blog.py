@@ -50,11 +50,9 @@ class BlogMapped(Base, Blog):
     @hybrid_property
     def IsLive(self):
         return self.LiveOn is not None and self.ClosedOn is None
-
     # Expression for hybrid ------------------------------------
-    @classmethod
-    @IsLive.expression
-    def _IsLive(cls):
+    @IsLive.expression 
+    def _IsLive(cls):  # @NoSelf
         return case([((cls.LiveOn != None) & (cls.ClosedOn == None), True)], else_=False)
 
 validateManaged(BlogMapped.CreatedOn)
