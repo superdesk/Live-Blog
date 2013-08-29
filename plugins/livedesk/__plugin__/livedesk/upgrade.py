@@ -215,3 +215,16 @@ def createBlogMediaType(key):
 @app.populate(priority=PRIORITY_LAST)
 def upgradeBlogMedia():
     createBlogMediaType('top_banner')
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogSourceDeleteFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('ALTER TABLE `livedesk_blog_source` DROP FOREIGN KEY `livedesk_blog_source_ibfk_2`')
+    except (ProgrammingError, OperationalError): return
+    session.execute('ALTER TABLE `livedesk_blog_source` ADD CONSTRAINT `livedesk_blog_source_ibfk_2` '
+                'FOREIGN KEY (`fk_source` ) REFERENCES `source` (`id` ) '
+                'ON DELETE RESTRICT ON UPDATE RESTRICT')
