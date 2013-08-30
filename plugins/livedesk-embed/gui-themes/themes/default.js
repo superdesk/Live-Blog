@@ -3,6 +3,7 @@ define([
 	'plugins/scroll-pagination',
 	'plugins/permanent-link',
 	'plugins/user-comments',
+	'plugins/twitter-widgets',
 	'css!theme/liveblog'
 ], function(){
 	return {
