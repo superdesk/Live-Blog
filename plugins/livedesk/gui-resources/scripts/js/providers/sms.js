@@ -243,7 +243,8 @@ $.extend(providers.sms, {
         //console.log('myUrl ', myUrl );
         
         $.ajax({
-            url: myUrl
+            url: myUrl,
+            global: false,
         }).done(function(data){
             var total = data.total;
             var smss = data.PostList;
