@@ -14,7 +14,7 @@
 	{/FastActions}
 	{+AdditionalActions}
 		{+WrapupAdditionalActions}
-			<div class="arrow" style="height:20px; width:20px; float: left; background: url('images/wrapup-arrow.png') no-repeat scroll 0 0 transparent; background-position: -40px 0;">
+			<div class="arrow">
 			</div>		
 		{/WrapupAdditionalActions}
 	{/AdditionalActions}
@@ -149,7 +149,7 @@
 	</div>
 	{+ImportantActions}
 		{+ImportantActionsPublish}
-		<div class="btn-group pull-right clearfix actions hide">
+		<div class="pull-right clearfix actions hide">
 			<button class="btn btn-mini cancel">_("Cancel");</button>
 			<button class="btn btn-mini btn-primary publish">_("Publish");</button>
 		</div>
@@ -163,7 +163,7 @@
 		</div>
 		{/ImportantActionsPublish}
 		{+ImportantActionsPrepublish}
-			<div class="btn-group pull-right clearfix actions">
+			<div class="pull-right clearfix actions">
 				<button class="btn btn-mini cancel">_("Cancel");</button>
 				<button class="btn btn-mini btn-primary publish">_("Publish");</button>
 			</div>
