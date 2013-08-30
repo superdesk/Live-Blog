@@ -223,7 +223,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 // get post list and sync it with the server
                 this.get('PostUnpublished')
                     .xfilter('*,Author.Source.*,Creator.*')
-                    .sync({data: {'cId.since': this._latestPost}})
+                    .sync({data: {'cId.since': this._latestPost}, global: false})
                     .done(function(data){ colab._latestPost = parseInt(data.lastCId);self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
