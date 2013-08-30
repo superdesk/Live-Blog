@@ -97,6 +97,8 @@ define([
                 return;
             }
 
+            localStorage.removeItem('selectedChainedBlog');
+
             this.create({
                 Name: blog.get('Title'),
                 URI: blog.get('href'),
@@ -112,6 +114,8 @@ define([
         removeBlog: function(blog) {
             var source = this.findBlog(blog);
             if (source) {
+                localStorage.removeItem('selectedChainedBlog');
+
                 this.remove(source);
                 source.destroy();
             }

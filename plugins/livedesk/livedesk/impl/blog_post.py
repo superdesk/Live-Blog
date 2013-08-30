@@ -93,8 +93,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
         return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
@@ -121,8 +119,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
         return posts
 
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):

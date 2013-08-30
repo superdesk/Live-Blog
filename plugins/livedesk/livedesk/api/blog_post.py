@@ -71,15 +71,9 @@ class QBlogPost(QPost, QWithCId):
 @extension
 class IterPost(IterPart):
     '''
-    The post iterable that provides extended information on the posts collection. The offset more is constructed without
-	the cId filtering, the idea is if you provide in your query a filter saying that you require elements that have an
-	order greater then a certain value and also provide a cId in your filtering, you will have a return that is presenting
-	you the changed entries based on the cId, but the offsetMore will present you how many posts there are that are greater
-	then the provided order with no regards to cId. This is helpful when requesting the next page because the offset more
-	will tell you exactly fron where you next page will start. As a conclusion to have a relevant offsetMore you need to
-	query based on order and cId.
+    The post iterable that provides extended information on the posts collection.
+    The offsetMore parameter was removed to limit the query count that the client generates otherwise.
     '''
-    offsetMore = int
     lastCId = int
 
 # --------------------------------------------------------------------

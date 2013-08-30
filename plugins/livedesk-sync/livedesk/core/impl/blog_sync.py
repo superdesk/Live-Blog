@@ -32,6 +32,10 @@ from superdesk.user.api.user import IUserService, QUser, User
 from ally.exception import InputError
 from urllib.error import HTTPError
 from time import sleep
+from superdesk.media_archive.api.meta_data import IMetaDataUploadService
+from superdesk.media_archive.api.meta_info import IMetaInfoService
+from superdesk.person_icon.api.person_icon import IPersonIconService
+from .icon_content import ChainedIconContent
 
 # --------------------------------------------------------------------
 
@@ -59,6 +63,12 @@ class BlogSyncProcess:
     # blog post service used to retrive collaborator
 
     userService = IUserService; wire.entity('userService')
+
+    metaDataService = IMetaDataUploadService; wire.entity('metaDataService')
+
+    metaInfoService = IMetaInfoService; wire.entity('metaInfoService')
+
+    personIconService = IPersonIconService; wire.entity('personIconService')
 
     syncThreads = {}
     # dictionary of threads that perform synchronization
@@ -140,11 +150,16 @@ class BlogSyncProcess:
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
             return
+        if str(resp.status) != '200':
+            log.error('Read problem on %s, status: %s' % (source.URI, resp.status))
+            return
 
         try: msg = json.load(codecs.getreader(self.encodingType)(resp))
         except ValueError as e:
             log.error('Invalid JSON data %s' % e)
             return
+
+        usersForIcons = {}
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
@@ -152,11 +167,17 @@ class BlogSyncProcess:
                 lPost = BlogPost()
                 lPost.Type = post['Type']['Key']
                 lPost.Creator = blogSync.Creator
-                lPost.Author = self._getCollaboratorForAuthor(post['Author'], source)
+                lPost.Author, userId = self._getCollaboratorForAuthor(post['Author'], source)
                 lPost.Meta = post['Meta'] if 'Meta' in post else None
                 lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 lPost.Content = post['Content'] if 'Content' in post else None
                 lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
+
+                if userId and (userId not in usersForIcons):
+                    try:
+                        usersForIcons[userId] = post['Author']['User']
+                    except KeyError:
+                        pass
 
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
@@ -170,6 +191,8 @@ class BlogSyncProcess:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
+
+        self._updateIcons(usersForIcons)
 
     def _getCollaboratorForAuthor(self, author, source):
         '''
@@ -199,17 +222,116 @@ class BlogSyncProcess:
                 userId = localUser[0].Id
             c = Collaborator()
             c.User, c.Source = userId, source.Id
-            try: return self.collaboratorService.insert(c)
+            try: return [self.collaboratorService.insert(c), userId]
             except InputError:
                 collabs = self.collaboratorService.getAll(userId, source.Id)
-                return collabs[0].Id
+                return [collabs[0].Id, userId]
         except KeyError:
             q = QSource(name=author['Source']['Name'], isModifiable=False)
             sources = self.sourceService.getAll(q=q)
             if not sources: raise Exception('Invalid source %s' % q.name)
             collabs = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
-            if collabs: return collabs[0].Id
+            if collabs: return [collabs[0].Id, None]
             else:
                 c = Collaborator()
                 c.Source = sources[0].Id
-                return self.collaboratorService.insert(c)
+                return [self.collaboratorService.insert(c), None]
+
+    def _updateIcons(self, usersData):
+        '''
+        Setting the icon of the user
+        '''
+        userIcons = {}
+        for userId in usersData:
+            userJSON = usersData[userId]
+            userIcons[userId] = {'created': None, 'url': None, 'name': None}
+
+            try:
+                metaDataIconJSON = userJSON['MetaDataIcon']
+                metaDataIconURL = metaDataIconJSON.get('href', '')
+                if not metaDataIconURL:
+                    continue
+
+                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+                try:
+                    resp = urlopen(req)
+                except (HTTPError, socket.error) as e:
+                    continue
+                if str(resp.status) != '200':
+                    continue
+
+                try:
+                    msg = json.load(codecs.getreader(self.encodingType)(resp))
+                except ValueError as e:
+                    log.error('Invalid JSON data %s' % e)
+                    continue
+
+                try:
+                    userIcons[userId]['created'] = datetime.strptime(msg.get('CreatedOn', None), '%m/%d/%y %I:%M %p')
+                except:
+                    userIcons[userId]['created'] = None
+                userIcons[userId]['url'] = msg['Content'].get('href', None)
+
+                if userIcons[userId]['url']:
+                    iconFileName = userIcons[userId]['url'].split('/')[-1]
+                    if iconFileName:
+                        iconFileName = '_' + iconFileName
+                    userIcons[userId]['name'] = 'icon_' + str(userId) + iconFileName
+
+            except KeyError:
+                continue
+
+        for userId in userIcons:
+            iconInfo = userIcons[userId]
+            self._synchronizeIcon(userId, iconInfo)
+
+    def _synchronizeIcon(self, userId, iconInfo):
+        '''
+        Synchronizing local icon according to the remote one
+        '''
+        if not userId:
+            return
+
+        shouldRemoveOld = False
+        needToUploadNew = False
+
+        try:
+            metaDataLocal = self.personIconService.getByPersonId(userId, 'http')
+        except InputError:
+            metaDataLocal = None
+
+        if metaDataLocal:
+            localId = metaDataLocal.Id
+            localCreated = metaDataLocal.CreatedOn
+        else:
+            localId = None
+            localCreated = None
+
+        if not localId:
+            if iconInfo['url']:
+                needToUploadNew = True
+
+        else:
+            if iconInfo['url']:
+                if (not iconInfo['created']) or (not localCreated) or (localCreated < iconInfo['created']):
+                    shouldRemoveOld = True
+                    needToUploadNew = True
+            else:
+                shouldRemoveOld = True
+
+        if shouldRemoveOld:
+            try:
+                self.personIconService.detachIcon(userId)
+                self.metaInfoService.delete(localId)
+            except InputError:
+                log.error('Can not remove old icon for chained user %s' % userId)
+
+        if needToUploadNew:
+            try:
+                iconContent = ChainedIconContent(iconInfo['url'], iconInfo['name'])
+                imageData = self.metaDataService.insert(userId, iconContent, 'http')
+                if (not imageData) or (not imageData.Id):
+                    return
+                self.personIconService.setIcon(userId, imageData.Id)
+            except InputError:
+                log.error('Can not upload icon for chained user %s' % userId)

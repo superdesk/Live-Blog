@@ -16,7 +16,7 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.person_icon.meta.person_icon import PersonIconMapped
@@ -60,3 +60,12 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
             self.session().flush((entityDb,))
         except SQLAlchemyError as e: handle(e, entityDb)
         return entityDb.Id
+
+    def detachIcon(self, personIconId):
+        '''
+        @see: IPersonIconService.detachIcon
+        '''
+        try:
+            return self.session().query(PersonIconMapped).filter(PersonIconMapped.Id == personIconId).delete() > 0
+        except (OperationalError, IntegrityError):
+            raise InputError(Ref(_('Can not detach person icon because in use'),))

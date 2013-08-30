@@ -10,6 +10,7 @@ define
     'jquery',
     config.guiJs('livedesk', 'action'),
     config.guiJs('media-archive', 'upload'),
+    'router',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -35,9 +36,8 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction, upload) 
+function(providers, Gizmo, $, BlogAction, upload, router)
 {
-		
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -240,12 +240,21 @@ function(providers, Gizmo, $, BlogAction, upload)
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
+
+				// @FIX LB-814: Image post does allow comments to be added in a wrong place
+				// @part 2
+				if ('image' in self) {
+					var separator = data.Content.length && data.Content[0] == "\n" ? '' : "\n";
+					data.Content = self.image.wrap('<div>').parent().html() + separator + data.Content;
+				}
+
 				this.model.set(data).sync().done(function(){
 					//handle done
 				}).fail(function(data){
 					//handle fail
 					self.handleError(data);
 				});
+
 				this.el.find('.actions').stop().fadeOut(100, function(){
 					$('.editable').removeData('previous');
 				});
@@ -434,6 +443,13 @@ function(providers, Gizmo, $, BlogAction, upload)
 					self.setElement(o);
 						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
+
+							// @FIX LB-814: Image post does allow comments to be added in a wrong place
+							if (self.model.data.Type.data.Key === 'image') {
+								var editable = $('.editable', self.el);
+								var image = $('a', editable);
+								self.image = image.insertBefore(editable);
+							}
 						}).fail(function(action){
 							self.el.find('.unpublish,.close').remove();
 							if(self.model.get('Creator').Id == localStorage.getItem('superdesk.login.id'))
@@ -511,8 +527,12 @@ function(providers, Gizmo, $, BlogAction, upload)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
-					.desc('order')					
-					.auto();
+					.desc('order');
+
+				if (self._parent.model.isOpen()) {
+					self.collection.auto();
+				}
+
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -947,7 +967,7 @@ function(providers, Gizmo, $, BlogAction, upload)
 				this.model.set(data).sync().done(function() {
 					content.find('.tool-box-top .update-success').removeClass('hide');
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-					self.textToggleStatus();
+					router.reload();
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
@@ -982,6 +1002,7 @@ function(providers, Gizmo, $, BlogAction, upload)
 						submenuActive1: 'active'
 					},
 					OutputLink: embedConfig.FrontendServer,
+					OutputLinkAlt: document.URL.split(':')[0] + embedConfig.FrontendServer,
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
 				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
@@ -996,6 +1017,7 @@ function(providers, Gizmo, $, BlogAction, upload)
 						self.el.find('[data-target="configure-blog"]').css('display', 'none');
 						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
 					});
+
 					// refresh twitter share button
 					require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
@@ -1018,7 +1040,8 @@ function(providers, Gizmo, $, BlogAction, upload)
 						theBlog: self.theBlog
 					});
 					self.providers.render();
-					
+
+
 					self.actions = new ActionsView
 					({
 						el: $('.filter-posts', self.el),
@@ -1054,7 +1077,10 @@ function(providers, Gizmo, $, BlogAction, upload)
 						});
 					self.responsiveTabs();
 					$.superdesk.hideLoader();
-					
+
+					self.el.find('.blog-closed-disabled').
+						css('display', self.model.isClosed() ? 'block' : 'none');
+					$('#site-live-info').toggle(self.model.isOpen());
 				});
 				/** text editor initialization */
 				var editorImageControl = function()

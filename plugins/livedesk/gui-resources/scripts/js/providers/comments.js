@@ -89,7 +89,8 @@ $.extend(providers.comments, {
         }
         myUrl = url.get() + '?X-Filter=AuthorName,Content,CreatedOn,CId,Id&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
         $.ajax({
-            url: myUrl
+            url: myUrl,
+            global: false
         }).done(function(data){
             var total = data.total;
             var comments = data.PostList;
