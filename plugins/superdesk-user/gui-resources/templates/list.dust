@@ -1,8 +1,10 @@
 <div class="subnav subnav-fixed">
+	<!--
 	<div class="btn-group pull-left" style="margin-right:20px;" id="switch-user-type">
 	    <a class="btn btn-medium active">_('Users');</a>
 	    <a class="btn btn-medium ">_('Authors');</a>
 	</div>
+	-->
 
 	<input type="text" name="searchbar" class="searchbar-container" style="width:500px;" placeholder="Search" ng-model="searchTerm">
 
@@ -13,14 +15,17 @@
 	<div class="content-topnav">
       <ul class="nav nav-tabs dashboard-tabs" id="userTabs">
         <li><a href="#active_users" data-toggle="tab">_('Active');</a></li>
+        <!--
         <li><a href="#pending_users" data-toggle="tab">_('Pending');</a></li>
         <li><a href="#deleted_users" data-toggle="tab">_('Deleted');</a></li>
+        -->
       </ul>
     </div>
 
     <div class="tab-content user-tabs">
       	<div class="tab-pane" id="active_users">
         	<div class="tab-submenu">
+	            <!--
 	            <div class="btn-group pull-left" style="margin-right:20px;" id="switch-user-subtype">
 	              <a class="btn">_('Community');</a>
 	              <a class="btn active">_('Staff');</a>
@@ -34,6 +39,7 @@
 	                <li><a href="#">_('Administrator');</a></li>
 	              </ul>
 	            </div>
+	            -->
 
 	            <div class="btn-group pull-right" style="margin-left:20px;">
 		            <button class="btn" ng-click="page = page - 1" ng-disabled="page == 1"><i class="icon-chevron-left"></i></button>
