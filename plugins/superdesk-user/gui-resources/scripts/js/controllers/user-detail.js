@@ -93,7 +93,11 @@ function(angular, sha) {
             }
 
             if (user.Password !== undefined) {
-                User.update({Id: user.Id, Action: 'Password', NewPassword: user.Password});
+                //User.update({Id: user.Id, Action: 'Password', NewPassword: user.Password});
+                // we have to do it without resource, because api returns error if there is unneeded data
+                $http.put('/resources/HR/User/' + user.Id + '/Password', {NewPassword: user.Password}).success(function(data, status, headers, config) {
+                    
+                });
             }
 
             if ($scope.user !== undefined) {
