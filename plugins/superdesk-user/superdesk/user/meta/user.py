@@ -9,15 +9,16 @@ Created on Aug 23, 2011
 Contains the SQL alchemy meta for user API.
 '''
 
+# TODO: cleanup
 from ..api.user import User
 from ..meta.user_type import UserTypeMapped
-from ally.container.binder_op import validateManaged, validateRequired
-from ally.support.sqlalchemy.mapper import validate
-from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sql_alchemy.support.mapper import validate
+from sql_alchemy.support.util_meta import relationshipModel
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.types import String, DateTime, Boolean
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.person.meta.person import PersonMapped
+# from ally.container.binder_op import validateManaged, validateRequired
 
 # --------------------------------------------------------------------
 
@@ -27,20 +28,16 @@ class UserMapped(PersonMapped, User):
     Provides the mapping for User entity.
     '''
     __tablename__ = 'user'
-    __table_args__ = (UniqueConstraint('name', name='uix_user_name'),
-                      dict(mysql_engine='InnoDB', mysql_charset='utf8'))
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Name = Column('name', String(150), nullable=False, unique=True)
-    CreatedOn = Column('created_on', DateTime, nullable=False)
+    CreatedOn = Column('created_on', DateTime, nullable=False, default=current_timestamp())
     Active = Column('active', Boolean, nullable=False, default=True)
-    Type = association_proxy('type', 'Key')
+    Type = relationshipModel(UserTypeMapped.id)
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
     password = Column('password', String(255), nullable=False)
-    # Never map over the inherited id
-    typeId = Column('fk_type_id', ForeignKey(UserTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(UserTypeMapped, uselist=False, lazy='joined')
 
-validateRequired(UserMapped.Password)
-validateManaged(UserMapped.CreatedOn)
-validateManaged(UserMapped.Active)
+# validateRequired(UserMapped.Password)
+# validateManaged(UserMapped.CreatedOn)
+# validateManaged(UserMapped.Active)

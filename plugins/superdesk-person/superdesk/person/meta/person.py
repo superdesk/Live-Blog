@@ -10,7 +10,7 @@ Contains the SQL alchemy meta for person API.
 '''
 
 from ..api.person import Person
-from ally.support.sqlalchemy.mapper import validate
+from sql_alchemy.support.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.schema import Column

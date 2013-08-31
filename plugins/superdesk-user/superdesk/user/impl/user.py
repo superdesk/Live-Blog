@@ -10,113 +10,56 @@ Implementation for user services.
 '''
 
 from ally.api.criteria import AsLike, AsBoolean
-from ally.api.extension import IterPart
+from ally.api.error import InputError
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import copy
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import handle, buildQuery, buildLimits
-from sqlalchemy.exc import SQLAlchemyError
+from functools import reduce
+from sql_alchemy.impl.entity import EntityServiceAlchemy
+from sql_alchemy.support.util_service import insertModel
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.functions import current_timestamp
+from sqlalchemy.sql.expression import or_
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
-from superdesk.user.meta.user_type import UserTypeMapped
 
 # --------------------------------------------------------------------
 
-ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail, UserMapped.PhoneNumber)
-
 @injected
 @setup(IUserService, name='userService')
-class UserServiceAlchemy(SessionSupport, IUserService):
+class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
     '''
-    @see: IUserService
+    Implementation for @see: IUserService
     '''
     default_user_type_key = 'standard'; wire.config('default_user_type_key', doc='''
     Default user type for users without specified the user type key''')
+    allNames = {UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail, UserMapped.PhoneNumber}
 
     def __init__(self):
         '''
         Construct the service
         '''
+        assert isinstance(self.default_user_type_key, str), 'Invalid default user type %s' % self.default_user_type_key
+        assert isinstance(self.allNames, set), 'Invalid all name %s' % self.allNames
+        EntityServiceAlchemy.__init__(self, UserMapped, QUser, all=self.queryAll, inactive=self.queryInactive)
 
-    def getById(self, id):
-        '''
-        @see: IUserService.getById
-        '''
-        user = self.session().query(UserMapped).get(id)
-        if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
-        assert isinstance(user, UserMapped), 'Invalid user %s' % user
-        return user
-
-    def getAll(self, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, q=None, **options):
         '''
         @see: IUserService.getAll
         '''
-        if limit == 0: entities = ()
-        else: entities = None
-        if detailed or entities is None:
-            sql = self.session().query(UserMapped)
-
-            activeUsers = True
-            if q:
-                assert isinstance(q, QUser), 'Invalid query %s' % q
-                sql = buildQuery(sql, q, UserMapped)
-                if QUser.all in q:
-                    filter = None
-                    if AsLike.like in q.all:
-                        for col in ALL_NAMES:
-                            filter = col.like(q.all.like) if filter is None else filter | col.like(q.all.like)
-                    elif AsLike.ilike in q.all:
-                        for col in ALL_NAMES:
-                            filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
-                    sql = sql.filter(filter)
-
-                if (QUser.inactive in q) and (AsBoolean.value in q.inactive):
-                        activeUsers = not q.inactive.value
-
-            sql = sql.filter(UserMapped.Active == activeUsers)
-
-            if entities is None: entities = buildLimits(sql, offset, limit).all()
-            if detailed: return IterPart(entities, sql.count(), offset, limit)
-        return entities
+        if q is None: q = QUser(inactive=False)
+        elif QUser.inactive not in q: q.inactive = False
+        # Making sure that the default query is for active.
+        return super().getAll(q, **options)
 
     def insert(self, user):
         '''
         @see: IUserService.insert
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
-
-        userDb = UserMapped()
-        userDb.password = user.Password
-        userDb.CreatedOn = current_timestamp()
-        userDb.typeId = self._userTypeId(user.Type)
-        try:
-            self.session().add(copy(user, userDb, exclude=('Type',)))
-            self.session().flush((userDb,))
-        except SQLAlchemyError as e: handle(e, userDb)
-        user.Id = userDb.Id
-        return user.Id
-
-    def update(self, user):
-        '''
-        @see: IUserService.update
-        Should not this be handeled automatically via entity service?
-        '''
-        assert isinstance(user, User), 'Invalid user %s' % user
-
-        userDb = self.session().query(UserMapped).get(user.Id)
-        if not userDb:
-            assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-            raise InputError(Ref(_('Unknown user id'), ref=User.Id))
-        try:
-            userDb.typeId = self._userTypeId(user.Type)
-            self.session().flush((copy(user, userDb, exclude=('Type',)),))
-        except SQLAlchemyError as e: handle(e, userDb)
+        userDb = insertModel(UserMapped, user, password=user.Password)
+        assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
+        return userDb.Id
 
     def delete(self, id):
         '''
@@ -126,7 +69,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         if not userDb or not userDb.Active: return False
         assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
         userDb.Active = False
-        self.session().merge(userDb)
         return True
    
     def changePassword(self, id, password):
@@ -134,29 +76,31 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.changePassword
         '''
         assert isinstance(password, Password), 'Invalid password change %s' % password
-        try: userDb = self.session().query(UserMapped).filter(UserMapped.Id == id).one() #.filter(UserMapped.password == password.OldPassword).one()
-        except NoResultFound: userDb = None
+        try: userDb = self.session().query(UserMapped).filter(UserMapped.Id == id).one() 
+        # TODO: check why the old password is not verified. .filter(UserMapped.password == password.OldPassword).one()
+        except NoResultFound: raise InputError(_('Invalid user or old password'))
+        assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
         
-        if not userDb:
-            assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-            raise InputError(Ref(_('Invalid user id or old password'), ref=User.Id))
-        
-        try:
-            userDb.password = password.NewPassword
-            self.session().flush((userDb,))
-        except SQLAlchemyError as e: handle(e, userDb)
+        userDb.password = password.NewPassword
 
     # ----------------------------------------------------------------
-
-    def _userTypeId(self, key):
+    
+    def queryAll(self, sql, crit):
         '''
-        Provides the user type id that has the provided key.
+        Processes the all query.
         '''
-        if not key: key = self.default_user_type_key
-
-        try:
-            sql = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == key)
-            return sql.one()[0]
-        except NoResultFound:
-            raise InputError(Ref(_('Invalid user type %(userType)s') % dict(userType=key), ref=User.Type))
-
+        assert isinstance(crit, AsLike), 'Invalid criteria %s' % crit
+        filters = []
+        if AsLike.like in crit:
+            for col in self.allNames: filters.append(col.like(crit.like))
+        elif AsLike.ilike in crit:
+            for col in self.allNames: filters.append(col.ilike(crit.ilike))
+        sql = sql.filter(reduce(or_, filters))
+        return sql
+            
+    def queryInactive(self, sql, crit):
+        '''
+        Processes the inactive query.
+        '''
+        assert isinstance(crit, AsBoolean), 'Invalid criteria %s' % crit
+        return sql.filter(UserMapped.Active == (crit.value is False))

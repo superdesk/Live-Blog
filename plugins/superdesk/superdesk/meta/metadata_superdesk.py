@@ -11,7 +11,7 @@ Meta data definition package.
 
 from sqlalchemy.schema import MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from ally.support.sqlalchemy.mapper import DeclarativeMetaModel
+from sql_alchemy.support.mapper import DeclarativeMetaModel
 
 # --------------------------------------------------------------------
 

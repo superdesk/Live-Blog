@@ -10,22 +10,20 @@ The superdesk authentication implementation.
 '''
 
 from ..api.authentication import IAuthenticationService, Authentication
-from acl.spec import Acl
+from ally.api.error import InputError
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.design.processor.assembly import Assembly
 from ally.design.processor.attribute import defines, requires
 from ally.design.processor.context import Context
-from ally.design.processor.execution import Processing
-from ally.exception import InputError, Ref
+from ally.design.processor.execution import Processing, FILL_CLASSES
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport, commitNow
-from ally.support.sqlalchemy.util_service import handle
 from collections import Iterable
 from datetime import timedelta
 from os import urandom
-from sqlalchemy.exc import SQLAlchemyError
+from sql_alchemy.support.session import commitNow
+from sql_alchemy.support.util_service import SessionSupport
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.security.api.authentication import Login
@@ -42,29 +40,17 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Solicitation(Context):
+class Solicit(Context):
     '''
-    The solicitation context.
+    The solicit context.
     '''
     # ---------------------------------------------------------------- Defined
-    userId = defines(int, doc='''
+    acl = defines(object, doc='''
     @rtype: integer
-    The id of the user to create gateways for.
+    The logged in user id.
     ''')
-    types = defines(Iterable, doc='''
-    @rtype: Iterable(TypeAcl)
-    The ACL types to create gateways for.
-    ''')
-
-class Reply(Context):
-    '''
-    The reply context.
-    '''
     # ---------------------------------------------------------------- Required
-    gateways = requires(Iterable, doc='''
-    @rtype: Iterable(Gateway)
-    The generated gateways.
-    ''')
+    gateways = requires(Iterable)
     
 # --------------------------------------------------------------------
 
@@ -74,11 +60,6 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     '''
     The service implementation that provides the authentication.
     '''
-
-    acl = Acl; wire.entity('acl')
-    # The acl repository.
-    assemblyGateways = Assembly; wire.entity('assemblyGateways')
-    # The assembly to be used for generating gateways
     
     authentication_token_size = 5; wire.config('authentication_token_size', doc='''
     The number of characters that the authentication token should have.
@@ -93,25 +74,27 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
     The number of seconds after which the session expires.
     ''')
 
+    assemblyUserGateways = Assembly; wire.entity('assemblyUserGateways')
+    # The assembly to be used for generating gateways
+
     def __init__(self):
         '''
         Construct the authentication service.
         '''
-        assert isinstance(self.acl, Acl), 'Invalid acl repository %s' % self.acl
-        assert isinstance(self.assemblyGateways, Assembly), 'Invalid assembly gateways %s' % self.assemblyGateways
         assert isinstance(self.authentication_token_size, int), 'Invalid token size %s' % self.authentication_token_size
         assert isinstance(self.session_token_size, int), 'Invalid session token size %s' % self.session_token_size
         assert isinstance(self.authentication_timeout, int), \
         'Invalid authentication timeout %s' % self.authentication_timeout
         assert isinstance(self.session_timeout, int), 'Invalid session timeout %s' % self.session_timeout
+        assert isinstance(self.assemblyUserGateways, Assembly), 'Invalid assembly gateways %s' % self.assemblyUserGateways
 
         self._authenticationTimeOut = timedelta(seconds=self.authentication_timeout)
         self._sessionTimeOut = timedelta(seconds=self.session_timeout)
-        self._processing = self.assemblyGateways.create(solicitation=Solicitation, reply=Reply)
+        self._processing = self.assemblyUserGateways.create(solicit=Solicit)
 
-    def authenticate(self, session):
+    def getGateways(self, session):
         '''
-        @see: IAuthenticationService.authenticate
+        @see: IAuthenticationService.getGateways
         '''
 #        olderThan = self.session().query(current_timestamp()).scalar()
 #        olderThan -= self._sessionTimeOut
@@ -127,23 +110,16 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
 #        commitNow()
         # TODO: Gabriel: remove and uncomment
         login = Login()
-        login.User = 1
+        login.User = int(session)
         
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
         proc = self._processing
         assert isinstance(proc, Processing), 'Invalid processing %s' % proc
         
-        solicitation = proc.ctx.solicitation()
-        assert isinstance(solicitation, Solicitation), 'Invalid solicitation %s' % solicitation
-        solicitation.userId = login.User
-        solicitation.types = self.acl.types
-        
-        reply = proc.executeWithAll(solicitation=solicitation).reply
-        assert isinstance(reply, Reply), 'Invalid reply %s' % reply
-        if reply.gateways is None: return ()
-        
-        return sorted(reply.gateways, key=lambda gateway: (gateway.Pattern, gateway.Methods))
+        solicit = proc.execute(FILL_CLASSES, solicit=proc.ctx.solicit(acl=login.User)).solicit
+        assert isinstance(solicit, Solicit), 'Invalid solicit %s' % solicit
+        return solicit.gateways or ()
         
     def requestLogin(self):
         '''
@@ -156,9 +132,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         token.Token = hash.hexdigest()
         token.requestedOn = current_timestamp()
 
-        try: self.session().add(token)
-        except SQLAlchemyError as e: handle(e, token)
-
+        self.session().add(token)
         return token
 
     def performLogin(self, authentication):
@@ -168,11 +142,11 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         assert isinstance(authentication, Authentication), 'Invalid authentication %s' % authentication
 
         if authentication.Token is None:
-            raise InputError(Ref(_('The login token is required'), ref=Authentication.Token))
+            raise InputError(_('The login token is required'), Authentication.Token)
         if authentication.HashedToken is None:
-            raise InputError(Ref(_('The hashed login token is required'), ref=Authentication.HashedToken))
+            raise InputError(_('The hashed login token is required'), Authentication.HashedToken)
         if authentication.UserName is None:
-            raise InputError(Ref(_('A user name is required for authentication'), ref=Authentication.UserName))
+            raise InputError(_('A user name is required for authentication'), Authentication.UserName)
 
         olderThan = self.session().query(current_timestamp()).scalar()
         olderThan -= self._authenticationTimeOut
@@ -182,7 +156,9 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
         if sql.delete() > 0:
             commitNow()  # We make sure that the delete has been performed
 
-            try: user = self.session().query(UserMapped).filter(UserMapped.Name == authentication.UserName).filter(UserMapped.Active == True).one()
+            sql = self.session().query(UserMapped)
+            sql = sql.filter(UserMapped.Name == authentication.UserName).filter(UserMapped.Active == True)
+            try: user = sql.one()
             except NoResultFound: user = None
 
             if user is not None:
@@ -202,12 +178,19 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
                     login.User = user.Id
                     login.CreatedOn = login.AccessedOn = current_timestamp()
 
-                    try: self.session().add(login)
-                    except SQLAlchemyError as e: handle(e, login)
-
+                    self.session().add(login)
                     return login
 
         raise InputError(_('Invalid credentials'))
+    
+    def isAuthenticatedUser(self, authId, userId):
+        '''
+        @see: IAuthenticationService.isAuthenticatedUser
+        '''
+        assert isinstance(authId, int), 'Invalid authenticated id %s' % authId
+        assert isinstance(userId, int), 'Invalid user id %s' % userId
+        
+        return authId == userId 
 
     # ----------------------------------------------------------------
 

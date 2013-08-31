@@ -8,22 +8,22 @@ Created on Feb 27, 2012
 
 Action manager interface for user GUI actions. 
 '''
-
-from ally.api.config import service, call
-from ally.api.type import Iter
-from gui.action.api.action import Action
-from superdesk.user.api.user import User
-
-# --------------------------------------------------------------------
-
-@service
-class IUserActionService:
-    '''
-    Provides the user GUI actions service.
-    '''
-
-    @call
-    def getAll(self, userId:User.Id, path:str=None, origPath:str=None) -> Iter(Action):
-        '''
-        Get all actions registered for the provided user.
-        '''
+#TODO: update API.
+#from ally.api.config import service, call
+#from ally.api.type import Iter
+#from gui.action.api.action import Action
+#from superdesk.user.api.user import User
+#
+## --------------------------------------------------------------------
+#
+#@service
+#class IUserActionService:
+#    '''
+#    Provides the user GUI actions service.
+#    '''
+#
+#    @call
+#    def getAll(self, userId:User.Id, path:str=None, origPath:str=None) -> Iter(Action):
+#        '''
+#        Get all actions registered for the provided user.
+#        '''

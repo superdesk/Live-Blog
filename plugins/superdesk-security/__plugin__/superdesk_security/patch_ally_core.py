@@ -9,9 +9,6 @@ Created on Feb 26, 2013
 Provides the ally core setup patch.
 '''
 
-from .service import assemblyGateways, updateAssemblyGateways, \
-    registerMethodOverride, updateAssemblyActiveRights, assemblyActiveRights, \
-    registerDefaultRights, userValueForFilter
 from ally.container import support, ioc
 import logging
 
@@ -21,23 +18,20 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-try: from __setup__ import ally_core # @UnusedImport
-except ImportError: log.info('No ally core component available, thus cannot populate processors')
+try:
+    from __setup__ import ally_core  # @UnusedImport
+except ImportError: log.info('No ally core component available, thus no need to register user ACL assemblers to it')
 else:
-    from acl.core.impl.processor import resource_node_associate, resource_model_filter, resource_alternate, resource_gateway
+    from __setup__.ally_core.resources import assemblyAssembler
+    from ..gateway_acl.patch_ally_core import indexFilter, updateAssemblyAssemblerForAccess
+    from superdesk.security.core.impl.processor import assembler
+
+    # The assembler processors
+    filterUserInject = support.notCreated  # Just to avoid errors
+    support.createEntitySetup(assembler)
     
-    iterateResourcePermissions = checkResourceAvailableRights = modelFiltersForPermissions = \
-    authenticatedForPermissions = alternateNavigationPermissions = gatewaysFromPermissions = support.notCreated
-    support.createEntitySetup(resource_node_associate, resource_model_filter, resource_alternate, resource_gateway)
+    # ----------------------------------------------------------------
     
-    # --------------------------------------------------------------------
-    
-    @ioc.after(updateAssemblyGateways)
-    def updateAssemblyGatewaysForResources():
-        assemblyGateways().add(iterateResourcePermissions(), authenticatedForPermissions(), userValueForFilter(),
-                               alternateNavigationPermissions(), gatewaysFromPermissions(), before=registerMethodOverride())
-       
-    @ioc.after(updateAssemblyActiveRights)
-    def updateAssemblyActiveRightsForResources():
-        assemblyActiveRights().add(checkResourceAvailableRights(), after=registerDefaultRights())
-        
+    @ioc.after(updateAssemblyAssemblerForAccess)
+    def updateAssemblyAssemblerForUserFilterInject():
+        assemblyAssembler().add(filterUserInject(), before=indexFilter())

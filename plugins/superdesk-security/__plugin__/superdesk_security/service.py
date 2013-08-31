@@ -9,25 +9,29 @@ Created on Sep 9, 2012
 Contains the services setups for superdesk security.
 '''
 
-from acl.core.impl.processor import default_right
+from ..gateway.service import gatewayMethodMerge, registerMethodOverride
+from ..gateway_acl.service import registerPermissionGateway, rootURI
+from acl.core.impl.processor.gateway.acl_permission import \
+    RegisterAclPermissionHandler
+from acl.core.spec import IAclPermissionProvider
 from ally.container import ioc, support, app
+from ally.container.support import entityFor
 from ally.design.processor.assembly import Assembly
-from gateway.core.impl.processor import method_override_gateway
+from ally.design.processor.handler import Handler
 from sched import scheduler
-from security.rbac.core.impl.processor import rbac_right
-from superdesk.security.core.impl.processor import user_rbac_provider, \
-    user_filter_value
+from security.api.right import IRightService
+from superdesk.security.api.user_rbac import IUserRbacService
+from superdesk.security.core.impl.processor import gateway
 from superdesk.security.core.spec import ICleanupService
-from superdesk.security.impl.filter_authenticated import \
-    AuthenticatedFilterService
 from threading import Thread
 import time
 
 # --------------------------------------------------------------------
 
-userRbacProvider = userValueForFilter = registerMethodOverride = rbacPopulateRights = \
-registerDefaultRights = support.notCreated  # Just to avoid errors
-support.createEntitySetup(user_rbac_provider, user_filter_value, method_override_gateway, rbac_right, default_right)
+# The gateway processors
+userInject = support.notCreated  # Just to avoid errors
+
+support.createEntitySetup(gateway)
 
 # --------------------------------------------------------------------
 
@@ -41,29 +45,27 @@ def cleanup_timeout() -> int:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def equaliltyUserFilterClasses() -> list:
-    ''' The @see: IAclFilter classes that checks if the authenticated identifier is same with the resource identifier'''
-    return [AuthenticatedFilterService]
-
-@ioc.entity
-def assemblyGateways() -> Assembly:
+def assemblyUserGateways() -> Assembly:
     ''' Assembly used for creating the users gateways'''
     return Assembly('Users gateways')
 
+# --------------------------------------------------------------------
+
 @ioc.entity
-def assemblyActiveRights() -> Assembly:
-    ''' Assembly used for getting the users active rights'''
-    return Assembly('Active rights')
+def aclPermissionRightsProvider() -> IAclPermissionProvider: return entityFor(IRightService)
+
+@ioc.entity
+def registerAclPermission() -> Handler:
+    b = RegisterAclPermissionHandler()
+    b.aclPermissionProvider = entityFor(IUserRbacService)
+    return b
 
 # --------------------------------------------------------------------
 
-@ioc.before(assemblyGateways)
-def updateAssemblyGateways():
-    assemblyGateways().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights(), registerMethodOverride())
-   
-@ioc.before(assemblyActiveRights)
-def updateAssemblyActiveRights():
-    assemblyActiveRights().add(userRbacProvider(), rbacPopulateRights(), registerDefaultRights())
+@ioc.after(assemblyUserGateways)
+def updateAssemblyUserGateways():
+    assemblyUserGateways().add(userInject(), rootURI(), registerAclPermission(), registerPermissionGateway(),
+                               gatewayMethodMerge(), registerMethodOverride())
 
 # --------------------------------------------------------------------
 

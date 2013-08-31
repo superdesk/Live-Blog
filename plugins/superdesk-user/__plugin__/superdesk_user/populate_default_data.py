@@ -10,10 +10,8 @@ Populates default data for the services.
 '''
 
 from ally.container import app, ioc
-from ..superdesk.db_superdesk import alchemySessionCreator
-from superdesk.user.meta.user_type import UserTypeMapped
-from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.expression import exists
+from ally.container.support import entityFor
+from superdesk.user.api.user_type import IUserTypeService, UserType
 
 # --------------------------------------------------------------------
 
@@ -22,20 +20,12 @@ def standard_user_types():
     ''' The standard user types '''
     return ['standard']
 
-def createUserType(key):
-    creator = alchemySessionCreator()
-    session = creator()
-    assert isinstance(session, Session)
-
-    if not session.query(exists().where(UserTypeMapped.Key == key)).scalar():
-        userTypeDb = UserTypeMapped()
-        userTypeDb.Key = key
-        session.add(userTypeDb)
-
-    session.commit()
-    session.close()
-
-@app.populate(priority=ioc.PRIORITY_FIRST)
+@app.populate(app.DEVEL)
 def populateTypes():
-    for oneUserType in standard_user_types():
-        createUserType(oneUserType)
+    userTypeService = entityFor(IUserTypeService)
+    assert isinstance(userTypeService, IUserTypeService)
+    for key in standard_user_types():
+        utype = UserType()
+        utype.Key = key
+        try: userTypeService.insert(utype)
+        except: pass

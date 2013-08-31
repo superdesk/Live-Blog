@@ -52,7 +52,7 @@ class IAuthenticationService:
     '''
 
     @call(method=GET)
-    def authenticate(self, session:Login.Session) -> Iter(Gateway):
+    def getGateways(self, session:Login.Session) -> Iter(Gateway):
         '''
         Provides the authenticated gateways for the provided session, if the session is invalid an error is raised.
         '''
@@ -67,4 +67,12 @@ class IAuthenticationService:
     def performLogin(self, authentication:Authentication) -> Login:
         '''
         Called in order to authenticate
+        '''
+        
+    # ----------------------------------------------------------------
+        
+    @call(filter='authenticated')
+    def isAuthenticatedUser(self, authId:User.Id, userId:User.Id) -> bool:
+        '''
+        Checks if the authenticated user id is the same with the filtered user id. 
         '''
