@@ -2,453 +2,264 @@ define([
     'jquery',
     'gizmo/superdesk',
     'livedesk/views/provider-edit',
-
+    'angular',
+    'angular-resource',
+    'lib/livedesk/scripts/js/manage-feeds/manage-feeds',
+    'lib/livedesk/scripts/js/manage-feeds/services/chained-blogs-data',
+    'lib/livedesk/scripts/js/manage-feeds/services/all-blog-sources',
+    'lib/livedesk/scripts/js/manage-feeds/services/add-provider',
+    'lib/livedesk/scripts/js/manage-feeds/directives/checkbox-custom',
+    'lib/livedesk/scripts/js/manage-feeds/directives/sms-checkbox-custom',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
     'tmpl!livedesk>manage-feeds',
     'tmpl!livedesk>manage-feeds-provider',
     'tmpl!livedesk>manage-feeds-external-blog',
-], function ($, Gizmo, EditProviderView) {
-
-    var PROVIDER_TYPE = 'blog provider';
-    var BLOG_TYPE = 'chained blog';
-
-    var fetchOptions = {headers: {'X-Filter': 'Id, Name, URI'}, reset: true};
-
-    /**
-     * Get gizmo url for given path
-     *
-     * @param {string} path
-     * @return {string}
-     */
-    function getGizmoUrl(path)
-    {
+], function ($, Gizmo, EditProviderView, ngular, ngularRsrc, feeds) {
+    function getGizmoUrl(path) {
         var url = new Gizmo.Url(path);
         return url.get();
     }
 
-    /**
-     * Get id from given url
-     *
-     * @param {string} url
-     * @return {string}
-     */
-    function parseId(url)
-    {
-        return url.split('/').slice(-1)[0];
+    function getLastId(blogHref) {
+        //small hack to get the blog id
+        //@TODO get it in a smarter way
+        var hackArray = blogHref.split('/');
+        var blogId = hackArray[hackArray.length - 1];
+        return blogId;
     }
 
-    /**
-     * Source Model
-     */
-    var Source = Backbone.Model.extend({
-        idAttribute: 'Id',
-
-        defaults: {
-            Type: BLOG_TYPE,
-            IsModifiable: 'True'
-        },
-
-        parse: function(response) {
-            if (response === null) {
-                return;
-            }
-
-            if ('href' in response) {
-                this.url = response.href;
-                delete response.href
-            }
-
-            if ('URI' in response) {
-                response.URI = response.URI.href;
-            }
-
-            return response;
-        }
-    });
-
-    /**
-     * Stored sources
-     */
-    var SourceCollection = Backbone.Collection.extend({
-        model: Source,
-
-        /**
-         * Test if source is active for blog
-         *
-         * @param {ExternalBlog} blog
-         * @return {boolean}
-         */
-        hasBlog: function(blog) {
-            return this.findBlog(blog) !== undefined;
-        },
-
-        /**
-         * Add given source to blog sources
-         *
-         * @param {ExternalBlog} blog
-         */
-        addBlog: function(blog) {
-            var source = this.findBlog(blog);
-            if (source) {
-                return;
-            }
-
-            this.create({
-                Name: blog.get('Title'),
-                URI: blog.get('href')
-            }, {headers: {'X-Filter': 'Id'}});
-        },
-
-        /**
-         * Remove given source from blog sources
-         *
-         * @param {ExternalBlog} blog
-         */
-        removeBlog: function(blog) {
-            var source = this.findBlog(blog);
-            if (source) {
-                this.remove(source);
-                source.destroy();
-            }
-        },
-
-        /**
-         * Find model for given source
-         *
-         * @param {ExternalBlog} blog
-         * @return {BlogSource}
-         */
-        findBlog: function(blog) {
-            return this.findWhere({URI: blog.get('href')});
-        },
-
-        parse: function(response) {
-            return response.SourceList;
-        }
-    });
-
-    /**
-     * Provider Model
-     */
-    var Provider = Source.extend({
-        urlRoot: getGizmoUrl('Data/Source'),
-
-        defaults: {
-            Type: PROVIDER_TYPE,
-            IsModifiable: 'True'
-        },
-
-        validate: function(attributes) {
-            var errors = [];
-            if (!attributes.Name) {
-                errors.push('Name');
-            }
-
-            if (!this.isUrl(attributes.URI)) {
-                errors.push('URI');
-            }
-
-            if (errors.length) {
-                throw errors;
-            }
-        },
-
-        isUrl: function(url) {
-            return url && url.match(/^(https?:)?\/\//);
-        },
-
-        getBlogs: function() {
-            return new ExternalBlogCollection([], {url: this.get('URI')});
-        },
-
-        parse: function(response) {
-            if (response === null) {
-                return;
-            }
-
-            if ('URI' in response) {
-                response.URI = response.URI.href;
-            }
-
-            return response;
-        },
-
-        render: function() {
-            return {
-                id: this.id,
-                name: this.get('Name'),
-                uri: this.get('URI')
-            };
-        }
-    });
-
-    /**
-     * Global External Blog Provider Collection
-     */
-    var ProviderCollection = Backbone.Collection.extend({
-        model: Provider,
-
-        xfilter: {'X-Filter': 'Id, Name, URI'},
-
-        comparator: function(model) {
-            return -1 * model.get('Id');
-        },
-
-        parse: function(response) {
-            return response.SourceList;
-        }
-    });
-
-    /**
-     * External Blog
-     */
-    var ExternalBlog = Backbone.Model.extend({
-        isActive: function() {
-            return sources.hasBlog(this);
-        },
-
-        activate: function() {
-            sources.addBlog(this);
-        },
-
-        deactivate: function() {
-            sources.removeBlog(this);
-        }
-    });
-
-    /**
-     * External Blog Collection holds blogs from single provider
-     */
-    var ExternalBlogCollection = Backbone.Collection.extend({
-        model: ExternalBlog,
-
-        parse: function(response) {
-            return response.BlogList;
-        }
-    });
-
-    /**
-     * Single External Blog View - a list item.
-     */
-    var ExternalBlogView = Backbone.View.extend({
-        tagName: 'li',
-        
-        events: {
-            'change input:checkbox': 'change',
-            'click .sf-checkbox-custom': 'toggleCheckbox'
-        },
-
-        render: function() {
-            var data = this.model.clone().attributes;
-            data.cid = this.model.cid;
-            $(this.el).
-                tmpl('livedesk>manage-feeds-external-blog', data).
-                addClass('chain-blog');
-
-            $(this.el).find('.sf-checkbox').each(function(i, val) {
-                $(val).after('<span class="sf-checkbox-custom" target-checkbox="' + $(val).attr('name') +'"></span>');
-                $(val).hide();
-            });
-
-            var $box = $(this.el).find('input:checkbox');
-            $box.prop('checked', this.model.isActive());
-            $box.change();
-
-            return this;
-        },
-
-        change: function(e) {
-            var checked = $(e.target).prop('checked');
-
-            if (checked) {
-                this.model.activate();
-            } else {
-                this.model.deactivate();
-            }
-
-            this.renderCheckbox(checked);
-        },
-
-        renderCheckbox: function(checked) {
-            var $li = $(this.el);
-            var $box = $(this.el).find('.sf-checkbox-custom');
-
-            if (checked) {
-                $li.addClass('active-bg');
-                $box.addClass('sf-checked');
-            } else {
-                $li.removeClass('active-bg');
-                $box.removeClass('sf-checked');
-            }
-        },
-
-        /**
-         * Change value and trigger change event
-         */
-        toggleCheckbox: function() {
-            $input = $(this.el).find('input:checkbox');
-            $input.prop('checked', ! $input.prop('checked'));
-            $input.change();
-        }
-    });
-
-    /**
-     * Provider View
-     */
-    var ProviderView = Backbone.View.extend({
-        tagName: 'li',
-
-        events: {
-            'click .remove': 'delete',
-            'click .edit': 'edit'
-        },
-
-        initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
-        },
-
-        render: function() {
-            this.renderProvider();
-            this.fetchBlogs();
-            return this;
-        },
-
-        renderProvider: function() {
-            var data = {Name: this.model.get('Name')};
-            this.$el.tmpl('livedesk>manage-feeds-provider', data).addClass('chain-source');
-        },
-
-        fetchBlogs: function() {
-            this.collection = this.model.getBlogs();
-            this.collection.on('reset', this.renderBlogs, this);
-            this.collection.fetch({headers: {'X-Filter': 'Title, Description'}, reset: true});
-        },
-
-        renderBlogs: function() {
-            this.$el.find('.chain-source-count').text(this.collection.length);
-            var list = $(this.el).find('.chain-source-content').empty();
-            var provider = this.model;
-
-            this.collection.each(function(blog) {
-                blog.provider = provider.id;
-                var view = new ExternalBlogView({model: blog});
-                list.append(view.render().el);
-            });
-        },
-
-        delete: function(e) {
-            e.preventDefault();
-            if (confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?"))) {
-                this.model.destroy();
-                this.remove();
-            }
-        },
-
-        edit: function(e) {
-            e.preventDefault();
-            var view = new EditProviderView({model: this.model});
-            this.$el.closest('#area-main').append(view.render().el);
-        }
-    });
-
-    /**
-     * Main View
-     */
-    var MainView = Backbone.View.extend({
-        events: {
-            'click a[href="#AddSource"]': 'renderAdd',
-            'change .sf-searchbox > input': 'search',
-            'click .sf-searchbox > a': 'clearSearch'
-        },
-
-        initialize: function() {
-            this.listenTo(this.collection, 'reset', this.render);
-            this.listenTo(this.collection, 'add', this.renderList);
-        },
-
-        render: function() {
-            this.renderMain();
-            this.renderList();
-            return this;
-        },
-
-        renderMain: function() {
-            var data = this.model.feed();
-            data.ui = {
-                content: 'is-content=1',
-                side: 'is-side=1',
-                submenu: 'is-submenu',
-                submenuActive4: 'active'
-            };
-
-            $(this.el).tmpl('livedesk>manage-feeds', data);
-        },
-
-        renderList: function() {
-            var list = $(this.el).find('#provider-list').empty();
-
-            this.collection.each(function(provider) {
-                var view = new ProviderView({model: provider});
-                list.append(view.render().el);
-            });
-
-            if (!this.collection.length) {
-                list.append($('<li />').text(_("So far there are no providers. Start with Add New Provider button.")));
-            }
-
-            return this;
-        },
-
-        renderAdd: function(e) {
-            e.preventDefault();
-            var view = new EditProviderView({collection: this.collection});
-            this.$el.append(view.render().el);
-        },
-
-        search: function(e) {
-            var q = $(e.target).val();
-            var sources = $(this.el).find('.chain-blog').each(function() {
-                var show = true;
-                if (q.length) {
-                    var text = $(this).text();
-                    var reg = new RegExp(q, 'i');
-                    show = reg.test(text);
-                }
-
-                if (show) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-        },
-
-        clearSearch: function(e) {
-            e.preventDefault();
-            $(this.el).find('.sf-searchbox > input').val('').change();
-        }
-    });
-
-    // blog sources
-    var sources = new SourceCollection();
-    var providers = new ProviderCollection([], {url: getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source')});
-    var view = new MainView({collection: providers, el: '#area-main'});
-
     return function(blogHref) {
-        view.model = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
-        view.model.sync().done(function(data) {
-            // we need blog specific sources
-            sources.url = data.Source.href;
+        var SMS_TYPE = 'FrontlineSMS';
+        var PROVIDER_TYPE = 'blog provider';
+        var blogId = getLastId(blogHref);
 
-            // we need sources before rendering providers, so start rendering when sources are ready
-            sources.on('reset', function() {
-                providers.fetch(fetchOptions);
+        var sourcesUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source') + '?X-Filter=*';
+        var smsurl = getGizmoUrl('Data/SourceType/FrontlineSMS/Source') + '?X-Filter=Name,Id';
+        var providersUrl = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source') + '?X-Filter=Name,Id,URI';
+        var chainBlogUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
+  
+
+        feeds.controller('chainedBlogs', function($scope, $http, chainedBlogsData, allBlogSources, provider) {
+
+            //initializing some vars
+            $scope.chains = [];
+            $scope.newTitle = '';
+            $scope.newUrl = '';
+            $scope.newTitleError = false;
+            $scope.newUrlError = false;
+            $scope.newInputError = false;
+            $scope.noChains = false;
+            $scope.noSmsFeeds = false;
+
+            $scope.greeting = 'smsFeeds!';
+            $scope.smss = [];
+            $scope.handleChange = function(sms) {
+                if ( sms.assigned ) {
+                    assign(sms);
+                } else {
+                    unassign(sms);
+                }
+            }
+
+            var checkChains = function() {
+                if ( $scope.chains.length == 0 ) {
+                    $scope.noChains = true;
+                } else {
+                    $scope.noChains = false;
+                }
+            }
+
+            var assign = function(sms) {
+                var name = sms.Name;
+                var newSource = {
+                    Name: name,
+                    Type: SMS_TYPE,
+                    IsModifiable: 'True',
+                    URI: name
+                };
+                var assignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
+                $http.post(assignUrl, newSource);
+            }
+
+            var unassign = function(sms) {
+                var unassignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + sms.Id);
+                $http({method: 'DELETE', url: unassignUrl});
+            }
+            //a bit messy way of getting the sms feeds and the assigned sms feeds
+            $http({method: 'GET', url: smsurl}).
+            success(function(data, status, headers, config) {
+                //$scope.smss = data.SourceList;
+                var smss = data.SourceList;
+                if ( smss.length == 0 ) {
+                    $scope.noSmsFeeds =  true;
+                }
+                //go for all feeds
+                $http({method: 'GET', url: sourcesUrl}).
+                success(function(data, status, headers, config) {
+                    var allAssigned = data.SourceList;
+                    for ( var i = 0; i < smss.length; i ++ ) {
+                        smss[i].assigned = false;
+                        for ( var j = 0; j < allAssigned.length; j ++ ) {
+                            if ( allAssigned[j].Id == smss[i].Id ) {
+                                smss[i].assigned = true;
+                                break;
+                            }
+                        }
+                    }
+                    $scope.smss = smss;
+                });
+                //end all feeds
             });
 
-            // start
-            sources.fetch(fetchOptions);
+            //done here with sms starting with chained blogs
+
+            var my = chainedBlogsData.getData(providersUrl).then(function(chains){
+                allBlogSources.getData(sourcesUrl).then(function(sources){
+                    for ( var i = 0; i < chains.length; i++ ) {
+                        for ( var j = 0; j < chains[i].blogList.length; j++ ) {
+                            var chained = false;
+                            var sourceId = -1;
+                            for ( var k = 0; k < sources.length; k ++ ) {
+                                if ( sources[k].URI.href == chains[i].blogList[j].href ) {
+                                    chained = true;
+                                    sourceId = sources[k].Id
+                                    break;
+                                }
+                            }
+                            chains[i].blogList[j].chained = chained;
+                            chains[i].blogList[j].sourceId = sourceId;
+                        }
+                    }
+                    $scope.chains = chains;
+                    checkChains();
+                });
+            });
+            var isUrl = function(url) {
+                return url && url.match(/^(https?:)?\/\//);
+            };
+            $scope.chainChange = function (blog, OriginUri, parentIndex, index) {
+                if ( blog.chained ) {
+                    //add source
+                    var name = blog.Title;
+                    var URI = blog.href;
+                    var newChainedBlog = {
+                        'IsModifiable': 'True',
+                        'Name': name,
+                        'OriginURI': OriginUri,
+                        'Type': 'chained blog',
+                        'URI': URI
+                    }
+                    $http.post(chainBlogUrl, newChainedBlog).
+                    success(function(data, status, headers, config) {
+                        var sourceId = getLastId(data.href);
+                        $scope.chains[parentIndex].blogList[index].sourceId = sourceId;
+                        $scope.chains[parentIndex].blogList[index].chained = true;
+                    });
+                } else {
+                    var unchainUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + blog.sourceId);
+                    $http({method: 'DELETE', url: unchainUrl});
+                    $scope.chains[parentIndex].blogList[index].chained = false;
+
+                }
+            };
+            $scope.removeProvider = function (chain) {
+                var index = $scope.chains.indexOf( chain );
+                if ( confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?")) ){
+                    var removeSourceUrl = getGizmoUrl('Data/Source/' + chain.Id);
+                    provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), chain.blogList);
+                    $http({method: 'DELETE', url: removeSourceUrl});
+                    $scope.chains.splice(index, 1);
+                    checkChains();
+                }
+            };
+            $scope.preEditProvider = function(provider) {
+                if ( typeof provider == "undefined" ) {
+                    $scope.provider = -1;
+                } else {
+                    $scope.provider = provider;
+                    $scope.newTitle = provider.Name;
+                    $scope.newUrl = provider.URI.href;
+                }
+            };
+            var cleanEditForm = function() {
+                $scope.newTitle = '';
+                $scope.newUrl = '';
+                //$scope.provider = -1;
+                jQuery('#AddProvider').modal('hide');
+            };
+            $scope.editProvider = function() {
+                
+                var valid = true;
+                if ( $scope.newTitle.length < 1 ) {
+                    $scope.newTitleError = true;
+                    valid = false;
+                } else {
+                    $scope.newTitleError = false;
+                }
+                if ( !isUrl($scope.newUrl) ) {
+                    $scope.newUrlError = true;
+                    valid = false;
+                } else {
+                    $scope.newUrlError = false;
+                }
+
+
+                if ( valid ) {
+                     var myData = {
+                        'IsModifiable': "True",
+                        'Name': $scope.newTitle,
+                        'Type': PROVIDER_TYPE,
+                        'URI': $scope.newUrl
+                    };
+
+                    if ( $scope.provider == -1 ) {
+                        provider.addData(getGizmoUrl('Data/Source'), myData).then(function(data){
+                            provider.createProviderObject(data).then(function(data){
+                                $scope.chains.push(data);
+                                cleanEditForm();
+                                checkChains();
+                            }, function(data){
+                                $scope.newInputError = true;
+                            })
+                        }, function(data) {
+                            $scope.newInputError = true;
+                        }); 
+                    } else {
+
+                        //get the new blogs
+                        if ( $scope.provider.URI.href != $scope.newUrl ) {
+                            //unchain the existing blogs
+                            provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
+                            provider.getBlogs($scope.newUrl).then(function(data){
+                                $scope.provider.blogList = data;
+                            });
+                            $scope.provider.URI.href = $scope.newUrl;
+                        }
+                        $scope.provider.Name = $scope.newTitle;
+                        cleanEditForm();
+
+                        //this is commented out because the PUT problem that Gabriel has to fix
+                        /*
+                        provider.editProvider(getGizmoUrl('Data/Source/' + $scope.provider.Id), {Name: $scope.newTitle, URI: $scope.newUrl}).then(function(data){
+                            console.log('the PUT request succeded');
+                            //change the object
+                        }, function(data) {
+                            console.log('error ON PUT ', data);
+                            $scope.newInputError = true;
+                        });
+*/
+                        
+                    }
+                    
+                }
+            };
+            
         });
-    };
+
+        $('#area-main').tmpl('livedesk>manage-feeds');
+        $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
+        angular.bootstrap(document, ['manageFeeds']);        
+    }
 });
