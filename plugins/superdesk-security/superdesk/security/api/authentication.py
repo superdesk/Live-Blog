@@ -72,7 +72,7 @@ class IAuthenticationService:
     # ----------------------------------------------------------------
         
     @call(filter='authenticated')
-    def isAuthenticatedUser(self, authId:User.Id, userId:User.Id) -> bool:
+    def isAuthenticatedUser(self, authId:User, userId:User) -> bool:
         '''
         Checks if the authenticated user id is the same with the filtered user id. 
         '''

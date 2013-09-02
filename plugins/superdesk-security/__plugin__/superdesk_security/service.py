@@ -11,9 +11,12 @@ Contains the services setups for superdesk security.
 
 from ..gateway.service import gatewayMethodMerge, registerMethodOverride
 from ..gateway_acl.service import registerPermissionGateway, rootURI
+from ..security.service import signaturesRight
 from acl.core.impl.processor.gateway.acl_permission import \
     RegisterAclPermissionHandler
-from acl.core.spec import IAclPermissionProvider
+from acl.core.impl.processor.gateway.compensate import \
+    RegisterCompensatePermissionHandler
+from acl.core.spec import IAclPermissionProvider, signature, ICompensateProvider
 from ally.container import ioc, support, app
 from ally.container.support import entityFor
 from ally.design.processor.assembly import Assembly
@@ -22,7 +25,8 @@ from sched import scheduler
 from security.api.right import IRightService
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.security.core.impl.processor import gateway
-from superdesk.security.core.spec import ICleanupService
+from superdesk.security.core.spec import ICleanupService, AUTHENTICATED_MARKER
+from superdesk.user.api.user import User
 from threading import Thread
 import time
 
@@ -55,17 +59,30 @@ def assemblyUserGateways() -> Assembly:
 def aclPermissionRightsProvider() -> IAclPermissionProvider: return entityFor(IRightService)
 
 @ioc.entity
+def compensateRightsProvider() -> ICompensateProvider: return entityFor(IRightService)
+
+@ioc.entity
 def registerAclPermission() -> Handler:
     b = RegisterAclPermissionHandler()
     b.aclPermissionProvider = entityFor(IUserRbacService)
     return b
 
+@ioc.entity
+def registerCompensatePermission() -> Handler:
+    b = RegisterCompensatePermissionHandler()
+    b.compensateProvider = entityFor(IUserRbacService)
+    return b
+
 # --------------------------------------------------------------------
+
+@ioc.before(signaturesRight)
+def updateSignaturesRight():
+    signaturesRight()[signature(User.Id)] = AUTHENTICATED_MARKER
 
 @ioc.after(assemblyUserGateways)
 def updateAssemblyUserGateways():
-    assemblyUserGateways().add(userInject(), rootURI(), registerAclPermission(), registerPermissionGateway(),
-                               gatewayMethodMerge(), registerMethodOverride())
+    assemblyUserGateways().add(userInject(), rootURI(), registerAclPermission(), registerCompensatePermission(),
+                               registerPermissionGateway(), gatewayMethodMerge(), registerMethodOverride())
 
 # --------------------------------------------------------------------
 

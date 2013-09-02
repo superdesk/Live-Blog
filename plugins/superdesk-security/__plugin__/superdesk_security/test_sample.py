@@ -14,10 +14,32 @@ from security.api.right import IRightService, QRight, Right
 from security.api.right_type import RightType, IRightTypeService
 from security.rbac.api.role import IRoleService, Role
 from security.rbac.api.role_rbac import IRoleRbacService
+from acl.api.group import IGroupService, Group
     
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+
+# TODO: GAbriel: remove sample data
+@app.populate(app.DEVEL)
+def populateGroupSamples():
+    groupService = entityFor(IGroupService)
+    assert isinstance(groupService, IGroupService)
+    
+    try: groupService.getById('Anonymous')
+    except:
+        group = Group()
+        group.Name = 'Anonymous'
+        group.IsAnonymous = True
+        groupService.insert(group)
+    
+#    print('Security/RightType/*/Right')
+#    groupService.addAcl('Anonymous', 4271904924)
+#    groupService.addCompensate('Anonymous', 4271904924, 492295508)
+    
+#    print('HR/Person/*')
+#    groupService.addAcl('Anonymous', 1141975490)
+#    groupService.addCompensate('Anonymous', 1141975490, 1317217404)
 
 # TODO: GAbriel: remove sample data
 @app.populate(app.DEVEL)
@@ -91,10 +113,18 @@ def populateSamples():
     userRbacService.addRole(user1Id, 'Role1')
     userRbacService.addRight(user2Id, right1Id)
     
-    #userRbacService.remRole(user1Id, 'Role1')
+    # userRbacService.remRole(user1Id, 'Role1')
     roleRbacService.remRight('Role2', right1Id)
     
-    rightService.addAcl(1408549725, right2Id)
-    rightService.registerFilter(1408549725, right2Id, 'authenticated')
+    print('HR/User/*/Role')
+    rightService.addAcl(right2Id, 1408549725)
+    rightService.registerFilter(right2Id, 1408549725, 'authenticated')
+    rightService.addCompensate(right2Id, 1408549725, 445639920)
+    rightService.addAcl(right2Id, 445639920)
     
-    #TODO: add deffer for URLs
+#    print('HR/User/*/Role/*')
+#    rightService.addAcl(right2Id, 3552952149)
+#    rightService.registerFilter(right2Id, 3552952149, 'authenticated')
+#    rightService.registerFilter(right2Id, 3552952149, 'test')
+#    rightService.addCompensate(right2Id, 3552952149, 3661375719)
+#    rightService.addAcl(right2Id, 3661375719)

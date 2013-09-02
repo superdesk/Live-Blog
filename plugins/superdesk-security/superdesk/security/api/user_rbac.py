@@ -10,7 +10,7 @@ API for user rbac services.
 '''
 
 from ally.api.config import service
-from security.rbac.core.api.rbac import IRbacPrototype
+from security.rbac.api.rbac import IRbacPrototype
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------

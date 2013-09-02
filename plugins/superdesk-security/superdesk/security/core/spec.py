@@ -15,7 +15,7 @@ import abc
 
 AUTHENTICATED_NAME = 'authenticated_id'
 # The name placed in the filter path to inject the authenticated user id into.
-AUTHENTICATED_MARKER = '%(' + AUTHENTICATED_NAME + ')i'
+AUTHENTICATED_MARKER = '%%(%s)i' % AUTHENTICATED_NAME
 # The marker placed in the filter path to inject the authenticated user id into.
 
 # --------------------------------------------------------------------
