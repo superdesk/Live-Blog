@@ -5,38 +5,39 @@ define([
 	'jquery',
 	'plugins',
 	'dust',
+	'jquery/waypoints',
 	'dispatcher',
-	'tmpl!themeBase/plugins/twitter-widgets',
 	'twitterWidgets'
-], function($, plugins, dust){
+], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
-		$.dispatcher.on('post-view.render-/item/source/twitter', function(){
-			var self = this;
-			/*!
-			 * use the twitter widgets as the template for twitter items
-			 */
-			self.item = (dust.defined('theme/plugins/twitter-widgets')) ? 
-				'theme/plugins/twitter-widgets': 'themeBase/plugins/twitter-widgets';
-			/*!
-			 * if there is a theme implementation of the twitter item 
-			 *    use that item as a base for twitter-widgets.dust
-			 */
-			self.data["baseTwitter"] = (dust.defined('theme/item/source/twitter')) ? 
-				'theme/item/source/twitter': 'themeBase/item/source/twitter';
-		});
 		$.dispatcher.on('post-view.rendered-after-/item/source/twitter', function(){
 			var self = this;
-			/*!
-			 * Create new tweeter with the loaded widgets
-			 * get the twitter id from the meta already processed in the view/post
-			 * https://dev.twitter.com/docs/intents/events#createTweet
-			 */
-			window.twttr.widgets.createTweet(
-				self.templateData.Meta.id_str,
-				self.el.find('.twitter-widgets').get(0),
-				void(0),
-				{ cards: 'all' }
-			);
+			if(!self._parent._waypoints)
+				self._parent._waypoints = [];
+			self._parent._waypoints.push(self.el);
+			self.el.waypoint(function(dir){
+				window.twttr.widgets.createTweet(
+					self.templateData.Meta.id_str,
+					self.el.find('.post-content-full').get(0),
+					function(){
+						self.el.find('.post-core-content').remove();
+					},
+					{ cards: 'all' }
+				);
+			}, {
+				triggerOnce: true,
+				enabled: false,
+				offset: '120%',
+				context: self._parent.el
+			});
+		});
+		$.dispatcher.on('posts-view.rendered', function(){
+			var self = this;
+			for(var i = 0, count = self._waypoints.length; i < count; i++) {
+				console.log(self._waypoints[i]);
+				self._waypoints[i].waypoint('enable');
+			}
+			self._waypoints = [];
 		});
 	}
 });
