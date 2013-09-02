@@ -51,6 +51,9 @@ $.extend(providers.comments, {
             },self.interval);
             self.getComments({});
         });        
+        //dynamically get size of header and set top space for list
+        var top_space = $('#comments .sms-header').outerHeight() + 20;
+        $('.comments-results-holder').css({'top': top_space});  
     },
     refreshComments: function() {
         var self = this;
