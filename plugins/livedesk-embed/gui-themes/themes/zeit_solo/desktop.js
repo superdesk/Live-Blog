@@ -13,7 +13,7 @@ define([
 	// 'tmpl!theme/item/posttype/quote',
 	// 'tmpl!theme/item/posttype/link',
 	// 'tmpl!theme/item/posttype/advertisement',	
-	// 'tmpl!theme/item/source/advertisement',
+	'tmpl!theme/item/source/advertisement',
 	// 'tmpl!theme/item/source/google',
 	// 'tmpl!theme/item/source/google/web',
 	// 'tmpl!theme/item/source/google/news',

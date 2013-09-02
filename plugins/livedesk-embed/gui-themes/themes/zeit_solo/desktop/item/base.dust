@@ -4,11 +4,13 @@
 {/headerContainer}
 
 {<contentMainBody}
+  {+postInfoContainer}
   <div class="post-info">
   	{+postDateContainer}{/postDateContainer}
     {+userNameContainer}{/userNameContainer}
     {+shareContainer}{/shareContainer}
   </div>
+  {/postInfoContainer}
   {+commentBefore}{/commentBefore}
   {+contentMainFull}
   <div class="post-content-full">
