@@ -19,12 +19,7 @@
     </section>
     <section class="blog-section">
     	<div class="tool-box-top">
-        <!--
-			<a href="https://twitter.com/share" class="twitter-share-button" target="_blank" 
-				data-count="horizontal" data-url="{OutputLinkAlt}" data-text="{Title|t}">Tweet</a>
-         -->
-          
-	  <div class="pull-right alert alert-success hide update-success">
+            <div class="pull-right alert alert-success hide update-success">
     			_("Blog information updated!");
     		</div>
     		<div class="pull-right  alert alert-error hide update-error">

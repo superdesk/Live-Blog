@@ -16,6 +16,8 @@ from ally.api.model import Content
 from urllib.error import HTTPError
 from ally.exception import InputError, Ref
 from ally.internationalization import _
+from urllib.request import Request
+from urllib.parse import quote, urlsplit, SplitResult, urlunsplit
 
 # --------------------------------------------------------------------
 
@@ -39,6 +41,11 @@ class ChainedIconContent(Content):
             The name of file under that the icon should be saved.
         '''
         Content.__init__(self, fileName, 'image', 'binary', 0)
+
+        parsed = urlsplit(contentURL if not isinstance(contentURL, Request) else contentURL.full_url)
+        parsed = SplitResult(parsed.scheme, parsed.netloc, quote(parsed.path), quote(parsed.query), parsed.fragment)
+        if isinstance(contentURL, Request): contentURL.full_url = urlunsplit(parsed)
+        else: contentURL = urlunsplit(parsed)
 
         self._url = contentURL
         self._response = None
