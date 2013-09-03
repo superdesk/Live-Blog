@@ -13,5 +13,5 @@
 {<SourceIcon}{/SourceIcon}
 {<SourceLink}http://twitter.com{/SourceLink}
 {<SourceAuthor}{/SourceAuthor}
-{<TimeShowed}{Meta.created_at_formated}{/TimeShowed}
+{<TimeShowed}{Meta.created_at_formated|userdate}{/TimeShowed}
 {<ContainerIframe}{/ContainerIframe}

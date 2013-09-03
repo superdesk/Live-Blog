@@ -75,7 +75,7 @@ class BlogSourceDB(Base):
 
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
     blog = Column('fk_blog', ForeignKey(BlogMapped.Id), nullable=False)
-    source = Column('fk_source', ForeignKey(SourceMapped.Id, ondelete='CASCADE'), nullable=False)
+    source = Column('fk_source', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'), nullable=False)
 
 # --------------------------------------------------------------------
 

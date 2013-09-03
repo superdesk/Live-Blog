@@ -18,11 +18,11 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, or_
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source, QSource
@@ -35,7 +35,7 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from mysql.connector.errors import IntegrityError
+from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
 
@@ -135,8 +135,10 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
-    sources_auto_delete = ['chained blog',]; wire.config('sources_auto_delete', doc='''
+    sources_auto_delete = ['chained blog', ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
+    blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
+    Key of the source type for blog providers''')
 
     sourceService = ISourceService; wire.entity('sourceService')
     # The source service used to manage all operations on sources
@@ -164,6 +166,12 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         sql = self.session().query(SourceMapped)
         sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
         sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
+
+        sql_prov = self.session().query(SourceMapped.URI)
+        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+        sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
         return sql.all()
 
     def addSource(self, blogId, source):
@@ -179,7 +187,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         q = QSource(name=source.Name)
         sources = self.sourceService.getAll(typeKey=source.Type, q=q)
         if not sources: sourceId = self.sourceService.insert(source)
-        else: sourceId = sources[0].Id
+        else:
+            source.Id = sourceId = sources[0].Id
+            self.sourceService.update(source)
 
         ent = BlogSourceDB()
         ent.blog = blogId
@@ -187,7 +197,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         try:
             self.session().add(ent)
             self.session().flush((ent,))
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             raise InputError(Ref(_('Cannot add blog-source link.'),))
         return sourceId
 

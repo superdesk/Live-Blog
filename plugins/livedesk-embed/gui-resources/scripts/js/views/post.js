@@ -42,7 +42,8 @@ define([
 				var self = this, 
 					data = self.model.feed(true),
 					order = parseFloat(self.model.get('Order')),
-					publishedOn, createdOn, baseTheme, item;
+					publishedOn, createdOn, baseTheme, shortItem;
+				self.templateData = data;
 				if ( !isNaN(self.order) && (order != self.order)) {
 					self._parent.orderOne(self);
 				}
@@ -88,25 +89,26 @@ define([
 				
 				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
 					if(data.Type.Key === 'advertisement') {
-						item = "/item/posttype/infomercial";
+						self.item = "/item/posttype/infomercial";
 					}
 					else {
-						item = "/item/posttype/"+data.Type.Key;
+						self.item = "/item/posttype/"+data.Type.Key;
 					}
 				}
 				else if(data.Author.Source.Name === 'google')
-					item = "/item/source/google/"+data.Meta.type;
+					self.item = "/item/source/google/"+data.Meta.type;
 				else {
 					if(data.Author.Source.Name === 'advertisement') {
-						item = "/item/source/infomercial";
+						self.item = "/item/source/infomercial";
 					} else {
-						item = "/item/source/"+data.Author.Source.Name;
+						self.item = "/item/source/"+data.Author.Source.Name;
 					}
 				}
-
-				item = (dust.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
+				shortItem = self.item;
+				self.item = (dust.defined('theme'+self.item))? 'theme'+self.item: 'themeBase'+self.item;
 				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 				data.frontendServer = liveblog.frontendServer;
+				$.dispatcher.triggerHandler('post-view.render-' + shortItem, self);
 				$.each(self.data, function(key, value){
 					if($.isFunction(value)){
 						data[key] = value.call(self, data);	
@@ -114,7 +116,7 @@ define([
 						data[key] = value;
 					}
 				});
-				$.tmpl(item, data, function(e, o){
+				$.tmpl(self.item, data, function(e, o){
 					self.setElement(o);
 					/*!
 					 * @TODO Move this into a plugin
@@ -174,6 +176,7 @@ define([
 					/*!
 					 * @END TODO
 					 */
+					 $.dispatcher.triggerHandler('post-view.rendered-after-' + shortItem, self);
 				});
 						
 			}
