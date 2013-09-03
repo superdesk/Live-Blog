@@ -18,7 +18,7 @@
 </div>
 
 <div data-main-table="true">
-    <div style="padding: 70px 20px 20px;">
+    <div style="padding: 70px 20px 70px;">
 		
 		<table class="table table-hover table-sort table-buttons-control sf_table" style="table-layout:auto" >
 			<thead>
