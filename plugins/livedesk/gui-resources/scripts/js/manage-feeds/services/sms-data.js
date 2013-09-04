@@ -1,7 +1,7 @@
 define([
 	'angular',
     'lib/livedesk/scripts/js/manage-feeds/manage-feeds'
-	],function(ngular, feeds){
+	], function(ngular, feeds){
 		feeds.factory('smsData', function($http, $q){
             return {
                 getData: function(smsUrl, sourcesUrl) {
@@ -9,11 +9,8 @@ define([
                     //a bit messy way of getting the sms feeds and the assigned sms feeds
                     $http({method: 'GET', url: smsUrl}).
                     success(function(data, status, headers, config) {
-                        //$scope.smss = data.SourceList;
                         var smss = data.SourceList;
-                        if ( smss.length == 0 ) {
-                            $scope.noSmsFeeds =  true;
-                        }
+
                         //go for all feeds
                         $http({method: 'GET', url: sourcesUrl}).
                         success(function(data, status, headers, config) {

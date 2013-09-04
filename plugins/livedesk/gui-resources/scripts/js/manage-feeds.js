@@ -41,18 +41,19 @@ define([
   
 
         feeds.controller('chainedBlogs', function($scope, $http, chainedBlogsData, provider, smsData) {
-
             //initializing some vars
             $scope.chains = [];
             $scope.newTitle = '';
             $scope.newUrl = '';
-            $scope.newTitleError = false;
-            $scope.newUrlError = false;
-            $scope.newInputError = false;
-            $scope.noChains = false;
-            $scope.noSmsFeeds = false;
 
-            $scope.greeting = 'smsFeeds!';
+            $scope.msg = {
+                newTitleError: false,
+                newUrlError: false,
+                newInputError: false,
+                noChains: true,
+                noSmsFeeds: true
+            };
+
             $scope.smss = [];
             $scope.handleChange = function(sms) {
                 if ( sms.assigned ) {
@@ -60,15 +61,11 @@ define([
                 } else {
                     unassign(sms);
                 }
-            }
+            };
 
             var checkChains = function() {
-                if ( $scope.chains.length == 0 ) {
-                    $scope.noChains = true;
-                } else {
-                    $scope.noChains = false;
-                }
-            }
+                $scope.msg.noChains = $scope.chains.length === 0;
+            };
 
             var assign = function(sms) {
                 var name = sms.Name;
@@ -80,16 +77,17 @@ define([
                 };
                 var assignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
                 $http.post(assignUrl, newSource);
-            }
+            };
 
             var unassign = function(sms) {
                 var unassignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + sms.Id);
                 $http({method: 'DELETE', url: unassignUrl});
-            }
+            };
 
             //get the sms feeds
             smsData.getData(smsUrl, sourcesUrl).then(function(data){
                 $scope.smss = data;
+                $scope.msg.noSmsFeeds = $scope.smss.length === 0;
             });
 
             //done here with sms starting with chained blogs
@@ -99,12 +97,10 @@ define([
                 checkChains();
             });
             
-
-            
-
             var isUrl = function(url) {
                 return url && url.match(/^(https?:)?\/\//);
             };
+
             $scope.chainChange = function (blog, OriginUri, parentIndex, index) {
                 if ( blog.chained ) {
                     //add source
@@ -130,6 +126,7 @@ define([
 
                 }
             };
+
             $scope.removeProvider = function (chain) {
                 var index = $scope.chains.indexOf( chain );
                 if ( confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?")) ){
@@ -140,6 +137,7 @@ define([
                     checkChains();
                 }
             };
+
             $scope.preEditProvider = function(provider) {
                 if ( typeof provider == "undefined" ) {
                     $scope.provider = -1;
@@ -149,28 +147,28 @@ define([
                     $scope.newUrl = provider.URI.href;
                 }
             };
+
             var cleanEditForm = function() {
                 $scope.newTitle = '';
                 $scope.newUrl = '';
                 //$scope.provider = -1;
                 jQuery('#AddProvider').modal('hide');
             };
+
             $scope.editProvider = function() {
-                
                 var valid = true;
                 if ( $scope.newTitle.length < 1 ) {
-                    $scope.newTitleError = true;
+                    $scope.msg.newTitleError = true;
                     valid = false;
                 } else {
-                    $scope.newTitleError = false;
+                    $scope.msg.newTitleError = false;
                 }
                 if ( !isUrl($scope.newUrl) ) {
-                    $scope.newUrlError = true;
+                    $scope.msg.newUrlError = true;
                     valid = false;
                 } else {
-                    $scope.newUrlError = false;
+                    $scope.msg.newUrlError = false;
                 }
-
 
                 if ( valid ) {
                      var myData = {
@@ -187,10 +185,10 @@ define([
                                 cleanEditForm();
                                 checkChains();
                             }, function(data){
-                                $scope.newInputError = true;
+                                $scope.msg.newInputError = true;
                             })
                         }, function(data) {
-                            $scope.newInputError = true;
+                            $scope.msg.newInputError = true;
                         }); 
                     } else {
 
@@ -218,10 +216,8 @@ define([
 */
                         
                     }
-                    
                 }
             };
-            
         });
 
         $('#area-main').tmpl('livedesk>manage-feeds');

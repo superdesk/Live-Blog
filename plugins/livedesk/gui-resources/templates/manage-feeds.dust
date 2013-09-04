@@ -28,7 +28,7 @@
 						<li ng-repeat="sms in smss | filter: search">
 							<input type="checkbox" set-bg="1" ng-model="sms.assigned" ng-click="handleChange(sms);" class="sf-checkbox" style="display: none"><span smscustombox></span> <label>&nbsp;{{ sms.Name }}<label>
 						</li>
-						<li ng-show="noSmsFeeds" ng-class="ng-hide">_("So far there are no SMS Feeds");</li>
+						<li ng-show="msg.noSmsFeeds">_("So far there are no SMS Feeds");</li>
 					</ul>
 		      </div>
 		    </div>
@@ -74,7 +74,7 @@
 							</ul>
 
 						</li>
-						<li ng-show="noChains" ng-class="ng-hide">_("So far there are no providers. Start with Add New Provider button.");</li>
+						<li ng-show="msg.noChains">_("So far there are no providers. Start with Add New Provider button.");</li>
 					</ul>
 		      </div>
 		    </div>
@@ -109,10 +109,10 @@
   <div class="modal-body">
     <form name="add">
         <input type="text" id="provider-title" placeholder="_('Blog Provider Title');" class="fullwidth-input" ng-model="newTitle"><br />
-        <span class="help-inline" ng-show="newTitleError" ng-class="ng-hide">_("Please provide a valid title");</span>
+        <span class="help-inline" ng-show="msg.newTitleError">_("Please provide a title");</span>
         <input type="text" id="provider-url" placeholder="_('Provider Url');" class="fullwidth-input" ng-model="newUrl" style="margin-top:10px;">
-        <span class="help-inline" ng-show="newUrlError" ng-class="ng-hide">_("Please provide a valid title");</span>
-        <span class="help-inline" ng-show="newInputError" ng-class="ng-hide">_("Input error");</span>
+        <span class="help-inline" ng-show="msg.newUrlError">_("Please provide a valid URL");</span>
+        <span class="help-inline" ng-show="msg.newInputError">_("Input error");</span>
     </form>
   </div>
   <div class="modal-footer">
