@@ -33,8 +33,9 @@ define([
 		});
 		$.dispatcher.on('posts-view.rendered', function(){
 			var self = this;
+			if( !self._waypoints )
+				return;
 			for(var i = 0, count = self._waypoints.length; i < count; i++) {
-				console.log(self._waypoints[i]);
 				self._waypoints[i].waypoint('enable');
 			}
 			self._waypoints = [];
