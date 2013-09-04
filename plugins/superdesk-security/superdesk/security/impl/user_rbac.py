@@ -15,11 +15,13 @@ from ally.api.error import IdError
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
+from ally.support.api.util_service import emptyCollection, processCollection
+from gui.action.meta.category_right import RightAction
 from security.rbac.core.impl.rbac import RbacServiceAlchemy
 from security.rbac.meta.rbac import Rbac
 from sql_alchemy.support.mapper import tableFor
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import insert
+from sqlalchemy.sql.expression import insert, distinct
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.meta.user import UserMapped
 
@@ -41,6 +43,35 @@ class UserRbacServiceAlchemy(RbacServiceAlchemy, IAclPermissionProvider, ICompen
         assert isinstance(self.compensateRightsProvider, ICompensateProvider), \
         'Invalid acl compensate provider %s' % self.compensateRightsProvider
         RbacServiceAlchemy.__init__(self, RbacUserMapped)
+    
+    def getActions(self, identifier, **options):
+        '''
+        @see: IUserRbacService.getActions
+        '''
+        rbacId = self.findRbacId(identifier)
+        if rbacId is None: return emptyCollection(**options)
+
+        sql = self.session().query(distinct(RightAction.actionPath))
+        sql = sql.filter(RightAction.categoryId.in_(self.sqlRights(rbacId)))  # @UndefinedVariable
+
+        return processCollection(self.listPaths(sql), **options)
+        
+    def getChildren(self, identifier, parentPath, **options):
+        '''
+        @see: IUserRbacService.getChildren
+        '''
+        assert isinstance(parentPath, str), 'Invalid parent path %s' % parentPath
+        
+        rbacId = self.findRbacId(identifier)
+        if rbacId is None: return emptyCollection(**options)
+        
+        sql = self.session().query(distinct(RightAction.actionPath))
+        sql = sql.filter(RightAction.categoryId.in_(self.sqlRights(rbacId)))  # @UndefinedVariable
+        sql = sql.filter(RightAction.actionPath.like('%s.%%' % parentPath))  # @UndefinedVariable
+        
+        return processCollection(self.listPaths(sql, len(parentPath) + 1), **options)
+    
+    # ----------------------------------------------------------------
     
     def obtainRbacId(self, identifier):
         '''
@@ -83,3 +114,16 @@ class UserRbacServiceAlchemy(RbacServiceAlchemy, IAclPermissionProvider, ICompen
         rbacId = self.findRbacId(acl)
         if rbacId is None: return ()
         return self.compensateRightsProvider.iterateCompensates(self.sqlRights(rbacId))
+    
+    # ----------------------------------------------------------------
+    
+    def listPaths(self, sql, start=0):
+        '''
+        Iterates the paths for the provided sql.
+        '''
+        paths = set()
+        for path, in sql.all():
+            ipath = path.find('.', start)
+            if ipath >= 0: paths.add(path[:ipath])
+            else: paths.add(path)
+        return sorted(paths)

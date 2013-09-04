@@ -10,13 +10,14 @@ API for user rbac services.
 '''
 
 from ally.api.config import service
+from gui.action.api.category import IActionCategoryGetPrototype
 from security.rbac.api.rbac import IRbacPrototype
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
 
-@service(('RBAC', User))
-class IUserRbacService(IRbacPrototype):
+@service(('RBAC', User), ('CATEGORY', User))
+class IUserRbacService(IRbacPrototype, IActionCategoryGetPrototype):
     '''
     Provides the user RBAC service.
     '''

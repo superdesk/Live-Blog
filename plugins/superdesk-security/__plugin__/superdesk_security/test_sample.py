@@ -15,6 +15,7 @@ from security.api.right_type import RightType, IRightTypeService
 from security.rbac.api.role import IRoleService, Role
 from security.rbac.api.role_rbac import IRoleRbacService
 from acl.api.group import IGroupService, Group
+from gui.action.api.category_right import IActionRightService
     
 # --------------------------------------------------------------------
 
@@ -33,9 +34,17 @@ def populateGroupSamples():
         group.IsAnonymous = True
         groupService.insert(group)
     
-#    print('Security/RightType/*/Right')
-#    groupService.addAcl('Anonymous', 4271904924)
-#    groupService.addCompensate('Anonymous', 4271904924, 492295508)
+    print('ACL/Group/*/Action')
+    groupService.addAcl('Anonymous', 366848589)
+    groupService.addCompensate('Anonymous', 366848589, 2350271656)
+    
+    print('ACL/Group/*/Action/*')
+    groupService.addAcl('Anonymous', 123901121)
+    groupService.addCompensate('Anonymous', 123901121, 1828867566)
+    
+    print('ACL/Group/*/Action/*/SubAction')
+    groupService.addAcl('Anonymous', 1696959764)
+    groupService.addCompensate('Anonymous', 1696959764, 2633666875)
     
 #    print('HR/Person/*')
 #    groupService.addAcl('Anonymous', 1141975490)
@@ -54,6 +63,8 @@ def populateSamples():
     assert isinstance(roleRbacService, IRoleRbacService)
     rightService = entityFor(IRightService)
     assert isinstance(rightService, IRightService)
+    actionRightService = entityFor(IActionRightService)
+    assert isinstance(actionRightService, IActionRightService)
     userRbacService = entityFor(IUserRbacService)
     assert isinstance(userRbacService, IUserRbacService)
     
@@ -116,15 +127,15 @@ def populateSamples():
     # userRbacService.remRole(user1Id, 'Role1')
     roleRbacService.remRight('Role2', right1Id)
     
+    actionRightService.addAction(right2Id, 'menu.request')
+    
     print('HR/User/*/Role')
     rightService.addAcl(right2Id, 1408549725)
     rightService.registerFilter(right2Id, 1408549725, 'authenticated')
     rightService.addCompensate(right2Id, 1408549725, 445639920)
-    rightService.addAcl(right2Id, 445639920)
+    # rightService.addAcl(right2Id, 445639920)
     
-#    print('HR/User/*/Role/*')
-#    rightService.addAcl(right2Id, 3552952149)
-#    rightService.registerFilter(right2Id, 3552952149, 'authenticated')
-#    rightService.registerFilter(right2Id, 3552952149, 'test')
-#    rightService.addCompensate(right2Id, 3552952149, 3661375719)
-#    rightService.addAcl(right2Id, 3661375719)
+    print('HR/User/*/Role/*')
+    rightService.addAcl(right2Id, 3552952149)
+    rightService.addCompensate(right2Id, 3552952149, 3661375719)
+    # rightService.addAcl(right2Id, 3661375719)
