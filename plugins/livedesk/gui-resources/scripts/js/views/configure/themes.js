@@ -45,22 +45,33 @@
              * If the blog url doesn't have servername in it add it
              *   else replace with the frontend server.
              */
+            var frontendServer = $('[name="FrontendServer"]').val();
             if(blogUrl.indexOf(config.api_url) !== -1) {
-                blogUrl = blogUrl.replace(config.api_url,$('[name="FrontendServer"]').val());
+                blogUrl = blogUrl.replace(config.api_url, frontendServer);
             } else {
-                blogUrl = $('[name="FrontendServer"]').val() + blogUrl;
+                blogUrl = frontendServer + blogUrl;
             }
-            themePath = theme.get('URL').href.replace('\\','/').replace(config.api_url,$('[name="FrontendServer"]').val());
+
+            var frontendServerArray = frontendServer.toLowerCase().split("//"),
+                protocol = frontendServerArray[0],
+                themeNoProtocol;
+                frontendServerArray.shift();
+                frontendServer = "//" + frontendServerArray.join("//");
+            themeNoProtocol = theme.get('URL').href.replace('\\','/').split("//")
+            themeNoProtocol.shift();
+            themeNoProtocol = "//" + themeNoProtocol.join('//');
+            console.log(themeNoProtocol);
+            themePath = themeNoProtocol.replace(config.api_url, frontendServer);
             themePathArray = themePath.split('/');
             themePathArray.pop()
             themePath = themePathArray.join('/');
             data = {
                 'Theme': el.val(),
-                'ThemePath': themePath,
+                'ThemePath': protocol + themePath,
                 'TheBlog': blogUrl,
-                'GuiLivedeskEmbed': $('[name="FrontendServer"]').val() + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
+                'GuiLivedeskEmbed': protocol + frontendServer + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
-                'FrontendServer': $('[name="FrontendServer"]').val(),
+                'FrontendServer': protocol + frontendServer,
                 'Language': optionLanguage.attr('data-code')
             }
         	$.tmpl('livedesk>configure/embed',data, function(e,o){
