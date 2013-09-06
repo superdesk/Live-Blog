@@ -1,5 +1,5 @@
 {+mainContainer}
-<div id="livedesk-root">
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes}>
 	{+main}
 	<div class="liveblog-container">
 		{!-- 
@@ -17,18 +17,25 @@
 		
 		{+contentContainer}
 		<div class="liveblog-content">
+			{+userComment}
+				{+userCommentBox}{/userCommentBox}
+				{+userCommentBoxMessage}{/userCommentBoxMessage}
+				{+userCommentBackdrop}{/userCommentBackdrop}
+			{/userComment}
 			{+content}
 				{+contentTopContainer}
 				<div class="liveblog-content-top">
 					{+contentTop}
 						{+status}{/status}
+						{+statusNewPost}{/statusNewPost}
+						{+actionUserComment}{/actionUserComment}
 						{+actionTotop}{/actionTotop}
 					{/contentTop}
 				</div>
 				{/contentTopContainer}
 
 				{+contentMiddleContainer}
-				<div class="liveblog-content-middle"> 
+				<div class="liveblog-content-middle" id="wrapper"> 
 					{+contentMiddle}
 						{+postsList}{/postsList}
 					{/contentMiddle}
@@ -36,12 +43,21 @@
 				{/contentMiddleContainer}
 
 				{+contentBottomContainer}
+				<div class="liveblog-content-bottom">
+					{+contentBottom}
+					{+actionUserComment}{/actionUserComment}
+					{+actionTotop}{/actionTotop}
+					{/contentBottom}
+				</div>
 				{/contentBottomContainer}
 			{/content}
 		{/contentContainer}
-
-		{+footer}
-		{/footer}
+		{+footerContainer}
+		<div class="liveblog-footer">
+			{+footer}
+			{/footer}
+		</div>
+		{/footerContainer}
 	</div>
 	{/container}
 </div>
@@ -62,9 +78,29 @@
 <p data-gimme="blog.status" class="update-time"></p>
 {/status}
 
+{<statusNewPost}
+<a data-gimme="posts.pending-message" class="new-posts-label"></a>
+{/statusNewPost}
+
 {<actionTotop}
 <a data-gimme="posts.to-top" class="pintotop button">_('to top');</a>
 {/actionTotop}
+
+{<actionUserComment}
+<a data-gimme="blog.comment" href="#" class="comment button">_('comment');</a>
+{/actionUserComment}
+
+{<userCommentBox}
+<div data-gimme="blog.comment-box"></div>
+{/userCommentBox}
+
+{<userCommentBoxMessage}
+<div data-gimme="blog.comment-box-message"></div>
+{/userCommentBoxMessage}
+
+{<userCommentBackdrop}
+<div data-gimme="blog.comment-box-backdrop"></div>
+{/userCommentBackdrop}
 
 {<postsList}
 <ul data-gimme="posts.list" class="liveblog-postlist">

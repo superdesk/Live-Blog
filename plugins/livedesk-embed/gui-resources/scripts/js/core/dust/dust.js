@@ -5,6 +5,9 @@ var dust = {};
 
 dust.cache = {};
 
+dust.isRegistred = dust.defined = function(name) {
+  return dust.cache[name]? true : false;
+}
 dust.register = function(name, tmpl) {
   if (!name) return;
   dust.cache[name] = tmpl;

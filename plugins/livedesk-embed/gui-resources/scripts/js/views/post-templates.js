@@ -7,9 +7,9 @@ define([
 	'tmpl!themeBase/item/posttype/wrapup',
 	'tmpl!themeBase/item/posttype/quote',
 	'tmpl!themeBase/item/posttype/link',
-	'tmpl!themeBase/item/posttype/advertisement',	
+	'tmpl!themeBase/item/posttype/infomercial',	
 	'tmpl!themeBase/item/source/base',
-	'tmpl!themeBase/item/source/advertisement',
+	'tmpl!themeBase/item/source/infomercial',
 	'tmpl!themeBase/item/source/google',
 	'tmpl!themeBase/item/source/google/web',
 	'tmpl!themeBase/item/source/google/news',
@@ -21,5 +21,6 @@ define([
 	'tmpl!themeBase/item/source/comments',
 	'tmpl!themeBase/item/source/soundcloud',
 	'tmpl!themeBase/item/source/instagram',
-	'tmpl!themeBase/item/source/sms'
+	'tmpl!themeBase/item/source/sms',
+	'tmpl!themeBase/plugins/user-comment'
 ], function(){});

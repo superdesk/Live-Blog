@@ -1,6 +1,4 @@
-define([
-	'plugins/button-pagination'
-], function(){
+define(function(){
 	return {
 		enviroments: {
 			'desktop': 'desktop', 

@@ -1,0 +1,9 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}advertisement{/itemClass}
+{<contentCore}
+	{+contenteBaseBefore}{/contenteBaseBefore}
+	{+contentText}{/contentText}
+{/contentCore}
+{<contentSideContainer}{/contentSideContainer}
+{<headerContainer}{/headerContainer}
+{<footerContainer}{/footerContainer}

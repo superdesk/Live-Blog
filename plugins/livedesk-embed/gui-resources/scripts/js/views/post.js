@@ -1,13 +1,16 @@
 define([
 	'jquery',
 	'gizmo/superdesk',
+	'dust',
 	'jquery/tmpl',
 	'jquery/utils',
 	'utils/encode_url',
+	'utils/date-format',
 	'views/post-templates'
-], function( $, Gizmo ) {
+], function( $, Gizmo, dust ) {
 	return function(){
-		return Gizmo.View.extend ({
+		var PostView = Gizmo.View.extend ({
+			data: {},
 			init: function()
 			{
 				var self = this;
@@ -33,36 +36,14 @@ define([
 				self.el.remove();
 				self.model.off('read update delete');
 				return self;			
-			},
-			toggleWrap: function(e, forceToggle) {
-				if (typeof forceToggle != 'boolean' ) {
-					forceToggle = false;
-				}
-				this._toggleWrap($(e).closest('li').first(), forceToggle);
-			},
-			_toggleWrap: function(item, forceToggle) {
-				if (typeof forceToggle != 'boolean' ) {
-					forceToggle = false;
-				}
-				if (item.hasClass('wrapup-open')) {
-					var collapse = true;
-					if ( collapse ) {
-						item.removeClass('wrapup-open');
-						item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').hide();
-					} else {
-						//don't collapse wrap'
-					}
-				} else {
-					item.addClass('wrapup-open');
-					item.nextUntil('.wrapup,[data-gimme="posts.nextPage"]').show();
-				}
 			},	
 			render: function(evt, data)
 			{
 				var self = this, 
 					data = self.model.feed(true),
 					order = parseFloat(self.model.get('Order')),
-					publishedOn, createdOn, baseTheme, item;
+					publishedOn, createdOn, baseTheme, shortItem;
+				self.templateData = data;
 				if ( !isNaN(self.order) && (order != self.order)) {
 					self._parent.orderOne(self);
 				}
@@ -91,6 +72,7 @@ define([
 						data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 					}
 				}
+
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
 					data.CreatedOn = createdOn.format(_('post-date'));
@@ -106,64 +88,39 @@ define([
 				}
 				
 				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
-					item = "/item/posttype/"+data.Type.Key;
+					if(data.Type.Key === 'advertisement') {
+						self.item = "/item/posttype/infomercial";
+					}
+					else {
+						self.item = "/item/posttype/"+data.Type.Key;
+					}
 				}
 				else if(data.Author.Source.Name === 'google')
-					item = "/item/source/google/"+data.Meta.type;
-				else
-					item = "/item/source/"+data.Author.Source.Name;
-
-				item = (require.defined('theme'+item))? 'theme'+item: 'themeBase'+item;
-				data.baseItem = (require.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
-				/*!
-				 * @TODO: move this into plugins ASAP
-				 */
-				data.HashIdentifier = self._parent.hashIdentifier
-				var blogConfig = self._parent._parent._config;
-				newHash = blogConfig.hashIdentifier + data.Order;
-				if(blogConfig.location.indexOf('?') === -1) {
-					data.permalink = blogConfig.location + '?' + newHash ;
-				} else if(blogConfig.location.indexOf(blogConfig.hashIdentifier) !== -1) {
-					regexHash = new RegExp(blogConfig.hashIdentifier+'[^&]*');
-					data.permalink = blogConfig.location.replace(regexHash,newHash);
-				} else {
-					data.permalink = blogConfig.location + '&' + newHash;
+					self.item = "/item/source/google/"+data.Meta.type;
+				else {
+					if(data.Author.Source.Name === 'advertisement') {
+						self.item = "/item/source/infomercial";
+					} else {
+						self.item = "/item/source/"+data.Author.Source.Name;
+					}
 				}
-				/*!
-				 * @END TODO
-				 */
-				$.tmpl(item, data, function(e, o){
-					 self.setElement(o);
-					 /*!
-					  * @TODO: move this into plugins ASAP
-					  */
-					var input = $('input[data-type="permalink"]',self.el);
-					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
-						evt.preventDefault();
-						if(input.css('visibility') === 'visible') {
-							input.css('visibility', 'hidden' );
-						} else {
-							input.css('visibility', 'visible' );
-							input.trigger(self.getEvent('focus'));
-							$('.result-header .share-box', self.el).fadeOut('fast');
-						}
-						
-					});
-					input.on(self.getEvent('focus')+' '+self.getEvent('click'), function() {
-						$(this).select();
-					});
-					$('.big-toggle', self.el).off( self.getEvent('click') ).on(self.getEvent('click'), function(){
-						self.toggleWrap(this, true);
-					});
-
-					var li = $('.result-header', self.el).parent();
-					li.hover(function(){
-						//hover in
-					}, function(){
-						$(this).find('.share-box').fadeOut(100);
-						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
-					});
-
+				shortItem = self.item;
+				self.item = (dust.defined('theme'+self.item))? 'theme'+self.item: 'themeBase'+self.item;
+				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
+				data.frontendServer = liveblog.frontendServer;
+				$.dispatcher.triggerHandler('post-view.render-' + shortItem, self);
+				$.each(self.data, function(key, value){
+					if($.isFunction(value)){
+						data[key] = value.call(self, data);	
+					} else {
+						data[key] = value;
+					}
+				});
+				$.tmpl(self.item, data, function(e, o){
+					self.setElement(o);
+					/*!
+					 * @TODO Move this into a plugin
+					 */
 					var sharelink = $('.sf-share', self.el);
 					sharelink.on(self.getEvent('click'), function(evt){
 					    evt.preventDefault();
@@ -206,15 +163,25 @@ define([
 								share.attr('data-added', 'yes');	
 							});
 						}
-						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
-						$(this).next('.share-box').toggle();
+						var propName = 'visibility',
+							propValue = { 'show': 'visible', 'hide': 'hidden' },
+							box = $('[data-gimme="post.share-social"]',self.el);
+						if(box.css(propName) === propValue.show) {
+							box.css(propName, propValue.hide );
+						} else {
+							$('[data-gimme^="post.share"]',self.el).css(propName, propValue.hide);
+							box.css(propName, propValue.show );
+						}
 					});
 					/*!
 					 * @END TODO
 					 */
+					 $.dispatcher.triggerHandler('post-view.rendered-after-' + shortItem, self);
 				});
 						
 			}
 		});
+		$.dispatcher.triggerHandler('post-view.class',PostView);
+		return PostView;
 	}
 });

@@ -89,7 +89,7 @@
 {<publisherAvatar}
 {?AuthorImage}
 <div class="post-publisher-avatar">
-  <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
+  <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
 </div>
 {:else}
 <div class="post-publisher-avatar"></div>
@@ -153,14 +153,10 @@
   > facebook
 --!}
 {<externalAvatar}
-  {+externalAvatarContainer}{/externalAvatarContainer}
-{/externalAvatar}
-
-{<externalAvatarContainer}
   <div class="post-external-avatar">
     <img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}">
   </div>
-{/externalAvatarContainer}
+{/externalAvatar}
 
 {!-- displayed for:
   > isntagram
@@ -231,10 +227,14 @@
 {/shareContainer}
 
 {<permanentLinkShare}
-<a href="#" class="permalink" rel="bookmark">#</a>
-<input type="text" data-type="permalink" value="{permalink}">
+  {+permanentLink}
+    <a data-gimme="post.permalink" href="{permalink}" rel="bookmark" class="permalink">#</a>
+    <input data-gimme="post.share-permalink" type="text" style="visibility:hidden" value="{permalink}">
+  {/permanentLink}
 {/permanentLinkShare}
 
 {<socialShare}
-<a href="#" class="sf-share">_('Share');</a>
+  {+social}
+  <a data-gimme="post.social" href="#" class="sf-share">_('Share');</a>
+  {/social}
 {/socialShare}

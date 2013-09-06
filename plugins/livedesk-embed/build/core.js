@@ -7,6 +7,8 @@
  	paths: {
 		'themeBase': '../../../gui-themes/themes/base',
 
+		'require': 'core/require',
+
 		'tmpl': 'core/require/tmpl',
 		'css': 'core/require/css',
 		'i18n': 'core/require/i18n',
