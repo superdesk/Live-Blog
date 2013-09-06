@@ -550,7 +550,12 @@ define('providers/twitter', [
             }
             
             $('#twt-web-more').html('');
-
+            if ( typeof qstring !== 'undefined' ) {
+                if ( qstring[0] == '?' ) {
+                    //remove the first question mark sign from the twitter next page link
+                    qstring = qstring.substr(1);
+                }
+            }
             qstring = typeof qstring !== 'undefined' ? qstring : 'q='+ encodeURIComponent(text) +'&include_entities=true';
             if ( qstring == 'q='+ encodeURIComponent(text) +'&include_entities=true' ) {
                 $('#twt-web-results').html('');
