@@ -21,6 +21,8 @@ function($, backbone, router, angular, ArticleListController) {
 
         $('#area-main').tmpl('superdesk/article>list');
         $('#area-main').attr('ng-controller', 'ArticleListController');
-        angular.bootstrap(document, ['articles']);
+        angular.bootstrap(document, ['articles','directives']);
+
+
     };
 });
