@@ -114,8 +114,11 @@ define([
 		autosync: function()
 		{
 		var self = this;
+		var options = arguments[0] || {};
+		options.global = false;
+
 		return (this.href &&
-			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
+			this.syncAdapter.request.call(this.syncAdapter, this.href).read(options).done(function(data)
 			{					
 				var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
 				 // important or it will infiloop
