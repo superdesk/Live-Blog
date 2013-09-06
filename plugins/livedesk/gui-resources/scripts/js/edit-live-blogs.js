@@ -339,7 +339,7 @@ function(providers, Gizmo, $, BlogAction)
 						//; self.model.xfilter(xfilter).sync();
 						
 					})
-					.xfilter(self.xfilter).sync({data: {thumbSize: 'medium'}});
+					.xfilter(self.xfilter).sync({data: {thumbSize: 'medium', 'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}});
 			},
 			
 			reorder: function(evt, ui)
