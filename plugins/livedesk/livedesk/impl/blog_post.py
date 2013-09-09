@@ -328,11 +328,12 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
-        if isinstance(q, QWithCId) and QWithCId.search in q:
-            all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
-            sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
+        if isinstance(q, QWithCId):
+            if QWithCId.search in q:
+                all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
+                sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
 
-            if (BlogPostMapped.isHidden in q) and (AsBoolean.value in q.isHidden):
+            if (QWithCId.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
                 hiddenSQL = exists().where(and_(BlogPostTagDB.post == BlogPostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
