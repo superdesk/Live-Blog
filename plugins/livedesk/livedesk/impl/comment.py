@@ -90,7 +90,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             assert isinstance(q, QBlogPost), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogPostMapped)
 
-            if (BlogPostMapped.isHidden in q) and (AsBoolean.value in q.isHidden):
+            if (QBlogPost.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
                 hiddenSQL = exists().where(and_(BlogPostTagDB.post == BlogPostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
@@ -98,7 +98,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
                 else:
                     sql = sql.filter(~hiddenSQL)
 
-            if (BlogPostMapped.search in q) and q.search:
+            if (QBlogPost.search in q) and q.search:
                 for searchValue in [q.search.ilike, q.search.like]:
                     if not searchValue:
                         continue
