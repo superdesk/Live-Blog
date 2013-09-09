@@ -90,7 +90,7 @@
                             <li><sfcheck check="settings.fields.title" clickevent="saveSettings()"/> _('Title');</li>
                             <li><sfcheck check="settings.fields.author" clickevent="saveSettings()"/> _('Author');</li>
                             <li><sfcheck check="settings.fields.publishDate" clickevent="saveSettings()"/> _('Publish Date');</li>
-                            <li><sfcheck check="settings.fields.status" clickevent="saveSettings()"/> _('Status');</li>
+                            <li><sfcheck check="settings.fields.status" clickevent="saveSettings()"/> _('Published');</li>
                             <!--
                             <li> <sfcheck check="settings.fields.readCount" clickevent="saveSettings()"/> _('Read count');</li>
                             <li> <sfcheck check="settings.fields.importance" clickevent="saveSettings()"/> _('Importance');</li>
@@ -108,7 +108,7 @@
                 <td class="title_col" ng-show="settings.fields.title"><a href="#/article/{{ article.Id }}">{{ article.Content.Title }}</a></td>
                 <td ng-show="settings.fields.author">{{ article.Author.FullName }}</td>
                 <td ng-show="settings.fields.publishDate">{{ article.PublishedOn }}</td>
-                <td ng-show="settings.fields.status"><span ng-show="article.IsPublished">_('Published');</span><span ng-hide="article.IsPublished">_('Unpublished');</span></td>
+                <td ng-show="settings.fields.status"><sftoggle check="article.IsPublished" clickevent="publishUnpublish($index)"  onoff="true"/></td>
                 <td class="action_col" ng-show="settings.fields.action">
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Action <b class="caret"></b></a>
