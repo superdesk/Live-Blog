@@ -13,7 +13,7 @@ Contains the SQL alchemy meta for livedesk blog posts API.
 from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
     QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
-from livedesk.meta.blog_post_tag import BlogPostTagMapped
+from livedesk.meta.blog_post_tag import BlogPostTagDB
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -36,7 +36,6 @@ from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 from ally.api.criteria import AsBoolean
-from livedesk.meta.blog_post_tag import BlogPostTagMapped
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
 from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
@@ -335,7 +334,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
             if (BlogPostMapped.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
-                hiddenSQL = exists().where(and_(BlogPostTagMapped.Post == BlogPostMapped.Id, BlogPostTagMapped.Blog == blogId, BlogPostTagMapped.typeId == hiddenId))
+                hiddenSQL = exists().where(and_(BlogPostTagDB.post == BlogPostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
                     sql = sql.filter(hiddenSQL)
                 else:

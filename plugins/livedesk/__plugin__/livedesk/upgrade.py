@@ -12,8 +12,11 @@ Contains upgrade functions
 from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
 from ..superdesk.db_superdesk import alchemySessionCreator
-from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
-from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
+alchemySessionCreatorInternationalization = None
+try:
+    from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
+    from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
+except: pass
 from ally.container import app
 from ally.container.support import entityFor
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
@@ -113,6 +116,8 @@ def upgradeLiveBlog14():
 
 @app.populate(priority=PRIORITY_FIRST)
 def upgradeInternationalizationSourceType():
+    if not alchemySessionCreatorInternationalization: return
+
     creator = alchemySessionCreatorInternationalization()
     session = creator()
     assert isinstance(session, Session)

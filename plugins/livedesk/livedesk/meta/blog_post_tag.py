@@ -9,31 +9,24 @@ Created on August 26, 2013
 Contains the SQL alchemy meta for blog post tag API.
 '''
 
-from livedesk.api.blog_post_tag import BlogPostTag
 from livedesk.meta.blog import BlogMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from superdesk.tag.meta.tag import TagMapped
-from ally.support.sqlalchemy.mapper import validate
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('Type',))
-class BlogPostTagMapped(Base, BlogPostTag):
+class BlogPostTagDB(Base):
     '''
-    Provides the mapping for BlogPostTagMapped definition.
+    Provides the mapping for BlogPostTagDB definition.
     '''
-    __tablename__ = 'livedesk_post_tag'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+    __tablename__ = 'livedesk_blog_post_tag'
+    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_post_id', 'fk_tag_id', name='uix_blog_post_tag'),
+                      dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
-    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Type = association_proxy('type', 'Key')
-    Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), nullable=False)
-    Post = Column('fk_post_id', ForeignKey(PostMapped.Id, ondelete='CASCADE'), nullable=False)
-    # Non REST model attribute --------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(TagMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(TagMapped, uselist=False, lazy='joined')
+    id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), nullable=False)
+    post = Column('fk_post_id', ForeignKey(PostMapped.Id, ondelete='CASCADE'), nullable=False)
+    tag = Column('fk_tag_id', ForeignKey(TagMapped.id, ondelete='RESTRICT'), nullable=False)

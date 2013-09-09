@@ -13,7 +13,7 @@ from ..api.comment import IBlogCommentService
 from ..api.blog_post import IBlogPostService, QBlogPost
 from ..meta.blog import BlogMapped
 from ..meta.blog_post import BlogPostMapped
-from livedesk.meta.blog_post_tag import BlogPostTagMapped
+from livedesk.meta.blog_post_tag import BlogPostTagDB
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
 from ally.api.extension import IterPart
@@ -92,7 +92,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
 
             if (BlogPostMapped.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
-                hiddenSQL = exists().where(and_(BlogPostTagMapped.Post == BlogPostMapped.Id, BlogPostTagMapped.Blog == blogId, BlogPostTagMapped.typeId == hiddenId))
+                hiddenSQL = exists().where(and_(BlogPostTagDB.post == BlogPostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
                     sql = sql.filter(hiddenSQL)
                 else:

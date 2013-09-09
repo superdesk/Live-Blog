@@ -18,7 +18,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from livedesk.api.blog_post import QWithCId
-from livedesk.meta.blog_post_tag import BlogPostTagMapped
+from livedesk.meta.blog_post_tag import BlogPostTagDB
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
 from sqlalchemy.sql.expression import exists, and_
@@ -91,7 +91,7 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
             assert isinstance(q, QWithCId), 'Invalid query %s' % q
             if (QWithCId.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
-                hiddenSQL = exists().where(and_(BlogPostTagMapped.Post == PostMapped.Id, BlogPostTagMapped.Blog == blogId, BlogPostTagMapped.typeId == hiddenId))
+                hiddenSQL = exists().where(and_(BlogPostTagDB.post == PostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
                     sql = sql.filter(hiddenSQL)
                 else:
