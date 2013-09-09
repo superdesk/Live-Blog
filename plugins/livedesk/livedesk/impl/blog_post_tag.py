@@ -23,6 +23,7 @@ from ally.api.extension import IterPart
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
 # --------------------------------------------------------------------
 
@@ -37,6 +38,20 @@ class BlogPostTagServiceAlchemy(SessionSupport, IBlogPostTagService):
         '''
         Construct the blog post tag service.
         '''
+
+    def getTag(self, blogId, postId, tagTypeKey, tagKey):
+        '''
+        @see: IBlogSourceService.getTag
+        '''
+        sql = self.session().query(TagMapped).filter(TagMapped.Key == tagKey)
+        sql = sql.join(TagTypeMapped, TagTypeMapped.id == TagMapped.typeId)
+        sql = sql.filter(TagTypeMapped.Key == tagTypeKey)
+
+        try:
+            tag = sql.one()
+        except NoResultFound:
+            raise InputError(Ref(_('Unknown tag'),))
+        return tag
 
     def getTagType(self, blogId, postId, tagTypeKey):
         '''
@@ -58,7 +73,7 @@ class BlogPostTagServiceAlchemy(SessionSupport, IBlogPostTagService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    def getAll(self, blogId, postId, tagTypeKey, offset=None, limit=None, detailed=False):
+    def getAllTags(self, blogId, postId, tagTypeKey, offset=None, limit=None, detailed=False):
         '''
         @see: IBlogPostTagService.getAll
         '''
@@ -75,7 +90,7 @@ class BlogPostTagServiceAlchemy(SessionSupport, IBlogPostTagService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    def attach(self, blogId, postId, tagTypeKey, tagKey):
+    def attachTag(self, blogId, postId, tagTypeKey, tagKey):
         '''
         @see: IBlogPostTagService.attach
         '''
@@ -91,7 +106,7 @@ class BlogPostTagServiceAlchemy(SessionSupport, IBlogPostTagService):
         except SQLAlchemyError as e:
             raise InputError(Ref(_('Can not attach the tag'),))
 
-    def detach(self, blogId, postId, tagTypeKey, tagKey):
+    def detachTag(self, blogId, postId, tagTypeKey, tagKey):
         '''
         @see: IBlogPostTagService.detach
         '''

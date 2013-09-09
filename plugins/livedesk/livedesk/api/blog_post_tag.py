@@ -34,6 +34,13 @@ class IBlogPostTagService:
     '''
 
     @call
+    def getTag(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, tagKey:Tag.Key) -> Tag:
+        '''
+        Gets tag.
+        This methods is necessary for getting the right URLs on blog-post tags.
+        '''
+
+    @call
     def getTagType(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key) -> TagType:
         '''
         Gets tag type.
@@ -56,20 +63,20 @@ class IBlogPostTagService:
         '''
 
     @call
-    def getAll(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, offset:int=None,
+    def getAllTags(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, offset:int=None,
                limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(Tag):
         '''
         Provides all the available blog post tags of a tag type.
         '''
 
-    @call(method=UPDATE, webName='Attach')
-    def attach(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, tagKey:Tag.Key):
+    @call(method=UPDATE)
+    def attachTag(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, tagKey:Tag.Key):
         '''
         Attaches the tag to the blog post.
         '''
 
-    @call(method=DELETE, webName='Detach')
-    def detach(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, tagKey:Tag.Key) -> bool:
+    @call(method=DELETE)
+    def detachTag(self, blogId:Blog.Id, postId:Post.Id, tagTypeKey:TagType.Key, tagKey:Tag.Key) -> bool:
         '''
         Detaches the tag from the blog post.
         '''
