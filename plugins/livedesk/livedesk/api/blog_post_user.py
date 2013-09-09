@@ -45,14 +45,20 @@ class IBlogPostUserService:
         Provides all the available blog post users.
         '''
 
-    @call(method=UPDATE, webName='Attach')
-    def attach(self, blogId:Blog.Id, postId:Post.Id, userId:User.Id):
+    @call(method=UPDATE)
+    def attachUser(self, blogId:Blog.Id, postId:Post.Id, userId:User.Id):
         '''
         Attaches the user to the blog post.
         '''
 
-    @call(method=DELETE, webName='Detach')
-    def detach(self, blogId:Blog.Id, postId:Post.Id, userId:User.Id=None) -> bool:
+    @call(method=DELETE)
+    def detachUser(self, blogId:Blog.Id, postId:Post.Id, userId:User.Id) -> bool:
         '''
         Detaches the user from the blog post.
+        '''
+
+    @call(method=DELETE, webName='User')
+    def detachAllUsers(self, blogId:Blog.Id, postId:Post.Id) -> bool:
+        '''
+        Detaches all users from the blog post.
         '''

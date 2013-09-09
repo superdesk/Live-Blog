@@ -67,11 +67,11 @@ class BlogPostUserServiceAlchemy(SessionSupport, IBlogPostUserService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
-    def attach(self, blogId, postId, userId):
+    def attachUser(self, blogId, postId, userId):
         '''
-        @see: IBlogPostUserService.attach
+        @see: IBlogPostUserService.attachUser
         '''
-        self.detach(blogId, postId)
+        self._detach(blogId, postId)
 
         blogPostUserDb = BlogPostUserDB()
 
@@ -85,10 +85,21 @@ class BlogPostUserServiceAlchemy(SessionSupport, IBlogPostUserService):
         except SQLAlchemyError as e:
             raise InputError(Ref(_('Can not attach the user'),))
 
-    def detach(self, blogId, postId, userId=None):
+    def detachUser(self, blogId, postId, userId):
         '''
-        @see: IBlogPostUserService.detach
+        @see: IBlogPostUserService.detachUser
         '''
+        return self._detach(blogId, postId, userId)
+
+    def detachAllUsers(self, blogId, postId):
+        '''
+        @see: IBlogPostUserService.detachAllUsers
+        '''
+        return self._detach(blogId, postId)
+
+    # ----------------------------------------------------------------
+
+    def _detach(self, blogId, postId, userId=None):
         try:
             sql = self.session().query(BlogPostUserDB)
             sql = sql.filter(BlogPostUserDB.blog == blogId)
