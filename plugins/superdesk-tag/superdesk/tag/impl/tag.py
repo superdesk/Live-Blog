@@ -9,7 +9,7 @@ Created on August 26, 2013
 Contains the SQL alchemy meta for superdesk tags API.
 '''
 
-from superdesk.tag.api.type import QTag, ITagTypeService
+from superdesk.tag.api.tag import QTag, ITagService
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
 from ally.container.ioc import injected

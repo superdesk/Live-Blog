@@ -39,7 +39,7 @@ from ally.api.criteria import AsBoolean
 from livedesk.meta.blog_post_tag import BlogPostTagMapped
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
-from __plugin__.livedesk.populate_default_data import view_tag_type_key, view_hidden_tag_key
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
 
@@ -427,5 +427,5 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         try:
             return sql.one()[0]
-        except:
-            NoResultFound: raise InputError(_('No tag for hidden posts'))
+        except NoResultFound:
+            raise InputError(_('No tag for hidden posts'))

@@ -9,8 +9,8 @@ Created on August 26, 2013
 Contains the SQL alchemy meta for livedesk blog post tags API.
 '''
 
-from livedesk.api.source import IBlogPostTagService
-from livedesk.meta.source import BlogPostTagMapped
+from livedesk.api.blog_post_tag import IBlogPostTagService
+from livedesk.meta.blog_post_tag import BlogPostTagMapped
 from livedesk.meta.blog import BlogMapped
 from ally.container.ioc import injected
 from ally.container.support import setup

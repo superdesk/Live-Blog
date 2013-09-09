@@ -9,12 +9,13 @@ Created on August 28, 2013
 API specifications for livedesk blog post users.
 '''
 
-from ally.api.config import service, call
+from ally.api.config import service, call, LIMIT_DEFAULT
 from ally.support.api.entity import Entity, IEntityService
 from livedesk.api.blog import Blog
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.user.api.user import User
 from superdesk.post.api.post import Post
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 

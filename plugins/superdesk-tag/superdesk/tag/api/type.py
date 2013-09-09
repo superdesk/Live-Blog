@@ -12,6 +12,7 @@ API specifications for superdesk tag types.
 from ally.api.config import service
 from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
 from superdesk.api.domain_superdesk import modelData
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 

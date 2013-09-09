@@ -31,4 +31,7 @@ class BlogPostUserMapped(Base, BlogPostUser):
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), nullable=False)
     Post = Column('fk_post_id', ForeignKey(PostMapped.Id, ondelete='CASCADE'), nullable=False)
-    User = Column('fk_user_id', ForeignKey(PostUser.Id, ondelete='CASCADE'), nullable=False)
+    User = Column('fk_user_id', ForeignKey(UserMapped.Id, ondelete='CASCADE'), nullable=False)
+
+#TODO: set unique on blog/post
+

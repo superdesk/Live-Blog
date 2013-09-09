@@ -10,7 +10,7 @@ API specifications for blog comment.
 '''
 
 from ..api.blog_post import BlogPost, QBlogPost
-from ally.api.config import service, call, INSERT
+from ally.api.config import service, call, INSERT, LIMIT_DEFAULT
 from ally.api.type import Iter
 from ally.support.api.keyed import Entity
 from livedesk.api.domain_livedesk import modelLiveDesk
@@ -39,14 +39,14 @@ class IBlogCommentService:
     '''
 
     @call(webName='Comment')
-    def getComments(self, blogId:Blog.Id, offset:int=None, limit:int=None, detailed:bool=True,
+    def getComments(self, blogId:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                     q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Lists comment Posts of the specified blog.
         '''
 
     @call(webName='Post')
-    def getOriginalComments(self, blogId:Blog.Id, offset:int=None, limit:int=None, detailed:bool=True,
+    def getOriginalComments(self, blogId:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                     q:QBlogPost=None) -> Iter(BlogComment):
         '''
         Lists original comments of Comment-based Posts of the specified blog.

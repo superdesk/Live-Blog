@@ -39,7 +39,7 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
-from __plugin__.livedesk.populate_default_data import view_tag_type_key, view_hidden_tag_key
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
 
@@ -214,5 +214,5 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
 
         try:
             return sql.one()[0]
-        except:
-            NoResultFound: raise InputError(_('No tag for hidden posts'))
+        except NoResultFound:
+            raise InputError(_('No tag for hidden posts'))

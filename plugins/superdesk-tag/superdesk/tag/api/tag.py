@@ -9,11 +9,12 @@ Created on August 26, 2013
 API specifications for superdesk tags.
 '''
 
-from ally.api.config import service, query, call
+from ally.api.config import service, query, call, LIMIT_DEFAULT
 from ally.api.criteria import AsLike
 from ally.support.api.keyed import Entity, QEntity, IEntityGetService, IEntityFindService
 from superdesk.tag.api.type import TagType
 from superdesk.api.domain_superdesk import modelData
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -43,7 +44,7 @@ class ITagService(IEntityGetService, IEntityFindService):
 
     @call
     def getAll(self, typeKey:TagType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-               q:QTag=None) -> Iter(Source):
+               q:QTag=None) -> Iter(Tag):
         '''
         Provides all the available tags.
         '''

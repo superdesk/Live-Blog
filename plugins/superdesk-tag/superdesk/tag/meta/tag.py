@@ -17,6 +17,7 @@ from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.types import String
 
 # --------------------------------------------------------------------
 

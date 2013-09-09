@@ -29,7 +29,7 @@ from ally.support.sqlalchemy.util_service import buildLimits
 from ally.api.extension import IterPart
 from sqlalchemy.orm.exc import NoResultFound
 from __plugin__.frontline_inlet.populate_default_data import sms_source_types
-from __plugin__.livedesk.populate_default_data import view_tag_type_key, view_hidden_tag_key
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
 
@@ -138,8 +138,8 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
 
         try:
             return sql.one()[0]
-        except:
-            NoResultFound: raise InputError(_('No tag for hidden posts'))
+        except NoResultFound:
+            raise InputError(_('No tag for hidden posts'))
 
     def _isTypeSMS(self, sourceId):
         '''
@@ -153,5 +153,5 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
                 return True
             else:
                 return False
-        except:
-            NoResultFound: raise InputError(_('No sms source with id %s') % sourceId)
+        except NoResultFound:
+            raise InputError(_('No sms source with id %s') % sourceId)

@@ -9,15 +9,15 @@ Created on August 28, 2013
 Contains the SQL alchemy meta for livedesk blog post users API.
 '''
 
-from livedesk.api.source import IBlogPostUserService
-from livedesk.meta.source import BlogPostUserMapped
+from livedesk.api.blog_post_user import IBlogPostUserService
+from livedesk.meta.blog_post_user import BlogPostUserMapped
 from livedesk.meta.blog import BlogMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from superdesk.post.meta.post import PostMapped
-from superdesk.tag.meta.tag import UserMapped
+from superdesk.user.meta.user import UserMapped
 from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------

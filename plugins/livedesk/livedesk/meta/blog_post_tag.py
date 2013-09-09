@@ -17,6 +17,8 @@ from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from superdesk.tag.meta.tag import TagMapped
 from ally.support.sqlalchemy.mapper import validate
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship
 
 # --------------------------------------------------------------------
 

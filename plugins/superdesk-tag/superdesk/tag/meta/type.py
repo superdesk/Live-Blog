@@ -13,6 +13,7 @@ from superdesk.tag.api.type import TagType
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from superdesk.meta.metadata_superdesk import Base
+from sqlalchemy.types import String
 
 # --------------------------------------------------------------------
 
