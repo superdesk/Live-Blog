@@ -23,6 +23,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.operators import desc_op
 from sqlalchemy.sql.expression import exists, and_
 from superdesk.post.api.post import Post
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
@@ -108,6 +109,8 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
                         if not searchValue.startswith('%'):
                             searchValue = '%' + searchValue
                     sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
+
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -197,6 +200,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         #return (self.blogPostService.getById(blogId, postId),)
 
     # ------------------------------------------------------------------
+
     def _freeCommentUserName(self):
         userName = 'Comment-' + binascii.b2a_hex(os.urandom(8)).decode()
         while True:

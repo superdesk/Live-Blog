@@ -18,17 +18,19 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from livedesk.api.blog_post import QWithCId
+from livedesk.meta.blog import BlogSourceDB
 from livedesk.meta.blog_post_tag import BlogPostTagDB
 from superdesk.tag.meta.tag import TagMapped
 from superdesk.tag.meta.type import TagTypeMapped
 from sqlalchemy.sql.expression import exists, and_
+from sqlalchemy.sql.operators import desc_op
 from ally.api.criteria import AsRange, AsBoolean
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import buildLimits
 from ally.api.extension import IterPart
 from sqlalchemy.orm.exc import NoResultFound
-from __plugin__.frontline_inlet.populate_default_data import sms_source_types
+from __plugin__.frontline_inlet.sms import sms_source_types
 from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
@@ -81,6 +83,8 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
 
+    # ------------------------------------------------------------------
+
     def _commonSQL(self, blogId, sourceId=None, q=None):
         '''
         shared part of taking the relevant sms posts
@@ -121,13 +125,19 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         sql = sql.join(CollaboratorMapped, CollaboratorMapped.Id == PostMapped.Author)
         sql = sql.join(SourceMapped, SourceMapped.Id == CollaboratorMapped.Source)
 
+        sql = sql.join(BlogSourceDB, BlogSourceDB.source == SourceMapped.Id).filter(BlogSourceDB.blog == blogId)
+
         if sourceId:
             if not self._isTypeSMS(sourceId):
                 raise InputError(_('Not SMS source type'))
             sql = sql.filter(SourceMapped.Id == sourceId)
         else:
-            sql = sql.join(SourceTypeMapped, SourceTypeMapped.Key == self.smsTypeKey)
-            sql = sql.filter(SourceTypeMapped.Key._in(self.smsTypeKeys))
+            sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+            sql = sql.filter(SourceTypeMapped.Key.in_(self.smsTypeKeys))
+
+        sql = sql.order_by(desc_op(PostMapped.Id))
+
+        return sql
 
     def _takeHiddenId(self):
         '''
