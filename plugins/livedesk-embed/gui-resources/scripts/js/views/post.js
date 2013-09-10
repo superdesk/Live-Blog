@@ -85,8 +85,7 @@ define([
 				}
 				if(data.Content && liveblog.adminServer) {
 					data.Content = data.Content.replace(liveblog.adminServer,livedesk.frontendServer);
-				}
-				
+				}			
 				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
 					if(data.Type.Key === 'advertisement') {
 						self.item = "/item/posttype/infomercial";
@@ -104,6 +103,16 @@ define([
 						self.item = "/item/source/"+data.Author.Source.Name;
 					}
 				}
+				if( (self.item === "/item/source/comments") && data.Meta && data.Meta.AuthorName ) {
+					/*!
+					 * @TODO: remove this line when LB-1013 is done.
+					 */
+					var cleanName = data.Meta.AuthorName.replace('commentator','');
+					/*!
+					 * @ENDTODO
+					 */
+					data.Meta.AuthorName = _('%(full_name)s commentator').format({"full_name": cleanName});
+				}	
 				shortItem = self.item;
 				self.item = (dust.defined('theme'+self.item))? 'theme'+self.item: 'themeBase'+self.item;
 				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
