@@ -1,33 +1,109 @@
-{!
-_('to top');
-_('updated on ');
-_('new posts');
-_('Load top Posts');
-_('Loading posts...');
-_('Load more posts ...');
-!}
-<div class="live-blog">
-	{+header}
-		<div id="liveblog-header">
-			<a id="pintotop" href="#">_('to top');</a>
-			<div id="liveblog-status" class="update-time">
-				<span id="liveblog-status-time">_('updated on ');</span>
-				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
-			</div>
+{+mainContainer}
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes}>
+	{+main}
+	<div class="liveblog-container">
+		{!-- 
+			liveblog header - optional block
+			(title, description ...)
+		--!}
+		{+headerContainer}
+		<div class="liveblog-header">
+			{+header}
+				{+blogTitle}{/blogTitle}
+				{+blogDescription}{/blogDescription}
+			{/header}
 		</div>
-	{/header}
-	{+list}
-		<div id="liveblog-posts">
-			<ol id="liveblog-post-list" class="liveblog-post-list">
-				<li class="loading-more" id="load-more" style="display:none">
-					<a name="none"></a>
-					<a class="liveblog-more" id="liveblog-more">_('Load top Posts');</a>
-				</li>
-				<li class="loading-more" id="loading-more" style="display:none">
-					<div id="loading-more-image"></div>
-					<div id="loading-more-text">_('Loading posts...');</div>
-				</li>
-			</ol>
+		{/headerContainer}
+		
+		{+contentContainer}
+		<div class="liveblog-content">
+			{+userComment}
+				{+userCommentBox}{/userCommentBox}
+				{+userCommentBoxMessage}{/userCommentBoxMessage}
+				{+userCommentBackdrop}{/userCommentBackdrop}
+			{/userComment}
+			{+content}
+				{+contentTopContainer}
+				<div class="liveblog-content-top">
+					{+contentTop}
+						{+status}{/status}
+						{+statusNewPost}{/statusNewPost}
+						{+actionUserComment}{/actionUserComment}
+						{+actionTotop}{/actionTotop}
+					{/contentTop}
+				</div>
+				{/contentTopContainer}
+
+				{+contentMiddleContainer}
+				<div class="liveblog-content-middle"> 
+					{+contentMiddle}
+						{+postsList}{/postsList}
+					{/contentMiddle}
+				</div>
+				{/contentMiddleContainer}
+
+				{+contentBottomContainer}
+				<div class="liveblog-content-bottom">
+					{+contentBottom}
+					{+actionUserComment}{/actionUserComment}
+					{+actionTotop}{/actionTotop}
+					{/contentBottom}
+				</div>
+				{/contentBottomContainer}
+			{/content}
+		{/contentContainer}
+		{+footerContainer}
+		<div class="liveblog-footer">
+			{+footer}
+			{/footer}
 		</div>
-	{/list}
+		{/footerContainer}
+	</div>
+	{/container}
 </div>
+{/mainContainer}
+
+{! -- predefined blocks for block header !}
+
+{<blogTitle}
+<h3 data-gimme="blog.title"></h3>
+{/blogTitle}
+
+{<blogDescription}
+<p data-gimme="blog.description"></p>
+{/blogDescription}
+
+{! -- predefined blocks for content top block !}
+{<status}
+<p data-gimme="blog.status" class="update-time"></p>
+{/status}
+
+{<statusNewPost}
+<a data-gimme="posts.pending-message" class="new-posts-label"></a>
+{/statusNewPost}
+
+{<actionTotop}
+<a data-gimme="posts.to-top" class="pintotop button">_('to top');</a>
+{/actionTotop}
+
+{<actionUserComment}
+<a data-gimme="blog.comment" href="#" class="comment button">_('comment');</a>
+{/actionUserComment}
+
+{<userCommentBox}
+<div data-gimme="blog.comment-box"></div>
+{/userCommentBox}
+
+{<userCommentBoxMessage}
+<div data-gimme="blog.comment-box-message"></div>
+{/userCommentBoxMessage}
+
+{<userCommentBackdrop}
+<div data-gimme="blog.comment-box-backdrop"></div>
+{/userCommentBackdrop}
+
+{<postsList}
+<ul data-gimme="posts.list" class="liveblog-postlist">
+	{#Plugins.posts.list}{>"{.}"/}{/Plugins.posts.list}
+</ul>
+{/postsList}

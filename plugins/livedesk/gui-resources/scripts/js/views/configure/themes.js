@@ -62,13 +62,9 @@
             themeNoProtocol = "//" + themeNoProtocol.join('//');
             console.log(themeNoProtocol);
             themePath = themeNoProtocol.replace(config.api_url, frontendServer);
-            themePathArray = themePath.split('/');
-            themePathArray.pop()
-            themePath = themePathArray.join('/');
             data = {
                 'Theme': el.val(),
-                'ThemePath': protocol + themePath,
-                'TheBlog': blogUrl,
+                'Id': self._parent.model.get('Id'),
                 'GuiLivedeskEmbed': protocol + frontendServer + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
                 'FrontendServer': protocol + frontendServer,

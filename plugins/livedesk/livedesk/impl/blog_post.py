@@ -13,6 +13,7 @@ Contains the SQL alchemy meta for livedesk blog posts API.
 from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
     QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
+from livedesk.meta.blog_post_tag import BlogPostTagDB
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -25,7 +26,7 @@ from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMap
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
-from sqlalchemy.sql.expression import func, or_
+from sqlalchemy.sql.expression import func, or_, and_, exists
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -34,6 +35,10 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
+from ally.api.criteria import AsBoolean
+from superdesk.tag.meta.tag import TagMapped
+from superdesk.tag.meta.type import TagTypeMapped
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
 
 # --------------------------------------------------------------------
 
@@ -55,6 +60,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
         assert isinstance(self.personIconService, IPersonIconService), 'Invalid person icon service %s' % self.personIconService
+
+        self.tagTypeKeyView = view_tag_type_key()
+        self.tagKeyViewHidden = view_hidden_tag_key()
 
     def getById(self, blogId, postId, thumbSize=None):
         '''
@@ -93,8 +101,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
         return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
@@ -121,8 +127,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts = IterPost(posts, sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
         return posts
 
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
@@ -320,9 +324,18 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
-        if isinstance(q, QWithCId) and QWithCId.search in q:
-            all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
-            sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
+        if isinstance(q, QWithCId):
+            if QWithCId.search in q:
+                all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
+                sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
+
+            if (QWithCId.isHidden in q) and (AsBoolean.value in q.isHidden):
+                hiddenId = self._takeHiddenId()
+                hiddenSQL = exists().where(and_(BlogPostTagDB.post == BlogPostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
+                if q.isHidden.value:
+                    sql = sql.filter(hiddenSQL)
+                else:
+                    sql = sql.filter(~hiddenSQL)
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
@@ -400,3 +413,15 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         for post in posts:
             post = self._addImage(post, thumbSize)
             yield post
+
+    def _takeHiddenId(self):
+        '''
+        Provides Id of the tag that specifies hidden posts
+        '''
+        sql = self.session().query(TagMapped.id).filter(TagMapped.Key == self.tagKeyViewHidden)
+        sql = sql.join(TagTypeMapped, TagTypeMapped.id == TagMapped.typeId).filter(TagTypeMapped.Key == self.tagTypeKeyView)
+
+        try:
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(_('No tag for hidden posts'))

@@ -2,7 +2,6 @@ define
 ([
     'jquery', 
     'gizmo/superdesk',
-    config.guiJs('media-archive', 'upload'),
     config.guiJs('media-archive', 'list'),
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/meta-data'),
@@ -11,8 +10,38 @@ define
     'tmpl!media-archive>adv-upload/archive-list-item',
     'tmpl!media-archive>adv-upload/archive-filter'
 ], 
-function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
+function($, gizmo, MA, MetaDataInfo, MetaData)
 {
+    'use strict';
+
+    /*!
+     * upload one file to server
+     * @param {object} file The object to append to FormData (form.files[i])
+     * @param {string} filename The key of the file in post data
+     * @param {string} path Server path to upload to
+     * @param {function} startCb Callback for upload start, falls back to format if string and !format 
+     */
+    function upload(file, filename, path, startCb)
+    {
+        var delay = new $.Deferred();
+        var fd = new FormData();
+        var format = typeof startCb == 'string' && !format ? startCb : (format ? format : 'json');
+        fd.append(filename || 'upload_file', file);
+        var xhr = new XMLHttpRequest();
+        // replace or add format we want as response in url // path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';
+        xhr.open('POST', (path+' ').replace(/(((\.[\w\d-]+)?\?)|(\s$))/,'.'+format+'$1'), true);
+        xhr.setRequestHeader('X-Filter', 'Content');
+        startCb && startCb.apply(this);
+        xhr.send(fd);
+
+        xhr.onload = function(event) {
+            var data = $.parseJSON(event.target.responseText);
+            delay.resolve(data);
+        };
+
+        return delay.promise();
+    }
+
     var 
     FilterView = gizmo.View.extend
     ({
@@ -140,37 +169,28 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         /*!
          * handler on upload complete
          */
-        uploadComplete: function(event)
+        uploadComplete: function(data)
         {
-            var content = false;
-            // either get it from the responseXML or responseText
-            try
-            { 
-                var xml = $(event.target.responseXML.firstChild),
-                    content = xml.find('Thumbnail');
-                    id = $('>Id', xml).get(0).text();
-            }
-            catch(e){ 
-                var txt = $(event.target.responseText),
-                    content = txt.find('thumbnail'),
-                    id = txt.find('Id:eq(0)').text();
-            }
-            if(!content) return;
+            var content = data.Thumbnail;
+            var id = data.Id;
+
             var img = new Image,
                 self = this; 
-            img.src = content.attr('href');
+            img.src = content.href;
+
             img.onload = function()
             {
                 $('form', self.el).addClass('hide');
                 $('[data-placeholder="preview-area"]', self.el).removeClass('hide');
                 $('[data-placeholder="preview"]', self.el).html(img); 
             };
+
             img.onerror = function(){  };
             
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+id);
             meta.sync({data: {thumbSize: 'large'}}).done(function()
             { 
-                self.lastUpload = meta.get('Id');
+                self.lastUpload = meta;
                 self.registerItem(null, meta);
             });
         },
@@ -179,7 +199,13 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             $('form', this.el).removeClass('hide');
             $('[data-placeholder="preview-area"]', this.el).addClass('hide');
             $('[data-placeholder="preview"]', this.el).html('');
-            delete this.returnImageList[this.lastUpload];
+            if (this.lastUpload) {
+                this.removeImage(this.lastUpload);
+                this.removeImageById(this.lastUpload.get('Id'));
+            }
+        },
+        removeImage: function(meta) {
+            meta.remove().sync();
         },
         /*!
          * triggers file input
@@ -188,16 +214,34 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             $('[data-action="browse"]', this.el).trigger('click');
         },
+
+        findImageById: function(id) {
+            for (var i = 0; i < this.returnImageList.length; i++) {
+                if (this.returnImageList[i].data.Id === id) {
+                    return i;
+                }
+            }
+        },
+
+        removeImageByPos: function(pos) {
+            this.returnImageList.splice(pos, 0);
+        },
+
+        removeImageById: function(id) {
+            var pos = this.findImageById(id);
+            if (pos !== undefined) {
+                this.removeImageByPos(pos);
+            }
+        },
         
-        returnImageList: {},
+        returnImageList: [],
         registerItem: function(evt, model)
         {
-            var id = model.get('Id');
-            var itm = this.returnImageList[id];
-            if (itm) {
-                delete this.returnImageList[id];
+            var pos = this.findImageById(model.data.Id);
+            if (pos !== undefined) {
+                this.removeImageByPos(pos);
             } else {
-                this.returnImageList[id] = model;
+                this.returnImageList.push(model);
             }
         },
         getRegisteredItems: function()
@@ -211,46 +255,55 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         upload: function()
         {
             var self = this;
-            var xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
-                        'upload_file', 
-                        $("form", self.el).attr('action'), 
-                        self.uploadingDisplay );
-            xhr.onload = function(){
+            upload(
+                $('[data-action="browse"]', self.el)[0].files[0],
+                'upload_file',
+                this.getUploadEndpoint(),
+                self.uploadingDisplay
+            ).then(function(data) {
                 $('[data-action="browse"]').val('');
-                self.uploadComplete.apply(self, arguments);
-            };
+                self.uploadComplete(data);
+            });
         },
         complete: function()
         {
-            $(this).triggerHandler('complete');
+            this.delay.resolve(this.returnImageList);
         },
         /*!
          * init -> renders
+         * @param {Object} options Options for add image popup.
+         *
+         *   Available options:
+         *
+         *   - showArchive - {Boolean} - Show archive for selecting existing image.
          */
-        init: function()
+        init: function(options)
         {
             var self = this;
                 this.listView = new ListView({thumbSize: this.thumbSize});
             $(this.listView).on('register-item', function(){ self.registerItem.apply(self, arguments); });
             this.listView._parent = this;
-            this.render();
+            this.render($.extend({showArchive: true}, options));
         },
         /*!
          * activates
          */
         activate: function()
         {
+            this.delay = $.Deferred();
             this.cancelUpload();
-            this.returnImageList = {};
+            this.returnImageList = [];
             this.listView.activate();
+            $(this.el).addClass('modal hide fade responsive-popup').modal();
+            return this.delay.promise();
         },
         /*!
          * renders stuff
          */
-        render: function()
+        render: function(options)
         {
             var self = this;
-            $(self.el).tmpl('media-archive>adv-upload/main', {UploadAction: self.getUploadEndpoint()}, function()
+            $(self.el).tmpl('media-archive>adv-upload/main', options, function()
             {
                 self.listView.renderPlaceholder = $('[data-placeholder="media-archive"]', self.el);
                 self.listView.itemsPlaceholder = '[data-placeholder="media-archive-items"]';

@@ -1,19 +1,15 @@
-requirejs.config({
-	urlArgs: 'v=1', 
-	paths: {
-		'theme': 'livedesk-embed/themes/ctkno'
+define([
+	'plugins/wrappup-toggle',
+	'plugins/scroll-pagination',
+	'plugins/permanent-link',
+	'plugins/user-comments',
+	'css!theme/liveblog'
+], function(){
+	return {
+		//enviroments: [ 'mobile', 'desktop', 'quirks' ],
+		plugins: [ 'wrappup-toggle', 
+					'scroll-pagination', 
+					'permanent-link',
+					'user-comments' ]
 	}
-});
-require(['ctkno.min'], function() {
-	require(['../scripts/js/config'], function(){
-		function loadCss(url) {
-			var link = document.createElement("link");
-			link.type = "text/css";
-			link.rel = "stylesheet";
-			link.href = url;
-			document.getElementsByTagName("head")[0].appendChild(link);
-		}
-		loadCss(require.toUrl('theme/livedesk.css'));
-		require(['livedesk-embed/main']);
-	});
 });

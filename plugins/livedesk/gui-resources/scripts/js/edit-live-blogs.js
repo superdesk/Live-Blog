@@ -9,6 +9,8 @@ define
     'gizmo/superdesk',
     'jquery',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('media-archive', 'upload'),
+    'router',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -34,9 +36,8 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction) 
+function(providers, Gizmo, $, BlogAction, upload, router)
 {
-		
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -526,8 +527,12 @@ function(providers, Gizmo, $, BlogAction)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
-					.desc('order')					
-					.auto();
+					.desc('order');
+
+				if (self._parent.model.isOpen()) {
+					self.collection.auto();
+				}
+
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -962,7 +967,7 @@ function(providers, Gizmo, $, BlogAction)
 				this.model.set(data).sync().done(function() {
 					content.find('.tool-box-top .update-success').removeClass('hide');
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-					self.textToggleStatus();
+					router.reload();
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
@@ -1012,6 +1017,7 @@ function(providers, Gizmo, $, BlogAction)
 						self.el.find('[data-target="configure-blog"]').css('display', 'none');
 						self.el.find('[data-target="manage-collaborators-blog"]').css('display', 'none');
 					});
+
 				    
 					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
@@ -1032,7 +1038,8 @@ function(providers, Gizmo, $, BlogAction)
 						theBlog: self.theBlog
 					});
 					self.providers.render();
-					
+
+
 					self.actions = new ActionsView
 					({
 						el: $('.filter-posts', self.el),
@@ -1068,7 +1075,10 @@ function(providers, Gizmo, $, BlogAction)
 						});
 					self.responsiveTabs();
 					$.superdesk.hideLoader();
-					
+
+					self.el.find('.blog-closed-disabled').
+						css('display', self.model.isClosed() ? 'block' : 'none');
+					$('#site-live-info').toggle(self.model.isOpen());
 				});
 				/** text editor initialization */
 				var editorImageControl = function()
@@ -1084,7 +1094,7 @@ function(providers, Gizmo, $, BlogAction)
 					});
 					return command;
 				},
-				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : upload.texteditor }),
 				content = $(this.el).find('[is-content]'),
 				titleInput = content.find('section header h2'),
 				descrInput = content.find('article#blog-intro');

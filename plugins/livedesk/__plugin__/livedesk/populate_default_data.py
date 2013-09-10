@@ -35,8 +35,14 @@ from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.user.api.user import IUserService, QUser
 import csv
 from superdesk.user.meta.user_type import UserTypeMapped
+from superdesk.tag.meta.tag import TagMapped
+from superdesk.tag.meta.type import TagTypeMapped
 from livedesk.meta.blog_media import BlogMediaTypeMapped
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, and_
+from ally.exception import InputError
+from ally.internationalization import _
+from ally.container.app import PRIORITY_LAST
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key, status_tag_type_key, status_tag_keys, verification_tag_type_key, verification_tag_keys
 
 # --------------------------------------------------------------------
 
@@ -355,3 +361,56 @@ def createBlogPosts():
             blogPostService.insert(getBlogsIds()[blog], pst)
             pst.Id = None
         blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+
+
+def createTagType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    if not session.query(exists().where(TagTypeMapped.Key == key)).scalar():
+        tagTypeDb = TagTypeMapped()
+        tagTypeDb.Key = key
+        session.add(tagTypeDb)
+
+    session.commit()
+    session.close()
+
+def createTag(key, typeKey):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    createTagType(typeKey)
+
+    try: typeId, = session.query(TagTypeMapped.id).filter(TagTypeMapped.Key == typeKey).one()
+    except NoResultFound: raise InputError(_('Not tag type %s for tag %s') % (typeKey, key))
+
+    if not session.query(exists().where(and_(TagMapped.Key == key, TagMapped.typeId == typeId))).scalar():
+        tagDb = TagMapped()
+        tagDb.Key = key
+        tagDb.typeId = typeId
+        session.add(tagDb)
+
+    session.commit()
+    session.close()
+
+def createVisibilityTags():
+    createTagType(view_tag_type_key())
+    createTag(view_hidden_tag_key(), view_tag_type_key())
+
+def createStatusTags():
+    createTagType(status_tag_type_key())
+    for statusTagKey in status_tag_keys():
+        createTag(statusTagKey, status_tag_type_key())
+
+def createVerificationTags():
+    createTagType(verification_tag_type_key())
+    for verificationTagKey in verification_tag_keys():
+        createTag(verificationTagKey, verification_tag_type_key())
+
+@app.populate(priority=PRIORITY_LAST)
+def createTags():
+    createVerificationTags()
+    createStatusTags()
+    createVerificationTags()

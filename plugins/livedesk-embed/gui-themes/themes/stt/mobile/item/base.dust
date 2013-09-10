@@ -1,0 +1,12 @@
+{>"themeBase/item/base"/}
+{<header}
+	{+userAvatar}
+    	{+publisherAvatar}{/publisherAvatar}
+  	{/userAvatar}
+  	{+userNameContainer}{/userNameContainer}
+    {+postDateContainer}{/postDateContainer}
+ {/header}
+{<contentSide}{/contentside}
+{<footer}
+    {+shareContainer}{/shareContainer}
+{/footer}

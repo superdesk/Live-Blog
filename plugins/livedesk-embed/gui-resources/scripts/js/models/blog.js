@@ -1,14 +1,11 @@
 define([
 	'gizmo/superdesk',
-	'livedesk-embed/collections/posts'
+	'collections/posts'
 ], function( Gizmo ) {
-	return Gizmo.Model.extend
-	({
-		defaults: 
-		{
-			//Post: Posts,
+	return Gizmo.Model.extend({
+		url: new Gizmo.Url('LiveDesk/Blog'),		
+		defaults: {
 			PostPublished: Gizmo.Register.Posts
-			//PostUnpublished: Posts
 		}
 	}, { register: 'Blog' } );
 });

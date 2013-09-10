@@ -6,7 +6,21 @@ define(['gizmo/superdesk'], function(Gizmo) {
 	({
 		_timeInterval: 10000,
 		_idInterval: 0,
-		_stats: {},
+		_stats: {
+			limit: 15, 
+			offset: 0, 
+			lastCId: 0, 
+			firstOrder: Infinity, 
+			total: 0
+		},
+		limit: function(value) {
+			this._stats.limit = value;
+			return Gizmo.Collection.prototype.limit.call(this, value);
+		},
+		offset: function(value) {
+			this._stats.offset = value;
+			return Gizmo.Collection.prototype.offset.call(this, value);
+		},
 		/*!
 		 * for auto refresh
 		 */
@@ -16,7 +30,6 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		},
 		init: function(){ 
 			var self = this;
-			self.resetStats();
 			self.model.on('publish reorder', function(evt, post){
 				if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 					self._stats.lastCId++;
@@ -67,11 +80,11 @@ define(['gizmo/superdesk'], function(Gizmo) {
 		auto: function(params)
 		{
 			var self = this;
-			ret = this.stop().start(params);
+			this.stop();
 			this._idInterval = setInterval(function(){
 				self.start(params);
 			}, this._timeInterval);
-			return ret;
+			return self;
 		},
 		start: function(params)
 		{
@@ -79,8 +92,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				params = params || {},
 				requestOptions = $.extend(true, {
 					data: {
-						'cId.since': this._stats.lastCId, 
-						'order.start': this._stats.firstOrder
+						'cId.since': this._stats.lastCId 
+						//'order.start': this._stats.firstOrder
 					}, 
 					headers:  {
 						'X-Filter': self._xfilter,
@@ -89,11 +102,11 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				},params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
-				delete requestOptions.data['order.start'];
+				//delete requestOptions.data['order.start'];
 			}
-			if(this._stats.firstOrder === Infinity) {
-				delete requestOptions.data['order.start'];	
-			}
+			// if(this._stats.firstOrder === Infinity) {
+			// 	delete requestOptions.data['order.start'];	
+			// }
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();
@@ -161,7 +174,16 @@ define(['gizmo/superdesk'], function(Gizmo) {
 								self._list.push(list[i]);
 								changeset.push(list[i]);
                             if( self.hasEvent('addingsauto') ) {
-                                addings.push(list[i]);
+                            	/*!
+                            	 * @TODO: check that this applies everywhere
+                            	 */
+								if( (self._stats.firstOrder === Infinity) ||
+									(self._stats.firstOrder < parseFloat(list[i].get('Order')))) {
+									addings.push(list[i]);
+								}
+								else {
+									self.remove(list[i].hash());
+								}        
                             }
 						} else {
                             if( self.hasEvent('updatesauto') ) {

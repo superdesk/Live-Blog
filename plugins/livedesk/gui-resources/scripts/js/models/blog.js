@@ -35,6 +35,14 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
                 ret = dataAdapter(putLiveHref).update({});
             this.triggerHandler('putlive');
             return ret;
+        },
+
+        isOpen: function() {
+            return !('ClosedOn' in this.data) || !this.data.ClosedOn;
+        },
+
+        isClosed: function() {
+            return !this.isOpen();
         }
     }, 
     { register: 'Blog' } );
