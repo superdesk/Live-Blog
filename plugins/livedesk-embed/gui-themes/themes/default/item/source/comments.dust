@@ -1,3 +1,4 @@
+{!_("%(full_name)s commentator")!}
 {>"theme/item/base"/}
 {<item_class}commentspost{/item_class}
 {<reference}{/reference}
