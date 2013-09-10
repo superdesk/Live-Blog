@@ -35,7 +35,7 @@
 				{/contentTopContainer}
 
 				{+contentMiddleContainer}
-				<div class="liveblog-content-middle"> 
+				<div class="liveblog-content-middle" id="wrapper"> 
 					{+contentMiddle}
 						{+postsList}{/postsList}
 					{/contentMiddle}
