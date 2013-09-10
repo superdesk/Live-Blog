@@ -12,7 +12,12 @@ requirejs.config({
 		'dust': 'core/dust',
 		'utils': 'core/utils',
 		'gettext': 'core/gettext',
-		'gizmo': 'core/gizmo'
+		'gizmo': 'core/gizmo',
+
+		'iscroll': 'core/iscroll'
+	},
+	shim: {
+		'iscroll':  { 'exports': 'IScroll' }
 	}
 });
 require(['core.min'], function(){

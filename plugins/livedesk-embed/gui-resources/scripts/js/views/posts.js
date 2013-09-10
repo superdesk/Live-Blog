@@ -164,13 +164,13 @@ define([
 				for(i = 0, count = data.length; i < count; i++) {
 					this.addOne(data[i]);
 				}
+				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			},
 
 			render: function(evt, data) {		
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
-				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
 		$.dispatcher.triggerHandler('posts-view.class',PostsView);
