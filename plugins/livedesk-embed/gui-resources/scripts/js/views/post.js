@@ -148,6 +148,10 @@ define([
 			if(data.Content) {
 				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
 			}
+			if( (data.item === "source/comments") && data.Meta && data.Meta.AuthorName ) {
+				var cleanName = data.Meta.AuthorName.replace('commentator','');
+				data.Meta.AuthorName = _('%(full_name)s commentator').format({"full_name": cleanName});
+			}
 			//console.log(data);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
