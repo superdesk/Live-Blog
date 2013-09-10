@@ -1,6 +1,6 @@
 define([
 	'plugins/wrappup-toggle',
-	'plugins/iscroll-pagination',
+	'plugins/scroll-pagination',
 	'plugins/permanent-link',
 	'plugins/user-comments',
 	'plugins/twitter-widgets',
