@@ -1,4 +1,2 @@
-{>"theme/item/base"/}
-{<item_class}quotation{/item_class}
-{<AuthorName}{AuthorName}{/AuthorName}
-{<reference}{/reference}
+{>"themeBase/item/posttype/base"/}
+{<itemClass}quote{/itemClass}

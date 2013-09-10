@@ -11,7 +11,7 @@ define(['utils/utf8-pass'],function(utf8){
 			if (arg.length == 1 && typeof arg[0] == 'object')
 				arg = arg[0];
 			return utf8.decode(this.str.replace(/%?%(?:\(([^\)]+)\))?([disr])/g, function(all, name, type) {
-			  if (all[0] == all[1]) return all.substring(1);
+			  if (all[0] && (all[0] == all[1])) return all.substring(1);
 			  var value = arg[name || idx++];		  
 			  if(typeof value === 'undefined') {
 				return all;

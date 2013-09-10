@@ -184,7 +184,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         assert isinstance(source, Source), 'Invalid source %s' % source
 
         # insert source if it didn't exist yet
-        q = QSource(name=source.Name)
+        q = QSource(name=source.Name, uri=source.URI)
         sources = self.sourceService.getAll(typeKey=source.Type, q=q)
         if not sources: sourceId = self.sourceService.insert(source)
         else:

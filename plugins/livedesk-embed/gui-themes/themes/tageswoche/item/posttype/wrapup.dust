@@ -1,8 +1,6 @@
-{>"theme/item/base"/}
-{<item_class}wrapup open{/item_class}
-{<AuthorName}{AuthorName}{/AuthorName}
-{<head}{/head}
-{<body}
-	<span class="big-toggle"></span>
-	<h3>{Content|s}</h3>
-{/body}
+{>"themeBase/item/posttype/base"/}
+{<additionalAttributes}data-gimme="post.wrapup" data-wrapup-open="wrapup-open"{/additionalAttributes}
+{<itemClass}wrapup wrapup-open{/itemClass}
+{<contenteBaseBefore}
+	{+wrapupIcon}{/wrapupIcon}
+{/contenteBaseBefore}

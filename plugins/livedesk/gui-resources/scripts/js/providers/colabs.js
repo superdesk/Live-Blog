@@ -99,7 +99,11 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 			//dynamically get size of header and set top space for list
             var top_space = $('.collaborators-header').outerHeight() + 20;
             $('.post-list.collabs').css({'top': top_space});
-            
+
+            //dynamically get size of header and set top space for list
+            var top_space = $('.collaborators-header').outerHeight() + 20;
+            $('.post-list.collabs').css({'top': top_space});
+
             return self;
         },
         
@@ -201,6 +205,8 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 .parents('li:eq(0)').find('.config-notif')
                 .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
                 .tooltip({placement: 'right'});
+
+            postDateList = [];
         },
         
         /*!
@@ -217,7 +223,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 // get post list and sync it with the server
                 this.get('PostUnpublished')
                     .xfilter('*,Author.Source.*,Creator.*')
-                    .sync({data: {'cId.since': this._latestPost}})
+                    .sync({data: {'cId.since': this._latestPost}, global: false})
                     .done(function(data){ colab._latestPost = parseInt(data.lastCId);self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
@@ -238,7 +244,6 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 self = this;
             this.each(function()
             {
-                //console.log('Id',this.get('Id'));
                 if( $.inArray( this.get('Id'), colab._viewModels ) === -1 && !this.get('DeletedOn'))
                 {
                     appendPosts.push(this);
@@ -249,7 +254,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 if(!isNaN(pCId)) colab._latestPost = Math.max(colab._latestPost, pCId);
             });
             updateItemCount += appendPosts.length;
-            
+
             appendPosts.length && 
             $('.new-results', view.el).trigger('update.livedesk', [updateItemCount, function()
             {
@@ -258,6 +263,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     // TODO very inefficient, refactoring on server needed 
                     postDateList.push({ Date: this.get('CreatedOn'), Timestamp: (new Date(this.get('CreatedOn'))).getTime(), Id: this.get('Id') });
                     postDateList.sort(function(x, y){ return x.Timestamp >  y.Timestamp; });
+
                     for(var i=0; i<postDateList.length; i++)
                     {
                         if( parseInt(postDateList[i].Id) == parseInt(this.get('Id')) )
@@ -328,7 +334,6 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     post.xfilter('*,Author.Source.*,Creator.*')
                         .sync()
                         .done(function(data){
-                            //console.log('data:',data); 
                             colab._latestPost = parseInt(data.lastCId)
                             self.readPostsHandle.call(post, colab, initColabHandle, self); 
                         });

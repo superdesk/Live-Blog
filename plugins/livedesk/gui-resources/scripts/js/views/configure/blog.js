@@ -43,23 +43,12 @@
                 };
             self.apiKeysView.save();
 			self.model.off('update');
-            self.model.set(data).sync();
+            return self.model.set(data).sync();
         },
         saveClose: function(evt) {
-            var self = this,
-                EmbedConfig = {
-                    'theme': self.el.find('[name="Theme"]').val(),
-                    'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
-                    'UserComments': self.el.find('[name="UserComments"]').is(':checked')
-                },
-                data = {
-                    Language: self.el.find('[name="Language"]').val(),
-                    Type: self.el.find('[name="blogtypeselection"]:checked').val(),
-                    EmbedConfig: JSON.stringify(EmbedConfig)
-                }
-            self.apiKeysView.save();
-            self.model.set(data).sync().done(function(){
-               self.close();
+            var self = this;
+            self.save().done(function() {
+                self.close();
             });
         },
         close: function() {

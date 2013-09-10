@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>Sample File Upload</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@ File to upload: <input type=file name=upload_file>
 <input type=submit value=Press multiple="multiple"> to upload the file!
 </form>
 <script>
-	$('form:first').attr('action','/resources/my/Archive/MetaData/Upload?Authorization='+ localStorage.getItem('superdesk.login.session'));
+       $('form:first').attr('action','/resources/my/HR/User/1/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'));
 </script>
 </body>
 </html>
