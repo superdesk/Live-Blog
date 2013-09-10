@@ -79,16 +79,23 @@ function(angular) {
                 $scope.loadArticles();
             });
         };
-        $scope.publishArticle = function(articleId) {
+        $scope.publishUnpublish = function(index) {
+            if ($scope.articles[index].IsPublished === true) 
+                $scope.publishArticle($scope.articles[index].Id);
+            else 
+                $scope.unpublishArticle($scope.articles[index].Id);            
+        };
+
+        $scope.publishArticle = function (articleId) {
             Article.update({Id: articleId, Action: 'Publish'}, function(){
                 $scope.loadArticles();
             });
-        };
-        $scope.unpublishArticle = function(articleId) {
+        }
+        $scope.unpublishArticle = function (articleId) {
             Article.update({Id: articleId, Action: 'Unpublish'}, function(){
                 $scope.loadArticles();
             });
-        };
+        }
         $scope.loadArticles = function() {
             var limit = $scope.settings.itemsPerPage;
             var offset = ($scope.page - 1) * limit;
