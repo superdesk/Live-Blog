@@ -16,4 +16,5 @@ _('Share this post on Linkedin');
 _('Share this post on Pinterest');
 _('Share this post on Google+');
 _('Share this post via Email');
+_('%(full_name)s commentator');
 !}

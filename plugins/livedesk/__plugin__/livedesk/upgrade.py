@@ -228,3 +228,15 @@ def upgradeBlogSourceDeleteFix():
     session.execute('ALTER TABLE `livedesk_blog_source` ADD CONSTRAINT `livedesk_blog_source_ibfk_2` '
                 'FOREIGN KEY (`fk_source` ) REFERENCES `source` (`id` ) '
                 'ON DELETE RESTRICT ON UPDATE RESTRICT')
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradeSourceUnicityFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('ALTER TABLE `source` DROP KEY `uix_source_type_name`')
+    except (ProgrammingError, OperationalError): return
+    session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
+                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')
