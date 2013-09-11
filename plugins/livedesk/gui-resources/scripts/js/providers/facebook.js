@@ -14,6 +14,7 @@ define('providers/facebook', [
     'tmpl!livedesk>providers/facebook',
     'tmpl!livedesk>providers/facebook/item',
     'tmpl!livedesk>providers/facebook/connect',
+    'tmpl!livedesk>providers/facebook/message',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
@@ -22,7 +23,9 @@ define('providers/facebook', [
             appId: 0,
             token: '',
             tokenInterval: 0,
-            tokenRefreshTime: 3000,         
+            fbInitialized: false,
+            tokenRefreshTime: 3000,
+            loginStatusClearance: 3000,         
             data: [],
             init : function() {
                 if(!this.initialized || !this.el.children(":first").length) {
@@ -34,15 +37,21 @@ define('providers/facebook', [
             },
             fbInit: function() {
                 var self = this;
-                FB.init({
-                    appId      : self.appId,                        // App ID from the app dashboard
-                    status     : true,                                 // Check Facebook Login status
-                    xfbml      : true                                  // Look for social plugins on the page
-                });
+                if ( self.fbInitialized ) {
+                    return;
+                } else {
+                    FB.init({
+                        appId      : self.appId,                        // App ID from the app dashboard
+                        status     : true,                                 // Check Facebook Login status
+                        xfbml      : true                                  // Look for social plugins on the page
+                    });
+                    self.fbInitialized = true;
+                }
             },
             loadFbConnect: function(appId) {
                 var self = this;
                 self.appId = appId;
+
                 if ( typeof(FB) != 'undefined' ) {
                     self.fbInit();
                     self.fbConnect();
@@ -54,9 +63,21 @@ define('providers/facebook', [
                     require(['facebook-connect']);
                 }
             },
+            checkAppId: function() {
+                var self = this;
+                var message = _("There seems to be a problem with the request. Please make sure that you have set the right Facebook App ID in the Configure Blog tab and refresh the page");
+                message = message.toString();
+                this.el.tmpl('livedesk>providers/facebook/message', {message: message}, function() {});
+            },
             fbConnect: function(){
                 var self = this;
+                //starting the timer that checks for bad app id
+                self.fbLoginStatusTimeout = setTimeout(function(){
+                    self.checkAppId();
+                }, self.loginStatusClearance);
                 FB.getLoginStatus(function(response) {
+                    //got response so we have a valid app id
+                    clearTimeout(self.fbLoginStatusTimeout);
                     if (response.status === 'connected') {
                         self.token = response.authResponse.accessToken;
                         self.render();
