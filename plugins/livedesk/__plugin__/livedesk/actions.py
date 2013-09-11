@@ -156,7 +156,10 @@ def registerAclLivedeskUpdate():
                  modulesBlogPublishAction(), modulesBlogPostPublishAction())
     r.all(IBlogService, IBlogPostService, IBlogCollaboratorService, IBlogThemeService, IBlogTypePostService, IBlogTypeService,
           IPersonService, IPersonIconService, ISourceService, ICollaboratorService)
-    r.all(IBlogPostService, filter=filterClosedBlog())
+    r.add(ref(IBlogPostService).insert, ref(IBlogPostService).update, ref(IBlogPostService).publish,
+          ref(IBlogPostService).insertAndPublish, ref(IBlogPostService).unpublish, ref(IBlogPostService).reorder,
+          ref(IBlogPostService).delete, filter=filterClosedBlog())
+    r.add(ref(IBlogPostService).update)
 
 # --------------------------------------------------------------------
 
@@ -164,11 +167,11 @@ def registerAclLivedeskUpdate():
 def updateCollaboratorSpecification():
     spec = collaboratorSpecification()
     assert isinstance(spec, CollaboratorSpecification)
-    
+
     spec.type_filter = []
     spec.type_filter.append(('Administrator', filterAdminBlog()))
     spec.type_filter.append(('Collaborator', filterCollaboratorBlog()))
-    
+
     spec.type_actions = {}
     spec.type_actions['Collaborator'] = [menuAction(), subMenuAction(), modulesAction(),
                                          modulesArchiveAction(), dashboardAction(), modulesEditAction()]
