@@ -787,6 +787,7 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 		EditView = Gizmo.View.extend
 		({
 			timelineView: null,
+			namespace: 'edit-view',
 			events: 
 			{
 				'[is-content] section header h2': { focusout: 'save' },
