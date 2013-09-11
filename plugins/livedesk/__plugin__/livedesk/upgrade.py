@@ -24,8 +24,11 @@ from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
+from superdesk.user.meta.user import UserMapped
+from superdesk.user.meta.user_type import UserTypeMapped
 from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
 from __plugin__.livedesk.populate_default_data import createSourceType
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
@@ -215,6 +218,22 @@ def createBlogMediaType(key):
 @app.populate(priority=PRIORITY_LAST)
 def upgradeBlogMedia():
     createBlogMediaType('top_banner')
+
+@app.populate(priority=PRIORITY_LAST)
+def removeCommentatorSurname():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        commentatorTypeId, = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').one()
+    except NoResultFound:
+        return
+    for userDB in session.query(UserMapped).filter(UserMapped.typeId == commentatorTypeId).all():
+        userDB.LastName = None
+
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_LAST)
 def upgradeBlogSourceDeleteFix():
