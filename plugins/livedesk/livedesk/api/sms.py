@@ -33,6 +33,12 @@ class IBlogSMSService:
     '''
 
     @call(webName='SMS')
+    def getSources(self, blogId:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(Source):
+        '''
+        Lists SMS sources relevant to the specified blog.
+        '''
+
+    @call(webName='SMS')
     def getMessages(self, blogId:Blog.Id, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                     q:QBlogPost=None) -> Iter(Post):
         '''

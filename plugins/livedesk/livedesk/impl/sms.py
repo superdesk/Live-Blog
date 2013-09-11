@@ -54,6 +54,17 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         self.tagTypeKeyUsage = usage_tag_type_key()
         self.tagKeyUsageUtilized = usage_utilized_tag_key()
 
+    def getSources(self, blogId, offset=None, limit=None, detailed=False):
+        sql = self.session().query(SourceMapped)
+        sql = sql.join(BlogSourceDB, BlogSourceDB.source == SourceMapped.Id).filter(BlogSourceDB.blog == blogId)
+
+        sql = sql.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql = sql.filter(SourceTypeMapped.Key.in_(self.smsTypeKeys))
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
+
     def getMessages(self, blogId, sourceId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IBlogSMSService.getMessages
