@@ -28,7 +28,7 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
-from __plugin__.livedesk.populate_default_data import createSourceType, createVisibilityTags, createStatusTags, createVerificationTags
+from __plugin__.livedesk.populate_default_data import createSourceType, createVisibilityTags, createStatusTags, createVerificationTags, createUsageTags
 
 # --------------------------------------------------------------------
 
@@ -251,3 +251,4 @@ def upgradeTags():
     createVisibilityTags()
     createStatusTags()
     createVerificationTags()
+    createUsageTags()

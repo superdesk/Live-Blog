@@ -42,7 +42,7 @@ from sqlalchemy.sql.expression import exists, and_
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.container.app import PRIORITY_LAST
-from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key, status_tag_type_key, status_tag_keys, verification_tag_type_key, verification_tag_keys
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key, status_tag_type_key, status_tag_keys, verification_tag_type_key, verification_tag_keys, usage_tag_type_key, usage_utilized_tag_key
 
 # --------------------------------------------------------------------
 
@@ -409,8 +409,13 @@ def createVerificationTags():
     for verificationTagKey in verification_tag_keys():
         createTag(verificationTagKey, verification_tag_type_key())
 
+def createUsageTags():
+    createTagType(usage_tag_type_key())
+    createTag(usage_utilized_tag_key(), usage_tag_type_key())
+
 @app.populate(priority=PRIORITY_LAST)
 def createTags():
-    createVerificationTags()
+    createVisibilityTags()
     createStatusTags()
     createVerificationTags()
+    createUsageTags()

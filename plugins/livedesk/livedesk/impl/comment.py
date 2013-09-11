@@ -99,6 +99,10 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
                 else:
                     sql = sql.filter(~hiddenSQL)
 
+            if QBlogPost.isPublished in q:
+                if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
+                else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
+
             if (QBlogPost.search in q) and q.search:
                 for searchValue in [q.search.ilike, q.search.like]:
                     if not searchValue:

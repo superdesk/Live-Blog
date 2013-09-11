@@ -14,7 +14,7 @@ from ally.api.type import Iter
 from livedesk.api.blog import Blog
 from superdesk.post.api.post import Post
 from superdesk.source.api.source import Source
-from livedesk.api.blog_post import QWithCId
+from livedesk.api.blog_post import QBlogPost
 
 # --------------------------------------------------------------------
 
@@ -34,21 +34,21 @@ class IBlogSMSService:
 
     @call(webName='SMS')
     def getMessages(self, blogId:Blog.Id, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-                    q:QWithCId=None) -> Iter(Post):
+                    q:QBlogPost=None) -> Iter(Post):
         '''
         Lists SMS posts relevant to the specified blog.
         '''
 
     @call(webName='PublishedSMS')
     def getPublishedMessages(self, blogId:Blog.Id, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-                    q:QWithCId=None) -> Iter(Post):
+                    q:QBlogPost=None) -> Iter(Post):
         '''
         Lists published SMS posts relevant to the specified blog.
         '''
 
     @call(webName='UnpublishedSMS')
     def getUnpublishedMessages(self, blogId:Blog.Id, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-                    q:QWithCId=None) -> Iter(Post):
+                    q:QBlogPost=None) -> Iter(Post):
         '''
         Lists unpublished SMS posts relevant to the specified blog.
         '''

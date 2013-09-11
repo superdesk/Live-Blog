@@ -41,3 +41,12 @@ def verification_tag_keys():
     ''' The tag key used for setting a post verification '''
     return ['unconfirmed', 'confirmed', 'reliable source', 'multiple reports', 'not true']
 
+@ioc.config
+def usage_tag_type_key():
+    ''' The tag type key used for post usage '''
+    return 'usage'
+
+@ioc.config
+def usage_utilized_tag_key():
+    ''' The tag key used for setting a post usage as utilized '''
+    return 'utilized'

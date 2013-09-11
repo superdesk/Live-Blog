@@ -17,7 +17,7 @@ from superdesk.post.meta.post import PostMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.api.blog_post import QWithCId
+from livedesk.api.blog_post import QBlogPost
 from livedesk.meta.blog import BlogSourceDB
 from livedesk.meta.blog_post_tag import BlogPostTagDB
 from superdesk.tag.meta.tag import TagMapped
@@ -31,7 +31,7 @@ from ally.support.sqlalchemy.util_service import buildLimits
 from ally.api.extension import IterPart
 from sqlalchemy.orm.exc import NoResultFound
 from __plugin__.frontline_inlet.sms import sms_source_types
-from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key
+from __plugin__.livedesk.tag import view_tag_type_key, view_hidden_tag_key, usage_tag_type_key, usage_utilized_tag_key
 
 # --------------------------------------------------------------------
 
@@ -51,6 +51,9 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         self.tagTypeKeyView = view_tag_type_key()
         self.tagKeyViewHidden = view_hidden_tag_key()
 
+        self.tagTypeKeyUsage = usage_tag_type_key()
+        self.tagKeyUsageUtilized = usage_utilized_tag_key()
+
     def getMessages(self, blogId, sourceId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IBlogSMSService.getMessages
@@ -65,8 +68,7 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         '''
         @see: IBlogSMSService.getPublishedMessages
         '''
-        sql = self._commonSQL(blogId, sourceId, q)
-        sql = sql.filter(PostMapped.PublishedOn != None)
+        sql = self._commonSQL(blogId, sourceId, q, True)
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -76,8 +78,7 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
         '''
         @see: IBlogSMSService.getUnpublishedMessages
         '''
-        sql = self._commonSQL(blogId, sourceId, q)
-        sql = sql.filter(PostMapped.PublishedOn == None)
+        sql = self._commonSQL(blogId, sourceId, q, False)
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
@@ -85,15 +86,16 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
 
     # ------------------------------------------------------------------
 
-    def _commonSQL(self, blogId, sourceId=None, q=None):
+    def _commonSQL(self, blogId, sourceId=None, q=None, published=None):
         '''
         shared part of taking the relevant sms posts
         '''
         sql = self.session().query(PostMapped)
 
         if q:
-            assert isinstance(q, QWithCId), 'Invalid query %s' % q
-            if (QWithCId.isHidden in q) and (AsBoolean.value in q.isHidden):
+            assert isinstance(q, QBlogPost), 'Invalid query %s' % q
+
+            if (QBlogPost.isHidden in q) and (AsBoolean.value in q.isHidden):
                 hiddenId = self._takeHiddenId()
                 hiddenSQL = exists().where(and_(BlogPostTagDB.post == PostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == hiddenId))
                 if q.isHidden.value:
@@ -101,7 +103,17 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
                 else:
                     sql = sql.filter(~hiddenSQL)
 
-            if (QWithCId.cId in q) and q.cId:
+            if (published is None) and (QBlogPost.isPublished in q) and (AsBoolean.value in q.isPublished):
+                published = q.isPublished.value
+            if published is not None:
+                publishedId = self._takeUtilizedId()
+                publishedSQL = exists().where(and_(BlogPostTagDB.post == PostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == publishedId))
+                if published:
+                    sql = sql.filter(publishedSQL)
+                else:
+                    sql = sql.filter(~publishedSQL)
+
+            if (QBlogPost.cId in q) and q.cId:
                 if AsRange.start in q.cId:
                     sql = sql.filter(PostMapped.Id >= q.cId.start)
                 if AsRange.since in q.cId:
@@ -111,7 +123,7 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
                 if AsRange.until in q.cId:
                     sql = sql.filter(PostMapped.Id < q.cId.until)
 
-            if (QWithCId.search in q) and q.search:
+            if (QBlogPost.search in q) and q.search:
                 for searchValue in [q.search.ilike, q.search.like]:
                     if not searchValue:
                         continue
@@ -150,6 +162,18 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
             return sql.one()[0]
         except NoResultFound:
             raise InputError(_('No tag for hidden posts'))
+
+    def _takeUtilizedId(self):
+        '''
+        Provides Id of the tag that specifies utilized posts
+        '''
+        sql = self.session().query(TagMapped.id).filter(TagMapped.Key == self.tagKeyUsageUtilized)
+        sql = sql.join(TagTypeMapped, TagTypeMapped.id == TagMapped.typeId).filter(TagTypeMapped.Key == self.tagTypeKeyUsage)
+
+        try:
+            return sql.one()[0]
+        except NoResultFound:
+            raise InputError(_('No tag for published posts'))
 
     def _isTypeSMS(self, sourceId):
         '''
