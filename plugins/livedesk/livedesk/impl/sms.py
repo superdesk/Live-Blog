@@ -105,13 +105,6 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
 
             if (published is None) and (QBlogPost.isPublished in q) and (AsBoolean.value in q.isPublished):
                 published = q.isPublished.value
-            if published is not None:
-                publishedId = self._takeUtilizedId()
-                publishedSQL = exists().where(and_(BlogPostTagDB.post == PostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == publishedId))
-                if published:
-                    sql = sql.filter(publishedSQL)
-                else:
-                    sql = sql.filter(~publishedSQL)
 
             if (QBlogPost.cId in q) and q.cId:
                 if AsRange.start in q.cId:
@@ -133,6 +126,14 @@ class BlogSMSServiceAlchemy(SessionSupport, IBlogSMSService):
                         if not searchValue.startswith('%'):
                             searchValue = '%' + searchValue
                     sql = sql.filter(or_(PostMapped.Content.ilike(all), PostMapped.ContentPlain.ilike(all)))
+
+        if published is not None:
+            publishedId = self._takeUtilizedId()
+            publishedSQL = exists().where(and_(BlogPostTagDB.post == PostMapped.Id, BlogPostTagDB.blog == blogId, BlogPostTagDB.tag == publishedId))
+            if published:
+                sql = sql.filter(publishedSQL)
+            else:
+                sql = sql.filter(~publishedSQL)
 
         sql = sql.join(CollaboratorMapped, CollaboratorMapped.Id == PostMapped.Author)
         sql = sql.join(SourceMapped, SourceMapped.Id == CollaboratorMapped.Source)
