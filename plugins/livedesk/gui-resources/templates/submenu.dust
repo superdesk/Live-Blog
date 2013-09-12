@@ -1,8 +1,10 @@
 <li class="nav-header">Current Blogs</li>
 {?Blogs}
-	{#Blogs}
-		<li><a href="#live-blog/{Id}">{Title|t}</a></li>
-	{/Blogs}
+	<ul class="limited-submenu">
+		{#Blogs}
+			<li><a href="#live-blog/{Id}">{Title|t}</a></li>
+		{/Blogs}
+	</ul>
 {:else}
 	<li><a>_('No blogs yet!');</a></li>
 {/Blogs}
