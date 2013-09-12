@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 def insertThemes():
     s = entityFor(IBlogThemeService)
     assert isinstance(s, IBlogThemeService)
-    for name in ('default', 'tageswoche', 'stt', 'genapp', 'big-screen', 'zeit', 'ctkepr', 'ctkeu', 'ctkih', 'ctkno', 'ctkr'):
+    for name in ('default', 'tageswoche', 'stt', 'genapp', 'big-screen', 'zeit', 'ctkepr', 'ctkeu', 'ctkih', 'ctkno', 'ctkr', 'aamulehti', 'satakansa'):
         q = QBlogTheme()
         q.name = name
         l = s.getAll(q=q)

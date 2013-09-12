@@ -1,10 +1,10 @@
 requirejs.config({
 	urlArgs: 'v=21',
 	paths: {
-		'theme': 'livedesk-embed/themes/stt'
+		'theme': 'livedesk-embed/themes/satakansa'
 	}
 });
-require(['stt.min'], function() {
+require(['satakansa.min'], function() {
 	require(['../scripts/js/config'], function(){
 		var name;
 		for(name in livedesk.theme) {

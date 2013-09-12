@@ -1,0 +1,7 @@
+{>"theme/item/base"/}
+{<item_class}advertisement{/item_class}
+{<AuthorName}{AuthorName}{/AuthorName}
+{<head}{/head}
+{<body}	
+	{Content|s}
+{/body}
