@@ -1,0 +1,37 @@
+{!
+_('by');
+_('Share');
+!}
+<li class="{+item_class}default{/item_class}">
+	<a name="{Order}"></a>
+	{+head}
+	<div class="result-header">
+		{+PostInfo}
+		<div class="post_info">
+			{+TimeInfo}
+			<time data-date={CreatedOnISO}>{CreatedOn}</time>
+			{/TimeInfo}
+			{+AuthorInfo}
+			<p rel="author">_('by'); {+AuthorName}{Creator.FullName}{/AuthorName}</p>
+			{/AuthorInfo}
+			<a href="#" class="sf-share">_('Share');</a>
+			<a href="{permalink}" rel="bookmark">#</a>
+			<input type="text" data-type="permalink" style="visibility:hidden" value="{permalink}">
+		</div>
+		{/PostInfo}
+		{+head_bottom}{/head_bottom}
+	</div>
+	{/head}
+	{+body}
+	<div class="result-content">
+		{+body_top}{/body_top}
+		{+body_content}<div class="result-text">{Content|s}</div>{/body_content}
+			{+reference}
+			<p class="attributes"><i class="source-icon"></i> 
+				{+reference_link}{+reference_name}{/reference_name}{/reference_link}
+			</p>
+			{/reference}
+		</div>
+		{+body_bottom}{/body_bottom}
+	{/body}
+</li>
