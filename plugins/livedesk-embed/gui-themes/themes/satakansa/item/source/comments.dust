@@ -1,9 +1,6 @@
 {>"theme/item/base"/}
 {<item_class}commentspost{/item_class}
 {<reference}{/reference}
-{<TimeInfo}
-	<time>{Meta.CreatedOn}</time>
-{/TimeInfo}
 {<AuthorInfo}
 <p rel="author">_('by'); {Meta.AuthorName}</p>
 {/AuthorInfo}
