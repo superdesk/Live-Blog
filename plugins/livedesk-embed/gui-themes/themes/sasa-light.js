@@ -1,10 +1,10 @@
 requirejs.config({
 	urlArgs: 'v=40',
 	paths: {
-		'theme': 'livedesk-embed/themes/sasa'
+		'theme': 'livedesk-embed/themes/sasa-light'
 	}
 });
-require(['sasa.min'], function() {
+require(['sasa-light.min'], function() {
 	require(['../scripts/js/config'], function(){
 		var name;
 		for(name in livedesk.theme) {
