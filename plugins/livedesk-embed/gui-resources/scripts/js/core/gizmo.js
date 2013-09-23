@@ -145,7 +145,7 @@ define(['jquery', 'utils/class'], function($,Class)
 		options: {},
 		readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
 		updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
-		insertOptions: {dataType: 'json', type: 'post'},
+		insertOptions: {dataType: 'json', type: 'post', headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" }},
 		removeOptions: {type: 'get', headers: {'X-HTTP-Method-Override': 'DELETE'}}
 	};
 
