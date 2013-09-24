@@ -66,7 +66,7 @@ define([
 
         openPopup: function() {
             this.timeline.pause();
-            this.initRecaptcha();
+            //this.initRecaptcha();
         },
 
         closePopup: function() {
@@ -82,7 +82,7 @@ define([
         cancel: function(e) {
             this.resetInput();
             this.togglePopup(e);
-            Recaptcha.reload();
+            //Recaptcha.reload();
         },
         showAfterMessage: function(e) {
             var view = this;
@@ -109,19 +109,22 @@ define([
 
                 var view = this;
                 comment.save(this.href, {
-                    headers: {
-                        'X-CAPTCHA-Challenge': Recaptcha.get_challenge(),
-                        'X-CAPTCHA-Response': Recaptcha.get_response()
-                    },
+                    // headers: {
+                    //     'X-CAPTCHA-Challenge': Recaptcha.get_challenge(),
+                    //     'X-CAPTCHA-Response': Recaptcha.get_response()
+                    // },
                     success: function() {
                         view.showAfterMessage(e);
                     },
                     error: function(response) {
+                        view.showAfterMessage(e);
+                        /*
                         if (response.status === 401) {
                             Recaptcha.reload();
                         }
 
                         view.captcha.next('.error').show();
+                        */
                     }
                 });
             }
@@ -152,12 +155,13 @@ define([
                 this.text.next('.error').hide();
             }
 
+            /*
             if (!Recaptcha.get_response()) {
                 this.captcha.next('.error').show();
             } else {
                 this.captcha.next('.error').hide();
             }
-
+            */
             return $(this.el).find('.error:visible').length === 0;
         }
     });
