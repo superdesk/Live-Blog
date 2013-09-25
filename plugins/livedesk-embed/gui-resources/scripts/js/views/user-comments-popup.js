@@ -44,6 +44,8 @@ define([
             this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
 
             this.backdropel = $("#backdrop").data('show-status',true);
+
+            this.lbpostlist = this.backdropel.parent();
         },
 
         togglePopup: function(e) {
@@ -51,9 +53,11 @@ define([
                 showStatus;
             e.preventDefault();
             view.popup.toggle({ duration: 0, done: function(){
+                view.lbpostlist.toggleClass('comment-active');
                 showStatus = view.backdropel.data('show-status');
                 view.backdropel.toggle(showStatus);
                 view.backdropel.data('show-status',!showStatus);
+
             }});
             //self.popup.slideToggle();
             
