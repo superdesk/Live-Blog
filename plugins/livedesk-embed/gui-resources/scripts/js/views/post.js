@@ -72,6 +72,68 @@ define([
 						data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 					}
 				}
+			}
+			newHash = self._parent.hashIdentifier + data.Order;
+			if(self._parent.location.indexOf('?') === -1) {
+				data.permalink = self._parent.location + '?' + newHash ;
+			} else if(self._parent.location.indexOf(self._parent.hashIdentifier) !== -1) {
+				regexHash = new RegExp(self._parent.hashIdentifier+'[^&]*');
+				data.permalink = self._parent.location.replace(regexHash,newHash);
+			} else {
+				data.permalink = self._parent.location + '&' + newHash;
+			}
+			if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
+				data.item = "posttype/"+data.Type.Key;
+			}
+			else if(data.Type)
+				data.item = "source/"+data.Author.Source.Name;
+			if(data.CreatedOn) {
+				createdOn = new Date(Date.parse(data.CreatedOn));
+				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));
+				data.CreatedOnISO = createdOn.getTime();
+			}
+			if(data.PublishedOn) {
+				publishedOn = new Date(Date.parse(data.PublishedOn));
+				data.PublishedOn = publishedOn.format(_('mm/dd/yyyy HH:MM o'));
+				data.PublishedOnISO = publishedOn.getTime();
+			}
+			if(data.Content) {
+				data.Content = data.Content.replace(livedesk.server(),livedesk.FrontendServer);
+			}
+			if( (data.item === "source/comments") && data.Meta && data.Meta.AuthorName ) {
+				var cleanName = data.Meta.AuthorName.replace('commentator','');
+				data.Meta.AuthorName = _('%(full_name)s commentator').format({"full_name": cleanName});
+			}
+			//console.log(data);
+			$.tmpl('theme/item/item',data, function(e, o){
+				if(!e) {
+					self.setElement(o);
+					var input = $('input[data-type="permalink"]',self.el);
+					$('a[rel="bookmark"]', self.el).on(self.getEvent('click'), function(evt) {
+						evt.preventDefault();
+						if(input.css('visibility') === 'visible') {
+							input.css('visibility', 'hidden' );
+						} else {
+							input.css('visibility', 'visible' );
+							input.trigger(self.getEvent('focus'));
+							$('.result-header .share-box', self.el).fadeOut('fast');
+						}
+						
+					});
+					input.on(self.getEvent('focus')+' '+self.getEvent('click'), function() {
+						$(this).select();
+					});
+					$('.big-toggle', self.el).off( self.getEvent('click') ).on(self.getEvent('click'), function(){
+						self.toggleWrap(this, true);
+					});
+
+					var li = $('.result-header', self.el).parent();
+					li.hover(function(){
+						//hover in
+					}, function(){
+						$(this).find('.share-box').fadeOut(100);
+						$('input[data-type="permalink"]', self.el).css('visibility', 'hidden');
+					});
 
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
