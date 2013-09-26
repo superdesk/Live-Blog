@@ -551,7 +551,7 @@ define('providers/edit', [
 				}
 			}).done(function(){
 				self.meta = {};
-				self.clear();
+				self.el.find('#edit-post-type-selector option:first').attr('selected', 'selected');
                 self.changetype();
 			});
 		},
