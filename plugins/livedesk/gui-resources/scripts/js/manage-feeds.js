@@ -30,6 +30,7 @@ define([
     }
 
     return function(blogHref) {
+        this.theBlog = blogHref;
         var SMS_TYPE = 'FrontlineSMS';
         var PROVIDER_TYPE = 'blog provider';
         var blogId = getLastId(blogHref);
@@ -219,9 +220,29 @@ define([
                 }
             };
         });
+    
+        //prepare data for the menu/navigation
+        var self = this;
+        self.theBlog = blogHref;
+        self.model = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
 
-        $('#area-main').tmpl('livedesk>manage-feeds');
-        $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
-        angular.bootstrap(document, ['manageFeeds']);        
+        self.model
+        .one('read', function(){
+            feedsData = $.extend({}, self.model.feed(), {
+                BlogHref: self.theBlog,
+                BlogId: self.model.get('Id'),
+                ui: {
+                    submenuActive4: 'active'
+                },
+                isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
+                isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
+            });
+
+            $('#area-main').tmpl('livedesk>manage-feeds', feedsData);
+            $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
+            angular.bootstrap(document, ['manageFeeds']);        
+            
+        }, self)
+        .sync();
     }
 });
