@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=50',
+	urlArgs: 'v=100',
 	paths: {
 		'theme': 'livedesk-embed/themes/aamulehti'
 	}
