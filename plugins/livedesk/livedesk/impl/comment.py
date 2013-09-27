@@ -52,8 +52,6 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
     Default name of the sources for blog comments''')
     post_type_key = 'normal'; wire.config('post_type_key', doc='''
     Type of the posts created on the comment that come via blog comments''')
-    user_last_name = 'commentator'; wire.config('user_last_name', doc='''
-    The name that is used as LastName for the anonymous users of blog comment posts''')
     user_type_key = 'commentator'; wire.config('user_type_key', doc='''
     The user type that is used for the anonymous users of blog comment posts''')
 
@@ -124,7 +122,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         except:
             user = User()
             user.FirstName = userName
-            user.LastName = self.user_last_name
+            user.LastName = None
             user.Name = self._freeCommentUserName()
             user.Password = binascii.b2a_hex(os.urandom(32)).decode()
             user.Type = self.user_type_key
