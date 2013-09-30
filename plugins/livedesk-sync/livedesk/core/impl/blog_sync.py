@@ -173,10 +173,6 @@ class BlogSyncProcess:
                 lPost.Content = post['Content'] if 'Content' in post else None
                 lPost.CreatedOn = current_timestamp()              
                 if blogSync.Auto: lPost.PublishedOn = current_timestamp()
-                if post['Auto'] == 'True':
-                    lPost.PublishedOn = current_timestamp()
-                else:
-                    lPost.PublishedOn = None     
   
                 if userId and (userId not in usersForIcons):
                     try:
