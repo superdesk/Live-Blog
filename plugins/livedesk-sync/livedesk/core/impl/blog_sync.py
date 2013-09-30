@@ -105,7 +105,7 @@ class BlogSyncProcess:
         Read all blog sync entries for which auto was set true and sync
         the corresponding blogs.
         '''
-        for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
+        for blogSync in self.blogSyncService.getAll(): #q=QBlogSync(auto=True)):
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
             thread = self.syncThreads.get(key)
@@ -119,11 +119,11 @@ class BlogSyncProcess:
             self.syncThreads[key].start()
             log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
-    def _syncBlogLoop(self, blogSync):
-        while True:
-            log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
-            self._syncBlog(blogSync)
-            sleep(self.sync_interval)
+#     def _syncBlogLoop(self, blogSync):
+#         while True:
+#             log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+#             self._syncBlog(blogSync)
+#             sleep(self.sync_interval)
 
     def _syncBlog(self, blogSync):
         '''
@@ -171,7 +171,12 @@ class BlogSyncProcess:
                 lPost.Meta = post['Meta'] if 'Meta' in post else None
                 lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 lPost.Content = post['Content'] if 'Content' in post else None
-                lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
+                lPost.CreatedOn = current_timestamp()
+                
+                if post['Auto'] == 'True':
+                    lPost.PublishedOn = current_timestamp()
+                else:
+                    lPost.PublishedOn = None     
 
                 if userId and (userId not in usersForIcons):
                     try:
