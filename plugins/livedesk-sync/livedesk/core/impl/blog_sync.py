@@ -171,13 +171,9 @@ class BlogSyncProcess:
                 lPost.Meta = post['Meta'] if 'Meta' in post else None
                 lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 lPost.Content = post['Content'] if 'Content' in post else None
-                lPost.CreatedOn = current_timestamp()
-                
-                if post['Auto'] == 'True':
-                    lPost.PublishedOn = current_timestamp()
-                else:
-                    lPost.PublishedOn = None     
-
+                lPost.CreatedOn = current_timestamp()              
+                if blogSync.Auto: lPost.PublishedOn = current_timestamp()
+  
                 if userId and (userId not in usersForIcons):
                     try:
                         usersForIcons[userId] = post['Author']['User']
