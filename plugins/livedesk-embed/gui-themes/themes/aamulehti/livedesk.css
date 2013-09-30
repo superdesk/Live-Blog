@@ -945,6 +945,7 @@ USER COMMENTS
 .comment-backdrop {
     display: none;
     position: absolute;
+    background: rgb(30,30,30); /* The Fallback */
     background: rgba(0,0,0,0.7);
     top: 0;
     left: 0;
@@ -953,6 +954,9 @@ USER COMMENTS
 }
 
 /* coment posts */
+.comment-active .soundcloudservice .video-container iframe {
+    visibility: hidden;
+}
 .commentspost .result-text {
     border:1px solid #e5e5e5;
     border-left: 3px solid #d4d4d4;
