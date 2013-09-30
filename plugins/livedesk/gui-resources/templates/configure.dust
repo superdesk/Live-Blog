@@ -52,6 +52,19 @@
 					</div>
 				</div>
 				<div class="control-group">
+					<label class="control-label">_("Advertisment image");</label>
+					<div class="controls">
+						<button class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</button>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
+						<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_("Advertisment target");</label>
+					<div class="controls">
+						<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
+					</div>
+				</div>
+				<div class="control-group">
 					<label class="control-label">_('Configure api keys');</label>
 					<div class="controls api-keys"></div>
 				</div>
