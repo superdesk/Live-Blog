@@ -25,7 +25,7 @@ define([
         events: {
             '#comment-btn': {click: 'togglePopup'},
             '#comment-message-btn': {click: 'showAfterMessage'},
-            '.button.cancel': {click: 'cancel'},
+            '.button.cancel': {click: 'togglePopup'},
             '.button.send': {click: 'send'},
             'form': {submit: 'send'}
         },
@@ -43,38 +43,33 @@ define([
             this.loadRecaptcha = true;
             this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
 
-            this.backdropel = $("#backdrop").data('show-status',true);
+            this.backdropel = $("#backdrop").data('show-status',0);
 
             this.lbpostlist = this.backdropel.parent();
         },
 
         togglePopup: function(e) {
             var view = this,
-                showStatus;
-            e.preventDefault();
-            view.popup.toggle({ duration: 0, done: function(){
-                view.lbpostlist.toggleClass('comment-active');
                 showStatus = view.backdropel.data('show-status');
-                view.backdropel.toggle(showStatus);
-                view.backdropel.data('show-status',!showStatus);
-
-            }});
-            //self.popup.slideToggle();
-            
-            if (this.popup.is(':visible')) {
-                this.openPopup();
-            } else {
-                this.closePopup();
+            e.preventDefault();
+            switch(showStatus) {
+                case 0:
+                    view.popup.show();
+                    view.backdropel.data('show-status',1).show(); 
+                    view.lbpostlist.addClass('comment-active');
+                    view.timeline.pause();
+                    break;
+                case 1:
+                    view.backdropel.data('show-status',0).hide();
+                case 2:
+                    view.popup_message.hide();
+                    view.resetInput();
+                    view.lbpostlist.removeClass('comment-active');
+                    view.popup.hide();
+                    view.timeline.sync();
+                    break;
             }
-        },
 
-        openPopup: function() {
-            this.timeline.pause();
-            //this.initRecaptcha();
-        },
-
-        closePopup: function() {
-            this.timeline.sync();
         },
 
         resetInput: function() {
@@ -83,24 +78,18 @@ define([
             $(this.el).find('.error').hide();
         },
 
-        cancel: function(e) {
-            this.resetInput();
-            this.togglePopup(e);
-            //Recaptcha.reload();
-        },
         showAfterMessage: function(e) {
             var view = this;
-            view.backdropel.data('show-status',true).show();
+            view.backdropel.data('show-status',2).show();
             view.popup.toggle();
+            view.backdropel.data('show-status',1);
             this.popup_message.show();
             setTimeout(function(){
                 view.popup_message.hide({ duration: 0, done: function(){
-                view.backdropel.data('show-status',false);
-                view.backdropel.hide();
-                view.popup.toggle();
-                view.cancel(e);
-            }});
-            }, view.messageDisplayTime)
+                    view.backdropel.data('show-status',0);
+                    view.backdropel.hide();
+                }});
+            }, view.messageDisplayTime);
         },
         send: function(e) {
             e.preventDefault();
