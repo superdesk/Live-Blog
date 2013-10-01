@@ -17,7 +17,8 @@ from shutil import copy
 def buildAllyPyPackages(allyPyDir, buildDir):
     '''
     '''
-    ignorePaths = ('__pycache__', '*.egg-info', 'setup.cfg', 'setup.py', '*.ant', 'MANIFEST.in')
+    ignorePaths = ('__pycache__', '*.egg-info', 'setup.cfg', 'setup.py', '*.ant', 'MANIFEST.in',
+                   'aloha', 'aloha-*')
 
     relocatePaths = ('gui-resources',)
 
@@ -28,6 +29,8 @@ def buildAllyPyPackages(allyPyDir, buildDir):
     plugins = ('administration', 'gateway', 'gateway_captcha', 'gui-action', 'gui-core',
                'internationalization', 'security', 'security-rbac', 'support-acl',
                'support-cdm', 'support-sqlalchemy')
+
+    print('\nPrepare build for Ally-Py')
 
     makedirs(buildDir, exist_ok=True)
 
@@ -41,6 +44,7 @@ def buildAllyPyPackages(allyPyDir, buildDir):
 
     copy(join(dirname(__file__), 'setup-allypy', 'setup.py'), buildDir)
     copy(join(dirname(__file__), 'setup-allypy', 'setup.cfg'), buildDir)
+    copy(join(dirname(dirname(dirname(__file__))), 'README'), buildDir)
 
     copyPackage(join(dirname(__file__), 'gui-core'), buildDir, (), ())
 

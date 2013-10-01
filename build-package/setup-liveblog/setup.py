@@ -15,9 +15,9 @@ from setuptools import setup, find_packages
 
 setup(
     name="liveblog",
-    version="0.1",
+    version="1.5.0",
     packages=find_packages(),
-    install_requires=['ally_api >= 0.1'],
+    install_requires=['ally-py >= 0.1'],
     platforms=['all'],
     zip_safe=True,
     package_data={'': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less',
@@ -33,4 +33,14 @@ setup(
     license="GPL v3",
     keywords="Liveblog",
     url="http://www.sourcefabric.org/en/superdesk/", # project home page
+    classifiers=[
+                 'Development Status :: 5 - Production/Stable',
+                 'Environment :: Web Environment',
+                 'Intended Audience :: End Users/Desktop',
+                 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+                 'Operating System :: OS Independent',
+                 'Programming Language :: Python :: 3.2',
+                 'Programming Language :: JavaScript',
+                 'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
+                 ]
 )

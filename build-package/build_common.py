@@ -79,11 +79,10 @@ def copyPackage(srcDir, dstDir, ignorePaths=(), relocatePaths=()):
 
 def buildEgg(buildDir):
     # make arguments for build and clean operations
-    buildArgv, cleanArgv = copyObj(sys.argv), copyObj(sys.argv)
-    buildArgv[0] = 'setup.py'
-    buildArgv.insert(1, 'bdist_egg')
-    cleanArgv.insert(1, 'clean')
-    cleanArgv.insert(2, '--all')
+    origArgv = list(sys.argv)
+
+    cleanArgv = ['setup.py', 'clean', '--all']
+    buildArgv = ['setup.py', 'bdist_egg', 'sdist', 'upload']
 
     currentDir = getcwd()
     stdout = sys.stdout
@@ -91,15 +90,18 @@ def buildEgg(buildDir):
 
     # do a pre-clean
     chdir(buildDir)
+
+    print('Clean dist from %s' % buildDir)
     sys.argv = cleanArgv
     sys.stdout, sys.stderr = StringIO(), StringIO()
     imp.load_source('setup', 'setup.py')
     sys.stdout, sys.stderr = stdout, stderr
 
-    print('*** %s' % buildDir)
+    print('Build and upload dist from %s' % buildDir)
     sys.argv = buildArgv
     sys.stdout = StringIO()
     imp.load_source('setup', 'setup.py')
     sys.stdout = stdout
 
     chdir(currentDir)
+    sys.argv = origArgv

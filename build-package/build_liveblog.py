@@ -23,11 +23,13 @@ def buildLiveblogPackages(liveblogDir, buildDir):
 
     relocatePaths = ('gui-resources', 'gui-themes')
 
-    packages = ('binary-exiv2', 'binary-ffmpeg', 'binary-gm', 'frontline', 'frontline-inlet',
+    packages = ('frontline', 'frontline-inlet',
                 'livedesk', 'livedesk-embed', 'livedesk-sync', 'media-archive', 'media-archive-audio',
                 'media-archive-image', 'media-archive-video', 'superdesk', 'superdesk-collaborator',
                 'superdesk-language', 'superdesk-person', 'superdesk-person-icon', 'superdesk-post',
                 'superdesk-security', 'superdesk-source', 'superdesk-user', 'support', 'url-info')
+
+    print('\nPrepare build for Liveblog')
 
     makedirs(buildDir, exist_ok=True)
 
@@ -37,6 +39,7 @@ def buildLiveblogPackages(liveblogDir, buildDir):
 
     copy(join(dirname(__file__), 'setup-liveblog', 'setup.py'), buildDir)
     copy(join(dirname(__file__), 'setup-liveblog', 'setup.cfg'), buildDir)
+    copy(join(dirname(__file__), 'setup-liveblog', 'README'), buildDir)
 
     copyPackage(join(dirname(__file__), 'livedesk-embed'), buildDir, (), ())
 
