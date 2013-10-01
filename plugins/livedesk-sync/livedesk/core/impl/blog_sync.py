@@ -145,7 +145,7 @@ class BlogSyncProcess:
             q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
-                                    'X-Filter' : '*,Author.Source.*,Author.User.*'})
+                                    'X-Filter' : '*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
