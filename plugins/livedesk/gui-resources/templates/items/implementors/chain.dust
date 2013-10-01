@@ -5,3 +5,6 @@
 {<ImportantActionsPublish}{/ImportantActionsPublish}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<ContainerIframe}{/ContainerIframe}
+{<TopBlocks}
+	{+PostVerification}{/PostVerification}
+{/TopBlocks}
