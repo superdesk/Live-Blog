@@ -1,0 +1,5 @@
+sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip
+
+sudo pip install -r requirements.txt
+
+python3 ./application.py -dump
