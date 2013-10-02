@@ -71,7 +71,7 @@
 {/blogTitle}
 
 {<blogMedia}
-<div class="header-ad"><a data-gimme="blog.media-url" href="{EmbedConfig.MediaUrl}"><img data-gimme="blog.media-image" src="{EmbedConfig.MediaImage}"></a></div>
+<div class="header-ad"><a data-gimme="blog.media-url" href="{EmbedConfig.MediaUrl}" target="_blank"><img data-gimme="blog.media-image" src="{EmbedConfig.MediaImage}"></a></div>
 {/blogMedia}
 
 {<blogDescription}
