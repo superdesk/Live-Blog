@@ -1,0 +1,2 @@
+include __plugin__/gui_core/gui-resources/*.*
+recursive-include __plugin__/gui_core/gui-resources *

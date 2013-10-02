@@ -21,8 +21,7 @@ setup(
     platforms=['all'],
     zip_safe=True,
     py_modules=['package_extender', 'application'],
-    package_data={'': ['*.txt', '*.conf', '*.zip', '*.html', '*.dust', '*.css', '*.less', '*.js',
-                       '*.eot', '*.svg', '*.ttf', '*.woff', '*.otf', '*.png', '*.jpg', '*.gif']},
+    include_package_data=True,
 
     # metadata for upload to PyPI
     author="Sourcefabric",
