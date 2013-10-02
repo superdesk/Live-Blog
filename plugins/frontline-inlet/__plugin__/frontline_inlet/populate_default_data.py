@@ -9,25 +9,16 @@ Created on May 1, 2013
 Populates default data for the services.
 '''
 
-from ally.container import app, ioc
+from ally.container import app
 from ..superdesk.db_superdesk import alchemySessionCreator
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import exists
+from __plugin__.frontline_inlet.sms import sms_source_types, sms_post_types
 
 # --------------------------------------------------------------------
-
-@ioc.config
-def sms_source_types():
-    ''' The source types used during SMS processing '''
-    return ['FrontlineSMS']
-
-@ioc.config
-def sms_post_types():
-    ''' The post types used during SMS processing '''
-    return ['normal']
 
 def createSourceType(key):
     creator = alchemySessionCreator()
