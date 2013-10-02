@@ -47,7 +47,8 @@ def buildAllyPyPackages(allyPyDir, buildDir):
     copy(join(dirname(__file__), 'setup-allypy', 'MANIFEST.in'), buildDir)
     copy(join(dirname(dirname(dirname(__file__))), 'README'), buildDir)
 
-    copyPackage(join(dirname(__file__), 'gui-core'), buildDir, (), ())
+    copyPackage(join(dirname(__file__), 'setup-allypy', 'gui-core'), buildDir)
+    copyPackage(join(dirname(__file__), 'setup-allypy', 'internationalization'), buildDir)
 
     buildEgg(buildDir)
 

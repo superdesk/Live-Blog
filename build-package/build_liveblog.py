@@ -40,8 +40,10 @@ def buildLiveblogPackages(liveblogDir, buildDir):
     copy(join(dirname(__file__), 'setup-liveblog', 'setup.py'), buildDir)
     copy(join(dirname(__file__), 'setup-liveblog', 'setup.cfg'), buildDir)
     copy(join(dirname(__file__), 'setup-liveblog', 'README'), buildDir)
+    copy(join(dirname(dirname(__file__)), 'distribution', 'application.py'),
+         join(dirname(__file__), 'distribution'))
 
-    copyPackage(join(dirname(__file__), 'livedesk-embed'), buildDir, (), ())
+    copyPackage(join(dirname(__file__), 'setup-liveblog', 'livedesk-embed'), buildDir)
 
     buildEgg(buildDir)
 

@@ -12,7 +12,6 @@ from shutil import copytree, copy, ignore_patterns
 from os.path import isfile, join, isdir, basename
 from fnmatch import fnmatch
 from os import makedirs, chdir, getcwd
-from copy import copy as copyObj
 import sys
 import imp
 from io import StringIO
