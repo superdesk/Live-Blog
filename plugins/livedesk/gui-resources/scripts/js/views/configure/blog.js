@@ -51,12 +51,17 @@
 			$(evt.target).select();
 		},
         save: function(evt){
-            var self = this,
-                EmbedConfig = {
+            var self = this;
+            var mediaUrl = self.el.find('[name="MediaUrl"]').val();
+            // make mediaUrl a global url in case it is not
+            if ( mediaUrl.indexOf("http://") != 0 && mediaUrl.indexOf("https://") != 0 && mediaUrl.indexOf("//") != 0 ) {
+                mediaUrl = "//" + mediaUrl;
+            }
+            var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
                     'MediaImage': self.el.find('[name="MediaImage"]').val(),
-                    'MediaUrl': self.el.find('[name="MediaUrl"]').val(),
+                    'MediaUrl': mediaUrl,
                     'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {
