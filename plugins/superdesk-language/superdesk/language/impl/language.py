@@ -9,149 +9,91 @@ Created on Jun 23, 2011
 SQL alchemy implementation for language API.
 '''
 
-from ally.api.extension import IterPart
-from ally.container.binder_op import validateProperty
+from ..api.language import Language, ILanguageService
+from ..meta.language import LanguageAvailable
+from ally.api.error import IdError
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, DevelError, Ref
-from ally.internationalization import _
 from ally.support.api.util_service import processCollection
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 from collections import OrderedDict
-from sql_alchemy.impl.entity import EntityNQServiceAlchemy
-from superdesk.language.api.language import Language, ILanguageService
-from superdesk.language.meta.language import LanguageEntity
+from sql_alchemy.support.util_service import SessionSupport
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ILanguageService, name='languageService')
-class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
+class LanguageServiceBabelAlchemy(SessionSupport, ILanguageService):
     '''
     Implementation for @see: ILanguageService using Babel library.
     '''
 
     def __init__(self):
+        '''Construct the language service.
         '''
-        Construct the language service.
-        '''
-        EntityNQServiceAlchemy.__init__(self, LanguageEntity)
-        locales = [(code, Locale.parse(code)) for code in locale_identifiers()]
-        locales.sort(key=lambda pack: pack[0])
-        self._locales = OrderedDict(locales)
-        validateProperty(LanguageEntity.Code, self._validateCode)
-
-    def getByCode(self, code, locales):
-        '''
-        @see: ILanguageService.getByCode
-        '''
-        locale = self._localeOf(code)
-        if not locale: raise InputError(Ref(_('Unknown language code'), ref=Language.Code))
-        return self._populate(Language(code), self._translator(locale, self._localesOf(locales)))
-
-    def getAllAvailable(self, locales=(), q=None, **options):
-        '''
-        @see: ILanguageService.getAllAvailable
-        '''
-        locales = self._localesOf(locales)
-        fetcher = lambda code: self._populate(Language(code), self._translator(self._locales[code], locales))
-        return processCollection(self._locales.keys(), Language, q, fetcher, withTotal=True, **options)
-
-    def getById(self, id, locales):
+        self._languages = None
+        
+    def getById(self, code):
         '''
         @see: ILanguageService.getById
         '''
-        locales = self._localesOf(locales)
-        language = self.session().query(LanguageEntity).get(id)
-        if not language: raise InputError(Ref(_('Unknown language id'), ref=LanguageEntity.Id))
-        return self._populate(language, self._translator(self._localeOf(language.Code), locales))
-
-    def getAll(self, locales=(), offset=None, limit=None, detailed=False):
+        lang = self.languages().get(code)
+        if lang is None: raise IdError()
+        return lang
+    
+    def getAll(self, q=None, **options):
         '''
         @see: ILanguageService.getAll
         '''
-        locales = self._localesOf(locales)
-        if detailed: languages, total = self._getAllWithCount(offset=offset, limit=limit)
-        else: languages = self._getAll(offset=offset, limit=limit)
-        languages = (self._populate(language, self._translator(self._localeOf(language.Code), locales))
-                for language in languages)
-        if detailed: return IterPart(languages, total, offset, limit)
-        return languages
+        return processCollection(self.languages().keys(), Language, q, lambda code: self.languages()[code], **options)
+    
+    def getAllAvailable(self, q=None, **options):
+        '''
+        @see: ILanguageService.getAllAvailable
+        '''
+        codes = [code for code, in self.session().query(LanguageAvailable.code).all()]
+        return processCollection(codes, Language, q, lambda code: self.languages()[code], **options)
+    
+    def add(self, code):
+        '''
+        @see: ILanguageService.add
+        '''
+        if not code in self.languages(): raise IdError(Language)
+        if self.session().query(LanguageAvailable).filter(LanguageAvailable.code == code).count(): return
+        lang = LanguageAvailable(code=code)
+        self.session().add(lang)
+        self.session().flush((lang,))
+    
+    def remove(self, code):
+        '''
+        @see: ILanguageService.remove
+        '''
+        try: lang = self.session().query(LanguageAvailable).filter(LanguageAvailable.code == code).one()
+        except NoResultFound: return False
+        self.session().delete(lang)
+        return True
 
     # ----------------------------------------------------------------
-
-    def _localeOf(self, code):
+    
+    def languages(self):
         '''
-        Helper that parses the code to a babel locale.
-
-        @param code: string
-            The language code to provide the locale for.
-        @return: Locale|None
-            The locale for the code or None if the code is not valid.
+        Provides all the languages available.
+        
+        @return: dictionary{string: Language}
+            The languages indexed by code.
         '''
-        assert isinstance(code, str), 'Invalid code %s' % code
-        return self._locales.get(code.replace('-', '_'))
-
-    def _localesOf(self, codes):
-        '''
-        Helper method that based on a language code list will provide a babel locales.
-
-        @param codes: string|iter(string)
-            The language code to provide the locale for.
-        @return: Locale|None
-            The locale for the code or None if the code is not valid.
-        '''
-        if isinstance(codes, str): codes = [codes]
-        return list(filter(None, (self._localeOf(code) for code in codes)))
-
-    def _translator(self, locale, locales):
-        '''
-        Helper method that provides the translated language name for locale based on the locales list, the first
-        locale will be used if not translation will be available for that than it will fall back to the next.
-
-        @param locale: Locale
-            The locale to get the translator for.
-        @param locales: list[Locale]|tuple(Locale)
-            The locales to translate the name for.
-        @return: Locale
-            The translating locale.
-        '''
-        assert isinstance(locale, Locale), 'Invalid locale %s' % locale
-        assert isinstance(locales, (list, tuple)), 'Invalid locales %s' % locales
-        for loc in locales:
-            assert isinstance(loc, Locale), 'Invalid locale %s' % loc
-            if locale.language in loc.languages: return loc
-        return locale
-
-    def _populate(self, language, translator):
-        '''
-        Helper method that populates directly the language with the translation name.
-
-        @param language: Language
-            The language to be populated with info from the locale.
-        @param translator: Locale
-            The translating locale to populate from.
-        '''
-        assert isinstance(language, Language), 'Invalid language %s' % language
-        assert isinstance(translator, Locale), 'Invalid translator locale %s' % translator
-
-        locale = self._localeOf(language.Code)
-        if not locale: raise DevelError('Invalid language code %r' % language.Code)
-
-        language.Name = translator.languages.get(locale.language)
-        if locale.territory: language.Territory = translator.territories.get(locale.territory)
-        if locale.script: language.Script = translator.scripts.get(locale.script)
-        if locale.variant: language.Variant = translator.variants.get(locale.variant)
-        return language
-
-    def _validateCode(self, prop, language, errors):
-        '''
-        Validates the language code on a language instance, this is based on the operator listeners.
-        '''
-        assert isinstance(language, Language), 'Invalid language %s' % language
-        locale = self._localeOf(language.Code)
-        if not locale:
-            errors.append(Ref(_('Invalid language code'), ref=Language.Code))
-            return False
-        else: language.Code = str(locale)
+        translator = Locale.parse('en')
+        if self._languages is None:
+            self._languages = OrderedDict()
+            for code in sorted(locale_identifiers()):
+                locale = Locale.parse(code)
+                lang = Language(code, translator.languages.get(code))
+                lang.Territory = locale.territory
+                lang.Script = locale.script
+                lang.Variant = locale.variant
+                
+                self._languages[lang.Code] = lang
+                
+        return self._languages

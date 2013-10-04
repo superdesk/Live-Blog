@@ -9,20 +9,18 @@ Created on Aug 2, 2011
 API specifications for languages.
 '''
 
-from ally.api.config import service, call, query, LIMIT_DEFAULT
+from ally.api.config import service, call, query
 from ally.api.criteria import AsLikeOrdered
-from ally.api.option import Slice #@UnusedImport
-from ally.api.type import Locale, List, Iter
-from ally.support.api.entity import Entity, IEntityCRUDService
+from ally.api.option import SliceAndTotal # @UnusedImport
+from ally.api.type import Iter
+from ally.support.api.entity import IEntityQueryPrototype, IEntityGetPrototype
 from superdesk.api.domain_superdesk import modelLocalization
 
 # --------------------------------------------------------------------
 
 @modelLocalization(id='Code')
 class Language:
-    '''    
-    Provides the language model.
-    '''
+    ''' Provides the language model.'''
     Code = str
     Name = str
     Territory = str
@@ -33,50 +31,29 @@ class Language:
         if Code: self.Code = Code
         if Name: self.Name = Name
 
-@modelLocalization(name=Language)
-class LanguageEntity(Entity, Language):
-    '''    
-    Provides the language model.
-    '''
-
 # --------------------------------------------------------------------
 
 @query(Language)
 class QLanguage:
-    '''
-    Provides the language query model.
-    '''
+    '''Provides the language query model.'''
     name = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
-@service((Entity, LanguageEntity))
-class ILanguageService(IEntityCRUDService):
-    '''
-    Provides services for languages.
-    '''
-
-    @call
-    def getByCode(self, code:Language.Code, locales:List(Locale)=()) -> Language:
-        '''
-        Provides the language having the specified code.
-        '''
+@service(('Entity', Language), ('QEntity', QLanguage))
+class ILanguageService(IEntityGetPrototype, IEntityQueryPrototype):
+    '''Provides services for languages.'''
 
     @call(webName='Available')
-    def getAllAvailable(self, locales:List(Locale)=(), q:QLanguage=None, **options:Slice) -> Iter(Language.Code):
-        '''
-        Provides all the available languages.
-        '''
-
+    def getAllAvailable(self, q:QLanguage=None, **options:SliceAndTotal) -> Iter(Language.Code):
+        '''Provides all the available languages.'''
+        
     @call
-    def getById(self, id:LanguageEntity.Id, locales:List(Locale)=()) -> LanguageEntity:
+    def add(self, code:Language.Code):
+        '''Add the provided language code as a system available language.
+        This makes the language available also for other resources.
         '''
-        Provides the language based on the id.
-        '''
-
+        
     @call
-    def getAll(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
-               detailed:bool=True) -> Iter(LanguageEntity):
-        '''
-        Provides all the languages available in the system.
-        '''
+    def remove(self, code:Language.Code) -> bool:
+        '''Remove the provided language code from the system.'''
