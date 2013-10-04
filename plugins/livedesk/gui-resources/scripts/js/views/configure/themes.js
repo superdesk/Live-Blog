@@ -40,12 +40,34 @@
         			break;
         		}
         	}
+            blogUrl = self.theBlog;
+            /*!
+             * If the blog url doesn't have servername in it add it
+             *   else replace with the frontend server.
+             */
+            var frontendServer = $('[name="FrontendServer"]').val();
+            if(blogUrl.indexOf(config.api_url) !== -1) {
+                blogUrl = blogUrl.replace(config.api_url, frontendServer);
+            } else {
+                blogUrl = frontendServer + blogUrl;
+            }
+
+            var frontendServerArray = frontendServer.toLowerCase().split("//"),
+                protocol = frontendServerArray[0],
+                themeNoProtocol;
+                frontendServerArray.shift();
+                frontendServer = "//" + frontendServerArray.join("//");
+            themeNoProtocol = theme.get('URL').href.replace('\\','/').split("//")
+            themeNoProtocol.shift();
+            themeNoProtocol = "//" + themeNoProtocol.join('//');
+            console.log(themeNoProtocol);
+            themePath = themeNoProtocol.replace(config.api_url, frontendServer);
             data = {
                 'Theme': el.val(),
                 'Id': self._parent.model.get('Id'),
-                'GuiLivedeskEmbed': $('[name="FrontendServer"]').val() + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
+                'GuiLivedeskEmbed': protocol + frontendServer + '/content/' + config.guiJs('livedesk-embed','core/require.js'),
                 'ApiUrl': config.api_url,
-                'FrontendServer': $('[name="FrontendServer"]').val(),
+                'FrontendServer': protocol + frontendServer,
                 'Language': optionLanguage.attr('data-code')
             }
         	$.tmpl('livedesk>configure/embed',data, function(e,o){

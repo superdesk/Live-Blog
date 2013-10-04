@@ -103,7 +103,22 @@ define([
 					});
 				},
 				update: function(){
-					var self = this;
+					var self = this, embedConfig = {} ;
+
+					embCnfg = self.model.get('EmbedConfig')
+					try {
+						embedConfig = JSON.parse(embCnfg);
+					} catch(e){
+						//handle it
+					}
+
+					if ( embedConfig.MediaUrl ) {
+						$('[data-gimme="blog.media-url"]', self.el).attr('href', embedConfig.MediaUrl );
+					}
+					if ( embedConfig.MediaImage ) {
+						$('[data-gimme="blog.media-image"]', self.el).attr('src', embedConfig.MediaImage );
+					}
+
 					$('[data-gimme="blog.title"]', self.el).html(self.model.get('Title'));
 					$('[data-gimme="blog.description"]', self.el).html(self.model.get('Description'));
 				}

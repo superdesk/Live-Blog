@@ -24,7 +24,7 @@ from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
-from ally.container.app import PRIORITY_LAST, PRIORITY_FIRST
+from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
 from __plugin__.livedesk.populate_default_data import createSourceType
 
 # --------------------------------------------------------------------
@@ -64,7 +64,7 @@ def insertTheme():
 
 # --------------------------------------------------------------------
 
-@app.populate(priority=PRIORITY_FIRST)
+@app.populate
 def upgradeUser():
     creator = alchemySessionCreator()
     session = creator()
@@ -79,7 +79,7 @@ def upgradeUser():
     try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
     except (ProgrammingError, OperationalError): pass
 
-@app.populate
+@app.populate(priority=PRIORITY_LAST)
 def upgradeLiveBlog14():
     creator = alchemySessionCreator()
     session = creator()
@@ -111,7 +111,7 @@ def upgradeLiveBlog14():
 
     insertSource('sms')
 
-@app.populate(priority=PRIORITY_FIRST)
+@app.populate
 def upgradeInternationalizationSourceType():
     creator = alchemySessionCreatorInternationalization()
     session = creator()
@@ -121,7 +121,7 @@ def upgradeInternationalizationSourceType():
         session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
     except (ProgrammingError, OperationalError): pass
 
-@app.populate(priority=PRIORITY_FIRST)
+@app.populate
 def upgradeLiveBlog14First():
     creator = alchemySessionCreator()
     session = creator()
@@ -133,13 +133,13 @@ def upgradeLiveBlog14First():
     session.execute("UPDATE user, user_type SET user.fk_type_id = user_type.id WHERE user_type.key = 'standard'")
     session.execute("ALTER TABLE user CHANGE COLUMN `fk_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
 
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14Last():
     insertTheme()
     insertSource('comments')
     createSourceType('comment')
 
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14End():
     creator = alchemySessionCreator()
     session = creator()
@@ -151,7 +151,7 @@ def upgradeLiveBlog14End():
                         'CHANGE COLUMN `content` `content` TEXT NULL DEFAULT NULL')
     except (ProgrammingError, OperationalError): return
 
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeMediaArchiveDeleteFix():
     creator = alchemySessionCreator()
     session = creator()
@@ -212,11 +212,11 @@ def createBlogMediaType(key):
     session.commit()
     session.close()
 
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeBlogMedia():
     createBlogMediaType('top_banner')
 
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeBlogSourceDeleteFix():
     creator = alchemySessionCreator()
     session = creator()
@@ -228,3 +228,15 @@ def upgradeBlogSourceDeleteFix():
     session.execute('ALTER TABLE `livedesk_blog_source` ADD CONSTRAINT `livedesk_blog_source_ibfk_2` '
                 'FOREIGN KEY (`fk_source` ) REFERENCES `source` (`id` ) '
                 'ON DELETE RESTRICT ON UPDATE RESTRICT')
+
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeSourceUnicityFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('ALTER TABLE `source` DROP KEY `uix_source_type_name`')
+    except (ProgrammingError, OperationalError): return
+    session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
+                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')

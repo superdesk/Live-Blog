@@ -8,7 +8,7 @@
 
 	<input type="text" name="searchbar" class="searchbar-container" style="width:500px;" placeholder="Search" ng-model="searchTerm">
 
-	<a class="btn btn-medium btn-info pull-right" href="" ng-click="selectedUserId = 0"><span class="medium-icon-add"></span> _('Add New User');</a>
+	<a class="btn btn-medium btn-info pull-right" href="" ng-click="$parent.$broadcast('userDetail', 0, 'editProfile');"><span class="medium-icon-add"></span> _('Add New User');</a>
 </div>
 
 <div class="tab-background-container">
@@ -90,7 +90,7 @@
 						<tr ng-repeat="user in users">
 							<td><input type="checkbox" class="sf-checkbox" set-bg="2" ng-model="user.checked" ng-click="toggle($index)"></td>
 							<td ng-show="settings.fields.avatar"><figure class="avatar" sd-user-image sd-user="user"></figure></td>
-							<td class="name_col" ng-show="settings.fields.name"><a href="" ng-click="$parent.selectedUserId = user.Id">{{ user.FullName }}</a></td>
+							<td class="name_col" ng-show="settings.fields.name"><a href="" ng-click="$parent.$broadcast('userDetail', user.Id, 'overview')">{{ user.FullName }}</a></td>
 							<td ng-show="settings.fields.username">{{ user.Name }}</td>
 							<td class="email_col resp-hide" ng-show="settings.fields.email"><a href="">{{ user.EMail }}</a></td>
 							<!--
@@ -102,10 +102,10 @@
 								<div class="dropdown">
 									<a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
 									<ul class="dropdown-menu sf-dropdown-simple pull-right">
-										<li><a href="#"><i class="icon-eye-open"></i> _('View details');</a></li>
-										<li><a href="#"><i class="icon-pencil"></i> _('Edit details');</a></li>
-										<li><a href="#"><i class="icon-ban-circle"></i> _('Permissions');</a></li>
-										<li><a href="#"><i class="icon-trash"></i> _('Delete');</a></li>                      
+										<li><a href="" ng-click="$parent.$broadcast('userDetail', user.Id, 'profile')"><i class="icon-eye-open"></i> _('View details');</a></li>
+										<li><a href="" ng-click="$parent.$broadcast('userDetail', user.Id, 'editProfile')"><i class="icon-pencil"></i> _('Edit details');</a></li>
+										<li><a href="" ng-click="$parent.$broadcast('userDetail', user.Id, 'editProfile')"><i class="icon-ban-circle"></i> _('Permissions');</a></li>
+										<!--<li><a href="" ng-click=""><i class="icon-trash"></i> _('Delete');</a></li>-->
 									</ul>
 								</div>
 							</td>

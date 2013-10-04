@@ -11,6 +11,7 @@
 			{+header}
 				{+blogTitle}{/blogTitle}
 				{+blogDescription}{/blogDescription}
+				{+blogMedia}{/blogMedia}
 			{/header}
 		</div>
 		{/headerContainer}
@@ -35,7 +36,7 @@
 				{/contentTopContainer}
 
 				{+contentMiddleContainer}
-				<div class="liveblog-content-middle"> 
+				<div class="liveblog-content-middle" id="wrapper"> 
 					{+contentMiddle}
 						{+postsList}{/postsList}
 					{/contentMiddle}
@@ -68,6 +69,10 @@
 {<blogTitle}
 <h3 data-gimme="blog.title"></h3>
 {/blogTitle}
+
+{<blogMedia}
+<div class="header-ad"><a data-gimme="blog.media-url" href="{EmbedConfig.MediaUrl}" target="_blank"><img data-gimme="blog.media-image" src="{EmbedConfig.MediaImage}"></a></div>
+{/blogMedia}
 
 {<blogDescription}
 <p data-gimme="blog.description"></p>

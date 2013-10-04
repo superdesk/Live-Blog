@@ -164,6 +164,8 @@ define([
 				for(i = 0, count = data.length; i < count; i++) {
 					this.addOne(data[i]);
 				}
+				if(data.length)
+					$.dispatcher.triggerHandler('posts-view.addAll',self);
 			},
 
 			render: function(evt, data) {		

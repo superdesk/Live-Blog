@@ -137,7 +137,16 @@ background: #f0f0f0;
 			p {
 				font-size: @user-text-size;
 			}
+			.header-ad {
+				margin: 10px -5px 0;//inverse of .liveblog-header padding
+				img {
+					text-decoration: none;
+					border:0;
+					width: 100% !important;
+				}
+			}
 		}
+		
 
 		.liveblog-content {
 			position: relative;
@@ -369,7 +378,15 @@ background: #f0f0f0;
 						}
 
 						/* POST SPECIFIC STYLES */
-
+						&.normal {
+							.post-core-content {
+								.post-text {
+									img {
+										max-width: 100%;
+									}
+								}
+							}
+						}
 						&.twitter, &.facebook, &.googlenews, &.googlesearch {
 							.post-core-content {
 								background: #f5f5f5;
