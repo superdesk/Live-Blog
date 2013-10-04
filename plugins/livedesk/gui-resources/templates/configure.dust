@@ -54,7 +54,7 @@
 				<div class="control-group">
 					<label class="control-label">_("Advertisment image");</label>
 					<div class="controls">
-						<button class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</button>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
+						<span class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</span>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
 						<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
 					</div>
 				</div>
