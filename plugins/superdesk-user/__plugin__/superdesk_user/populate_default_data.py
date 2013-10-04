@@ -35,7 +35,7 @@ def createUserType(key):
     session.commit()
     session.close()
 
-@app.populate(priority=ioc.PRIORITY_TOP)
+@app.populate(priority=ioc.PRIORITY_FIRST)
 def populateTypes():
     for oneUserType in standard_user_types():
         createUserType(oneUserType)
