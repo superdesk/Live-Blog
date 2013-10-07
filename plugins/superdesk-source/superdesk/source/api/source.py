@@ -11,11 +11,11 @@ the content is received from the source.
 '''
 
 from .type import SourceType
-from ally.api.config import service, call, query, LIMIT_DEFAULT
+from ally.api.config import service, call, query
 from ally.api.criteria import AsBoolean, AsLikeOrdered, AsLike, AsEqual
 from ally.api.type import Iter, Reference
-from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
 from superdesk.api.domain_superdesk import modelData
+from ally.support.api.entity_ided import Entity, QEntity, IEntityGetCRUDService
 
 # --------------------------------------------------------------------
 
@@ -49,25 +49,18 @@ class QSource(QEntity):
 
 @service((Entity, Source), (QEntity, QSource))
 class ISourceService(IEntityGetCRUDService):
-    '''
-    Provides the service methods for the source.
-    '''
+    '''Provides the service methods for the source.'''
 
     @call
-    def getAll(self, typeKey:SourceType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-               q:QSource=None) -> Iter(Source):
-        '''
-        Provides all the available sources.
-        '''
+    def getAll(self, typeKey:SourceType.Key=None, q:QEntity=None, **options:SliceAndTotal) -> Iter(Source.Id):
+        '''Returns a list of source identifiers based on the given filters.
 
-    @call
-    def insert(self, source:Source) -> Source.Id:
-        '''
-        Insert the source, also the source will have automatically assigned the Id to it.
-
-        @param source: Source
-            The source to be inserted.
-
-        @return: The id assigned to the source
-        @raise InputError: If the source is not valid.
+        :param: typeKey: SourceType.Key
+            The source type to filter by.
+        :param: q: Query|None
+            The query to search by.
+        :param: options: @see: SliceAndTotal
+            The options to fetch the entities with.
+        :return: Iterable(Source.Id)
+            The iterable with the source identifiers.
         '''
