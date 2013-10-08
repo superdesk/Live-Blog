@@ -238,8 +238,5 @@
 				</ul>
 			</div>
 		</div>
-		<div class="post-quick-actions">
-			<a href="#" class="action-close" data-toggle="modal" title="Delete">&nbsp;</a>
-		</div>
 	</div>
 {/PostVerification}

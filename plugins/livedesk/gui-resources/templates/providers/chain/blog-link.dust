@@ -1,3 +1,3 @@
 {#Blog}
-<button class="btn btn-mini" data-toggle="button">{Title|s}</button>
+<button class="btn btn-mini" data-toggle="button">{Name|s}</button>
 {/Blog}
