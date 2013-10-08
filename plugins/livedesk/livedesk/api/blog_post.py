@@ -21,6 +21,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
+from superdesk.source.api.source import Source
 
 # --------------------------------------------------------------------
 
@@ -51,6 +52,7 @@ class QBlogPostUnpublished(QPostUnpublished, QWithCId):
     '''
     Provides the blog post message query.
     '''
+    isDeleted = AsBoolean
 
 @query(BlogPost)
 class QBlogPostPublished(QPost, QWithCId):
@@ -109,6 +111,13 @@ class IBlogPostService:
         '''
         Provides all the unpublished blogs posts.
         '''
+        
+    @call(webName='SourceUnpublished')
+    def getUnpublishedBySource(self, sourceId:Source.Id, thumbSize:str=None, offset:int=None, limit:int=None, detailed:bool=True, 
+                               q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+        '''
+        Provides all the unpublished blog posts for a given source.
+        '''    
     
     @call(webName='GroupUnpublished')
     def getGroupUnpublished(self, blogId:Blog, groupId:BlogCollaboratorGroup, typeId:PostType=None, authorId:Collaborator=None, thumbSize:str=None,

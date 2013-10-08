@@ -75,14 +75,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
 
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
-        sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:
                 sql = sql.filter(BlogPostMapped.CId != None)
-#                sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
-                sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
             sql = buildQuery(sql, q, BlogPostMapped)
-        if not sqlMore:
+        if q is None or QWithCId.cId not in q:
             sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
@@ -105,13 +102,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
 
-        sqlMore = None
         if q:
             if QWithCId.cId in q and q.cId:
                 sql = sql.filter(BlogPostMapped.CId != None)
-                sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
             sql = buildQuery(sql, q, BlogPostMapped)
-        if not sqlMore:
+        if q is None or QWithCId.cId not in q:
             sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
@@ -123,6 +118,40 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
+        return posts
+    
+    def getUnpublishedBySource(self, sourceId, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogPostService.getUnpublished
+        '''
+        assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+        sql = self._buildQueryBySource(sourceId)
+        
+        deleted = False
+        if q:
+            if QBlogPostUnpublished.isDeleted in q:
+                deleted = q.isDeleted.value                
+            sql = buildQuery(sql, q, BlogPostMapped)
+        
+        if q:
+            if QWithCId.cId not in q:
+                sql = sql.filter(BlogPostMapped.PublishedOn == None) 
+                if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
+                else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+        else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
+                            
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        sqlLimit = buildLimits(sql, offset, limit)
+        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True), thumbSize)
+        if detailed:
+            posts = IterPost(posts, sql.count(), offset, limit)
+            
+            lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
+            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+            lastCidSql = lastCidSql.filter(CollaboratorMapped.Source == sourceId)
+            
+            posts.lastCId = lastCidSql.scalar()
+            
         return posts
 
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
@@ -312,7 +341,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 sql = sql.filter(BlogPostMapped.DeletedOn == None)
 
         return sql
-
+    
     def _filterQuery(self, blogId, typeId=None, creatorId=None, authorId=None, q=None):
         '''
         Creates the general query filter for posts based on the provided parameters.
@@ -333,6 +362,12 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return sql
 
+    def _buildQueryBySource(self, sourceId):
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+        sql = sql.filter(CollaboratorMapped.Source == sourceId)
+        return sql
+    
     def _processLike(self, value):
         assert isinstance(value, str), 'Invalid like value %s' % value
 
