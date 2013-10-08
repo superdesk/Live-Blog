@@ -585,12 +585,12 @@ color:#484848;
 }
 
 .liveblog-post-list li .result-header .fixed-logo {
-    width: 150px;
+    /*width: 150px;
     height: 24px;
     background: url(img/ksml_logo.jpg) no-repeat 0 0;
     background-size: 150px 24px;
     display: block;
-    margin: 10px 0 5px 0;
+    margin: 10px 0 5px 0;*/
 }
 
 .liveblog-post-list li .editable {
