@@ -112,6 +112,16 @@ define([
 						//handle it
 					}
 
+					if ( typeof(embedConfig.MediaToggle) != 'undefined' ) {
+						if ( embedConfig.MediaToggle ) {
+							$('[data-gimme="blog.media-toggle"]', self.el).css('display', 'block' );
+						} else {
+							$('[data-gimme="blog.media-toggle"]', self.el).css('display', 'none' );
+						}
+					} else {
+						//do nothing 
+					}
+
 					if ( embedConfig.MediaUrl ) {
 						$('[data-gimme="blog.media-url"]', self.el).attr('href', embedConfig.MediaUrl );
 					}
