@@ -152,7 +152,18 @@ class IBlogPostService:
         '''
         Publishes the post in the blog.
         '''
-
+        
+    @call(method=INSERT, webName='Hide')
+    def hide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Hide the post from the blog.
+        '''    
+    @call(method=INSERT, webName='Unhide')
+    def unhide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Unhide the post from the blog.
+        '''    
+    
     @call(webName='Published')
     def insertAndPublish(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
