@@ -206,7 +206,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = self.session().query(PostMapped).get(post.Id)
-        if not postDb or postDb.DeletedOn is not None: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
+        if not postDb: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
 
         if Post.Type in post: postDb.typeId = self._typeId(post.Type)
         if post.UpdatedOn is None: postDb.UpdatedOn = current_timestamp()
