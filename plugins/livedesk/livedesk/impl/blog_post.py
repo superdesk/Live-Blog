@@ -218,6 +218,45 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
 
         post.PublishedOn = current_timestamp()
+        post.deletedOn = None
+        self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
+        self.session().merge(postEntry)
+
+        return postId
+    
+    def hide(self, blogId, postId):
+        '''
+        @see: IBlogPostService.hide
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
+
+        post.DeletedOn = current_timestamp()
+        self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
+        self.session().merge(postEntry)
+
+        return postId
+    
+    def unhide(self, blogId, postId):
+        '''
+        @see: IBlogPostService.unhide
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
+
+        post.DeletedOn = None
         self.postService.update(post)
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
