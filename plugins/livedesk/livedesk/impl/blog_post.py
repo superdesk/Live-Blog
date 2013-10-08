@@ -153,6 +153,40 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts.lastCId = lastCidSql.scalar()
             
         return posts
+    
+    def getUnpublishedBySource(self, sourceId, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogPostService.getUnpublished
+        '''
+        assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+        sql = self._buildQueryBySource(sourceId)
+        
+        deleted = False
+        if q:
+            if QBlogPostUnpublished.isDeleted in q:
+                deleted = q.isDeleted.value                
+            sql = buildQuery(sql, q, BlogPostMapped)
+        
+        if q:
+            if QWithCId.cId not in q:
+                sql = sql.filter(BlogPostMapped.PublishedOn == None) 
+                if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
+                else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+        else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
+                            
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        sqlLimit = buildLimits(sql, offset, limit)
+        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True), thumbSize)
+        if detailed:
+            posts = IterPost(posts, sql.count(), offset, limit)
+            
+            lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
+            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+            lastCidSql = lastCidSql.filter(CollaboratorMapped.Source == sourceId)
+            
+            posts.lastCId = lastCidSql.scalar()
+            
+        return posts
 
     def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
