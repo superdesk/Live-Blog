@@ -251,12 +251,14 @@ def upgradeUserTypeFix():
 
     try:
         id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'sms').scalar()
-        session.execute('UPDATE `user` SET `fk_type_id` = ' + str(id) + ' WHERE `name` LIKE `SMS-%`')
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "SMS-%"')
         
         id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').scalar()
-        session.execute('UPDATE `user` SET `fk_type_id` = ' + str(id) + ' WHERE `name` LIKE `Comment-%`')
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "Comment-%"')
         
         id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()
-        session.execute('UPDATE `user` SET `fk_type_id` = ' + str(id) + ' WHERE LENGTH(`name`) > 35')
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
+        
+        session.commit()
     except (ProgrammingError, OperationalError): return
   
