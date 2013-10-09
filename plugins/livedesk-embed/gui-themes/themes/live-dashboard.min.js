@@ -1,10 +1,12 @@
 define([
-	'plugins/twitter-widgets',
+  'plugins/twitter-widgets',
+  'plugins/live-dashboard-sliders',
 	'css!theme/liveblog',
+  'css!theme/jquery.bxslider',
   'tmpl!theme/container'
 ], function(){
 	return {
 		//enviroments: [ 'mobile', 'desktop', 'quirks' ],
-		plugins: []
+		plugins: ['twitter-widgets', 'live-dashboard-sliders']
 	}
 });

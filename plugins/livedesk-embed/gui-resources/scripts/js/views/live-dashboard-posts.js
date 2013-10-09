@@ -10,7 +10,7 @@ define([
 			events: {},
 			_flags: {
         autoRender: true
-				//addAllPending: false
+        //addAllPending: false
 			},
 			_config: {
 				timeInterval: 10000,
@@ -33,6 +33,10 @@ define([
           fullSize: [],
           text:     []
         }
+        self._viewsUpdatedFlags = {
+          fullSize: false,
+          text: false
+        };
 				$.each(self._config.collection, function(key, value) {
 					if($.isArray(value))
 						self.collection[key].apply(self.collection, value);
@@ -95,14 +99,16 @@ define([
 					return a.order - b.order;
 				});
 				/*!
-				 * Search it again in find the new position.
+				 * Search it again and find the new position.
 				 */
 				pos = this._views[view.type].indexOf(view);
 				if( pos === 0 ){
           var selector = '[data-gimme="' + view.type + '.posts.slider"]';
           this.el.children(selector).prepend(view.el);
+          this._viewsUpdatedFlags[view.type] = true;
         } else {
           view.el.insertAfter(this._views[view.type][pos - 1].el)
+          this._viewsUpdatedFlags[view.type] = true;
         }
 				return view;
 			},
@@ -134,7 +140,13 @@ define([
 				var self = this;
 				if(self._flags.autoRender) {
 					self.addAllPending(evt);
-					$.dispatcher.triggerHandler('posts-view.added-auto',self);
+          $.dispatcher.triggerHandler('posts-view.added-auto',self);
+          for (var sliderType in self._viewsUpdatedFlags){
+            if (self._viewsUpdatedFlags[sliderType]){
+              $.dispatcher.triggerHandler('posts-view.added-auto-' + sliderType, self);
+              self._viewsUpdatedFlags[sliderType] = false;
+            }
+          }
         }
         //else {
 					//self._parent.showNewPosts(self.pendingAutoupdates.length);
@@ -155,6 +167,9 @@ define([
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
+        for (sliderType in self._viewsUpdatedFlags){
+          self._viewsUpdatedFlags[sliderType] = false;
+        }
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
