@@ -11,6 +11,16 @@ define(['gizmo/superdesk', 'models/user', 'utils/extend'], function(Gizmo) {
 			'facebook': true,
 			'youtube': true
 		},
+    externalSources: {
+      'flickr': true,
+      'google': true,
+      'twitter': true,
+      'facebook': true,
+      'youtube': true,
+      'instagram': true,
+      'soundcloud': true,
+      'sms': true
+    },
 		/**
 		* Get css class based on type
 		*
@@ -55,6 +65,47 @@ define(['gizmo/superdesk', 'models/user', 'utils/extend'], function(Gizmo) {
 		isQuote: function() {
 			return this.getClass() == 'quotation';
 		},
+
+    isExternalSource: function(){
+      return this.get('AuthorName') in this.externalSources;
+    },
+
+    /**
+     * Is the post mostly text or media?
+     * Use by the live-dashboard-blog to determine if the post
+     * should be shown in the fullSize or the text slider
+     */
+    isTextLike: function(){
+      type = this.get('Type').Key;
+      if(this.isExternalSource()){
+        var autor = this.get('AuthorName');
+        var meta = this.get('Meta');
+        switch (autor) {
+          case 'google':
+            if (meta.contains('GnewsSearch')|| meta.contains('GwebSearch')){
+              return true;
+            }
+            break;
+          case 'twitter':
+            if (!meta.contains('media_url_https')){
+              return true;
+            }
+            break;
+          case 'facebook':
+          case 'sms':
+            return true;
+            break;
+        }
+      } else {
+        var type = this.get('Type').Key
+        if (type === 'normal' || type === 'quote' ||
+            type === 'link' || type === 'wrapup'){
+          return true;
+        }
+      }
+      return false;
+    },
+
 		twitter: {
 			link: {
 				anchor: function(str)
