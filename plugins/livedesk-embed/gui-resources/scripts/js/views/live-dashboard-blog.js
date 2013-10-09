@@ -94,7 +94,7 @@ define([
 						$.dispatcher.triggerHandler('blog-view.rendered-before', self);
 						//self.update();
 						self.postsView = new PostsView({ 
-							el: $('.post-sliders',self.el),
+							el: $('.liveblog-post-sliders',self.el),
 							collection: self.model.get('PostPublished'),
 							_parent: self
 						});

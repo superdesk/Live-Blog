@@ -1,8 +1,10 @@
 <div id="livedesk-root">
 	<div class="liveblog-container">
-    <section class="post-sliders">
-      <ul data-gimme="fullSize.posts.slider" class="liveblog-fullsize-posts"></ul>
-      <ul data-gimme="text.posts.slider" class="liveblog-text-posts"></ul>
-    </section>
-	</div>
+      <div class="liveblog-content">
+         <section class="liveblog-post-sliders">
+           <ul data-gimme="fullSize.posts.slider" class="liveblog-postlist fullsize-posts"></ul>
+           <ul data-gimme="text.posts.slider" class="liveblog-postlist text-posts"></ul>
+         </section>
+      </div>
+  </div>
 </div>

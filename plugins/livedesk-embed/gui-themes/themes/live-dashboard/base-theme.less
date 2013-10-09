@@ -151,47 +151,7 @@ background: #f0f0f0;
 		.liveblog-content {
 			position: relative;
 			margin: 10px 0;
-			.liveblog-content-top, .liveblog-content-bottom {
-				background: #4f4f4f;
-				height: @postlist-header-height;
-				position: relative;
-				.update-time {
-					height: @postlist-header-height;
-					line-height: @postlist-header-height;
-					color: #b8b8b8;
-					text-transform: uppercase;
-					font-size: 11px;
-					padding-left: 5px;
-				}
-				.button {
-					background: #101010;
-					font-size: 11px;
-					font-weight: bold;
-					padding: 0 10px;
-					color: #fff;
-					height: @postlist-header-height;
-					line-height: @postlist-header-height;
-					position: absolute;
-					&.pintotop {
-						top:0;
-						right: 0;
-					}
-					&.comment {
-						top:0;
-						left: 0;
-					}
-				}
-			}
-			.liveblog-content-top {
-				.button {
-					&.comment {
-						top:0;
-						left: auto;
-						right: 80px;
-					}
-				}
-			}
-			.liveblog-content-middle {
+			.liveblog-post-sliders {
 				max-height: @postlist-maxheight;
 				min-height: @postlist-minheight;
 				overflow: auto;
@@ -671,116 +631,10 @@ background: #f0f0f0;
 			}
 			
 		}
-
+   }
 		/* user comments */
 
-		
-		.comment-backdrop {
-		    display: none;
-		    position: absolute;
-		    background: rgba(0,0,0,0.7);
-		    top: 30px;
-		    left: 0;
-		    bottom: 40px;
-		    right: 0;
-		    z-index: 2;
-		}
-
-		.comment-box , 
-		.comment-box-message {
-		    position: absolute;
-		    top: 40px;
-		    right: 25px;
-		    z-index: 2003;
-		    .content {
-		    	position: relative;
-			    background: #fff;
-			    padding: 20px 20px 60px 20px;
-			    width: 482px;
-			    box-sizing: border-box;
-			    &:before {
-			    	content: ' ';
-				    height: 0;
-				    position: absolute;
-				    width: 0;
-				    border: 7px solid transparent;
-				    border-bottom-color: #FFF;
-				    top:-14px;
-				    right: 80px;
-			    }
-			    
-		    }
-		}
-		.comment-box {
-			input, textarea {
-		    	padding: 5px;
-			    box-sizing: border-box;
-			    width: 100%;
-			    font-size: 14px;
-			    color: #4d4d4d;
-			    font-family: Arial, Helvetica, sans-serif;
-			    margin-bottom: 20px;
-			    &:focus {
-			    	border-color: 1px solid #95915c;
-		    		outline: none;
-			    }
-		    }
-		    textarea {
-		    	min-height: 100px;
-		    }
-		    .button { 
-			    padding: 7px 24px;
-			    position: absolute;
-			    bottom: 20px;
-			    margin: 10px 0 0 4px;
-			    font-size: 12px;
-			    font-weight: bold;
-			    color: #FFF;
-			    text-transform: uppercase;
-			    text-decoration: none;
-			    border: 0;
-			    &:hover {
-			    	cursor: pointer;
-			    }
-			    &.cancel {
-			    	right: 110px;
-		    		background-color: #a8a8a8;
-		    		&:hover {
-		    			background-color: #b3b3b3;
-		    		}
-			    }
-			    &.send {
-			    	right: 20px;
-		    		background-color: #4f4f4f;
-		    		&:hover {
-		    			background-color: #5f5f5f;
-		    		}
-			    }
-			}
-
-			.error {
-			    background-color: #ffeded;
-			    border: 1px solid #ffabab;
-			    color: #393939;
-			    font-size: 11px;
-			    line-height: 140%;
-			    padding: 4px;
-			    margin: -10px 0 16px 0;
-			}
-
-		}
-		.comment-box-message {
-		    font-size: 14px;
-		    .content {
-			    padding: 20px 20px 20px 20px;
-			}
-		}
-		/* end of comments */
-
-	}
-
-
-	/* quirks mode fixies 
+	/* quirks mode fixies
 
 		maxheight won't work, instead, height param is used
 	*/
@@ -788,7 +642,7 @@ background: #f0f0f0;
 		width: auto;
 		.liveblog-container {
 			.liveblog-content {
-				.liveblog-content-middle {
+				.liveblog-post-sliders {
 					height: @postlist-maxheight;  
 
 					.liveblog-postlist {
@@ -862,7 +716,7 @@ background: #f0f0f0;
 		background: none;
 		.liveblog-container {
 			.liveblog-content {
-				.liveblog-content-middle {
+				.liveblog-post-sliders {
 					margin: 0 7px;
 					height: @postlist-maxheight;  
 
@@ -1002,7 +856,6 @@ background: #f0f0f0;
 								}
 							}
 
-
 						}
 					}
 				}
@@ -1010,7 +863,4 @@ background: #f0f0f0;
 		}
 	}
 }
-
-
-
 
