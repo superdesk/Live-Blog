@@ -14,7 +14,7 @@ from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call, UPDATE, DELETE, INSERT, model
+from ally.api.config import query, service, call, UPDATE, DELETE, INSERT
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType

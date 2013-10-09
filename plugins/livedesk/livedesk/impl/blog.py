@@ -35,7 +35,6 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
 
