@@ -14,10 +14,9 @@ from ..meta.source import SourceMapped
 from ..meta.type import SourceTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.util_service import buildQuery
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from ally.api.criteria import AsLike
-from sql_alchemy.support.util_service import iterateCollection
+from sql_alchemy.support.util_service import iterateCollection, buildQuery
 from functools import reduce
 from sqlalchemy.sql.expression import or_
 

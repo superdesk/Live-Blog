@@ -9,21 +9,19 @@ Created on May 2, 2012
 API specifications for collaborators.
 '''
 
-from ally.api.config import service, call, LIMIT_DEFAULT
+from ally.api.config import service, call
 from ally.api.type import Iter
-from ally.support.api.entity import Entity, IEntityGetCRUDService
 from superdesk.api.domain_superdesk import modelData
 from superdesk.source.api.source import Source, QSource
 from superdesk.user.api.user import User, QUser
-from superdesk.user.meta.user import UserMapped
+from ally.support.api.entity_ided import Entity, IEntityGetCRUDService
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
 @modelData
 class Collaborator(Entity):
-    '''
-    Provides the collaborator model.
-    '''
+    '''Provides the collaborator model.'''
     User = User
     Source = Source
     Name = str
@@ -36,14 +34,10 @@ class Collaborator(Entity):
 
 @service((Entity, Collaborator))
 class ICollaboratorService(IEntityGetCRUDService):
-    '''
-    Provides the service methods for the collaborators.
-    '''
+    '''Provides the service methods for the collaborators.'''
 
     @call
-    def getAll(self, userId:UserMapped.Id=None, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT,
-               detailed:bool=True, qu:QUser=None, qs:QSource=None) -> Iter(Collaborator):
-        '''
-        Provides all the collaborators.
-        '''
+    def getAll(self, userId:User.Id=None, sourceId:Source.Id=None, qu:QUser=None,
+               qs:QSource=None, **options:SliceAndTotal) -> Iter(Collaborator.Id):
+        '''Provides all the collaborators.'''
 

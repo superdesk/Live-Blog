@@ -10,23 +10,27 @@ Contains the SQL alchemy implementation for source type API.
 '''
 
 from ..api.type import ISourceTypeService
-from ..meta.type import SourceTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, \
-    EntityFindServiceAlchemy
+from sql_alchemy.support.util_service import iterateCollection
+from sql_alchemy.impl.entity import EntitySupportAlchemy
+from superdesk.source.meta.type import SourceTypeMapped
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ISourceTypeService, name='sourceTypeService')
-class SourceTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, ISourceTypeService):
-    '''
-    Implementation for @see: ISourceTypeService
-    '''
+class SourceTypeServiceAlchemy(EntitySupportAlchemy, ISourceTypeService):
+    '''Implementation for @see: ISourceTypeService'''
 
     def __init__(self):
-        '''
-        Construct the source type service.
-        '''
-        EntityGetServiceAlchemy.__init__(self, SourceTypeMapped)
+        '''Construct the source type service.'''
+        EntitySupportAlchemy.__init__(self, SourceTypeMapped)
+
+    def getById(self, identifier):
+        ''':see: IEntityGetPrototype.getById'''
+        return self.session().query(self.Mapped).filter(self.MappedId == identifier).one()
+
+    def getAll(self, **options):
+        ''':see: IEntityFindPrototype.getAll'''
+        return iterateCollection(self.session().query(self.MappedId).order_by(self.MappedId), **options)

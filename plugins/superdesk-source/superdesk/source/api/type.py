@@ -10,17 +10,15 @@ API specifications for source types. A source type provides the understanding (p
 '''
 
 from ally.api.config import service
-from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
 from superdesk.api.domain_superdesk import modelData
+from ally.support.api.entity import IEntityGetPrototype, IEntityFindPrototype
 
 # --------------------------------------------------------------------
 
-@modelData
-class SourceType(Entity):
-    '''
-    Provides the source type model.
-    '''
-    Name = str
+@modelData(id='Key')
+class SourceType:
+    '''Provides the source type model.'''
+    Key = str
     IsAvailable = bool
 
 # --------------------------------------------------------------------
@@ -29,8 +27,6 @@ class SourceType(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, SourceType))
-class ISourceTypeService(IEntityGetService, IEntityFindService):
-    '''
-    Provides the service methods for the source types.
-    '''
+@service(('Entity', SourceType))
+class ISourceTypeService(IEntityGetPrototype, IEntityFindPrototype):
+    '''Provides the service methods for the source types.'''

@@ -16,14 +16,13 @@ from ally.api.criteria import AsBoolean, AsLikeOrdered, AsLike, AsEqual
 from ally.api.type import Iter, Reference
 from superdesk.api.domain_superdesk import modelData
 from ally.support.api.entity_ided import Entity, QEntity, IEntityGetCRUDService
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
 @modelData
 class Source(Entity):
-    '''
-    Provides the source model.
-    '''
+    '''Provides the source model.'''
     Type = SourceType
     Name = str
     URI = Reference
@@ -36,9 +35,7 @@ class Source(Entity):
 
 @query(Source)
 class QSource(QEntity):
-    '''
-    Provides the query for source model.
-    '''
+    '''Provides the query for source model.'''
     name = AsLikeOrdered
     uri = AsLikeOrdered
     isModifiable = AsBoolean
@@ -55,11 +52,11 @@ class ISourceService(IEntityGetCRUDService):
     def getAll(self, typeKey:SourceType.Key=None, q:QEntity=None, **options:SliceAndTotal) -> Iter(Source.Id):
         '''Returns a list of source identifiers based on the given filters.
 
-        :param: typeKey: SourceType.Key
+        :param typeKey: SourceType.Key
             The source type to filter by.
-        :param: q: Query|None
+        :param q: Query|None
             The query to search by.
-        :param: options: @see: SliceAndTotal
+        :param options: @see: SliceAndTotal
             The options to fetch the entities with.
         :return: Iterable(Source.Id)
             The iterable with the source identifiers.

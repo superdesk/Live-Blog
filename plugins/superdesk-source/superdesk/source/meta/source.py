@@ -15,18 +15,16 @@ from sqlalchemy.schema import Column, UniqueConstraint
 from sqlalchemy.types import String, Boolean
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.source.meta.type import SourceTypeMapped
-from ally.support.sqlalchemy.mapper import validate
 from sql_alchemy.support.util_meta import relationshipModel
+from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
 @validate(exclude=['Type'])
 class SourceMapped(Base, Source):
-    '''
-    Provides the mapping for Source.
-    '''
+    '''Provides the mapping for Source.'''
     __tablename__ = 'source'
-    __table_args__ = (UniqueConstraint('name', 'fk_type_id', 'uri', name='uix_source_type_name'),
+    __table_args__ = (UniqueConstraint('name', 'fk_source_type_id', 'uri', name='uix_source_type_name'),
                       dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
@@ -37,4 +35,3 @@ class SourceMapped(Base, Source):
     IsModifiable = Column('modifiable', Boolean, nullable=False)
     OriginName = Column('origin_name', String(255), nullable=True)
     OriginURI = Column('origin_uri', String(255), nullable=True)
-

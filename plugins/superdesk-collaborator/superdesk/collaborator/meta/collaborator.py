@@ -10,7 +10,6 @@ Contains the SQL alchemy meta for source API.
 '''
 
 from ..api.collaborator import Collaborator
-from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -19,14 +18,13 @@ from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.source.meta.source import SourceMapped
 from superdesk.user.meta.user import UserMapped
+from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
 @validate
 class CollaboratorMapped(Base, Collaborator):
-    '''
-    Provides the mapping for Collaborator.
-    '''
+    '''Provides the mapping for Collaborator.'''
     __tablename__ = 'collaborator'
     __table_args__ = (UniqueConstraint('fk_user_id', 'fk_source_id', name='uix_user_source'),
                       dict(mysql_engine='InnoDB', mysql_charset='utf8'))
