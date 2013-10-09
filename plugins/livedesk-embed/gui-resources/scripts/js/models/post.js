@@ -82,12 +82,12 @@ define(['gizmo/superdesk', 'models/user', 'utils/extend'], function(Gizmo) {
         var meta = this.get('Meta');
         switch (autor) {
           case 'google':
-            if (meta.contains('GnewsSearch')|| meta.contains('GwebSearch')){
+            if (meta.indexOf('GnewsSearch') !== -1 || meta.indexOf('GwebSearch') !== -1){
               return true;
             }
             break;
           case 'twitter':
-            if (!meta.contains('media_url_https')){
+            if (meta.indexOf('media_url_https') === -1){
               return true;
             }
             break;
