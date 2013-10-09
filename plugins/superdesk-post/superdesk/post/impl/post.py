@@ -11,23 +11,19 @@ Contains the SQL alchemy implementation for post API.
 
 from ..api.post import IPostService, QWithCId
 from ..meta.post import PostMapped
-from ..meta.type import PostTypeMapped
-from ally.api.extension import IterPart
 from ally.api.criteria import AsRange
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
-from ally.internationalization import _
-from ally.support.api.util_service import copy
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.post.api.post import Post, QPostUnpublished, QPost, QPostPublished
 from superdesk.source.meta.source import SourceMapped
-from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
+from sql_alchemy.support.util_service import iterateCollection, buildQuery, \
+    insertModel, updateModel
+from ally.api.error import IdError, InputError
 
 # --------------------------------------------------------------------
 
@@ -36,9 +32,7 @@ COPY_EXCLUDE = ('Type', 'IsModified', 'IsPublished', 'AuthorName')
 @injected
 @setup(IPostService, name='postService')
 class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
-    '''
-    Implementation for @see: IPostService
-    '''
+    '''Implementation for @see: IPostService'''
     default_source_name = 'internal'; wire.config('default_source_name', doc='''
     The default source name used when a source was not supplied''')
 
@@ -55,150 +49,108 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         EntityGetServiceAlchemy.__init__(self, PostMapped)
 
-    def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
+    def getUnpublished(self, creatorId=None, authorId=None, q=None, **options):
         '''
         @see: IPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn == None)
+        return iterateCollection(sql, **options)
 
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
-
-    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
+    def getPublished(self, creatorId=None, authorId=None, q=None, **options):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn != None)
+        return iterateCollection(sql, **options)
 
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
-
-    def getAll(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, creatorId=None, authorId=None, q=None, **options):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getUnpublishedBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+    def getUnpublishedBySource(self, sourceId, q=None, **options):
         '''
         @see: IPostService.getUnpublishedBySource
         '''
         assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
-
-        sql = self._buildQueryBySource(sourceId)
-        sql = sql.filter(PostMapped.PublishedOn == None)
-
+        sql = self._buildQueryBySource(sourceId).filter(PostMapped.PublishedOn == None)
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getUnpublishedBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+    def getUnpublishedBySourceType(self, sourceTypeKey, q=None, **options):
         '''
         @see: IPostService.getUnpublishedBySourceType
         '''
         assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
-
         sql = self._buildQueryBySourceType(sourceTypeKey)
         sql = sql.filter(PostMapped.PublishedOn == None)
-
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getPublishedBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+    def getPublishedBySource(self, sourceId, q=None, **options):
         '''
         @see: IPostService.getPublishedBySource
         '''
         assert q is None or isinstance(q, QPostPublished), 'Invalid query %s' % q
-
         sql = self._buildQueryBySource(sourceId)
         sql = sql.filter(PostMapped.PublishedOn != None)
-
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getPublishedBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+    def getPublishedBySourceType(self, sourceTypeKey, q=None, **options):
         '''
         @see: IPostService.getPublishedBySourceType
         '''
         assert q is None or isinstance(q, QPostPublished), 'Invalid query %s' % q
-
         sql = self._buildQueryBySourceType(sourceTypeKey)
         sql = sql.filter(PostMapped.PublishedOn != None)
-
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getAllBySource(self, sourceId, offset=None, limit=None, detailed=False, q=None):
+    def getAllBySource(self, sourceId, q=None, **options):
         '''
         @see: IPostService.getAllBySource
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-
         sql = self._buildQueryBySource(sourceId)
-
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getAllBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+    def getAllBySourceType(self, sourceTypeKey, q=None, **options):
         '''
         @see: IPostService.getAllBySourceType
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-
         sql = self._buildQueryBySourceType(sourceTypeKey)
-
         sql = self._buildQueryWithCId(q, sql)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
     def insert(self, post):
         '''
         @see: IPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
-        postDb = PostMapped()
-        copy(post, postDb, exclude=COPY_EXCLUDE)
-        postDb.typeId = self._typeId(post.Type)
+        post = self._adjustTexts(post)
 
-        postDb = self._adjustTexts(postDb)
-
-        if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
-        if not postDb.Author:
-            colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == postDb.Creator).all()
-            if not colls:
+        if post.CreatedOn is None: post.CreatedOn = current_timestamp()
+        if not post.Author:
+            try: coll = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == post.Creator).one()
+            except NoResultFound:
                 coll = CollaboratorMapped()
-                coll.User = postDb.Creator
-                src = self.session().query(SourceMapped).filter(SourceMapped.Name == PostServiceAlchemy.default_source_name).one()
+                coll.User = post.Creator
+                src = self.session().query(SourceMapped).filter(SourceMapped.Name == self.default_source_name).one()
                 coll.Source = src.Id
                 self.session().add(coll)
                 self.session().flush((coll,))
-                colls = (coll,)
-            postDb.Author = colls[0].Id
-
-        self.session().add(postDb)
-        self.session().flush((postDb,))
-        post.Id = postDb.Id
-        return post.Id
+            post.Author = coll.Id
+        return insertModel(PostMapped, post).Id
 
     def update(self, post):
         '''
@@ -206,14 +158,11 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = self.session().query(PostMapped).get(post.Id)
-        if not postDb or postDb.DeletedOn is not None: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
+        if not postDb or postDb.DeletedOn is not None: raise IdError(Post.Id)
 
-        if Post.Type in post: postDb.typeId = self._typeId(post.Type)
-        if post.UpdatedOn is None: postDb.UpdatedOn = current_timestamp()
-
-        copy(post, postDb, exclude=COPY_EXCLUDE)
-        postDb = self._adjustTexts(postDb)
-        self.session().flush((postDb,))
+        if post.UpdatedOn is None: post.UpdatedOn = current_timestamp()
+        post = self._adjustTexts(postDb)
+        updateModel(post)
 
     def delete(self, id):
         '''
@@ -221,9 +170,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         postDb = self.session().query(PostMapped).get(id)
         if not postDb or postDb.DeletedOn is not None: return False
-
         postDb.DeletedOn = current_timestamp()
-        self.session().flush((postDb,))
+        updateModel(postDb)
         return True
 
     # ----------------------------------------------------------------
@@ -232,7 +180,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         Builds the general query for posts.
         '''
-        sql = self.session().query(PostMapped)
+        sql = self.session().query(PostMapped.Id)
         if creatorId: sql = sql.filter(PostMapped.Creator == creatorId)
         if authorId: sql = sql.filter(PostMapped.Author == authorId)
         addDeleted = False
@@ -242,28 +190,17 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         if not addDeleted: sql = sql.filter(PostMapped.DeletedOn == None)
         return sql
 
-    def _typeId(self, key):
-        '''
-        Provides the post type id that has the provided key.
-        '''
-        try:
-            sql = self.session().query(PostTypeMapped.id).filter(PostTypeMapped.Key == key)
-            return sql.one()[0]
-        except NoResultFound:
-            raise InputError(Ref(_('Invalid post type %(type)s') % dict(type=key), ref=Post.Type))
-
     def _buildQueryBySource(self, sourceId):
-        sql = self.session().query(PostMapped)
+        sql = self.session().query(PostMapped.Id)
         sql = sql.join(CollaboratorMapped, PostMapped.Author == CollaboratorMapped.Id)
         sql = sql.filter(CollaboratorMapped.Source == sourceId)
         return sql
 
     def _buildQueryBySourceType(self, sourceTypeKey):
-        sql = self.session().query(PostMapped)
+        sql = self.session().query(PostMapped.Id)
         sql = sql.join(CollaboratorMapped, PostMapped.Author == CollaboratorMapped.Id)
         sql = sql.join(SourceMapped, CollaboratorMapped.Source == SourceMapped.Id)
-        sql = sql.join(SourceTypeMapped, SourceMapped.typeId == SourceTypeMapped.id)
-        sql = sql.filter(SourceTypeMapped.Key == sourceTypeKey)
+        sql = sql.filter(SourceMapped.Type == sourceTypeKey)
         return sql
 
     def _buildQueryWithCId(self, q, sql):
@@ -289,11 +226,11 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         if postDb.Meta:
             postDb.Meta = postDb.Meta.translate(nohigh)
             if self.meta_max_size and (len(postDb.Meta) > self.meta_max_size):
-                raise InputError(Ref(_('Too long Meta part'),)) # can not truncate json data
+                raise InputError(_('Too long Meta part')) # can not truncate json data
         if postDb.Content:
             postDb.Content = postDb.Content.translate(nohigh)
             if self.content_max_size and (len(postDb.Content) > self.content_max_size):
-                raise InputError(Ref(_('Too long Content part'),)) # can not truncate structured data
+                raise InputError(_('Too long Content part')) # can not truncate structured data
         if postDb.ContentPlain:
             postDb.ContentPlain = postDb.ContentPlain.translate(nohigh)
             if self.content_plain_max_size: postDb.ContentPlain = postDb.ContentPlain[:self.content_plain_max_size]

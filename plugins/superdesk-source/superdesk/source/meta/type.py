@@ -22,7 +22,7 @@ class SourceTypeMapped(Base, SourceType):
     Provides the mapping for SourceType.
     '''
     __tablename__ = 'source_type'
-    __table_args__ = dict(mysql_engine='InnoDB')
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Key = Column('key', String(100), nullable=False, unique=True)
     # None REST model attribute --------------------------------------

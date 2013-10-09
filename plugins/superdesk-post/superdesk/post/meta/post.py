@@ -10,9 +10,7 @@ Contains the SQL alchemy meta for post API.
 '''
 
 from ..api.post import Post
-from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
@@ -24,6 +22,8 @@ from superdesk.post.meta.type import PostTypeMapped
 from superdesk.user.meta.user import UserMapped
 from ally.container.binder_op import validateManaged, validateRequired, \
     EVENT_PROP_UPDATE
+from sql_alchemy.support.mapper import validate
+from sql_alchemy.support.util_meta import relationshipModel
 
 # --------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ class PostMapped(Base, Post):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Type = association_proxy('type', 'Key')
+    Type = relationshipModel(PostTypeMapped.id)
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Meta = Column('meta', TEXT)
@@ -60,8 +60,6 @@ class PostMapped(Base, Post):
         return self.author.Name
 
     # Non REST model attributes --------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(PostTypeMapped, uselist=False, lazy='joined')
     author = relationship(CollaboratorMapped, uselist=False, lazy='joined')
     creator = relationship(UserMapped, uselist=False, lazy='joined')
 
@@ -79,11 +77,12 @@ class PostMapped(Base, Post):
     def _AuthorName(cls):
         return case([(cls.Author == None, UserMapped.Name)], else_=CollaboratorMapped.Name)
 
-validateRequired(PostMapped.Type)
-validateManaged(PostMapped.Type, key=EVENT_PROP_UPDATE)
-validateManaged(PostMapped.Author, key=EVENT_PROP_UPDATE)
+# TODO: uncomment when validation implemented
+# validateRequired(PostMapped.Type)
+# validateManaged(PostMapped.Type, key=EVENT_PROP_UPDATE)
+# validateManaged(PostMapped.Author, key=EVENT_PROP_UPDATE)
 
-validateManaged(PostMapped.CreatedOn)
-validateManaged(PostMapped.PublishedOn)
-validateManaged(PostMapped.UpdatedOn)
-validateManaged(PostMapped.DeletedOn)
+# validateManaged(PostMapped.CreatedOn)
+# validateManaged(PostMapped.PublishedOn)
+# validateManaged(PostMapped.UpdatedOn)
+# validateManaged(PostMapped.DeletedOn)

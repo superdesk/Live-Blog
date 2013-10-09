@@ -13,20 +13,16 @@ from ..api.type import IPostTypeService
 from ..meta.type import PostTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
-from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, \
-    EntityFindServiceAlchemy
+from sql_alchemy.impl.entity import EntityGetServiceAlchemy, EntityFindServiceAlchemy
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IPostTypeService, name='postTypeService')
 class PostTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IPostTypeService):
-    '''
-    Implementation for @see: IPostTypeService
-    '''
+    '''Implementation for @see: IPostTypeService'''
 
     def __init__(self):
-        '''
-        Construct the post type service.
-        '''
+        '''Construct the post type service.'''
         EntityGetServiceAlchemy.__init__(self, PostTypeMapped)
+        EntityFindServiceAlchemy.__init__(self, PostTypeMapped)

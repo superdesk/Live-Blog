@@ -10,16 +10,15 @@ API specifications for post types.
 '''
 
 from ally.api.config import service
-from ally.support.api.keyed import Entity, IEntityGetService, IEntityFindService
 from superdesk.api.domain_superdesk import modelData
+from ally.support.api.entity import IEntityGetPrototype, IEntityFindPrototype
 
 # --------------------------------------------------------------------
 
-@modelData
-class PostType(Entity):
-    '''
-    Provides the post type model.
-    '''
+@modelData(id='Key')
+class PostType:
+    '''Provides the post type model.'''
+    Key = str
 
 # --------------------------------------------------------------------
 
@@ -27,8 +26,6 @@ class PostType(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, PostType))
-class IPostTypeService(IEntityGetService, IEntityFindService):
-    '''
-    Provides the service methods for the post types.
-    '''
+@service(('Entity', PostType))
+class IPostTypeService(IEntityGetPrototype, IEntityFindPrototype):
+    '''Provides the service methods for the post types.'''
