@@ -12,10 +12,8 @@ API specifications for blog comment.
 from ..api.blog_post import BlogPost, QBlogPost
 from ally.api.config import service, call, INSERT
 from ally.api.type import Iter
-from ally.support.api.keyed import Entity
 from livedesk.api.domain_livedesk import modelLiveDesk
 from livedesk.api.blog import Blog
-from superdesk.post.api.post import Post
 from livedesk.api.blog_post import QBlogPostUnpublished
 
 # --------------------------------------------------------------------
