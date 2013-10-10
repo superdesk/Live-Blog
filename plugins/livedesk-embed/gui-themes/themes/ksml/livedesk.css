@@ -94,7 +94,7 @@
     color: #4d4d4d;
     position: relative;
     font-size: 1px;
-    min-height: 155px;
+    min-height: 120px;
 }
 #livedesk-root .liveblog-post-list li:hover{
     /*background: #f4f4f4;*/
@@ -545,7 +545,7 @@ color:#484848;
     left: 0;
     width: 140px;
     padding-bottom: 20px;
-    min-height: 130px;
+    min-height: 95px;
 }
 
 .liveblog-post-list li .result-header time {
