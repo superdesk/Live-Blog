@@ -35,6 +35,7 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
+from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId
 
 # --------------------------------------------------------------------
 
@@ -78,10 +79,21 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.Blog == blogId)
         sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
         sql = sql.filter(SourceTypeMapped.Key == self.source_type_key)
+        
+        deleted = False
         if q:
-            assert isinstance(q, QBlogPost), 'Invalid query %s' % q
+            assert isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+            if QBlogPostUnpublished.isDeleted in q:
+                deleted = q.isDeleted.value                
             sql = buildQuery(sql, q, BlogPostMapped)
-
+            
+        if q:
+            if QWithCId.cId not in q:
+                sql = sql.filter(BlogPostMapped.PublishedOn == None) 
+                if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
+                else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+        else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
+            
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -155,7 +167,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             collab.User = userId
             collabId = self.collaboratorService.insert(collab)
 
-        # create post request
+        # create blog post request
         post = Post()
         post.Type = self.post_type_key
         post.Creator = userId
