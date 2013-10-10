@@ -53,6 +53,7 @@ class QBlogPostUnpublished(QPostUnpublished, QWithCId):
     Provides the blog post message query.
     '''
     isDeleted = AsBoolean
+    order = AsRangeOrdered
 
 @query(BlogPost)
 class QBlogPostPublished(QPost, QWithCId):
