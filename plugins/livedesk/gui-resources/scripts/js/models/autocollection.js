@@ -74,7 +74,10 @@ define([
 				data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, 
 				headers: { 'X-Filter': 'CId, Order, IsPublished, DeletedOn'}
 			},params);
-			if(self._stats.lastCId === 0) delete requestOptions.data;
+			if(self._stats.lastCId === 0) {
+				delete requestOptions.data['cId.since'];
+				delete requestOptions.data['order.start'];
+			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
 			{
 				self.stop();
@@ -188,7 +191,7 @@ define([
 				 * else UPDATE with the changeset if there are some
 				 */
 				if( ( count === 0) ){
-					//console.log('read');
+					//console.log('readauto');
 
 					self.triggerHandler('readauto',[self._list,attr]);
 				} else {                    
