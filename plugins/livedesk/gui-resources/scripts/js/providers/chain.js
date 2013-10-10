@@ -24,7 +24,17 @@
 ], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
 
     var autoSources = new SyncCollection();
+    var StatusesView = Gizmo.View.extend({
+    	init: function(){
+			if(!self.collection) {
+				//http://localhost:8080/resources/Data/PostVerification/
+				self.collection = Gizmo.Auth(new Gizmo.Register.Statuses());
+			}    		
+    	},
+    	render: function(){
 
+    	}
+    });
     var UserSearch = Gizmo.View.extend({
     		init: function(){
     			var self = this;
@@ -79,14 +89,13 @@
 					.on('addingsauto', this.addAll, this)
 					.xfilter();
 			},
-			activate: function(){
+			activate: function(){			
 				var self = this;
 			    var data = {thumbSize: 'medium'};
-                if (autoSources.isPaused(this.sourceId)) {
+                if (autoSources.isPaused(self.sourceId)) {
                     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
-                }i
-
-				this.collection
+                }
+				self.collection
 					.on('read update readauto updateauto', function(){
 						self.el.find('.chainblogs').show();
 					})
@@ -287,7 +296,7 @@
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							collection: self.model.get('PostUnpublished'),
+							collection: self.model.get('PostSourceUnpublished'),
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href
 					});
@@ -301,8 +310,8 @@
                 '.sf-toggle:checkbox': {change: 'toggleAutopublish'}
 			},
 			init: function(){
-				userSearch = new UserSearch();
-				return;
+				// userSearch = new UserSearch();
+				// return;
 				var self = this,
 					href;
 				self.chainBlogLinkViews = [];
@@ -314,7 +323,7 @@
 					self.sourceBlogs.setHref(href);
 					self.sourceBlogs
 						.on('read', this.render, this)
-						.xfilter('Name,Id,PostUnpublished')
+						.xfilter('Name,Id,PostSourceUnpublished')
 						.sync();
 				}
 
@@ -380,8 +389,8 @@
 						// chainBlog.sync();
 						chainBlog = sourceBlog;
 						timelineCollection = new Gizmo.Register.AutoPosts();
-						timelineCollection.href = chainBlog.get('PostUnpublished').href;
-      					chainBlog.set('PostUnpublished',timelineCollection);
+						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
+      					chainBlog.data['PostSourceUnpublished'] = timelineCollection;
       					chainBlog.sourceId = sourceBlog.get('Id');
       					
 						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
