@@ -1,7 +1,10 @@
-Ubuntu install
---------------
+Ubuntu 12.10 install
+--------------------
 
 1. Installing requirements
+
+Currently Liveblog requires Python 3.2 to run, which is the default version
+on Ubuntu 12.10.
 
 Run in a text console the following commands:
 
