@@ -36,6 +36,7 @@ from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
+from superdesk.post.api.post import Post
 
 # --------------------------------------------------------------------
 
@@ -164,7 +165,7 @@ class BlogSyncProcess:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
 
-                lPost = BlogPost()
+                lPost = Post()
                 lPost.Type = post['Type']['Key']
                 lPost.Creator = blogSync.Creator
                 lPost.Author, userId = self._getCollaboratorForAuthor(post['Author'], source)
