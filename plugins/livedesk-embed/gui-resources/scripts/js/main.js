@@ -14,10 +14,12 @@ requirejs.config({
 		'gettext': 'core/gettext',
 		'gizmo': 'core/gizmo',
 
-		'iscroll': 'core/iscroll'
+    'iscroll': 'core/iscroll',
+    'bxslider': 'core/jquery.bxslider'
 	},
 	shim: {
-		'iscroll':  { 'exports': 'IScroll' }
+    'iscroll':  { 'exports': 'IScroll' },
+    'bxslider': ['jquery']
 	}
 });
 require(['core.min'], function(){
