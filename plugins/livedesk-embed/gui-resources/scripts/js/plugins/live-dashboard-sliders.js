@@ -5,11 +5,15 @@ define([
 	'dispatcher'
 ], function($, plugins){
   return plugins["live-dashboard-sliders"] = function(config){
+    // TODO: change it so the slider names don't need to be provided in here in a config
+    // file or directly taken from the DOM.
     var self = this;
+
     self.sliderConfig = {
-      pager: false,
       hideControlOnEnd: true,
-      infiniteLoop: false
+      infiniteLoop: false,
+      //easing: 'ease-out',
+      //adaptativeHeight: true,
     };
     self.sliders = {
       fullSize: null,
@@ -36,5 +40,5 @@ define([
 		$.dispatcher.on('posts-view.added-auto-text', function(){
       self.reloadSlider(self.sliders.text);
     });
-	}
+  };
 });

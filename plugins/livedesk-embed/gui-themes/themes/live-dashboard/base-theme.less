@@ -156,6 +156,23 @@ background: #f0f0f0;
 				min-height: @postlist-minheight;
 				overflow: auto;
 				overflow-x: hidden !important; 
+        /* BxSlider changes */
+        .bx-viewport {
+          box-shadow: none;
+        }
+        .bx-controls {
+          .bx-pager-item {
+            .bx-pager-link {
+               background: none;
+               text-indent: 0;
+               height: 0;
+               color: #666;
+              &.active {
+                color: #000;
+              }
+            }
+          }
+        }
 				&.liveblog-scroll {
 					height: 500px;
 				}

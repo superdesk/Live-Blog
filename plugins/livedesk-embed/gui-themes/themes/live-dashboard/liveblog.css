@@ -115,6 +115,20 @@ body {
   min-height: 0;
   overflow: auto;
   overflow-x: hidden !important;
+  /* BxSlider changes */
+
+}
+#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .bx-viewport {
+  box-shadow: none;
+}
+#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .bx-controls .bx-pager-item .bx-pager-link {
+  background: none;
+  text-indent: 0;
+  height: 0;
+  color: #666;
+}
+#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .bx-controls .bx-pager-item .bx-pager-link.active {
+  color: #000;
 }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders.liveblog-scroll {
   height: 500px;
