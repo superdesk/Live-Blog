@@ -7,13 +7,16 @@
     config.guiJs('livedesk', 'views/configure/api-keys'),
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('media-archive', 'upload'),
+    config.guiJs('media-archive', 'adv-upload'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
     'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>configure',
-    'tmpl!livedesk>configure/languages'
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action ) {
+    'tmpl!livedesk>configure/languages',
+    'tmpl!livedesk>providers/edit/imagelink',
+], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -22,18 +25,45 @@
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
 			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
-            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
+            "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
         init: function() {
+        },
+        handleImageUpload: function(imgData) {
+            var self = this;
+            if (imgData.length) {
+                var myData = imgData[0].data;
+                self.el.find('[name="MediaImage"]').val(myData.Content.href);
+                $.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
+                    self.el.find('#MediaImageThumb').html(o);
+                });
+            }
+        },
+        openUploadScreen: function() {
+            var self = this;
+            var uploadView = new UploadView({thumbSize: 'medium'});
+            uploadView.activate().then(function(data) {
+                self.handleImageUpload(data);
+            });
         },
         selectInput: function(evt) {
 			$(evt.target).select();
 		},
         save: function(evt){
-            var self = this,
-                EmbedConfig = {
+            var self = this;
+            // make mediaUrl a global url in case it is not
+            var mediaUrl = self.el.find('[name="MediaUrl"]').val();
+            if ( mediaUrl.indexOf("http://") != 0 && mediaUrl.indexOf("https://") != 0 && mediaUrl.indexOf("//") != 0 ) {
+                mediaUrl = "//" + mediaUrl;
+            }
+
+            var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
+                    'MediaImage': self.el.find('[name="MediaImage"]').val(),
+                    'MediaToggle': self.el.find('[name="MediaToggle"]').is(':checked'),
+                    'MediaUrl': mediaUrl,
                     'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {

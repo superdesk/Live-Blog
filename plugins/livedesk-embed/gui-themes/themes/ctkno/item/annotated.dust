@@ -1,7 +1,0 @@
-{>"theme/item/base"/}
-{<head_bottom}
-	<div class="editable annotation">{annotation_header}</div>
-{/head_bottom}
-{<body_bottom}
-	<div class="editable annotation">{annotation_after}</div>
-{/body_bottom}
