@@ -70,42 +70,6 @@ define(['gizmo/superdesk', 'models/user', 'utils/extend'], function(Gizmo) {
       return this.get('AuthorName') in this.externalSources;
     },
 
-    /**
-     * Is the post mostly text or media?
-     * Use by the live-dashboard-blog to determine if the post
-     * should be shown in the fullSize or the text slider
-     */
-    isTextLike: function(){
-      type = this.get('Type').Key;
-      if(this.isExternalSource()){
-        var autor = this.get('AuthorName');
-        var meta = this.get('Meta');
-        switch (autor) {
-          case 'google':
-            if (meta.indexOf('GnewsSearch') !== -1 || meta.indexOf('GwebSearch') !== -1){
-              return true;
-            }
-            break;
-          case 'twitter':
-            if (meta.indexOf('media_url_https') === -1){
-              return true;
-            }
-            break;
-          case 'facebook':
-          case 'sms':
-            return true;
-            break;
-        }
-      } else {
-        var type = this.get('Type').Key
-        if (type === 'normal' || type === 'quote' ||
-            type === 'link' || type === 'wrapup'){
-          return true;
-        }
-      }
-      return false;
-    },
-
 		twitter: {
 			link: {
 				anchor: function(str)

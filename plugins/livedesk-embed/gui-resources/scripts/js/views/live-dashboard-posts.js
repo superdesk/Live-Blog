@@ -27,6 +27,37 @@ define([
 				}
 			},
 			pendingAutoupdates: [],
+
+      isPostTextLike: function(model){
+        var type = model.get('Type').Key;
+        if(model.isExternalSource()){
+          var autor = model.get('AuthorName');
+          var meta = $.parseJSON(model.get('Meta'));
+          switch (autor) {
+            case 'google':
+              if (meta.GsearchResultClass !== 'GimageSearch'){
+                return true;
+              }
+              break;
+            case 'twitter':
+              if (meta.entities.urls.length === 0){
+                return true;
+              }
+              break;
+            case 'facebook':
+            case 'sms':
+              return true;
+              break;
+          }
+        } else {
+          if (type === 'normal' || type === 'quote' ||
+              type === 'link' || type === 'wrapup'){
+            return true;
+          }
+        }
+        return false;
+      },
+
 			init: function() {
 				var self = this;
         self._views = {
@@ -69,7 +100,7 @@ define([
 			addOne: function(model) {
 				var view = new PostView({model: model, _parent: this});
         model.postView = view;
-        view.type = model.isTextLike() ? 'text' : 'fullSize';
+        view.type = this.isPostTextLike(model) ? 'text' : 'fullSize';
 				return this.orderOne(view);
 			},
 
