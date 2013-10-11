@@ -162,86 +162,7 @@ body {
   color: #a8a8a8;
 }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons {
-  position: absolute;
-  right: 0;
-  top: 0;
-  margin-top: 4px;
-  height: 15px;
-  width: 95px;
   display: none;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .sf-share {
-  width: 35px;
-  height: 15px;
-  line-height: 15px;
-  font-size: 11px;
-  color: #585858;
-  position: absolute;
-  left: 0px;
-  top: -1px;
-  text-decoration: none;
-  background: url(img/share.png) no-repeat 0 0;
-  padding: 0 0 0 18px;
-  margin-right: 15px;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box {
-  background: #F8F8F8;
-  padding: 10px;
-  border: 1px solid #D0D0D0;
-  position: absolute;
-  top: 18px;
-  right: 45px;
-  z-index: 5;
-  width: 170px;
-  height: 24px;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social {
-  width: 24px;
-  height: 24px;
-  display: inline-block;
-  margin-right: 5px;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.facebook {
-  background: url(img/social_facebook_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.twitter {
-  background: url(img/social_twitter_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.linkedin {
-  background: url(img/social_linkedin_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.pinterest {
-  background: url(img/social_pinterest_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.google {
-  background: url(img/social_google_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social.email {
-  background: url(img/social_email_color.png) no-repeat;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .share-box .social:last-child {
-  margin-right: 0;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons .permalink {
-  position: absolute;
-  right: 0px;
-  width: 25px;
-  height: 15px;
-  text-indent: -9999px;
-  background: url("img/link.png") no-repeat 0px 2px;
-  display: inline-block;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons input {
-  position: absolute;
-  background: #F8F8F8;
-  border: 1px solid #D0D0D0;
-  padding: 4px 6px;
-  width: 180px;
-  top: 14px;
-  right: 0;
-}
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons input:focus {
-  outline: none;
 }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-comment {
   font-size: 0.875em;
@@ -596,18 +517,11 @@ body {
 #livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li.soundcloud .attributes .source-icon {
   background: #ffffff url(img/soundcloud-16px.png) no-repeat 0 0;
 }
-#livedesk-root .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li:hover .post-buttons {
-  display: block !important;
-}
 #livedesk-root.quirks {
   width: auto;
 }
 #livedesk-root.quirks .liveblog-container .liveblog-content .liveblog-post-sliders {
   height: none;
-}
-#livedesk-root.quirks .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons {
-  margin-right: 20px;
-  display: block !important;
 }
 #livedesk-root.quirks .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-content-side {
   margin-top: 15px;
@@ -718,12 +632,6 @@ body {
   -o-border-radius: 0 0 5px 5px;
   -webkit-border-radius: 0 0 5px 5px;
   position: relative;
-}
-#livedesk-root.mobile .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-buttons {
-  display: block;
-  left: 10px;
-  right: auto;
-  top: 5px;
 }
 #livedesk-root.mobile .liveblog-container .liveblog-content .liveblog-post-sliders .liveblog-postlist li .post-content {
   padding: 10px;
