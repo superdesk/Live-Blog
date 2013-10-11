@@ -16,9 +16,9 @@ from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, DateTime, Integer
 from superdesk.meta.metadata_superdesk import Base
-from ally.support.sqlalchemy.session import openSession
 from superdesk.user.meta.user import UserMapped
 from ally.internationalization import N_
+from sql_alchemy.support.session import openSession
 
 # --------------------------------------------------------------------
 
@@ -42,9 +42,7 @@ class ThumbnailFormat(Base):
     ''')
 
 class MetaDataMapped(Base, MetaData):
-    '''
-    Provides the mapping for MetaData.
-    '''
+    '''Provides the mapping for MetaData.'''
     __tablename__ = 'archive_meta_data'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 

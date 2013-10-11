@@ -12,37 +12,18 @@ SQL Alchemy based implementation for the meta type API.
 from ..api.meta_type import IMetaTypeService
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.session import SessionSupport
+from sql_alchemy.impl.entity import EntityGetServiceAlchemy, \
+    EntityFindServiceAlchemy
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
-from sqlalchemy.orm.exc import NoResultFound
-from ally.exception import InputError, Ref
-from ally.support.sqlalchemy.util_service import buildLimits
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IMetaTypeService, name='metaTypeService')
-class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
-    '''
-    Implementation based on SQL alchemy for @see: IMetaTypeService
-    '''
+class MetaTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IMetaTypeService):
+    '''Implementation based on SQL alchemy for @see: IMetaTypeService'''
 
     def __init__(self):
-        '''
-        Construct the service.
-        '''
-
-    def getById(self, id):
-        '''
-        @see: IMetaTypeService.getById
-        '''
-        try:
-            return self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Id == id).one()
-        except NoResultFound:
-            raise InputError(Ref(_('Unknown meta type id'), ref=MetaTypeMapped.Id))
-
-    def getMetaTypes(self, offset=None, limit=None):
-        '''
-        @see: IMetaTypeService.getByKey
-        '''
-        return buildLimits(self.session().query(MetaTypeMapped), offset, limit).all()
+        '''Construct the service.'''
+        EntityGetServiceAlchemy.__init__(self, MetaTypeMapped)
+        EntityFindServiceAlchemy.__init__(self, MetaTypeMapped)

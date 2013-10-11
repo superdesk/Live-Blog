@@ -17,9 +17,9 @@ from inspect import isclass
 from ally.container.support import setup
 from urllib.parse import unquote, urljoin
 from urllib.error import URLError
-from ally.exception import InputError
 from ally.container import wire
 import re
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -35,9 +35,7 @@ class URLInfoService(IURLInfoService):
     Web page repairing: list of "from -> to" string pairs''')
 
     def __init__(self):
-        '''
-        Construct the URLInfoService service.
-        '''
+        '''Construct the URLInfoService service.'''
         assert isinstance(self.html_fixes, list), 'Invalid html_fixes config %s' % self.html_fixes
         super().__init__()
 
@@ -79,7 +77,7 @@ class URLInfoService(IURLInfoService):
                     decodedData = ''
                     try:
                         decodedData = readData.decode(charset, 'ignore')
-                    except Exception as e:
+                    except Exception:
                         decodedData = readData.decode('utf_8', 'ignore')
                     for onePair in self.html_fixes:
                         decodedData = re.sub(onePair['from'], onePair['to'], decodedData)
@@ -93,9 +91,7 @@ class URLInfoService(IURLInfoService):
 META, TITLE, LINK, IMG = 'meta', 'title', 'link', 'img'
 
 class HTMLInfoExtractor(HTMLParser):
-    '''
-    Extracts information for a given URL into the URLInfo entity.
-    '''
+    '''Extracts information for a given URL into the URLInfo entity.'''
     maxPictures = 10
     # the maximum number of pictures URLs to gather
 
@@ -156,9 +152,7 @@ class HTMLInfoExtractor(HTMLParser):
         return urljoin(base, relative)
 
     def _done(self):
-        '''
-        Return true if all the info was gathered.
-        '''
+        '''Return true if all the info was gathered.'''
         return self.urlInfo.Title and not isclass(self.urlInfo.Title) \
             and self.urlInfo.Description and not isclass(self.urlInfo.Description) \
             and self.urlInfo.SiteIcon and not isclass(self.urlInfo.SiteIcon) \

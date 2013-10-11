@@ -11,24 +11,23 @@ Contains the SQL alchemy meta for media meta info API.
 
 from ..api.meta_info import MetaInfo
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
-from superdesk.language.meta.language import LanguageEntity
 from .meta_data import MetaDataMapped
 from sqlalchemy.schema import UniqueConstraint
+from superdesk.language.meta.language import LanguageAvailable
+from sql_alchemy.support.util_meta import relationshipModel
 
 # --------------------------------------------------------------------
 
 class MetaInfoMapped(Base, MetaInfo):
-    '''
-    Provides the mapping for MetaData.
-    '''
+    '''Provides the mapping for MetaData.'''
     __tablename__ = 'archive_meta_info'
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True, key='Id')
-    MetaData = Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), nullable=False, key='MetaData')
-    Language = Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language')
+    MetaData = relationshipModel(MetaDataMapped.Id)
+    Language = relationshipModel(LanguageAvailable.id)
     Title = Column('title', String(255), nullable=True, key='Title')
     Keywords = Column('keywords', String(255), nullable=True, key='Keywords')
     Description = Column('description', String(255), nullable=True, key='Description')

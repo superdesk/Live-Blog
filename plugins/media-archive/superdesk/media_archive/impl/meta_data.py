@@ -18,14 +18,10 @@ from ally.cdm.spec import ICDM
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, getsize, abspath
-from sqlalchemy.exc import SQLAlchemyError
-from superdesk.language.meta.language import LanguageEntity
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
     thumbnailFormatFor
@@ -33,15 +29,15 @@ from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
-
+from superdesk.language.api.language import Language as LanguageEntity
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IMetaDataUploadService, name='metaDataService')
 class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService):
-    '''
-    Implementation for @see: IMetaDataService, @see: IMetaDataUploadService , and also provides services
+    '''Implementation for @see: IMetaDataService, @see: IMetaDataUploadService , and also provides services
     as the @see: IMetaDataReferencer
     '''
 
@@ -63,16 +59,13 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
 
     def __init__(self):
-        '''
-        Construct the meta data service.
-        '''
+        '''Construct the meta data service.'''
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
         assert isinstance(self.metaDataHandlers, list), 'Invalid reference handlers %s' % self.referenceHandlers
         assert isinstance(self.searchProvider, ISearchProvider), 'Invalid search provider %s' % self.searchProvider
-
 
         MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self, self.cdmArchive, self.thumbnailManager)
 
@@ -101,46 +94,43 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         metaData.Type = META_TYPE_KEY
         metaData.thumbnailFormatId = self.thumbnailFormatId()
 
-        try:
-            self.session().add(metaData)
-            self.session().flush((metaData,))
+        self.session().add(metaData)
+        self.session().flush((metaData,))
 
-            path = self.format_file_name % {'id': metaData.Id, 'name': metaData.Name}
-            path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaData.Id), '/', path))
-            contentPath = self.cdmArchive.getURI(path, 'file')
+        path = self.format_file_name % {'id': metaData.Id, 'name': metaData.Name}
+        path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaData.Id), '/', path))
+        contentPath = self.cdmArchive.getURI(path, 'file')
 
-            self.cdmArchive.publishContent(path, content)
-            metaData.content = path
-            metaData.SizeInBytes = getsize(contentPath)
+        self.cdmArchive.publishContent(path, content)
+        metaData.content = path
+        metaData.SizeInBytes = getsize(contentPath)
 
-            found = False
+        found = False
+        for handler in self.metaDataHandlers:
+            assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
+            if handler.processByInfo(metaData, contentPath, content.type):
+                metaInfo = handler.addMetaInfo(metaData, self.languageId)
+                found = True
+                break
+        else:
             for handler in self.metaDataHandlers:
-                assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
-                if handler.processByInfo(metaData, contentPath, content.type):
+                if handler.process(metaData, contentPath):
                     metaInfo = handler.addMetaInfo(metaData, self.languageId)
                     found = True
                     break
-            else:
-                for handler in self.metaDataHandlers:
-                    if handler.process(metaData, contentPath):
-                        metaInfo = handler.addMetaInfo(metaData, self.languageId)
-                        found = True
-                        break
 
-            if found:
-                self.session().merge(metaData)
-                self.session().flush((metaData,))
-            else:
-                metaInfo = MetaInfoMapped()
-                metaInfo.MetaData = metaData.Id
-                metaInfo.Language = self.languageId
+        if found:
+            self.session().merge(metaData)
+            self.session().flush((metaData,))
+        else:
+            metaInfo = MetaInfoMapped()
+            metaInfo.MetaData = metaData.Id
+            metaInfo.Language = self.languageId
 
-                self.session().add(metaInfo)
-                self.session().flush((metaData, metaInfo,))
+            self.session().add(metaInfo)
+            self.session().flush((metaData, metaInfo,))
 
-            self.searchProvider.update(metaInfo, metaData)
-
-        except SQLAlchemyError as e: handle(e, metaData)
+        self.searchProvider.update(metaInfo, metaData)
 
         if metaData.content != path:
             self.cdmArchive.republish(path, metaData.content)
@@ -151,25 +141,19 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     @app.populate
     def populateThumbnail(self):
-        '''
-        Populates the thumbnail for other resources.
-        '''
+        '''Populates the thumbnail for other resources.'''
         self.thumbnailManager.putThumbnail(self.thumbnailFormatId(),
                                            abspath(join(pythonPath(), 'resources', 'other.jpg')))
 
     # ----------------------------------------------------------------
 
     def metaTypeId(self):
-        '''
-        Provides the meta type id.
-        '''
+        '''Provides the meta type id.'''
         if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
         return self._metaTypeId
 
     def thumbnailFormatId(self):
-        '''
-        Provides the thumbnail format id.
-        '''
+        '''Provides the thumbnail format id.'''
         if not self._thumbnailFormatId: self._thumbnailFormatId = thumbnailFormatFor(self.session(), self.format_thumbnail).id
         return self._thumbnailFormatId
 

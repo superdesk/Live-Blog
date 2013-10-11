@@ -18,9 +18,7 @@ from superdesk.api.domain_superdesk import modelTool
 
 @modelTool(id='URL')
 class URLInfo:
-    '''
-    Provides the URL info model.
-    '''
+    '''Provides the URL info model.'''
     URL = Reference
     ContentType = str
     Title = str
@@ -37,14 +35,11 @@ class URLInfo:
 
 @service
 class IURLInfoService:
-    '''
-    Provides the service methods for URL info.
-    '''
+    '''Provides the service methods for URL info.'''
 
     @call
     def getURLInfo(self, url:str=None) -> URLInfo:
-        '''
-        Provides the info entity based on the URL.
+        '''Provides the info entity based on the URL.
 
         @param url: URLInfo.Reference
             The url for which to return information.

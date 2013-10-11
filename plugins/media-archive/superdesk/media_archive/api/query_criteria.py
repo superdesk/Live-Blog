@@ -18,9 +18,7 @@ from ally.api.criteria import AsLikeOrdered
 
 @modelArchive(id='Key')
 class QueryCriteria:
-    '''
-    Provides the info about the criteria of multi-plugin query.
-    '''
+    '''Provides the info about the criteria of multi-plugin query.'''
     Key = str
     Criteria = str
     Name = str
@@ -36,25 +34,18 @@ class QueryCriteria:
 
 @query(QueryCriteria)
 class QQueryCriteria:
-    '''
-    The query for query criteria model.
-    '''
+    '''The query for query criteria model.'''
     key = AsLikeOrdered
     criteria = AsLikeOrdered
     types = AsLikeOrdered
     name = AsLikeOrdered
 
-
 # --------------------------------------------------------------------
 
 @service
 class IQueryCriteriaService:
-    '''
-    Provides the service methods for the query criteria service.
-    '''
+    '''Provides the service methods for the query criteria service.'''
 
     @call
     def getCriterias(self, locales:List(Locale), q:QQueryCriteria=None) -> Iter(QueryCriteria):
-        '''
-        Provides the list of query criteria that respect the given query conditions.
-        '''
+        '''Provides the list of query criteria that respect the given query conditions.'''

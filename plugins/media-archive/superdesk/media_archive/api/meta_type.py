@@ -10,35 +10,21 @@ API specifications for meta type.
 '''
 
 from .domain_archive import modelArchive
-from ally.api.config import service, call
-from ally.api.type import Iter
+from ally.api.config import service
+from ally.api.option import SliceAndTotal # @UnusedImport
+from ally.support.api.entity_ided import IEntityFindService, IEntityGetService, \
+    Entity
 
 # --------------------------------------------------------------------
 
-@modelArchive(id='Id')
-class MetaType:
-    '''
-    Provides the meta types.
-    '''
-    Id = int # Provides the key that represents the meta type
+@modelArchive
+class MetaType(Entity):
+    '''Provides the meta types.'''
     Type = str
 
 # --------------------------------------------------------------------
 
-@service
-class IMetaTypeService:
-    '''
-    Provides the meta type services.
-    '''
+@service((Entity, MetaType))
+class IMetaTypeService(IEntityGetService, IEntityFindService):
+    '''Provides the meta type services.'''
 
-    @call
-    def getById(self, id:MetaType.Id) -> MetaType:
-        '''
-        Provides the meta type based on the id.
-        '''
-
-    @call
-    def getMetaTypes(self, offset:int=None, limit:int=None) -> Iter(MetaType):
-        '''
-        Provides the meta type's.
-        '''
