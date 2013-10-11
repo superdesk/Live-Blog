@@ -1,13 +1,12 @@
 define([
 	'jquery',
 	'utils/date-format',
-	'views/blog',
 	'utils/find-enviroment',
 	'plugins',
 	'jquery/xdomainrequest',
 	'i18n',
 	'css'
-], function($, dateFormat, BlogViewDef, findEnviroment, plugins){
+], function($, dateFormat, findEnviroment, plugins){
 		dateFormat.masks['post-date'] = _('mm/dd/yyyy HH:MM');
 		dateFormat.masks['status-date'] = _('HH:MM');
 		dateFormat.masks['closed-date'] = _('mm/dd/yyyy HH:MM');
@@ -18,8 +17,18 @@ define([
 		return function(blog){
 			$.each(plugins, function(key, value){
 				value(blog.get('EmbedConfig'));
-			})
-			var BlogView = BlogViewDef();
-			new BlogView({ el: liveblog.el, model: blog });
+      })
+      var BlogView;
+      if (liveblog.theme === 'live-dashboard'){
+        require(['views/live-dashboard-blog'], function(DashboardBlogViewDef){
+          BlogView = DashboardBlogViewDef();
+          new BlogView({ el: liveblog.el, model: blog });
+        });
+      } else {
+        require(['views/blog'], function(BlogViewDef){
+          BlogView = BlogViewDef();
+          new BlogView({ el: liveblog.el, model: blog });
+        });
+      }
 		}
 });
