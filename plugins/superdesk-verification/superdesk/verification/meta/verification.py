@@ -32,7 +32,7 @@ class PostVerificationMapped(Base, PostVerification):
     Status = association_proxy('status', 'Key')
     Checker = Column('fk_user_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=True)
     # None REST model attribute --------------------------------------
-    statusId = Column('fk_status_id', ForeignKey(VerificationStatusMapped.id, ondelete='RESTRICT'), nullable=True)
+    statusId = Column('fk_status_id', ForeignKey(VerificationStatusMapped.id, ondelete='RESTRICT'), nullable=False)
     status = relationship(VerificationStatusMapped, uselist=False, lazy='joined')
     #post = relationship(PostMapped, uselist=False, backref='verification', lazy='joined')
 
