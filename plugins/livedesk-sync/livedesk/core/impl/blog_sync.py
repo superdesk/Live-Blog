@@ -37,6 +37,8 @@ from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post
+from superdesk.verification.api.verification import PostVerification,\
+    IPostVerificationService
 
 # --------------------------------------------------------------------
 
@@ -59,6 +61,9 @@ class BlogSyncProcess:
 
     blogPostService = IBlogPostService; wire.entity('blogPostService')
     # blog post service used to insert blog posts
+    
+    postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
+    # post verification service used to insert post berification
 
     collaboratorService = ICollaboratorService; wire.entity('collaboratorService')
     # blog post service used to retrive collaborator
@@ -189,6 +194,12 @@ class BlogSyncProcess:
                 self.blogPostService.insert(blogSync.Blog, lPost)
                 # update blog sync entry
                 self.blogSyncService.update(blogSync)
+                
+                #create PostVerification
+                postVerification = PostVerification()
+                postVerification.Id = lPost.Id
+                self.postVerificationService.insert(postVerification)
+                
             except KeyError as e:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
             except Exception as e:
