@@ -10,10 +10,15 @@ define([
     var self = this;
 
     self.sliderConfig = {
-      hideControlOnEnd: true,
-      infiniteLoop: false,
-      //easing: 'ease-out',
-      //adaptativeHeight: true,
+      fullSize: {
+        hideControlOnEnd: true,
+        infiniteLoop: false
+      },
+      text: {
+        pager: false,
+        hideControlOnEnd: true,
+        infiniteLoop: false
+      },
     };
     self.sliders = {
       fullSize: null,
@@ -28,7 +33,7 @@ define([
 		$.dispatcher.on('posts-view.rendered', function(){
       $(function(){
         for (slider in self.sliders){
-          self.sliders[slider] = $('[data-gimme="' + slider + '.posts.slider"]').bxSlider(self.sliderConfig);
+          self.sliders[slider] = $('[data-gimme="' + slider + '.posts.slider"]').bxSlider(self.sliderConfig[slider]);
           self.sliders[slider].goToSlide(self.sliders[slider].getSlideCount() - 1);
         }
       });
