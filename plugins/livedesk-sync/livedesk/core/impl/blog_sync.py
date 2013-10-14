@@ -265,7 +265,7 @@ class BlogSyncProcess:
                 if not metaDataIconURL:
                     continue
 
-                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser'})
                 try:
                     resp = urlopen(req)
                 except (HTTPError, socket.error) as e:
