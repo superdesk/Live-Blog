@@ -55,7 +55,9 @@ class ChainedIconContent(Content):
         @see: Content.read
         '''
         if not self._response:
-            try: self._response = urlopen(self._url)
+            try: 
+                req = Request(self._url, headers={'User-Agent' : 'Magic Browser'})
+                self._response = urlopen(req)
             except (HTTPError, socket.error) as e:
                 log.error('Can not read icon image data %s' % e)
                 raise InputError(Ref(_('Can not open icon URL'),))
