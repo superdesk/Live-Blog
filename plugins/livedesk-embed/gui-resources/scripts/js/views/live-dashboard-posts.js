@@ -40,7 +40,7 @@ define([
               }
               break;
             case 'twitter':
-              if (meta.entities.urls.length === 0){
+              if (!meta.entities.media){
                 return true;
               }
               break;
