@@ -1,4 +1,4 @@
-tests for liveblog
+superdesk install instuctions
 ==============
 
 ####if u don't trust us:
