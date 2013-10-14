@@ -16,7 +16,7 @@ define([
         function(){
           self.el.find('.post-core-content').remove();
         },
-        { cards: 'all' }
+        { align: 'center', conversation: 'none', cards: 'all' }
       );
 		});
 	}
