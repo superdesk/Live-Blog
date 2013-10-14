@@ -28,7 +28,7 @@ and next follow python building instructions below
 ```sh
 $ cd /tmp
 $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
-$ tar jxf ./Python-3.2.tgz
+$ tar xf ./Python-3.2.tgz
 $ cd ./Python-3.2
 $ ./configure --prefix=/opt/superdesk/python32
 $ make && sudo make install
