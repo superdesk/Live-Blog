@@ -185,10 +185,10 @@
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >Verified <b class="caret"></b></a>
 			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
 				<h5 class="dropdown-title">Change status</h5>
-				<li><span class="label-assigned"></span>Assigned</li>
-				<li><span class="label-verified"></span>Verified</li>
-				<li><span class="label-unverified"></span>Unverified</li>
-				<li><span class="label-onverification"></span>On verification</li>
+				<li data-status-key="assigned"><span class="label-assigned"></span>Assigned</li>
+				<li data-status-key="verified"><span class="label-verified"></span>Verified</li>
+				<li data-status-key="unverified"><span class="label-unverified"></span>Unverified</li>
+				<li data-status-key="assigned"><span class="label-onverification"></span>On verification</li>
 			</ul>
 		</div>
 		<div class="verification-assign">
