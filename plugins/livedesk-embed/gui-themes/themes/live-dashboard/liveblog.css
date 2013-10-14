@@ -559,6 +559,9 @@ li .post-core-content .post-text span img {
 }
 .google .attributes .source-icon {
   background: #ffffff url(img/google-16px.png) no-repeat 0 0;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
 .instagram .attributes .source-icon {
   background: #ffffff url(img/instagram-16px.png) no-repeat 0 0;
@@ -568,7 +571,13 @@ li .post-core-content .post-text span img {
 }
 .youtube .attributes .source-icon {
   background: #ffffff url(img/youtube-16px.png) no-repeat 0 0;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
 }
 .soundcloud .attributes .source-icon {
   background: #ffffff url(img/soundcloud-16px.png) no-repeat 0 0;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
