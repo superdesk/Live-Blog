@@ -4,6 +4,7 @@ define(['gizmo/superdesk',
 ], function(Gizmo) {
 
 		return Gizmo.Collection.extend({
+			url: new Gizmo.Url('Data/PostVerification'),
 			model: Gizmo.Register.Status
 		}, { register: 'Statuses' } );
 });

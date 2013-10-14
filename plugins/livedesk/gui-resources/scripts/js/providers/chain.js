@@ -21,18 +21,32 @@
 	'tmpl!livedesk>providers/chain/blog-link',
 	'tmpl!livedesk>providers/chain/blog-content',
 	'tmpl!livedesk>providers/chain/timeline',
+	'tmpl!livedesk>citizen-desk/statuses-list',
 ], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
 
     var autoSources = new SyncCollection();
     var StatusesView = Gizmo.View.extend({
     	init: function(){
-			if(!self.collection) {
-				//http://localhost:8080/resources/Data/PostVerification/
-				self.collection = Gizmo.Auth(new Gizmo.Register.Statuses());
-			}    		
+			var self = this;
+			// if(!self.collection) {
+			// 	self.collection = Gizmo.Auth(new Gizmo.Register.Statuses());
+			// }
+			// self.collection
+			// 	.on('read', self.render, self)
+			// 	.xfilter('EMail,FirstName,LastName,FullName,Name')
+			// 	.sync()
+			self.data = [
+				{ "Key": "assigned", "Name": "Assigned"},
+				{ "Key": "verified", "Name": "Verified"},
+				{ "Key": "unverified", "Name": "Unverified"},
+				{ "Key": "onverification", "Name": "On verification"}
+			];
+			self.render();
     	},
     	render: function(){
-
+    		var self = this;
+    		//self.data = self.collection.feed();
+    		self.el.tmpl('livedesk>citizen-desk/statuses-list', self.data);
     	}
     });
     var UserSearch = Gizmo.View.extend({
@@ -54,7 +68,14 @@
     	}),
     	ChainPostView = PostView.extend({
     		events: {
-    			'': { afterRender: 'addDraggable'}
+    			'': { afterRender: 'addDraggable'},
+    			'[data-status-key]': { click: 'changeStatus'}
+    		},
+    		changeStatus: function(evt){
+    			var self = this,
+    				status = $(evt.target).closest( "li" ).attr('data-status-key');
+
+    			console.log(el);
     		},
     		addDraggable: function(){
 				var self = this, obj;
