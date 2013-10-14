@@ -26,12 +26,12 @@ define([
     };
 
     self.createSlider = function(slider){
-      self.sliders[slider] = $('[data-gimme="' + slider + '.posts.slider"]').bxSlider(self.sliderConfig);
+      self.sliders[slider] = $('[data-gimme="' + slider + '.posts.slider"]').bxSlider(self.sliderConfig[slider]);
       self.sliders[slider].goToSlide(self.sliders[slider].getSlideCount() - 1);
     },
 
     self.reloadSlider = function(slider){
-      slider.reloadSlider(self.sliderConfig);
+      slider.reloadSlider();
       slider.goToSlide(slider.getSlideCount() - 1);
     };
 
