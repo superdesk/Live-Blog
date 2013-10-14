@@ -361,7 +361,7 @@ html.demo body .container #livedesk-root {
   position: absolute;
   bottom: 0px;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -372,7 +372,7 @@ html.demo body .container #livedesk-root {
 #livedesk-root .twitter .post-content-main .comment-after {
   position: absolute;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -444,7 +444,7 @@ html.demo body .container #livedesk-root {
   position: absolute;
   bottom: 0px;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -485,7 +485,7 @@ html.demo body .container #livedesk-root {
 #livedesk-root .youtube .comment-after {
   position: absolute;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -522,13 +522,13 @@ html.demo body .container #livedesk-root {
   box-sizing: border-box;
   text-shadow: 1px 1px 1px #111111;
   z-index: 1000;
-  background: rgba(50, 50, 50, 0.9);
+  background: rgba(50, 50, 50, 0.3);
 }
 #livedesk-root .instagram .comment-before,
 #livedesk-root .instagram .comment-after {
   position: absolute;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -559,7 +559,7 @@ html.demo body .container #livedesk-root {
 #livedesk-root .soundcloud .comment-after {
   position: absolute;
   padding: 7px 10px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.3);
   text-shadow: 1px 1px 1px #111111;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
