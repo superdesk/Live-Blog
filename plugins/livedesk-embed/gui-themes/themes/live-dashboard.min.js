@@ -4,7 +4,8 @@ define([
 	'css!theme/liveblog',
   'css!theme/jquery.bxslider',
   'tmpl!theme/container',
-  'tmpl!theme/item/base'
+  'tmpl!theme/item/base',
+  'tmpl!theme/item/source/youtube'
 ], function(){
 	return {
 		//enviroments: [ 'mobile', 'desktop', 'quirks' ],
