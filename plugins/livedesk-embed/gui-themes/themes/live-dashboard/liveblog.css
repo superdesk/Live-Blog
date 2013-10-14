@@ -1,4 +1,7 @@
+/** Change this part to fit client requests **/
 /* font and colors */
+/* size */
+/** End of client customization part **/
 /*positioning classes*/
 .padded {
   padding: 20px;
@@ -45,70 +48,105 @@
 .lbclearfix:after {
   clear: both;
 }
-/*global styles*/
-body,
-html {
+/*global styles for demo site*/
+html.demo,
+html.demo body {
   margin: 0;
   padding: 0;
   height: 100%!important;
 }
-body {
+html.demo body {
   background: #222222;
   color: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   line-height: normal;
 }
-a {
+html.demo body .container {
+  width: 100%;
+  height: 100%!important;
+}
+html.demo body .container #livedesk-root {
+  height: 100%!important;
+}
+#livedesk-root {
+  height: 964px;
+  width: 100%;
+  /*GENERAL SLIDER STYLING*/
+
+  /*GENERAL POST STYLING*/
+
+  /*image posts*/
+
+  /*only text posts*/
+
+  /* CUSTOM POSTS */
+
+  /*flickr*/
+
+  /*twitter text*/
+
+  /* normal text */
+
+  /* links */
+
+  /* image not found @FIX THIS - TO-DO */
+
+  /* quotes */
+
+  /* google with different targets */
+
+  /* google results for images */
+
+  /* google results for text*/
+
+  /* youtube */
+
+  /* instagram */
+
+  /* soundcloud */
+
+}
+#livedesk-root .liveblog-container {
+  height: 100%!important;
+}
+#livedesk-root .liveblog-container .liveblog-content {
+  height: 100%!important;
+  position: relative;
+}
+#livedesk-root a {
   color: #777777;
   text-decoration: none;
 }
-a:hover {
+#livedesk-root a:hover {
   color: #dddddd;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-ul {
+#livedesk-root h1,
+#livedesk-root h2,
+#livedesk-root h3,
+#livedesk-root h4,
+#livedesk-root h5,
+#livedesk-root h6,
+#livedesk-root p,
+#livedesk-root ul {
   padding: 0;
   margin: 0;
   list-style-type: none;
   float: none;
 }
-figure,
-img {
+#livedesk-root figure,
+#livedesk-root img {
   margin: 0;
   padding: 0;
   float: none;
   border: 0;
 }
-.post-buttons {
+#livedesk-root .post-buttons {
   display: none;
   /*hiding share buttons*/
 
 }
-/*livedesk containers*/
-.container {
-  width: 100%;
-  height: 100%!important;
-}
-.container #livedesk-root {
-  height: 100%!important;
-  width: 100%;
-}
-.container #livedesk-root .liveblog-container {
-  height: 100%!important;
-}
-.container #livedesk-root .liveblog-container .liveblog-content {
-  height: 100%!important;
-  position: relative;
-}
-/*GENERAL SLIDER STYLING*/
-.liveblog-post-sliders {
+#livedesk-root .liveblog-post-sliders {
   height: 100%!important;
   background: #222222;
   /*fixing safari's weird line*/
@@ -120,19 +158,19 @@ img {
   /*text and generic slider*/
 
 }
-.liveblog-post-sliders .bx-wrapper:first-child {
+#livedesk-root .liveblog-post-sliders .bx-wrapper:first-child {
   height: 70%;
   overflow: auto;
   border-bottom: 1px solid #333333;
   /* separator */
 
 }
-.liveblog-post-sliders .bx-wrapper:last-child {
+#livedesk-root .liveblog-post-sliders .bx-wrapper:last-child {
   border-top: 1px solid #111111;
   /* separator */
 
 }
-.liveblog-post-sliders .bx-wrapper {
+#livedesk-root .liveblog-post-sliders .bx-wrapper {
   height: 30%;
   overflow: auto;
   margin: 0;
@@ -142,7 +180,7 @@ img {
   /*pager numbers*/
 
 }
-.liveblog-post-sliders .bx-wrapper .bx-viewport {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-viewport {
   height: 100%!important;
   background: #222222;
   /* overriding original bx-styles*/
@@ -151,10 +189,10 @@ img {
   box-shadow: none;
   left: auto;
 }
-.liveblog-post-sliders .bx-wrapper .bx-controls-direction {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-controls-direction {
   opacity: .65;
 }
-.liveblog-post-sliders .bx-wrapper .bx-pager {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-pager {
   padding: 6px 0;
   position: absolute;
   bottom: 0px;
@@ -162,14 +200,14 @@ img {
   box-shadow: 1px 1px 9px #222;
   z-index: 1000;
 }
-.liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item {
   height: 18px;
   width: 23px;
   text-align: center;
   background: #222;
   font-size: 15px;
 }
-.liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item .bx-pager-link {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item .bx-pager-link {
   min-height: 18px;
   min-width: 23px;
   margin: 0;
@@ -177,17 +215,16 @@ img {
   text-indent: 0;
   color: #666;
 }
-.liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item .bx-pager-link.active {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-pager .bx-pager-item .bx-pager-link.active {
   color: #999;
 }
-.liveblog-post-sliders .bx-wrapper .bx-loading {
+#livedesk-root .liveblog-post-sliders .bx-wrapper .bx-loading {
   background-color: #222222;
 }
-/*GENERAL POST STYLING*/
-.liveblog-postlist li {
+#livedesk-root .liveblog-postlist li {
   height: 100%!important;
 }
-.liveblog-postlist li .post-header {
+#livedesk-root .liveblog-postlist li .post-header {
   position: absolute;
   min-height: 30px;
   -webkit-box-sizing: border-box;
@@ -197,7 +234,7 @@ img {
   width: 100%;
   padding: 10px 20px;
 }
-.liveblog-postlist li .post-header .post-publisher-avatar {
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-avatar {
   width: 30px;
   max-width: 30px;
   min-height: 30px;
@@ -210,21 +247,21 @@ img {
   margin-right: 10px;
   zoom: 1;
 }
-.liveblog-postlist li .post-header .post-publisher-avatar:before,
-.liveblog-postlist li .post-header .post-publisher-avatar:after {
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-avatar:before,
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-avatar:after {
   content: "\0020";
   display: block;
   height: 0;
   visibility: hidden;
 }
-.liveblog-postlist li .post-header .post-publisher-avatar:after {
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-avatar:after {
   clear: both;
 }
-.liveblog-postlist li .post-header .post-publisher-avatar img {
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-avatar img {
   width: 30px;
   max-width: 30px;
 }
-.liveblog-postlist li .post-header .post-publisher-name {
+#livedesk-root .liveblog-postlist li .post-header .post-publisher-name {
   font-size: 16px;
   font-weight: 300;
   display: inline-block;
@@ -232,7 +269,7 @@ img {
   line-height: 30px;
   color: #ffffff;
 }
-.liveblog-postlist li .post-header .post-datetime {
+#livedesk-root .liveblog-postlist li .post-header .post-datetime {
   font-weight: bold;
   color: #777777;
   display: block;
@@ -241,17 +278,17 @@ img {
   height: 30px;
   line-height: 30px;
 }
-.liveblog-postlist li .post-header .post-datetime:before,
-.liveblog-postlist li .post-header .post-datetime:after {
+#livedesk-root .liveblog-postlist li .post-header .post-datetime:before,
+#livedesk-root .liveblog-postlist li .post-header .post-datetime:after {
   content: "\0020";
   display: block;
   height: 0;
   visibility: hidden;
 }
-.liveblog-postlist li .post-header .post-datetime:after {
+#livedesk-root .liveblog-postlist li .post-header .post-datetime:after {
   clear: both;
 }
-.liveblog-postlist li .post-content {
+#livedesk-root .liveblog-postlist li .post-content {
   padding: 60px 20px;
   display: block;
   height: 100%;
@@ -259,25 +296,25 @@ img {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.liveblog-postlist li .post-content .post-content-main {
+#livedesk-root .liveblog-postlist li .post-content .post-content-main {
   height: 100%!important;
   position: relative;
 }
-.liveblog-postlist li .post-content .post-content-main .post-content-full {
+#livedesk-root .liveblog-postlist li .post-content .post-content-main .post-content-full {
   width: 100%;
   height: auto;
   height: 100%!important;
   position: relative;
 }
-.liveblog-postlist li .post-content .post-content-main .post-content-full .post-core-content {
+#livedesk-root .liveblog-postlist li .post-content .post-content-main .post-content-full .post-core-content {
   height: 100%!important;
 }
-.liveblog-postlist li .post-content .post-content-main .post-content-full .post-core-content .post-external {
+#livedesk-root .liveblog-postlist li .post-content .post-content-main .post-content-full .post-core-content .post-external {
   width: 100%;
   margin: 0 auto;
   height: 100%!important;
 }
-.attributes {
+#livedesk-root .attributes {
   position: absolute;
   text-align: center;
   width: 100%;
@@ -287,34 +324,30 @@ img {
   padding: 7px 0;
   background: rgba(0, 0, 0, 0.2);
 }
-.attributes .source-icon {
+#livedesk-root .attributes .source-icon {
   width: 16px;
   height: 16px;
   display: inline-block;
   margin-right: 4px;
   vertical-align: top;
 }
-/*image posts*/
-.fullsize-posts {
+#livedesk-root .fullsize-posts {
   height: 100%!important;
 }
-/*only text posts*/
-.text-posts {
+#livedesk-root .text-posts {
   height: 100%!important;
 }
-.text-posts .attributes {
+#livedesk-root .text-posts .attributes {
   display: none;
 }
-.text-posts .post-content {
+#livedesk-root .text-posts .post-content {
   padding-bottom: 20px!important;
   padding-top: 50px!important;
 }
-/* CUSTOM POSTS */
-/*flickr*/
-.flickr .post-core-content .post-external .post-external-image {
+#livedesk-root .flickr .post-core-content .post-external .post-external-image {
   height: 100%!important;
 }
-.flickr .post-core-content .post-external .post-external-image .post-external-image-img {
+#livedesk-root .flickr .post-core-content .post-external .post-external-image .post-external-image-img {
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -324,7 +357,7 @@ img {
   max-height: 100%!important;
   max-width: 100%!important;
 }
-.flickr .comment-after {
+#livedesk-root .flickr .comment-after {
   position: absolute;
   bottom: 0px;
   padding: 7px 10px;
@@ -335,9 +368,8 @@ img {
   box-sizing: border-box;
   width: 100%;
 }
-/*twitter text*/
-.twitter .post-content-main .comment-before,
-.twitter .post-content-main .comment-after {
+#livedesk-root .twitter .post-content-main .comment-before,
+#livedesk-root .twitter .post-content-main .comment-after {
   position: absolute;
   padding: 7px 10px;
   background: rgba(30, 30, 30, 0.8);
@@ -348,13 +380,13 @@ img {
   width: 100%;
   z-index: 1000;
 }
-.twitter .post-content-main .comment-before {
+#livedesk-root .twitter .post-content-main .comment-before {
   top: 0;
 }
-.twitter .post-content-main .comment-after {
+#livedesk-root .twitter .post-content-main .comment-after {
   bottom: 0;
 }
-.twitter .post-content-main iframe {
+#livedesk-root .twitter .post-content-main iframe {
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -369,23 +401,20 @@ img {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* normal text */
-.normal .post-core-content .post-text,
-.wrapup .post-core-content .post-text {
+#livedesk-root .normal .post-core-content .post-text,
+#livedesk-root .wrapup .post-core-content .post-text {
   padding: 20px 40px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* links */
-.link .post-core-content .link-preview {
+#livedesk-root .link .post-core-content .link-preview {
   padding: 20px 40px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* image not found @FIX THIS - TO-DO */
-li .post-core-content .post-text span img {
+#livedesk-root li .post-core-content .post-text span img {
   max-height: 100%!important;
   max-width: 100%!important;
   height: 100%!important;
@@ -396,25 +425,22 @@ li .post-core-content .post-text span img {
   left: 0;
   margin: auto!important;
 }
-/* quotes */
-.quote .post-core-content {
+#livedesk-root .quote .post-core-content {
   background: url(img/quotes.png) no-repeat 40px 10px;
 }
-.quote .post-core-content .post-text {
+#livedesk-root .quote .post-core-content .post-text {
   padding: 20px 40px 20px 90px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* google with different targets */
-/* google results for images */
-.fullsize-posts .google .post-core-content .post-external {
+#livedesk-root .fullsize-posts .google .post-core-content .post-external {
   text-align: center;
 }
-.fullsize-posts .google .post-core-content .post-external .post-external-image-link .post-external-image .post-external-image-img {
+#livedesk-root .fullsize-posts .google .post-core-content .post-external .post-external-image-link .post-external-image .post-external-image-img {
   margin: 0 auto!important;
 }
-.fullsize-posts .google .comment-after {
+#livedesk-root .fullsize-posts .google .comment-after {
   position: absolute;
   bottom: 0px;
   padding: 7px 10px;
@@ -425,17 +451,16 @@ li .post-core-content .post-text span img {
   box-sizing: border-box;
   width: 100%;
 }
-/* google results for text*/
-.text-posts .google .post-core-content .post-external {
+#livedesk-root .text-posts .google .post-core-content .post-external {
   padding: 20px 40px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.text-posts .google .post-core-content .post-external .post-external-image .post-external-image-img {
+#livedesk-root .text-posts .google .post-core-content .post-external .post-external-image .post-external-image-img {
   margin: 0 auto;
 }
-.text-posts .google .comment-after {
+#livedesk-root .text-posts .google .comment-after {
   padding: 0px 40px;
   background: #222222;
   position: absolute;
@@ -446,8 +471,7 @@ li .post-core-content .post-text span img {
   width: 100%;
   z-index: 1000;
 }
-/* youtube */
-.youtube .post-core-content iframe {
+#livedesk-root .youtube .post-core-content iframe {
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -457,8 +481,8 @@ li .post-core-content .post-text span img {
   max-height: 100%!important;
   max-width: 100%!important;
 }
-.youtube .comment-before,
-.youtube .comment-after {
+#livedesk-root .youtube .comment-before,
+#livedesk-root .youtube .comment-after {
   position: absolute;
   padding: 7px 10px;
   background: rgba(30, 30, 30, 0.8);
@@ -469,14 +493,13 @@ li .post-core-content .post-text span img {
   width: 100%;
   z-index: 1000;
 }
-.youtube .comment-before {
+#livedesk-root .youtube .comment-before {
   top: 0;
 }
-.youtube .comment-after {
+#livedesk-root .youtube .comment-after {
   bottom: 0;
 }
-/* instagram */
-.instagram .post-core-content img {
+#livedesk-root .instagram .post-core-content img {
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -487,7 +510,7 @@ li .post-core-content .post-text span img {
   max-width: 100%!important;
   height: auto!important;
 }
-.instagram .post-core-content .post-text {
+#livedesk-root .instagram .post-core-content .post-text {
   position: absolute;
   padding: 7px 10px;
   bottom: 31px;
@@ -501,8 +524,8 @@ li .post-core-content .post-text span img {
   z-index: 1000;
   background: rgba(50, 50, 50, 0.9);
 }
-.instagram .comment-before,
-.instagram .comment-after {
+#livedesk-root .instagram .comment-before,
+#livedesk-root .instagram .comment-after {
   position: absolute;
   padding: 7px 10px;
   background: rgba(30, 30, 30, 0.8);
@@ -513,14 +536,13 @@ li .post-core-content .post-text span img {
   width: 100%;
   z-index: 1000;
 }
-.instagram .comment-before {
+#livedesk-root .instagram .comment-before {
   top: 0;
 }
-.instagram .comment-after {
+#livedesk-root .instagram .comment-after {
   bottom: 0;
 }
-/* soundcloud */
-.soundcloud .post-core-content iframe {
+#livedesk-root .soundcloud .post-core-content iframe {
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -533,8 +555,8 @@ li .post-core-content .post-text span img {
   box-sizing: border-box;
   padding: 0 40px;
 }
-.soundcloud .comment-before,
-.soundcloud .comment-after {
+#livedesk-root .soundcloud .comment-before,
+#livedesk-root .soundcloud .comment-after {
   position: absolute;
   padding: 7px 10px;
   background: rgba(30, 30, 30, 0.8);
@@ -545,37 +567,37 @@ li .post-core-content .post-text span img {
   width: 100%;
   z-index: 1000;
 }
-.soundcloud .comment-before {
+#livedesk-root .soundcloud .comment-before {
   top: 0;
 }
-.soundcloud .comment-after {
+#livedesk-root .soundcloud .comment-after {
   bottom: 0;
 }
-.twitter .attributes .source-icon {
+#livedesk-root .twitter .attributes .source-icon {
   background: #ffffff url(img/twitter-16px.png) no-repeat 0 0;
 }
-.facebook .attributes .source-icon {
+#livedesk-root .facebook .attributes .source-icon {
   background: #ffffff url(img/facebook-16px.png) no-repeat 0 0;
 }
-.google .attributes .source-icon {
+#livedesk-root .google .attributes .source-icon {
   background: #ffffff url(img/google-16px.png) no-repeat 0 0;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
 }
-.instagram .attributes .source-icon {
+#livedesk-root .instagram .attributes .source-icon {
   background: #ffffff url(img/instagram-16px.png) no-repeat 0 0;
 }
-.flickr .attributes .source-icon {
+#livedesk-root .flickr .attributes .source-icon {
   background: #ffffff url(img/flickr-16px.png) no-repeat 0 0;
 }
-.youtube .attributes .source-icon {
+#livedesk-root .youtube .attributes .source-icon {
   background: #ffffff url(img/youtube-16px.png) no-repeat 0 0;
   border-radius: 4px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
 }
-.soundcloud .attributes .source-icon {
+#livedesk-root .soundcloud .attributes .source-icon {
   background: #ffffff url(img/soundcloud-16px.png) no-repeat 0 0;
   border-radius: 2px;
   -moz-border-radius: 2px;
