@@ -13,7 +13,6 @@ from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.util_sys import pythonPath
-from ally.internationalization import _
 from os import remove
 from os.path import exists, splitext, abspath, join
 from sqlalchemy.exc import SQLAlchemyError
@@ -166,7 +165,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         Provides the meta type id.
         '''
-        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).id
         return self._metaTypeId
     
     def defaultThumbnailFormatId(self):

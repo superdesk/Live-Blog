@@ -152,7 +152,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         Provides the meta type id.
         '''
-        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).id
         return self._metaTypeId
 
     def defaultThumbnailFormatId(self):

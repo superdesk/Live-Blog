@@ -28,8 +28,8 @@ from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
-from superdesk.language.api.language import Language
 from ally.api.error import InputError
+from superdesk.language.meta.language import LanguageAvailable
 
 # --------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         if not content.name: raise InputError(_('No name specified for content'))
 
         if self.languageId is None:
-            self.languageId = self.session().query(Language).filter(Language.Code == self.default_media_language).one().Id
+            self.languageId = self.session().query(LanguageAvailable).filter(LanguageAvailable.code == self.default_media_language).one().id
 
         metaData = MetaDataMapped()
         metaData.Creator = userId
@@ -145,7 +145,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     def metaTypeId(self):
         '''Provides the meta type id.'''
-        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        if self._metaTypeId is None: self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).id
         return self._metaTypeId
 
     def thumbnailFormatId(self):
