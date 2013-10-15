@@ -3,7 +3,12 @@ superdesk install instuctions
 
 + [prerequisites](#prerequisites)
   - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
-  - [redhat/centos/sles]()
+  - [redhat/centos/sles](#redhatcentossles)
+  - [arch/manjaro](#archlinux-or-manjaro)
+  - [building python 3.2](#building-python-32)
++ [installing](#installing)
++ [configuration](#configuration)
++ [running](#running)
 
 ####if u don't trust us:
 ```sh
