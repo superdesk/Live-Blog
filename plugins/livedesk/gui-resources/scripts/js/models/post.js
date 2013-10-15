@@ -69,6 +69,18 @@ function(Gizmo, Person)
 					self.Class.triggerHandler('unpublish', self);
 				});
 			return ret;
+		},
+		changeStatus: function(status)
+		{
+			//http://localhost:8080/resources/Data/PostVerification/12
+			//http://localhost:8080/resources/LiveDesk/Blog/Post/16/unverified
+			var self = this,
+				verificationHref = this.href.replace(/LiveDesk\/Blog\/Post\/(\d+)/,'Data/PostVerification/$1'),
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(verificationHref).update({ "Status": status },{headers: { 'X-Filter': ''}}).done(function(){
+					self.Class.triggerHandler('change-status', self);
+				});
+			return ret;
 		}
 	}, { register: 'Post' } );
 });
