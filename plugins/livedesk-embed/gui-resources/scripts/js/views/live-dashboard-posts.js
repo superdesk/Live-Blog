@@ -28,6 +28,12 @@ define([
 			},
 			pendingAutoupdates: [],
 
+      // List of domains that display a big image in tweet card
+      ImageTweetsUrlDomains: [
+        "flic.kr",
+        "twitpic.com"
+      ],
+
       isPostTextLike: function(model){
         var type = model.get('Type').Key;
         if(model.isExternalSource()){
@@ -40,7 +46,19 @@ define([
               }
               break;
             case 'twitter':
-              if (!meta.entities.media){
+              var picture = meta.entities.media;
+              if (!picture){
+                var urls = meta.entities.urls;
+                for (i = 0; i < urls.length; i ++){
+                  var url = urls[i].expanded_url;
+                  for (j = 0; j < this.ImageTweetsUrlDomains.length; j++){
+                    if (url && url.indexOf(this.ImageTweetsUrlDomains[j]) != -1){
+                      picture = true;
+                    }
+                  }
+                }
+              }
+              if (!picture){
                 return true;
               }
               break;
