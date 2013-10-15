@@ -94,6 +94,8 @@ def createSourceTypes():
 @app.populate
 def createLiveBlogUserTypes():
     createUserType('commentator')
+    createUserType('sms')
+    createUserType('chained blog')
 
 def createBlogMediaType(key):
     creator = alchemySessionCreator()

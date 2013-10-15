@@ -79,7 +79,7 @@ class URLInfoService(IURLInfoService):
                     decodedData = ''
                     try:
                         decodedData = readData.decode(charset, 'ignore')
-                    except Exception as e:
+                    except Exception:
                         decodedData = readData.decode('utf_8', 'ignore')
                     for onePair in self.html_fixes:
                         decodedData = re.sub(onePair['from'], onePair['to'], decodedData)

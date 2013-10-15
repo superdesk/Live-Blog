@@ -183,5 +183,5 @@ def updateCollaboratorSpecification():
 
 @ioc.before(captcha)
 def updateCaptchaForComments():
-   captcha().add(ref(IBlogCommentService).addComment)
+    captcha().add(ref(IBlogCommentService).addComment)
 

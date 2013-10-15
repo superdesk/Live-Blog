@@ -9,8 +9,7 @@ Created on April 24, 2013
 API specifications for frontline inlet.
 '''
 
-from ally.api.config import service, call, query, GET
-from ally.api.criteria import AsLikeOrdered
+from ally.api.config import service, call, GET
 from ally.api.type import Iter
 from ally.support.api.keyed import Entity
 from frontline.api.domain_sms import modelSMS
