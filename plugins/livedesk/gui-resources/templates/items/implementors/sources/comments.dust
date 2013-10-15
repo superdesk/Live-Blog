@@ -1,8 +1,13 @@
 {>"livedesk>items/base"/}
 {<FastActions}{/FastActions}
 {<ImportantActions}{/ImportantActions}
-{<AdditionalAttributes} data-id="{Meta.Id}"{/AdditionalAttributes}
+{<AdditionalAttributes} data-id="{Meta.Id}" {?Meta.DeletedOn}data-hidden="true"{:else}data-hidden="false"{/Meta.DeletedOn}{/AdditionalAttributes}
 {<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
+{<ExtraPostInfo}
+<div class="tool-box-right">
+	{?Meta.DeletedOn}<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">Unhide</a>{:else}<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">Hide</a>{/Meta.DeletedOn}
+</div>
+{/ExtraPostInfo}
 {<Container}{/Container}
 {<EditableClass}{/EditableClass}
 {<EditableAttribute}{/EditableAttribute}
