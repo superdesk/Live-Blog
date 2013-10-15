@@ -36,7 +36,7 @@
 			// 	.xfilter('EMail,FirstName,LastName,FullName,Name')
 			// 	.sync()
 			self.data = [
-				{ "Key": "assigned", "Name": "Assigned"},
+				{ "Key": "nostatus", "Name": "No status"},
 				{ "Key": "verified", "Name": "Verified"},
 				{ "Key": "unverified", "Name": "Unverified"},
 				{ "Key": "onverification", "Name": "On verification"}
@@ -74,12 +74,12 @@
     		changeStatus: function(evt){
     			var self = this,
     				status = $(evt.target).closest( "li" ).attr('data-status-key');
-
-    			console.log(el);
+    			self.model.changeStatus(status);
     		},
     		addDraggable: function(){
 				var self = this, obj;
 				self.el.draggable({
+					handle: '.drag-bar',
 					scroll: true,
 					addClasses: false,
 					revert: 'invalid',
@@ -100,7 +100,7 @@
 			headers: {
                 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
-					'Meta, IsPublished, Creator.FullName'
+					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key'
             },
 
 			init: function(){

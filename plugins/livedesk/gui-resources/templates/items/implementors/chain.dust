@@ -1,5 +1,5 @@
 {>"livedesk>items/base"/}
-{<ImplementorClass}post-draggable{/ImplementorClass}
+{<ImplementorClass}post-draggable post-{PostVerification.Status.Key}{/ImplementorClass}
 {<AdditionalAttributes} data-post-id="{Id}" data-colab-id="{Creator.Id}" {/AdditionalAttributes}
 {<FastActions}{/FastActions}
 {<ImportantActionsPublish}{/ImportantActionsPublish}
