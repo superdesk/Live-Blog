@@ -1,6 +1,10 @@
 superdesk install instuctions
 ==============
 
+- [prerequisites](#prerequisites)
+-- [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
+-- [redhat/centos/sles]()
+
 ####if u don't trust us:
 ```sh
 $ sudo useradd superdesk -b /opt -m
@@ -32,7 +36,7 @@ $ cd ./Python-3.2
 $ ./configure --prefix=/opt/superdesk/python32
 $ make && sudo make install
 ```
-#####centos/redhat/sles
+#####redhat/centos/sles
 
 ```
 ##we need it for ffmpeg:
