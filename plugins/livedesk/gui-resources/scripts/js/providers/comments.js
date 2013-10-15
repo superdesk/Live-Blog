@@ -46,9 +46,24 @@ $.extend(providers.comments, {
                     self.getComments({cId: -1, clearResults: true});
                 }
             });
-            var int = window.setInterval(function(){
-                self.refreshComments();
-            },self.interval);
+            //show hidden 
+            self.el.on('click','[data-type="hidden-toggle"]', function( e ){
+                if ( $(this).attr('data-active') == 'false' ) {
+                    $(this).attr('data-active', 'true');
+                    $(this).css('background-color', '#DDDDDD');
+                    //show hidden comments
+                    self.toggleHidden("negative");
+                } else {
+                    $(this).attr('data-active', 'false');
+                    $(this).css('background-color', '#f2f2f2');
+                    //hide hidden comments
+                    self.toggleHidden("positive");
+                }
+            });
+            //temp remove the autoupdate
+            // var int = window.setInterval(function(){
+            //     self.refreshComments();
+            // },self.interval);
             self.getComments({});
         });
         //dynamically get size of header and set top space for list
@@ -88,6 +103,7 @@ $.extend(providers.comments, {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword + '%')
         }
         myUrl = url.get() + '?X-Filter=AuthorName,Content,CreatedOn,CId,Id&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
+        myUrl = url.get() + '?X-Filter=*&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
         $.ajax({
             url: myUrl
         }).done(function(data){
@@ -110,8 +126,8 @@ $.extend(providers.comments, {
                 if ( parseInt(self.topIds) < parseInt(item.CId) ) {
                     self.topIds = parseInt(item.CId);
                 }
-
             }
+
             if ( posts.length > 0 ) {
                 $.tmpl('livedesk>items/item', {
                     Post: posts,
@@ -123,6 +139,20 @@ $.extend(providers.comments, {
                     } else {
                         el = $('.comments-list').append(o).find('.commentpost');
                     }
+
+                    //hide the posts with data-hidden set to true
+                    self.toggleHidden("positive");
+
+                    el.on('click', 'a[href="#toggle-post"]', function(e){
+                        e.preventDefault();
+                        var cmntId = $(this).attr('data-id');
+                        var action = $(this).attr('data-action');
+                        if ( action == 'hide' ) {
+                            self.hideComment(cmntId);
+                        } else {
+                            self.unhideComment(cmntId);
+                        }
+                    });
 
                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                         el.draggable(
@@ -169,6 +199,41 @@ $.extend(providers.comments, {
                 
             }
         });
+    },
+    toggleHidden: function(aspect) {
+        if ( typeof aspect == "undefined" ) {
+            aspect = "positive";
+        }
+
+        if ( aspect == "negative" ) {
+            $( document ).find('li.commentpost[data-hidden="false"]').css('display', 'none');
+            $( document ).find('li.commentpost[data-hidden="true"]').css('display', 'block');
+        } else {
+            $( document ).find('li.commentpost[data-hidden="true"]').css('display', 'none');
+            $( document ).find('li.commentpost[data-hidden="false"]').css('display', 'block');
+        }
+    },
+    hideComment: function(cmntId) {
+        var msg = _("Are you sure you want to hide the comment?");
+        var newText = _("Unhide");
+        if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
+            $.post( url.get() , function( data ) {
+                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'true').css('display', 'none');
+                $( document ).find('li.commentpost a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'unhide').text(newText);
+            });
+        }
+    },
+    unhideComment: function(cmntId) {
+        var msg = _("Are you sure you want to un-hide the comment?");
+        var newText = _("Hide");
+        if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
+            $.post( url.get() , function( data ) {
+                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'false').css('display', 'none');
+                $( document ).find('a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'hide').text(newText);
+            });
+        }
     }
 });
 return providers;

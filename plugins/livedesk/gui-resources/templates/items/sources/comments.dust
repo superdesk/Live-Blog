@@ -1,6 +1,7 @@
 {>"livedesk>items/{Base}"/}
 {<WrapupAdditionalActions}{/WrapupAdditionalActions}
 {<ProviderClass}commentpost{/ProviderClass}
+{<AdditionalAttributes}toata-pula="mare"{/AdditionalAttributes}
 {<ItemInfo}
 {<ContentImage}{/ContentImage}
 	{+PostInfo}
@@ -11,6 +12,7 @@
 		{+TimeInfo}
 			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
 		{/TimeInfo}
+		{+ExtraPostInfo}{/ExtraPostInfo}
 	</div>
 	{/PostInfo}
 {/ItemInfo}
