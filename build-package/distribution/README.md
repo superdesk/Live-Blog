@@ -35,7 +35,7 @@ $ make && sudo make install
 ```
 #####centos/redhat/sles
 
-```sh
+```
 $ wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm # or other one depending your distirution
 # rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
 # rpm -i rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm # or other one depending your distirution
