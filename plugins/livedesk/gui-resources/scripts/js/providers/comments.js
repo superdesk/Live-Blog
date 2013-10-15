@@ -64,8 +64,8 @@ $.extend(providers.comments, {
             });
             //temp remove the autoupdate
             var refInt = window.setInterval(function(){
-                self.refreshComments();
-            },self.interval);
+            //     self.refreshComments();
+            // },self.interval);
             self.getComments({});
         });
         //dynamically get size of header and set top space for list
@@ -143,7 +143,6 @@ $.extend(providers.comments, {
                     self.topIds = parseInt(item.CId);
                 }
             }
-
             var newPosts = [];
 
             //go throught the comments and see if they are updates for what we already have
@@ -203,6 +202,9 @@ $.extend(providers.comments, {
                             self.hideComment(cmntId);
                         } else {
                             self.unhideComment(cmntId);
+                        }
+                    });
+
                         }
                     });
 
