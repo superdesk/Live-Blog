@@ -10,7 +10,7 @@ $ sudo su superdesk
 
 ##prerequesites
 
-#####debian 7 or ubuntu 12.10
+#####debian 7 or ubuntu 12.04, 12.10
 
 ```sh
 $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip
@@ -79,4 +79,3 @@ and open in your browser
 ```
 http://localhost:8080/content/lib/core/start.html
 ```
-
