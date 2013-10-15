@@ -38,13 +38,13 @@ $ make && sudo make install
 ##we need it for ffmpeg:
 # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm # or other one depending your distirution
 # rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
-```
-if u don't like to add additional repos of course u can build ffmpeg and GraphicsMagick manually
-```
+
 ##and this one for GraphicsMagick:
 # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 # rpm --import https://fedoraproject.org/static/0608B895.txt
-
+```
+if u don't like to add additional repos of course u can build ffmpeg and GraphicsMagick manually
+```
 # yum groupinstall "Development tools"
 # yum install exiv2 ffmpeg GraphicsMagick zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
 ```
