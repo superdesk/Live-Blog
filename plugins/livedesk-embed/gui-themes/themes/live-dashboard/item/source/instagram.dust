@@ -1,5 +1,5 @@
 {>"themeBase/item/source/instagram"/}
 
 {<externalText}
-{Meta.user.username}|{Meta.caption.text}
+<b>{Meta.user.username}</b> | {Meta.caption.text}
 {/externalText}
