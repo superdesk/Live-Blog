@@ -33,6 +33,24 @@ $ cd ./Python-3.2
 $ ./configure --prefix=/opt/superdesk/python32
 $ make && sudo make install
 ```
+#####centos/redhat/sles
+
+```sh
+$ wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm # or other one depending your distirution
+# rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+# rpm -i rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm # or other one depending your distirution
+# yum groupinstall "Development tools"
+# yum install exiv2 ffmpeg zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
+```
+next follow python 3.2 building instructions above
+```sh
+$ cd /tmp
+$ wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.35.tar.gz --no-check-certificate
+$ tar xf distribute-0.6.35.tar.gz
+$ cd distribute-0.6.35
+$ /opt/superdesk/python32/bin/python3.2 setup.py install
+$ /opt/superdesk/python32/bin/easy_install-3.2 pip virtualenv
+```
 
 #####archlinux or manjaro
 
@@ -53,6 +71,10 @@ $ virtualenv -p python3.2 env
 or if u was installed it manually to superdesk folder:
 ```sh
 $ virtualenv -p /opt/superdesk/python32/bin/python3.2 env
+```
+or if u was installed manually to superdesk folder even virtualenv:
+```sh
+$ ./python32/bin/virtualenv-3.2 -p /opt/superdesk/python32/bin/python3.2 env
 ```
 
 ```sh
