@@ -1,9 +1,9 @@
 superdesk install instuctions
 ==============
 
-- [prerequisites](#prerequisites)
--- [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
--- [redhat/centos/sles]()
++ [prerequisites](#prerequisites)
+  - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
+  - [redhat/centos/sles]()
 
 ####if u don't trust us:
 ```sh
