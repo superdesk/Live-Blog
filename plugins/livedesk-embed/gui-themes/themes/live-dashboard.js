@@ -5,6 +5,7 @@ define([
   'css!theme/jquery.bxslider',
   'tmpl!theme/container',
   'tmpl!theme/item/base',
+  'tmpl!theme/item/source/instagram',
   'tmpl!theme/item/source/youtube'
 ], function(){
 	return {
