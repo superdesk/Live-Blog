@@ -13,13 +13,13 @@ $ sudo su superdesk
 #####debian 7 or ubuntu 12.04, 12.10
 
 ```sh
-$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip
+$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip python-virtualenv
 ```
 
 #####newer versions of ubuntu/debian which are not shipped with python 3.2
 
 ```sh
-$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3-pip
+$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3-pip python-virtualenv
 ```
 and next follow python building instructions below
 
@@ -37,7 +37,7 @@ $ make && sudo make install
 #####archlinux or manjaro
 
 ```sh
-$ yaourt -S exiv2 ffmpeg graphicsmagick python32 python-pip
+$ yaourt -S exiv2 ffmpeg graphicsmagick python32 python-pip python-virtualenv
 ```
 
 #installing
