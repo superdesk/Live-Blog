@@ -12,19 +12,18 @@ API specifications for meta type.
 from .domain_archive import modelArchive
 from ally.api.config import service
 from ally.api.option import SliceAndTotal # @UnusedImport
-from ally.support.api.entity_ided import IEntityFindService, IEntityGetService, \
-    Entity
+from ally.support.api.entity import IEntityGetPrototype, IEntityFindPrototype
 
 # --------------------------------------------------------------------
 
-@modelArchive
-class MetaType(Entity):
+@modelArchive(id='Type')
+class MetaType:
     '''Provides the meta types.'''
     Type = str
 
 # --------------------------------------------------------------------
 
-@service((Entity, MetaType))
-class IMetaTypeService(IEntityGetService, IEntityFindService):
+@service(('Entity', MetaType))
+class IMetaTypeService(IEntityGetPrototype, IEntityFindPrototype):
     '''Provides the meta type services.'''
 

@@ -17,7 +17,7 @@ from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
     AsLikeExpression
 from superdesk.media_archive.api.meta_data import MetaDataBase
 from ally.support.api.entity_ided import Entity, QEntity, IEntityGetCRUDService
-from superdesk.language.api.language import Language as LanguageEntity
+from superdesk.language.api.language import Language
 from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
@@ -25,7 +25,7 @@ from ally.api.option import SliceAndTotal # @UnusedImport
 @modelArchive
 class MetaInfoBase:
     '''Provides the meta data information that is provided by the user.'''
-    Language = LanguageEntity
+    Language = Language
     Title = str
     Keywords = str
     Description = str
@@ -53,7 +53,7 @@ class IMetaInfoService(IEntityGetCRUDService):
     '''Provides the service methods for the meta info.'''
 
     @call
-    def getMetaInfos(self, dataId:MetaData.Id=None, languageCode:LanguageEntity.Code=None,
+    def getMetaInfos(self, dataId:MetaData.Id=None, languageCode:Language.Code=None,
                      qi:QMetaInfo=None, qd:QMetaData=None, **options:SliceAndTotal) -> Iter(MetaInfo.Id):
         '''Provides the meta info's.'''
 
@@ -70,7 +70,7 @@ class IMetaDataInfoService:
     '''Provides the service methods for the meta info.'''
 
     @call
-    def getAll(self, scheme:Scheme, dataId:MetaData.Id=None, languageCode:LanguageEntity.Code=None,
+    def getAll(self, scheme:Scheme, dataId:MetaData.Id=None, languageCode:Language.Code=None,
                      qi:QMetaInfo=None, qd:QMetaData=None, thumbSize:str=None,
                      **options:SliceAndTotal) -> Iter(MetaDataInfo):
         '''Provides the meta & info info's.'''

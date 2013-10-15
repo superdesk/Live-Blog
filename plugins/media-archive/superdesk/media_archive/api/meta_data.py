@@ -16,10 +16,10 @@ from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered
 from ally.api.model import Content
 from ally.api.type import Reference, Iter, Scheme
 from datetime import datetime
-from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
-    AsInOrdered
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, AsInOrdered
 from superdesk.user.api.user import User
 from ally.support.api.entity_ided import Entity, QEntity
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ from ally.support.api.entity_ided import Entity, QEntity
 class MetaDataBase:
     '''Provides the meta data that is extracted based on the content.'''
     Name = str
-    Type = str
+    Type = MetaType
     Content = Reference
     Thumbnail = Reference
     SizeInBytes = int
@@ -62,8 +62,8 @@ class IMetaDataService:
         '''Provides the meta data based on the id.'''
 
     @call
-    def getMetaDatas(self, scheme:Scheme, typeId:MetaType.Id=None, q:QMetaData=None,
-                     thumbSize:str=None, **options:SliceAndTotal) -> Iter(MetaData.Id):
+    def getMetaDatas(self, scheme:Scheme, typeId:MetaType.Type=None, q:QMetaData=None,
+                     **options:SliceAndTotal) -> Iter(MetaData.Id):
         '''Provides the meta data's.'''
 
 @service

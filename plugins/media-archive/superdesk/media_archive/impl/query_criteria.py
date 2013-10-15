@@ -37,12 +37,10 @@ class QueryCriteriaService(IQueryCriteriaService):
         assert isinstance(self.queryIndexer, IQueryIndexer), 'Invalid IQueryIndexer %s' % self.queryIndexer
         self._locales = {code:Locale.parse(code) for code in locale_identifiers()}
 
-    def getCriterias(self, locales, q=None):
+    def getCriterias(self, q=None):
         '''
         @see: QueryCriteriaService.getCriterias
         '''
-        locales = self._localesOf(locales)
-
         queryCriterias = list()
 
         for key, metaInfos in self.queryIndexer.metaInfoByCriteria.items():

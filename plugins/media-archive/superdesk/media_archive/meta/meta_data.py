@@ -12,13 +12,12 @@ Contains the SQL alchemy meta for media meta data API.
 from ..api.meta_data import MetaData
 from .meta_type import MetaTypeMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, DateTime, Integer
+from sqlalchemy.types import String, DateTime, Integer, TIMESTAMP
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import UserMapped
 from ally.internationalization import N_
-from sql_alchemy.support.session import openSession
+from sql_alchemy.support.util_meta import UtcNow, relationshipModel
 
 # --------------------------------------------------------------------
 
@@ -48,23 +47,11 @@ class MetaDataMapped(Base, MetaData):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Name = Column('name', String(255), nullable=False)
+    Type = relationshipModel(MetaTypeMapped.id)
     SizeInBytes = Column('size_in_bytes', Integer)
-    CreatedOn = Column('created_on', DateTime, nullable=False)
+    CreatedOn = Column('created_on', TIMESTAMP, server_default=UtcNow(), nullable=False)
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     
     # None REST model attribute --------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
     thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
     content = Column('content', String(255))
-
-    _cache_types = {}
-    # A dictionary having as a key the type id and as a value the type. This is because not too many meta data types are
-    # expected.
-    @reconstructor
-    def init_on_load(self):
-        typeId = self._cache_types.get(self.typeId)
-        if typeId is None:
-            metaType = openSession().query(MetaTypeMapped).get(self.typeId)
-            assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
-            typeId = self._cache_types[metaType.Id] = metaType.Type
-        self.Type = typeId

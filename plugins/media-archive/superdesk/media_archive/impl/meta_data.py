@@ -20,7 +20,6 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.internationalization import _
 from ally.support.util_sys import pythonPath
-from datetime import datetime
 from os.path import join, getsize, abspath
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
@@ -29,7 +28,7 @@ from superdesk.media_archive.core.impl.query_service_creator import \
     ISearchProvider
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
-from superdesk.language.api.language import Language as LanguageEntity
+from superdesk.language.api.language import Language
 from ally.api.error import InputError
 
 # --------------------------------------------------------------------
@@ -81,12 +80,9 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         if not content.name: raise InputError(_('No name specified for content'))
 
         if self.languageId is None:
-            self.languageId = self.session().query(LanguageEntity).filter(LanguageEntity.Code == self.default_media_language).one().Id
+            self.languageId = self.session().query(Language).filter(Language.Code == self.default_media_language).one().Id
 
         metaData = MetaDataMapped()
-        # TODO: check this
-        # metaData.CreatedOn = current_timestamp()
-        metaData.CreatedOn = datetime.now()
         metaData.Creator = userId
         metaData.Name = content.name
 
@@ -158,4 +154,5 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         return self._thumbnailFormatId
 
     def generateIdPath (self, id):
+        # TOTO: add comment
         return '{0:03d}'.format((id // 1000) % 1000)

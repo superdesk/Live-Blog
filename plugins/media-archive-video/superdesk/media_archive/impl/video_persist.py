@@ -12,10 +12,7 @@ Implementation for the video persistence API.
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from ally.exception import InputError, Ref
 from ally.internationalization import _
 from os import remove
 from os.path import exists, splitext, abspath, join
@@ -30,6 +27,7 @@ from superdesk.media_archive.meta.video_data import META_TYPE_KEY, \
     VideoDataEntry
 from superdesk.media_archive.meta.video_info import VideoInfoMapped
 import re
+from sql_alchemy.support.util_service import SessionSupport
 
 # --------------------------------------------------------------------
 
@@ -69,11 +67,8 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         videoInfoMapped = VideoInfoMapped()
         videoInfoMapped.MetaData = metaDataMapped.Id
         videoInfoMapped.Language = languageId
-        try:
-            self.session().add(videoInfoMapped)
-            self.session().flush((videoInfoMapped,))
-        except SQLAlchemyError as e:
-            handle(e, videoInfoMapped)
+        self.session().add(videoInfoMapped)
+        self.session().flush((videoInfoMapped,))
         return videoInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
@@ -151,7 +146,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             self.session().flush((videoDataEntry,))
         except SQLAlchemyError as e:
             metaDataMapped.IsAvailable = False
-            raise InputError(Ref(_('Cannot save the video data'),))
+            raise e
 
         return True
 

@@ -13,7 +13,6 @@ from ally.api.config import service, call, query
 from ally.api.extension import IterPart
 from ally.api.type import Iter, Scheme
 from ally.cdm.spec import ICDM
-from ally.support.sqlalchemy.session import SessionSupport
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData, MetaData
 from superdesk.media_archive.api.meta_data_info import MetaDataInfo, \
@@ -21,6 +20,7 @@ from superdesk.media_archive.api.meta_data_info import MetaDataInfo, \
 from superdesk.media_archive.api.meta_info import QMetaInfo, MetaInfo
 from superdesk.media_archive.core.spec import QueryIndexer, IThumbnailManager
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from sql_alchemy.support.util_service import SessionSupport
 
 
 def createService(queryIndexer, cdmArchive, thumbnailManager, searchProvider):

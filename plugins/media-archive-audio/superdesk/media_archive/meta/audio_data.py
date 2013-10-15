@@ -52,7 +52,6 @@ class AudioDataDefinition:
     Tbpm = declared_attr(lambda cls: Column('tbpm', Integer))
     Composer = declared_attr(lambda cls: Column('composer', String(255)))
 
-
 # --------------------------------------------------------------------
 
 class AudioDataEntry(Base, AudioDataDefinition):

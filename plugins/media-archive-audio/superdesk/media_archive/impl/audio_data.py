@@ -28,7 +28,6 @@ class AudioDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
     '''
     Implementation for see @see: IAudioDataService
     '''
-    
     cdmArchiveAudio = ICDM; wire.entity('cdmArchiveAudio')
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
 

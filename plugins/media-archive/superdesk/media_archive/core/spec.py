@@ -9,16 +9,15 @@ Created on Apr 27, 2012
 Provides the specification classes for the media archive.
 '''
 
-from ally.api.operator.type import TypeCriteriaEntry
-from ally.api.type import typeFor
-from ally.support.api.util_service import namesForQuery
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from superdesk.meta.metadata_superdesk import Base
+from ally.support.api.util_service import iterateFor
 import abc
+from ally.api.operator.type import TypeCriteria, TypeProperty
 
 # --------------------------------------------------------------------
 
@@ -113,9 +112,9 @@ class IThumbnailManager(IMetaDataReferencer):
         @param metaData: MetaData|None
             The object containing the content metadata for which the thumbnail is placed.
         '''
-        
-    @abc.abstractclassmethod  
-    def deleteThumbnail(self, thumbnailFormatId, metaData): 
+
+    @abc.abstractclassmethod
+    def deleteThumbnail(self, thumbnailFormatId, metaData):
         '''
         Deletes all thumbnails associated to the current MetaData
 
@@ -123,7 +122,7 @@ class IThumbnailManager(IMetaDataReferencer):
             The thumbnail path format identifier
         @param metaData: MetaData
             The MetaData associated to thumbnails
-        '''  
+        '''
 
 class IThumbnailProcessor(metaclass=abc.ABCMeta):
     '''
@@ -256,10 +255,10 @@ class QueryIndexer(IQueryIndexer):
         'Invalid meta data query class %s' % QMetaDataClass
 
 
-        if (EntryMetaInfoClass in self.metaInfos):
+        if EntryMetaInfoClass in self.metaInfos:
             raise Exception('Already registered the meta info class %s' % EntryMetaInfoClass)
 
-        if (EntryMetaDataClass in self.metaDatas):
+        if EntryMetaDataClass in self.metaDatas:
             raise Exception('Already registered the meta data class %s' % EntryMetaInfoClass)
 
 
@@ -273,54 +272,54 @@ class QueryIndexer(IQueryIndexer):
         self.queryByInfo[EntryMetaInfoClass.__name__] = QMetaInfoClass
 
 
-        for criteria in namesForQuery(QMetaInfoClass):
-            criteriaClass = self.infoCriterias.get(criteria)
-            if (criteriaClass is None): continue
+        for name, prop in iterateFor(QMetaInfoClass):
+            criteriaClass = self.infoCriterias.get(name)
+            if criteriaClass is None: continue
 
-            criteriaType = typeFor(getattr(QMetaInfoClass, criteria))
-            assert isinstance(criteriaType, TypeCriteriaEntry)
+            assert isinstance(prop, TypeProperty), 'Invalid property %s' % prop
+            assert isinstance(prop.type, TypeCriteria), 'Invalid criteria %s' % prop.type
 
-            if (criteriaType.clazz != criteriaClass):
+            if prop.type.clazz != criteriaClass:
                 raise Exception("Can't register meta data %s because the %s criteria has type %s " \
                                 "and this criteria already exist with a different type %s" % \
-                                (EntryMetaInfoClass, criteria, criteriaType.clazz, criteriaClass))
+                                (EntryMetaInfoClass, name, prop.type.clazz, criteriaClass))
 
 
-        for criteria in namesForQuery(QMetaDataClass):
-            criteriaClass = self.dataCriterias.get(criteria)
-            if (criteriaClass is None): continue
+        for name, prop in iterateFor(QMetaDataClass):
+            criteriaClass = self.dataCriterias.get(name)
+            if criteriaClass is None: continue
 
-            criteriaType = typeFor(getattr(QMetaDataClass, criteria))
-            assert isinstance(criteriaType, TypeCriteriaEntry)
+            assert isinstance(prop, TypeProperty), 'Invalid property %s' % prop
+            assert isinstance(prop.type, TypeCriteria), 'Invalid criteria %s' % prop.type
 
-            if (criteriaType.clazz != criteriaClass):
+            if prop.type.clazz != criteriaClass:
                 raise Exception("Can't register meta data %s because the %s criteria has type %s " \
                                 "and this criteria already exist with a different type %s" % \
-                                (EntryMetaDataClass, criteria, criteriaType.clazz, criteriaClass))
+                                (EntryMetaDataClass, name, prop.type.clazz, criteriaClass))
 
 
         self.metaInfos.add(EntryMetaInfoClass)
         self.metaDatas.add(EntryMetaDataClass)
 
-        for criteria in namesForQuery(QMetaInfoClass):
-            criteriaType = typeFor(getattr(QMetaInfoClass, criteria))
-            assert isinstance(criteriaType, TypeCriteriaEntry)
+        for name, prop in iterateFor(QMetaInfoClass):
+            assert isinstance(prop, TypeProperty), 'Invalid property %s' % prop
+            assert isinstance(prop.type, TypeCriteria), 'Invalid criteria %s' % prop.type
 
-            infoSet = self.metaInfoByCriteria.get(criteria)
+            infoSet = self.metaInfoByCriteria.get(name)
             if infoSet is None:
-                infoSet = self.metaInfoByCriteria[criteria] = set()
-                self.infoCriterias[criteria] = criteriaType.clazz
+                infoSet = self.metaInfoByCriteria[name] = set()
+                self.infoCriterias[name] = prop.type.clazz
 
             infoSet.add(EntryMetaInfoClass)
 
 
-        for criteria in namesForQuery(QMetaDataClass):
-            criteriaType = typeFor(getattr(QMetaDataClass, criteria))
-            assert isinstance(criteriaType, TypeCriteriaEntry)
+        for name, prop in iterateFor(QMetaDataClass):
+            assert isinstance(prop, TypeProperty), 'Invalid property %s' % prop
+            assert isinstance(prop.type, TypeCriteria), 'Invalid criteria %s' % prop.type
 
-            dataSet = self.metaDataByCriteria.get(criteria)
+            dataSet = self.metaDataByCriteria.get(name)
             if dataSet is None:
-                dataSet = self.metaDataByCriteria[criteria] = set()
-                self.dataCriterias[criteria] = criteriaType.clazz
+                dataSet = self.metaDataByCriteria[name] = set()
+                self.dataCriterias[name] = prop.type.clazz
 
             dataSet.add(EntryMetaDataClass)

@@ -10,7 +10,7 @@ API specifications for query criteria service.
 '''
 
 from .domain_archive import modelArchive
-from ally.api.type import Locale, List, Iter
+from ally.api.type import Iter
 from ally.api.config import query, service, call
 from ally.api.criteria import AsLikeOrdered
 
@@ -47,5 +47,5 @@ class IQueryCriteriaService:
     '''Provides the service methods for the query criteria service.'''
 
     @call
-    def getCriterias(self, locales:List(Locale), q:QQueryCriteria=None) -> Iter(QueryCriteria):
+    def getCriterias(self, q:QQueryCriteria=None) -> Iter(QueryCriteria):
         '''Provides the list of query criteria that respect the given query conditions.'''

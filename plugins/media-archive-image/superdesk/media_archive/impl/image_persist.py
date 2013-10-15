@@ -12,8 +12,6 @@ Implementation for the image persistence API.
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, splitext, abspath
@@ -28,6 +26,7 @@ from superdesk.media_archive.meta.image_data import META_TYPE_KEY, \
 from superdesk.media_archive.meta.image_info import ImageInfoMapped
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 import re
+from sql_alchemy.support.util_service import SessionSupport
 
 # --------------------------------------------------------------------
 
@@ -67,11 +66,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         imageInfoMapped = ImageInfoMapped()
         imageInfoMapped.MetaData = metaDataMapped.Id
         imageInfoMapped.Language = languageId
-        try:
-            self.session().add(imageInfoMapped)
-            self.session().flush((imageInfoMapped,))
-        except SQLAlchemyError as e:
-            handle(e, imageInfoMapped)
+        self.session().add(imageInfoMapped)
+        self.session().flush((imageInfoMapped,))
         return imageInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
@@ -136,7 +132,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         try: self.session().add(imageDataEntry)
         except SQLAlchemyError as e:
             metaDataMapped.IsAvailable = False
-            handle(e, ImageDataEntry)
+            raise e
 
         return True
 

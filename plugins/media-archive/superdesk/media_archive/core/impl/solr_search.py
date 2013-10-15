@@ -20,8 +20,8 @@ from ally.container import wire
 from itertools import chain
 from ally.api.criteria import AsBoolean, AsLike, AsEqual, AsDate, AsDateTime, \
     AsRange, AsTime, AsOrdered
-from ally.support.api.util_service import namesForQuery
 from ally.api.extension import IterPart
+from ally.support.api.util_service import namesFor
 
 @injected
 class SolrSearchProvider(ISearchProvider):
@@ -203,7 +203,7 @@ def buildSolrQuery(si, solrQuery, query, orClauses):
     ordered, unordered = [], []
     clazz = query.__class__
 
-    for criteria in namesForQuery(clazz):
+    for criteria in namesFor(clazz):
         if getattr(clazz, criteria) not in query: continue
 
         if criteria in si.schema.fields:

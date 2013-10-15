@@ -9,12 +9,12 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
-from ..gui_core.gui_core import publishGui, publish
-
-# --------------------------------------------------------------------
-
-@publish
-def publishJS():
-    publishGui('media-archive')
-    
-    
+# TODO: will not be needed in the future; there will be specialized
+# plugins that will publish resources
+# from ..gui_core.gui_core import publishGui, publish
+#
+# # --------------------------------------------------------------------
+#
+# @publish
+# def publishJS():
+#     publishGui('media-archive')

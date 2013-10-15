@@ -11,20 +11,20 @@ The implementation of database server based search API.
 
 from ally.api.type import typeFor
 from ally.container.ioc import injected
-from ally.support.api.util_service import namesForQuery
-from ally.support.sqlalchemy.util_service import buildLimits, buildQuery
 from superdesk.media_archive.api.meta_data import QMetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from sqlalchemy.sql.expression import or_, and_, not_
-from ally.support.sqlalchemy.mapper import mappingFor
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
 from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, AsLikeExpression
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from superdesk.media_archive.api.meta_data_info import QMetaDataInfo
 from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
+from sql_alchemy.support.util_service import buildQuery, buildLimits
+from sql_alchemy.support.mapper import mappingFor
+from ally.support.api.util_service import namesFor
 
 # --------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ class SqlSearchProvider(ISearchProvider):
         if qi is not None:
             assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
 
-            for name in namesForQuery(qi):
+            for name in namesFor(qi):
                 if getattr(self.QMetaInfo, name) not in qi: continue
                 criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
                 assert criteriaMetaInfos, 'No model class available for %s' % name
@@ -109,7 +109,7 @@ class SqlSearchProvider(ISearchProvider):
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
 
-            for name in namesForQuery(qd):
+            for name in namesFor(qd):
                 if getattr(self.QMetaData, name) not in qd: continue
                 criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
                 assert criteriaMetaDatas, 'No model class available for %s' % name
@@ -166,16 +166,14 @@ class SqlSearchProvider(ISearchProvider):
 
         if metaInfo == MetaInfoMapped and metaData == MetaDataMapped:
             if types:
-                sql = sql.join(MetaTypeMapped, MetaTypeMapped.Id == MetaDataMapped.typeId)
                 sql = sql.filter(MetaTypeMapped.Type.in_(types))
         elif metaInfo != MetaInfoMapped:
-            sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaInfo[metaInfo.__name__]))
+            sql = sql.filter(MetaTypeMapped.Type == self.queryIndexer.typesByMetaInfo[metaInfo.__name__])
         elif metaData != MetaDataMapped:
-            sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaData[metaData.__name__]))
+            sql = sql.filter(MetaTypeMapped.Type == self.queryIndexer.typesByMetaData[metaData.__name__])
 
         sql = sql.join(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
         sql = sql.add_entity(MetaInfoMapped)
-
 
         if qi: sql = buildQuery(sql, qi, metaInfo)
         if qd: sql = buildQuery(sql, qd, metaData)
@@ -224,7 +222,7 @@ def buildExpressionQuery(sql, query, mapped, qa):
 
     columns = {cp.key.lower(): getattr(mapper.c, cp.key)
                   for cp in mapper.iterate_properties if isinstance(cp, ColumnProperty)}
-    columns = {criteria:columns.get(criteria.lower()) for criteria in namesForQuery(clazz)}
+    columns = {criteria:columns.get(criteria.lower()) for criteria in namesFor(clazz)}
 
     for criteria, column in columns.items():
         if column is None or getattr(clazz, criteria) not in query: continue

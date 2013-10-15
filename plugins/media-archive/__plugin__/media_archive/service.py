@@ -12,7 +12,6 @@ Contains the services setups for media archive superdesk.
 from ..cdm import server_uri, repository_path
 from ..plugin.registry import registerService
 from ..superdesk import service
-from ..superdesk.db_superdesk import bindSuperdeskSession
 from ally.cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
     IDelivery
 from ally.cdm.spec import ICDM
@@ -31,14 +30,12 @@ from superdesk.media_archive.core.impl.thumbnail_processor_gm import \
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
     IQueryIndexer, IThumbnailProcessor
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
+from ..superdesk.database import binders
 
 # --------------------------------------------------------------------
 
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
-
-@ioc.entity
-def binders(): return [bindSuperdeskSession]
 
 bind.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')

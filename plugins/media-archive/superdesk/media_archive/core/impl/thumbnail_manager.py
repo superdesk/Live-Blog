@@ -14,9 +14,7 @@ from ally.cdm.spec import ICDM, PathNotFound
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.util_io import timestampURI
 from collections import OrderedDict
 from os.path import splitext
@@ -25,6 +23,8 @@ from superdesk.media_archive.core.spec import IThumbnailManager, \
     IThumbnailProcessor
 from superdesk.media_archive.meta.meta_data import ThumbnailFormat
 import logging
+from sql_alchemy.support.util_service import SessionSupport
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 

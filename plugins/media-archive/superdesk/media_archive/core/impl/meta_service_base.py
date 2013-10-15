@@ -10,10 +10,7 @@ Base SQL Alchemy implementation to support meta type services.
 '''
 
 from ally.cdm.spec import ICDM, PathNotFound
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from inspect import isclass
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
@@ -29,6 +26,9 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped, \
 from superdesk.media_archive.meta.meta_info import MetaInfo, MetaInfoMapped
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from sqlalchemy.exc import OperationalError, IntegrityError
+from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
+    buildLimits, iterateCollection
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -71,22 +71,14 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         @see: IMetaDataService.getById
         '''
         metaData = self.session().query(self.MetaData).get(id)
-        if metaData is None: raise InputError(Ref(_('Unknown meta data'), ref=self.MetaData.Id))
+        if metaData is None: raise InputError(_('Unknown meta data'), self.MetaData.Id)
         return self.referencer.populate(metaData, scheme, thumbSize)
 
-    def getMetaDatasCount(self, typeId=None, q=None):
-        '''
-        @see: IMetaDataService.getMetaDatasCount
-        '''
-        return self.buildSql(typeId, q).count()
-
-    def getMetaDatas(self, scheme, typeId=None, offset=None, limit=None, q=None, thumbSize=None):
+    def getMetaDatas(self, scheme, typeId=None, q=None, **options):
         '''
         @see: IMetaDataService.getMetaDatas
         '''
-        sql = self.buildSql(typeId, q)
-        sql = buildLimits(sql, offset, limit)
-        return (self.referencer.populate(metaData, scheme, thumbSize) for metaData in sql.all())
+        return iterateCollection(self.buildSql(typeId, q), **options)
 
     # --------------------------------------------------------------------
 
@@ -181,19 +173,11 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         self.metaDataService = metaDataService
         self.type = type
 
-    def getMetaInfosCount(self, dataId=None, languageId=None, qi=None, qd=None):
-        '''
-        @see: IMetaInfoService.getMetaInfosCount
-        '''
-        return self.buildSql(dataId, languageId, qi, qd).count()
-
-    def getMetaInfos(self, dataId=None, languageId=None, offset=None, limit=10, qi=None, qd=None):
+    def getMetaInfos(self, dataId=None, languageId=None, qi=None, qd=None, **options):
         '''
         @see: IMetaInfoService.getMetaInfos
         '''
-        sql = self.buildSql(dataId, languageId, qi, qd)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        return iterateCollection(self.buildSql(dataId, languageId, qi, qd), **options)
 
     # --------------------------------------------------------------------
 
@@ -225,11 +209,8 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         metaInfo = self.session().query(self.MetaInfo).filter(self.MetaInfo.Id == id).one()    
         metaDataId = metaInfo.MetaData
 
-        try:
-            self.session().delete(metaInfo)
-            self.session().commit()
-        except (OperationalError, IntegrityError):
-            raise InputError(Ref(_('Can not delete because in use'),))
+        self.session().delete(metaInfo)
+        self.session().commit()
 
         self.searchProvider.delete(id, self.type)
         

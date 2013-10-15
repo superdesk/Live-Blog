@@ -12,8 +12,6 @@ Implementation for the audio persistence API.
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from os import remove
 from os.path import splitext, abspath, join, exists
@@ -28,6 +26,7 @@ from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
     META_TYPE_KEY
 from superdesk.media_archive.meta.audio_info import AudioInfoMapped
+from sql_alchemy.support.util_service import SessionSupport
 
 # --------------------------------------------------------------------
 
@@ -69,11 +68,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         audioInfoMapped = AudioInfoMapped()
         audioInfoMapped.MetaData = metaDataMapped.Id
         audioInfoMapped.Language = languageId
-        try:
-            self.session().add(audioInfoMapped)
-            self.session().flush((audioInfoMapped,))
-        except SQLAlchemyError as e:
-            handle(e, audioInfoMapped)
+        self.session().add(audioInfoMapped)
+        self.session().flush((audioInfoMapped,))
         return audioInfoMapped
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
@@ -182,7 +178,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             self.session().flush((audioDataEntry,))
         except SQLAlchemyError as e:
             metaDataMapped.IsAvailable = False
-            handle(e, AudioDataEntry)
+            raise e
 
         return True
 

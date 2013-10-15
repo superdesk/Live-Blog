@@ -21,5 +21,3 @@ bind.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.*.impl.**.*')
 support.listenToEntities(SERVICES, listeners=registerService)
 support.loadAllEntities(SERVICES)
-
-# --------------------------------------------------------------------
