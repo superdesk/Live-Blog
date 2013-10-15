@@ -26,7 +26,6 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.user.api.user import IUserService, User
 from superdesk.user.meta.user import UserMapped
 from superdesk.user.meta.user_type import UserTypeMapped
-from superdesk.person.meta.person import PersonMapped
 from superdesk.source.api.source import ISourceService, Source
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
@@ -171,10 +170,10 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
 
     # ------------------------------------------------------------------
     def _freeCommentUserName(self):
-        userName = 'Comment-' + binascii.b2a_hex(os.urandom(8)).decode()
         while True:
+            userName = 'Comment-' + binascii.b2a_hex(os.urandom(8)).decode()
             try:
-                userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
+                self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
 

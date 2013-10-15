@@ -80,6 +80,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                         activeUsers = not q.inactive.value
 
             sql = sql.filter(UserMapped.Active == activeUsers)
+            sql = sql.filter(UserMapped.Type == self.default_user_type_key)
 
             if entities is None: entities = buildLimits(sql, offset, limit).all()
             if detailed: return IterPart(entities, sql.count(), offset, limit)
