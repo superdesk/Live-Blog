@@ -1,1 +1,5 @@
 {>"themeBase/item/source/instagram"/}
+
+{<externalText}
+{Meta.user.username}|{Meta.caption.text}
+{/externalText}
