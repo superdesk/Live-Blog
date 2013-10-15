@@ -513,7 +513,7 @@ html.demo body .container #livedesk-root {
 #livedesk-root .instagram .post-core-content .post-text {
   position: absolute;
   padding: 7px 10px;
-  bottom: 31px;
+  bottom: 0;
   min-height: 30px;
   color: #dddddd;
   width: 100%;
@@ -540,7 +540,7 @@ html.demo body .container #livedesk-root {
   top: 0;
 }
 #livedesk-root .instagram .comment-after {
-  bottom: 0;
+  bottom: 31px;
 }
 #livedesk-root .soundcloud .post-core-content iframe {
   position: absolute!important;
