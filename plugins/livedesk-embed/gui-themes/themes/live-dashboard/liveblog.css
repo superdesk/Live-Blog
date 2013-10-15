@@ -500,6 +500,9 @@ html.demo body .container #livedesk-root {
 #livedesk-root .youtube .comment-after {
   bottom: 0;
 }
+#livedesk-root .instagram .post-content {
+  padding: 60px 20px 80px!important;
+}
 #livedesk-root .instagram .post-core-content img {
   position: absolute!important;
   top: 0;
