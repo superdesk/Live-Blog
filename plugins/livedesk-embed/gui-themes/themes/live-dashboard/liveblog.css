@@ -345,6 +345,9 @@ html.demo body .container #livedesk-root {
   padding-bottom: 20px!important;
   padding-top: 50px!important;
 }
+#livedesk-root .flickr .post-content {
+  padding: 60px 20px 80px!important;
+}
 #livedesk-root .flickr .post-core-content .post-external .post-external-image {
   height: 100%!important;
 }
@@ -435,6 +438,9 @@ html.demo body .container #livedesk-root {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+#livedesk-root .fullsize-posts .google .post-content {
+  padding: 60px 20px 80px!important;
+}
 #livedesk-root .fullsize-posts .google .post-core-content .post-external {
   text-align: center;
 }
@@ -472,6 +478,9 @@ html.demo body .container #livedesk-root {
   width: 100%;
   z-index: 1000;
 }
+#livedesk-root .youtube .post-content {
+  padding: 60px 20px 80px!important;
+}
 #livedesk-root .youtube .post-core-content iframe {
   position: absolute!important;
   top: 0;
@@ -499,6 +508,9 @@ html.demo body .container #livedesk-root {
 }
 #livedesk-root .youtube .comment-after {
   bottom: 0;
+}
+#livedesk-root .instagram .post-content {
+  padding: 60px 20px 80px!important;
 }
 #livedesk-root .instagram .post-core-content img {
   position: absolute!important;
@@ -542,6 +554,9 @@ html.demo body .container #livedesk-root {
 }
 #livedesk-root .instagram .comment-after {
   bottom: 31px;
+}
+#livedesk-root .soundcloud .post-content {
+  padding: 60px 20px 80px!important;
 }
 #livedesk-root .soundcloud .post-core-content iframe {
   position: absolute!important;
