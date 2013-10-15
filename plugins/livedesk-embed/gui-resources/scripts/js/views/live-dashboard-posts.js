@@ -40,7 +40,7 @@ define([
               }
               break;
             case 'twitter':
-              if (meta.entities.urls.length === 0){
+              if (!meta.entities.media){
                 return true;
               }
               break;
@@ -50,8 +50,11 @@ define([
               break;
           }
         } else {
-          if (type === 'normal' || type === 'quote' ||
-              type === 'link' || type === 'wrapup'){
+          if (type === 'normal' &&
+              model.get('Content').indexOf('<img src="') !== 0){
+            return true;
+          }
+          else if (type === 'quote' || type === 'link' || type === 'wrapup'){
             return true;
           }
         }
