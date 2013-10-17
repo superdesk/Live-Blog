@@ -444,7 +444,6 @@ html.demo body .container #livedesk-root {
 #livedesk-root .normal .post-core-content img {
   max-height: 100%!important;
   max-width: 100%!important;
-  height: 100%!important;
   position: absolute!important;
   top: 0;
   bottom: 0;
@@ -469,7 +468,6 @@ html.demo body .container #livedesk-root {
 #livedesk-root li .post-core-content .post-text img {
   max-height: 100%!important;
   max-width: 100%!important;
-  height: 100%!important;
   position: absolute!important;
   top: 0;
   bottom: 0;
