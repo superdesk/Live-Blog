@@ -441,6 +441,42 @@ html.demo body .container #livedesk-root {
   z-index: 1000;
   background: rgba(50, 50, 50, 0.3);
 }
+#livedesk-root .normal .post-core-content img {
+  max-height: 100%!important;
+  max-width: 100%!important;
+  height: 100%!important;
+  position: absolute!important;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: auto!important;
+}
+#livedesk-root .normal .post-core-content .post-text.with-image {
+  position: absolute;
+  padding: 7px 10px;
+  bottom: 0;
+  min-height: 30px;
+  color: #dddddd;
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  text-shadow: 1px 1px 1px #111111;
+  z-index: 1000;
+  background: rgba(50, 50, 50, 0.3);
+}
+#livedesk-root li .post-core-content .post-text img {
+  max-height: 100%!important;
+  max-width: 100%!important;
+  height: 100%!important;
+  position: absolute!important;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: auto!important;
+}
 #livedesk-root .quote .post-core-content {
   background: url(img/quotes.png) no-repeat 40px 10px;
 }

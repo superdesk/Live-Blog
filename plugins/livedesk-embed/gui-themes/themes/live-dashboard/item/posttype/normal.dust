@@ -1,2 +1,13 @@
-{>"themeBase/item/posttype/normal"/}
+{>"{baseItem}"/}
+{<itemClass}normal{/itemClass}
+{<contentCore}
+ {+contenteBaseBefore}{/contenteBaseBefore}
+ {@if cond="'{Content|image_only|s}' == ''"}
+  {Content|without_image|s}
+ {:else}
+  {Content|image_only|s}
+  <p class="post-text with-image">{Content|without_image|s}</p>
+ {/if}
+{/contentCore}
+
 {<contentSideContainer}{/contentSideContainer}
