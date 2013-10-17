@@ -104,6 +104,7 @@ dust.filters.trim50 = function(string){ return string.trunc(50, true);}
 dust.filters.trim150 = function(string){ return string.trunc(150, true);}
 dust.filters.trim200 = function(string){ return string.trunc(200, true);}
 dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
+dust.filters.get_image_caption = function(content) {return content.replace(/<a(.*?)<\/a>/,'')}
 
 function getAnnotation(idx)
 {

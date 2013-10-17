@@ -1,1 +1,10 @@
-{>"themeBase/item/posttype/image"/}
+{>"{baseItem}"/}
+{<itemClass}image{/itemClass}
+{<contentCore}
+  {+extenalImageContainer}{/extenalImageContainer}
+	{+externalTextContainer}{/externalTextContainer}
+{/contentCore}
+{<externalImageLink}{Meta.Content.href}{/externalImageLink}
+{<externalImageAlt}{Meta.caption}{/externalImageAlt}
+{<externalImageSrc}{Meta.Content.href}{/externalImageSrc}
+{<externalText}{Content|get_image_caption}{/externalText}
