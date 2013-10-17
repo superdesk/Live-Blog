@@ -62,6 +62,7 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%content-packager
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%content-publisher
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%frontline
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%frontline-inlet
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-verification
 
 
 
