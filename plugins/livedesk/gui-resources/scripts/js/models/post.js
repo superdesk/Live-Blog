@@ -72,13 +72,23 @@ function(Gizmo, Person)
 		},
 		changeStatus: function(status)
 		{
-			//http://localhost:8080/resources/Data/PostVerification/12
-			//http://localhost:8080/resources/LiveDesk/Blog/Post/16/unverified
 			var self = this,
-				verificationHref = this.href.replace(/LiveDesk\/Blog\/Post\/(\d+)/,'Data/PostVerification/$1'),
+				verificationHref = this.href.replace(/LiveDesk\/Blog\/(\d+)\/Post\/(\d+)/,'Data/PostVerification/$2'),
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(verificationHref).update({ "Status": status },{headers: { 'X-Filter': ''}}).done(function(){
-					self.Class.triggerHandler('change-status', self);
+					self._parse({ PostVerification: { Status: { Key: status }}});
+					self.triggerHandler('update',{});
+				});
+			return ret;
+		},
+		changeChecker: function(checker)
+		{
+			var self = this,
+				verificationHref = this.href.replace(/LiveDesk\/Blog\/(\d+)\/Post\/(\d+)/,'Data/PostVerification/$2'),
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(verificationHref).update({ "Checker": checker.Id },{headers: { 'X-Filter': ''}}).done(function(){
+					self._parse({ PostVerification: { Checker: checker }});
+					self.triggerHandler('update',{});
 				});
 			return ret;
 		}
