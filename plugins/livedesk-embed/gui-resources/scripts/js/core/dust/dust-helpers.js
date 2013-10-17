@@ -105,6 +105,13 @@ dust.filters.trim150 = function(string){ return string.trunc(150, true);}
 dust.filters.trim200 = function(string){ return string.trunc(200, true);}
 dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
 dust.filters.get_image_caption = function(content) {return content.replace(/<a(.*?)<\/a>/,'')}
+dust.filters.image_only = function(content) {
+  var match = content.match(/<img(.*?)>/);
+  return match && match[0] ? match[0]: '';
+}
+dust.filters.without_image = function(content) {
+  return content.replace(/<img(.*?)>/,'');
+}
 
 function getAnnotation(idx)
 {
