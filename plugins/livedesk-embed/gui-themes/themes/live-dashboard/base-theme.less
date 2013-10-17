@@ -357,21 +357,30 @@ html.demo {
 		}
 	}
 
-	/* image not found @FIX THIS - TO-DO */
-	li {
+  .image {
 		.post-core-content {
+      .post-external-image {
+        img {
+          .maxed;
+          .heighted;
+          .verticalized;
+        }
+      }
 			.post-text {
-				span {
-					img {
-						.maxed;
-						.heighted;
-						.verticalized;
-					}
-				}
-				
+				position: absolute;
+				padding: 7px 10px;
+				bottom: 0;
+				min-height: 30px;
+				color: @almostmid;
+				width: 100%;
+				.border-box;
+				.shadowed-text;
+				z-index: 1000;
+				background: rgba(50,50,50,0.3);
 			}
 		}
 	}
+
 	/* quotes */
 	.quote {
 		.post-core-content {
@@ -395,6 +404,8 @@ html.demo {
 						.post-external-image {
 							.post-external-image-img {
 								margin: 0 auto!important;
+                .verticalized;
+                .maxed;
 							}
 						}
 					}
