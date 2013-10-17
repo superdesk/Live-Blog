@@ -7,6 +7,7 @@
     config.guiJs('livedesk', 'models/sync'),
     config.guiJs('livedesk', 'models/sync-collection'),
 	'jqueryui/draggable',
+	'jqueryui/autocomplete',
     'providers/chain/adaptor',
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/posts'),
@@ -22,6 +23,7 @@
 	'tmpl!livedesk>providers/chain/blog-content',
 	'tmpl!livedesk>providers/chain/timeline',
 	'tmpl!livedesk>citizen-desk/statuses-list',
+	'tmpl!livedesk>citizen-desk/checker-list',
 ], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
 
     var autoSources = new SyncCollection();
@@ -36,10 +38,10 @@
 			// 	.xfilter('EMail,FirstName,LastName,FullName,Name')
 			// 	.sync()
 			self.data = [
-				{ "Key": "nostatus", "Name": "No status"},
-				{ "Key": "verified", "Name": "Verified"},
-				{ "Key": "unverified", "Name": "Unverified"},
-				{ "Key": "onverification", "Name": "On verification"}
+				{ "Key": "nostatus", "Name": _("No status")},
+				{ "Key": "verified", "Name": _("Verified")},
+				{ "Key": "unverified", "Name": _("Unverified")},
+				{ "Key": "onverification", "Name": _("On verification")}
 			];
 			self.render();
     	},
@@ -49,32 +51,85 @@
     		self.el.tmpl('livedesk>citizen-desk/statuses-list', self.data);
     	}
     });
-    var UserSearch = Gizmo.View.extend({
-    		init: function(){
-    			var self = this;
-    			self.data = [];
-    			if(!self.collection) {
-    				self.collection = Gizmo.Auth(new Gizmo.Register.Users());
-    			}
-    			self.collection
-    				.on('read', self.render, self)
-    				.xfilter('EMail,FirstName,LastName,FullName,Name')
-    				.sync()
-    		},
-    		render: function(evt, data){
+    	var Users = Gizmo.Auth(new Gizmo.Register.Users());
+    		Users
+    			.xfilter('Id,EMail,FirstName,LastName,FullName,Name')
+    			//.limit(1)
+    			.sync();
+    	var
+    		UserVerification = Gizmo.View.extend({
+			init: function(){
 				var self = this;
-				self.data = self.collection.feed();
-    		}
-    	}),
+				self.data = [];
+				this.render();
+			},
+			events: {
+				'.assignment-result-list li': { 'click': 'changeChecker' }
+			},
+			sync: function() {
+				if(!self.collection) {
+					self.collection = Gizmo.Auth(new Gizmo.Register.Users());
+				}
+				self.collection
+					.on('read', self.render, self)
+					.xfilter('EMail,FirstName,LastName,FullName,Name')
+					.sync()    			
+			},
+			changeChecker: function(evt){
+				var self = this,
+					item = $(evt.target).closest('li').data( "item.autocomplete");
+				self.post.changeChecker(item.value);
+			},
+			render: function(evt, data){
+				var self = this;
+				self.collection.each(function(){
+					self.data.push({label: this.get('FullName'), value: this.feed()});
+				});
+				self.el.tmpl('livedesk>citizen-desk/checker-list', self.post.feed(), function(){
+					var autocomp = $('input',self.el).autocomplete({
+						autoFocus: true,
+						minLength: 0,
+						appendTo: $('.assignment-result-list',self.el),
+						source: self.data
+					}).data( "autocomplete" );
+					autocomp._renderItem = function( ul, item ) {
+							return $( "<li></li>" )
+								.data( "item.autocomplete", item )
+								.append( '<figure class="avatar-small"></figure><span>'+ item.label+'</span>'  )
+								.appendTo( ul );
+					};
+					autocomp._renderMenu = function( ul, items ) {
+						var self = this;
+						$.each( items, function( index, item ) {
+							self._renderItem( ul, item );
+						});
+						$( ul ).removeClass('ui-autocomplete');
+					};
+				});
+			}
+		}),
     	ChainPostView = PostView.extend({
     		events: {
-    			'': { afterRender: 'addDraggable'},
+    			'': { afterRender: 'addElements'},
     			'[data-status-key]': { click: 'changeStatus'}
     		},
     		changeStatus: function(evt){
     			var self = this,
     				status = $(evt.target).closest( "li" ).attr('data-status-key');
     			self.model.changeStatus(status);
+    		},
+    		addElements: function() {
+    			var self = this;
+    			self.addDraggable();
+    			self.addUserVerification();
+    		},
+    		addUserVerification: function(){
+    			var self = this;
+    			self.userVerification = new UserVerification({ 
+    				el: $('.verification-assign',self.el),
+    				post: self.model,
+    				collection: Users
+    			});
     		},
     		addDraggable: function(){
 				var self = this, obj;
@@ -90,7 +145,7 @@
 					start: function(evt, ui) {
 					    item = $(evt.currentTarget);
 					    $(ui.helper).css('width', item.width());
-					    $(this).data('data', providers.chain.adaptor.universal(self.model, { Id: self._parent.sourceId, URI: self._parent.sourceURI } ));
+					    $(this).data('post', self.model );
 					}
 				});
     		}
@@ -100,7 +155,9 @@
 			headers: {
                 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
-					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key'
+					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
+					'PostVerification.Checker.Id, PostVerification.Checker.FullName'
+					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
             },
 
 			init: function(){
@@ -221,6 +278,14 @@
 				return view;
 			},
 			addOne: function(model) {
+				/*!
+				 * @TODO: remove this when source it will be put on the blog children.
+				 */
+				var self = this,
+					blogParts = self.blog.href.match(/Blog\/(\d+)/),
+					modelHref = model.href.replace(/Blog/,'Blog/'+blogParts[1]);
+				model.setHref(modelHref);
+				model.data['href'] = modelHref;
 				var postView = new ChainPostView({ 
 					_parent: this,
 					model: model,
@@ -319,7 +384,8 @@
 							el: self.el,
 							collection: self.model.get('PostSourceUnpublished'),
 							sourceId: self.model.sourceId,
-							sourceURI: self.model.href
+							sourceURI: self.model.href,
+							blog: self._parent.blog
 					});
 				});
 			}
@@ -339,6 +405,9 @@
 				self.chainBlogContentViews = [];
 				if($.type(self.sourceBlogs) === 'undefined') {
 					self.sourceBlogs = new Gizmo.Register.Sources();
+					/*!
+					 * @TODO: remove this when source it will be put on the blog children.
+					 */
 					href = this.blog.get('Source').href;
 					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/Source?blogId=$1');
 					self.sourceBlogs.setHref(href);
@@ -462,7 +531,10 @@
 
 	    var blog = new Gizmo.Auth(new Gizmo.Register.Blog(blogUrl));
         blog.on('read', function() {
-			chain = new ChainBlogsView({el: this.el, blog: blog});
+			chain = new ChainBlogsView({
+				el: this.el, 
+				blog: blog,
+			});
 		}.apply(this));
         blog.sync();
 	}});
