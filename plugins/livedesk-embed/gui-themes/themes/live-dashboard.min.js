@@ -6,6 +6,7 @@ define([
   'tmpl!theme/container',
   'tmpl!theme/item/base',
   'tmpl!theme/item/posttype/image',
+  'tmpl!theme/item/posttype/normal',
   'tmpl!theme/item/source/instagram',
   'tmpl!theme/item/source/youtube'
 ], function(){
