@@ -1,0 +1,13 @@
+<div class="assignment-menu dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="icon-user"></i> {PostVerification.Checker.FullName} <b class="caret"></b></a>
+	<ul class="dropdown-menu sf-dropdown sf-dropdown-right assignment-box">
+		<h5 class="dropdown-title">_('Assign');</h5>
+		<div class="assignment-content">
+			<div class="sf-searchbox">
+				<input type="text" placeholder="_('Search');">
+			</div>
+			<div class="assignment-result-list">
+			</div>
+		</div>
+	</ul>
+</div>

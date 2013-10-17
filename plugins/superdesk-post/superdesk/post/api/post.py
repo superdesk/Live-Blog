@@ -21,6 +21,7 @@ from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 from superdesk.source.api.source import Source
 from superdesk.source.api.type import SourceType
+from superdesk.verification.api.verification import PostVerification
 
 # --------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ class Post(Entity):
     Type = PostType
     Creator = User
     Author = Collaborator
+    PostVerification = PostVerification
     IsModified = bool
     IsPublished = bool
     Meta = str
@@ -42,6 +44,7 @@ class Post(Entity):
     UpdatedOn = datetime
     DeletedOn = datetime
     AuthorName = str
+    
 
 # --------------------------------------------------------------------
 

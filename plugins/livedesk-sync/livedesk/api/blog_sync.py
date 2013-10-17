@@ -51,7 +51,18 @@ class IBlogSyncService(IEntityService):
     '''
     Provides the service methods for the blog sync.
     '''
+    
+    @call
+    def getBlogSyncByBlogAndSource(self, blog:Blog.Id, source:Source.Id) -> BlogSync:
+        '''
+        Returns the blog sync model for the given blog and source.
 
+        @param blog: Blog.Id
+            The blog identifier
+        @param source: Source.Id
+            The source identifier
+        '''
+    
     @call
     def getBlogSync(self, blog:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QBlogSync=None) -> Iter(BlogSync):
         '''

@@ -53,12 +53,24 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
         sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
-        sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
+        sql = sql.filter(SourceMapped.OriginURI.in_(sql_prov))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
-
+        
+        
+    def getBlogSyncByBlogAndSource(self, blog, source):
+        '''
+        @see IBlogSyncService.getBlogSyncByBlogAndSource
+        '''
+        try:
+            sql = self.session().query(BlogSyncMapped)
+            sql = sql.filter(BlogSyncMapped.Blog == blog)
+            sql = sql.filter(BlogSyncMapped.Source ==source)
+            return sql.one()
+        except: return None
+        
     def getBlogSync(self, blog, offset, limit, detailed, q):
         '''
         @see IBlogSyncService.getBlogSync

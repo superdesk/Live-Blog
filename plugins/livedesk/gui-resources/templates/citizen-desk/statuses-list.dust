@@ -1,0 +1,12 @@
+<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+  <h5 class="dropdown-title">
+    _('Change status');
+  </h5>
+  {#statuses}
+  <li data-status-key="{Key}">
+    <span class="label-{Key}">
+    </span>
+    {Name}
+  </li>
+  {/statuses}
+</ul>

@@ -16,6 +16,7 @@ from ally.support.api.keyed import Entity
 from livedesk.api.domain_livedesk import modelLiveDesk
 from livedesk.api.blog import Blog
 from superdesk.post.api.post import Post
+from livedesk.api.blog_post import QBlogPostUnpublished
 
 # --------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ class IBlogCommentService:
 
     @call(webName='Comment')
     def getComments(self, blogId:Blog.Id, offset:int=None, limit:int=None, detailed:bool=True,
-                    q:QBlogPost=None) -> Iter(BlogPost):
+                    q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Lists comment Posts of the specified blog.
         '''

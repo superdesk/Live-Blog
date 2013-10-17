@@ -25,6 +25,10 @@ from superdesk.source.api.source import Source
 from ally.api.extension import IterPart
 from ally.api.criteria import AsLike
 
+#TODO: Hack to be able to get the list of the chained blog sources for a blog;
+#It should be removed when the new version of ally-py is used 
+from livedesk.meta.blog import BlogSourceDB
+
 # --------------------------------------------------------------------
 
 ALL_NAMES = (SourceMapped.Name, SourceMapped.URI)
@@ -61,6 +65,12 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
                     for col in ALL_NAMES:
                         filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
                 sql = sql.filter(filter)
+            
+            #TODO: Hack to be able to get the list of the chained blog sources for a blog;
+            #It should be removed when the new version of ally-py is used    
+            if QSource.blogId in q:
+                sqlIn = self.session().query(BlogSourceDB.source).filter(BlogSourceDB.blog == q.blogId.equal)
+                sql = sql.filter(SourceMapped.Id.in_(sqlIn))    
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)

@@ -36,6 +36,9 @@ from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
+from superdesk.post.api.post import Post
+from superdesk.verification.api.verification import PostVerification,\
+    IPostVerificationService
 
 # --------------------------------------------------------------------
 
@@ -58,6 +61,9 @@ class BlogSyncProcess:
 
     blogPostService = IBlogPostService; wire.entity('blogPostService')
     # blog post service used to insert blog posts
+    
+    postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
+    # post verification service used to insert post berification
 
     collaboratorService = ICollaboratorService; wire.entity('collaboratorService')
     # blog post service used to retrive collaborator
@@ -105,7 +111,7 @@ class BlogSyncProcess:
         Read all blog sync entries for which auto was set true and sync
         the corresponding blogs.
         '''
-        for blogSync in self.blogSyncService.getAll(q=QBlogSync(auto=True)):
+        for blogSync in self.blogSyncService.getAll(): #q=QBlogSync(auto=True)):
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
             thread = self.syncThreads.get(key)
@@ -119,11 +125,11 @@ class BlogSyncProcess:
             self.syncThreads[key].start()
             log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
-    def _syncBlogLoop(self, blogSync):
-        while True:
-            log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
-            self._syncBlog(blogSync)
-            sleep(self.sync_interval)
+#     def _syncBlogLoop(self, blogSync):
+#         while True:
+#             log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+#             self._syncBlog(blogSync)
+#             sleep(self.sync_interval)
 
     def _syncBlog(self, blogSync):
         '''
@@ -164,15 +170,16 @@ class BlogSyncProcess:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
 
-                lPost = BlogPost()
+                lPost = Post()
                 lPost.Type = post['Type']['Key']
                 lPost.Creator = blogSync.Creator
                 lPost.Author, userId = self._getCollaboratorForAuthor(post['Author'], source)
                 lPost.Meta = post['Meta'] if 'Meta' in post else None
                 lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 lPost.Content = post['Content'] if 'Content' in post else None
-                lPost.CreatedOn = lPost.PublishedOn = current_timestamp()
-
+                lPost.CreatedOn = current_timestamp()              
+                if blogSync.Auto: lPost.PublishedOn = current_timestamp()
+  
                 if userId and (userId not in usersForIcons):
                     try:
                         usersForIcons[userId] = post['Author']['User']
@@ -187,6 +194,12 @@ class BlogSyncProcess:
                 self.blogPostService.insert(blogSync.Blog, lPost)
                 # update blog sync entry
                 self.blogSyncService.update(blogSync)
+                
+                #create PostVerification
+                postVerification = PostVerification()
+                postVerification.Id = lPost.Id
+                self.postVerificationService.insert(postVerification)
+                
             except KeyError as e:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
             except Exception as e:

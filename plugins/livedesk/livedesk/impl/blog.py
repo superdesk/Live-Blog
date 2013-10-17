@@ -22,7 +22,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists, or_
+from sqlalchemy.sql.expression import exists, or_, and_
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source, QSource
@@ -36,6 +36,8 @@ from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
 from sqlalchemy.orm.util import aliased
+from livedesk.meta.blog_sync import BlogSyncMapped
+from livedesk.api.blog_sync import BlogSync, IBlogSyncService
 
 # --------------------------------------------------------------------
 
@@ -135,13 +137,20 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
     '''
-    sources_auto_delete = ['chained blog', ]; wire.config('sources_auto_delete', doc='''
+    chained_blog_type = 'chained blog'
+    sources_auto_delete = [chained_blog_type, ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
     Key of the source type for blog providers''')
 
     sourceService = ISourceService; wire.entity('sourceService')
     # The source service used to manage all operations on sources
+    
+    blogSyncService = IBlogSyncService; wire.entity('blogSyncService')
+    # The blog sync service used to manage all operations on sources
+    
+    blogService = IBlogService; wire.entity('blogService')
+    # The blog sync service used to manage all operations on sources
 
     def __init__(self):
         '''
@@ -190,7 +199,17 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         else:
             source.Id = sourceId = sources[0].Id
             self.sourceService.update(source)
-
+        
+        if source.Type == self.chained_blog_type and self.blogSyncService.getBlogSyncByBlogAndSource(blogId, sourceId) == None:
+            blog = self.blogService.getBlog(blogId)
+            
+            blogSync = BlogSyncMapped()
+            blogSync.Blog = blogId
+            blogSync.Source = source.Id
+            blogSync.Auto = False
+            blogSync.Creator = blog.Creator
+            self.blogSyncService.insert(blogSync)    
+            
         ent = BlogSourceDB()
         ent.blog = blogId
         ent.source = sourceId
