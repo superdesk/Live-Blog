@@ -14,10 +14,10 @@ import logging
 from urllib.request import urlopen
 from ally.api.model import Content
 from urllib.error import HTTPError
-from ally.exception import InputError, Ref
 from ally.internationalization import _
 from urllib.request import Request
 from urllib.parse import quote, urlsplit, SplitResult, urlunsplit
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -58,12 +58,12 @@ class ChainedIconContent(Content):
             try: self._response = urlopen(self._url)
             except (HTTPError, socket.error) as e:
                 log.error('Can not read icon image data %s' % e)
-                raise InputError(Ref(_('Can not open icon URL'),))
+                raise InputError(_('Can not open icon URL'),)
             if not self._response:
                 log.error('Can not read icon image data %s' % e)
-                raise InputError(Ref(_('Can not open icon URL'),))
+                raise InputError(_('Can not open icon URL'),)
             if str(self._response.status) != '200':
-                raise InputError(Ref(_('Can not open icon URL'),))
+                raise InputError(_('Can not open icon URL'),)
 
             self.type = self._response.getheader('Content-Type')
             if not self.type:
@@ -81,7 +81,7 @@ class ChainedIconContent(Content):
             return self._response.read()
         except (HTTPError, socket.error) as e:
             log.error('Can not read icon image data %s' % e)
-            raise InputError(Ref(_('Can not read from icon URL'),))
+            raise InputError(_('Can not read from icon URL'),)
 
     def next(self):
         '''

@@ -11,7 +11,6 @@ Contains upgrade functions
 
 from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
-from ..superdesk.db_superdesk import alchemySessionCreator
 from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
 from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
 from ally.container import app
@@ -24,8 +23,9 @@ from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
-from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
 from __plugin__.livedesk.populate_default_data import createSourceType
+from sql_alchemy.database_config import alchemySessionCreator
+from ally.design.priority import PRIORITY_LAST
 
 # --------------------------------------------------------------------
 

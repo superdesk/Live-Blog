@@ -12,10 +12,10 @@ API specifications for livedesk blog collaborator group.
 from .blog import Blog
 from ally.api.config import service, call, DELETE, UPDATE
 from ally.api.type import Iter
-from ally.support.api.entity import Entity
 from datetime import datetime
 from livedesk.api.blog_collaborator import BlogCollaborator
 from livedesk.api.domain_livedesk import modelLiveDesk
+from ally.support.api.entity_ided import Entity
 
 # --------------------------------------------------------------------
 

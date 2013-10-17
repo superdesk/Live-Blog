@@ -12,14 +12,12 @@ Contains the SQL alchemy meta for blog API.
 from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, IBlogConfigurationService
 from ..meta.blog import BlogMapped, BlogConfigurationMapped
 from support.impl.configuration import createConfigurationImpl
-from ally.api.extension import IterPart
 from ally.api.criteria import AsBoolean
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
+    BlogCollaboratorTypeMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists, or_
@@ -35,7 +33,8 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from sqlalchemy.orm.util import aliased
+from ally.api.error import InputError
+from sql_alchemy.support.util_service import buildQuery, iterateCollection
 
 # --------------------------------------------------------------------
 
@@ -49,6 +48,13 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
     '''
+    admin_types = ['Administrator']; wire.config('admin_types', doc='''
+    The collaborator type(s) name associated with the administrator filter.
+    ''')
+    collaborator_types = ['Administrator', 'Collaborator']; wire.config('collaborator_types', doc='''
+    The collaborator type(s) name associated with the collaborator filter.
+    ''')
+
     def __init__(self):
         '''
         Construct the blog service.
@@ -63,24 +69,21 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = sql.filter(BlogMapped.Id == blogId)
 
         try: return sql.one()
-        except NoResultFound: raise InputError(Ref(_('Unknown id'), ref=Blog.Id))
+        except NoResultFound: raise InputError(_('Unknown id'), ref=Blog.Id)
 
-    def getAll(self, languageId=None, userId=None, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, languageId=None, userId=None, q=None, **options):
         '''
         @see: IBlogService.getAll
         '''
-        sql = self._buildQuery(languageId, userId, q)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(self._buildQuery(languageId, userId, q), **options)
 
-    def getLive(self, languageId=None, userId=None, q=None):
+    def getLive(self, languageId=None, userId=None, q=None, **options):
         '''
         @see: IBlogService.getLive
         '''
         sql = self._buildQuery(languageId, userId, q)
         sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
-        return sql.all()
+        return iterateCollection(sql, **options)
 
     def putLive(self, blogId):
         '''
@@ -92,7 +95,6 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         self.session().merge(blog)
 
-
     def insert(self, blog):
         '''
         @see: IBlogService.insert
@@ -101,13 +103,49 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if blog.CreatedOn is None: blog.CreatedOn = current_timestamp()
         return super().insert(blog)
 
+    def isBlogAdmin(self, userId, blogId):
+        '''
+        @see: IBlogService.isBlogAdmin
+        '''
+        return self._isUserAllowed(userId, blogId, self.admin_types)
+
+    def isBlogCollaborator(self, userId, blogId):
+        '''
+        @see: IBlogService.isBlogCollaborator
+        '''
+        return self._isUserAllowed(userId, blogId, self.collaborator_types)
+
+    def isBlogOpen(self, userId, blogId):
+        '''
+        @see: IBlogService.isBlogOpen
+        '''
+        sql = self.session().query(BlogMapped.Id)
+        sql = sql.filter(BlogMapped.Id == blogId).filter(BlogMapped.ClosedOn == None)
+        return sql.count() > 0
+
     # ----------------------------------------------------------------
+
+    def _isUserAllowed(self, userId, blogId, collaboratorTypes):
+        '''
+        Return true if the user has access to the given blog and his collaborator type
+        is in the list of allowed collaborator types.
+        '''
+        sql = self.session().query(BlogMapped.Id)
+        sql = sql.filter(BlogMapped.Id == blogId)
+        sql = sql.filter(BlogMapped.Creator == userId)
+        if sql.count() > 0: return True
+
+        sql = self.session().query(BlogCollaboratorMapped.Id)
+        sql = sql.join(BlogCollaboratorTypeMapped)
+        sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
+        sql = sql.filter((BlogCollaboratorMapped.User == userId) & BlogCollaboratorTypeMapped.Name.in_(collaboratorTypes))
+        return sql.count() > 0
 
     def _buildQuery(self, languageId=None, userId=None, q=None):
         '''
         Builds the general query for blogs.
         '''
-        sql = self.session().query(BlogMapped)
+        sql = self.session().query(BlogMapped.Id)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if userId:
             userFilter = (BlogMapped.Creator == userId) | exists().where((CollaboratorMapped.User == userId) \
@@ -154,12 +192,12 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         '''
         source = self.session().query(SourceMapped).get(sourceId)
         if not source:
-            raise InputError(Ref(_('Unknown source'),))
+            raise InputError(_('Unknown source'),)
         sql = self.session().query(BlogSourceDB)
         sql = sql.filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId)
         return source
 
-    def getSources(self, blogId):
+    def getSources(self, blogId, **options):
         '''
         @see: IBlogSourceService.getSources
         '''
@@ -168,11 +206,11 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         sql = sql.join(BlogMapped, BlogMapped.Id == BlogSourceDB.blog).filter(BlogMapped.Id == blogId)
 
         sql_prov = self.session().query(SourceMapped.URI)
-        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.join(SourceTypeMapped)
         sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
         sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
-        return sql.all()
+        return iterateCollection(sql, **options)
 
     def addSource(self, blogId, source):
         '''
@@ -198,7 +236,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             self.session().add(ent)
             self.session().flush((ent,))
         except SQLAlchemyError:
-            raise InputError(Ref(_('Cannot add blog-source link.'),))
+            raise InputError(_('Cannot add blog-source link.'),)
         return sourceId
 
     def deleteSource(self, blogId, sourceId):
@@ -210,7 +248,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
         try:
             res = self.session().query(BlogSourceDB).filter(BlogSourceDB.blog == blogId).filter(BlogSourceDB.source == sourceId).delete() > 0
             if res:
-                sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped, SourceTypeMapped.id == SourceMapped.typeId).filter(SourceMapped.Id == sourceId).one()
+                sourceTypeKey, = self.session().query(SourceTypeMapped.Key).join(SourceMapped).filter(SourceMapped.Id == sourceId).one()
                 if sourceTypeKey in self.sources_auto_delete:
                     try:
                         self.sourceService.delete(sourceId)
@@ -218,9 +256,9 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             return res
         except OperationalError:
             assert log.debug('Could not delete blog source with blog id \'%s\' and source id \'%s\'', blogId, sourceId, exc_info=True) or True
-            raise InputError(Ref(_('Cannot delete because is in use'),))
+            raise InputError(_('Cannot delete because is in use'),)
 
-    def getChainedPosts(self, blogId, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
+    def getChainedPosts(self, blogId, sourceTypeKey, q=None, **options):
         '''
         @see: IBlogSourceService.getChainedPosts
         '''
@@ -236,10 +274,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             if q and QPostWithPublished.isPublished in q:
                 if q.isPublished.value: sql = sql.filter(PostMapped.PublishedOn != None)
                 else: sql = sql.filter(PostMapped.PublishedOn == None)
-
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
 # --------------------------------------------------------------------
 

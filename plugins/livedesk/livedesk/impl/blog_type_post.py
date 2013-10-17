@@ -11,10 +11,7 @@ Contains the implementation of the blog type post API.
 
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.container.support import setup
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
@@ -26,6 +23,9 @@ from sqlalchemy.sql.operators import desc_op
 from livedesk.api.blog_type_post import IBlogTypePostService, BlogTypePost, \
     QBlogTypePost, BlogTypePostPersist
 from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
+from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
+    iterateCollection
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -55,9 +55,9 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         sql = sql.filter(BlogTypePostMapped.Id == postId)
 
         try: return sql.one()
-        except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogTypePostMapped.Id))
+        except NoResultFound: raise InputError(_('No such blog post'), BlogTypePostMapped.Id)
 
-    def getAll(self, blogTypeId, typeId=None, offset=None, limit=None, q=None):
+    def getAll(self, blogTypeId, typeId=None, q=None, **options):
         '''
         @see: IBlogPostService.getAll
         '''
@@ -65,8 +65,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         sql = self._buildQuery(blogTypeId, typeId, q)
 
         sql = sql.order_by(desc_op(BlogTypePostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
+        return iterateCollection(self._trimmDeleted(sql.all()), **options)
 
     def insert(self, blogTypeId, post):
         '''
@@ -103,7 +102,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         sql = sql.filter(BlogTypePostMapped.Id == refPostId)
         order = sql.scalar()
 
-        if order is None: raise InputError(Ref(_('Invalid before post')))
+        if order is None: raise InputError(_('Invalid before post'))
 
         sql = self.session().query(BlogTypePostMapped.Order)
         sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)

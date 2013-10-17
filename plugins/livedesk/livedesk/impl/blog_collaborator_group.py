@@ -12,10 +12,7 @@ Contains the SQL alchemy meta for blog collaborator group API.
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.mapper import InsertFromSelect, tableFor
-from ally.support.sqlalchemy.session import SessionSupport
 from datetime import timedelta
 from livedesk.api.blog_collaborator_group import IBlogCollaboratorGroupService
 from livedesk.core.spec import IBlogCollaboratorGroupCleanupService
@@ -26,6 +23,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import current_timestamp
 import logging
+from sql_alchemy.support.util_service import SessionSupport
+from ally.api.error import InputError
+from sql_alchemy.support.mapper import InsertFromSelect, tableFor
 
 # --------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ class BlogCollaboratorGroupService(SessionSupport, IBlogCollaboratorGroupService
         try: 
             group = sql.one()
             return group
-        except NoResultFound: raise InputError(Ref(_('No collaborator group'), ref=BlogCollaboratorGroupMapped.Id))
+        except NoResultFound: raise InputError(_('No collaborator group'), BlogCollaboratorGroupMapped.Id)
 
     # ----------------------------------------------------------------
             
@@ -176,7 +176,7 @@ def updateLastAccessOn(session, groupId):
     sql = sql.filter(BlogCollaboratorGroupMapped.Id == groupId)
 
     try: group = sql.one()
-    except NoResultFound: raise InputError(Ref(_('No collaborator group'), ref=BlogCollaboratorGroupMapped.Id))
+    except NoResultFound: raise InputError(_('No collaborator group'), BlogCollaboratorGroupMapped.Id)
     
     group.LastAccessOn = current_timestamp()
     session.add(group) 

@@ -16,7 +16,6 @@ from ..meta.blog_post import BlogPostMapped
 from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
@@ -26,15 +25,15 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.user.api.user import IUserService, User
 from superdesk.user.meta.user import UserMapped
 from superdesk.user.meta.user_type import UserTypeMapped
-from superdesk.person.meta.person import PersonMapped
 from superdesk.source.api.source import ISourceService, Source
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from datetime import datetime
 from ally.container import wire
-from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
+from sql_alchemy.support.util_service import buildQuery, iterateCollection
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -71,7 +70,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         assert isinstance(self.collaboratorService, ICollaboratorService), 'Invalid collaborator service %s' % self.collaboratorService
         assert isinstance(self.userService, IUserService), 'Invalid user service %s' % self.userService
 
-    def getComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
+    def getComments(self, blogId, q=None, **options):
         '''
         @see: IBlogCommentService.getComments
         '''
@@ -82,11 +81,9 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             assert isinstance(q, QBlogPost), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogPostMapped)
 
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getOriginalComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
+    def getOriginalComments(self, blogId, q=None, **options):
         '''
         @see: IBlogCommentService.getOriginalComments
         TODO: this is just for enabling the comment-post URL in the resources
@@ -100,7 +97,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         # checking if the blog exists
         # checking whether comments are allowed shall be done in gateway
         if not self.session().query(exists().where(BlogMapped.Id == blogId)).scalar():
-            raise InputError(Ref(_('Specified blog does not exist'),))
+            raise InputError(_('Specified blog does not exist'),)
 
         userName = comment.UserName
         commentText = comment.CommentText
@@ -108,19 +105,19 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
 
         # checking the necessary info: user name and comment text
         if not userName:
-            raise InputError(Ref(_('No value for the mandatory UserName'),))
+            raise InputError(_('No value for the mandatory UserName'),)
         if not commentText:
-            raise InputError(Ref(_('No value for the mandatory CommentText'),))
+            raise InputError(_('No value for the mandatory CommentText'),)
 
         # take (or make) the user (for user name) part of creator and collaborator
         userTypeId, = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == self.user_type_key).one()
         try:
             sql = self.session().query(UserMapped.userId, UserMapped.Active)
-            sql = sql.filter(UserMapped.typeId == userTypeId)
+            sql = sql.filter(UserMapped.Type == userTypeId)
             sql = sql.filter(UserMapped.FirstName == userName)
             userId, isActive = sql.one()
             if not isActive:
-                raise InputError(Ref(_('The commentator user was inactivated'),))
+                raise InputError(_('The commentator user was inactivated'),)
         except:
             user = User()
             user.FirstName = userName
@@ -167,14 +164,13 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         postId = self.blogPostService.insert(blogId, post)
 
         return postId
-        #return (self.blogPostService.getById(blogId, postId),)
 
     # ------------------------------------------------------------------
     def _freeCommentUserName(self):
         userName = 'Comment-' + binascii.b2a_hex(os.urandom(8)).decode()
         while True:
             try:
-                userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
+                _userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
 

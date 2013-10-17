@@ -9,12 +9,12 @@ Created on Aug 30, 2012
 Contains the SQL alchemy meta for blog type API.
 '''
 
-from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
 from livedesk.api.blog_type import BlogType
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
+from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
@@ -26,5 +26,6 @@ class BlogTypeMapped(Base, BlogType):
     __tablename__ = 'livedesk_blog_type'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Name = Column('name', String(255), nullable=False)
+    Name = Column('name', String(255), nullable=False, unique=True)
+    # ----------------------------------------------------------------
+    id = Column('id', INTEGER(unsigned=True), primary_key=True)

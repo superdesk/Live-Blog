@@ -9,15 +9,16 @@ Created on April 26, 2013
 API specifications for liveblog sync.
 '''
 
-from ally.support.api.entity import Entity, IEntityService, QEntity
 from livedesk.api.blog import Blog
 from datetime import datetime
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.api.config import query, service, LIMIT_DEFAULT, call
+from ally.api.config import query, service, call
 from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean
 from superdesk.source.api.source import Source
 from ally.api.type import Iter
 from superdesk.user.api.user import User
+from ally.support.api.entity_ided import Entity, IEntityService, QEntity
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ class IBlogSyncService(IEntityService):
     '''
 
     @call
-    def getBlogSync(self, blog:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QBlogSync=None) -> Iter(BlogSync):
+    def getBlogSync(self, blog:Blog.Id, q:QBlogSync=None, **options:SliceAndTotal) -> Iter(BlogSync.Id):
         '''
         Returns the list of blog sync models for the given blog.
 

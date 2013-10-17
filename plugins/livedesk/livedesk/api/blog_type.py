@@ -11,8 +11,8 @@ API specifications for livedesk blog type.
 
 from ally.api.config import query, service
 from ally.api.criteria import AsLike
-from ally.support.api.entity import Entity, IEntityService, QEntity
 from livedesk.api.domain_livedesk import modelLiveDesk
+from ally.support.api.entity_named import Entity, QEntity, IEntityService
 
 # --------------------------------------------------------------------
 
@@ -21,7 +21,6 @@ class BlogType(Entity):
     '''
     Provides the blog type model.
     '''
-    Name = str
 
 # --------------------------------------------------------------------
 

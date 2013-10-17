@@ -12,7 +12,7 @@ API specifications for livedesk blog posts.
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query, UPDATE, extension
 from ally.api.criteria import AsRangeOrdered, AsBoolean, AsLike
-from ally.api.extension import IterPart
+from ally.api.extension import IterSlice
 from ally.api.type import Iter, Reference
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.collaborator.api.collaborator import Collaborator
@@ -21,6 +21,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, IPostService
 from superdesk.post.api.type import PostType
 from superdesk.user.api.user import User
 from livedesk.api.blog_collaborator_group import BlogCollaboratorGroup
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
@@ -69,7 +70,7 @@ class QBlogPost(QPost, QWithCId):
 # --------------------------------------------------------------------
 
 @extension
-class IterPost(IterPart):
+class IterPost(IterSlice):
     '''
     The post iterable that provides extended information on the posts collection.
     The offsetMore parameter was removed to limit the query count that the client generates otherwise.
@@ -91,37 +92,38 @@ class IBlogPostService:
         '''
 
     @call(webName='Published')
-    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
-                     offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
+    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+                     q:QBlogPostPublished=None, **options:SliceAndTotal) -> Iter(BlogPost.Id):
         '''
         Provides all the blogs published posts. The detailed iterator will return a @see: IterPost.
         '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
-                       offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+                       q:QBlogPostUnpublished=None, **options:SliceAndTotal) -> Iter(BlogPost.Id):
         '''
         Provides all the unpublished blogs posts.
         '''
     
     @call(webName='GroupUnpublished')
-    def getGroupUnpublished(self, blogId:Blog, groupId:BlogCollaboratorGroup, typeId:PostType=None, authorId:Collaborator=None, thumbSize:str=None,
-                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
+    def getGroupUnpublished(self, blogId:Blog, groupId:BlogCollaboratorGroup, typeId:PostType=None,
+                            authorId:Collaborator=None, q:QBlogPostUnpublished=None,
+                            **options:SliceAndTotal) -> Iter(BlogPost.Id):
         '''
         Provides all the unpublished blogs posts for current blog colllaborator group.
         '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, thumbSize:str=None, offset:int=None, limit:int=None,
-                 q:QBlogPost=None) -> Iter(BlogPost):
+    def getOwned(self, blogId:Blog, creatorId:User, typeId:PostType=None, q:QBlogPost=None,
+                 **options:SliceAndTotal) -> Iter(BlogPost.Id):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have
         an Author.
         '''
 
     @call
-    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
-                       offset:int=None, limit:int=None, q:QBlogPost=None) -> Iter(BlogPost):
+    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+               q:QBlogPost=None, **options:SliceAndTotal) -> Iter(BlogPost.Id):
         '''
         Provides all the unpublished blogs posts.
         '''

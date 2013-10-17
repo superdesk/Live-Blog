@@ -9,7 +9,6 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from ..superdesk.db_superdesk import alchemySessionCreator
 from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
 from ally.container import ioc, app
@@ -27,7 +26,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
-from superdesk.language.api.language import ILanguageService, LanguageEntity
+from superdesk.language.api.language import ILanguageService, Language
 from superdesk.post.api.post import Post
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -37,6 +36,7 @@ import csv
 from superdesk.user.meta.user_type import UserTypeMapped
 from livedesk.meta.blog_media import BlogMediaTypeMapped
 from sqlalchemy.sql.expression import exists
+from sql_alchemy.database_config import alchemySessionCreator
 
 # --------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ def getLanguagesIds():
     languages = { lang.Code: lang.Id for lang in languageService.getAll() }
     for code in LANGUAGES:
         if code not in languages:
-            lang = LanguageEntity()
+            lang = Language()
             lang.Code = code
             languages[code] = languageService.insert(lang)
     return languages

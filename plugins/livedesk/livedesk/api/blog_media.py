@@ -9,21 +9,23 @@ Created on August 12, 2013
 API specifications for livedesk blog media.
 '''
 
-from ally.api.config import service, call, UPDATE, LIMIT_DEFAULT
+from ally.api.config import service, call, UPDATE
 from ally.api.type import Iter
 from livedesk.api.blog import Blog
 from superdesk.media_archive.api.meta_info import MetaInfo
-from ally.support.api.entity import Entity, IEntityService
-from ally.support.api.keyed import Entity as EntityKeyed, IEntityGetService, IEntityFindService
 from livedesk.api.domain_livedesk import modelLiveDesk
+from ally.support.api.entity_ided import Entity, IEntityService
+from ally.api.option import SliceAndTotal # @UnusedImport
+from ally.support.api.entity import IEntityGetPrototype, IEntityFindPrototype
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk
-class BlogMediaType(EntityKeyed):
+@modelLiveDesk(id='Key')
+class BlogMediaType:
     '''
     Provides the blog media type model.
     '''
+    Key = str
 
 # --------------------------------------------------------------------
 
@@ -43,8 +45,8 @@ class BlogMedia(Entity):
 
 # --------------------------------------------------------------------
 
-@service((EntityKeyed, BlogMediaType),)
-class IBlogMediaTypeService(IEntityGetService, IEntityFindService):
+@service(('Entity', BlogMediaType),)
+class IBlogMediaTypeService(IEntityGetPrototype, IEntityFindPrototype):
     '''
     Provides the service methods for the blog media types.
     '''
@@ -58,7 +60,7 @@ class IBlogMediaService(IEntityService):
     '''
 
     @call
-    def getAll(self, blogId:Blog.Id, typeKey:BlogMediaType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(BlogMedia):
+    def getAll(self, blogId:Blog.Id, typeKey:BlogMediaType.Key=None, **options:SliceAndTotal) -> Iter(BlogMedia.Id):
         '''
         Provides all blogs media.
         '''

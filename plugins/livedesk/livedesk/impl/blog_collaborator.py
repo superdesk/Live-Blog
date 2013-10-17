@@ -10,16 +10,11 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import IBlogCollaboratorService
-from acl.api.filter import IAclFilter
-from acl.spec import Filter
 from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.api.blog_collaborator import BlogCollaborator
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
@@ -28,9 +23,11 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import not_
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.security.api.user_action import IUserActionService
 from superdesk.source.meta.source import SourceMapped
 from superdesk.user.meta.user import UserMapped
+from sql_alchemy.support.util_service import SessionSupport, iterateCollection, \
+    buildQuery
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -108,20 +105,18 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sql = sql.filter(BlogCollaboratorMapped.Id == collaboratorId)
 
         try: return sql.one()
-        except NoResultFound: raise InputError(Ref(_('No collaborator'), ref=BlogCollaboratorMapped.Id))
+        except NoResultFound: raise InputError(_('No collaborator'), ref=BlogCollaboratorMapped.Id)
 
-    def getAll(self, blogId, offset=None, limit=None, detailed=True):
+    def getAll(self, blogId, **options):
         '''
         @see: IBlogCollaboratorService.getAll
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         sql = sql.filter(UserMapped.Active == True)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
-    def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qu=None, qs=None):
+    def getPotential(self, blogId, excludeSources=True, qu=None, qs=None, **options):
         '''
         @see: IBlogCollaboratorService.getPotential
         '''
@@ -133,9 +128,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         if excludeSources: sql = sql.filter(CollaboratorMapped.User != None)
         if qu: sql = buildQuery(sql, qu, UserMapped)
         if qs: sql = buildQuery(sql, qs, SourceMapped)
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
     def addCollaboratorAsDefault(self, blogId, collaboratorId):
         '''
@@ -148,7 +141,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         @see: IBlogCollaboratorService.addCollaborator
         '''
         typeId = self.collaboratorTypeIds()[typeName]
-        if typeId is None: raise InputError(Ref(_('Invalid collaborator type'), ref=BlogCollaborator.Type))
+        if typeId is None: raise InputError(_('Invalid collaborator type'), BlogCollaborator.Type)
 
         sql = self.session().query(BlogCollaboratorEntry)
         sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
@@ -179,7 +172,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
             sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
             return sql.delete() > 0
         except OperationalError:
-            raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))
+            raise InputError(_('Cannot remove'), BlogCollaboratorMapped)
 
     # ----------------------------------------------------------------
 

@@ -16,11 +16,8 @@ from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost, IterPost
+from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
@@ -34,6 +31,9 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
+from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
+    iterateCollection
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -65,10 +65,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Id == postId)
 
         try: return self._addImage(sql.one(), thumbSize)
-        except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
+        except NoResultFound: raise InputError(_('No such blog post'), BlogPostMapped.Id)
 
-    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
-                     detailed=False, q=None):
+    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, q=None, withTotal=False, **options):
         '''
         @see: IBlogPostService.getPublished
         '''
@@ -87,16 +86,12 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
-        sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
-        if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
-
+        posts = iterateCollection(sql, withTotal, **options)
+        if withTotal:
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
 
-    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
-                       detailed=False, q=None):
+    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, q=None, withTotal=False, **options):
         '''
         @see: IBlogPostService.getUnpublished
         '''
@@ -113,15 +108,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
-        if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
 
+        posts = iterateCollection(sql, withTotal, **options)
+        if withTotal:
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
 
-    def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
+    def getGroupUnpublished(self, blogId, groupId, typeId=None, authorId=None, q=None, **options):
         '''
         @see: IBlogPostService.getUnpublished
         '''
@@ -138,10 +131,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Creator))
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all())
+        return iterateCollection(sql, **options)
 
-    def getOwned(self, blogId, creatorId, typeId=None, thumbSize=None, offset=None, limit=None, q=None):
+    def getOwned(self, blogId, creatorId, typeId=None, q=None, **options):
         '''
         @see: IBlogPostService.getOwned
         '''
@@ -152,10 +144,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all(), thumbSize)
+        return iterateCollection(sql, **options)
 
-    def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
+    def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, q=None, **options):
         '''
         @see: IBlogPostService.getAll
         '''
@@ -163,8 +154,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all(), thumbSize)
+        return iterateCollection(sql, **options)
 
     def insert(self, blogId, post):
         '''
@@ -186,7 +176,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         post = self.getById(blogId, postId)
         assert isinstance(post, Post)
 
-        if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
+        if post.PublishedOn: raise InputError(_('Already published'), Post.PublishedOn)
 
         post.PublishedOn = current_timestamp()
         self.postService.update(post)
@@ -219,7 +209,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         post = self.getById(blogId, postId)
         assert isinstance(post, Post)
 
-        if not post.PublishedOn: raise InputError(Ref(_('Already unpublished'), ref=Post.PublishedOn))
+        if not post.PublishedOn: raise InputError(_('Already unpublished'), Post.PublishedOn)
 
         post.PublishedOn = None
         self.postService.update(post)
@@ -251,7 +241,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Id == refPostId)
         order = sql.scalar()
 
-        if not order: raise InputError(Ref(_('Invalid before post')))
+        if not order: raise InputError(_('Invalid before post'))
 
         sql = self.session().query(BlogPostMapped.Order)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
@@ -313,8 +303,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         Creates the general query filter for posts based on the provided parameters.
         '''
-
-        sql = self.session().query(BlogPostMapped)
+        sql = self.session().query(BlogPostMapped.Id)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         if isinstance(q, QWithCId) and QWithCId.search in q:
             all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)

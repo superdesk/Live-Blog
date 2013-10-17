@@ -12,14 +12,13 @@ Implementation for the person icon.
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import handle
-from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
+from sqlalchemy.exc import OperationalError, IntegrityError
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.person_icon.api.person_icon import IPersonIconService
-from superdesk.person_icon.meta.person_icon import PersonIconMapped
+from sql_alchemy.support.util_service import SessionSupport
+from ally.api.error import InputError
+from superdesk.person_icon.meta.person_icon import PersonIcon
 
 # --------------------------------------------------------------------
 
@@ -42,9 +41,9 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         '''
         @see: IPersonIconService.getById
         '''
-        personIcon = self.session().query(PersonIconMapped).get(id)
-        if not personIcon: raise InputError(Ref(_('Invalid person icon'), ref=PersonIconMapped.Id))
-        assert isinstance(personIcon, PersonIconMapped)
+        personIcon = self.session().query(PersonIcon).get(id)
+        if not personIcon: raise InputError(_('Invalid person icon'), PersonIcon.id)
+        assert isinstance(personIcon, PersonIcon)
         assert isinstance(self.metaDataService, IMetaDataService)
         metaData = self.metaDataService.getById(personIcon.MetaData, scheme, thumbSize)
         return metaData
@@ -53,12 +52,10 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         '''
         @see: IPersonIconService.setIcon
         '''
-        entityDb = PersonIconMapped()
+        entityDb = PersonIcon()
         entityDb.Id, entityDb.MetaData = personId, metaDataId
-        try:
-            self.session().merge(entityDb)
-            self.session().flush((entityDb,))
-        except SQLAlchemyError as e: handle(e, entityDb)
+        self.session().merge(entityDb)
+        self.session().flush((entityDb,))
         return entityDb.Id
 
     def detachIcon(self, personIconId):
@@ -66,6 +63,6 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         @see: IPersonIconService.detachIcon
         '''
         try:
-            return self.session().query(PersonIconMapped).filter(PersonIconMapped.Id == personIconId).delete() > 0
+            return self.session().query(PersonIcon).filter(PersonIcon.id == personIconId).delete() > 0
         except (OperationalError, IntegrityError):
-            raise InputError(Ref(_('Can not detach person icon because in use'),))
+            raise InputError(_('Can not detach person icon because in use'),)

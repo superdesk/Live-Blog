@@ -10,11 +10,9 @@ API specifications for livedesk blog.
 '''
 
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.support.api.entity import Entity, IEntityCRUDService
-from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call, UPDATE, DELETE, INSERT, model
+from ally.api.config import query, service, call, UPDATE, DELETE, INSERT
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
@@ -22,6 +20,9 @@ from superdesk.source.api.source import Source
 from superdesk.source.api.type import SourceType
 from support.api.configuration import IConfigurationService
 from superdesk.post.api.post import Post, QPostWithPublished
+from ally.support.api.entity_ided import Entity, IEntityCRUDService
+from superdesk.language.api.language import Language
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ class Blog(Entity):
     Provides the blog model.
     '''
     Type = BlogType
-    Language = LanguageEntity
+    Language = Language
     Creator = User
     Title = str
     Description = str
@@ -73,14 +74,13 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call
-    def getAll(self, languageId:LanguageEntity=None, userId:User=None, offset:int=None, limit:int=None,
-               detailed:bool=True, q:QBlog=None) -> Iter(Blog):
+    def getAll(self, languageId:Language=None, userId:User=None, q:QBlog=None, **options:SliceAndTotal) -> Iter(Blog.Id):
         '''
         Provides all the blogs.
         '''
 
     @call(webName='Live')
-    def getLive(self, languageId:LanguageEntity=None, userId:User=None, q:QBlog=None) -> Iter(Blog):
+    def getLive(self, languageId:Language=None, userId:User=None, q:QBlog=None, **options:SliceAndTotal) -> Iter(Blog.Id):
         '''
         Provides all the blogs that are live at this moment.
         '''
@@ -90,6 +90,27 @@ class IBlogService(IEntityCRUDService):
         '''
         Puts blog live
         @raise InputError: on invalid credentials or blog id 
+        '''
+
+    @call(filter='blog admin', webName='Administrator')
+    def isBlogAdmin(self, userId:User, blogId:Blog.Id) -> bool:
+        '''
+        @return: bool
+            Return true if the user is admin for the given blog
+        '''
+
+    @call(filter='blog collaborator', webName='Collaborator')
+    def isBlogCollaborator(self, userId:User, blogId:Blog.Id) -> bool:
+        '''
+        @return: bool
+            Return true if the user is collaborator for the given blog
+        '''
+
+    @call(filter='blog open', webName='Open')
+    def isBlogOpen(self, userId:User, blogId:Blog.Id) -> bool:
+        '''
+        @return: bool
+            Return true if the blog is open
         '''
 
 # --------------------------------------------------------------------
@@ -109,7 +130,7 @@ class IBlogSourceService:
         '''
 
     @call
-    def getSources(self, blogId:Blog.Id) -> Iter(Source):
+    def getSources(self, blogId:Blog.Id, **options:SliceAndTotal) -> Iter(Source.Id):
         '''
         Returns a list of blog sources
 
@@ -142,8 +163,8 @@ class IBlogSourceService:
         '''
 
     @call(webName='Chain')
-    def getChainedPosts(self, blogId:Blog.Id, sourceTypeKey:SourceType.Key, offset:int=None, limit:int=None,
-                 detailed:bool=True, q:QPostWithPublished=None) -> Iter(Post):
+    def getChainedPosts(self, blogId:Blog.Id, sourceTypeKey:SourceType.Key, q:QPostWithPublished=None,
+                        **options:SliceAndTotal) -> Iter(Post.Id):
         '''
         Gets all posts from blog-allowed sources of specified SourceType
         '''

@@ -10,12 +10,11 @@ Populates default data for the services.
 '''
 
 from ally.container import app, ioc
-from ..superdesk.db_superdesk import alchemySessionCreator
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import exists
+from sql_alchemy.database_config import alchemySessionCreator
 
 # --------------------------------------------------------------------
 

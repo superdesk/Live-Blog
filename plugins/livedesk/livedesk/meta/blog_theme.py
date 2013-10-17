@@ -9,12 +9,12 @@ Created on Aug 30, 2012
 Contains the SQL alchemy meta for blog type API.
 '''
 
-from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 from livedesk.api.blog_theme import BlogTheme
+from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 

@@ -14,13 +14,11 @@ from sql_alchemy.impl.entity import EntityServiceAlchemy
 from ally.container.support import setup
 from livedesk.meta.blog_sync import BlogSyncMapped
 from sqlalchemy.sql.functions import current_timestamp
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from ally.api.extension import IterPart
 from ally.container import wire
-from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql.expression import or_
+from sql_alchemy.support.util_service import buildQuery, iterateCollection
 
 # --------------------------------------------------------------------
 
@@ -38,7 +36,7 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         '''
         EntityServiceAlchemy.__init__(self, BlogSyncMapped, QBlogSync)
 
-    def getAll(self, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, q=None, **options):
         '''
         @see IBlogSyncService.getAll
         '''
@@ -50,16 +48,13 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
 
         sql_prov = self.session().query(SourceMapped.URI)
-        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.join(SourceTypeMapped)
         sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
         sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
+        return iterateCollection(sql, **options)
 
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
-
-    def getBlogSync(self, blog, offset, limit, detailed, q):
+    def getBlogSync(self, blog, q, **options):
         '''
         @see IBlogSyncService.getBlogSync
         '''
@@ -69,14 +64,11 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
 
         sql_prov = self.session().query(SourceMapped.URI)
-        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.join(SourceTypeMapped)
         sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
         sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
-
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, options)
 
     def insert(self, blogSync):
         '''

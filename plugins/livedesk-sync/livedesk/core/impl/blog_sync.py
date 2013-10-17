@@ -29,13 +29,13 @@ from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService, QUser, User
-from ally.exception import InputError
 from urllib.error import HTTPError
 from time import sleep
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 

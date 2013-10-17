@@ -11,8 +11,6 @@ Contains the services for livedesk.
 
 from ..cdm import contentDeliveryManager
 from ..plugin.registry import addService
-from ..superdesk.db_superdesk import bindSuperdeskSession, \
-    bindSuperdeskValidations
 from ally.cdm.spec import ICDM
 from ally.container import support, bind, ioc, app
 from ally.internationalization import NC_

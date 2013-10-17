@@ -15,6 +15,7 @@ from livedesk.api.blog_type import BlogType
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostUnpublished
 from superdesk.post.api.type import PostType
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
@@ -57,8 +58,7 @@ class IBlogTypePostService:
         '''
 
     @call
-    def getAll(self, blogTypeId:BlogType, typeId:PostType=None, offset:int=None,
-               limit:int=None, q:QBlogTypePost=None) -> Iter(BlogTypePost):
+    def getAll(self, blogTypeId:BlogType, typeId:PostType=None, q:QBlogTypePost=None, **options:SliceAndTotal) -> Iter(BlogTypePost.Id):
         '''
         Provides all the blog type posts.
         '''

@@ -15,10 +15,9 @@ from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.types import String
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship
-from ally.support.sqlalchemy.mapper import validate
 from superdesk.meta.metadata_superdesk import Base
+from sql_alchemy.support.mapper import validate
+from sql_alchemy.support.util_meta import relationshipModel
 
 # --------------------------------------------------------------------
 
@@ -41,14 +40,11 @@ class BlogMediaMapped(Base, BlogMedia):
     Provides the mapping for BlogMedia.
     '''
     __tablename__ = 'livedesk_blog_media'
-    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_type_id', 'rank', name='uix_blog_media_type_rank'), dict(mysql_engine='InnoDB', mysql_charset='utf8'))
+    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_type_id', 'rank', name='uix_blog_media_type_rank'),
+                      dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), nullable=False)
     MetaInfo = Column('fk_metainfo_id', ForeignKey(MetaInfoMapped.Id, ondelete='RESTRICT'), nullable=False)
-    Type = association_proxy('type', 'Key')
+    Type = relationshipModel(BlogMediaTypeMapped.id)
     Rank = Column('rank', INTEGER(unsigned=True), nullable=False)
-    # None REST model attribute --------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(BlogMediaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(BlogMediaTypeMapped, uselist=False, lazy='joined')
-

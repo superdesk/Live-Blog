@@ -9,19 +9,19 @@ Created on May 22, 2013
 Provides configurations API support that can be binded to other entities.
 '''
 
-from ally.api.config import query, service, call, LIMIT_DEFAULT, model
+from ally.api.config import query, service, call, model
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Iter
-from ally.support.api.entity import Entity, QEntity
+from ally.support.api.entity_named import Entity, QEntity
+from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------
 
 @model(id='Name')
-class Configuration:
+class Configuration(Entity):
     '''
     Provides the configuration model.
     '''
-    Name = str
     Value = str
 
 # --------------------------------------------------------------------
@@ -42,7 +42,7 @@ class IConfigurationService:
     '''
     
     @call
-    def getByName(self, parentId:Entity.Id, name:Configuration.Name) -> Configuration:
+    def getByName(self, parentId:Entity.Name, name:Configuration.Name) -> Configuration:
         '''
         Provides the configuration based on the parentId and name.
         
@@ -54,14 +54,13 @@ class IConfigurationService:
         '''
 
     @call
-    def getAll(self, parentId:Entity.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
-               q:QConfiguration=None) -> Iter(Configuration):
+    def getAll(self, parentId:Entity.Name, q:QConfiguration=None, **options:SliceAndTotal) -> Iter(Configuration.Name):
         '''
         Provides the configuration relating the parentId.
         '''
 
     @call
-    def insert(self, parentId:Entity.Id, configuration:Configuration) -> Configuration.Name:
+    def insert(self, parentId:Entity.Name, configuration:Configuration) -> Configuration.Name:
         '''
         Insert the configuration
         
@@ -75,7 +74,7 @@ class IConfigurationService:
         '''
 
     @call
-    def update(self, parentId:Entity.Id, configuration:Configuration):
+    def update(self, parentId:Entity.Name, configuration:Configuration):
         '''
         Update the configuration on parentId.
         
@@ -86,7 +85,7 @@ class IConfigurationService:
         '''
 
     @call
-    def delete(self, parentId:Entity.Id, name:Configuration.Name) -> bool:
+    def delete(self, parentId:Entity.Name, name:Configuration.Name) -> bool:
         '''
         Delete the configuration on parentId for the provided name.
         

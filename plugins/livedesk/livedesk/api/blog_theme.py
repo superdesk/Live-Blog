@@ -13,8 +13,8 @@ from livedesk.api.domain_livedesk import modelLiveDesk
 from ally.api.config import query, service, call, INSERT
 from ally.api.criteria import AsLike
 from ally.api.type import Reference
-from ally.support.api.entity import Entity, QEntity, IEntityService
 from ally.api.model import Content
+from ally.support.api.entity_ided import Entity, QEntity, IEntityService
 
 # --------------------------------------------------------------------
 

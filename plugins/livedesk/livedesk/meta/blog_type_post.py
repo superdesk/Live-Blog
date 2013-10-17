@@ -16,8 +16,9 @@ from superdesk.post.meta.post import PostMapped
 from sqlalchemy.types import REAL, String
 from livedesk.api.blog_type_post import BlogTypePost
 from ally.container.binder_op import validateManaged
-from ally.support.sqlalchemy.mapper import validate
 from livedesk.meta.blog_type import BlogTypeMapped
+from sql_alchemy.support.mapper import validate
+from sql_alchemy.support.util_meta import relationshipModel
 
 # --------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ class BlogTypePostDefinition:
     __tablename__ = 'livedesk_blog_type_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogTypeMapped.Id), nullable=False))
+    BlogType = declared_attr(lambda cls: relationshipModel(BlogTypeMapped.id))
     Name = declared_attr(lambda cls: Column('name', String(190), nullable=False, unique=True))
     Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------

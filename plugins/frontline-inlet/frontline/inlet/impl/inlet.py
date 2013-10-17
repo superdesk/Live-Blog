@@ -25,9 +25,9 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from datetime import datetime
 from ally.container import wire
-from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -62,9 +62,9 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
         '''
         # checking the necessary info: phone number and message text
         if (phoneNumber is None) or (phoneNumber == ''):
-            raise InputError(Ref(_('No value for the mandatory phoneNumber parameter'),))
+            raise InputError(_('No value for the mandatory phoneNumber parameter'),)
         if (messageText is None) or (messageText == ''):
-            raise InputError(Ref(_('No value for the mandatory messageText parameter'),))
+            raise InputError(_('No value for the mandatory messageText parameter'),)
 
         # take (or make) the user (for phone number) part of creator and collaborator
         try:
@@ -130,7 +130,7 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
         userName = 'SMS-' + binascii.b2a_hex(os.urandom(8)).decode()
         while True:
             try:
-                userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
+                _userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
 

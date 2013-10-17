@@ -13,15 +13,14 @@ from ..api.configuration import Configuration, QConfiguration, IConfigurationSer
 from ..meta.configuration import ConfigurationDescription
 from ally.container.ioc import injected
 from ally.container.support import setup
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.api.extension import IterPart
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
-from ally.support.api.util_service import copy
 from ally.support.util_sys import callerGlobals
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
+from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
+    iterateCollection
+from ally.api.error import InputError
 
 # --------------------------------------------------------------------
 
@@ -63,11 +62,9 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
         sql = self.session().query(self.ConfigurationMapped)
         sql = sql.filter(self.ConfigurationMapped.parent == parentId)
         sql = sql.filter(self.ConfigurationMapped.Name == name)
-        try:
-            return sql.one()
-        except NoResultFound: raise InputError(Ref(_('No configuration'),))
+        return sql.one()
 
-    def getAll(self, parentId, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, parentId, q=None, **options):
         '''
         @see: IConfigurationService.getAll
         '''
@@ -77,10 +74,7 @@ class ConfigurationServiceAlchemy(SessionSupport, IConfigurationService):
         if q:
             assert isinstance(q, QConfiguration), 'Invalid query'
             sql = buildQuery(sql, q, self.ConfigurationMapped)
-
-        sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return iterateCollection(sql, **options)
 
     def insert(self, parentId, configuration):
         '''

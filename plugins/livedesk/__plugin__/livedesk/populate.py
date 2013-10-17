@@ -9,21 +9,13 @@ Created on Jan 26, 2013
 Contains the default data for the live desk plugin.
 '''
 
-from ..acl.security import rightId
-from ..administration.actions import rightRequestsInspection
-from ..livedesk.actions import rightLivedeskView, rightManageOwnPost
-from ..media_archive.actions import rightMediaArchiveView
-from ..security_rbac.populate import rootRoleId
 from ally.container import support, ioc, app
 from ally.internationalization import NC_
 from security.api.right import IRightService, Right, QRight
-from security.rbac.api.rbac import IRoleService, QRole, Role
+from security.rbac.api.rbac import QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
-from __plugin__.media_archive.actions import rightMediaArchiveUpload
-from __plugin__.livedesk.actions import rightLivedeskUpdate
-from __plugin__.superdesk_user.actions import rightUserView
 
 # --------------------------------------------------------------------
 
