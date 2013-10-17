@@ -7,4 +7,4 @@
 {<externalImageLink}{Meta.Content.href}{/externalImageLink}
 {<externalImageAlt}{Meta.caption}{/externalImageAlt}
 {<externalImageSrc}{Meta.Content.href}{/externalImageSrc}
-{<externalText}{Content|get_image_caption}{/externalText}
+{<externalText}{Content|get_image_caption|s}{/externalText}
