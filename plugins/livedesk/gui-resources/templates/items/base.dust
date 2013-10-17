@@ -182,61 +182,16 @@
 <!-- this template goes to the top (just after the drag-bar block) of the base.dust file template --> 
 	<div class="verification-box">
 		<div class="verification-label dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >Verified <b class="caret"></b></a>
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >{PostVerification.Status.Key} <b class="caret"></b></a>
 			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
 				<h5 class="dropdown-title">Change status</h5>
-				<li data-status-key="assigned"><span class="label-assigned"></span>Assigned</li>
-				<li data-status-key="verified"><span class="label-verified"></span>Verified</li>
-				<li data-status-key="unverified"><span class="label-unverified"></span>Unverified</li>
-				<li data-status-key="assigned"><span class="label-onverification"></span>On verification</li>
+				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
+				<li data-status-key="verified"><span class="label-verified"></span>_('Verified');</li>
+				<li data-status-key="unverified"><span class="label-unverified"></span>_('Unverified');</li>
+				<li data-status-key="onverification"><span class="label-onverification"></span>_('On verification');</li>
 			</ul>
 		</div>
 		<div class="verification-assign">
-			<div class="assignment-menu dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="icon-user"></i> <b class="caret"></b></a>
-				<ul class="dropdown-menu sf-dropdown sf-dropdown-right assignment-box">
-					<h5 class="dropdown-title">Assign</h5>
-					<div class="assignment-content">
-						<div class="sf-searchbox">
-							<input type="text" placeholder="Search">
-						</div>
-						<div class="assignment-result-list">
-							<ul>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Ioan Pocol</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Vladimir Stefanovic</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Nikola Nikolic</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Mihai Nistor</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Mugur Rus</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Ioan Pocol</span>
-								</li>
-								<li>
-									<figure class="avatar-small"></figure>
-									<span>Sava Tatic</span>
-								</li>
-								
-
-							</ul>
-						</div>
-					</div>
-				</ul>
-			</div>
 		</div>
 	</div>
 {/PostVerification}
