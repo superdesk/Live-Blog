@@ -720,9 +720,10 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 					post.publishSync();
 				else 
 				{
-					var model = new this.collection.model({ Id: data});
-					
-					this.collection.insert({});
+					var model = new this.collection.model({ Id: post});
+					model.url.root(this._parent.theBlog);
+					model.setHref(model.url.get()+'/'+post);
+					model.publishSync();
 					//model.publish();
 				}
 			},
