@@ -64,7 +64,15 @@
 				this.render();
 			},
 			events: {
-				'.assignment-result-list li': { 'click': 'changeChecker' }
+				'.assignment-result-list li': { 'click': 'changeChecker' },
+				'input': { 'click': 'stopPropagation' }
+			},
+			stopPropagation: function(evt){
+				evt.stopImmediatePropagation();
+			},
+			killMenu: function(){
+				var self = this;
+				$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
 			},
 			sync: function() {
 				if(!self.collection) {
@@ -110,7 +118,7 @@
 		}),
     	ChainPostView = PostView.extend({
     		events: {
-    			'': { afterRender: 'addElements'},
+    			'': { afterRender: 'addElements', mouseleave: 'killMenu'},
     			'[data-status-key]': { click: 'changeStatus'}
     		},
     		changeStatus: function(evt){
@@ -122,6 +130,11 @@
     			var self = this;
     			self.addDraggable();
     			self.addUserVerification();
+    		},
+    		killMenu: function(evt) {
+				var self = this;
+    			//self.userVerification.killMenu();
+    			$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
     		},
     		addUserVerification: function(){
     			var self = this;

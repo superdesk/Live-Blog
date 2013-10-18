@@ -88,10 +88,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
-
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
         return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
@@ -122,44 +119,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
-
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
-            if sqlMore: posts.offsetMore = sqlMore.count()
-            else: posts.offsetMore = posts.total
-        return posts
-    
-    def getUnpublishedBySource(self, sourceId, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
-        '''
-        @see: IBlogPostService.getUnpublished
-        '''
-        assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        sql = self._buildQueryBySource(sourceId)
-        
-        deleted = False
-        if q:
-            if QBlogPostUnpublished.isDeleted in q:
-                deleted = q.isDeleted.value                
-            sql = buildQuery(sql, q, BlogPostMapped)
-        
-        if q:
-            if QWithCId.cId not in q:
-                sql = sql.filter(BlogPostMapped.PublishedOn == None) 
-                if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
-                else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
-        else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
-                            
-        sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True), thumbSize)
-        if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
-            
-            lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
-            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
-            lastCidSql = lastCidSql.filter(CollaboratorMapped.Source == sourceId)
-            
-            posts.lastCId = lastCidSql.scalar()
-            
         return posts
     
     def getUnpublishedBySource(self, sourceId, thumbSize=None, offset=None, limit=None, detailed=False, q=None):
