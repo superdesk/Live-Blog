@@ -14,6 +14,7 @@ from ..meta.verification import PostVerificationMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
+<<<<<<< HEAD
 from superdesk.verification.api.verification import PostVerification
 from ally.support.sqlalchemy.util_service import handle
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,6 +22,8 @@ from ally.exception import InputError, Ref
 from sqlalchemy.orm.exc import NoResultFound
 from ally.support.api.util_service import copy
 from superdesk.verification.meta.status import VerificationStatusMapped
+=======
+>>>>>>> 4d49bcc09513d2bb06041f30e41a8e7ce2d74ffe
 
 # --------------------------------------------------------------------
 
@@ -30,8 +33,11 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
     '''
     Implementation for @see: IPostVerificationService
     '''
+<<<<<<< HEAD
     
     default_verification_status_key = 'nostatus'
+=======
+>>>>>>> 4d49bcc09513d2bb06041f30e41a8e7ce2d74ffe
 
     def __init__(self):
         '''
@@ -40,6 +46,7 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
         EntityServiceAlchemy.__init__(self, PostVerificationMapped)
         
         
+<<<<<<< HEAD
     def insert(self, postVerification):
         '''
         @see: IPostVerificationService.insert
@@ -86,3 +93,10 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
         except NoResultFound:
             raise InputError(Ref(_('Invalid verification status %(verificationStatus)s') % dict(verificationStatus=key), ref=PostVerificationMapped.Status))  
         
+=======
+        
+#                 if checkerId or statusId: 
+#             sql = sql.join(PostVerificationMapped)
+#             if checkerId: sql = sql.filter(PostVerificationMapped.Checker == checkerId)
+#             if statusId: sql = sql.filter(PostVerificationMapped.Status == statusId)
+>>>>>>> 4d49bcc09513d2bb06041f30e41a8e7ce2d74ffe
