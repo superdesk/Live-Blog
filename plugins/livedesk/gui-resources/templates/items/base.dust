@@ -3,6 +3,7 @@
 	<div class="drag-bar"></div>
 	
 	<!-- user posts verification interface goes here -->
+	{+TopBlocks}{/TopBlocks}
 
 	{+FastActions}
 	<div class="tool-box-right">
@@ -177,3 +178,20 @@
 		</div -->
 </li>
 {/Post}
+{<PostVerification}
+<!-- this template goes to the top (just after the drag-bar block) of the base.dust file template --> 
+	<div class="verification-box">
+		<div class="verification-label dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >{PostVerification.Status.Key} <b class="caret"></b></a>
+			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+				<h5 class="dropdown-title">Change status</h5>
+				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
+				<li data-status-key="verified"><span class="label-verified"></span>_('Verified');</li>
+				<li data-status-key="unverified"><span class="label-unverified"></span>_('Unverified');</li>
+				<li data-status-key="onverification"><span class="label-onverification"></span>_('On verification');</li>
+			</ul>
+		</div>
+		<div class="verification-assign">
+		</div>
+	</div>
+{/PostVerification}

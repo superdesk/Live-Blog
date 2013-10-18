@@ -97,6 +97,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     .fail(function(){ el.removeClass('draggable'); });
                 });
 
+
             
             return self;
         },
