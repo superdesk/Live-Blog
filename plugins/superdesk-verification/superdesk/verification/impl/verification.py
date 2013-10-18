@@ -22,6 +22,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from ally.support.api.util_service import copy
 from superdesk.verification.meta.status import VerificationStatusMapped
 
+
 # --------------------------------------------------------------------
 
 @injected
