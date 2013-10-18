@@ -30,12 +30,12 @@ define([
     }
 
     return function(blogHref) {
-        var SMS_TYPE = 'FrontlineSMS';
+        var SMS_TYPE = 'sms source';
         var PROVIDER_TYPE = 'blog provider';
         var blogId = getLastId(blogHref);
 
         var sourcesUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source') + '?X-Filter=*';
-        var smsUrl = getGizmoUrl('Data/SourceType/FrontlineSMS/Source') + '?X-Filter=Name,Id';
+        var smsUrl = getGizmoUrl('Data/SourceType/sms provider/Source') + '?X-Filter=Name,Id';
         var providersUrl = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source') + '?X-Filter=Name,Id,URI';
         var chainBlogUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
   
@@ -80,7 +80,7 @@ define([
             };
 
             var unassign = function(sms) {
-                var unassignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + sms.Id);
+                var unassignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + sms.source);
                 $http({method: 'DELETE', url: unassignUrl});
             };
 
