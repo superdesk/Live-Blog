@@ -5,8 +5,6 @@ define([
 	'dispatcher'
 ], function($, plugins){
   return plugins["live-dashboard-sliders"] = function(config){
-    // TODO: change it so the slider names are provided in a config
-    // file instead of here or directly taken from the DOM.
     var self = this;
 
     self.sliderConfig = {
@@ -35,6 +33,15 @@ define([
       slider.goToSlide(slider.getSlideCount() - 1);
     };
 
+    self.postAdded = function(sliderName){
+      slider = self.sliders[sliderName];
+      if (slider) {
+        self.reloadSlider(slider);
+      } else {
+        self.createSlider(sliderName);
+      }
+    };
+
 		$.dispatcher.on('posts-view.rendered', function(){
       $(function(){
         for (slider in self.sliders){
@@ -47,20 +54,11 @@ define([
 		});
 
     $.dispatcher.on('posts-view.added-auto-fullSize', function(){
-      slider = self.sliders.fullSize;
-      if (slider) {
-        self.reloadSlider(slider);
-      } else {
-        self.createSlider('fullSize');
-      }
-		});
+      self.postAdded('fullSize');
+    });
+
 		$.dispatcher.on('posts-view.added-auto-text', function(){
-      slider = self.sliders.text;
-      if (slider) {
-        self.reloadSlider(slider);
-      } else {
-        self.createSlider('text');
-      }
+      self.postAdded('text');
     });
   };
 });
