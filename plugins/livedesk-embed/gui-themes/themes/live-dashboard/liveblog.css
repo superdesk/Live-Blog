@@ -419,7 +419,6 @@ html.demo body .container #livedesk-root {
 #livedesk-root .image .post-core-content .post-external-image img {
   max-height: 100%!important;
   max-width: 100%!important;
-  height: 100%!important;
   position: absolute!important;
   top: 0;
   bottom: 0;

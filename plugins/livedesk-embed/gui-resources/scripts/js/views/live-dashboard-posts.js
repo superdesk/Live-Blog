@@ -10,7 +10,6 @@ define([
 			events: {},
 			_flags: {
         autoRender: true
-        //addAllPending: false
 			},
 			_config: {
 				timeInterval: 10000,
@@ -99,7 +98,6 @@ define([
 					.on('read readauto', self.render, self)
 					.on('addings', self.addAll, self)
 					.on('addingsauto',self.addingsAuto, self)
-          //.on('removeingsauto', self.removeAllAutoupdate, self)
 					.auto()
 					.autosync({ data: self._config.data });
 			},
@@ -175,9 +173,6 @@ define([
 			addAllPending: function(evt) {
 				var self = this;
         if(self.pendingAutoupdates.length){
-				//if(!self._flags.addAllPending && self.pendingAutoupdates.length) {
-					//self._flags.addAllPending = true;
-					//self._parent.hideNewPosts();
 					for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
 						this.addOne(this.pendingAutoupdates[i]);
 					}
@@ -185,7 +180,6 @@ define([
           self.triggerHandler('addingsauto',[self.pendingAutoupdates]);
 					self.pendingAutoupdates = [];
 				}
-				//self._flags.addAllPending = false;
 			},
 
 			addAllAutoupdate: function(evt) {
@@ -200,9 +194,6 @@ define([
             }
           }
         }
-        //else {
-					//self._parent.showNewPosts(self.pendingAutoupdates.length);
-				//}
 			},
 
 			addAll: function(evt, data) {
@@ -225,7 +216,6 @@ define([
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
-		//$.dispatcher.triggerHandler('posts-view.class',PostsView);
 		return PostsView;
 	}
 });
