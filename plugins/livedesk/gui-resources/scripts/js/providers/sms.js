@@ -28,7 +28,7 @@ $.extend(providers.sms, {
     data: [],
     blogId: 1,
     topIds: [],
-    smsType: 'FrontlineSMS',
+    smsType: 'sms source',
     keyword:[],
     prepareAuxData: function(feeds) {
         var self = this;
@@ -69,7 +69,7 @@ $.extend(providers.sms, {
         //get all feeds and generate 'holders'
         var self = this;
         var dfd = $.Deferred();
-        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+        var url = new Gizmo.Url('Data/SourceType/sms provider/Source');
         feedsUrl = url.get() + '?X-Filter=Id,Name';
         $.ajax({
             url: feedsUrl,
@@ -90,7 +90,7 @@ $.extend(providers.sms, {
         this.blogId = hackArray[hackArray.length - 1];
 
         //get assigned feeds
-        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+        var url = new Gizmo.Url('Data/SourceType/sms source/Source');
 
         this.getAssignedFeeds().done(function(){
             self.getAllFeeds().done(function(){

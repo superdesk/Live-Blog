@@ -22,7 +22,7 @@ from sqlalchemy.sql.expression import exists
 @ioc.config
 def sms_source_types():
     ''' The source types used during SMS processing '''
-    return ['FrontlineSMS']
+    return ['sms source', 'sms provider']
 
 @ioc.config
 def sms_post_types():
@@ -61,5 +61,5 @@ def populateTypes():
         createSourceType(oneSourceType)
 
     for onePostType in sms_post_types():
-        createPostType(onePostType)
+        createPostType(onePostType) 
 

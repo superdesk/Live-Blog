@@ -31,6 +31,8 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
     '''
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
     Key of the source type for blog providers''')
+    sms_provider_type = 'sms provider'; wire.config('sms_provider_type', doc='''
+    Key of the source type for sms providers''')
 
     def __init__(self):
         '''
@@ -51,7 +53,7 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
 
         sql_prov = self.session().query(SourceMapped.URI)
         sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
-        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
+        sql_prov = sql_prov.filter(or_(SourceTypeMapped.Key == self.blog_provider_type, SourceTypeMapped.Key == self.sms_provider_type))
 
         sql = sql.filter(SourceMapped.OriginURI.in_(sql_prov))
 
