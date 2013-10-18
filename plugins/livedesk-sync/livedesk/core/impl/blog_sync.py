@@ -37,11 +37,8 @@ from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post
-<<<<<<< HEAD
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
-=======
->>>>>>> 4d49bcc09513d2bb06041f30e41a8e7ce2d74ffe
 
 # --------------------------------------------------------------------
 

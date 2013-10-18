@@ -33,11 +33,6 @@ def createVerificationStatus(key):
 @app.populate(priority=ioc.PRIORITY_FIRST)
 def populateVeridicationStatuses():
     createVerificationStatus('verified')
-<<<<<<< HEAD
     createVerificationStatus('nostatus')
     createVerificationStatus('onverification')
-=======
-    createVerificationStatus('on verification')
-    createVerificationStatus('no verification info')
->>>>>>> 4d49bcc09513d2bb06041f30e41a8e7ce2d74ffe
     createVerificationStatus('unverified') 
