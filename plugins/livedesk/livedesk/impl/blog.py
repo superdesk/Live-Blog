@@ -138,6 +138,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     Implementation for @see: IBlogSourceService
     '''
     chained_blog_type = 'chained blog'
+    sms_source_type = 'sms source'
     sources_auto_delete = [chained_blog_type, ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
@@ -200,15 +201,16 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             source.Id = sourceId = sources[0].Id
             self.sourceService.update(source)
         
-        if source.Type == self.chained_blog_type and self.blogSyncService.getBlogSyncByBlogAndSource(blogId, sourceId) == None:
-            blog = self.blogService.getBlog(blogId)
+        if (source.Type == self.chained_blog_type or source.Type == self.sms_source_type) and \
+            self.blogSyncService.getBlogSyncByBlogAndSource(blogId, sourceId) == None:
             
+            blog = self.blogService.getBlog(blogId)
             blogSync = BlogSyncMapped()
             blogSync.Blog = blogId
             blogSync.Source = source.Id
             blogSync.Auto = False
             blogSync.Creator = blog.Creator
-            self.blogSyncService.insert(blogSync)    
+            self.blogSyncService.insert(blogSync)        
             
         ent = BlogSourceDB()
         ent.blog = blogId
