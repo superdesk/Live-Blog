@@ -64,8 +64,8 @@ $.extend(providers.comments, {
             });
             //temp remove the autoupdate
             var refInt = window.setInterval(function(){
-            //     self.refreshComments();
-            // },self.interval);
+                self.refreshComments();
+            },self.interval);
             self.getComments({});
         });
         //dynamically get size of header and set top space for list
@@ -143,6 +143,45 @@ $.extend(providers.comments, {
                     self.topIds = parseInt(item.CId);
                 }
             }
+            var newPosts = [];
+
+            //go throught the comments and see if they are updates for what we already have
+            for ( var i = 0; i < posts.length; i++ ) {
+                var cmnt = posts[ i ];
+                var updated = false;
+                var Id = cmnt.Meta.Id;
+                var unhideTxt = _("Unhide");
+                var hideTxt = _("Hide");
+                $('.comments-list').find('li.commentpost').each(function(){
+                    //console.log( Id, ' ', $(this).attr('data-id') );
+                    if ( Id == $(this).attr('data-id') ) {
+                        //we need to update the item
+                        if ( cmnt.Meta.PublishedOn ) {
+                            $( this ).remove();
+                        } else {
+                            if ( cmnt.Meta.DeletedOn ) {
+                                //got deleted
+                                $( this ).attr('data-hidden', 'true').css('display', 'none');
+                                $( this ).find('a[href="#toggle-post"]').attr('data-action', 'unhide').text(unhideTxt);
+                            } else {
+                                $( this ).attr('data-hidden', 'false').css('display', 'block');
+                                $( this ).find('a[href="#toggle-post"]').attr('data-action', 'hide').text(hideTxt);
+                            }
+                        }
+                        updated = true;
+                    }
+                });
+                if ( ( ! updated && ! cmnt.Meta.PublishedOn && ! cmnt.Meta.DeletedOn ) || sd.cId == -1 ) {
+                    newPosts.push(cmnt);
+                }
+            }
+            posts = newPosts;
+            if ( sd.cId == -1 || sd.forceAppend == true ) {
+                self.extraItems = 0;
+            } else {
+                self.extraItems += newPosts.length;
+            }
+
             var newPosts = [];
 
             //go throught the comments and see if they are updates for what we already have
