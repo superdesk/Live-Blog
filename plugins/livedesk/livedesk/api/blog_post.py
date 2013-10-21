@@ -44,6 +44,7 @@ class QWithCId:
     '''
     Provides the query for cId.
     '''
+    id = AsRangeOrdered
     cId = AsRangeOrdered
     search = AsLike
 
