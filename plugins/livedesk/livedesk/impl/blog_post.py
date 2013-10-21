@@ -136,7 +136,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = buildQuery(sql, q, BlogPostMapped)
         
         if q:
-            if QWithCId.cId not in q:
+            if QWithCId.cId not in q or QWithCId.cId in q and QWithCId.cId.start not in q and QWithCId.cId.end not in q:
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
