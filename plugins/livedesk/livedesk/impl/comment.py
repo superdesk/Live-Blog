@@ -19,7 +19,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, func
 from superdesk.post.api.post import Post
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -35,7 +35,7 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
-from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId
+from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId, IterPost
 
 # --------------------------------------------------------------------
 
@@ -95,8 +95,18 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
             
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        posts = sqlLimit.all()
+        if detailed:
+            posts = IterPost(posts, sql.count(), offset, limit)
+            
+            lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
+            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+            lastCidSql = lastCidSql.join(SourceMapped).join(SourceTypeMapped)
+            lastCidSql = lastCidSql.filter(SourceTypeMapped.Key == self.source_type_key)
+            
+            posts.lastCId = lastCidSql.scalar()
+            
+        return posts
 
     def getOriginalComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
         '''
