@@ -19,7 +19,6 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from ally.api.extension import IterPart
 from ally.container import wire
-from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql.expression import or_
 
 # --------------------------------------------------------------------

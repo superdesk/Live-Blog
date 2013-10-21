@@ -90,6 +90,9 @@ class BlogSyncProcess:
     # mime type accepted for response from remote blog
     encodingType = 'UTF-8'
     # character encoding type accepted for response from remove blog
+    
+    user_type_key = 'chained blog'; wire.config('user_type_key', doc='''
+    The user type that is used for the anonymous users of chained blog posts''')
 
     @app.deploy
     def startSyncThread(self):
@@ -224,14 +227,15 @@ class BlogSyncProcess:
         '''
         assert isinstance(source, Source)
         try:
-            uJSON = author['User']
-            u = User()
-            u.Name = sha1((uJSON.get('Name', '') + source.URI).encode(self.encodingType)).hexdigest()
-            u.FirstName, u.LastName = uJSON.get('FirstName', ''), uJSON.get('LastName', '')
-            u.EMail, u.Password = uJSON.get('EMail', ''), '*'
-            try: userId = self.userService.insert(u)
+            userJSON = author['User']
+            user = User()
+            user.Name = sha1((userJSON.get('Name', '') + source.URI).encode(self.encodingType)).hexdigest()
+            user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
+            user.EMail, user.Password = userJSON.get('EMail', ''), '*'
+            user.Type = self.user_type_key
+            try: userId = self.userService.insert(user)
             except InputError:
-                localUser = self.userService.getAll(q=QUser(name=u.Name))
+                localUser = self.userService.getAll(q=QUser(name=user.Name))
                 userId = localUser[0].Id
             c = Collaborator()
             c.User, c.Source = userId, source.Id
@@ -265,7 +269,7 @@ class BlogSyncProcess:
                 if not metaDataIconURL:
                     continue
 
-                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType})
+                req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser'})
                 try:
                     resp = urlopen(req)
                 except (HTTPError, socket.error) as e:

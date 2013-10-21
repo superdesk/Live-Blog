@@ -26,6 +26,7 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
 from __plugin__.livedesk.populate_default_data import createSourceType
+from superdesk.user.meta.user_type import UserTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -240,3 +241,24 @@ def upgradeSourceUnicityFix():
     except (ProgrammingError, OperationalError): return
     session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
                 'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeUserTypeFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'sms').scalar()
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "SMS-%"')
+        
+        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').scalar()
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "Comment-%"')
+        
+        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()
+        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
+        
+        session.commit()
+    except (ProgrammingError, OperationalError): return
+  

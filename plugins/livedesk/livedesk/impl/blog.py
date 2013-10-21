@@ -35,7 +35,6 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from sqlalchemy.orm.util import aliased
 from livedesk.meta.blog_sync import BlogSyncMapped
 from livedesk.api.blog_sync import BlogSync, IBlogSyncService
 
