@@ -335,7 +335,7 @@ define([
 		},
 		ensureStatus: function(){
 			if(this.model.get('ClosedOn')) {
-				var closedOn = new Date(this.model.get('ClosedOn'));
+				var closedOn = new Date(Date.parse(this.model.get('ClosedOn')));
 				this.pause();
 				this.model.get('PostPublished').stop();					
 				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM')));
