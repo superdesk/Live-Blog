@@ -22,7 +22,7 @@ $.extend(providers.comments, {
     data: [],
     topIds: 0,
     minId: 999999999999,
-    interval: 2000,
+    interval: 20000,
     keyword: '',
     extraInfos: 0,
     total: 0,
