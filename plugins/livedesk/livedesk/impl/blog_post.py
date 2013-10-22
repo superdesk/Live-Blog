@@ -17,7 +17,7 @@ from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.internationalization import _
-from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
+from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost, IterPost
 from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMapped
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
@@ -86,8 +86,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
-        posts = iterateCollection(sql, withTotal, **options)
+        posts = iterateCollection(sql, withTotal=withTotal, factorySlice=IterPost, **options)
         if withTotal:
+            assert isinstance(posts, IterPost), 'Invalid posts %s' % posts
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
 

@@ -15,9 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 # --------------------------------------------------------------------
 
-def abstractMapping(): raise Exception('Use a derived class')
-
-class ConfigurationDescription:
+class WithConfiguration:
     '''
     Provides abstract mapping for Configuration.
     '''
@@ -26,4 +24,5 @@ class ConfigurationDescription:
     Name = declared_attr(lambda cls: Column('name', String(255), primary_key=True))
     Value = declared_attr(lambda cls: Column('value', String(1024)))
     # None REST model attribute --------------------------------------
-    parent = declared_attr(lambda cls: abstractMapping())
+    @declared_attr
+    def targetId(cls): raise Exception('A target id definition is required') # @NoSelf

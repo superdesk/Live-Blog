@@ -11,8 +11,8 @@ Contains upgrade functions
 
 from ..gui_core.gui_core import cdmGUI
 from ..livedesk_embed.gui import themes_path
-from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
-from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
+# from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
+# from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
 from ally.container import app
 from ally.container.support import entityFor
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
@@ -23,21 +23,22 @@ from sqlalchemy.sql.expression import exists
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
-from __plugin__.livedesk.populate_default_data import createSourceType
-from sql_alchemy.database_config import alchemySessionCreator
-from ally.design.priority import PRIORITY_LAST
+from ..livedesk.populate_default_data import createSourceType
+from ally.design.priority import PRIORITY_LAST, Priority
+from ..sql_alchemy.db_application import alchemySessionCreator
 
 # --------------------------------------------------------------------
 
-def insertSource(name):
+def insertSource(name, type=''):
     sourcesService = entityFor(ISourceService)
     assert isinstance(sourcesService, ISourceService)
     srcs = sourcesService.getAll(q=QSource(name=name))
-    if srcs: src = next(iter(srcs)).Id
-    else:
+    try: next(iter(srcs))
+    except StopIteration:
         src = Source()
         src.Name = name
         src.IsModifiable, src.URI, src.Type, src.Key = False, '', '', ''
+        src.Type = type
         src = sourcesService.insert(src)
 
     collaboratorService = entityFor(ICollaboratorService)
@@ -61,6 +62,8 @@ def insertTheme():
             t.URL = cdmGUI().getURI(themes_path() + '/' + name, 'http')
             t.IsLocal = True
             s.insert(t)
+
+PRIORITY_FINAL = Priority('Create %s tables' % __name__[__name__.rindex('.') + 1:], after=PRIORITY_LAST)
 
 # --------------------------------------------------------------------
 
@@ -98,7 +101,7 @@ def upgradeLiveBlog14():
     session.execute("ALTER TABLE collaborator CHARACTER SET utf8")
 
     # add unique constraint to source
-    session.execute("ALTER TABLE source ADD UNIQUE uix_source_type_name (`name`, `fk_type_id`)")
+    session.execute("ALTER TABLE source ADD UNIQUE uix_source_type_name (`name`, `fk_source_type_id`)")
 
     # add origin name column to source
     session.execute("ALTER TABLE source ADD COLUMN origin_name VARCHAR(255)")
@@ -111,15 +114,17 @@ def upgradeLiveBlog14():
 
     insertSource('sms')
 
-@app.populate
-def upgradeInternationalizationSourceType():
-    creator = alchemySessionCreatorInternationalization()
-    session = creator()
-    assert isinstance(session, Session)
-
-    try:
-        session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
-    except (ProgrammingError, OperationalError): pass
+# TODO: uncomment and fix when internationalization refactored
+# @app.populate
+# def upgradeInternationalizationSourceType():
+#     creator = alchemySessionCreatorInternationalization()
+#     session = creator()
+#     assert isinstance(session, Session)
+#
+#     try:
+#         session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") +
+#                         "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
+#     except (ProgrammingError, OperationalError): pass
 
 @app.populate
 def upgradeLiveBlog14First():
@@ -127,17 +132,17 @@ def upgradeLiveBlog14First():
     session = creator()
     assert isinstance(session, Session)
 
-    try: session.execute("ALTER TABLE user ADD COLUMN `fk_type_id` INT UNSIGNED")
+    try: session.execute("ALTER TABLE user ADD COLUMN `fk_user_type_id` INT UNSIGNED")
     except (ProgrammingError, OperationalError): return
-    session.execute("ALTER TABLE user ADD FOREIGN KEY `fk_type_id` (`fk_type_id`) REFERENCES `user_type` (`id`) ON DELETE RESTRICT")
-    session.execute("UPDATE user, user_type SET user.fk_type_id = user_type.id WHERE user_type.key = 'standard'")
-    session.execute("ALTER TABLE user CHANGE COLUMN `fk_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
+    session.execute("ALTER TABLE user ADD FOREIGN KEY `fk_user_type_id` (`fk_type_id`) REFERENCES `user_type` (`id`) ON DELETE RESTRICT")
+    session.execute("UPDATE user, user_type SET user.fk_user_type_id = user_type.id WHERE user_type.key = 'standard'")
+    session.execute("ALTER TABLE user CHANGE COLUMN `fk_user_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14Last():
     insertTheme()
-    insertSource('comments')
     createSourceType('comment')
+    insertSource('comments', 'comment')
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14End():

@@ -70,7 +70,7 @@ class IAuthenticationService:
         '''
         
     # ----------------------------------------------------------------
-        
+
     @call(filter='authenticated')
     def isAuthenticatedUser(self, authId:User, userId:User) -> bool:
         '''

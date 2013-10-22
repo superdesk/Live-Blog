@@ -24,8 +24,8 @@ class BlogComment:
     Separate model for the comment itself.
     '''
     UserName = str
-    CommentText = str
-    CommentSource = str
+    Text = str
+    Source = str
 
 # --------------------------------------------------------------------
 # No query
@@ -49,7 +49,7 @@ class IBlogCommentService:
         Lists original comments of Comment-based Posts of the specified blog.
         '''
 
-    @call(method=INSERT)
+    @call(method=INSERT, webName='Comment')
     def addComment(self, blogId:Blog.Id, comment:BlogComment) -> BlogPost.Id:
         '''
         Inserts a new blog comment.

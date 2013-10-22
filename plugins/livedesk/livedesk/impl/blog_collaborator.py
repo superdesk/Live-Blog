@@ -10,7 +10,6 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import IBlogCollaboratorService
-from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -46,6 +45,7 @@ class CollaboratorSpecification:
     # The action names to be associated with a collaborator type.
 
     def __init__(self):
+        return
         assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
         assert isinstance(self.type_filter, list), 'Invalid type filter %s' % self.type_filter
         assert isinstance(self.type_actions, dict), 'Invalid type actions %s' % self.type_actions
@@ -60,7 +60,8 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
 
     collaboratorSpecification = CollaboratorSpecification; wire.entity('collaboratorSpecification')
-    userActionService = IUserActionService; wire.entity('userActionService')
+# TODO: uncomment and fix
+#     userActionService = IUserActionService; wire.entity('userActionService')
 
     def __init__(self):
         '''
@@ -68,8 +69,9 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         assert isinstance(self.collaboratorSpecification, CollaboratorSpecification), \
         'Invalid collaborator specification %s' % self.collaboratorSpecification
-        assert isinstance(self.userActionService, IUserActionService), \
-        'Invalid user actions service %s' % self.userActionService
+# TODO: uncomment and fix
+#         assert isinstance(self.userActionService, IUserActionService), \
+#         'Invalid user actions service %s' % self.userActionService
         super().__init__()
 
         self._collaboratorTypeIds = {}
@@ -78,23 +80,25 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         @see: IBlogCollaboratorService.getAllTypes
         '''
-        return self.session().query(BlogCollaboratorTypeMapped).all()
+        return self.session().query(BlogCollaboratorTypeMapped.Name).all()
+
 
     def getActions(self, userId, blogId, path=None, origPath=None):
         '''
         @see: IBlogCollaboratorService.getActions
         '''
-        actions = list(self.userActionService.getAll(userId, path))
-        paths = { a.Path for a in actions }
-        for name, f in self.collaboratorSpecification.type_filter:
-            assert isinstance(f, Filter), 'Invalid filter'
-            assert isinstance(f.filter, IAclFilter)
-            if f.filter.isAllowed(userId, blogId):
-                collActions = list(self.collaboratorSpecification.type_actions.get(name))
-                collPaths = { a.Path for a in collActions }.difference(paths)
-                actions.extend([action for action in collActions if action.Path in collPaths])
-                break
-        return actions
+        # TODO: uncomment and fix
+#         actions = list(self.userActionService.getAll(userId, path))
+#         paths = { a.Path for a in actions }
+#         for name, f in self.collaboratorSpecification.type_filter:
+#             assert isinstance(f, Filter), 'Invalid filter'
+#             assert isinstance(f.filter, IAclFilter)
+#             if f.filter.isAllowed(userId, blogId):
+#                 collActions = list(self.collaboratorSpecification.type_actions.get(name))
+#                 collPaths = { a.Path for a in collActions }.difference(paths)
+#                 actions.extend([action for action in collActions if action.Path in collPaths])
+#                 break
+#         return actions
 
     def getById(self, blogId, collaboratorId):
         '''
@@ -111,7 +115,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         @see: IBlogCollaboratorService.getAll
         '''
-        sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
+        sql = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         sql = sql.filter(UserMapped.Active == True)
         return iterateCollection(sql, **options)

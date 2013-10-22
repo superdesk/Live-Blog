@@ -40,7 +40,7 @@ class BlogMediaMapped(Base, BlogMedia):
     Provides the mapping for BlogMedia.
     '''
     __tablename__ = 'livedesk_blog_media'
-    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_type_id', 'rank', name='uix_blog_media_type_rank'),
+    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_blog_media_type_id', 'rank', name='uix_blog_media_type_rank'),
                       dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)

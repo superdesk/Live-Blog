@@ -9,10 +9,9 @@ Created on Aug 30, 2012
 API specifications for livedesk blog type.
 '''
 
-from ally.api.config import query, service
-from ally.api.criteria import AsLike
+from ally.api.config import service
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.support.api.entity_named import Entity, QEntity, IEntityService
+from ally.support.api.entity_named import Entity, IEntityNQService
 
 # --------------------------------------------------------------------
 
@@ -24,17 +23,8 @@ class BlogType(Entity):
 
 # --------------------------------------------------------------------
 
-@query(BlogType)
-class QBlogType(QEntity):
-    '''
-    Provides the query for active blog type model.
-    '''
-    name = AsLike
-
-# --------------------------------------------------------------------
-
-@service((Entity, BlogType), (QEntity, QBlogType))
-class IBlogTypeService(IEntityService):
+@service((Entity, BlogType))
+class IBlogTypeService(IEntityNQService):
     '''
     Provides the service methods for the blogs.
     '''

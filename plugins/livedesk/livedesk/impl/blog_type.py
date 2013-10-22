@@ -11,8 +11,8 @@ Contains the implementation of the blog type API.
 
 from ally.container.ioc import injected
 from ally.container.support import setup
-from livedesk.api.blog_type import IBlogTypeService, QBlogType
-from sql_alchemy.impl.entity import EntityServiceAlchemy
+from livedesk.api.blog_type import IBlogTypeService
+from sql_alchemy.impl.entity import EntityNQServiceAlchemy, EntitySupportAlchemy
 from livedesk.meta.blog_type import BlogTypeMapped
 from livedesk.meta.blog_type_post import BlogTypePostMapped
 from sqlalchemy.exc import OperationalError
@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 @injected
 @setup(IBlogTypeService, name='blogTypeService')
-class BlogTypeServiceAlchemy(EntityServiceAlchemy, IBlogTypeService):
+class BlogTypeServiceAlchemy(EntityNQServiceAlchemy, IBlogTypeService):
     '''
     Implementation for @see: IBlogTypeService
     '''
@@ -37,7 +37,7 @@ class BlogTypeServiceAlchemy(EntityServiceAlchemy, IBlogTypeService):
         '''
         Construct the blog type service.
         '''
-        EntityServiceAlchemy.__init__(self, BlogTypeMapped, QBlogType)
+        EntitySupportAlchemy.__init__(self, BlogTypeMapped)
 
     def delete(self, id):
         try:

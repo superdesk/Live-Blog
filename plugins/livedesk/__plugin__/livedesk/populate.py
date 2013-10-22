@@ -16,6 +16,7 @@ from security.rbac.api.rbac import QRole, Role
 from superdesk.security.api.user_rbac import IUserRbacService
 from superdesk.user.api.user import IUserService, User, QUser
 import hashlib
+from security.rbac.api.role import IRoleService
 
 # --------------------------------------------------------------------
 
@@ -64,47 +65,48 @@ def blogRoleEditorId():
 
 # --------------------------------------------------------------------
 
-@app.populate
-def populateEditorRole():
-    roleService = support.entityFor(IRoleService)
-    assert isinstance(roleService, IRoleService)
-    roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskView()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveView()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveUpload()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskUpdate()))
-    roleService.assignRight(blogRoleEditorId(), rightId(rightUserView()))
-    roleService.assignRole(blogRoleAdministratorId(), blogRoleEditorId())
-
-@app.populate
-def populateCollaboratorRole():
-    roleService = support.entityFor(IRoleService)
-    assert isinstance(roleService, IRoleService)
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
-    roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveUpload()))
-    roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
-
-@app.populate
-def populateBlogAdministratorRole():
-    roleService = support.entityFor(IRoleService)
-    assert isinstance(roleService, IRoleService)
-    rightService = support.entityFor(IRightService)
-    assert isinstance(rightService, IRightService)
-    for right in rightService.getAll():
-        assert isinstance(right, Right)
-        if right.Name == rightRequestsInspection().name: continue
-        roleService.assignRight(blogRoleAdministratorId(), right.Id)
-    roleService.assignRole(rootRoleId(), blogRoleAdministratorId())
-    q = QRight()
-    q.name = rightRequestsInspection().name
-    for right in rightService.getAll(q=q):
-        assert isinstance(right, Right)
-        roleService.assignRight(rootRoleId(), right.Id)
-
-# --------------------------------------------------------------------
+# TODO: uncomment and fix
+# @app.populate
+# def populateEditorRole():
+#     roleService = support.entityFor(IRoleService)
+#     assert isinstance(roleService, IRoleService)
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskView()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveView()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightMediaArchiveUpload()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightManageOwnPost()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightLivedeskUpdate()))
+#     roleService.assignRight(blogRoleEditorId(), rightId(rightUserView()))
+#     roleService.assignRole(blogRoleAdministratorId(), blogRoleEditorId())
+#
+# @app.populate
+# def populateCollaboratorRole():
+#     roleService = support.entityFor(IRoleService)
+#     assert isinstance(roleService, IRoleService)
+#     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightLivedeskView()))
+#     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightManageOwnPost()))
+#     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveView()))
+#     roleService.assignRight(blogRoleCollaboratorId(), rightId(rightMediaArchiveUpload()))
+#     roleService.assignRole(blogRoleAdministratorId(), blogRoleCollaboratorId())
+#
+# @app.populate
+# def populateBlogAdministratorRole():
+#     roleService = support.entityFor(IRoleService)
+#     assert isinstance(roleService, IRoleService)
+#     rightService = support.entityFor(IRightService)
+#     assert isinstance(rightService, IRightService)
+#     for right in rightService.getAll():
+#         assert isinstance(right, Right)
+#         if right.Name == rightRequestsInspection().name: continue
+#         roleService.assignRight(blogRoleAdministratorId(), right.Id)
+#     roleService.assignRole(rootRoleId(), blogRoleAdministratorId())
+#     q = QRight()
+#     q.name = rightRequestsInspection().name
+#     for right in rightService.getAll(q=q):
+#         assert isinstance(right, Right)
+#         roleService.assignRight(rootRoleId(), right.Id)
+#
+# # --------------------------------------------------------------------
 
 @app.populate
 def populateDefaultUsers():
@@ -116,18 +118,20 @@ def populateDefaultUsers():
     for name in (('Janet', 'Admin'), ('Diane', 'Editor'), ('Andrew', 'Reporter'), ('Christine', 'Journalist')):
         loginName = name[1].lower()
         users = userService.getAll(limit=1, q=QUser(name=loginName))
-        if not users:
+        try: user = next(iter(users))
+        except StopIteration:
             user = User()
             user.FirstName = name[0]
             user.LastName = name[1]
             user.EMail = '%s.%s@email.addr' % name
             user.Name = loginName
+            user.Type = 'standard'
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
-        else: user = next(iter(users))
-        if user.Name == 'admin':
-            userRbacService.assignRole(user.Id, blogRoleAdministratorId())
-        elif user.Name == 'editor':
-            userRbacService.assignRole(user.Id, blogRoleEditorId())
-        else:
-            userRbacService.assignRole(user.Id, blogRoleCollaboratorId())
+# TODO: uncomment when fixed
+#         if user.Name == 'admin':
+#             userRbacService.assignRole(user.Id, blogRoleAdministratorId())
+#         elif user.Name == 'editor':
+#             userRbacService.assignRole(user.Id, blogRoleEditorId())
+#         else:
+#             userRbacService.assignRole(user.Id, blogRoleCollaboratorId())

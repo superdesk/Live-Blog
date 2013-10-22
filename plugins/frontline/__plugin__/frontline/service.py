@@ -9,23 +9,15 @@ Created on April 29, 2013
 Contains the services for frontline.
 '''
 
-from ..plugin.registry import addService
-from ..superdesk.db_superdesk import bindSuperdeskSession, \
-    bindSuperdeskValidations
-from ally.container import support, bind, ioc
-from itertools import chain
+from ..plugin.registry import registerService
+from ally.container import support, bind
+from ..superdesk.database import binders
 
 # --------------------------------------------------------------------
 
 SERVICES = 'frontline.*.api.**.I*Service'
-@ioc.entity
-def binders(): return [bindSuperdeskSession]
-@ioc.entity
-def bindersService(): return list(chain((bindSuperdeskValidations,), binders()))
 
 bind.bindToEntities('frontline.*.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('frontline.*.impl.**.*')
-support.listenToEntities(SERVICES, listeners=addService(bindersService))
+support.listenToEntities(SERVICES, listeners=registerService)
 support.loadAllEntities(SERVICES)
-
-# --------------------------------------------------------------------

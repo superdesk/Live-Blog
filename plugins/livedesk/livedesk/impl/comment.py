@@ -13,7 +13,6 @@ from ..api.comment import IBlogCommentService
 from ..api.blog_post import IBlogPostService, QBlogPost
 from ..meta.blog import BlogMapped
 from ..meta.blog_post import BlogPostMapped
-from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
@@ -100,14 +99,14 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             raise InputError(_('Specified blog does not exist'),)
 
         userName = comment.UserName
-        commentText = comment.CommentText
-        commentSource = comment.CommentSource if comment.CommentSource else self.source_name_default
+        commentText = comment.Text
+        commentSource = comment.Source if comment.Source else self.source_name_default
 
         # checking the necessary info: user name and comment text
         if not userName:
             raise InputError(_('No value for the mandatory UserName'),)
         if not commentText:
-            raise InputError(_('No value for the mandatory CommentText'),)
+            raise InputError(_('No value for the mandatory Text field'),)
 
         # take (or make) the user (for user name) part of creator and collaborator
         userTypeId, = self.session().query(UserTypeMapped.id).filter(UserTypeMapped.Key == self.user_type_key).one()

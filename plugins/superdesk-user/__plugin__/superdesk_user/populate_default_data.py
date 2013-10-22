@@ -12,6 +12,7 @@ Populates default data for the services.
 from ally.container import app, ioc
 from ally.container.support import entityFor
 from superdesk.user.api.user_type import IUserTypeService, UserType
+from ally.design.priority import PRIORITY_FIRST
 
 # --------------------------------------------------------------------
 
@@ -20,7 +21,7 @@ def standard_user_types():
     ''' The standard user types '''
     return ['standard']
 
-@app.populate(app.DEVEL)
+@app.populate(app.DEVEL, priority=PRIORITY_FIRST)
 def populateTypes():
     userTypeService = entityFor(IUserTypeService)
     assert isinstance(userTypeService, IUserTypeService)

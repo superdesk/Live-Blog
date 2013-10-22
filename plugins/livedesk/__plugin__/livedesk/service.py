@@ -10,28 +10,24 @@ Contains the services for livedesk.
 '''
 
 from ..cdm import contentDeliveryManager
-from ..plugin.registry import addService
 from ally.cdm.spec import ICDM
 from ally.container import support, bind, ioc, app
 from ally.internationalization import NC_
-from itertools import chain
 from livedesk.core.spec import IBlogCollaboratorGroupCleanupService
 from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from sched import scheduler
 from threading import Thread
 import time
+from ..plugin.registry import registerService
+from ..superdesk.database import binders
 
 # --------------------------------------------------------------------
 
 SERVICES = 'livedesk.api.**.I*Service'
-@ioc.entity
-def binders(): return [bindSuperdeskSession]
-@ioc.entity
-def bindersService(): return list(chain((bindSuperdeskValidations,), binders()))
 
 bind.bindToEntities('livedesk.impl.**.*Alchemy', IBlogCollaboratorGroupCleanupService, binders=binders)
 support.createEntitySetup('livedesk.impl.**.*')
-support.listenToEntities(SERVICES, listeners=addService(bindersService))
+support.listenToEntities(SERVICES, listeners=registerService)
 support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------

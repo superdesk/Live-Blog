@@ -9,7 +9,6 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from ..livedesk.populate import populateDefaultUsers
 from ally.api.extension import IterPart
 from ally.container import ioc, app
 from ally.container.support import entityFor
@@ -18,15 +17,13 @@ from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
-from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
-from livedesk.api.blog_type_post import IBlogTypePostService, \
-    BlogTypePostPersist
+from livedesk.api.blog_type import IBlogTypeService, BlogType
 from os.path import abspath, dirname, join
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
-from superdesk.language.api.language import ILanguageService, Language
+from superdesk.language.api.language import ILanguageService
 from superdesk.post.api.post import Post
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source
@@ -36,7 +33,11 @@ import csv
 from superdesk.user.meta.user_type import UserTypeMapped
 from livedesk.meta.blog_media import BlogMediaTypeMapped
 from sqlalchemy.sql.expression import exists
-from sql_alchemy.database_config import alchemySessionCreator
+from ..sql_alchemy.db_application import alchemySessionCreator
+from livedesk.api.blog_type_post import IBlogTypePostService, \
+    BlogTypePostPersist
+from ally.api.error import InputError
+from __plugin__.livedesk.populate import populateDefaultUsers
 
 # --------------------------------------------------------------------
 
@@ -46,13 +47,15 @@ LANGUAGES = { 'en', 'de', 'fr' }
 def getLanguagesIds():
     languageService = entityFor(ILanguageService)
     assert isinstance(languageService, ILanguageService)
-    languages = { lang.Code: lang.Id for lang in languageService.getAll() }
+    languagesAll = [ code for code in languageService.getAll() ]
+    languagesAvailable = []
     for code in LANGUAGES:
-        if code not in languages:
-            lang = Language()
-            lang.Code = code
-            languages[code] = languageService.insert(lang)
-    return languages
+        if code not in languagesAvailable and code in languagesAll:
+            languageService.add(code)
+            # TODO: remove
+            print(list(languageService.getAllAvailable()))
+            languagesAvailable.append(code)
+    return languagesAvailable
 
 
 def createSourceType(key):
@@ -134,8 +137,8 @@ def getSourcesIds():
     sources = {}
     for name in SOURCES:
         srcs = sourcesService.getAll(q=QSource(name=name))
-        if srcs: sources[name] = next(iter(srcs)).Id
-        else:
+        try: sources[name] = next(iter(srcs)).Id
+        except StopIteration:
             src = Source()
             src.Name = name
             src.IsModifiable, src.URI, src.Type, src.Key = SOURCES[name]
@@ -147,25 +150,23 @@ def getSourcesIds():
 BLOG_TYPES = ('default',)
 
 @ioc.entity
-def getBlogTypesIds():
+def getBlogTypes():
     blogTypeService = entityFor(IBlogTypeService)
     assert isinstance(blogTypeService, IBlogTypeService)
-    blogTypes = {}
     for name in BLOG_TYPES:
-        blgTypes = blogTypeService.getAll(q=QBlogType(name=name))
-        if blgTypes: blogTypes[name] = next(iter(blgTypes)).Id
-        else:
+        try: blogTypeService.getById(name)
+        except InputError:
             blgType = BlogType()
             blgType.Name = name
-            blogTypes[name] = blogTypeService.insert(blgType)
-    return blogTypes
+            blogTypeService.insert(blgType)
+    return BLOG_TYPES
 
 
 @ioc.entity
 def getUsersIds():
     userService = entityFor(IUserService)
     assert isinstance(userService, IUserService)
-    return { user.Name:user.Id for user in userService.getAll() }
+    return { userService.getById(userId).Name:userId for userId in userService.getAll() }
 
 
 COLLABORATORS = {
@@ -189,8 +190,8 @@ def getCollaboratorsIds():
     collaborators = {}
     for source, id in getSourcesIds().items():
         colls = collaboratorService.getAll(qs=QSource(name=source))
-        if colls: collaborators[source] = colls[0].Id
-        else:
+        try: collaborators[source] = next(iter(colls))
+        except StopIteration:
             coll = Collaborator()
             coll.User = None
             coll.Source = getSourcesIds()[source]
@@ -198,8 +199,8 @@ def getCollaboratorsIds():
 
     for user, id in getUsersIds().items():
         colls = collaboratorService.getAll(qu=QUser(name=user))
-        if colls: collaborators[user] = colls[0].Id
-        else:
+        try: collaborators[user] = next(iter(colls))
+        except StopIteration:
             coll = Collaborator()
             coll.User = id
             coll.Source = getSourcesIds()['internal']
@@ -244,14 +245,15 @@ def createBlogTypePosts():
     for data in BLOG_TYPE_POSTS:
         pst = BlogTypePostPersist()
         blogType, pst.Type, creator, author, pst.Name, pst.Content = data
-        blogTypeId = getBlogTypesIds()[blogType]
+        assert blogType in getBlogTypes()
         exists = False
-        for post in blogTypePostService.getAll(blogTypeId):
+        for postId in blogTypePostService.getAll(blogType):
+            post = blogTypePostService.getById(blogType, postId)
             if post.Content == pst.Content: exists = True; break
         if not exists:
             pst.Creator = getUsersIds()[creator]
             if author: pst.Author = getCollaboratorsIds()[author]
-            blogTypePostService.insert(blogTypeId, pst)
+            blogTypePostService.insert(blogType, pst)
 
 
 BLOGS_DEFAULTS = ('default', 'en')
@@ -276,14 +278,16 @@ def getBlogsIds():
     blogs = {}
     for name, data in defaultBlogs().items():
         blgs = blogService.getAll(q=QBlog(title=name))
-        if blgs: blogs[name] = next(iter(blgs)).Id
-        else:
+        try: blogs[name] = next(iter(blgs))
+        except StopIteration:
             blg = Blog()
             blg.Title = name
             blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = data
-            blg.Type = getBlogTypesIds()[blogType]
+            assert blogType in getBlogTypes()
+            assert langCode in getLanguagesIds()
+            blg.Type = blogType
             blg.Creator = getUsersIds()[usrName]
-            blg.Language = getLanguagesIds()[langCode]
+            blg.Language = langCode
             blogs[name] = blogService.insert(blg)
     return blogs
 
@@ -299,9 +303,9 @@ def createBlogCollaborators():
     assert isinstance(blogCollaboratorService, IBlogCollaboratorService)
     for name, blog in BLOG_COLLABORATORS.items():
         blogId, collId = getBlogsIds()[blog], getCollaboratorsIds()[name]
-        blgs = blogCollaboratorService.getAll(blogId)
-        for blg in blgs:
-            if blg.Id == collId: break
+        blogCollsIds = blogCollaboratorService.getAll(blogId)
+        for blogCollId in blogCollsIds:
+            if blogCollId == collId: break
         else:
             blogCollaboratorService.addCollaboratorAsDefault(blogId, collId)
 
@@ -317,9 +321,9 @@ def createBlogAdmins():
     assert isinstance(blogCollaboratorService, IBlogCollaboratorService)
     for name, blog in BLOG_ADMINS.items():
         blogId, collId = getBlogsIds()[blog], getCollaboratorsIds()[name]
-        blgs = blogCollaboratorService.getAll(blogId)
-        for blg in blgs:
-            if blg.Id == collId: break
+        blogCollsIds = blogCollaboratorService.getAll(blogId)
+        for blogCollId in blogCollsIds:
+            if blogCollId == collId: break
         else:
             blogCollaboratorService.addCollaborator(blogId, collId, 'Administrator')
 
@@ -341,7 +345,7 @@ def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
     for _blogName, blogId in getBlogsIds().items():
-        published = blogPostService.getPublished(blogId, detailed=True, limit=0)
+        published = blogPostService.getPublished(blogId, limit=0, withTotal=True)
         assert isinstance(published, IterPart), 'Invalid part %s' % published
         if published.total > 0: return
     for data in defaultPosts():

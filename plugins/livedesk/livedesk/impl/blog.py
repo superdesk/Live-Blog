@@ -9,35 +9,37 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, IBlogConfigurationService
-from ..meta.blog import BlogMapped, BlogConfigurationMapped
-from support.impl.configuration import createConfigurationImpl
-from ally.api.criteria import AsBoolean
-from ally.container.ioc import injected
-from ally.container.support import setup
-from ally.internationalization import _
-from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
-    BlogCollaboratorTypeMapped
-from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
+import logging
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists, or_
 from sqlalchemy.sql.functions import current_timestamp
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.source.api.source import Source, QSource
-from superdesk.source.meta.source import SourceMapped
-from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.meta.blog import BlogSourceDB
-from sqlalchemy.exc import SQLAlchemyError, OperationalError
-import logging
-from superdesk.source.api.source import ISourceService
+
+from ally.api.criteria import AsBoolean
+from ally.api.error import InputError
 from ally.container import wire
+from ally.container.ioc import injected
+from ally.container.support import setup
+from ally.internationalization import _
+from livedesk.meta.blog import BlogSourceDB
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
+    BlogCollaboratorTypeMapped
+from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
+from sql_alchemy.support.util_service import buildQuery, iterateCollection
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
-from ally.api.error import InputError
-from sql_alchemy.support.util_service import buildQuery, iterateCollection
+from superdesk.source.api.source import ISourceService, Source, QSource
+from superdesk.source.meta.source import SourceMapped
+from superdesk.source.meta.type import SourceTypeMapped
+from support.core.impl.configuration import ConfigurationServiceAlchemy
+
+from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, \
+    IBlogConfigurationService
+from ..meta.blog import BlogMapped, BlogConfigurationMapped
+
 
 # --------------------------------------------------------------------
-
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
@@ -278,12 +280,14 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
 
 # --------------------------------------------------------------------
 
-BlogConfigurationServiceAlchemy = createConfigurationImpl(IBlogConfigurationService, BlogConfigurationMapped)
-BlogConfigurationServiceAlchemy = setup(IBlogConfigurationService, name='blogConfigurationService')(BlogConfigurationServiceAlchemy)
-BlogConfigurationServiceAlchemy = injected()(BlogConfigurationServiceAlchemy)
-'''
-Implementation for @see: IBlogConfigurationService
+@setup(IBlogConfigurationService, name='blogConfigurationService')
+class BlogConfigurationServiceAlchemy(ConfigurationServiceAlchemy, IBlogConfigurationService):
+    '''
+    Implementation for @see: IBlogConfigurationService
 
-This implementation is automatically generated.
-See the configuration modules of the support package.
-'''
+    This implementation is automatically generated.
+    See the configuration modules of the support package.
+    '''
+
+    def __init__(self):
+        ConfigurationServiceAlchemy.__init__(self, BlogConfigurationMapped)

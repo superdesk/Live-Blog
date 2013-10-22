@@ -18,7 +18,7 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from sqlalchemy import func
 from ally.api.error import InputError
-from sql_alchemy.support.util_service import iterateCollection, updateModel
+from sql_alchemy.support.util_service import iterateCollection
 
 # --------------------------------------------------------------------
 

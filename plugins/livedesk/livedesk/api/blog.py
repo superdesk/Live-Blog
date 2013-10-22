@@ -18,7 +18,7 @@ from ally.api.type import Iter
 from livedesk.api.blog_type import BlogType
 from superdesk.source.api.source import Source
 from superdesk.source.api.type import SourceType
-from support.api.configuration import IConfigurationService
+from support.api.configuration import IConfigurationPrototype
 from superdesk.post.api.post import Post, QPostWithPublished
 from ally.support.api.entity_ided import Entity, IEntityCRUDService
 from superdesk.language.api.language import Language
@@ -171,8 +171,8 @@ class IBlogSourceService:
 
 # --------------------------------------------------------------------
 
-@service((Entity, Blog))
-class IBlogConfigurationService(IConfigurationService):
+@service(('TARGET', Blog))
+class IBlogConfigurationService(IConfigurationPrototype):
     '''
     Provides the blog configuration service.
     '''

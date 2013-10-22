@@ -9,15 +9,17 @@ Created on May 22, 2013
 Provides configurations API support that can be binded to other entities.
 '''
 
-from ally.api.config import query, service, call, model
+from ally.api.config import query, model, prototype
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Iter
 from ally.support.api.entity_named import Entity, QEntity
 from ally.api.option import SliceAndTotal # @UnusedImport
+import abc # @UnusedImport
+from ally.support.api.util_service import modelId
 
 # --------------------------------------------------------------------
 
-@model(id='Name')
+@model
 class Configuration(Entity):
     '''
     Provides the configuration model.
@@ -35,64 +37,63 @@ class QConfiguration(QEntity):
 
 # --------------------------------------------------------------------
 
-@service
-class IConfigurationService:
+class IConfigurationPrototype(metaclass=abc.ABCMeta):
     '''
     Provides the configuration service.
     '''
-    
-    @call
-    def getByName(self, parentId:Entity.Name, name:Configuration.Name) -> Configuration:
+
+    @prototype
+    def getByName(self, targetId:lambda p:p.TARGET, name:Configuration) -> Configuration:
         '''
-        Provides the configuration based on the parentId and name.
-        
-        @param parentId: integer
-            The id of the entity which config is to be used.
+        Returns the configuration based on the target model id for which configuration is
+        implemented and the configuration name.
+
+        @param targetId
+            The target model id
         @param name: string
             The name of the configuration property to be taken.
-        @raise InputError: If the parentId is not valid. 
+        @raise InputError: If targetId is not valid.
         '''
 
-    @call
-    def getAll(self, parentId:Entity.Name, q:QConfiguration=None, **options:SliceAndTotal) -> Iter(Configuration.Name):
+    @prototype
+    def getAll(self, targetId:lambda p:p.TARGET, q:QConfiguration=None, **options:SliceAndTotal) -> Iter(Configuration.Name):
         '''
-        Provides the configuration relating the parentId.
+        Returns a list of configurations for the given target model id.
         '''
 
-    @call
-    def insert(self, parentId:Entity.Name, configuration:Configuration) -> Configuration.Name:
+    @prototype
+    def insert(self, targetId:lambda p:modelId(p.TARGET), configuration:Configuration) -> Configuration.Name:
         '''
-        Insert the configuration
-        
-        @param parentId: integer
-            The entity to be configured.
+        Insert configuration for the given target model id.
+
+        @param targetId
+            The target model id for which to insert the configuration.
         @param configuration: Configuration
             The configuration to be inserted.
-        
         @return: The name of the configuration
-        @raise InputError: If the parentId is not valid. 
+        @raise InputError: If targetId is not valid.
         '''
 
-    @call
-    def update(self, parentId:Entity.Name, configuration:Configuration):
+    @prototype
+    def update(self, targetId:lambda p:modelId(p.TARGET), configuration:Configuration):
         '''
-        Update the configuration on parentId.
-        
-        @param parentId: integer
-            The entity to be configured.
+        Update the configuration identified through name for the given target model id.
+
+        @param targetId
+            The target model id
         @param configuration: Configuration
             The configuration to be updated.
         '''
 
-    @call
-    def delete(self, parentId:Entity.Name, name:Configuration.Name) -> bool:
+    @prototype
+    def delete(self, targetId:lambda p:p.TARGET, name:Configuration.Name) -> bool:
         '''
-        Delete the configuration on parentId for the provided name.
-        
-        @param parentId: integer
-            The entity to be configured.
+        Delete the configuration identified through name for the given target model id.
+
+        @param targetId
+            The target model id
         @param name: configuration name
-            The configuration to be deleted.
-            
+            The name of the configuration to be deleted.
+
         @return: True if the delete is successful, false otherwise.
         '''

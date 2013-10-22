@@ -64,19 +64,19 @@ class IBlogTypePostService:
         '''
 
     @call
-    def insert(self, blogTypeId:BlogType.Id, post:BlogTypePostPersist) -> BlogTypePost.Id:
+    def insert(self, blogTypeId:BlogType.Name, post:BlogTypePostPersist) -> BlogTypePost.Id:
         '''
         Inserts the post for the blog type.
         '''
 
     @call
-    def update(self, blogTypeId:BlogType.Id, post:Post):
+    def update(self, blogTypeId:BlogType.Name, post:Post):
         '''
         Update the post for the blog.
         '''
 
     @call(method=UPDATE, webName='Reorder')
-    def reorder(self, blogTypeId:BlogType.Id, postId:Post.Id, refPostId:Post.Id, before:bool=True):
+    def reorder(self, blogTypeId:BlogType.Name, postId:Post.Id, refPostId:Post.Id, before:bool=True):
         '''
         Reorder the post.
         '''

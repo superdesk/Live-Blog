@@ -53,7 +53,7 @@ class LanguageServiceBabelAlchemy(SessionSupport, ILanguageService):
         '''
         @see: ILanguageService.getAllAvailable
         '''
-        codes = [code for code, in self.session().query(LanguageAvailable.code).all()]
+        codes = [code for code, in self.session().query(LanguageAvailable.Code).all()]
         return processCollection(codes, Language, q, lambda code: self.languages()[code], **options)
     
     def add(self, code):
@@ -61,16 +61,14 @@ class LanguageServiceBabelAlchemy(SessionSupport, ILanguageService):
         @see: ILanguageService.add
         '''
         if not code in self.languages(): raise IdError(Language)
-        if self.session().query(LanguageAvailable).filter(LanguageAvailable.code == code).count(): return
-        lang = LanguageAvailable(code=code)
-        self.session().add(lang)
-        self.session().flush((lang,))
+        if self.session().query(LanguageAvailable).filter(LanguageAvailable.Code == code).count(): return
+        self.session().add(LanguageAvailable(Code=code))
     
     def remove(self, code):
         '''
         @see: ILanguageService.remove
         '''
-        try: lang = self.session().query(LanguageAvailable).filter(LanguageAvailable.code == code).one()
+        try: lang = self.session().query(LanguageAvailable).filter(LanguageAvailable.Code == code).one()
         except NoResultFound: return False
         self.session().delete(lang)
         return True

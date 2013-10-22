@@ -20,12 +20,13 @@ from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.sql.operators import desc_op
-from livedesk.api.blog_type_post import IBlogTypePostService, BlogTypePost, \
+from livedesk.api.blog_type_post import IBlogTypePostService, \
     QBlogTypePost, BlogTypePostPersist
 from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
 from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
     iterateCollection
 from ally.api.error import InputError
+from livedesk.meta.blog_type import BlogTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -62,10 +63,16 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         @see: IBlogPostService.getAll
         '''
         assert q is None or isinstance(q, QBlogTypePost), 'Invalid query %s' % q
-        sql = self._buildQuery(blogTypeId, typeId, q)
+        sql = self.session().query(BlogTypePostEntry.blogTypePostId)
+        sql = sql.join(BlogTypeMapped).filter(BlogTypePostEntry.BlogType == blogTypeId)
+        
+        if typeId:
+            sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
+        if q:
+            sql = buildQuery(sql, q, BlogTypePostEntry)
 
-        sql = sql.order_by(desc_op(BlogTypePostMapped.Order))
-        return iterateCollection(self._trimmDeleted(sql.all()), **options)
+        sql = sql.order_by(desc_op(BlogTypePostEntry.Order))
+        return iterateCollection(sql, **options)
 
     def insert(self, blogTypeId, post):
         '''
@@ -139,32 +146,6 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         return False
 
     # ----------------------------------------------------------------
-
-    def _buildQuery(self, blogTypeId, typeId=None, q=None):
-        '''
-        Builds the general query for posts.
-        '''
-        sql = self.session().query(BlogTypePostMapped)
-        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
-
-        if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
-        if q:
-            sql = buildQuery(sql, q, BlogTypePostMapped)
-        return sql
-
-    def _trimmDeleted(self, posts):
-        '''
-        Trim the information from the deleted posts.
-        '''
-        for post in posts:
-            assert isinstance(post, BlogTypePostMapped)
-            if BlogTypePost.DeletedOn in post and post.DeletedOn is not None:
-                trimmed = BlogTypePost()
-                trimmed.Id = post.Id
-                trimmed.DeletedOn = post.DeletedOn
-                yield trimmed
-            else:
-                yield post
 
     def _nextOrdering(self, blogTypeId):
         '''

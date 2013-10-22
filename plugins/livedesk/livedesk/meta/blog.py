@@ -15,7 +15,7 @@ from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import UserMapped
 from support.api.configuration import Configuration
-from support.meta.configuration import ConfigurationDescription
+from support.meta.configuration import WithConfiguration
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func, case
@@ -39,6 +39,7 @@ class BlogMapped(Base, Blog):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Type = relationshipModel(BlogTypeMapped.id)
+#     Language = Column('fk_language_id', ForeignKey(LanguageAvailable.id), nullable=False)
     Language = relationshipModel(LanguageAvailable.id)
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     Title = Column('title', String(255), nullable=False)
@@ -56,7 +57,7 @@ class BlogMapped(Base, Blog):
     def _IsLive(cls):  # @NoSelf
         return case([((cls.LiveOn != None) & (cls.ClosedOn == None), True)], else_=False)
 
-validateManaged(BlogMapped.CreatedOn)
+# validateManaged(BlogMapped.CreatedOn)
 
 # --------------------------------------------------------------------
 
@@ -81,10 +82,10 @@ class BlogSourceDB(Base):
 # --------------------------------------------------------------------
 
 @validate(exclude=('Name',))
-class BlogConfigurationMapped(Base, ConfigurationDescription, Configuration):
+class BlogConfigurationMapped(Base, WithConfiguration, Configuration):
     '''
     Provides the mapping for BlogConfiguration.
     '''
     __tablename__ = 'blog_configuration'
 
-    parent = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), primary_key=True)
+    targetId = Column('fk_blog_id', ForeignKey(BlogMapped.Id, ondelete='CASCADE'), primary_key=True)
