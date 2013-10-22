@@ -1,6 +1,7 @@
-define([
+﻿define([
 	'jquery',
 	'gizmo/superdesk',
+	'utils/json_parse',
 	'jquery/tmpl',
 	'jquery/utils',
 	'utils/encode_url',
@@ -24,7 +25,7 @@ define([
 	'tmpl!theme/item/source/soundcloud',
 	'tmpl!theme/item/source/instagram',
 	'tmpl!theme/item/source/sms'
-], function( $, Gizmo ) {
+], function( $, Gizmo, json_parse ) {
 	return Gizmo.View.extend ({
 		init: function()
 		{
@@ -96,8 +97,13 @@ define([
 				self._parent.orderOne(self);
 			}
 			data.HashIdentifier = self._parent.hashIdentifier;
+
 			if(data.Meta) {
-				data.Meta = JSON.parse(data.Meta);
+				if(typeof JSON !== 'object') {
+					data.Meta = json_parse(data.Meta);
+				} else {
+					data.Meta = JSON.parse(data.Meta);
+				}
 			}
 			if(data.Meta && data.Meta.annotation) {
 				if(data.Meta.annotation[1] === null) {
