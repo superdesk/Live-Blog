@@ -5,7 +5,7 @@
 {<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
 {<ExtraPostInfo}
 <div class="tool-box-right">
-	{?Meta.DeletedOn}<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">Unhide</a>{:else}<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">Hide</a>{/Meta.DeletedOn}
+	{?Meta.DeletedOn}<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_("Unhide");</a>{:else}<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">_("Hide");</a>{/Meta.DeletedOn}
 </div>
 {/ExtraPostInfo}
 {<Container}{/Container}

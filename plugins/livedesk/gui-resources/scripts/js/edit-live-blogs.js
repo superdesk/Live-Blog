@@ -280,8 +280,10 @@ function(providers, Gizmo, $, BlogAction)
 						 * @TODO: remove this
 						 * Dirty hack to actualize the owncollection
 						 */
-						var editposts = providers['edit'].collections.posts;
-						editposts.xfilter(editposts._xfilter).sync();
+						 if ( providers['edit'].collections ) {
+						 	var editposts = providers['edit'].collections.posts;
+						 	editposts.xfilter(editposts._xfilter).sync();
+						 }
 				    }, this)
 					.on('read', function()
 					{
@@ -627,8 +629,10 @@ function(providers, Gizmo, $, BlogAction)
 				 * Dirty hack to actualize the owncollection
 				 */
 				//console.log('removings: ',data);
-				var editposts = providers['edit'].collections.posts;
-				editposts.xfilter(editposts._xfilter).sync();
+				if ( providers['edit'].collections ) {
+					var editposts = providers['edit'].collections.posts;
+					editposts.xfilter(editposts._xfilter).sync();
+				}
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
