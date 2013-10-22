@@ -34,7 +34,8 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
-from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId, IterPost
+from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId, IterPost,\
+    BlogPost
 
 # --------------------------------------------------------------------
 
@@ -87,14 +88,16 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             sql = buildQuery(sql, q, BlogPostMapped)
             
         if q:
-            if QWithCId.cId not in q or QWithCId.cId in q and QWithCId.cId.start not in q and QWithCId.cId.end not in q:
+            if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
+               and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
+                
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
             
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = sqlLimit.all()
+        posts = self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
             
@@ -198,4 +201,22 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
                 self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
+            
+    def _trimPosts(self, posts, deleted=True, unpublished=True, published=False):
+        '''
+        Trim the information from the deleted posts.
+        '''
+        for post in posts:
+            assert isinstance(post, BlogPostMapped)
+            if (deleted and BlogPost.DeletedOn in post and post.DeletedOn is not None) \
+            or (unpublished and (BlogPost.PublishedOn not in post or post.PublishedOn is None)) \
+            or (published and (BlogPost.PublishedOn in post and post.PublishedOn is not None)):
+                trimmed = BlogPost()
+                trimmed.Id = post.Id
+                trimmed.CId = post.CId
+                trimmed.IsPublished = post.IsPublished
+                trimmed.DeletedOn = post.DeletedOn
+                yield trimmed
+            else:
+                yield post        
 
