@@ -9,6 +9,10 @@
 			<form class="form-horizontal form-large" style="margin-bottom: 50px;">
         	<fieldset>
         		<legend>General</legend>
+        		<div class="control-group">
+					<label class="control-label">_('Language');</label>
+					<div class="controls languages"></div>
+				</div>
 				<div class="control-group">
 					<label class="control-label">_('Provider link');</label>
 					<div class="controls output-link">
@@ -22,26 +26,6 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">_('Embed Theme');</label>
-					<div class="controls themes"></div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Embed script");</label>
-					<div class="controls">
-						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Frontend server");</label>
-					<div class="controls">
-						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Language');</label>
-					<div class="controls languages"></div>
-				</div>
-				<div class="control-group">
 					<label class="control-label">_('Configure type of blog');</label>
 					<div class="controls blogtypes"></div>
 				</div>
@@ -51,7 +35,29 @@
 						<input type="checkbox" name="UserComments" value="on"{?EmbedConfig.UserComments} checked{/EmbedConfig.UserComments} class="sf-toggle on-off">
 					</div>
 				</div>
+			</fieldset>
+			<fieldset>
+        		<legend>Front-end</legend>
+        		<div class="control-group">
+					<label class="control-label">_("Frontend server");</label>
+					<div class="controls">
+						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
+					</div>
+				</div>
+        		<div class="control-group">
+					<label class="control-label">_('Embed Theme');</label>
+					<div class="controls themes"></div>
+				</div>
 				<div class="control-group">
+					<label class="control-label">_("Embed script");</label>
+					<div class="controls">
+						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
+					</div>
+				</div>
+        	</fieldset>
+        	<fieldset>
+        		<legend>Advertisment</legend>
+        		<div class="control-group">
 					<label class="control-label">_('Advertisment');</label>
 					<div class="controls advertisment">
 						<input type="checkbox" name="MediaToggle" value="on"{?EmbedConfig.MediaToggle} checked{/EmbedConfig.MediaToggle} class="sf-toggle on-off">
@@ -59,9 +65,13 @@
 				</div>
 				<div class="control-group">
 					<label class="control-label">_("Advertisment image");</label>
+					
 					<div class="controls">
-						<span class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</span>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
-						<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
+						<div class="input-prepend">
+							<span class="btn" data-toggle="modal-image">_('Image Upload');</span>
+							<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
+						</div>
+						<div id="MediaImageThumb" class="media-thumb"><img src="{EmbedConfig.MediaImage}"></div>
 					</div>
 				</div>
 				<div class="control-group">
@@ -70,11 +80,12 @@
 						<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
 					</div>
 				</div>
-				<div class="control-group">
-					<label class="control-label">_('Configure api keys');</label>
-					<div class="controls api-keys"></div>
-				</div>
-			</fieldset>
+        	</fieldset>
+        	<fieldset>
+        		<legend>Api keys</legend>
+        		<div class="api-keys"></div>
+        		
+        	</fieldset>
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
             <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}
