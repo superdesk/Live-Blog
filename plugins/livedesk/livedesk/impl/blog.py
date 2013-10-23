@@ -22,7 +22,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists, or_, and_
+from sqlalchemy.sql.expression import exists, or_
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source, QSource
@@ -36,7 +36,9 @@ from ally.container import wire
 from superdesk.post.api.post import QPostWithPublished
 from superdesk.post.meta.post import PostMapped
 from livedesk.meta.blog_sync import BlogSyncMapped
-from livedesk.api.blog_sync import BlogSync, IBlogSyncService
+from livedesk.api.blog_sync import IBlogSyncService
+from frontline.inlet.meta.sms_sync import SmsSyncMapped
+from frontline.inlet.api.sms_sync import ISmsSyncService
 
 # --------------------------------------------------------------------
 
@@ -137,6 +139,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     Implementation for @see: IBlogSourceService
     '''
     chained_blog_type = 'chained blog'
+    sms_source_type = 'smssource' 
     sources_auto_delete = [chained_blog_type, ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
@@ -146,10 +149,13 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     # The source service used to manage all operations on sources
     
     blogSyncService = IBlogSyncService; wire.entity('blogSyncService')
-    # The blog sync service used to manage all operations on sources
+    # The blog sync service used to manage all operations on blog sync
+    
+    smsSyncService = ISmsSyncService; wire.entity('smsSyncService')
+    # The sms sync service used to manage all operations on sms sync
     
     blogService = IBlogService; wire.entity('blogService')
-    # The blog sync service used to manage all operations on sources
+    # The blog sync service used to manage all operations on blog
 
     def __init__(self):
         '''
@@ -207,7 +213,16 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
             blogSync.Source = source.Id
             blogSync.Auto = False
             blogSync.Creator = blog.Creator
-            self.blogSyncService.insert(blogSync)    
+            self.blogSyncService.insert(blogSync)  
+            
+        if source.Type == self.sms_source_type and self.smsSyncService.getSmsSyncByBlogAndSource(blogId, sourceId) == None:
+            blog = self.blogService.getBlog(blogId)
+            
+            smsSync = SmsSyncMapped()
+            smsSync.Blog = blogId
+            smsSync.Source = source.Id
+            smsSync.LastId = 0
+            self.smsSyncService.insert(smsSync)       
             
         ent = BlogSourceDB()
         ent.blog = blogId
