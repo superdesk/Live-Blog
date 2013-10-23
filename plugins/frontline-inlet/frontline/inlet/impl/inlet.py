@@ -37,12 +37,14 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     '''
     Implementation for @see: IInletService
     '''
-    sms_source_type_key = 'FrontlineSMS'; wire.config('sms_source_type_key', doc='''
+    sms_source_type_key = 'smssource'; wire.config('sms_source_type_key', doc='''
     Type of the sources for the SMS inlet feeds''')
     sms_post_type_key = 'normal'; wire.config('sms_post_type_key', doc='''
     Type of the posts created on the SMS that come via inlet feeds''')
     user_type_key = 'sms'; wire.config('user_type_key', doc='''
     The user type that is used for the anonymous users of SMS posts''')
+    sms_provider_type = 'smsprovider'; wire.config('sms_provider_type', doc='''
+    Key of the source type for sms providers''') 
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')
@@ -68,7 +70,7 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
         if (messageText is None) or (messageText == ''):
             raise InputError(Ref(_('No value for the mandatory messageText parameter'),))
 
-        # take (or make) the user (for phone number) part of creator and collaborator
+        # take (or make) the user (for pho['FrontlineSMS']ne number) part of creator and collaborator
         try:
             userId, = self.session().query(PersonMapped.Id).filter(PersonMapped.PhoneNumber == phoneNumber).one()
         except:
@@ -82,11 +84,11 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
         # make the source (for inlet type) part of collaborator
         try:
             sql = self.session().query(SourceMapped.Id).join(SourceTypeMapped)
-            sql = sql.filter(SourceTypeMapped.Key == self.sms_source_type_key).filter(SourceMapped.Name == typeKey)
+            sql = sql.filter(SourceTypeMapped.Key == self.sms_provider_type).filter(SourceMapped.Name == typeKey)
             sourceId, = sql.one()
         except NoResultFound:
             source = Source()
-            source.Type = self.sms_source_type_key
+            source.Type = self.sms_provider_type
             source.Name = typeKey
             source.URI = ''
             source.IsModifiable = True
