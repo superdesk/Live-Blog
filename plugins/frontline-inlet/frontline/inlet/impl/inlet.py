@@ -44,7 +44,7 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     user_type_key = 'sms'; wire.config('user_type_key', doc='''
     The user type that is used for the anonymous users of SMS posts''')
     sms_provider_type = 'smsprovider'; wire.config('sms_provider_type', doc='''
-    Key of the source type for sms providers''') 
+    Key of the source type for SMS providers''') 
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')

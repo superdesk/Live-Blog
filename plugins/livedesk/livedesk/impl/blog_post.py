@@ -127,7 +127,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        sql = self._buildQueryBySource(sourceId)
+        
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
+        sql = sql.filter(CollaboratorMapped.Source == sourceId)
         
         deleted = False
         if q:
@@ -149,7 +152,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             posts = IterPost(posts, sql.count(), offset, limit)
             
             lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
-            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
             lastCidSql = lastCidSql.filter(CollaboratorMapped.Source == sourceId)
             
             posts.lastCId = lastCidSql.scalar()
@@ -401,12 +404,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                              ((CollaboratorMapped.Id == authorId) &
                               (CollaboratorMapped.User == BlogPostMapped.Creator)))
 
-        return sql
-
-    def _buildQueryBySource(self, sourceId):
-        sql = self.session().query(BlogPostMapped)
-        sql = sql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
-        sql = sql.filter(CollaboratorMapped.Source == sourceId)
         return sql
     
     def _processLike(self, value):
