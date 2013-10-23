@@ -136,9 +136,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = buildQuery(sql, q, BlogPostMapped)
         
         if q:
-            if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
-               and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
-                
+            if QWithCId.cId not in q or QWithCId.cId in q and QWithCId.cId.start not in q and QWithCId.cId.end not in q:
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
@@ -407,7 +405,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
     def _buildQueryBySource(self, sourceId):
         sql = self.session().query(BlogPostMapped)
-        sql = sql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+        sql = sql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
         sql = sql.filter(CollaboratorMapped.Source == sourceId)
         return sql
     

@@ -52,6 +52,14 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
+    
+    def getByName(self, name):
+        '''
+        @see: IUserService.getByName
+        '''
+        user = self.session().query(UserMapped).filter(UserMapped.Name == name).one()
+        assert isinstance(user, UserMapped), 'Invalid user %s' % user
+        return user
 
     def getAll(self, offset=None, limit=None, detailed=False, q=None):
         '''

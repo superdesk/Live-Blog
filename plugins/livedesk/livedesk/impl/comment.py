@@ -10,10 +10,9 @@ Contains the SQL alchemy implementation for comment inlet API.
 '''
 
 from ..api.comment import IBlogCommentService
-from ..api.blog_post import IBlogPostService, QBlogPost
+from ..api.blog_post import IBlogPostService
 from ..meta.blog import BlogMapped
 from ..meta.blog_post import BlogPostMapped
-from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
@@ -97,7 +96,8 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
             
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True)
+        
+        posts = self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
             

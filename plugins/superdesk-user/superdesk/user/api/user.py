@@ -58,6 +58,12 @@ class IUserService(IEntityService):
     User model service interface
     '''
     
+    @call
+    def getByName(self, name:User.Name) -> User:
+        '''
+        Returns the user by name
+        '''
+    
     @call(method=UPDATE)
     def changePassword(self, id:User.Id, password:Password):
         '''
