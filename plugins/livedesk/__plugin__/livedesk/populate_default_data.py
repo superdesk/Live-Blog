@@ -52,8 +52,6 @@ def getLanguagesIds():
     for code in LANGUAGES:
         if code not in languagesAvailable and code in languagesAll:
             languageService.add(code)
-            # TODO: remove
-            print(list(languageService.getAllAvailable()))
             languagesAvailable.append(code)
     return languagesAvailable
 

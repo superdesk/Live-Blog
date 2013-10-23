@@ -244,4 +244,4 @@ def upgradeSourceUnicityFix():
         session.execute('ALTER TABLE `source` DROP KEY `uix_source_type_name`')
     except (ProgrammingError, OperationalError): return
     session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
-                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')
+                'UNIQUE KEY (`name`, `fk_source_type_id`, `uri`)')
