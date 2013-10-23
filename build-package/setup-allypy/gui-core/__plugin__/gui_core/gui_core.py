@@ -9,7 +9,7 @@ Created on Jul 15, 2011
 Special package that is targeted by the IoC for processing plugins.
 '''
 
-from ..cdm import contentDeliveryManager
+from ..cdm.service import contentDeliveryManager
 from ..gui_core import publish_gui_resources
 from ally.cdm.spec import ICDM
 from ally.container import ioc, app

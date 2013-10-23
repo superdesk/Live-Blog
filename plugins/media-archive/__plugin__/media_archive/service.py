@@ -9,7 +9,6 @@ Created on Apr 25, 2012
 Contains the services setups for media archive superdesk.
 '''
 
-from ..cdm import server_uri, repository_path
 from ..plugin.registry import registerService
 from ..superdesk import service
 from ally.cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
@@ -31,6 +30,7 @@ from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer, \
     IQueryIndexer, IThumbnailProcessor
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler
 from ..superdesk.database import binders
+from ..cdm.service import server_uri, repository_path
 
 # --------------------------------------------------------------------
 

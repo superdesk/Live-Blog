@@ -9,7 +9,7 @@ Created on Aug 23, 2012
 Contains the services setups for media image archive.
 '''
 
-from ..cdm import contentDeliveryManager
+from ..cdm.service import contentDeliveryManager
 from ally.cdm.spec import ICDM
 from ally.cdm.support import ExtendPathCDM
 from ally.container import ioc

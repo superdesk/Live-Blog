@@ -9,7 +9,6 @@ Created on Jan 9, 2012
 Contains the services for livedesk.
 '''
 
-from ..cdm import contentDeliveryManager
 from ally.cdm.spec import ICDM
 from ally.container import support, bind, ioc, app
 from ally.internationalization import NC_
@@ -20,6 +19,7 @@ from threading import Thread
 import time
 from ..plugin.registry import registerService
 from ..superdesk.database import binders
+from ..cdm.service import contentDeliveryManager
 
 # --------------------------------------------------------------------
 

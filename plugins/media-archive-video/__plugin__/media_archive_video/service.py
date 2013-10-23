@@ -9,10 +9,10 @@ Created on Aug 23, 2012
 Contains the services setups for media video archive.
 '''
 
-from ..cdm import contentDeliveryManager
 from ally.container import ioc
 from ally.cdm.spec import ICDM
 from ally.cdm.support import ExtendPathCDM
+from ..cdm.service import contentDeliveryManager
 
 # --------------------------------------------------------------------
 
