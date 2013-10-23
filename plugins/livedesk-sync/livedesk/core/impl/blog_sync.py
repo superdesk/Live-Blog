@@ -141,8 +141,8 @@ class BlogSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
-        if blogSync.SyncStart is not None:
-            q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
+        if blogSync.Start is not None:
+            q.append(('publishedOn.since', blogSync.Start.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
@@ -181,7 +181,7 @@ class BlogSyncProcess:
 
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
-                blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
+                blogSync.Start = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
 
                 # insert post from remote source
                 self.blogPostService.insert(blogSync.Blog, lPost)

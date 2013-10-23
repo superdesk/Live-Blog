@@ -31,6 +31,6 @@ class BlogSyncMapped(Base, BlogSync):
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id), nullable=False)
     CId = Column('id_change', INTEGER(unsigned=True))
-    SyncStart = Column('sync_start', DateTime)
+    Start = Column('sync_start', DateTime)
     Auto = Column('auto', Boolean, nullable=False)
     Creator = Column('fk_user_id', ForeignKey(UserMapped.Id), nullable=False)

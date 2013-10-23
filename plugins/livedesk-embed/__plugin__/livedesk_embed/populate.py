@@ -29,8 +29,8 @@ def insertThemes():
     for name in ('default', 'tageswoche', 'stt', 'genapp', 'big-screen', 'zeit', 'ctkepr', 'ctkeu', 'ctkih', 'ctkno', 'ctkr', 'aamulehti', 'satakansa', 'okfn', 'sasa', 'sasa-light', 'ksml', 'ksml-light'):
         q = QBlogTheme()
         q.name = name
-        l = s.getAll(q=q)
-        if not l:
+        try: next(iter(s.getAll(q=q)))
+        except StopIteration:
             t = BlogTheme()
             t.Name = name
             t.URL = cdmGUI().getURI(themes_path() + '/' + name, 'http')

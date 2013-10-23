@@ -76,8 +76,8 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         '''
         assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
 
-#        if blogSync.Auto and blogSync.SyncStart is None:
-#            blogSync.SyncStart = current_timestamp()
+#        if blogSync.Auto and blogSync.Start is None:
+#            blogSync.Start = current_timestamp()
         return super().insert(blogSync)
 
     def update(self, blogSync):
@@ -88,6 +88,6 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
 
         blogSyncDb = self.getById(blogSync.Id)
 
-        if blogSync.Auto and not blogSyncDb.Auto and blogSync.SyncStart is None:
-            blogSync.SyncStart = current_timestamp()
+        if blogSync.Auto and not blogSyncDb.Auto and blogSync.Start is None:
+            blogSync.Start = current_timestamp()
         return super().update(blogSync)

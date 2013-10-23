@@ -14,7 +14,7 @@ from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import exists
-from sql_alchemy.database_config import alchemySessionCreator
+from ..sql_alchemy.db_application import alchemySessionCreator
 
 # --------------------------------------------------------------------
 

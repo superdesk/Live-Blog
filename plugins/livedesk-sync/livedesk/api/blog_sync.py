@@ -30,7 +30,7 @@ class BlogSync(Entity):
     Blog = Blog
     Source = Source
     CId = int
-    SyncStart = datetime
+    Start = datetime
     Auto = bool
     Creator = User
 
