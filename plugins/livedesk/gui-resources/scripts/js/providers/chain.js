@@ -184,14 +184,15 @@
 				this.collection
 					.on('read readauto', this.render, this)
 					.on('addingsauto', this.addAll, this)
+					.on('removeingsauto', this.removeAll, this)
 					.xfilter();
 			},
 			activate: function(){			
 				var self = this;
 			    var data = {thumbSize: 'medium'};
-                if (autoSources.isPaused(self.sourceId)) {
-                    data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
-                }
+                // if (autoSources.isPaused(self.sourceId)) {
+                //     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
+                // }
 				self.collection
 					.on('read update readauto updateauto', function(){
 						self.el.find('.chainblogs').show();
@@ -215,7 +216,7 @@
 	            var top_space = $('.chain-header').outerHeight() + 20;
 	            $('.post-list.chainblogs').css({'top': top_space});
 			},
-			removeOne:function(view) {
+			removeOne: function(view) {
 				var 
 					self = this,
 					pos = self._views.indexOf(view);
@@ -223,7 +224,9 @@
 					self._views.splice(pos,1);
 				}
 			},
-
+			removeAll: function(models) {
+				console.log(models);
+			},
             findView: function(view) {
                 for (var i = 0, length = this._views.length; i < length; i++) {
                     if (view.model.href === this._views[i].model.href) {
@@ -302,7 +305,7 @@
 				 */
 				var self = this,
 					blogParts = self.blog.href.match(/Blog\/(\d+)/),
-					modelHref = model.href.replace(/Blog/,'Blog/'+blogParts[1]);
+					modelHref = model.href.replace(/Blog\/Post/,'Blog/'+blogParts[1]+'/Post');
 				model.setHref(modelHref);
 				model.data['href'] = modelHref;
 				var postView = new ChainPostView({ 
@@ -398,7 +401,6 @@
 			render: function(){
 				var self = this,
 					posts = self.model.get('PostSourceUnpublished');
-				console.log(posts.href);
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
@@ -534,9 +536,16 @@
 						chainBlog = sourceBlog;
 						timelineCollection = new Gizmo.Register.AutoPosts();
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
-      					chainBlog.data['PostSourceUnpublished'] = timelineCollection;
-      					chainBlog.sourceId = sourceBlog.get('Id');
-      					
+						timelineCollection.isCollectionDeleted = function(model) {
+							return(model.get('IsPublished') === 'True');
+						}
+						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
+						hiddenTimelineCollection = new Gizmo.Register.AutoPosts();
+						hiddenTimelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
+						chainBlog.data['PostSourceUnpublishedHidden'] = hiddenTimelineCollection;
+
+						chainBlog.sourceId = sourceBlog.get('Id');
+
 						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
 						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
 						hiddenBlogContentView = new HiddenChainBlogContentView({ model: chainBlog, _parent: self })
