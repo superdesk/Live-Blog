@@ -173,6 +173,7 @@ class BlogSyncProcess:
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
                 localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 localPost.Content = post['Content'] if 'Content' in post else None
+                localPost.Order = post['Order'] if 'Order' in post else None
                 localPost.CreatedOn = current_timestamp()              
                 if blogSync.Auto: localPost.PublishedOn = current_timestamp()
   
