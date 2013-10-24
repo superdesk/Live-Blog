@@ -14,7 +14,7 @@ define([
 
     var PROVIDER_TYPE = 'blog provider';
     var BLOG_TYPE = 'chained blog';
-    var SMS_TYPE = 'FrontlineSMS';
+    var SMS_TYPE = 'smsblog';
 
     var fetchOptions = {headers: {'X-Filter': 'Id, Name, URI'}, reset: true};
 
@@ -503,7 +503,8 @@ define([
                     Name: this.model.get('Name'),
                     Type: SMS_TYPE,
                     IsModifiable: 'True',
-                    URI: name
+                    URI: SMS_TYPE + '/' + name,
+                    OriginURI: name
                 };
                 allSourceCollection.create(newSource, { wait: true, success: this.assigned } );
             } else {
@@ -615,13 +616,13 @@ define([
             var blogId = hackArray[hackArray.length - 1];
 
             smsFeedsCollection = new SmsFeedsCollection;
-            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
+            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/smsfeed/Source');
             smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
                 runSmsFeedsView();
             });
 
             allSourceCollection = new AllSourceCollection;
-            allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/1/Source');
+            allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/'+blogId+'/Source');
             allSourceCollection.fetch(optionsAllSources).done(function(response){
                 jQ.on('managefeeds/allfeedsloaded', function(){
                     var smsSources = allSourceCollection.filterType(SMS_TYPE);

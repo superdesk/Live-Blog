@@ -21,7 +21,7 @@ from sqlalchemy.sql.expression import exists
 @ioc.config
 def sms_source_types():
     ''' The source types used during SMS processing '''
-    return ['smssource', 'smsprovider'] 
+    return ['smsblog', 'smsfeed'] 
 
 @ioc.config
 def sms_post_types():
