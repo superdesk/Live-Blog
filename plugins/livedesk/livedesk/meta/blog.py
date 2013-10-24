@@ -47,6 +47,7 @@ class BlogMapped(Base, Blog):
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)
+    DeletedOn = Column('deleted_on', DateTime)
     @hybrid_property
     def IsLive(self):
         return self.LiveOn is not None and self.ClosedOn is None

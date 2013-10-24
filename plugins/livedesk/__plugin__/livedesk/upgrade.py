@@ -265,4 +265,18 @@ def upgradeUserTypeFix():
     
     session.commit()
     
+    
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        # add deleted on for blog in order to be able to hide archived blogs
+        session.execute("ALTER TABLE  livedesk_blog ADD COLUMN deleted_on DATETIME")
+    except (ProgrammingError, OperationalError): return
+
+    
+    
   

@@ -30,7 +30,7 @@ class Source(Entity):
     Key = str
     IsModifiable = bool
     OriginName = str
-    OriginURI = str
+    OriginURI = Reference
 
 # --------------------------------------------------------------------
 

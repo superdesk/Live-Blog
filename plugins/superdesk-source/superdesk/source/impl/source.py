@@ -28,7 +28,6 @@ from ally.api.criteria import AsLike
 #TODO: Hack to be able to get the list of the chained blog sources for a blog;
 #It should be removed when the new version of ally-py is used 
 from livedesk.meta.blog import BlogSourceDB
-from sqlalchemy.sql.expression import alias
 from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
