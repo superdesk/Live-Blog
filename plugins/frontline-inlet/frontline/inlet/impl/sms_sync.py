@@ -26,7 +26,7 @@ class SmsSyncServiceAlchemy(EntityServiceAlchemy, ISmsSyncService):
     '''
     Implementation for @see ISmsSyncService
     '''
-    sms_provider_type = 'smsprovider'; wire.config('sms_provider_type', doc='''
+    sms_provider_type = 'smsfeed'; wire.config('sms_provider_type', doc='''
     Key of the source type for SMS providers''')
 
     def __init__(self):

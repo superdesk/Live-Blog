@@ -139,7 +139,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     Implementation for @see: IBlogSourceService
     '''
     chained_blog_type = 'chained blog'
-    sms_source_type = 'smssource' 
+    sms_source_type = 'smsblog' 
     sources_auto_delete = [chained_blog_type, ]; wire.config('sources_auto_delete', doc='''
     List of source types for sources that should be deleted under deleting all of their usage''')
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''

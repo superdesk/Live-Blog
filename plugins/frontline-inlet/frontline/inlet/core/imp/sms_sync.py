@@ -17,17 +17,14 @@ from threading import Thread
 from superdesk.source.api.source import ISourceService, Source
 from livedesk.api.blog_post import IBlogPostService
 from sqlalchemy.sql.functions import current_timestamp
-from superdesk.collaborator.api.collaborator import ICollaboratorService,\
-    Collaborator
+from superdesk.collaborator.api.collaborator import ICollaboratorService
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService
-from superdesk.post.api.post import Post
+from superdesk.post.api.post import Post, QWithCId, IPostService, QPost
 from frontline.inlet.api.sms_sync import ISmsSyncService, SmsSync
-from ally.exception import InputError
-from superdesk.post.meta.post import PostMapped
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from ally.api.criteria import AsRangeOrdered, AsRange
 
 # --------------------------------------------------------------------
 
@@ -47,6 +44,9 @@ class SmsSyncProcess:
 
     sourceService = ISourceService; wire.entity('sourceService')
     # source service used to retrieve source data
+    
+    postService = IPostService; wire.entity('postService')
+    # post service used to insert posts
 
     blogPostService = IBlogPostService; wire.entity('blogPostService') 
     # blog post service used to insert blog posts
@@ -84,6 +84,7 @@ class SmsSyncProcess:
         '''
         Read all sms sync entries.
         '''
+        
         for smsSync in self.smsSyncService.getAll(): 
             assert isinstance(smsSync, SmsSync)
             key = (smsSync.Blog, smsSync.Source)
@@ -111,26 +112,26 @@ class SmsSyncProcess:
         source = self.sourceService.getById(smsSync.Source)
         assert isinstance(source, Source)
 
-        sql = self.session().query(PostMapped)
-        sql = sql.join(CollaboratorMapped, PostMapped.Author == CollaboratorMapped.Id)
-        sql = sql.filter(CollaboratorMapped.Source == smsSync.Source)
-        sql = sql.filter(PostMapped.Id > smsSync.LastId)
+        feedId = self.sourceService.getOriginalSource(source.Id)
+
+        q=QPost()
+        q.cId.since = str(smsSync.LastId) 
         
-        posts = sql.all()
+        posts = self.postService.getAllBySource(feedId, q=q)
 
         for post in posts:
             try:
                 smsPost = Post()
-                smsPost.Type = post.type
+                smsPost.Type = post.Type
                 smsPost.Creator = post.Creator
-                smsPost.Author = self._getCollaboratorForAuthor(post.Creator, source)
+                smsPost.Author = post.Author
                 smsPost.Meta = post.Meta
                 smsPost.ContentPlain = post.ContentPlain
                 smsPost.Content = post.Content
                 smsPost.CreatedOn = current_timestamp()              
                 
-                # prepare the blog sync model to update the change identifier
-                smsSync.Id = post.Id if post.Id > smsSync.Id else smsSync.Id
+                # prepare the sms sync model to update the change identifier
+                smsSync.LastId = post.Id if post.Id > smsSync.LastId else smsSync.LastId
 
                 # insert post from remote source
                 self.blogPostService.insert(smsSync.Blog, smsPost)
@@ -141,21 +142,3 @@ class SmsSyncProcess:
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
 
-    def _getCollaboratorForAuthor(self, user, source):
-        '''
-        Returns a collaborator identifier for the user/source defined in the post.
-
-        @param user: User
-            The creator of the post
-        @param source: Source
-            The source from which the sms synchronization is done
-        @return: integer
-            The collaborator identifier.
-        '''
-        assert isinstance(source, Source)
-        collaborator = Collaborator()
-        collaborator.User, collaborator.Source = user.Id, source.Id
-        try: return self.collaboratorService.insert(collaborator)
-        except InputError:
-            collaborators = self.collaboratorService.getAll(user.Id, source.Id)
-            return collaborators[0].Id
