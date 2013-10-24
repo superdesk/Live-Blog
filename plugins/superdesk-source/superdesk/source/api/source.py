@@ -74,3 +74,15 @@ class ISourceService(IEntityGetCRUDService):
         @return: The id assigned to the source
         @raise InputError: If the source is not valid.
         '''
+        
+    @call(webName='Original')
+    def getOriginalSource(self, source:Source) -> Source.Id:   
+        '''
+        Return the source that has the URI equal with the received source OriginalURI.
+
+        @param source: Source
+            The source for that is requested the original source 
+
+        @return: The id of original source
+        @raise InputError: If the source is not valid.
+        ''' 
