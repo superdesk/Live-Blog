@@ -187,9 +187,10 @@
 					.on('removeingsauto', this.removeAll, this)
 					.xfilter();
 			},
-			activate: function(){			
-				var self = this;
-			    var data = {thumbSize: 'medium'};
+			activate: function(data){			
+				data = data || {};
+				var self = this,
+			    	data = $.extend(data, {thumbSize: 'medium'});
                 // if (autoSources.isPaused(self.sourceId)) {
                 //     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
                 // }
@@ -224,8 +225,15 @@
 					self._views.splice(pos,1);
 				}
 			},
-			removeAll: function(models) {
-				console.log(models);
+			removeAll: function(evt, data)
+			{
+				var self = this;
+				for( var i = 0, count = data.length; i < count; i++ ) {
+					if(data[i].postview) {
+						data[i].postview.remove();
+						delete data[i].postview;
+					}
+				}
 			},
             findView: function(view) {
                 for (var i = 0, length = this._views.length; i < length; i++) {
@@ -313,6 +321,7 @@
 					model: model,
 					tmplImplementor: 'implementors/chain'
 				});
+				model.postview = postView;
 				this.orderOne(postView);
 			},
 			addAll: function(evt, data){
@@ -383,7 +392,7 @@
 		}),
 		HiddenChainBlogContentView = Gizmo.View.extend({
 			init: function(){
-				this.render();
+				//this.render();
 				this.model.hiddenChainBlogContentView = this;
 			},
 			deactivate: function() {
@@ -391,25 +400,35 @@
 				this.timelineView.deactivate();
 			},
 			activate: function() {
-				this.active = true;
-                var isAuto = autoSources.isAuto(this.model.sourceId);
+				var self = this;
+				self.active = true;
+                var isAuto = autoSources.isAuto(self.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
-                isAuto ? this.timelineView.deactivate() : this.timelineView.activate();
+                if(self.timelineView) {
+                	self ? self.timelineView.deactivate() : self.timelineView.activate();
+            	} else {
+            		self.render(function(){
+            			self.timelineView.activate();
+            		});
+            	}
 			},
-			render: function(){
+			render: function(callback){
 				var self = this,
-					posts = self.model.get('PostSourceUnpublished');
+					posts = self.model.get('PostSourceUnpublishedHidden');
+				posts.param('True', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							collection: self.model.get('PostSourceUnpublished'),
+							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
 					});
+					if(callback) 
+						callback();
 				});
 			}
 		}),
@@ -428,15 +447,17 @@
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
-                isAuto ? this.timelineView.deactivate() : this.timelineView.activate();
+                isAuto ? this.timelineView.deactivate() : this.timelineView.activate({ isDeleted: 'False' });
 			},
 			render: function(){
-				var self = this;
+				var self = this,
+					posts = self.model.get('PostSourceUnpublished');
+				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							collection: self.model.get('PostSourceUnpublished'),
+							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
@@ -537,7 +558,7 @@
 						timelineCollection = new Gizmo.Register.AutoPosts();
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						timelineCollection.isCollectionDeleted = function(model) {
-							return(model.get('IsPublished') === 'True');
+							return(model.get('IsPublished') === 'True' || model.get('DeletedOn'));
 						}
 						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
 						hiddenTimelineCollection = new Gizmo.Register.AutoPosts();

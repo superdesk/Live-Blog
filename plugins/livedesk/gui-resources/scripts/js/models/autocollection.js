@@ -23,7 +23,6 @@ define([
 				// set total from the attributes 
 				self._stats.total = parseInt(attr.total);
 				attr.lastCId = parseInt(attr.lastCId);
-				console.log(self._stats.lastCId);
 				if(attr.lastCId > self._stats.lastCId)
 					self._stats.lastCId = attr.lastCId;
 			}).on('readauto updateauto update removeingsauto',function(evt, data)
@@ -71,12 +70,10 @@ define([
 		{
 			var self = this;
 			params = params || {};
-			console.log( 'start: ', this._stats.lastCId);
 			requestOptions = $.extend(true, {
 				data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, 
 				headers: { 'X-Filter': 'CId, Order, IsPublished, DeletedOn'}
 			},params);
-			console.log('params: ',params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
 				delete requestOptions.data['order.start'];
@@ -117,7 +114,6 @@ define([
 				if( !isNaN(CId) && (this._stats.lastCId < CId) )
 					this._stats.lastCId = CId;
 			}
-			console.log(this._stats.lastCId);
 		},
 		autosync: function()
 		{
