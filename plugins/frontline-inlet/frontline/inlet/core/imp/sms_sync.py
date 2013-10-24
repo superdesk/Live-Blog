@@ -17,14 +17,16 @@ from threading import Thread
 from superdesk.source.api.source import ISourceService, Source
 from livedesk.api.blog_post import IBlogPostService
 from sqlalchemy.sql.functions import current_timestamp
-from superdesk.collaborator.api.collaborator import ICollaboratorService
+from superdesk.collaborator.api.collaborator import ICollaboratorService,\
+    Collaborator
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService
-from superdesk.post.api.post import Post, QWithCId, IPostService, QPost
+from superdesk.post.api.post import Post, IPostService, QPost
 from frontline.inlet.api.sms_sync import ISmsSyncService, SmsSync
-from ally.api.criteria import AsRangeOrdered, AsRange
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
@@ -124,11 +126,24 @@ class SmsSyncProcess:
                 smsPost = Post()
                 smsPost.Type = post.Type
                 smsPost.Creator = post.Creator
-                smsPost.Author = post.Author
                 smsPost.Meta = post.Meta
                 smsPost.ContentPlain = post.ContentPlain
                 smsPost.Content = post.Content
-                smsPost.CreatedOn = current_timestamp()              
+                smsPost.CreatedOn = current_timestamp()   
+                
+                # make the collaborator
+                sql = self.collaboratorService.session().query(CollaboratorMapped.Id)
+                sql = sql.filter(CollaboratorMapped.Source == smsSync.Source)
+                sql = sql.filter(CollaboratorMapped.User == post.Creator)
+                try:
+                    collaboratorId, = sql.one()
+                except NoResultFound:
+                    collaborator = Collaborator()
+                    collaborator.Source = smsSync.Source
+                    collaborator.User = post.Creator
+                    collaboratorId = self.collaboratorService.insert(collaborator)   
+                    
+                smsPost.Author = collaboratorId            
                 
                 # prepare the sms sync model to update the change identifier
                 smsSync.LastId = post.Id if post.Id > smsSync.LastId else smsSync.LastId

@@ -139,7 +139,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = buildQuery(sql, q, BlogPostMapped)
         
         if q:
-            if QWithCId.cId not in q or QWithCId.cId in q and QWithCId.cId.start not in q and QWithCId.cId.end not in q:
+            if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
+               and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
+                
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
@@ -147,7 +149,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                             
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted=deleted, unpublished=False, published=True), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True), thumbSize)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
             
