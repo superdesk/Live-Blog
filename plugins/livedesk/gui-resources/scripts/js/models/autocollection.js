@@ -110,6 +110,7 @@ define([
 		{
 			for(var i=0, CId, count=data.length; i<count; i++) {
 				var CId = parseInt(data[i].get('CId'))
+				//console.log(CId);
 				if( !isNaN(CId) && (this._stats.lastCId < CId) )
 					this._stats.lastCId = CId;
 			}
