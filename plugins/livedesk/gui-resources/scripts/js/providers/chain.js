@@ -1,4 +1,4 @@
- define([ 
+define([ 
     'providers', 
     'jquery', 
     'gizmo/superdesk',
@@ -572,7 +572,6 @@
 						hiddenTimelineCollection = new Gizmo.Register.AutoPosts();
 						hiddenTimelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						hiddenTimelineCollection.isCollectionDeleted = function(model) {
-							console.log('hidden',model.get('IsPublished') === 'True' || !model.get('DeletedOn'));
 							return(model.get('IsPublished') === 'True' || !model.get('DeletedOn'));
 						}
 						chainBlog.data['PostSourceUnpublishedHidden'] = hiddenTimelineCollection;
