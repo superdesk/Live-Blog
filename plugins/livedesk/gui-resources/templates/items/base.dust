@@ -200,6 +200,12 @@
 	{?Meta.DeletedOn}
 		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_('Unhide');</a>
 	{:else}
-		<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">_('Hide');</a>
+		
+		{?DeletedOn}
+			<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_('Unhide');</a>
+		{:else}
+			<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">_('Hide');</a>
+		{/DeletedOn}
+
 	{/Meta.DeletedOn}
 {/PostHiddenAction}
