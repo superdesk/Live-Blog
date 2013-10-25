@@ -215,7 +215,6 @@
 			},
 			render: function(evt){
 				var self = this;
-				console.log('evt: ',evt,' ',self.collection._list);
 				$.tmpl('livedesk>providers/chain/timeline', {}, function(e, o){
 					self.el.html(o);
 					self.addAll(evt, self.collection._list);
@@ -417,7 +416,6 @@
                 	self ? self.timelineView.deactivate() : self.timelineView.activate({ isDeleted: 'True' });
             	} else {
             		self.render(function(){
-            			console.log('callback');
             			self.timelineView.activate({ isDeleted: 'True' });
             		});
             	}
@@ -496,7 +494,7 @@
 					 * @TODO: remove this when source it will be put on the blog children.
 					 */
 					href = this.blog.get('Source').href;
-					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/Source?blogId=$1');
+					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/SourceType/chained%20blog/Source?blogId=$1');
 					self.sourceBlogs.setHref(href);
 					self.sourceBlogs
 						.on('read', this.render, this)
@@ -568,7 +566,6 @@
 						timelineCollection = new Gizmo.Register.AutoPosts();
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						timelineCollection.isCollectionDeleted = function(model) {
-							console.log('timeline',model.get('IsPublished') === 'True' || model.get('DeletedOn'));
 							return(model.get('IsPublished') === 'True' || model.get('DeletedOn'));
 						}
 						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
