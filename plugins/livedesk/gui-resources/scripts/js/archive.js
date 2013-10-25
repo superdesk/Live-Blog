@@ -129,6 +129,8 @@ function($, superdesk, giz, Action, Blog)
             this.page = { limit: 10, offset: 0, total: null, pagecount: 5 };
             
             this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('LiveDesk/Blog') })));
+            this.collection.param('Flase','isOpen');
+            this.collection.asc('createdOn');
             this.collection.on('read update', this.renderList, this);
             
             this._resetEvents = false;

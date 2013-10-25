@@ -16,7 +16,6 @@ function(Gizmo, Person)
 	        Type: Gizmo.Register.Type
 	    },
         isDeleted: function(){ 
-            console.log('deleted post: ',this.data.DeletedOn);
             return this._forDelete; 
         },
 	    insertExcludes: [ 'AuthorPerson' ],
