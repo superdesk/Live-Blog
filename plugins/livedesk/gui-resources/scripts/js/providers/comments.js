@@ -21,7 +21,7 @@ $.extend(providers.comments, {
     blogId: 0,
     data: [],
     topIds: 0,
-    minId: 999999999999,
+    minId: Infinity,
     interval: 20000,
     keyword: '',
     extraInfos: 0,
