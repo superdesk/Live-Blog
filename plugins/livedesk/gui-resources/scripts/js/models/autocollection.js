@@ -71,11 +71,13 @@ define([
 			var self = this;
 			params = params || {};
 			requestOptions = $.extend(true, {
-				data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, 
+				data: {'cId.since': this._stats.lastCId, 'order.start': self._stats.fistOrder }, 
 				headers: { 'X-Filter': 'CId, Order, IsPublished, DeletedOn'}
 			},params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
+			}
+			if(self._stats.fistOrder === Infinity) {
 				delete requestOptions.data['order.start'];
 			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
