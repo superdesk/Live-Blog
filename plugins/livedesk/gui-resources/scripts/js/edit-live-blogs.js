@@ -783,6 +783,7 @@ function(providers, Gizmo, $, BlogAction)
 		EditView = Gizmo.View.extend
 		({
 			timelineView: null,
+			namespace: 'edit-view',
 			events: 
 			{
 				'[is-content] section header h2': { focusout: 'save' },
@@ -829,7 +830,7 @@ function(providers, Gizmo, $, BlogAction)
 			{
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
-				
+				this.model.off('read update');
 				this.model.xfilter('Creator.*').sync()
 				    // once	
 				    .done(function()
