@@ -96,7 +96,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
             
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True)
+        posts = self._trimPosts(sqlLimit.all(), deleted=not deleted, unpublished=False, published=True)
         if detailed:
             posts = IterPost(posts, sql.count(), offset, limit)
             
