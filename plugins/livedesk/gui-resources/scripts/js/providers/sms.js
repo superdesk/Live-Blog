@@ -45,8 +45,9 @@ $.extend(providers.sms, {
     getAssignedFeeds: function() {
         var self = this;
         var dfd = $.Deferred();
-        var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
-        myUrl = url.get() + '?X-filter=Type.Key,Name,Id';
+        //var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
+        var url = new Gizmo.Url('Data/SourceType/smsblog/Source?blogId=' + this.blogId );
+        myUrl = url.get() + '&X-filter=Type.Key,Name,Id';
         self.assignedFeeds = [];
         $.ajax({
             url: myUrl,
@@ -156,11 +157,11 @@ $.extend(providers.sms, {
         $('.sms-clear-search[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-list[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-load-more-holder[data-feed-id="' + feedId + '"]').css('display','block');
+        console.log('starting from a feed tab');
         self.getAllSmss({feedId: feedId});
     },
     render: function(){
         var self = this;
-
         if ( self.onlyAssigned ) {
             var feeds = self.assignedFeeds;
             var onlyAssigned = 'checked="checked"';
@@ -193,6 +194,21 @@ $.extend(providers.sms, {
         //dynamically get size of header and set top space for list
         var top_space = $('#sms .sms-header').outerHeight() + 20;
         $('.sms-results-holder').css({'top': top_space});
+
+        //show hidden 
+        self.el.on('click','[data-type="hidden-toggle"]', function( e ){
+            if ( $(this).attr('data-active') == 'false' ) {
+                $(this).attr('data-active', 'true');
+                $(this).css('background-color', '#DDDDDD');
+                //show hidden comments
+                self.getAllSmss({cId: -1, clearResults: true});
+            } else {
+                $(this).attr('data-active', 'false');
+                $(this).css('background-color', '#f2f2f2');
+                //hide hidden comments
+                self.getAllSmss({cId: -1, clearResults: true});
+            }
+        });
     },
     refreshFeeds: function() {
         var self = this;
@@ -231,6 +247,18 @@ $.extend(providers.sms, {
             return;
         }
 
+        var deletedText = '&isDeleted=false';
+        if ( $( document ).find('a[data-type="hidden-toggle"]').attr('data-active') == 'true' ) {
+            var deletedText = '&isDeleted=true';
+        }
+
+        console.log('cId ', sd.cId);
+        if ( sd.cId == -1 ) {
+            cIdText = '';
+        } else {
+            cIdText = '&cId.since=' + sd.cId
+        }
+
         var keywordSearch = '';
         if ( isNaN(sd.feedId) ) {
             sd.feedId = 0;
@@ -238,9 +266,10 @@ $.extend(providers.sms, {
         if ( self.keyword[sd.feedId].length > 0 ) {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword[sd.feedId] + '%')
         }
-        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
-        myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
-        //console.log('myUrl ', myUrl );
+        //var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
+        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post/SourceUnpublished');
+        myUrl = url.get() + '?X-Filter=*,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + cIdText + keywordSearch + deletedText;
+        console.log('getSMS url ', myUrl );
         
         $.ajax({
             url: myUrl
@@ -280,6 +309,17 @@ $.extend(providers.sms, {
                     } else {
                         el = $('.sms-list[data-feed-id="' + sd.feedId + '"]').append(o).find('.smspost');
                     }
+
+                    el.on('click', 'a[href="#toggle-post"]', function(e){
+                        e.preventDefault();
+                        var id = $(this).attr('data-id');
+                        var action = $(this).attr('data-action');
+                        if ( action == 'hide' ) {
+                            self.hideSms(id);
+                        } else {
+                            self.unhideSms(id);
+                        }
+                    });
 
                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                         el.draggable(
@@ -326,6 +366,27 @@ $.extend(providers.sms, {
                 
             }
         });
+    },
+    hideSms: function(smsId) {
+        var self = this;
+        var msg = _("Are you sure you want to hide the sms?");
+        if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + smsId + '/Hide');
+            $.post( url.get() , function( data ) {
+                self.extraItems -- ;
+                $( document ).find('li.smspost[data-id="' + smsId + '"]').remove();
+            });
+        }
+    },
+    unhideSms: function(smsId) {
+        var msg = _("Are you sure you want to un-hide the sms?");
+        var newText = _("Hide");
+        if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + smsId + '/Unhide');
+            $.post( url.get() , function( data ) {
+                $( document ).find('li.smspost[data-id="' + smsId + '"]').remove();
+            });
+        }
     }
 });
 return providers;
