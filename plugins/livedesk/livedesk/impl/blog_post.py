@@ -163,7 +163,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
  
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct(), deleted= not deleted, unpublished=False, published=True), thumbSize)
         if detailed:
             posts = IterPost(posts, sql.distinct().count(), offset, limit)
             
