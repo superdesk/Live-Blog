@@ -28,6 +28,9 @@ from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
 from __plugin__.livedesk.populate_default_data import createSourceType,\
     createUserType
 from superdesk.user.meta.user_type import UserTypeMapped
+from superdesk.user.meta.user import UserMapped
+from uuid import uuid4
+from superdesk.post.meta.post import PostMapped
 
 # --------------------------------------------------------------------
 
@@ -277,6 +280,41 @@ def upgradeBlogFix():
         session.execute("ALTER TABLE  livedesk_blog ADD COLUMN deleted_on DATETIME")
     except (ProgrammingError, OperationalError): return
 
+@app.populate(priority=PRIORITY_LAST)
+def upgradeUuidFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    # add uuid column for post and user
+    try:
+        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32) UNIQUE")
+    except (ProgrammingError, OperationalError): pass
     
+    try:    
+        session.execute("ALTER TABLE  user ADD COLUMN uuid VARCHAR(32) UNIQUE")
+    except (ProgrammingError, OperationalError): pass
+    
+    try:    
+        session.execute("ALTER TABLE  user ADD COLUMN cid int DEFAULT 0")
+    except (ProgrammingError, OperationalError): pass    
+    
+    session.commit()
+    
+    # init uuid column for post and user
+    users= session().query(UserMapped).all()
+    for user in users:
+        if user.Uuid is None: user.Uuid = uuid4().hex()
+    session.commit()
+    
+    posts= session().query(PostMapped).all()
+    for post in posts:
+        if post.Uuid is None: post.Uuid = uuid4().hex()
+    session.commit()
+    
+    # change uuid column for post and user
+    session.execute("ALTER TABLE post CHANGE COLUMN uuid uuid VARCHAR(32) NOT NULL UNIQUE")
+    session.execute("ALTER TABLE user CHANGE COLUMN uuid uuid VARCHAR(32) NOT NULL UNIQUE")
+
     
   
