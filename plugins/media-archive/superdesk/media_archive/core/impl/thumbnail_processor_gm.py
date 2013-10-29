@@ -38,7 +38,7 @@ class ThumbnailProcessorGM(IThumbnailProcessor):
     wire.config('command_resize', doc='''The command used to resize the thumbnails''')
     command_scale_to_height = '"%(gm)s" convert "%(source)s" -resize x%(height)i  "%(destination)s"'
     wire.config('command_scale_to_height', doc='''The command used to resize the thumbnails to specific heights''')
-    gm_path = join('workspace', 'tools', 'gm', 'bin', 'gm.exe'); wire.config('gm_path', doc='''
+    gm_path = join('usr', 'bin', 'gm'); wire.config('gm_path', doc='''
     The path where the gm is found''')
 
     def __init__(self):
