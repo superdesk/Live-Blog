@@ -111,6 +111,9 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         Builds the general query for blogs.
         '''
         sql = self.session().query(BlogMapped)
+        #Hide deleted blogs
+        sql = sql.filter(BlogMapped.DeletedOn == None)
+        
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if userId:
             userFilter = (BlogMapped.Creator == userId) | exists().where((CollaboratorMapped.User == userId) \

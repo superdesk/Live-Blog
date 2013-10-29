@@ -1,4 +1,4 @@
- define([ 
+define([ 
     'providers', 
     'jquery', 
     'gizmo/superdesk',
@@ -16,11 +16,13 @@
 	config.guiJs('livedesk', 'models/source'),
 	config.guiJs('livedesk', 'models/sources'),
 	config.guiJs('livedesk', 'models/autocollection'),
+	config.guiJs('livedesk', 'models/postdeleted'),
     'tmpl!livedesk>items/implementors/chain',
     'tmpl!livedesk>providers/chain',
 	'tmpl!livedesk>providers/chain/blogs',
 	'tmpl!livedesk>providers/chain/blog-link',
 	'tmpl!livedesk>providers/chain/blog-content',
+	'tmpl!livedesk>providers/chain/hidden-blog-content',
 	'tmpl!livedesk>providers/chain/timeline',
 	'tmpl!livedesk>citizen-desk/statuses-list',
 	'tmpl!livedesk>citizen-desk/checker-list',
@@ -119,12 +121,28 @@
     	ChainPostView = PostView.extend({
     		events: {
     			'': { afterRender: 'addElements', mouseleave: 'killMenu'},
-    			'[data-status-key]': { click: 'changeStatus'}
+    			'[data-status-key]': { click: 'changeStatus'},
+    			'[data-action="hide"]': { click: 'hide' },
+    			'[data-action="unhide"]': { click: 'unhide' }
     		},
     		changeStatus: function(evt){
     			var self = this,
     				status = $(evt.target).closest( "li" ).attr('data-status-key');
     			self.model.changeStatus(status);
+    		},
+    		hide: function(evt){
+    			evt.preventDefault();
+    			var self = this;
+    			self.model.hide().done(function(){
+    				self.el.remove();
+    			});
+    		},
+    		unhide: function(evt){
+				evt.preventDefault();
+				var self = this;
+				self.model.unhide().done(function(){
+					self.el.remove();
+				});
     		},
     		addElements: function() {
     			var self = this;
@@ -178,14 +196,16 @@
 				this.collection
 					.on('read readauto', this.render, this)
 					.on('addingsauto', this.addAll, this)
+					.on('removeingsauto', this.removeAll, this)
 					.xfilter();
 			},
-			activate: function(){			
-				var self = this;
-			    var data = {thumbSize: 'medium'};
-                if (autoSources.isPaused(self.sourceId)) {
-                    data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
-                }
+			activate: function(data){			
+				data = data || {};
+				var self = this,
+			    	data = $.extend(data, {thumbSize: 'medium'});
+                // if (autoSources.isPaused(self.sourceId)) {
+                //     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
+                // }
 				self.collection
 					.on('read update readauto updateauto', function(){
 						self.el.find('.chainblogs').show();
@@ -209,7 +229,7 @@
 	            var top_space = $('.chain-header').outerHeight() + 20;
 	            $('.post-list.chainblogs').css({'top': top_space});
 			},
-			removeOne:function(view) {
+			removeOne: function(view) {
 				var 
 					self = this,
 					pos = self._views.indexOf(view);
@@ -217,7 +237,16 @@
 					self._views.splice(pos,1);
 				}
 			},
-
+			removeAll: function(evt, data)
+			{
+				var self = this;
+				for( var i = 0, count = data.length; i < count; i++ ) {
+					if(data[i].postview) {
+						data[i].postview.remove();
+						delete data[i].postview;
+					}
+				}
+			},
             findView: function(view) {
                 for (var i = 0, length = this._views.length; i < length; i++) {
                     if (view.model.href === this._views[i].model.href) {
@@ -296,7 +325,7 @@
 				 */
 				var self = this,
 					blogParts = self.blog.href.match(/Blog\/(\d+)/),
-					modelHref = model.href.replace(/Blog/,'Blog/'+blogParts[1]);
+					modelHref = model.href.replace(/Blog\/Post/,'Blog/'+blogParts[1]+'/Post');
 				model.setHref(modelHref);
 				model.data['href'] = modelHref;
 				var postView = new ChainPostView({ 
@@ -304,6 +333,7 @@
 					model: model,
 					tmplImplementor: 'implementors/chain'
 				});
+				model.postview = postView;
 				this.orderOne(postView);
 			},
 			addAll: function(evt, data){
@@ -372,6 +402,49 @@
 				});
 			}
 		}),
+		HiddenChainBlogContentView = Gizmo.View.extend({
+			init: function(){
+				//this.render();
+				this.model.hiddenChainBlogContentView = this;
+			},
+			deactivate: function() {
+				this.active = false;
+				this.timelineView.deactivate();
+			},
+			activate: function() {
+				var self = this;
+				self.active = true;
+                var isAuto = autoSources.isAuto(self.model.sourceId);
+                $('.autopublish input:checkbox').prop('checked', isAuto);
+                $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
+                $('#automod-info').toggle(isAuto);
+                if(self.timelineView) {
+                	isAuto ? self.timelineView.deactivate() : self.timelineView.activate({ isDeleted: 'True' });
+            	} else {
+            		self.render(function(){
+            			self.timelineView.activate({ isDeleted: 'True' });
+            		});
+            	}
+			},
+			render: function(callback){
+				var self = this,
+					posts = self.model.get('PostSourceUnpublishedHidden');
+				posts.model = Gizmo.Register.PostDeleted;
+				//posts.param('True', 'isDeleted');
+				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
+					self.setElement(o);
+					self.timelineView = new TimelineView({ 
+							el: self.el,
+							collection: posts,
+							sourceId: self.model.sourceId,
+							sourceURI: self.model.href,
+							blog: self._parent.blog
+					});
+					if(callback) 
+						callback();
+				});
+			}
+		}),
 		ChainBlogContentView = Gizmo.View.extend({
 			init: function(){
 				this.render();
@@ -387,15 +460,17 @@
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
-                isAuto ? this.timelineView.deactivate() : this.timelineView.activate();
+                isAuto ? this.timelineView.deactivate() : this.timelineView.activate({ isDeleted: 'False' });
 			},
 			render: function(){
-				var self = this;
+				var self = this,
+					posts = self.model.get('PostSourceUnpublished');
+				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							collection: self.model.get('PostSourceUnpublished'),
+							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
@@ -407,7 +482,9 @@
 			events: {
 				'.sf-searchbox a': {click: 'removeSearch'},
 				'.sf-searchbox input': {keypress: 'checkEnter'},
-                '.sf-toggle:checkbox': {change: 'toggleAutopublish'}
+                '.sf-toggle:checkbox': {change: 'toggleAutopublish'},
+                '[data-active="false"]': { click: 'toggleHidden' },
+				'[data-active="true"]': { click: 'toggleVisible' }
 			},
 			init: function(){
 				// userSearch = new UserSearch();
@@ -416,13 +493,14 @@
 					href;
 				self.chainBlogLinkViews = [];
 				self.chainBlogContentViews = [];
+				self.hiddenChainBlogContentViews = [];
 				if($.type(self.sourceBlogs) === 'undefined') {
 					self.sourceBlogs = new Gizmo.Register.Sources();
 					/*!
 					 * @TODO: remove this when source it will be put on the blog children.
 					 */
 					href = this.blog.get('Source').href;
-					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/Source?blogId=$1');
+					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/SourceType/chained%20blog/Source?blogId=$1');
 					self.sourceBlogs.setHref(href);
 					self.sourceBlogs
 						.on('read', this.render, this)
@@ -493,19 +571,55 @@
 						chainBlog = sourceBlog;
 						timelineCollection = new Gizmo.Register.AutoPosts();
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
-      					chainBlog.data['PostSourceUnpublished'] = timelineCollection;
-      					chainBlog.sourceId = sourceBlog.get('Id');
-      					
+						timelineCollection.isCollectionDeleted = function(model) {
+							return(model.get('IsPublished') === 'True' || model.get('DeletedOn'));
+						}
+						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
+						hiddenTimelineCollection = new Gizmo.Register.AutoPosts();
+						hiddenTimelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
+						hiddenTimelineCollection.isCollectionDeleted = function(model) {
+							return(model.get('IsPublished') === 'True' || !model.get('DeletedOn'));
+						}
+						chainBlog.data['PostSourceUnpublishedHidden'] = hiddenTimelineCollection;
+
+						chainBlog.sourceId = sourceBlog.get('Id');
+
 						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
 						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
+						hiddenBlogContentView = new HiddenChainBlogContentView({ model: chainBlog, _parent: self })
 						self.chainBlogLinkViews.push(chainBlogLinkView);
 						self.chainBlogContentViews.push(chainBlogContentView);
+						self.hiddenChainBlogContentViews.push(hiddenBlogContentView);
                         $linkEl.prepend(chainBlogLinkView.el);
 						chainBlogContentView.el.insertAfter($contentEl);
+						hiddenBlogContentView.el.insertAfter($contentEl);
 					});
 				});
 			},
-
+			toggleHidden: function(e) {
+				e.preventDefault();
+				var self = this,
+					view = this.activeView;
+					//$(this).css('background-color', '#f2f2f2');
+				if (view) {
+					$('[data-active="false"]', self.el).addClass('hide');
+					$('[data-active="true"]', self.el).removeClass('hide');
+					view.model.hiddenChainBlogContentView.activate();
+					view.model.chainBlogContentView.deactivate();
+				}
+			},
+			toggleVisible: function(e) {
+				e.preventDefault();
+				var self = this,
+					view = this.activeView;
+				//$(this).css('background-color', '#DDDDDD');
+				if (view) {
+					$('[data-active="false"]', self.el).removeClass('hide');
+					$('[data-active="true"]', self.el).addClass('hide');
+					view.model.chainBlogContentView.activate();
+					view.model.hiddenChainBlogContentView.deactivate();
+				}
+			},
             toggleAutopublish: function(e) {
                 e.preventDefault();
                 var autopublish = $(e.target).is(':checked'),
@@ -515,9 +629,9 @@
                 	ret;
                 if (view) {
                     sync = autoSources.findSource(view.model.sourceId);
-                    CId = autoSources.getLastSyncId(view.model.sourceId);
+                    //CId = autoSources.getLastSyncId(view.model.sourceId);
                     if (sync) {
-                        sync.save({Auto: autopublish ? 'True' : 'False', CId: CId}, {patch: true}).done(function(){
+                        sync.save({Auto: autopublish ? 'True' : 'False'}, {patch: true}).done(function(){
                         	view.model.chainBlogContentView.activate();
                         });
                     } else {

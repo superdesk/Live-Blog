@@ -25,7 +25,7 @@ from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMap
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
-from sqlalchemy.sql.expression import func, or_
+from sqlalchemy.sql.expression import func, or_, and_
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -34,6 +34,7 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -115,6 +116,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))    
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        
         sqlLimit = buildLimits(sql, offset, limit)
         posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
         if detailed:
@@ -128,8 +130,19 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         
+        creatorSource = aliased(SourceMapped)
+        authorSource = aliased(SourceMapped)
+        creatorCollaborator = aliased(CollaboratorMapped)
+        athorCollaborator = aliased(CollaboratorMapped)
+        
         sql = self.session().query(BlogPostMapped)
-        sql = sql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
+        sql = sql.join(creatorCollaborator, BlogPostMapped.Creator == creatorCollaborator.User)
+        sql = sql.join(creatorSource, creatorCollaborator.Source == creatorSource.Id)
+        sql = sql.join(athorCollaborator, BlogPostMapped.Author == athorCollaborator.Id)
+        sql = sql.join(authorSource, athorCollaborator.Source == authorSource.Id)
+        sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
+                             and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
+        
         sql = sql.filter(CollaboratorMapped.Source == sourceId)
         
         deleted = False
@@ -146,12 +159,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
-                            
+                                   
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True), thumbSize)
+ 
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct(), deleted= not deleted, unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             
             lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
             lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
