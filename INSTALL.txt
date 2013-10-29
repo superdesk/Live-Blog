@@ -16,6 +16,11 @@ Version 1.5 or later. The 'java' binary must be in the system path.
 3. MongoDB 2.x
 Not necessary for Live Blog after disabling the 'Article' part, as it is explained below.
 
+4. Install exiv2, ffmpeg and graphics magic
+
+In Debian or Ubuntu run the following command:
+sudo apt-get install exiv2 ffmpeg graphicsmagick
+
 
 INSTALLATION FROM SOURCES (FOR DEVELOPERS)
 -------------------------------------------

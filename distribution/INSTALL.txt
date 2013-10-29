@@ -13,6 +13,11 @@ Live Blog requires Python 3.2 with standard libraries.
 2. Java
 Version 1.5 or later. The 'java' binary must be in the system path.
 
+4. Install exiv2, ffmpeg and graphics magic
+
+In Debian or Ubuntu run the following command:
+sudo apt-get install exiv2 ffmpeg graphicsmagick
+
 
 INSTALLATION
 ------------
