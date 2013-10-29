@@ -25,6 +25,7 @@ from sqlalchemy.sql.functions import current_timestamp
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
 from superdesk.user.meta.user_type import UserTypeMapped
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -50,6 +51,14 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         '''
         user = self.session().query(UserMapped).get(id)
         if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        assert isinstance(user, UserMapped), 'Invalid user %s' % user
+        return user
+    
+    def getByName(self, name):
+        '''
+        @see: IUserService.getByName
+        '''
+        user = self.session().query(UserMapped).filter(UserMapped.Name == name).one()
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
@@ -91,6 +100,10 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.insert
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
+        
+        if user.Uuid is None:
+            user.Uuid= str(uuid4().hex)
+        user.CId = 0     
 
         userDb = UserMapped()
         userDb.password = user.Password
@@ -116,7 +129,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
             userDb.typeId = self._userTypeId(user.Type)
-            self.session().flush((copy(user, userDb, exclude=('Type',)),))
+            userDb.CId = userDb.CId + 1
+            self.session().flush((copy(user, userDb, exclude=('Type', 'CId')),))
         except SQLAlchemyError as e: handle(e, userDb)
 
     def delete(self, id):

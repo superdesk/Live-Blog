@@ -28,6 +28,7 @@ from ally.api.criteria import AsLike
 #TODO: Hack to be able to get the list of the chained blog sources for a blog;
 #It should be removed when the new version of ally-py is used 
 from livedesk.meta.blog import BlogSourceDB
+from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
 
@@ -75,6 +76,15 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
+
+    def getOriginalSource(self, source):
+        originalSource = aliased(SourceMapped, name='original_source')
+        
+        sql = self.session().query(originalSource)
+        sql = sql.join(SourceMapped, originalSource.URI == SourceMapped.OriginURI)
+        sql = sql.filter(SourceMapped.Id == source)
+        
+        return sql.one().Id  
 
     def insert(self, source):
         '''

@@ -15,6 +15,9 @@ function(Gizmo, Person)
 	        Author: Gizmo.Register.Author,
 	        Type: Gizmo.Register.Type
 	    },
+        isDeleted: function(){ 
+            return this._forDelete; 
+        },
 	    insertExcludes: [ 'AuthorPerson' ],
 	      
 		url: new Gizmo.Url('/Post'),
@@ -70,20 +73,20 @@ function(Gizmo, Person)
 				});
 			return ret;
 		},
-		hide: function(status)
+		unhide: function(status)
 		{
 			var self = this,
-				hideHref = this.href + '/Hide',
+				hideHref = this.href + '/Unhide',
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
 					//self.triggerHandler('update',{});
 				});
 			return ret;
 		},
-		unhide: function(status)
+		hide: function(status)
 		{
 			var self = this,
-				hideHref = this.href + '/Unhide',
+				hideHref = this.href + '/Hide',
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
 					//self.triggerHandler('update',{});
@@ -112,5 +115,5 @@ function(Gizmo, Person)
 				});
 			return ret;
 		}
-	}, { register: 'Post' } );
+	}, { register: 'PostDeleted' } );
 });

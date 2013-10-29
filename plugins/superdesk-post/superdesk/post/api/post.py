@@ -11,7 +11,7 @@ API specifications for posts.
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsLikeOrdered, \
-    AsRangeOrdered
+    AsRangeOrdered, AsEqual
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
@@ -30,6 +30,7 @@ class Post(Entity):
     '''
     Provides the post message model.
     '''
+    Uuid = str
     Type = PostType
     Creator = User
     Author = Collaborator
@@ -56,6 +57,7 @@ class QWithCId:
           It partially emulates the cId parameter behavior of BlogPosts.
           It should be done more properly at some future.
     '''
+    uuid = AsEqual
     cId = AsRangeOrdered
 
 @query(Post)

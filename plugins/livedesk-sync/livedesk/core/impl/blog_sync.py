@@ -14,24 +14,22 @@ import json
 import logging
 import time
 import codecs
-from hashlib import sha1
 from sched import scheduler
 from threading import Thread
 from urllib.request import urlopen, Request
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from datetime import datetime
-from livedesk.api.blog_sync import IBlogSyncService, QBlogSync, BlogSync
+from livedesk.api.blog_sync import IBlogSyncService, BlogSync
 from superdesk.source.api.source import ISourceService, Source, QSource
-from livedesk.api.blog_post import BlogPost, IBlogPostService
+from livedesk.api.blog_post import IBlogPostService
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from ally.container import wire, app
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.user.api.user import IUserService, QUser, User
+from superdesk.user.api.user import IUserService, User
 from ally.exception import InputError
 from urllib.error import HTTPError
-from time import sleep
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
@@ -39,6 +37,7 @@ from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -63,7 +62,7 @@ class BlogSyncProcess:
     # blog post service used to insert blog posts
     
     postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
-    # post verification service used to insert post berification
+    # post verification service used to insert post verification
 
     collaboratorService = ICollaboratorService; wire.entity('collaboratorService')
     # blog post service used to retrive collaborator
@@ -110,11 +109,10 @@ class BlogSyncProcess:
         log.info('Started the blogs automatic synchronization.')
 
     def syncBlogs(self):
+        '''CollaboratorMapped.Id
+        Read all blog sync entries and sync with the corresponding blogs.
         '''
-        Read all blog sync entries for which auto was set true and sync
-        the corresponding blogs.
-        '''
-        for blogSync in self.blogSyncService.getAll(): #q=QBlogSync(auto=True)):
+        for blogSync in self.blogSyncService.getAll(): 
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
             thread = self.syncThreads.get(key)
@@ -128,11 +126,6 @@ class BlogSyncProcess:
             self.syncThreads[key].start()
             log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
-#     def _syncBlogLoop(self, blogSync):
-#         while True:
-#             log.info('Start sync for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
-#             self._syncBlog(blogSync)
-#             sleep(self.sync_interval)
 
     def _syncBlog(self, blogSync):
         '''
@@ -144,6 +137,7 @@ class BlogSyncProcess:
         '''
         assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
         source = self.sourceService.getById(blogSync.Source)
+        
         assert isinstance(source, Source)
         (scheme, netloc, path, params, query, fragment) = urlparse(source.URI)
 
@@ -154,7 +148,7 @@ class BlogSyncProcess:
             q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
-                                    'X-Filter' : '*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
+                                    'X-Filter' : '*,Creator.*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
@@ -172,20 +166,29 @@ class BlogSyncProcess:
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
+                
+                #get the post for the same uuid, blog and source
+                #if exists local, update it, otherwise continue the original insert
 
-                lPost = Post()
-                lPost.Type = post['Type']['Key']
-                lPost.Creator = blogSync.Creator
-                lPost.Author, userId = self._getCollaboratorForAuthor(post['Author'], source)
-                lPost.Meta = post['Meta'] if 'Meta' in post else None
-                lPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
-                lPost.Content = post['Content'] if 'Content' in post else None
-                lPost.CreatedOn = current_timestamp()              
-                if blogSync.Auto: lPost.PublishedOn = current_timestamp()
+                localPost = Post()
+                
+                #To support old instances that don't have Uuid attribute 
+                if 'Uuid' in post: localPost.Uuid = post['Uuid']
+                else: localPost.Uuui = str(uuid4().hex)
+                
+                localPost.Type = post['Type']['Key']
+                localPost.Author, localPost.Creator = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
+                localPost.Meta = post['Meta'] if 'Meta' in post else None
+                localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
+                localPost.Content = post['Content'] if 'Content' in post else None
+                localPost.Order = post['Order'] if 'Order' in post else None
+                localPost.CreatedOn = current_timestamp()              
+                if blogSync.Auto: localPost.PublishedOn = current_timestamp()
   
-                if userId and (userId not in usersForIcons):
+                #update the user info if the cId is greater than the local one
+                if localPost.Creator and (localPost.Creator not in usersForIcons):
                     try:
-                        usersForIcons[userId] = post['Author']['User']
+                        usersForIcons[localPost.Creator] = post['Author']['User']
                     except KeyError:
                         pass
 
@@ -194,13 +197,14 @@ class BlogSyncProcess:
                 blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
 
                 # insert post from remote source
-                self.blogPostService.insert(blogSync.Blog, lPost)
+                self.blogPostService.insert(blogSync.Blog, localPost)
+                
                 # update blog sync entry
                 self.blogSyncService.update(blogSync)
                 
                 #create PostVerification
                 postVerification = PostVerification()
-                postVerification.Id = lPost.Id
+                postVerification.Id = localPost.Id
                 self.postVerificationService.insert(postVerification)
                 
             except KeyError as e:
@@ -210,49 +214,60 @@ class BlogSyncProcess:
 
         self._updateIcons(usersForIcons)
 
-    def _getCollaboratorForAuthor(self, author, source):
+    def _getCollaboratorForAuthor(self, author, creator, source):
         '''
         Returns a collaborator identifier for the user/source defined in the post.
-        If the post was not created by a user it returns a collaborator for the
-        source identified in the post and the default user. The default user should
-        be the sync entry creator. If the source from the post does not exist
-        locally raises Exception.
+        If the post was not created by a user (it is twitter, facebook, etc. post) 
+        it returns a collaborator for the user that has added the post.
 
         @param author: dict
             The author data in JSON decoded format
+        @param creator: dict
+            The creator data in JSON decoded format
         @param source: Source
             The source from which the blog synchronization is done
         @return: integer
             The collaborator identifier.
         '''
         assert isinstance(source, Source)
-        try:
-            userJSON = author['User']
-            user = User()
-            user.Name = sha1((userJSON.get('Name', '') + source.URI).encode(self.encodingType)).hexdigest()
-            user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
-            user.EMail, user.Password = userJSON.get('EMail', ''), '*'
-            user.Type = self.user_type_key
-            try: userId = self.userService.insert(user)
-            except InputError:
-                localUser = self.userService.getAll(q=QUser(name=user.Name))
-                userId = localUser[0].Id
-            c = Collaborator()
-            c.User, c.Source = userId, source.Id
-            try: return [self.collaboratorService.insert(c), userId]
-            except InputError:
-                collabs = self.collaboratorService.getAll(userId, source.Id)
-                return [collabs[0].Id, userId]
-        except KeyError:
+        
+        user = User()
+        
+        if 'User' in author.keys(): userJSON = author['User']  
+        else: userJSON = creator
+                                            
+        #To support old instances that don't have Uuid attribute 
+        if 'Uuid' in userJSON: user.Uuid = userJSON.get('Uuid', '')
+        else: user.Uuid = str(uuid4().hex)
+        
+        user.Name = user.Uuid
+        user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
+        user.EMail, user.Password = userJSON.get('EMail', ''), '*'
+        user.Type = self.user_type_key
+        
+        try: userId = self.userService.insert(user)
+        except InputError:
+            userId = self.userService.getByName(user.Name).Id
+            
+        collaborator = Collaborator()
+        collaborator.User, collaborator.Source = userId, source.Id
+        try: collaboratorId = self.collaboratorService.insert(collaborator)
+        except InputError:
+            collaborators = self.collaboratorService.getAll(userId, source.Id)
+            collaboratorId = collaborators[0].Id
+        
+        if 'User' in author.keys():
+            return [collaboratorId, userId]
+        else:    
             q = QSource(name=author['Source']['Name'], isModifiable=False)
             sources = self.sourceService.getAll(q=q)
             if not sources: raise Exception('Invalid source %s' % q.name)
-            collabs = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
-            if collabs: return [collabs[0].Id, None]
+            collaborators = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
+            if collaborators: return [collaborators[0].Id, userId]
             else:
-                c = Collaborator()
-                c.Source = sources[0].Id
-                return [self.collaboratorService.insert(c), None]
+                collaborator = Collaborator()
+                collaborator.Source = sources[0].Id
+                return [self.collaboratorService.insert(collaborator), userId]
 
     def _updateIcons(self, usersData):
         '''

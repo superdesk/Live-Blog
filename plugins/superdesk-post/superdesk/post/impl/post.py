@@ -28,6 +28,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, QPostPublishe
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -176,12 +177,16 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         @see: IPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
+        
+        if post.Uuid is None:
+            post.Uuid = str(uuid4().hex)
+            
         postDb = PostMapped()
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
 
         postDb = self._adjustTexts(postDb)
-
+    
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
         if not postDb.Author:
             colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == postDb.Creator).all()
