@@ -131,12 +131,18 @@ define([
     			self.model.changeStatus(status);
     		},
     		hide: function(evt){
+    			evt.preventDefault();
     			var self = this;
-    			self.model.hide();
+    			self.model.hide().done(function(){
+    				self.el.remove();
+    			});
     		},
     		unhide: function(evt){
-    			var self = this;
-    			self.model.unhide();
+				evt.preventDefault();
+				var self = this;
+				self.model.unhide().done(function(){
+					self.el.remove();
+				});
     		},
     		addElements: function() {
     			var self = this;
@@ -413,7 +419,7 @@ define([
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
                 if(self.timelineView) {
-                	self ? self.timelineView.deactivate() : self.timelineView.activate({ isDeleted: 'True' });
+                	isAuto ? self.timelineView.deactivate() : self.timelineView.activate({ isDeleted: 'True' });
             	} else {
             		self.render(function(){
             			self.timelineView.activate({ isDeleted: 'True' });
