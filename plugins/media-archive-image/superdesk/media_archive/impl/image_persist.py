@@ -43,7 +43,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the images thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
-    metadata_extractor_path = join('workspace', 'tools', 'exiv2', 'bin', 'exiv2.exe')
+    metadata_extractor_path = join('usr', 'bin', 'exiv2')
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
 
     image_supported_files = 'gif, png, bmp, jpg'

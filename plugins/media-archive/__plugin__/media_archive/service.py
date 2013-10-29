@@ -39,6 +39,7 @@ from os import getenv, access, F_OK, R_OK, X_OK
 from os.path import join
 
 # --------------------------------------------------------------------
+
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
@@ -48,7 +49,7 @@ def addMetaDataHandler(handler):
 
 bind.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=binders)
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
-support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
+support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, module=service)
 support.loadAllEntities(IMetaDataHandler, module=service)
 
 # --------------------------------------------------------------------
@@ -137,7 +138,7 @@ def processBinaryRequirements():
     except KeyError:
         log.error('Invalid thumbnail processor %s', proc)
         proc, (detector, pathSetup) = processors.popitem(last=False)
-        log.info('Chosing the thumbnail processor with the higher priority: %s', proc)
+        log.info('Setting the thumbnail processor with the higher priority: %s', proc)
 
     binPath = detector(pathSetup())
     
@@ -151,10 +152,11 @@ def processBinaryRequirements():
             return
 
     if proc != thumnail_processor():
-        log.info('Chosing the thumbnail processor: %s', proc)
+        log.info('Setting the thumbnail processor: %s', proc)
         support.persist(thumnail_processor, proc)
 
     if pathSetup() != binPath:
+        log.info('Setting thumbnail processor path to %s', binPath)
         support.persist(pathSetup, binPath)
 
 # --------------------------------------------------------------------

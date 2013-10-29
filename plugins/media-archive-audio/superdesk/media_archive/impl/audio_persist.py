@@ -43,7 +43,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the audio thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the audio thumbnails in the media archive''')
-    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
+    ffmpeg_path = join('usr', 'bin', 'ffmpeg'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
     ffmpeg_tmp_path = join('workspace', 'tools', 'ffmpeg', 'tmp');wire.config('ffmpeg_tmp_path', doc='''
     The path where ffmpeg writes temp data''')
