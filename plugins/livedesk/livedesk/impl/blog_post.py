@@ -86,7 +86,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
-        posts = iterateCollection(sql, withTotal=withTotal, factorySlice=IterPost, **options)
+        posts = iterateCollection(sql, withTotal=withTotal, _factorySlice=IterPost, **options)
         if withTotal:
             assert isinstance(posts, IterPost), 'Invalid posts %s' % posts
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
