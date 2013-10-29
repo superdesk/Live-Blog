@@ -288,28 +288,22 @@ def upgradeUuidFix():
 
     # add uuid column for post and user
     try:
-        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32) UNIQUE")
-    except (ProgrammingError, OperationalError): pass
-    
-    try:    
+        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32) UNIQUE")   
         session.execute("ALTER TABLE  user ADD COLUMN uuid VARCHAR(32) UNIQUE")
-    except (ProgrammingError, OperationalError): pass
-    
-    try:    
         session.execute("ALTER TABLE  user ADD COLUMN cid int DEFAULT 0")
-    except (ProgrammingError, OperationalError): pass    
+    except (ProgrammingError, OperationalError): return    
     
     session.commit()
     
     # init uuid column for post and user
-    users= session().query(UserMapped).all()
+    users= session.query(UserMapped).all()
     for user in users:
-        if user.Uuid is None: user.Uuid = uuid4().hex()
+        if user.Uuid is None: user.Uuid = str(uuid4().hex)
     session.commit()
     
-    posts= session().query(PostMapped).all()
+    posts= session.query(PostMapped).all()
     for post in posts:
-        if post.Uuid is None: post.Uuid = uuid4().hex()
+        if post.Uuid is None: post.Uuid = str(uuid4().hex)
     session.commit()
     
     # change uuid column for post and user

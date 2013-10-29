@@ -37,6 +37,7 @@ from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -170,7 +171,11 @@ class BlogSyncProcess:
                 #if exists local, update it, otherwise continue the original insert
 
                 localPost = Post()
-                localPost.Uuid = post['Uuid']
+                
+                #To support old instances that don't have Uuid attribute 
+                if 'Uuid' in post: localPost.Uuid = post['Uuid']
+                else: localPost.Uuui = str(uuid4().hex)
+                
                 localPost.Type = post['Type']['Key']
                 localPost.Author, localPost.Creator = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
@@ -226,14 +231,16 @@ class BlogSyncProcess:
         '''
         assert isinstance(source, Source)
         
-        
-        if 'User' in author.keys():
-            userJSON = author['User']  
-        else:
-            userJSON = creator
-                                            
         user = User()
-        user.Name = userJSON.get('Uuid', '')
+        
+        if 'User' in author.keys(): userJSON = author['User']  
+        else: userJSON = creator
+                                            
+        #To support old instances that don't have Uuid attribute 
+        if 'Uuid' in userJSON: user.Uuid = userJSON.get('Uuid', '')
+        else: user.Uuid = str(uuid4().hex)
+        
+        user.Name = user.Uuid
         user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
         user.EMail, user.Password = userJSON.get('EMail', ''), '*'
         user.Type = self.user_type_key
