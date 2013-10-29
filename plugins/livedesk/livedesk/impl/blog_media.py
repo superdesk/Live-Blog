@@ -61,7 +61,7 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         sql = self.session().query(BlogMediaMapped)
         sql = sql.filter(BlogMediaMapped.Blog == blogId)
         if typeKey:
-            sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaMapped.Key == typeKey)
+            sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaTypeMapped.Key == typeKey)
         sql = sql.order_by(BlogMediaMapped.Id)
 
         sqlLimit = buildLimits(sql, offset, limit)
