@@ -14,7 +14,6 @@ import json
 import logging
 import time
 import codecs
-from hashlib import sha1
 from sched import scheduler
 from threading import Thread
 from urllib.request import urlopen, Request
@@ -38,6 +37,7 @@ from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -166,8 +166,16 @@ class BlogSyncProcess:
         for post in msg['PostList']:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
+                
+                #get the post for the same uuid, blog and source
+                #if exists local, update it, otherwise continue the original insert
 
                 localPost = Post()
+                
+                #To support old instances that don't have Uuid attribute 
+                if 'Uuid' in post: localPost.Uuid = post['Uuid']
+                else: localPost.Uuui = str(uuid4().hex)
+                
                 localPost.Type = post['Type']['Key']
                 localPost.Author, localPost.Creator = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
@@ -177,6 +185,7 @@ class BlogSyncProcess:
                 localPost.CreatedOn = current_timestamp()              
                 if blogSync.Auto: localPost.PublishedOn = current_timestamp()
   
+                #update the user info if the cId is greater than the local one
                 if localPost.Creator and (localPost.Creator not in usersForIcons):
                     try:
                         usersForIcons[localPost.Creator] = post['Author']['User']
@@ -222,14 +231,16 @@ class BlogSyncProcess:
         '''
         assert isinstance(source, Source)
         
-        
-        if 'User' in author.keys():
-            userJSON = author['User']  
-        else:
-            userJSON = creator
-                                        
         user = User()
-        user.Name = sha1((userJSON.get('Name', '') + source.URI).encode(self.encodingType)).hexdigest()
+        
+        if 'User' in author.keys(): userJSON = author['User']  
+        else: userJSON = creator
+                                            
+        #To support old instances that don't have Uuid attribute 
+        if 'Uuid' in userJSON: user.Uuid = userJSON.get('Uuid', '')
+        else: user.Uuid = str(uuid4().hex)
+        
+        user.Name = user.Uuid
         user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
         user.EMail, user.Password = userJSON.get('EMail', ''), '*'
         user.Type = self.user_type_key
