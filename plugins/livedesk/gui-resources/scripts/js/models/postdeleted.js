@@ -15,8 +15,12 @@ function(Gizmo, Person)
 	        Author: Gizmo.Register.Author,
 	        Type: Gizmo.Register.Type
 	    },
-        isDeleted: function(){ 
-            return this._forDelete; 
+	    parse:  function(data){
+	    	delete this.data['DeletedOn'];
+	    	return data;
+	    },
+        isDeleted: function(){
+        	return this._forDelete || !this.data.DeletedOn;
         },
 	    insertExcludes: [ 'AuthorPerson' ],
 	      
@@ -73,20 +77,10 @@ function(Gizmo, Person)
 				});
 			return ret;
 		},
-		unhide: function(status)
+		unhide: function()
 		{
 			var self = this,
 				hideHref = this.href + '/Unhide',
-				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
-                ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
-					//self.triggerHandler('update',{});
-				});
-			return ret;
-		},
-		hide: function(status)
-		{
-			var self = this,
-				hideHref = this.href + '/Hide',
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
 					//self.triggerHandler('update',{});
