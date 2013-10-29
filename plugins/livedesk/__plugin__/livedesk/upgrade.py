@@ -25,7 +25,8 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
-from __plugin__.livedesk.populate_default_data import createSourceType
+from __plugin__.livedesk.populate_default_data import createSourceType,\
+    createUserType
 from superdesk.user.meta.user_type import UserTypeMapped
 
 # --------------------------------------------------------------------
@@ -248,17 +249,34 @@ def upgradeUserTypeFix():
     creator = alchemySessionCreator()
     session = creator()
     assert isinstance(session, Session)
+    
+    createUserType('commentator')
+    createUserType('sms')
+    createUserType('chained blog')
+
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'sms').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "SMS-%"')
+    
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "Comment-%"')
+    
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
+    
+    session.commit()
+    
+    
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
 
     try:
-        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'sms').scalar()
-        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "SMS-%"')
-        
-        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').scalar()
-        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "Comment-%"')
-        
-        id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()
-        session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
-        
-        session.commit()
+        # add deleted on for blog in order to be able to hide archived blogs
+        session.execute("ALTER TABLE  livedesk_blog ADD COLUMN deleted_on DATETIME")
     except (ProgrammingError, OperationalError): return
+
+    
+    
   

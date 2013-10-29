@@ -43,6 +43,7 @@ class Blog(Entity):
     LastUpdatedOn = datetime
     ClosedOn = datetime
     UpdatedOn = datetime
+    DeletedOn = datetime
 
 # --------------------------------------------------------------------
 
