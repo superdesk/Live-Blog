@@ -116,6 +116,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))    
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        
         sqlLimit = buildLimits(sql, offset, limit)
         posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
         if detailed:
@@ -158,12 +159,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
-                            
+                                   
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
+ 
         posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             
             lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
             lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
