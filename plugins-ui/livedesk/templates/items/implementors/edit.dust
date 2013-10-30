@@ -1,7 +1,0 @@
-{>"livedesk>items/base"/}
-{<FastActionsDeleteModal}#delete-own-post{/FastActionsDeleteModal}
-{<ImplementorClass}post-draggable{/ImplementorClass}
-{<FastActionsUnPublish}{/FastActionsUnPublish}
-{<ImportantActionsPublish}{/ImportantActionsPublish}
-{<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
-{<ContainerIframe}{/ContainerIframe}

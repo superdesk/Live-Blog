@@ -1,3 +1,0 @@
-{#Sources}
-	<button class="btn btn-mini" data-toggle="button">{Name}</button>
-{/Sources}

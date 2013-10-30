@@ -1,9 +1,0 @@
-﻿<li class="quote {className}">
-	<div class="drag-bar"></div>
-	<div class="tool-box-right">
-		<a href="#" class="close image">x</a>
-		<a href="#" class="tool-box-button"><i class="icon-pencil"></i></a>
-	</div>
-	{content|s}
-	<div class="clear"></div>
- </li>

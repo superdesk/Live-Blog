@@ -1,3 +1,0 @@
-{#Blog}
-<div id="chain-{Id}" class="blog-content"></div>
-{/Blog}

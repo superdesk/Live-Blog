@@ -1,1 +1,0 @@
-define(['providers'], function(providers) {	providers.instagram = {		className: 'big-icon-instagram',			tooltip: _('Instagram'),		init: function() {							require(['providers','providers/instagram'], function(providers) {				providers.instagram.init();			});		}	};	return providers;});

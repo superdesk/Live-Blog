@@ -1,2 +1,0 @@
-<input class="date" id="date-from-{id}" type="text" data-criteria-append=".since" />
-<input class="date" id="date-to-{id}" type="text" data-criteria-append=".until" />
