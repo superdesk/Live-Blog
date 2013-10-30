@@ -288,7 +288,7 @@ def upgradeUuidFix():
 
     # add uuid column for post and user
     try:
-        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32) UNIQUE")   
+        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32)")   
         session.execute("ALTER TABLE  user ADD COLUMN uuid VARCHAR(32) UNIQUE")
         session.execute("ALTER TABLE  user ADD COLUMN cid int DEFAULT 0")
     except (ProgrammingError, OperationalError): return    
@@ -306,9 +306,6 @@ def upgradeUuidFix():
         if post.Uuid is None: post.Uuid = str(uuid4().hex)
     session.commit()
     
-    # change uuid column for post and user
-    session.execute("ALTER TABLE post CHANGE COLUMN uuid uuid VARCHAR(32) NOT NULL UNIQUE")
-    session.execute("ALTER TABLE user CHANGE COLUMN uuid uuid VARCHAR(32) NOT NULL UNIQUE")
 
     
   

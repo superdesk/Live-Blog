@@ -34,7 +34,7 @@ from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
-from superdesk.post.api.post import Post
+from superdesk.post.api.post import Post, IPostService
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
 from uuid import uuid4
@@ -60,6 +60,9 @@ class BlogSyncProcess:
 
     blogPostService = IBlogPostService; wire.entity('blogPostService')
     # blog post service used to insert blog posts
+    
+    postService = IPostService; wire.entity('postService')
+    # post service used to insert/update posts
     
     postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
     # post verification service used to insert post verification
@@ -167,15 +170,21 @@ class BlogSyncProcess:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
                 
-                #get the post for the same uuid, blog and source
+                insert = False 
+                if 'Uuid' in post: 
+                    uuid = post['Uuid']
+                    localPost = self.postService.getByUuidAndSource(uuid, source.Id) 
+                else: 
+                    #To support old instances that don't have Uuid attribute
+                    uuid = str(uuid4().hex)
+                    localPost = None 
+                    
+                if localPost == None:      
+                    localPost = Post()
+                    localPost.Uuid = uuid
+                    insert = True
+                
                 #if exists local, update it, otherwise continue the original insert
-
-                localPost = Post()
-                
-                #To support old instances that don't have Uuid attribute 
-                if 'Uuid' in post: localPost.Uuid = post['Uuid']
-                else: localPost.Uuui = str(uuid4().hex)
-                
                 localPost.Type = post['Type']['Key']
                 localPost.Author, localPost.Creator = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
@@ -196,8 +205,8 @@ class BlogSyncProcess:
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
                 blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
 
-                # insert post from remote source
-                self.blogPostService.insert(blogSync.Blog, localPost)
+                if insert: self.blogPostService.insert(blogSync.Blog, localPost)
+                else: self.blogPostService.update(blogSync.Blog, localPost)
                 
                 # update blog sync entry
                 self.blogSyncService.update(blogSync)
