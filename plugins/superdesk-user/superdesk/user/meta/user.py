@@ -32,7 +32,7 @@ class UserMapped(PersonMapped, User):
                       dict(mysql_engine='InnoDB', mysql_charset='utf8'))
 
     Name = Column('name', String(150), nullable=False, unique=True)
-    Uuid = Column('uuid', String(32), nullable=False)
+    Uuid = Column('uuid', String(32), unique=True)
     Cid = Column('cid', INTEGER(unsigned=True), nullable=False, default=0)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     Active = Column('active', Boolean, nullable=False, default=True)
