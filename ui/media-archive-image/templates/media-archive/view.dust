@@ -1,0 +1,56 @@
+<div id="viewDetailsModal" class="modal hide in" style="width: 820px; margin-left: -410px; display: block;">
+
+	{#Item}
+	<div class="modal-header">
+    	<button data-dismiss="modal" class="close" type="button">&times;</button>
+       	<h3>{Title}</h3>
+	</div>
+    {/Item}
+            
+    <div class="modal-body">
+    	<div class="row-fluid">
+        	{+body}
+        	{#Item}
+        	<div class="span6">
+           		{+content}
+           		<figure>
+                	<img src="{Thumbnail.href|s}" />
+				</figure>
+				{/content}
+				<dl class="line-borders">
+            		<dt>_('File name');</dt><dd>{Name}</dd>
+                    <dt>_('File size');</dt><dd>{Size}</dd>
+				</dl>
+			</div>
+			{/Item}
+			{/body}
+			{+meta}
+
+			<div class="span6">
+				<form class="form-horizontal row-fluid">
+					<fieldset data-meta="edit">
+						<div id="language-shadow" shadow-id="5" class="metadata-language shadow-target" data-select="language">
+							{Languages|s}
+						</div>
+				    	<dl id="data-shadow" class="metadata-details clearfix shadow-source">
+							<dt>_('Title');</dt>
+				            <dd>{Title}</dd>
+							<dt>_('Description');</dt>
+				            <dd>{Description}</dd>
+							<dt>_('Caption');</dt>
+				            <dd>{Caption}</dd>
+				        </dl>
+				    </fieldset>
+				</form>
+			</div>
+			
+			{/meta}
+		</div>
+	</div>
+    <div class="modal-footer">
+    	{+footer}
+    	<a class="btn" href="javascript:void(0)" data-action="edit"><i class="icon-list-alt"></i>_('Edit metadata');</a>
+    	{/footer}
+    </div>
+</div>
+

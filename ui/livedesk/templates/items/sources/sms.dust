@@ -1,0 +1,20 @@
+{>"livedesk>items/{Base}"/}
+{<WrapupAdditionalActions}{/WrapupAdditionalActions}
+{<ProviderClass}smspost{/ProviderClass}
+{<ItemInfo}
+	<figure class="avatar">
+		<img src="">
+	</figure>
+	{+PostInfo}
+	<div class="post-info">
+		{+AuthorInfo}
+			<p rel="author">{Meta.Creator.PhoneNumber}  {Meta.Creator.FullName}</p> <!-- User full name -->
+		{/AuthorInfo}
+		{+TimeInfo}
+			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
+		{/TimeInfo}
+	</div>
+	{/PostInfo}
+{/ItemInfo}
+{<SourceAuthor}{/SourceAuthor}
+{<ContainerIframe}{/ContainerIframe}

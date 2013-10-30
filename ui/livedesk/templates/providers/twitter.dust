@@ -1,0 +1,29 @@
+<div class="search-header">
+    <ul class="search-controls" id="twt-search-controls">
+        <li class="active" id="twt-web-tab"><a href="#">_('Search');</a></li>
+        <li id="twt-user-tab"><a href="#">_('User');</a></li>
+        <li id="twt-favorites-tab"><a href="#">_('Favorites');</a></li>
+    </ul>
+<input type="text" placeholder="_('Search');" class="twitter-search-text" id="twitter-search-web">
+<input type="text" placeholder="_('Enter a twitter username');" class="twitter-search-text" id="twitter-search-user" style="display: none">
+<input type="text" placeholder="_('Enter a twitter username');" class="twitter-search-text" id="twitter-search-favorites" style="display: none">
+</div>
+
+<!-- search results for twitter web search -->
+<ul class="search-result-list scroller" id="twt-web-holder" style="">
+<ul id="twt-web-results" class="search-result-list clearfix"></ul>
+<ul id="twt-web-more" class="sources-show-more"></ul>
+</ul>
+
+
+<!-- search results for twitter user search -->
+<ul class="search-result-list scroller" id="twt-user-holder" style="visibility: hidden">
+<ul id="twt-user-results" class="search-result-list clearfix"></ul>
+<ul id="twt-user-more" class="sources-show-more"></ul>
+</ul>
+
+<!-- search results for twitter favorites search -->
+<ul class="search-result-list scroller" id="twt-favorites-holder" style="visibility: hidden">
+<ul id="twt-favorites-results" class="search-result-list clearfix"></ul>
+<ul id="twt-favorites-more" class="sources-show-more"></ul>
+</ul>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+
+	<Right name="View user actions" inherits="View user actions">
+		<Allows methods="GET" filter="authenticated">
+			<URL alter="GUI/Action">HR/User/*/Action</URL>
+			<URL>HR/User/*</URL>
+			<URL>HR/User</URL>
+			<URL>GUI/Action/*</URL>
+			<URL>GUI/Action/*/SubAction</URL>
+		</Allows>
+		
+		<Action path="actionTest" />
+		
+		<Description>Right containing the user actions.
+		</Description>
+	</Right>
+	
+	<Right name="View all actions">
+		<Allows methods="GET">
+			<URL>GUI/Action</URL>
+			<URL>GUI/Action/*</URL>
+			<URL>GUI/Action/*/SubAction</URL>
+		</Allows>
+	
+		<Description>Right containing all actions.
+		</Description>
+	</Right>
+
+</Config>

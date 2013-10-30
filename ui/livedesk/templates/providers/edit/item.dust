@@ -1,0 +1,89 @@
+{#Post}
+{@if cond="'{Type.Key}'=='wrapup'"}
+<li class="wrapup open draggable" style="border-top: 3px solid #007FB3 !important;">
+   <div class="drag-bar"></div>
+	<div class="tool-box-right">
+		<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
+	</div>
+   <div class="arrow" style="height:20px; width:20px; float: left; background: url('images/wrapup-arrow.png') no-repeat scroll 0 0 transparent; background-position: -40px 0;"></div>
+   <div class="wrapup-content">{Content|s}</div>
+  <div class="clear"></div>
+</li>
+{:else}
+	{@if cond="'{Author.Source.Name}'=='google'"}
+	<li class="{Author.Source.Name} draggable">
+		<div class="drag-bar"></div>
+		<div class="tool-box-right">
+			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
+		</div>
+		<figure>
+            {?Avatar}
+                <img src="{Avatar}" />
+            {:else}
+                <img src="images/avatar_default_collaborator.png" />
+            {/Avatar}
+        </figure>
+	{:else}
+	<li class="with-avatar {Author.Source.Name} {Type.Key} draggable">
+		<div class="drag-bar"></div>
+		<div class="tool-box-right">
+			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
+		</div>
+		<figure>
+            {?Avatar}
+                <img src="{Avatar}" />
+            {:else}
+                <img src="images/avatar_default_collaborator.png" />
+            {/Avatar}
+        </figure>
+        {@if cond="'{Author.Source.Name}'=='twitter'"}
+            <figure><img src="{Meta.profile_image_url}" width="48" height="48" alt="1"></figure>
+        {/if}
+	{/if}
+		<div class="post-info"> 
+	      <p rel="author">{Creator.FullName}</p> 
+	      <time>{CreatedOn}</time> 
+	    </div>
+		<div class="result-content">
+			<h3>
+				{?Author.Person}
+					<span class="author">{Author.Person.FirstName} {Author.Person.LastName}</span>
+				{:else}
+					<!-- google or smth else -->
+				{/Author}
+			</h3>
+            {@if cond="'{Author.Source.Name}'=='google'"}
+                <h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
+            {/if}
+             {@if cond="'{Author.Source.Name}'=='twitter'"}
+                <h3><span class="author">{Meta.from_user_name}({Meta.from_user})</span></h3>
+            {/if}
+			<div class="result-text">
+				{Content|s}{@if cond="'{Author.Source.Name}'=='flickr'"}<p>{Meta.title|s}</p>{/if}
+                {#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
+			</div>
+			<p class="attributes">
+				{@if cond="'{Author.Source.Name}'=='youtube'"}
+					{#Meta}
+						<i class="source-icon">
+							<img src="http://g.etfv.co/http://www.youtube.com" style="max-width: 16px" border="0">
+						</i>&nbsp;
+						<a class="author-name" href="http://youtube.com/{uploader}" target="_blank">{uploader}</a>
+						<time>{uploaded}</time>							
+				   {/Meta}
+				{:else}
+                    {@if cond="'{Author.Source.Name}'=='google'"}
+                        <i class="source-icon">
+                            <img src="http://g.etfv.co/{Meta.unescapedUrl}" style="max-width: 16px" border="0">
+                        </i>
+                        <a class="author-name" href="{Meta.unescapedUrl}" target="_blank">{Meta.visibleUrl}</a>
+                    {/if}
+					<i class="source-icon-{Author.Source.Name}"></i>
+					<time>{CreatedOn}</time>				
+				{/if}
+			</p>
+		</div>
+		<div class="clear"></div>
+	</li>
+{/if}
+{/Post}

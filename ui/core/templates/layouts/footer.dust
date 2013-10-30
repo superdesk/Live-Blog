@@ -1,0 +1,5 @@
+{?FooterDinamic}
+	{>"core>layouts/footer-dinamic"/}
+{:else}
+	{>"core>layouts/footer-static"/}
+{/FooterFixed}

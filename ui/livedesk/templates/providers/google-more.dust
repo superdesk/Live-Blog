@@ -1,0 +1,1 @@
+<button name="more_results" class="btn btn-large bottom-full" page="{start}">_("Show more results");</button>
