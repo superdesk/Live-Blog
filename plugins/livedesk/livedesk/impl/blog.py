@@ -94,6 +94,16 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         self.session().merge(blog)
+        
+    def hide(self, blogId):
+        '''
+        @see: IBlogService.hide
+        '''
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog or credentials'))
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.DeletedOn = current_timestamp() 
+        self.session().merge(blog)     
 
 
     def insert(self, blog):
