@@ -36,7 +36,7 @@ class PostMapped(Base, Post):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Uuid = Column('uuid', String(32), nullable=False, unique=True)
+    Uuid = Column('uuid', String(32))
     Type = association_proxy('type', 'Key')
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))

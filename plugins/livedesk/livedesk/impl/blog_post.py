@@ -143,8 +143,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
                              and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
         
-        sql = sql.filter(CollaboratorMapped.Source == sourceId)
-        
         deleted = False
         if q:
             if QBlogPostUnpublished.isDeleted in q:
