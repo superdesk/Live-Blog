@@ -1,4 +1,0 @@
-<div class="alert superdesk-alert">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <strong>_('Warning!');</strong> {Error}
-</div>

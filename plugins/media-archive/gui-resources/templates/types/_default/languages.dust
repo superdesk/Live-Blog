@@ -1,5 +1,0 @@
-<select name="Language" class="span2">
-    {#Languages}
-        <option value="{Id}" {selected}>{Name}</option>
-    {/Languages}
-</select>

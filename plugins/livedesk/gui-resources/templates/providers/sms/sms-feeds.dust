@@ -1,3 +1,0 @@
-{#items}
-<button class="btn btn-mini " data-toggle="button" data-feed-id="{Id}">{Name}</button> 
-{/items}
