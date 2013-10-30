@@ -102,6 +102,12 @@ class IPostService(IEntityGetCRUDService):
     Provides the service methods for the post.
     '''
 
+    @call(webName='Uuid')
+    def getByUuidAndSource(self, uuid:str, source:Source.Id) -> Post:
+        '''
+        Returns the post that has the same uuid and is for the same source
+        '''
+
     @call(webName='Unpublished')
     def getUnpublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None,
                        limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QPostUnpublished=None) -> Iter(Post):
