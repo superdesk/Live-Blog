@@ -1,0 +1,38 @@
+<div title="_("Login required");" style="margin-top: 100px">
+	<form class="form-horizontal">
+		<fieldset>
+			<div class="control-group">
+            	<label for="input01" class="control-label">_("Username");</label>
+            	<div class="controls">
+              		<input type="text" id="username" class="input-large" />
+				</div>
+			</div>
+			<div class="control-group">
+            	<label for="password" class="control-label">_("Password");</label>
+            	<div class="controls">
+              		<input type="password" id="password" class="input-large" />
+				</div>
+			</div>
+			<!-- div class="control-group">
+            	<label for="optionsCheckbox" class="control-label">&nbsp;</label>
+            	<div class="controls">
+              		<label class="checkbox">
+                		<input type="checkbox" value="1" id="remember">
+                		_("Remember login");
+              		</label>
+            	</div>
+          	</div-->
+          	<div class="control-group">
+				<div class="controls">
+					<input type="submit" class="btn" value="_('Login');" />
+				</div>
+			</div>
+			
+          	<p class="alert alert-error hide" style="margin-bottom:0">_('Login failed!');</p>
+          	{?expired}
+          	<p class="alert alert-warning" data-is="expired-warn" style="margin-bottom:0">_('Login session expired!');</p>
+          	{/expired}
+			
+		</fieldset>
+	</form>
+</div>

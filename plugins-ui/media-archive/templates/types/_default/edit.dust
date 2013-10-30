@@ -1,0 +1,27 @@
+{>"media-archive>types/_default/view"/}
+
+{<meta}
+<div class="span6">
+	<form class="form-horizontal row-fluid">
+		<fieldset data-meta="edit">
+			<div id="language-shadow" shadow-id="5" class="metadata-language shadow-target" data-select="language">
+				{Languages|s}
+			</div>
+	    	<dl id="data-shadow" class="metadata-details clearfix shadow-source">
+				<dt>_('Title');</dt>
+	            <dd>
+	            	<input name="Title" class="span3" value="{Title}" />
+				</dd>
+				<dt>_('Description');</dt>
+	            <dd>
+	            	<input name="Description" class="span3" value="{Description}" />
+				</dd>
+	        </dl>
+	    </fieldset>
+</form>
+</div>
+{/meta}
+
+{<footer}
+	<button class="btn" data-action="save" data-dismiss="modal">_('Save');</button>
+{/footer}

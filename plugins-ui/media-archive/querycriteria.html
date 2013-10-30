@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Query Criteria test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+        <script src="querycriteria.js"></script>
+    </head>
+    <body>
+        <div id="queryresult"></div>
+        <form id="criteriaform"></form>
+        <script type="text/javascript">
+            var params = new Array('criteriaform');
+            querycriteria.init(params);
+            
+            $('#criteriaform').submit(function(){
+                var formdata = ''
+                formdata = $('#criteriaform :input[value!=""]');
+                try
+                {    
+                    var sentdata = $(formdata).serialize();
+                }
+                catch(err)
+                {
+                    var sentdata = '';
+                }
+                
+               
+                
+                
+                $.ajax({
+                    url: 'http://localhost:8080/resources/Archive/MetaDataInfo/Query/',
+                    type : 'GET',
+                    data : sentdata,
+                    dataType : 'xml',
+                    success: function(data){
+                        $('#queryresult').html(data);
+                    },
+                    error: function(data) {
+                        
+                    }
+                }).done(function(data){
+                    $('#queryresult').html(data);
+                }).fail(function(data){
+                    $('#queryresult').html(data.statusText);
+                });
+                
+                return false;
+            })
+        </script>
+    </body>
+</html>

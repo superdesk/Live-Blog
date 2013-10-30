@@ -1,0 +1,64 @@
+	<div class="modal-header">
+    	<a aria-hidden="true" data-dismiss="modal" class="close" href="#">×</a>
+    	<h3>_('Add Image');</h3>
+	</div>
+	<div class="modal-body">
+    	<div class="modal-left-pane">
+        	<h6>_('Sources');</h6>
+			<ul class="modal-pane-menu">
+          		<li class="activelink">
+          			<a screen-id="1" href="javascript:void(0)">_('From Computer');</a>
+          		</li>
+				<!-- li><a screen-id="2" href="#">From Web</a></li -->
+                {?showArchive}
+          		<li>
+          			<a screen-id="3" href="javascript:void(0)">_('From Media Archive');</a>
+          		</li>
+                {/showArchive}
+        	</ul>
+    	</div>
+		<div class="modal-right-pane">
+			<div screen-id="1" class="uploadimage-screen">
+				<form action="{UploadAction}">
+					<input type="file" data-action="browse" style="display:none" />
+					<div class="drag-area">
+						<div class="drag-area-title">
+		            		_('Drag Your File Here');
+		          		</div>
+		          		<div class="drag-area-button">
+		            		<button type="button" class="btn" data-proxy="browse"><i class="icon-upload"></i> _('or Select file from folder');</button>
+		          		</div>
+		        	</div>
+	        	</form>
+	        	<div class="preview-area hide" data-placeholder="preview-area">
+	        		<span data-placeholder="preview">
+	        		</span>
+	        		<div class="drag-area-button">
+		            	<button type="button" data-action="cancel-upload" class="btn"><i class="icon-remove-sign"></i> _('Cancel');</button>
+		          	</div>
+	        	</div>
+			</div>
+
+			<!-- div screen-id="2" class="uploadimage-screen" style="display: none;">
+        		<input type="text" placeholder="Enter web address" class="fullwidth-input" />
+			</div -->
+
+            {?showArchive}
+      		<div screen-id="3" class="uploadimage-screen hide">
+        
+        		<span data-placeholder="media-archive-filter">
+       			
+        		</span>
+
+            	<div data-placeholder="media-archive">
+            		
+            	</div>
+            	
+    		</div>
+            {/showArchive}
+		</div>
+	</div>
+	<div class="modal-footer">
+    	<a data-dismiss="modal" class="btn">_('Cancel');</a>
+    	<a class="btn btn-primary" data-dismiss="modal" data-action="complete">_('OK');</a>
+	</div>
