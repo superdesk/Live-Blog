@@ -17,6 +17,7 @@
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
 ], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+   var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -29,11 +30,20 @@
             "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
         init: function() {
+            var self = this;
+            $(uploadView).on('complete', function(){
+                self.handleImageUpload();
+            });
         },
         handleImageUpload: function(imgData) {
             var self = this;
-            if (imgData.length) {
-                var myData = imgData[0].data;
+            var imgData = uploadView.getRegisteredItems();
+            var myData = false;
+            for ( var propName in imgData) {
+                myData = imgData[propName].data;
+                break;
+            }
+            if (myData) {
                 self.el.find('[name="MediaImage"]').val(myData.Content.href);
                 $.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
                     self.el.find('#MediaImageThumb').html(o);
@@ -41,11 +51,8 @@
             }
         },
         openUploadScreen: function() {
-            var self = this;
-            var uploadView = new UploadView({thumbSize: 'medium'});
-            uploadView.activate().then(function(data) {
-                self.handleImageUpload(data);
-            });
+            uploadView.activate();
+            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
         },
         selectInput: function(evt) {
 			$(evt.target).select();
