@@ -1,0 +1,45 @@
+<li class="google draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
+	<div class="drag-bar"></div>
+    <div class="tool-box-right">
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete');">x</a>
+    	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
+    </div>
+    <figure>
+    	{Avatar|s}
+    	{?AuthorPerson.Avatar}
+    	<img src="{AuthorPerson.Avatar}">
+    	{:else}
+    	<!--<img>-->
+    	{/AuthorPerson}
+    </figure>
+    <div class="post-info"> 
+      <p rel="author">{Creator.FullName}</p> 
+      <time>{CreatedOn}</time> 
+    </div>	
+    <div class="google-full-content">
+	    <div class="result-content">
+			{#Meta}<h3><a href="{url}" target="_blank">{title|s}</a></h3>{/Meta}
+			<p class="result-text">
+                                {Content|s}
+                                {#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
+                        </p>
+		{#Meta}
+			<p class="attributes">
+				<i class="source-icon">
+					<img src="http://g.etfv.co/{url}" style="max-width: 16px" border="0">
+				</i>
+				<a class="author-name" href="{url}" target="_blank">{visibleUrl}</a>
+				<time>{date}</time>
+			</p>
+    	</div>
+    	<div class="editable annotation">
+			{annotation|s}
+		</div>
+		{/Meta}
+	</div> 
+    <div class="btn-group pull-right clearfix actions hide">
+    	<button class="btn btn-mini cancel">_('Cancel');</button>
+    	<button class="btn btn-mini btn-primary publish">_('Publish');</button>
+   	</div>		
+</li>
+

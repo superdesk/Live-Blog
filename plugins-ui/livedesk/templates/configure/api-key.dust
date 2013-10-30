@@ -1,0 +1,21 @@
+{+api_key}
+{#Source}
+{@if cond="'{Name}'==='twitter'"}
+	<li>
+		Twitter
+		<ul>
+			<li>
+			_('Consumer key');: <input type="text" name="api-key-consumer-key" value="{Key.ConsumerKey}"/>
+			</li>
+			<li>
+			_('Consumer secret');: <input type="text" name="api-key-consumer-secret" value="{Key.ConsumerSecret}"/>
+			</li>
+		</ul>
+	</li>
+{:else}
+	<li>
+	{Name}: <input type="text" name="api-key" value="{Key}"/>
+	</li>
+{/if}
+{/Source}
+{/api_key}

@@ -1,0 +1,4 @@
+{>"livedesk>items/implementors/sources/base"/}
+{<AdditionalAttributes}  data-id="{Meta.id}"{/AdditionalAttributes}
+{<ContainerDescriptionText}{Meta.user.username}<br />{Meta.created_time_iso}<br />{Meta.caption.text}{/ContainerDescriptionText}
+{<Attributes}{/Attributes}

@@ -1,0 +1,29 @@
+<div class="sms-header">
+	<p>_("All feeds");<input type="radio" name="feeds-type" value="all" {allAvailable}>&nbsp;<input type="radio" name="feeds-type" value="assigned" {onlyAssigned}">_("Assigned feeds");</p>
+	<p>_("Select SMS feed:");</p>
+	<p class="feed-info">
+		{#items}
+			<button class="btn btn-mini " data-toggle="button" data-feed-id="{Id}" style="margin-bottom:2px">{Name}</button> 
+		{/items}
+	</p>
+	<!--
+	<div  style="text-align:right">
+		<a class="btn btn-flat active"><i class="icon-trash"></i> View deleted items</a>
+	</div>
+	-->
+	<div class="sms-search">
+		<div class="sf-searchbox">
+			{#items}
+				<input type="text" placeholder="_('Search');" class="sms-search-query smstab" data-feed-id="{Id}" style="display: none">
+				<!-- <a href="#" class="sms-clear-search"><i class="icon-remove sms-clear-search smstab" data-feed-id="{Id}"></i></a> -->
+			{/items}
+		</div>
+	</div>
+</div>
+
+<div class="sms-results-holder">
+	{#items}
+		<ul class="search-result-list sms-list" data-feed-id="{Id}"></ul>
+		<div class="sms-load-more-holder" data-feed-id="{Id}" ></div>
+	{/items}
+</div>

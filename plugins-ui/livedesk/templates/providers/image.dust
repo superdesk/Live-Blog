@@ -1,0 +1,5 @@
+<div class="edit-block ">
+	<form>
+    	<button data-toggle="modal" type="button" class="btn"><i class="icon-picture"></i> _('Add Image');</button>
+  	</form>
+</div>

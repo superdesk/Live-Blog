@@ -1,0 +1,20 @@
+<section class="title-page">
+	<header>
+	<a class="pull-right collapse-button" href="javascript:void(0)"><i class="icon-chevron-down"></i><span class="button-text">_('Collapse')</span></a>	
+	<h2>{title}</h2>
+	<p class="article-info">
+		Reported by <a href="#" class="live-blog-author">Davis Elison</a>, <time>{date}March 01, 2012</time><span class="update-time">last updated <time>{time}21:26:14</time></span>
+	</p>
+	
+	</header>
+	<article id="blog-intro">
+		{description}
+		<figure class="blog-image">
+		<img width="294" height="186" alt="French elections" src="pictures/french_elections_1.png">
+		</figure>
+		<h4>Massa magnis, et tempor, ultrices arcu ridiculus ultricies, integer. Etiam! In a in montes, integer eros, diam proin!</h4>
+		<p>
+			Sed et placerat rhoncus? Vel porta amet lorem, amet in phasellus pid aliquam aenean amet cras. Eros, ut turpis nec! Augue mid adipiscing. Non augue! Adipiscing magnis amet elit, cras integer! Nunc cum est dis, lectus magna rhoncus elit, ut risus elementum arcu, mus ac est scelerisque, magna nunc cursus mauris porta pulvinar dictumst, ut penatibus dis, turpis etiam! Velit integer mus in, facilisis velit? Lacus tincidunt lundium sociis!
+		</p>
+	</article>
+</section>

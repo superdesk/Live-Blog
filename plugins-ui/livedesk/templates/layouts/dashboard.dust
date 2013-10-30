@@ -1,0 +1,54 @@
+{>"livedesk>layouts/main"/}
+{<body}
+<div class="content-topnav" style="margin-top:40px;">
+	<ul class="nav nav-tabs dashboard-tabs" id="myTab">
+	  <li class="active"><a href="#active_blogs" data-toggle="tab">_('Active blogs');</a></li>
+	  <li><a href="#archive_blogs" data-toggle="tab">_('Archive blogs');</a></li>
+	</ul>
+	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog" style="display:none"><i class="icon-white icon-plus-sign"></i> _('Create live blog');</a>
+</div>
+<div class="tab-content">
+
+	<div class="dashboard-content tab-pane active" id="active_blogs">
+
+      	<div class="btn-group pull-left">
+        	<span class="btn-inactive"><i class="icon-settings"></i></span>
+        	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+        		<ul class="dropdown-menu">
+                    <li><a id="grid_view" href="#"><i class="icon-th"></i> _('Grid view');</a></li>
+            		<li><a id="list_view" href="#"><i class="icon-th-list"></i> _('List view');</a></li>
+          		</ul>
+      	</div>
+
+		<ul class="active-blogs clearfix">
+			{#live}
+			<li class="clearfix">
+				<div class="active-blogs-title"><a href="#live-blog/{Id}" data-blog-link="{href}" class="active-blog-link">{Title}</a></div>
+				<ul class="active-blogs-info clearfix" >
+					<li>{LiveOn}</li>
+					<li>{Creator.data.FullName}</li>
+				</ul>
+				<div class="active-blogs-text">
+					{Description}
+				</div>
+				<ul class="active-blogs-notification clearfix">
+					<li class="posticon-notification" data-model-id="{Id}"></li>
+					<!--
+						<li class="active-notification" data-model-unpublished-id="{Id}"></li>
+					-->
+				</ul>
+			</li>
+			{:else}
+			<li class="no-results-msg" >
+				<span class="archive-blogs-title"><a href="#">_('No Blogs found');</a></span>
+			</li>
+			{/live}
+
+		</ul>
+	</div>
+
+	<div class="dashboard-content tab-pane" id="archive_blogs">
+		
+	</div>
+</div>
+{/body}

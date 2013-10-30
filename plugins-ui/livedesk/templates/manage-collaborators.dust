@@ -1,0 +1,60 @@
+{>"livedesk>layouts/livedesk"/} 
+{<body} 
+<section class="scroller main-section configure-blog" {ui.content}>
+<header>
+<h3>_('Collaborators management:'); {Title|t}</h3>
+</header>
+<div class="row-fluid">
+  <div class="internal-collabs">
+    <form class="form-horizontal form-large">
+      <fieldset>
+        <legend>_("Define Collaborators");</legend>
+        <div class="control-group">
+          <div class="controls" style="margin-left:0 !important;">
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+</section>
+<div class="modal hide fade modal modal-wide" id="addCollaborator2">
+  <div class="modal-header">
+    <a class="popup-close" data-dismiss="modal">x</a>
+    <h3>_("Add internal Collaborator");</h3>
+  </div>
+  <div class="modal-body modal-body-min">
+
+    <input class="span3 searchbar-container searchbar-small searchbox" size="16" type="text" name="search" placeholder="Search" style="margin-top:-5px;float:right !important;">
+
+    <form class="form-horizontal row-fluid" style="margin-top:10px;">
+
+      <label class="checkbox select-all-colaborator" >
+        <input type="checkbox"  name="internalCollaboratorSelectAll">_("Select all");</label>
+
+      <ul class="internal-collaborators">
+      </ul>
+
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn cancel" data-dismiss="modal">_("Cancel");</a>
+    <a href="#" class="btn save btn-primary" data-dismiss="modal">_("Save changes");</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="delete_internal_collaborator">
+  <div class="modal-header">
+    <a href="#" class="popup-close" data-dismiss="modal" aria-hidden="true">x</a>
+    <h3>_("Confirm Delete");</h3>
+  </div>
+  <div class="modal-body confirm-modal">
+    <p>_("You are about to delete ");<span id="delete_collaborator_name" style="font-weight:bold;"></span>_(" from the collaborator list for this blog. Are you sure?");</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">_("Cancel");</a>
+    <a href="#" class="btn btn-primary" data-dismiss="modal">_("Confirm Delete");</a>
+  </div>
+</div>
+
+{/body}
