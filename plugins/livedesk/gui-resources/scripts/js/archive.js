@@ -18,6 +18,9 @@ function($, superdesk, giz, Action, Blog)
     ItemView = giz.View.extend
     ({
         tagName: 'tr',
+        events: {
+            '[data-action="hide"]': { click: 'hide'}
+        },
         model: null,
         init: function()
         {
@@ -37,13 +40,18 @@ function($, superdesk, giz, Action, Blog)
             for( var i in data ) this.model.set(i, data[i]);
             return this.model.sync();
         },
-        /*remove: function()
+        remove: function()
         {
             this.model.remove().sync();
-        },*/
-        hide: function()
+        },
+        hide: function(evt)
         {
-            $(this.el).addClass('hide');
+            evt.preventDefault();
+            var self = this;
+
+            self.model.hideSync().done(function(){
+              self.el.remove();
+            });
         },
         show: function()
         {
