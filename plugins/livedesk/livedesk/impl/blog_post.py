@@ -251,6 +251,18 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return postId
     
+    
+    def updateCid(self, blogId, postId):
+        '''
+        @see: IBlogPostService.updateCid
+        '''
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=postId)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
+        self.session().merge(postEntry)
+
+        return postId
+    
     def hide(self, blogId, postId):
         '''
         @see: IBlogPostService.hide
