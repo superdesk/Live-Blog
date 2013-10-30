@@ -21,6 +21,9 @@ from ally.exception import InputError, Ref
 from sqlalchemy.orm.exc import NoResultFound
 from ally.support.api.util_service import copy
 from superdesk.verification.meta.status import VerificationStatusMapped
+from livedesk.meta.blog_post import BlogPostMapped
+from livedesk.api.blog_post import IBlogPostService
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -32,6 +35,9 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
     '''
     
     default_verification_status_key = 'nostatus'
+    
+    blogPostService = IBlogPostService; wire.entity('blogPostService')
+    # blog post service used to insert blog posts
 
     def __init__(self):
         '''
@@ -66,9 +72,17 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
             assert isinstance(postVerificationDb, PostVerificationMapped), 'Invalid post verification %s' % postVerificationDb
             raise InputError(Ref(_('Unknown post verification id'), ref=PostVerification.Id))
         try:
-            postVerificationDb.statusId = self._verificationStatusId(postVerification.Status)
-            self.session().flush((copy(postVerification, postVerificationDb, exclude=('Status',)),))
+            if postVerification.Status:
+                postVerificationDb.statusId = self._verificationStatusId(postVerification.Status)
+            if postVerification.Checker:
+                postVerificationDb.Checker = postVerification.Checker    
+            self.session().flush((postVerificationDb,))
         except SQLAlchemyError as e: handle(e, postVerificationDb)
+        
+        #increase the CId for blog post
+        sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.PostVerification == postVerification.Id)
+        blogPost = sql.one()
+        self.blogPostService.updateCid(blogPost.Blog, blogPost.Id)
         
         
     # ----------------------------------------------------------------
