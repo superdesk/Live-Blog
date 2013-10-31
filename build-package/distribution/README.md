@@ -51,6 +51,15 @@ Installing Superdesk
 1. Build and install python 3.2
 
         $ cd /tmp
+        $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
+        $ tar xf ./Python-3.2.tgz
+        $ cd ./Python-3.2
+        $ ./configure --prefix=/opt/superdesk/python32
+        $ make && sudo make install
+
+1. Build and install distribute
+
+        $ cd /tmp
         $ wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.35.tar.gz --no-check-certificate
         $ tar xf distribute-0.6.35.tar.gz
         $ cd distribute-0.6.35
