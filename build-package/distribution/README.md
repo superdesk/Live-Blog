@@ -16,13 +16,13 @@ Installing Superdesk
 
 1. Install necessary software:
 
-	$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip python-virtualenv
+        $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 python3-pip python-virtualenv
 
 ### Newer versions of ubuntu/debian which are not shipped with python 3.2
 
 1. Install necessary software:
 
-	$ sudo apt-get install exiv2 ffmpeg graphicsmagick python3-pip python-virtualenv
+        $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3-pip python-virtualenv
 
 1. Build and install python 3.2
 
@@ -38,10 +38,10 @@ Installing Superdesk
 
 1. Add repositories for ffmpeg and GraphicsMagick:
 
-        $ rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm 
-        $ rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
-        $ rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-        $ rpm --import https://fedoraproject.org/static/0608B895.txt
+        # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm 
+        # rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+        # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+        # rpm --import https://fedoraproject.org/static/0608B895.txt
 
 1. Install necessary software:
 
@@ -73,28 +73,29 @@ Installing Superdesk
 
 1. Change to `/opt/superdesk` and unzip `liveblog.zip`
 
-	$ cd /opt/superdesk/
-	$ unzip liveblog.zip
+        $ cd /opt/superdesk/
+        $ unzip liveblog.zip
 
 1. Create a python virtual environment using one of the following methods:
 
-    * If your distro has python 3.2:
+    If your distro has python 3.2:
 
-            $ virtualenv -p python3.2 env
+        $ virtualenv -p python3.2 env
 
-    * If you installed Python 3.2 manually in the ``superdesk`` folder:
+    If you installed Python 3.2 manually in the ``superdesk`` folder:
 
-            $ virtualenv -p /opt/superdesk/python32/bin/python3.2 env
+        $ virtualenv -p /opt/superdesk/python32/bin/python3.2 env
 
-    * If you installed ``virtualenv`` manually in the ``superdesk`` folder:
+    If you installed `virtualenv` manually in the `superdesk` folder:
+ 
+        $ ./python32/bin/virtualenv-3.2 -p /opt/superdesk/python32/bin/python3.2 env 
+             
 
-            $ ./python32/bin/virtualenv-3.2 -p /opt/superdesk/python32/bin/python3.2 env
+4. Activate the python virtual environment and install the requirements
 
-1. Activate the python virtual environment and install the requirements
-
-	    $ source env/bin/activate
-	    $ cd ./liveblog
-	    $ pip install -r requirements.txt
+        $ source env/bin/activate
+        $ cd ./liveblog
+        $ pip install -r requirements.txt
 
 ## Configuring Superdesk
 
@@ -108,10 +109,10 @@ Installing Superdesk
 
 ## Running Superdesk
 
-1. Run ``application.py
+1. Run `application.py`
 
-         $ python application.py
+        $ python application.py
 
 2. Open the following URL in your browser
 
-         http://localhost:8080/content/lib/core/start.html
+        http://localhost:8080/content/lib/core/start.html
