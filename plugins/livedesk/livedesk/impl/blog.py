@@ -103,7 +103,18 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if not blog: raise InputError(_('Invalid blog or credentials'))
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.DeletedOn = current_timestamp() 
-        self.session().merge(blog)     
+        self.session().merge(blog)   
+        
+        
+    def unhide(self, blogId):
+        '''
+        @see: IBlogService.unhide
+        '''
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog or credentials'))
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.DeletedOn = None 
+        self.session().merge(blog)           
 
 
     def insert(self, blog):
