@@ -136,8 +136,10 @@ function($, superdesk, giz, Action, Blog)
             
             this.page = { limit: 10, offset: 0, total: null, pagecount: 5 };
             
-            this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('LiveDesk/Blog') })));
-            this.collection.param('Flase','isOpen');
+            //this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('LiveDesk/Blog') })));
+
+            this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('HR/User/' + localStorage.getItem('superdesk.login.id') + '/Blog' )  })));
+            this.collection.param('false','isOpen');
             this.collection.asc('createdOn');
             this.collection.on('read update', this.renderList, this);
             
@@ -151,7 +153,7 @@ function($, superdesk, giz, Action, Blog)
             var self = this;
             this.collection._list = [];
             this.syncing = true;
-            this.collection.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset},
+            this.collection.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset, isOpen: false},
                 done: function(data){ self.syncing = false; self.page.total = data.total; self.render(); }});
         },
         
