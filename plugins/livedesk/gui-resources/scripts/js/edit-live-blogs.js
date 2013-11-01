@@ -332,7 +332,7 @@ function(providers, Gizmo, $, BlogAction)
 						/*!
 						 * If the Change Id is received, then sync the hole model;
 						 */						 
-						if(isOnly(data, ['CId','Order'])) {
+						if(isOnly(data, ['CId'])) {
 							self.model.xfilter(self.xfilter).sync();
 						}
 						else {

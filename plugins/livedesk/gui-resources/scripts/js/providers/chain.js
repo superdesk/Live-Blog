@@ -192,12 +192,46 @@ define([
             },
 
 			init: function(){
-				this._views = [];
-				this.collection
-					.on('read readauto', this.render, this)
-					.on('addingsauto', this.addAll, this)
-					.on('removeingsauto', this.removeAll, this)
+				var self = this;
+				self._views = [];
+				self.moreHidden = false;
+				self.collection.keepPolling = function(){
+					return self.el.is(":visible");
+				}
+				self.collection
+					.on('read readauto', function(evt)
+					{
+						self.render();
+						self.toggleMoreVisibility();
+					})
+					.on('addingsauto update', function(evt, data)
+					{
+						self.addAll(data);
+						self.toggleMoreVisibility();
+					})
+					.on('removeingsauto', self.removeAll, self)
+					.limit(self.collection._stats.limit )
 					.xfilter();
+			},
+			toggleMoreVisibility: function()
+			{
+				console.log('toggleMoreVisibility');
+				var self = this;
+				if(self.moreHidden)
+					return;
+				if(self.collection._stats.offset >= self.collection._stats.total) {
+					self.moreHidden = true;
+					$('#more', self._parent.el).hide();
+				}
+			},
+			more: function(evnt, ui)
+			{
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order')
+					.sync();
 			},
 			activate: function(data){			
 				data = data || {};
@@ -434,6 +468,7 @@ define([
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
+							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
@@ -468,7 +503,8 @@ define([
 				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = new TimelineView({ 
+					self.timelineView = new TimelineView({
+							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,

@@ -62,9 +62,16 @@ define([
 			var self = this;
 			ret = this.stop().start(params);
 			this._idInterval = setInterval(function(){
-				self.start(params);
+				if(self.keepPolling()) {
+					self.start(params);
+				} else {
+					self.stop();
+				}
 			}, this._timeInterval);
 			return ret;
+		},
+		keepPolling: function(){
+			return true;
 		},
 		start: function(params)
 		{
