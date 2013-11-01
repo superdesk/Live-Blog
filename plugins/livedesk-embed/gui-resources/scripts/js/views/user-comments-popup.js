@@ -113,7 +113,7 @@ define([
                     },
                     error: function(response) {
                         view.showAfterMessage(e);
-                        resetInput
+                        self.resetInput();
                         /*
                         if (response.status === 401) {
                             Recaptcha.reload();
