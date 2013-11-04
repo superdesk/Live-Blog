@@ -74,8 +74,8 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         sql = self._buildQuery(languageId, userId, q)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def getLive(self, languageId=None, userId=None, q=None):
         '''
@@ -295,8 +295,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
                 else: sql = sql.filter(PostMapped.PublishedOn == None)
 
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
 # --------------------------------------------------------------------
 
