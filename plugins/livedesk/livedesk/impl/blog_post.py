@@ -86,9 +86,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct()), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
 
@@ -118,9 +118,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct(), unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
     
@@ -191,7 +191,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Creator))
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all())
+        return self._addImages(sql.distinct())
 
     def getOwned(self, blogId, creatorId, typeId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''

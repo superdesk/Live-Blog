@@ -184,8 +184,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
 
         sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def getAllBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
         '''
