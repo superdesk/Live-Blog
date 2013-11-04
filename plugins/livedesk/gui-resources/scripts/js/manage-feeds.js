@@ -275,7 +275,7 @@ define([
         },
 
         change: function(e) {
-            var checked = $(e.target).prop('checked');
+            var checked = $(e.target).attr('checked');
 
             if (checked) {
                 this.model.activate();
@@ -304,7 +304,12 @@ define([
          */
         toggleCheckbox: function() {
             $input = $(this.el).find('input:checkbox');
-            $input.prop('checked', ! $input.prop('checked'));
+            //$input.attr('checked', ! $input.prop('checked'));
+            if ( $input.attr('checked') ) {
+                $input.removeAttr('checked');
+            } else {
+                $input.attr('checked', 'checked');
+            }
             $input.change();
         }
     });
