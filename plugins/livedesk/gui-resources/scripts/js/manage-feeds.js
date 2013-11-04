@@ -174,7 +174,8 @@ define([
         },
 
         getBlogs: function() {
-            return new ExternalBlogCollection([], {url: this.get('URI')});
+            //@TODO remove the explicit X-Filter parameters and just keep them in the headers
+            return new ExternalBlogCollection([], {url: this.get('URI') + '?X-Filter=Title,Description'});
         },
 
         parse: function(response) {
