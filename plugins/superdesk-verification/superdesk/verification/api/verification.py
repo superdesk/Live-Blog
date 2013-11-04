@@ -9,7 +9,7 @@ Created on Oct 3, 2013
 The API specifications for the post verification.
 '''
 
-from ally.api.config import service
+from ally.api.config import service, call
 from ally.support.api.entity import Entity, IEntityNQService
 
 from superdesk.api.domain_superdesk import modelData
@@ -34,4 +34,12 @@ class IPostVerificationService(IEntityNQService):
     '''
     Post verification model service interface
     '''
+    
+    @call
+    def update(self, postVerification:PostVerification):
+        '''
+        Updates the post verification and increase the CId on blog post.
+        '''
+    
+    
 

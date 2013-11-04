@@ -26,7 +26,7 @@ class User(Person):
     Provides the user model.
     '''
     Uuid = str
-    CId = int
+    Cid = int
     Type = UserType
     Name = str
     CreatedOn = datetime
@@ -49,7 +49,7 @@ class QUser(QPerson):
     Query for user service
     '''
     uuid = AsEqual
-    cId = AsRange
+    cid = AsRange
     name = AsLikeOrdered
     all = AsLike
     createdOn = AsDateTimeOrdered

@@ -93,6 +93,7 @@ define([
         },
         send: function(e) {
             e.preventDefault();
+            var self = this;
 
             if (this.isValid()) {
                 var comment = new Comment({
@@ -108,9 +109,11 @@ define([
                     // },
                     success: function() {
                         view.showAfterMessage(e);
+                        self.resetInput();
                     },
                     error: function(response) {
                         view.showAfterMessage(e);
+                        self.resetInput();
                         /*
                         if (response.status === 401) {
                             Recaptcha.reload();

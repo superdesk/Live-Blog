@@ -3,6 +3,11 @@
 {<ImportantActions}{/ImportantActions}
 {<AdditionalAttributes} data-id="{Meta.Id}"{/AdditionalAttributes}
 {<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
+{<ExtraPostInfo}
+<div class="tool-box-right">
+	{?Meta.DeletedOn}<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_("Unhide");</a>{:else}<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">_("Hide");</a>{/Meta.DeletedOn}
+</div>
+{/ExtraPostInfo}
 {<Container}{/Container}
 {<EditableClass}{/EditableClass}
 {<EditableAttribute}{/EditableAttribute}

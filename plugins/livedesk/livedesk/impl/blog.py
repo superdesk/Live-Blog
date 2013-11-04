@@ -74,8 +74,8 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         sql = self._buildQuery(languageId, userId, q)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def getLive(self, languageId=None, userId=None, q=None):
         '''
@@ -94,6 +94,27 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         self.session().merge(blog)
+        
+    def hide(self, blogId):
+        '''
+        @see: IBlogService.hide
+        '''
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog or credentials'))
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.DeletedOn = current_timestamp() 
+        self.session().merge(blog)   
+        
+        
+    def unhide(self, blogId):
+        '''
+        @see: IBlogService.unhide
+        '''
+        blog = self.session().query(BlogMapped).get(blogId)
+        if not blog: raise InputError(_('Invalid blog or credentials'))
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.DeletedOn = None 
+        self.session().merge(blog)           
 
 
     def insert(self, blog):
@@ -274,8 +295,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
                 else: sql = sql.filter(PostMapped.PublishedOn == None)
 
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
 # --------------------------------------------------------------------
 

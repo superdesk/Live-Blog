@@ -34,7 +34,7 @@ from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
-from superdesk.post.api.post import Post
+from superdesk.post.api.post import Post, IPostService
 from superdesk.verification.api.verification import PostVerification,\
     IPostVerificationService
 from uuid import uuid4
@@ -60,6 +60,9 @@ class BlogSyncProcess:
 
     blogPostService = IBlogPostService; wire.entity('blogPostService')
     # blog post service used to insert blog posts
+    
+    postService = IPostService; wire.entity('postService')
+    # post service used to insert/update posts
     
     postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
     # post verification service used to insert post verification
@@ -144,11 +147,12 @@ class BlogSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
-        if blogSync.SyncStart is not None:
-            q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
+        #if blogSync.SyncStart is not None:
+        #    q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Creator.*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
+        
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
@@ -167,17 +171,23 @@ class BlogSyncProcess:
             try:
                 if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
                 
-                #get the post for the same uuid, blog and source
+                insert = False 
+                if 'Uuid' in post: 
+                    uuid = post['Uuid']
+                    localPost = self.postService.getByUuidAndSource(uuid, source.Id) 
+                else: 
+                    #To support old instances that don't have Uuid attribute
+                    uuid = str(uuid4().hex)
+                    localPost = None 
+                    
+                if localPost == None:      
+                    localPost = Post()
+                    localPost.Uuid = uuid
+                    insert = True
+                
                 #if exists local, update it, otherwise continue the original insert
-
-                localPost = Post()
-                
-                #To support old instances that don't have Uuid attribute 
-                if 'Uuid' in post: localPost.Uuid = post['Uuid']
-                else: localPost.Uuui = str(uuid4().hex)
-                
                 localPost.Type = post['Type']['Key']
-                localPost.Author, localPost.Creator = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
+                localPost.Author, localPost.Creator, needUpdate, isAuthor = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
                 localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 localPost.Content = post['Content'] if 'Content' in post else None
@@ -186,9 +196,10 @@ class BlogSyncProcess:
                 if blogSync.Auto: localPost.PublishedOn = current_timestamp()
   
                 #update the user info if the cId is greater than the local one
-                if localPost.Creator and (localPost.Creator not in usersForIcons):
+                if localPost.Creator and (localPost.Creator not in usersForIcons) and needUpdate:
                     try:
-                        usersForIcons[localPost.Creator] = post['Author']['User']
+                        if isAuthor: usersForIcons[localPost.Creator] = post['Author']['User']
+                        else: usersForIcons[localPost.Creator] = post['Creator']
                     except KeyError:
                         pass
 
@@ -196,16 +207,18 @@ class BlogSyncProcess:
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
                 blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
 
-                # insert post from remote source
-                self.blogPostService.insert(blogSync.Blog, localPost)
+                if insert: self.blogPostService.insert(blogSync.Blog, localPost)
+                else: self.blogPostService.update(blogSync.Blog, localPost)
                 
                 # update blog sync entry
                 self.blogSyncService.update(blogSync)
                 
                 #create PostVerification
-                postVerification = PostVerification()
-                postVerification.Id = localPost.Id
-                self.postVerificationService.insert(postVerification)
+                if insert: 
+                    postVerification = PostVerification()
+                    postVerification.Id = localPost.Id
+                    self.postVerificationService.insert(postVerification)
+                        
                 
             except KeyError as e:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
@@ -233,21 +246,31 @@ class BlogSyncProcess:
         
         user = User()
         
-        if 'User' in author.keys(): userJSON = author['User']  
+        isAuthor = False
+        
+        if 'User' in author: 
+            userJSON = author['User']  
+            isAuthor = True
         else: userJSON = creator
                                             
         #To support old instances that don't have Uuid attribute 
         if 'Uuid' in userJSON: user.Uuid = userJSON.get('Uuid', '')
         else: user.Uuid = str(uuid4().hex)
         
+        if 'CId' in userJSON: cId = userJSON.get('CId', '')
+        else: cId = None
+        
         user.Name = user.Uuid
         user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
         user.EMail, user.Password = userJSON.get('EMail', ''), '*'
         user.Type = self.user_type_key
         
+        needUpdate = False
         try: userId = self.userService.insert(user)
         except InputError:
-            userId = self.userService.getByName(user.Name).Id
+            localUser = self.userService.getByName(user.Name)
+            userId = localUser.Id
+            if not cId or userId.cId < cId: needUpdate = True
             
         collaborator = Collaborator()
         collaborator.User, collaborator.Source = userId, source.Id
@@ -256,18 +279,18 @@ class BlogSyncProcess:
             collaborators = self.collaboratorService.getAll(userId, source.Id)
             collaboratorId = collaborators[0].Id
         
-        if 'User' in author.keys():
-            return [collaboratorId, userId]
+        if 'User' in author:
+            return [collaboratorId, userId, needUpdate, isAuthor]
         else:    
             q = QSource(name=author['Source']['Name'], isModifiable=False)
             sources = self.sourceService.getAll(q=q)
             if not sources: raise Exception('Invalid source %s' % q.name)
             collaborators = self.collaboratorService.getAll(userId=None, sourceId=sources[0].Id)
-            if collaborators: return [collaborators[0].Id, userId]
+            if collaborators: return [collaborators[0].Id, userId, needUpdate, isAuthor]
             else:
                 collaborator = Collaborator()
                 collaborator.Source = sources[0].Id
-                return [self.collaboratorService.insert(collaborator), userId]
+                return [self.collaboratorService.insert(collaborator), userId, needUpdate, isAuthor]
 
     def _updateIcons(self, usersData):
         '''
@@ -276,7 +299,7 @@ class BlogSyncProcess:
         userIcons = {}
         for userId in usersData:
             userJSON = usersData[userId]
-            userIcons[userId] = {'created': None, 'url': None, 'name': None}
+            userIcons[userId] = {'url': None, 'name': None}
 
             try:
                 metaDataIconJSON = userJSON['MetaDataIcon']
@@ -298,10 +321,6 @@ class BlogSyncProcess:
                     log.error('Invalid JSON data %s' % e)
                     continue
 
-                try:
-                    userIcons[userId]['created'] = datetime.strptime(msg.get('CreatedOn', None), '%m/%d/%y %I:%M %p')
-                except:
-                    userIcons[userId]['created'] = None
                 userIcons[userId]['url'] = msg['Content'].get('href', None)
 
                 if userIcons[userId]['url']:
@@ -334,10 +353,10 @@ class BlogSyncProcess:
 
         if metaDataLocal:
             localId = metaDataLocal.Id
-            localCreated = metaDataLocal.CreatedOn
+            localName = metaDataLocal.Name
         else:
             localId = None
-            localCreated = None
+            localName = None
 
         if not localId:
             if iconInfo['url']:
@@ -345,7 +364,8 @@ class BlogSyncProcess:
 
         else:
             if iconInfo['url']:
-                if (not iconInfo['created']) or (not localCreated) or (localCreated < iconInfo['created']):
+                #on changed avatar the name of the file is changed
+                if (not iconInfo['name']) or (not localName) or (localName != iconInfo['name']):
                     shouldRemoveOld = True
                     needToUploadNew = True
             else:

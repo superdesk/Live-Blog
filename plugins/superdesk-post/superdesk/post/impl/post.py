@@ -29,6 +29,8 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
 from uuid import uuid4
+from sqlalchemy.orm.util import aliased
+from sqlalchemy.sql.expression import and_, or_
 
 # --------------------------------------------------------------------
 
@@ -55,6 +57,32 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         Construct the post service.
         '''
         EntityGetServiceAlchemy.__init__(self, PostMapped)
+        
+    def getByUuidAndSource(self, uuid, sourceId):
+        '''
+        @see: IPostService.getByUuidAndSource
+        '''
+        
+        creatorSource = aliased(SourceMapped)
+        authorSource = aliased(SourceMapped)
+        creatorCollaborator = aliased(CollaboratorMapped)
+        athorCollaborator = aliased(CollaboratorMapped)
+        
+        sql = self.session().query(PostMapped)
+        sql = sql.join(creatorCollaborator, PostMapped.Creator == creatorCollaborator.User)
+        sql = sql.join(creatorSource, creatorCollaborator.Source == creatorSource.Id)
+        sql = sql.join(athorCollaborator, PostMapped.Author == athorCollaborator.Id)
+        sql = sql.join(authorSource, athorCollaborator.Source == authorSource.Id)
+        sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
+                             and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
+        sql = sql.filter(PostMapped.Uuid == uuid)
+        
+        try:
+            post = sql.distinct().one()
+        except Exception:
+            post = None
+            
+        return post    
 
     def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -156,8 +184,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
 
         sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def getAllBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
         '''

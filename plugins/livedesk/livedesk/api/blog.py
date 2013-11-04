@@ -92,6 +92,21 @@ class IBlogService(IEntityCRUDService):
         Puts blog live
         @raise InputError: on invalid credentials or blog id 
         '''
+    
+    @call(webName='Hide', method=UPDATE)
+    def hide(self, blogId:Blog.Id):
+        '''
+        Hide the blog
+        @raise InputError: on invalid credentials or blog id 
+        '''    
+        
+    @call(webName='Unhide', method=UPDATE)
+    def unhide(self, blogId:Blog.Id):
+        '''
+        Unhide the blog
+        @raise InputError: on invalid credentials or blog id 
+        '''    
+        
 
 # --------------------------------------------------------------------
 

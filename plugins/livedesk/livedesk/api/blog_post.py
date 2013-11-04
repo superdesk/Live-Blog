@@ -154,12 +154,19 @@ class IBlogPostService:
         '''
         Publishes the post in the blog.
         '''
-        
+    
+    @call(method=INSERT, webName='CId')
+    def updateCid(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Update the Cid for the blog post.
+        ''' 
+            
     @call(method=INSERT, webName='Hide')
     def hide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''
         Hide the post from the blog.
         '''    
+        
     @call(method=INSERT, webName='Unhide')
     def unhide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''

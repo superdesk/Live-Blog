@@ -287,28 +287,18 @@ $.extend(providers.comments, {
     },
     hideComment: function(cmntId) {
         var self = this;
-        var msg = _("Are you sure you want to hide the comment?");
-        var newText = _("Unhide");
-        if ( confirm( msg ) ) {
-            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
-            $.post( url.get() , function( data ) {
-                self.extraItems -- ;
-                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').remove();
-                // $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'true').css('display', 'none');
-                // $( document ).find('li.commentpost a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'unhide').text(newText);
-            });
-        }
+        var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
+        $.post( url.get() , function( data ) {
+            self.extraItems -- ;
+            $( document ).find('li.commentpost[data-id="' + cmntId + '"]').remove();
+        });
     },
     unhideComment: function(cmntId) {
-        var msg = _("Are you sure you want to un-hide the comment?");
-        var newText = _("Hide");
-        if ( confirm( msg ) ) {
-            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
-            $.post( url.get() , function( data ) {
-                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'false').css('display', 'none');
-                $( document ).find('a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'hide').text(newText);
-            });
-        }
+        var self = this;
+        var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
+        $.post( url.get() , function( data ) {
+            $( document ).find('li.commentpost[data-id="' + cmntId + '"]').remove();
+        });
     }
 });
 return providers;

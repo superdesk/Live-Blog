@@ -18,6 +18,9 @@ function($, superdesk, giz, Action, Blog)
     ItemView = giz.View.extend
     ({
         tagName: 'tr',
+        events: {
+            '[data-action="hide"]': { click: 'hide'}
+        },
         model: null,
         init: function()
         {
@@ -37,13 +40,18 @@ function($, superdesk, giz, Action, Blog)
             for( var i in data ) this.model.set(i, data[i]);
             return this.model.sync();
         },
-        /*remove: function()
+        remove: function()
         {
             this.model.remove().sync();
-        },*/
-        hide: function()
+        },
+        hide: function(evt)
         {
-            $(this.el).addClass('hide');
+            evt.preventDefault();
+            var self = this;
+
+            self.model.hideSync().done(function(){
+              self.el.remove();
+            });
         },
         show: function()
         {
@@ -128,8 +136,10 @@ function($, superdesk, giz, Action, Blog)
             
             this.page = { limit: 10, offset: 0, total: null, pagecount: 5 };
             
-            this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('LiveDesk/Blog') })));
-            this.collection.param('Flase','isOpen');
+            //this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('LiveDesk/Blog') })));
+
+            this.collection = giz.Auth(new (giz.Collection.extend({ model: Blog, href: new giz.Url('HR/User/' + localStorage.getItem('superdesk.login.id') + '/Blog' )  })));
+            this.collection.param('false','isOpen');
             this.collection.asc('createdOn');
             this.collection.on('read update', this.renderList, this);
             
@@ -143,7 +153,7 @@ function($, superdesk, giz, Action, Blog)
             var self = this;
             this.collection._list = [];
             this.syncing = true;
-            this.collection.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset},
+            this.collection.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset, isOpen: false},
                 done: function(data){ self.syncing = false; self.page.total = data.total; self.render(); }});
         },
         

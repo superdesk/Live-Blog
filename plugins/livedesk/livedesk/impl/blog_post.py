@@ -86,9 +86,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all()), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct()), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
 
@@ -116,10 +116,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))    
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
+        
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), unpublished=False, published=True), thumbSize)
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct(), unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
         return posts
     
@@ -142,8 +143,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
                              and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
         
-        sql = sql.filter(CollaboratorMapped.Source == sourceId)
-        
         deleted = False
         if q:
             if QBlogPostUnpublished.isDeleted in q:
@@ -158,12 +157,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
-                            
+                                   
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
-        posts = self._addImages(self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True), thumbSize)
+ 
+        posts = self._addImages(self._trimPosts(sqlLimit.distinct(), deleted= not deleted, unpublished=False, published=True), thumbSize)
         if detailed:
-            posts = IterPost(posts, sql.count(), offset, limit)
+            posts = IterPost(posts, sql.distinct().count(), offset, limit)
             
             lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
             lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Creator == CollaboratorMapped.User)
@@ -191,7 +191,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.order_by(desc_op(BlogPostMapped.Creator))
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._addImages(sql.all())
+        return self._addImages(sql.distinct())
 
     def getOwned(self, blogId, creatorId, typeId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
@@ -245,6 +245,18 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         self.postService.update(post)
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
+        self.session().merge(postEntry)
+
+        return postId
+    
+    
+    def updateCid(self, blogId, postId):
+        '''
+        @see: IBlogPostService.updateCid
+        '''
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=postId)
         postEntry.CId = self._nextCId()
         postEntry.Order = self._nextOrdering(blogId)
         self.session().merge(postEntry)
