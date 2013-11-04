@@ -33,7 +33,7 @@ class UserMapped(PersonMapped, User):
 
     Name = Column('name', String(150), nullable=False, unique=True)
     Uuid = Column('uuid', String(32), unique=True)
-    Cid = Column('cid', INTEGER(unsigned=True), nullable=False, default=0)
+    Cid = Column('cid', INTEGER(unsigned=True), nullable=True, default=0)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     Active = Column('active', Boolean, nullable=False, default=True)
     Type = association_proxy('type', 'Key')
