@@ -51,14 +51,13 @@ $.extend(providers.comments, {
             });
             //show hidden 
             self.el.on('click','[data-type="hidden-toggle"]', function( e ){
+                $(this).toggleClass('active');
                 if ( $(this).attr('data-active') == 'false' ) {
                     $(this).attr('data-active', 'true');
-                    $(this).css('background-color', '#DDDDDD');
                     //show hidden comments
                     self.getComments({cId: -1, clearResults: true});
                 } else {
                     $(this).attr('data-active', 'false');
-                    $(this).css('background-color', '#f2f2f2');
                     //hide hidden comments
                     self.getComments({cId: -1, clearResults: true});
                 }
