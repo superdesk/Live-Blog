@@ -297,6 +297,20 @@ background: #f0f0f0;
 							}
 						}
 
+						.verification-label {
+							width: 16px;
+							height: 16px;
+							display: none;
+							float: left;
+						}
+						.post-verified .verification-label {
+							display: block;
+							background: url(img/icon_verified.png) no-repeat 0 0;
+						}
+						.post-unverified .verification-label {
+							display: block;
+							background: url(img/icon_unverified.png) no-repeat 0 0;
+						}
 						.post-comment {
 							font-size: @user-text-size;
 							&.comment-before {

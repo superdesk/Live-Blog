@@ -8,6 +8,9 @@ _('Share');
 	<div class="result-header">
 		{+PostInfo}
 		<div class="post_info">
+			{+VerificationInfo}
+			<a class="verification-label" title="verification status"></a>
+			{/VerificationInfo}
 			{+TimeInfo}
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>
 			{/TimeInfo}
