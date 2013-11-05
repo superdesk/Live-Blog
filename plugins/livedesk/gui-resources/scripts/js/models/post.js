@@ -50,7 +50,7 @@ function(Gizmo, Person)
 			var
 				self = this,
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
-                ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
+                ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order, IsPublished'}}).done(function(data){
 					self._parse(data);
 					self.Class.triggerHandler('publish', self);
 				});

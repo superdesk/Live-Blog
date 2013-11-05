@@ -215,7 +215,6 @@ define([
 			},
 			toggleMoreVisibility: function()
 			{
-				console.log('toggleMoreVisibility');
 				var self = this;
 				if(self.moreHidden)
 					return;
@@ -371,8 +370,10 @@ define([
 				this.orderOne(postView);
 			},
 			addAll: function(evt, data){
-				for(var i = 0, count = data.length; i < count; i++) {
-					this.addOne(data[i]);
+				if(data) {
+					for(var i = 0, count = data.length; i < count; i++) {
+						this.addOne(data[i]);
+					}
 				}
 			},
 			search: function(what) {

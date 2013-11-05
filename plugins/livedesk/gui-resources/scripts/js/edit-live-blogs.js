@@ -126,7 +126,7 @@ function(providers, Gizmo, $, BlogAction)
 						links.append(providerLinkView.render().el);
 						contents.append(providerContentView.render().el);
 					}
-                                        $("[rel='tooltip']").tooltip();
+                    $("[rel='tooltip']").tooltip();
 				});
 			}
 		}),
@@ -138,6 +138,43 @@ function(providers, Gizmo, $, BlogAction)
 		({
 			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published'),
+			init: function(){
+				var self = this;
+				self.autoInit();
+				self.model.on('publish', function(evt, model){
+					console.log('model hash: ', model.hash());
+					self.clientSet(model);
+				});
+			},
+			clientSet: function(data) {
+				var self = this;
+				if(!Array.isArray(data)) {
+					data = [data];
+				}
+				for(var i = 0, counti = data.length; i < counti; i++) {
+					console.log(data[i].get('Id'));
+					if(!self.isCollectionDeleted(data[i])) {
+						console.log('add');
+						self._list.push(data[i]);
+						for(var arr = [], i=0, count = self._list.length; i < count; i++){
+							arr.push(self._list[i].get('Id'));
+						}
+						console.log('clientSet: ',arr.join(', '));						
+					} else {
+						console.log('remove');
+						var model = false;
+						for( var j=0, countj = self._list.length; j < countj; j++ ) {
+							if(self._list[j] == data[i]) {
+								model = j;
+								break;
+							}
+						}
+						if(model !== false) {
+							self._list.splice(j,1);
+						}
+					}
+				}
+			},
 			parse: function(data) {
 				if(data.total)
 					if(data.offsetMore !== data.total) {
@@ -149,10 +186,12 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			isCollectionDeleted: function(model)
 	        {
+	        	console.log('IsPublished: ',model.get('IsPublished'))
 	        	var IsPublished = model.get('IsPublished') === 'True'?  true : false;
 				if(!IsPublished) {
 					delete model.data["PublishedOn"];
 				}
+				console.log('isCollectionDeleted: ',!IsPublished);
 	        	return !IsPublished;
 	        }	
 		}),
@@ -645,6 +684,7 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			addAll: function(data)
 			{
+				console.log(data);
 				var i = data.length;
 				while(i--) {
 					this.addOne(data[i]);
