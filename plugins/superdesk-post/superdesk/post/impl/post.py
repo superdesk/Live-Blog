@@ -29,8 +29,6 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
 from uuid import uuid4
-from sqlalchemy.orm.util import aliased
-from sqlalchemy.sql.expression import and_, or_
 
 # --------------------------------------------------------------------
 
@@ -63,18 +61,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         @see: IPostService.getByUuidAndSource
         '''
         
-        creatorSource = aliased(SourceMapped)
-        authorSource = aliased(SourceMapped)
-        creatorCollaborator = aliased(CollaboratorMapped)
-        athorCollaborator = aliased(CollaboratorMapped)
-        
         sql = self.session().query(PostMapped)
-        sql = sql.join(creatorCollaborator, PostMapped.Creator == creatorCollaborator.User)
-        sql = sql.join(creatorSource, creatorCollaborator.Source == creatorSource.Id)
-        sql = sql.join(athorCollaborator, PostMapped.Author == athorCollaborator.Id)
-        sql = sql.join(authorSource, athorCollaborator.Source == authorSource.Id)
-        sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
-                             and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
+        sql = sql.filter(PostMapped.Feed == sourceId)
         sql = sql.filter(PostMapped.Uuid == uuid)
         
         try:

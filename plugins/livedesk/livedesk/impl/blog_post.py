@@ -25,7 +25,7 @@ from livedesk.meta.blog_collaborator_group import BlogCollaboratorGroupMemberMap
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
-from sqlalchemy.sql.expression import func, or_, and_
+from sqlalchemy.sql.expression import func, or_
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -34,7 +34,6 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
-from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -129,19 +128,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
-        
-        creatorSource = aliased(SourceMapped)
-        authorSource = aliased(SourceMapped)
-        creatorCollaborator = aliased(CollaboratorMapped)
-        athorCollaborator = aliased(CollaboratorMapped)
-        
+              
         sql = self.session().query(BlogPostMapped)
-        sql = sql.join(creatorCollaborator, BlogPostMapped.Creator == creatorCollaborator.User)
-        sql = sql.join(creatorSource, creatorCollaborator.Source == creatorSource.Id)
-        sql = sql.join(athorCollaborator, BlogPostMapped.Author == athorCollaborator.Id)
-        sql = sql.join(authorSource, athorCollaborator.Source == authorSource.Id)
-        sql = sql.filter(or_(and_(authorSource.IsModifiable == True, athorCollaborator.Source == sourceId), \
-                             and_(authorSource.IsModifiable == False, creatorCollaborator.Source == sourceId)))
+        sql = sql.filter(BlogPostMapped.Feed == sourceId)
         
         deleted = False
         if q:
