@@ -114,18 +114,19 @@ class SmsSyncProcess:
         source = self.sourceService.getById(smsSync.Source)
         assert isinstance(source, Source)
 
-        feedId = self.sourceService.getOriginalSource(source.Id)
+        providerId = self.sourceService.getOriginalSource(source.Id)
 
         q=QPost()
         q.cId.since = str(smsSync.LastId) 
         
-        posts = self.postService.getAllBySource(feedId, q=q)
+        posts = self.postService.getAllBySource(providerId, q=q)
 
         for post in posts:
             try:
                 smsPost = Post()
                 smsPost.Type = post.Type
                 smsPost.Creator = post.Creator
+                smsPost.Feed = source.Id
                 smsPost.Meta = post.Meta
                 smsPost.ContentPlain = post.ContentPlain
                 smsPost.Content = post.Content

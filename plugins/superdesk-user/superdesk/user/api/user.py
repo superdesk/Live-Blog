@@ -64,7 +64,7 @@ class IUserService(IEntityService):
     '''
     
     @call
-    def getByName(self, name:User.Name) -> User:
+    def getByUuid(self, name:User.Uuid) -> User:
         '''
         Returns the user by name
         '''

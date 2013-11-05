@@ -188,6 +188,7 @@ class BlogSyncProcess:
                 #if exists local, update it, otherwise continue the original insert
                 localPost.Type = post['Type']['Key']
                 localPost.Author, localPost.Creator, needUpdate, isAuthor = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
+                localPost.Feed = source.Id
                 localPost.Meta = post['Meta'] if 'Meta' in post else None
                 localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 localPost.Content = post['Content'] if 'Content' in post else None
@@ -268,7 +269,7 @@ class BlogSyncProcess:
         needUpdate = False
         try: userId = self.userService.insert(user)
         except InputError:
-            localUser = self.userService.getByName(user.Name)
+            localUser = self.userService.getByUuid(user.Uuid)
             userId = localUser.Id
             if not cId or userId.cId < cId: needUpdate = True
             

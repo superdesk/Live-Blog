@@ -183,6 +183,7 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         post.Type = self.post_type_key
         post.Creator = userId
         post.Author = collabId
+        post.Feed = sourceId
         post.Content = commentText
         post.CreatedOn = datetime.now()
 

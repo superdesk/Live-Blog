@@ -24,6 +24,7 @@ from superdesk.post.meta.type import PostTypeMapped
 from superdesk.user.meta.user import UserMapped
 from ally.container.binder_op import validateManaged, validateRequired, \
     EVENT_PROP_UPDATE
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ class PostMapped(Base, Post):
     Type = association_proxy('type', 'Key')
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
+    Feed = Column('fk_feed_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'))
     Meta = Column('meta', TEXT)
     ContentPlain = Column('content_plain', TEXT)
     Content = Column('content', TEXT)

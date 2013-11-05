@@ -35,6 +35,7 @@ class Post(Entity):
     Creator = User
     Author = Collaborator
     PostVerification = PostVerification
+    Feed = Source
     IsModified = bool
     IsPublished = bool
     Meta = str
