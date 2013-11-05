@@ -552,7 +552,6 @@ color:#484848;
     font-size: 11px;
     padding:0;
     color:#262626;
-    width: 100%;
     max-height: 14px;
     overflow: hidden;
     display: block;
@@ -716,6 +715,22 @@ li.loading-more:hover{
     background: none !important ;
 }
 
+.verification-label {
+    width: 16px;
+    height: 16px;
+    display: block;
+    float: left;
+    margin-right: 7px;
+    display: none;
+}
+.post-verified .verification-label {
+    display: block;
+    background: url(img/icon_verified.png) no-repeat 0 0;
+}
+.post-unverified .verification-label {
+    display: block;
+    background: url(img/icon_unverified.png) no-repeat 0 0;
+}
 
 .sf-share {
     position: absolute;
