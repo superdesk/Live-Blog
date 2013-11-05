@@ -663,6 +663,26 @@ li.loading-more:hover{
     background: none !important ;
 }
 
+.post_info {
+    height: 16px;
+    line-height: 16px;
+}
+.verification-label {
+    width: 16px;
+    height: 16px;
+    display: block;
+    float: left;
+    margin-right: 7px;
+    display: none;
+}
+.post-verified .verification-label {
+    display: block;
+    background: url(img/icon_verified.png) no-repeat 0 0;
+}
+.post-unverified .verification-label {
+    display: block;
+    background: url(img/icon_unverified.png) no-repeat 0 0;
+}
 
 .sf-share {
     position: absolute;
