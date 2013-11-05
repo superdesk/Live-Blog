@@ -14,11 +14,13 @@ from ..meta.user_type import UserTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityNQServiceAlchemy, EntitySupportAlchemy
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IUserTypeService, name='userTypeService')
+@validate(UserTypeMapped)
 class UserTypeServiceAlchemy(EntityNQServiceAlchemy, IUserTypeService):
     '''
     Implementation for @see: IUserTypeService

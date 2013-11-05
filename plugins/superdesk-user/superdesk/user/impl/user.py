@@ -22,11 +22,13 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import or_
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IUserService, name='userService')
+@validate(UserMapped)
 class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
     '''
     Implementation for @see: IUserService

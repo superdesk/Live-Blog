@@ -19,17 +19,16 @@ from support.meta.configuration import WithConfiguration
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func, case
-from ally.container.binder_op import validateManaged
 from livedesk.meta.blog_type import BlogTypeMapped
 from sqlalchemy.ext.hybrid import hybrid_property
 from superdesk.source.meta.source import SourceMapped
 from superdesk.language.meta.language import LanguageAvailable
-from sql_alchemy.support.mapper import validate
 from sql_alchemy.support.util_meta import relationshipModel
+from ally.api.validate import validate, ReadOnly
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('CreatedOn',))
+@validate(ReadOnly(Blog.CreatedOn))
 class BlogMapped(Base, Blog):
     '''
     Provides the mapping for Blog.
@@ -57,8 +56,6 @@ class BlogMapped(Base, Blog):
     def _IsLive(cls):  # @NoSelf
         return case([((cls.LiveOn != None) & (cls.ClosedOn == None), True)], else_=False)
 
-# validateManaged(BlogMapped.CreatedOn)
-
 # --------------------------------------------------------------------
 
 from livedesk.meta.blog_post import BlogPostMapped
@@ -81,7 +78,6 @@ class BlogSourceDB(Base):
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('Name',))
 class BlogConfigurationMapped(Base, WithConfiguration, Configuration):
     '''
     Provides the mapping for BlogConfiguration.

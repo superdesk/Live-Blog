@@ -19,11 +19,13 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataReferencer, \
     IThumbnailManager
 from superdesk.media_archive.meta.image_data import ImageDataMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IImageDataService, name='imageDataService')
+@validate(ImageDataMapped)
 class ImageDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IImageDataService):
     '''
     @see: IImageDataService

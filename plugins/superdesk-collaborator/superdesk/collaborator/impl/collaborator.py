@@ -18,11 +18,13 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.user.meta.user import UserMapped
 from sqlalchemy.sql.expression import or_
 from sql_alchemy.support.util_service import buildQuery, iterateCollection
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ICollaboratorService, name='collaboratorService')
+@validate(CollaboratorMapped)
 class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorService):
     '''Implementation for @see: ICollaboratorService'''
 

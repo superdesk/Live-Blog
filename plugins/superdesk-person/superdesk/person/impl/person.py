@@ -13,11 +13,13 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from ..meta.person import PersonMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IPersonService, name='personService')
+@validate(PersonMapped)
 class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     '''
     Implementation for @see: IPersonService

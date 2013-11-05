@@ -15,11 +15,13 @@ from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy, \
     EntityFindServiceAlchemy
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IMetaTypeService, name='metaTypeService')
+@validate(MetaTypeMapped)
 class MetaTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IMetaTypeService):
     '''Implementation based on SQL alchemy for @see: IMetaTypeService'''
 

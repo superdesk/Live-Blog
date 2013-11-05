@@ -16,8 +16,8 @@ from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
-from sql_alchemy.support.mapper import validate
 from sql_alchemy.support.util_meta import relationshipModel
+from ally.api.validate import validate, ReadOnly
 
 # --------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class BlogMediaTypeMapped(Base, BlogMediaType):
 
 # --------------------------------------------------------------------
 
-@validate(exclude=['Type', 'Rank'])
+@validate(ReadOnly(BlogMedia.Type), ReadOnly(BlogMedia.Rank))
 class BlogMediaMapped(Base, BlogMedia):
     '''
     Provides the mapping for BlogMedia.

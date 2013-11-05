@@ -30,11 +30,13 @@ from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from ally.api.error import InputError
 from superdesk.language.meta.language import LanguageAvailable
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IMetaDataUploadService, name='metaDataService')
+@validate(MetaDataMapped)
 class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService):
     '''Implementation for @see: IMetaDataService, @see: IMetaDataUploadService , and also provides services
     as the @see: IMetaDataReferencer
@@ -80,7 +82,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         if not content.name: raise InputError(_('No name specified for content'))
 
         if self.languageId is None:
-            self.languageId = self.session().query(LanguageAvailable).filter(LanguageAvailable.code == self.default_media_language).one().id
+            self.languageId = self.session().query(LanguageAvailable).filter(LanguageAvailable.Code == self.default_media_language).one().id
 
         metaData = MetaDataMapped()
         metaData.Creator = userId

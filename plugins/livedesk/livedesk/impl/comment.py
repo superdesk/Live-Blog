@@ -33,11 +33,14 @@ from ally.internationalization import _
 import os, binascii
 from sql_alchemy.support.util_service import buildQuery, iterateCollection
 from ally.api.error import InputError
+from ally.api.validate import validate, Mandatory
+from livedesk.api.comment import BlogComment
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IBlogCommentService, name='blogCommentService')
+@validate(Mandatory(BlogComment.UserName), Mandatory(BlogComment.Text), Mandatory(BlogComment.Source))
 class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
     '''
     Implementation for @see: IBlogCommentService

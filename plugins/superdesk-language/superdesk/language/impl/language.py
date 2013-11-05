@@ -20,11 +20,13 @@ from babel.localedata import locale_identifiers
 from collections import OrderedDict
 from sql_alchemy.support.util_service import SessionSupport
 from sqlalchemy.orm.exc import NoResultFound
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ILanguageService, name='languageService')
+@validate(LanguageAvailable)
 class LanguageServiceBabelAlchemy(SessionSupport, ILanguageService):
     '''
     Implementation for @see: ILanguageService using Babel library.

@@ -27,6 +27,7 @@ from superdesk.user.meta.user import UserMapped
 from sql_alchemy.support.util_service import SessionSupport, iterateCollection, \
     buildQuery
 from ally.api.error import InputError
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -54,6 +55,7 @@ class CollaboratorSpecification:
 
 @injected
 @setup(IBlogCollaboratorService, name='blogCollaboratorService')
+@validate(BlogCollaboratorMapped)
 class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
     Implementation for @see: IBlogCollaboratorService

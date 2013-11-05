@@ -16,11 +16,9 @@ from sqlalchemy.types import String, Boolean
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.source.meta.type import SourceTypeMapped
 from sql_alchemy.support.util_meta import relationshipModel
-from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
-@validate(exclude=['Type'])
 class SourceMapped(Base, Source):
     '''Provides the mapping for Source.'''
     __tablename__ = 'source'

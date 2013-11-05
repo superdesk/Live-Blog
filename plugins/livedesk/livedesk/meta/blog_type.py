@@ -14,11 +14,9 @@ from livedesk.api.blog_type import BlogType
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
-from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
-@validate
 class BlogTypeMapped(Base, BlogType):
     '''
     Provides the mapping for Blog.

@@ -18,6 +18,7 @@ from livedesk.api.blog_type_post import BlogTypePost
 from livedesk.meta.blog_type import BlogTypeMapped
 #from sql_alchemy.support.mapper import validate
 from sql_alchemy.support.util_meta import relationshipModel
+from ally.api.validate import validate, ReadOnly
 
 # --------------------------------------------------------------------
 
@@ -35,11 +36,9 @@ class BlogTypePostEntry(Base):
     blogTypePostId = Column('fk_post_id', ForeignKey(PostMapped.Id, ondelete='CASCADE'), primary_key=True)
     # Never map over the inherited id
 
-#@validate(exclude=('Order',))
+@validate(ReadOnly(BlogTypePost.Order))
 class BlogTypePostMapped(BlogTypePostEntry, PostMapped, BlogTypePost):
     '''
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
 
-# TODO: uncomment when validate fixed
-# validateManaged(BlogTypePostMapped.Order)

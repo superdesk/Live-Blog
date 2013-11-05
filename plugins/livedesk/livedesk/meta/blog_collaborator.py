@@ -19,6 +19,7 @@ from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.types import String
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
+from ally.api.validate import validate, ReadOnly
 
 # --------------------------------------------------------------------
 
@@ -57,7 +58,6 @@ class BlogCollaboratorEntry(Base, BlogCollaboratorDefinition):
     Provides the mapping for BlogCollaborator entry.
     '''
 
-# @validate(exclude=('Type',)) #TODO: cehck why this breaks.
 class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, BlogCollaborator):
     '''
     Provides the mapping for BlogCollaborator.

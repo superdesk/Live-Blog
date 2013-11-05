@@ -19,11 +19,13 @@ from ally.api.criteria import AsLike
 from sql_alchemy.support.util_service import iterateCollection, buildQuery
 from functools import reduce
 from sqlalchemy.sql.expression import or_
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(ISourceService, name='sourceService')
+@validate(SourceMapped)
 class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
     '''Implementation for @see: ISourceService'''
     allNames = (SourceMapped.Name, SourceMapped.URI)

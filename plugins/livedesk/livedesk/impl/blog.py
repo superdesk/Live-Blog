@@ -33,19 +33,20 @@ from superdesk.source.api.source import ISourceService, Source, QSource
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from support.core.impl.configuration import ConfigurationServiceAlchemy
-
 from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, \
     IBlogConfigurationService
 from ..meta.blog import BlogMapped, BlogConfigurationMapped
-
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
+
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IBlogService, name='blogService')
+@validate(BlogMapped)
 class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
@@ -171,6 +172,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
 
 @injected
 @setup(IBlogSourceService, name='blogSourceService')
+@validate(SourceMapped)
 class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
     '''
     Implementation for @see: IBlogSourceService
@@ -281,6 +283,7 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
 # --------------------------------------------------------------------
 
 @setup(IBlogConfigurationService, name='blogConfigurationService')
+@validate(BlogConfigurationMapped)
 class BlogConfigurationServiceAlchemy(ConfigurationServiceAlchemy, IBlogConfigurationService):
     '''
     Implementation for @see: IBlogConfigurationService

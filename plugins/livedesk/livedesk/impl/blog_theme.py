@@ -17,6 +17,7 @@ from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme
 from livedesk.meta.blog_theme import BlogThemeMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 import logging
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ log = logging.getLogger(__name__)
 
 @injected
 @setup(IBlogThemeService, name='blogThemeService')
+@validate(BlogThemeMapped)
 class BlogThemeServiceAlchemy(EntityServiceAlchemy, IBlogThemeService):
     '''
     Implementation for @see: IBlogThemeService

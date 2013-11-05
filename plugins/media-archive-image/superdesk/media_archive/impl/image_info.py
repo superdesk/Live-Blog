@@ -21,12 +21,14 @@ from superdesk.media_archive.meta.image_data import ImageDataMapped, \
 from superdesk.media_archive.meta.image_info import ImageInfoMapped, \
     ImageInfoEntry
 from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
+from ally.api.validate import validate
 
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IImageInfoService, name='imageInfoService')
+@validate(ImageInfoMapped)
 class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
     @see: IImageInfoService

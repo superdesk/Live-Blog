@@ -24,6 +24,7 @@ from sqlalchemy.sql.functions import current_timestamp
 from sql_alchemy.support.util_service import iterateCollection, buildQuery, \
     insertModel, updateModel
 from ally.api.error import IdError, InputError
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -31,6 +32,7 @@ COPY_EXCLUDE = ('Type', 'IsModified', 'IsPublished', 'AuthorName')
 
 @injected
 @setup(IPostService, name='postService')
+@validate(PostMapped)
 class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''Implementation for @see: IPostService'''
     default_source_name = 'internal'; wire.config('default_source_name', doc='''

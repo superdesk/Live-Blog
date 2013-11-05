@@ -19,11 +19,13 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataReferencer, \
     IThumbnailManager
 from superdesk.media_archive.meta.audio_data import AudioDataMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IAudioDataService, name='audioDataService')
+@validate(AudioDataMapped)
 class AudioDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IAudioDataService):
     '''
     Implementation for see @see: IAudioDataService

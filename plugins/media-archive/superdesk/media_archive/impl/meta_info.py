@@ -22,12 +22,14 @@ from superdesk.media_archive.core.impl.query_service_creator import \
 from superdesk.media_archive.core.spec import IQueryIndexer
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from superdesk.media_archive.api.meta_data import IMetaDataService
+from ally.api.validate import validate
 
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IMetaInfoService, name='metaInfoService')
+@validate(MetaInfoMapped)
 class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     '''
     Implementation for @see: IMetaInfoService

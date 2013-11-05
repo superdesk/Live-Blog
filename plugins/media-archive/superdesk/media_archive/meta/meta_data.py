@@ -13,7 +13,7 @@ from ..api.meta_data import MetaData
 from .meta_type import MetaTypeMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, DateTime, Integer, TIMESTAMP
+from sqlalchemy.types import String, Integer, TIMESTAMP
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import UserMapped
 from ally.internationalization import N_

@@ -34,6 +34,7 @@ from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
     iterateCollection
 from ally.api.error import InputError
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ UserPerson = aliased(PersonMapped)
 
 @injected
 @setup(IBlogPostService, name='blogPostService')
+@validate(BlogPostMapped)
 class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService

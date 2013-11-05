@@ -21,12 +21,14 @@ from superdesk.media_archive.meta.video_data import VideoDataMapped,\
 from superdesk.media_archive.meta.video_info import VideoInfoMapped,\
     VideoInfoEntry
 from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
+from ally.api.validate import validate
 
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IVideoInfoService, name='videoInfoService')
+@validate(VideoInfoMapped)
 class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
     '''
     @see: IVideoInfoService

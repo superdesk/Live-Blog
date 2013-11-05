@@ -26,6 +26,7 @@ import logging
 from sql_alchemy.support.util_service import SessionSupport
 from ally.api.error import InputError
 from sql_alchemy.support.mapper import InsertFromSelect, tableFor
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ log = logging.getLogger(__name__)
 
 @injected
 @setup(IBlogCollaboratorGroupService, IBlogCollaboratorGroupCleanupService, name='blogCollaboratorGroupService')
+@validate(BlogCollaboratorGroupMapped)
 class BlogCollaboratorGroupService(SessionSupport, IBlogCollaboratorGroupService, IBlogCollaboratorGroupCleanupService):
     '''
     Implementation for @see: IBlogCollaboratorGroupService

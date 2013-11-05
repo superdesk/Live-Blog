@@ -19,10 +19,12 @@ from superdesk.source.meta.type import SourceTypeMapped
 from ally.container import wire
 from sqlalchemy.sql.expression import or_
 from sql_alchemy.support.util_service import buildQuery, iterateCollection
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @setup(IBlogSyncService, name='blogSyncService')
+@validate(BlogSyncMapped)
 class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
     '''
     Implementation for @see IBlogSyncService

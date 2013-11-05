@@ -10,7 +10,6 @@ Contains the SQL alchemy meta for person API.
 '''
 
 from ..api.person import Person
-from sql_alchemy.support.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.schema import Column
@@ -20,7 +19,6 @@ from superdesk.meta.metadata_superdesk import Base
 
 # --------------------------------------------------------------------
 
-@validate
 class PersonMapped(Base, Person):
     '''
     Provides the mapping for Person entity.

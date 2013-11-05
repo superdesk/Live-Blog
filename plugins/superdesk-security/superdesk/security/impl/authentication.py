@@ -33,6 +33,7 @@ from superdesk.user.meta.user import UserMapped
 import hashlib
 import hmac
 import logging
+from ally.api.validate import validate, Mandatory
 
 # --------------------------------------------------------------------
 
@@ -56,6 +57,8 @@ class Solicit(Context):
 
 @injected
 @setup(IAuthenticationService, ICleanupService, name='authenticationService')
+@validate(Mandatory(Authentication.Token), Mandatory(Authentication.HashedToken),
+          Mandatory(Authentication.UserName), Mandatory(Login.Session))
 class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, ICleanupService):
     '''
     The service implementation that provides the authentication.

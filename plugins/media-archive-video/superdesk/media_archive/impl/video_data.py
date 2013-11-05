@@ -19,11 +19,13 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataReferencer, \
     IThumbnailManager
 from superdesk.media_archive.meta.video_data import VideoDataMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IVideoDataService, name='videoDataService')
+@validate(VideoDataMapped)
 class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IVideoDataService):
     '''
     @see: IVideoDataService

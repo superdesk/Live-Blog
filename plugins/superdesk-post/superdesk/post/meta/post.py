@@ -20,14 +20,12 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.user.meta.user import UserMapped
-from ally.container.binder_op import validateManaged, validateRequired, \
-    EVENT_PROP_UPDATE
-from sql_alchemy.support.mapper import validate
 from sql_alchemy.support.util_meta import relationshipModel
+from ally.api.validate import validate, ReadOnly
 
 # --------------------------------------------------------------------
 
-@validate(exclude=('Type', 'CreatedOn', 'UpdatedOn', 'DeletedOn', 'PublishedOn'))
+@validate(*map(ReadOnly, (Post.CreatedOn, Post.UpdatedOn, Post.DeletedOn)))
 class PostMapped(Base, Post):
     '''
     Provides the mapping for Post.
@@ -76,13 +74,3 @@ class PostMapped(Base, Post):
     @AuthorName.expression
     def _AuthorName(cls):
         return case([(cls.Author == None, UserMapped.Name)], else_=CollaboratorMapped.Name)
-
-# TODO: uncomment when validation implemented
-# validateRequired(PostMapped.Type)
-# validateManaged(PostMapped.Type, key=EVENT_PROP_UPDATE)
-# validateManaged(PostMapped.Author, key=EVENT_PROP_UPDATE)
-
-# validateManaged(PostMapped.CreatedOn)
-# validateManaged(PostMapped.PublishedOn)
-# validateManaged(PostMapped.UpdatedOn)
-# validateManaged(PostMapped.DeletedOn)

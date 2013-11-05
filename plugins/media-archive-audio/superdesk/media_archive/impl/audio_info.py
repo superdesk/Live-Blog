@@ -22,12 +22,14 @@ from superdesk.media_archive.meta.audio_data import AudioDataEntry, \
 from superdesk.media_archive.meta.audio_info import AudioInfoMapped, \
     AudioInfoEntry
 from superdesk.media_archive.core.impl.query_service_creator import ISearchProvider
+from ally.api.validate import validate
 
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IAudioInfoService, name='audioInfoService')
+@validate(AudioInfoMapped)
 class AudioInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IAudioInfoService):
     '''
     @see: IAudioInfoService

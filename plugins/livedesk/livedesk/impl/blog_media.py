@@ -19,11 +19,13 @@ from ally.container.support import setup
 from sqlalchemy import func
 from ally.api.error import InputError
 from sql_alchemy.support.util_service import iterateCollection
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IBlogMediaTypeService, name='blogMediaTypeService')
+@validate(BlogMediaTypeMapped)
 class BlogMediaTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IBlogMediaTypeService):
     '''
     Implementation for @see: IBlogMediaTypeService
@@ -39,6 +41,7 @@ class BlogMediaTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlch
 
 @injected
 @setup(IBlogMediaService, name='blogMediaService')
+@validate(BlogMediaMapped)
 class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
     '''
     Implementation for @see: IBlogMediaService

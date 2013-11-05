@@ -19,6 +19,7 @@ from sqlalchemy.exc import OperationalError
 import logging
 from superdesk.post.meta.post import PostMapped
 from ally.api.error import InputError
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ log = logging.getLogger(__name__)
 
 @injected
 @setup(IBlogTypeService, name='blogTypeService')
+@validate(BlogTypeMapped)
 class BlogTypeServiceAlchemy(EntityNQServiceAlchemy, IBlogTypeService):
     '''
     Implementation for @see: IBlogTypeService

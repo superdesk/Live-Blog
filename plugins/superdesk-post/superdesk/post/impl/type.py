@@ -14,11 +14,13 @@ from ..meta.type import PostTypeMapped
 from ally.container.ioc import injected
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy, EntityFindServiceAlchemy
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
 @injected
 @setup(IPostTypeService, name='postTypeService')
+@validate(PostTypeMapped)
 class PostTypeServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, IPostTypeService):
     '''Implementation for @see: IPostTypeService'''
 

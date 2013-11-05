@@ -14,11 +14,9 @@ from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 from livedesk.api.blog_theme import BlogTheme
-from sql_alchemy.support.mapper import validate
 
 # --------------------------------------------------------------------
 
-@validate
 class BlogThemeMapped(Base, BlogTheme):
     '''
     Provides the mapping for BlogTheme.

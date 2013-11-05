@@ -27,6 +27,7 @@ from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
     iterateCollection
 from ally.api.error import InputError
 from livedesk.meta.blog_type import BlogTypeMapped
+from ally.api.validate import validate
 
 # --------------------------------------------------------------------
 
@@ -34,6 +35,7 @@ UserPerson = aliased(PersonMapped)
 
 @injected
 @setup(IBlogTypePostService, name='blogTypePostService')
+@validate(BlogTypePostMapped)
 class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
     '''
     Implementation for @see: IBlogPostService
