@@ -30,6 +30,7 @@ $.extend(providers.sms, {
     topIds: [],
     total: [],
     extraItems: [],
+    curFeedId: -1,
     smsType: 'smsblog',
     keyword:[],
     prepareAuxData: function(feeds) {
@@ -163,6 +164,7 @@ $.extend(providers.sms, {
         $('.sms-clear-search[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-list[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-load-more-holder[data-feed-id="' + feedId + '"]').css('display','block');
+        self.curFeedId = feedId;
         self.getAllSmss({feedId: feedId});
     },
     render: function(){
@@ -201,7 +203,7 @@ $.extend(providers.sms, {
         $('.sms-results-holder').css({'top': top_space});
 
         //show hidden 
-        self.el.on('click','[data-type="hidden-toggle"]', function( e ){
+        self.el.off('click','[data-type="hidden-toggle-sms"]').on('click','[data-type="hidden-toggle-sms"]', function( e ){
             $(this).toggleClass('active');
             if ( $(this).attr('data-active') == 'false' ) {
                 $(this).attr('data-active', 'true');
@@ -218,12 +220,39 @@ $.extend(providers.sms, {
         var self = this;
         var feedId = self.getActiveTab();
         var cId = self.topIds[feedId];
-        if ( $( document ).find('a[data-type="hidden-toggle"]').attr('data-active') != 'true' ) {
+        if ( $( document ).find('a[data-type="hidden-toggle-sms"]').attr('data-active') != 'true' ) {
             self.getAllSmss({cId: cId, prepend: true, feedId: feedId});
         }
     },
     getActiveTab: function() {
         return parseInt($('.sms-header .feed-info button.active').attr('data-feed-id'));
+    },
+    getHiddenToggle: function() {
+        return $( document ).find('a[data-type="hidden-toggle-sms"]').attr('data-active');
+    },
+    conflictingResults: function() {
+        var self = this;
+        var activeTab = self.curFeedId;
+        var firstItem = self.el.find('ul[data-feed-id="' + activeTab + '"] li.smspost a').first().attr('data-action');
+
+        if ( self.getHiddenToggle() == 'true' && firstItem == 'hide') {
+            //toggle is set to show hidden and the elements are hidden
+            return true;
+        } else {
+            if ( self.getHiddenToggle() != 'true' && firstItem == 'unhide' ) {
+                //toggle is set to show visible items and the elemets are hidden
+                return true;
+            } else {
+                if ( firstItem == undefined ) {
+                    //no sms item in list, can't determine if conflict or not, redo the search
+                    return true;
+                } else {
+                    return false;    
+                }
+                
+            }
+        }
+        
     },
     getAllSmss: function(paramObject) {
         var self = this;
@@ -244,9 +273,12 @@ $.extend(providers.sms, {
         //search data... short name 'sd'
         var sd = $.extend({}, dsd, paramObject);
 
+        if ( self.conflictingResults() ) {
+            sd.clearResults = true;
+        }
 
         //check to see if the search really needs to be done
-        if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults) {
+        if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults ) {
             //no search with results on this feed yet or pagination
             //just go on
         } else {
@@ -254,7 +286,7 @@ $.extend(providers.sms, {
         }
 
         var deletedText = '&isDeleted=false';
-        if ( $( document ).find('a[data-type="hidden-toggle"]').attr('data-active') == 'true' ) {
+        if ( self.getHiddenToggle() == 'true' ) {
             var deletedText = '&isDeleted=true';
         }
 
