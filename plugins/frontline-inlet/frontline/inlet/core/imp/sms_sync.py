@@ -115,6 +115,8 @@ class SmsSyncProcess:
         assert isinstance(source, Source)
 
         providerId = self.sourceService.getOriginalSource(source.Id)
+        
+        print("sync sms for sourceId=%i, providerId=%i, blogId=%i, lastId=%i" %(smsSync.Source, providerId, smsSync.Blog, smsSync.LastId))
 
         q=QPost()
         q.cId.since = str(smsSync.LastId) 
@@ -123,6 +125,9 @@ class SmsSyncProcess:
 
         for post in posts:
             try:
+                
+                print("post: Id=%i, content=%s, sourceId=%i" %(post.Id, post.Content, smsSync.Source))
+                
                 smsPost = Post()
                 smsPost.Type = post.Type
                 smsPost.Creator = post.Creator
