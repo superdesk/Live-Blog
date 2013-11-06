@@ -14,7 +14,6 @@ define([
 			this.autoInit();
 		},
 		autoInit: function(){
-			console.log('AutoCollection init');
 			var self = this;
 			self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 			self.model.on('unpublish publish reorder', function(evt, post){
@@ -134,17 +133,12 @@ define([
 		return (this.href &&
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{	
-				for(var arr = [], i=0, count = self._list.length; i < count; i++){
-					arr.push(self._list[i].get('Id'));
-				}
-				console.log(arr.join(', '));
-				var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
-				 // important or it will infiloop
+				var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length; 
+				// important or it will infiloop
 				for( var i=0; i < list.length; i++ )
 				{
 					var model = false;
 					for( var j=0; j<count; j++ ) {
-						console.log(list[i].hash(),' == ',self._list[j].hash());
 						if( list[i].hash() == self._list[j].hash() )
 						{
 							model = list[i];
@@ -161,7 +155,7 @@ define([
 							}
 
 						} else if( !list[i].isDeleted() ) {
-							//console.log('is deleted')
+							//console.log('is not deleted')
 							self._list.push(list[i]);
 							changeset.push(list[i]);
 							if( self.hasEvent('addingsauto') ) {

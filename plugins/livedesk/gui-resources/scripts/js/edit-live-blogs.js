@@ -142,7 +142,6 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this;
 				self.autoInit();
 				self.model.on('publish', function(evt, model){
-					console.log('model hash: ', model.hash());
 					self.clientSet(model);
 				});
 			},
@@ -152,16 +151,12 @@ function(providers, Gizmo, $, BlogAction)
 					data = [data];
 				}
 				for(var i = 0, counti = data.length; i < counti; i++) {
-					console.log(data[i].get('Id'));
 					if(!self.isCollectionDeleted(data[i])) {
-						console.log('add');
 						self._list.push(data[i]);
 						for(var arr = [], i=0, count = self._list.length; i < count; i++){
 							arr.push(self._list[i].get('Id'));
 						}
-						console.log('clientSet: ',arr.join(', '));						
 					} else {
-						console.log('remove');
 						var model = false;
 						for( var j=0, countj = self._list.length; j < countj; j++ ) {
 							if(self._list[j] == data[i]) {
@@ -186,12 +181,10 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			isCollectionDeleted: function(model)
 	        {
-	        	console.log('IsPublished: ',model.get('IsPublished'))
 	        	var IsPublished = model.get('IsPublished') === 'True'?  true : false;
 				if(!IsPublished) {
 					delete model.data["PublishedOn"];
 				}
-				console.log('isCollectionDeleted: ',!IsPublished);
 	        	return !IsPublished;
 	        }	
 		}),
@@ -370,7 +363,8 @@ function(providers, Gizmo, $, BlogAction)
 						}
 						/*!
 						 * If the Change Id is received, then sync the hole model;
-						 */						 
+						 */
+						//console.log('data: ',data);
 						if(isOnly(data, ['CId'])) {
 							self.model.xfilter(self.xfilter).sync();
 						}
@@ -500,7 +494,6 @@ function(providers, Gizmo, $, BlogAction)
 			},	
 			remove: function(evt)
 			{
-				//console.log('evt: ',evt);
 				var self = this;
 				/**
 				 * @TODO remove only this view events from the model
@@ -675,7 +668,7 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
-						data[i].postview.remove();
+						data[i].postview.remove(evt);
 						delete data[i].postview;
 					}
 				}
@@ -684,7 +677,6 @@ function(providers, Gizmo, $, BlogAction)
 			},
 			addAll: function(data)
 			{
-				console.log(data);
 				var i = data.length;
 				while(i--) {
 					this.addOne(data[i]);
