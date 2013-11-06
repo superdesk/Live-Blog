@@ -73,3 +73,20 @@ class IBlogSyncService(IEntityService):
         @param q: QBlogSync
             The query to search by.
         '''
+        
+    @call
+    def getByBlog(self, blogId:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QBlogSync=None) -> Iter(BlogSync):
+        '''
+        Returns the list of blog sync models for blog.
+
+        @param blogId: Blog.Id
+            The blog id  
+        @param offset: integer
+            The offset to retrieve the entities from.
+        @param limit: integer
+            The limit of entities to retrieve.
+        @param detailed: boolean
+            If true will present the total count, limit and offset for the partially returned collection.
+        @param q: QBlogSync
+            The query to search by.
+        '''    

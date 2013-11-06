@@ -20,6 +20,7 @@ import datetime
 from sqlalchemy.sql.expression import or_
 from livedesk.meta.blog import BlogSourceDB
 from livedesk.meta.blog_sync import BlogSyncMapped
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -28,6 +29,9 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
     '''
     Implementation for @see IBlogSyncService
     '''
+    
+    blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
+    Key of the source type for blog providers''')
 
     def __init__(self):
         '''
@@ -52,7 +56,7 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
 
     def getBySourceType(self, sourceType, offset=None, limit=None, detailed=False, q=None):
         '''
-        @see IBlogSyncService.getAll
+        @see IBlogSyncService.getBySourceType
         '''
         sql = self.session().query(BlogSyncMapped)
         if q:
@@ -73,3 +77,25 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         return sqlLimit.all()
         
 
+    def getByBlog(self, blogId, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see IBlogSyncService.getByBlog
+        '''
+        sql = self.session().query(BlogSyncMapped)
+        if q:
+            assert isinstance(q, QBlogSync), 'Invalid blog sync query %s' % q
+            sql = buildQuery(sql, q, BlogSyncMapped)
+
+        sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql = sql.filter(BlogSourceDB.blog == blogId)
+
+        sql_prov = self.session().query(SourceMapped.URI)
+        sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
+        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
+
+        sql = sql.filter(SourceMapped.OriginURI.in_(sql_prov))
+
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
