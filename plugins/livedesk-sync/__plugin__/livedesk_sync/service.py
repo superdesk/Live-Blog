@@ -10,9 +10,9 @@ Contains the services for livedesk sync.
 '''
 
 from ally.container import support
-from livedesk.core.impl.blog_sync import BlogSyncProcess
+from livedesk.core.impl.chained_sync import ChainedSyncProcess
 
 # --------------------------------------------------------------------
 
-support.createEntitySetup(BlogSyncProcess)
+support.createEntitySetup(ChainedSyncProcess)
 

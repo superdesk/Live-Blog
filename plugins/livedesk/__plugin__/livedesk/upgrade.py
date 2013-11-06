@@ -316,4 +316,23 @@ def upgradePostFeedFix():
     try: session.execute("ALTER TABLE post ADD COLUMN fk_feed_id INT UNSIGNED")
     except (ProgrammingError, OperationalError): return
     session.execute("ALTER TABLE post ADD FOREIGN KEY fk_feed_id (fk_feed_id) REFERENCES source (id) ON DELETE RESTRICT")
+    
+@app.populate(priority=PRIORITY_LAST)
+def upgradeSyncBlogFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    try: 
+        session.execute("ALTER TABLE livedesk_blog_sync DROP COLUMN fk_user_id")
+        session.execute("ALTER TABLE livedesk_blog_sync RENAME sync_start TO last_activity")
+    except (ProgrammingError, OperationalError): pass
+    
+    try: session.execute("DROP TABLE livedesk_sms_sync")
+    except (ProgrammingError, OperationalError): pass
+    
+    try:
+        session.execute('ALTER TABLE source DROP KEY uix_source_type_name')
+    except (ProgrammingError, OperationalError): pass
+       
   

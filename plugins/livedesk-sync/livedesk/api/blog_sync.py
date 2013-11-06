@@ -13,25 +13,24 @@ from ally.support.api.entity import Entity, IEntityService, QEntity
 from livedesk.api.blog import Blog
 from datetime import datetime
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.api.config import query, service, LIMIT_DEFAULT, call
+from ally.api.config import query, service, LIMIT_DEFAULT, call, UPDATE
 from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean
 from superdesk.source.api.source import Source
 from ally.api.type import Iter
-from superdesk.user.api.user import User
+from superdesk.source.api.type import SourceType
 
 # --------------------------------------------------------------------
 
 @modelLiveDesk(name='Sync')
 class BlogSync(Entity):
     '''
-    Provides the blog sync model.
+    Provides the blog sync model. It is used for all kind of blog sync, currently chainde blog and SMS
     '''
     Blog = Blog
     Source = Source
     CId = int
-    SyncStart = datetime
+    LastActivity = datetime
     Auto = bool
-    Creator = User
 
 # --------------------------------------------------------------------
 
@@ -41,7 +40,7 @@ class QBlogSync(QEntity):
     Provides the query for BlogSync.
     '''
     cId = AsRangeOrdered
-    syncStart = AsDateTimeOrdered
+    lastActivity = AsDateTimeOrdered
     auto = AsBoolean
 
 # --------------------------------------------------------------------
@@ -52,24 +51,19 @@ class IBlogSyncService(IEntityService):
     Provides the service methods for the blog sync.
     '''
     
-    @call
-    def getBlogSyncByBlogAndSource(self, blog:Blog.Id, source:Source.Id) -> BlogSync:
+    @call(webName="checkTimeout", method=UPDATE)
+    def checkTimeout(self, blogSyncId:BlogSync.Id, timeout:int) -> bool:
         '''
-        Returns the blog sync model for the given blog and source.
-
-        @param blog: Blog.Id
-            The blog identifier
-        @param source: Source.Id
-            The source identifier
+        Returns true if the last activity is older than timeout and if it is older update the last activity value
         '''
     
     @call
-    def getBlogSync(self, blog:Blog.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QBlogSync=None) -> Iter(BlogSync):
+    def getBySourceType(self, sourceType:SourceType.Key, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QBlogSync=None) -> Iter(BlogSync):
         '''
-        Returns the list of blog sync models for the given blog.
+        Returns the list of blog sync models for source type.
 
-        @param blog: Blog.Id
-            The blog identifier
+        @param sourceType: SourceType.Key
+            The source(provider) identifier    
         @param offset: integer
             The offset to retrieve the entities from.
         @param limit: integer
