@@ -3,15 +3,9 @@
 {<ImportantActions}{/ImportantActions}
 {<AdditionalAttributes} data-id="{Meta.Id}" {?Meta.DeletedOn}data-hidden="true"{:else}data-hidden="false"{/Meta.DeletedOn}{/AdditionalAttributes}
 {<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
-{<ExtraPostInfo}
-<div class="tool-box-right toolbox-wide">
-	{?Meta.DeletedOn}
-		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
-	{:else}
-		<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
-	{/Meta.DeletedOn}
-</div>
-{/ExtraPostInfo}
+{<TopBlocks}
+	{+PostHiddenAction}{/PostHiddenAction}
+{/TopBlocks}
 {<Container}{/Container}
 {<EditableClass}{/EditableClass}
 {<EditableAttribute}{/EditableAttribute}

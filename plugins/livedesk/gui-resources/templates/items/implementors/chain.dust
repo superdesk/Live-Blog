@@ -7,5 +7,5 @@
 {<ContainerIframe}{/ContainerIframe}
 {<TopBlocks}
 	{+PostVerification}{/PostVerification}
-	{+PostHiddenAction}{/PostHiddenAction}
 {/TopBlocks}
+{+PostHiddenAction}{/PostHiddenAction}

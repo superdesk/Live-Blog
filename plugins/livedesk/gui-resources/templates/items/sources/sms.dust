@@ -11,7 +11,7 @@
 			<p rel="author">{Meta.Creator.PhoneNumber}  {Meta.Creator.FullName}</p> <!-- User full name -->
 		{/AuthorInfo}
 		{+TimeInfo}
-			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
+			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{Meta.CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
 		{/TimeInfo}
 		{+ExtraPostInfo}{/ExtraPostInfo}
 	</div>

@@ -197,15 +197,11 @@
 {/PostVerification}
 
 {<PostHiddenAction}
+	<div class="tool-box-right toolbox-wide">
 	{?Meta.DeletedOn}
-		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_('Unhide');</a>
+		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
 	{:else}
-		
-		{?DeletedOn}
-			<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">_('Unhide');</a>
-		{:else}
-			<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">_('Hide');</a>
-		{/DeletedOn}
-
+		<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
 	{/Meta.DeletedOn}
+	</div>
 {/PostHiddenAction}
