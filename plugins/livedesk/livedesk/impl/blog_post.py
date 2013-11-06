@@ -34,6 +34,8 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
+from superdesk.source.meta.source import SourceMapped
+from superdesk.source.meta.type import SourceTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -48,6 +50,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
     postService = IPostService; wire.entity('postService')
     personIconService = IPersonIconService; wire.entity('personIconService')
+    internal_source_type = 'internal'
 
     def __init__(self):
         '''
@@ -188,6 +191,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, typeId, creatorId, None, q)
+        sql = sql.join(CollaboratorMapped, CollaboratorMapped.Id == BlogPostMapped.Author)
+        sql = sql.join(SourceMapped, SourceMapped.Id == CollaboratorMapped.Source)
+        sql = sql.filter(SourceMapped.Name == self.internal_source_type)
+        
         if q and QBlogPost.isPublished in q:
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
@@ -391,7 +398,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
     def _buildQuery(self, blogId, typeId=None, creatorId=None, authorId=None, q=None):
         '''
-        Builds the general query for posts.
+        Builds the general query for posts.CollaboratorMapped
         '''
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
         if q:
