@@ -483,8 +483,7 @@ define([
 				'.sf-searchbox a': {click: 'removeSearch'},
 				'.sf-searchbox input': {keypress: 'checkEnter'},
                 '.sf-toggle:checkbox': {change: 'toggleAutopublish'},
-                '[data-active="false"]': { click: 'toggleHidden' },
-				'[data-active="true"]': { click: 'toggleVisible' }
+                '#hidden-toggle': { click: 'toggleHidden' },
 			},
 			init: function(){
 				// userSearch = new UserSearch();
@@ -600,24 +599,20 @@ define([
 				e.preventDefault();
 				var self = this,
 					view = this.activeView;
-					//$(this).css('background-color', '#f2f2f2');
+				var elem = $('#hidden-toggle');
+				var is_active = elem.hasClass('active');
 				if (view) {
-					$('[data-active="false"]', self.el).addClass('hide');
-					$('[data-active="true"]', self.el).removeClass('hide');
-					view.model.hiddenChainBlogContentView.activate();
-					view.model.chainBlogContentView.deactivate();
-				}
-			},
-			toggleVisible: function(e) {
-				e.preventDefault();
-				var self = this,
-					view = this.activeView;
-				//$(this).css('background-color', '#DDDDDD');
-				if (view) {
-					$('[data-active="false"]', self.el).removeClass('hide');
-					$('[data-active="true"]', self.el).addClass('hide');
-					view.model.chainBlogContentView.activate();
-					view.model.hiddenChainBlogContentView.deactivate();
+					if (is_active) {
+						//we want to go in normal view
+						view.model.chainBlogContentView.activate();
+						view.model.hiddenChainBlogContentView.deactivate();
+					}
+					else {
+						//we want to go in deleted items view
+						view.model.hiddenChainBlogContentView.activate();
+						view.model.chainBlogContentView.deactivate();
+					}
+					elem.toggleClass('active');
 				}
 			},
             toggleAutopublish: function(e) {

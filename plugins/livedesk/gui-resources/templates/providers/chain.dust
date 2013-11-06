@@ -1,13 +1,12 @@
 <div class="chain-header">
 	{?sourceBlogs}
+	<a class="btn btn-flat pull-right" id="hidden-toggle"><i class="icon-trash"></i>_('View deleted items');</a>
 	<p>_("Select liveblogs:");</p>
 	<p class="feed-info">
     </p>
 	<div class="chain-search">
 		<div class="autopublish">
 			<span>_("Autopublish:");</span><input type="checkbox" name="autopublish" value="on" class="sf-toggle on-off">
-			<span><a class="btn btn-flat" data-type="hidden-toggle" data-active="false"><i class="icon-trash"></i>_('View deleted items');</a></span>
-			<span><a class="btn btn-flat hide" data-type="hidden-toggle" data-active="true"><i class="icon-trash"></i>_('View items');</a></span>
 		</div>
 		<div class="sf-searchbox">
 			<input type="text" placeholder="_('Search');">

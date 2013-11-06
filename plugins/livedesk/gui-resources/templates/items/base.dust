@@ -3,7 +3,10 @@
 	<div class="drag-bar"></div>
 	
 	<!-- user posts verification interface goes here -->
-	{+TopBlocks}{/TopBlocks}
+	<div class="top-box-container">
+		{+TopBlocks}{/TopBlocks}
+	</div>
+	
 
 	{+FastActions}
 	<div class="tool-box-right">
@@ -197,7 +200,7 @@
 {/PostVerification}
 
 {<PostHiddenAction}
-	<div class="tool-box-right toolbox-wide">
+	<div class="hide-unhide-container">
 	{?Meta.DeletedOn}
 		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
 	{:else}
