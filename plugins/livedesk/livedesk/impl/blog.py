@@ -211,8 +211,8 @@ class BlogSourceServiceAlchemy(EntityCRUDServiceAlchemy, IBlogSourceService):
 
         # insert source if it didn't exist yet for the given blog
         sql = self.session().query(SourceMapped)
-        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
-        sql = sql.filter(BlogSourceDB.blog == blogId)
+        sql = sql.join(BlogSyncMapped, SourceMapped.Id == BlogSyncMapped.Source)
+        sql = sql.filter(BlogSyncMapped.Blog == blogId)
         sql = sql.filter(and_(SourceMapped.Name == source.Name, SourceMapped.URI == source.URI))
         
         try:
