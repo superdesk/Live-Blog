@@ -14,11 +14,11 @@ import json
 import logging
 import time
 import codecs
+import datetime
 from sched import scheduler
 from threading import Thread
 from urllib.request import urlopen, Request
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
-from datetime import datetime
 from livedesk.api.blog_sync import IBlogSyncService, BlogSync
 from superdesk.source.api.source import ISourceService, Source, QSource
 from livedesk.api.blog_post import IBlogPostService
@@ -46,10 +46,10 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(name='blogSynchronizer')
-class BlogSyncProcess:
+@setup(name='chainedSynchronizer')
+class ChainedSyncProcess:
     '''
-    Blog sync process.
+    Chained sync process.
     '''
 
     blogSyncService = IBlogSyncService; wire.entity('blogSyncService')
@@ -83,39 +83,46 @@ class BlogSyncProcess:
 
     sync_interval = 10; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for blogs.''')
-    date_time_format = '%Y-%m-%d %H:%M:%S'; wire.config('date_time_format', doc='''
-    The date time format used in REST requests.''')
+    
+    timeout_inteval = 60#; wire.config('timeout_interval', doc='''
+    #The number of seconds after the sync ownership can be taken.''')
+    
     published_posts_path = 'Post/Published'; wire.config('published_posts_path', doc='''
     The partial path used to construct the URL for published posts retrieval''')
+    
+    user_type_key = 'chained blog'; wire.config('user_type_key', doc='''
+    The user type that is used for the anonymous users of chained blog posts''')
+    
+    blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
+    Key of the source type for blog providers''')
 
     acceptType = 'text/json'
     # mime type accepted for response from remote blog
     encodingType = 'UTF-8'
     # character encoding type accepted for response from remove blog
     
-    user_type_key = 'chained blog'; wire.config('user_type_key', doc='''
-    The user type that is used for the anonymous users of chained blog posts''')
+
 
     @app.deploy
-    def startSyncThread(self):
+    def startChainSyncThread(self):
         '''
-        Starts the sync thread.
+        Starts the chain sync thread.
         '''
         schedule = scheduler(time.time, time.sleep)
-        def syncBlogs():
-            self.syncBlogs()
-            schedule.enter(self.sync_interval, 1, syncBlogs, ())
-        schedule.enter(self.sync_interval, 1, syncBlogs, ())
-        scheduleRunner = Thread(name='blogs sync', target=schedule.run)
+        def syncChains():
+            self.syncChains()
+            schedule.enter(self.sync_interval, 1, syncChains, ())
+        schedule.enter(self.sync_interval, 1, syncChains, ())
+        scheduleRunner = Thread(name='chained sync', target=schedule.run)
         scheduleRunner.daemon = True
         scheduleRunner.start()
         log.info('Started the blogs automatic synchronization.')
 
-    def syncBlogs(self):
-        '''CollaboratorMapped.Id
-        Read all blog sync entries and sync with the corresponding blogs.
+    def syncChains(self):
         '''
-        for blogSync in self.blogSyncService.getAll(): 
+        Read all chained blog sync entries and sync with the corresponding blogs.
+        '''
+        for blogSync in self.blogSyncService.getBySourceType(self.blog_provider_type): 
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
             thread = self.syncThreads.get(key)
@@ -123,14 +130,16 @@ class BlogSyncProcess:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
+                if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval): continue
+
             self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
-                                           target=self._syncBlog, args=(blogSync,))
+                                           target=self._syncChain, args=(blogSync,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
             log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
 
-    def _syncBlog(self, blogSync):
+    def _syncChain(self, blogSync):
         '''
         Synchronize the blog for the given sync entry.
 
@@ -147,8 +156,7 @@ class BlogSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
-        #if blogSync.SyncStart is not None:
-        #    q.append(('publishedOn.since', blogSync.SyncStart.strftime(self.date_time_format)))
+
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Creator.*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
@@ -206,12 +214,12 @@ class BlogSyncProcess:
 
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
-                blogSync.SyncStart = datetime.strptime(post['PublishedOn'], '%m/%d/%y %I:%M %p')
 
                 if insert: self.blogPostService.insert(blogSync.Blog, localPost)
                 else: self.blogPostService.update(blogSync.Blog, localPost)
                 
                 # update blog sync entry
+                blogSync.LastActivity = datetime.datetime.now().replace(microsecond=0)
                 self.blogSyncService.update(blogSync)
                 
                 #create PostVerification
@@ -227,6 +235,10 @@ class BlogSyncProcess:
                 log.error('Error in source %s post: %s' % (source.URI, e))
 
         self._updateIcons(usersForIcons)
+        
+        blogSync.LastActivity = None 
+        self.blogSyncService.update(blogSync)
+   
 
     def _getCollaboratorForAuthor(self, author, creator, source):
         '''
@@ -271,7 +283,7 @@ class BlogSyncProcess:
         except InputError:
             localUser = self.userService.getByUuid(user.Uuid)
             userId = localUser.Id
-            if not cId or userId.cId < cId: needUpdate = True
+            if localUser.Type == self.user_type_key and (not cId or userId.cId < cId): needUpdate = True
             
         collaborator = Collaborator()
         collaborator.User, collaborator.Source = userId, source.Id

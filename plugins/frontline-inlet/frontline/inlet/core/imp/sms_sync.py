@@ -12,6 +12,7 @@ API implementation of sms sync.
 
 import logging
 import time
+import datetime
 from sched import scheduler
 from threading import Thread
 from superdesk.source.api.source import ISourceService, Source
@@ -24,9 +25,10 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.user.api.user import IUserService
 from superdesk.post.api.post import Post, IPostService, QPost
-from frontline.inlet.api.sms_sync import ISmsSyncService, SmsSync
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from sqlalchemy.orm.exc import NoResultFound
+from livedesk.api.blog_sync import IBlogSyncService, BlogSync
+
 
 # --------------------------------------------------------------------
 
@@ -41,8 +43,8 @@ class SmsSyncProcess:
     Sms sync process.
     '''
 
-    smsSyncService = ISmsSyncService; wire.entity('smsSyncService')
-    # sms sync service used to retrieve sms sync data
+    blogSyncService = IBlogSyncService; wire.entity('blogSyncService')
+    # blog sync service used to retrieve blogs set on auto publishing
 
     sourceService = ISourceService; wire.entity('sourceService')
     # source service used to retrieve source data
@@ -64,13 +66,19 @@ class SmsSyncProcess:
     sync_interval = 10; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for sms.''')
     
+    timeout_inteval = 60#; wire.config('timeout_interval', doc='''
+    #The number of seconds after the sync ownership can be taken.''')
+    
     user_type_key = 'sms'; wire.config('user_type_key', doc='''
     The user type that is used for the anonymous users of sms posts''')
+    
+    sms_provider_type = 'smsfeed'; wire.config('sms_provider_type', doc='''
+    Key of the source type for SMS providers''') 
 
     @app.deploy
-    def startSyncThread(self):
+    def startSmsSyncThread(self):
         '''
-        Starts the sync thread.
+        Starts the SMS sync thread.
         '''
         schedule = scheduler(time.time, time.sleep)
         def syncSmss():
@@ -84,25 +92,27 @@ class SmsSyncProcess:
 
     def syncSmss(self):
         '''
-        Read all sms sync entries.
+        Read all sms blog sync entries.
         '''
         
-        for smsSync in self.smsSyncService.getAll(): 
-            assert isinstance(smsSync, SmsSync)
-            key = (smsSync.Blog, smsSync.Source)
+        for blogSync in self.blogSyncService.getBySourceType(self.sms_provider_type):
+            assert isinstance(blogSync, BlogSync)
+            key = (blogSync.Blog, blogSync.Source)
             thread = self.syncThreads.get(key)
             if thread:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
-            self.syncThreads[key] = Thread(name='sms %d sync' % smsSync.Blog,
-                                           target=self._syncSms, args=(smsSync,))
+            if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval): continue         
+
+            self.syncThreads[key] = Thread(name='sms %d sync' % blogSync.Blog,
+                                           target=self._syncSms, args=(blogSync,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
-            log.info('Thread started for blog id %d and source id %d', smsSync.Blog, smsSync.Source)
+            log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
 
 
-    def _syncSms(self, smsSync):
+    def _syncSms(self, blogSync):
         '''
         Synchronize the sms for the given sync entry.
 
@@ -110,23 +120,23 @@ class SmsSyncProcess:
             The sms sync entry declaring the blog and source from which the blog
             has to be updated.
         '''
-        assert isinstance(smsSync, SmsSync), 'Invalid sms sync %s' % smsSync
-        source = self.sourceService.getById(smsSync.Source)
+        assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
+        source = self.sourceService.getById(blogSync.Source)
         assert isinstance(source, Source)
 
         providerId = self.sourceService.getOriginalSource(source.Id)
         
-        print("sync sms for sourceId=%i, providerId=%i, blogId=%i, lastId=%i" %(smsSync.Source, providerId, smsSync.Blog, smsSync.LastId))
+        log.info("sync sms for sourceId=%i, providerId=%i, blogId=%i, lastId=%i" %(blogSync.Source, providerId, blogSync.Blog, blogSync.CId))
 
         q=QPost()
-        q.cId.since = str(smsSync.LastId) 
+        q.cId.since = str(blogSync.CId) 
         
         posts = self.postService.getAllBySource(providerId, q=q)
 
         for post in posts:
             try:
                 
-                print("post: Id=%i, content=%s, sourceId=%i" %(post.Id, post.Content, smsSync.Source))
+                log.info("post: Id=%i, content=%s, sourceId=%i" %(post.Id, post.Content, blogSync.Source))
                 
                 smsPost = Post()
                 smsPost.Type = post.Type
@@ -139,27 +149,30 @@ class SmsSyncProcess:
                 
                 # make the collaborator
                 sql = self.collaboratorService.session().query(CollaboratorMapped.Id)
-                sql = sql.filter(CollaboratorMapped.Source == smsSync.Source)
+                sql = sql.filter(CollaboratorMapped.Source == blogSync.Source)
                 sql = sql.filter(CollaboratorMapped.User == post.Creator)
                 try:
                     collaboratorId, = sql.one()
                 except NoResultFound:
                     collaborator = Collaborator()
-                    collaborator.Source = smsSync.Source
+                    collaborator.Source = blogSync.Source
                     collaborator.User = post.Creator
                     collaboratorId = self.collaboratorService.insert(collaborator)   
                     
                 smsPost.Author = collaboratorId            
                 
                 # prepare the sms sync model to update the change identifier
-                smsSync.LastId = post.Id if post.Id > smsSync.LastId else smsSync.LastId
+                blogSync.CId = post.Id if post.Id > blogSync.CId else blogSync.CId
 
                 # insert post from remote source
-                self.blogPostService.insert(smsSync.Blog, smsPost)
+                self.blogPostService.insert(blogSync.Blog, smsPost)
                 
                 # update blog sync entry
-                self.smsSyncService.update(smsSync)
-
+                blogSync.LastActivity = datetime.datetime.now().replace(microsecond=0) 
+                self.blogSyncService.update(blogSync)
+                                
             except Exception as e:
                 log.error('Error in source %s post: %s' % (source.URI, e))
 
+        blogSync.LastActivity = None 
+        self.blogSyncService.update(blogSync)       
