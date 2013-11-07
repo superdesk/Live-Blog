@@ -143,8 +143,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         Populates the thumbnail for images.
         '''
-        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
-                                           abspath(join(pythonPath(), 'resources', 'image.jpg')))
+        imagePath = abspath(join(pythonPath(), '__plugin__', 'media_archive_image', 'thumbnails', 'image.jpg'))
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(), imagePath)
 
     # ----------------------------------------------------------------
 

@@ -9,7 +9,7 @@ Created on Jan 25, 2013
 Publish the theme files.
 '''
 
-from ..gui_core.gui_core import cdmGUI, publish
+from ..gui_core.gui_core import cdmGUI
 from .theme import theme_folder_format, getThemePath
 import logging
 
@@ -29,6 +29,5 @@ def publishThemes(name):
 
 # --------------------------------------------------------------------
 
-@publish
 def publishDefaultThemes():
     publishThemes('livedesk-embed')

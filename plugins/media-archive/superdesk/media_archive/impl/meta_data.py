@@ -31,6 +31,7 @@ from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from ally.api.error import InputError
 from superdesk.language.meta.language import LanguageAvailable
 from ally.api.validate import validate
+from superdesk.media_archive.impl.image_persist import ImagePersistanceAlchemy
 
 # --------------------------------------------------------------------
 
@@ -140,8 +141,8 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
     @app.populate
     def populateThumbnail(self):
         '''Populates the thumbnail for other resources.'''
-        self.thumbnailManager.putThumbnail(self.thumbnailFormatId(),
-                                           abspath(join(pythonPath(), 'resources', 'other.jpg')))
+        imagePath = abspath(join(pythonPath(), '__plugin__', 'media_archive', 'thumbnails', 'other.jpg'))
+        self.thumbnailManager.putThumbnail(self.thumbnailFormatId(), imagePath)
 
     # ----------------------------------------------------------------
 

@@ -189,8 +189,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         Populates the thumbnail for audio.
         '''
-        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(),
-                                           abspath(join(pythonPath(), 'resources', 'audio.jpg')))
+        imagePath = abspath(join(pythonPath(), '__plugin__', 'media_archive_audio', 'thumbnails', 'audio.jpg'))
+        self.thumbnailManager.putThumbnail(self.defaultThumbnailFormatId(), imagePath)
         
     # ----------------------------------------------------------------
 
