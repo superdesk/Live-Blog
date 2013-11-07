@@ -140,6 +140,7 @@ class SmsSyncProcess:
                 
                 smsPost = Post()
                 smsPost.Type = post.Type
+                smsPost.Uuid = post.Uuid
                 smsPost.Creator = post.Creator
                 smsPost.Feed = source.Id
                 smsPost.Meta = post.Meta

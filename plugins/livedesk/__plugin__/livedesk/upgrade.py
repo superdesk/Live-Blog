@@ -253,7 +253,6 @@ def upgradeUserTypeFix():
     session = creator()
     assert isinstance(session, Session)
     
-    createUserType('commentator')
     createUserType('sms')
     createUserType('chained blog')
 
