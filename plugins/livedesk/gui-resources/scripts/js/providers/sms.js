@@ -323,7 +323,7 @@ $.extend(providers.sms, {
             for ( var i = 0; i < smss.length; i++ ) {
                 var item = smss[i];
                 item['message'] = item.Content;
-                posts.push({ Meta: item });
+                posts.push(item);
                 self.data.sms[item.Id] = item;
                 //increase the 'cId' if necessary
                 if ( parseInt(self.topIds[sd.feedId]) < parseInt(item.CId) ) {
@@ -337,19 +337,19 @@ $.extend(providers.sms, {
             for ( var i = 0; i < posts.length; i++ ) {
                 var cmnt = posts[ i ];
                 var updated = false;
-                var Id = cmnt.Meta.Id;
+                var Id = cmnt.Id;
                 var unhideTxt = _("Unhide");
                 var hideTxt = _("Hide");
                 $('.sms-list').find('li.smspost').each(function(){
                     if ( Id == $(this).attr('data-id') ) {
                         //we need to update the item
-                        if ( cmnt.Meta.IsPublished == "True" ) {
+                        if ( cmnt.IsPublished == "True" ) {
                             //$( this ).attr('data-hidden', 'true').css('display', 'none');
                             $( this ).remove();
                             self.total[ sd.feedId ] -- ;
                             self.extraItems[ sd.feedId ] -- ;
                         } else {
-                            if ( cmnt.Meta.DeletedOn ) {
+                            if ( cmnt.DeletedOn ) {
                                 //got deleted
                                 $( this ).attr('data-hidden', 'true').css('display', 'none');
                                 $( this ).find('a[href="#toggle-post"]').attr('data-action', 'unhide').text(unhideTxt);
@@ -365,7 +365,7 @@ $.extend(providers.sms, {
                         updated = true;
                     }
                 });
-                if ( ( ! updated && cmnt.Meta.IsPublished != "True" && ! cmnt.Meta.DeletedOn ) || sd.cId == -1 ) {
+                if ( ( ! updated && cmnt.IsPublished != "True" && ! cmnt.DeletedOn ) || sd.cId == -1 ) {
                     newPosts.push(cmnt);
                 }
 
