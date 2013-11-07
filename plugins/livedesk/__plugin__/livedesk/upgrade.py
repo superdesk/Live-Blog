@@ -324,15 +324,16 @@ def upgradeSyncBlogFix():
     assert isinstance(session, Session)
     
     try: 
+        session.execute('ALTER TABLE livedesk_blog_sync DROP FOREIGN KEY livedesk_blog_sync_ibfk_3')
         session.execute("ALTER TABLE livedesk_blog_sync DROP COLUMN fk_user_id")
-        session.execute("ALTER TABLE livedesk_blog_sync RENAME sync_start TO last_activity")
+        session.execute("ALTER TABLE livedesk_blog_sync CHANGE sync_start last_activity DATETIME")
     except (ProgrammingError, OperationalError): pass
-    
+        
+    try: session.execute('ALTER TABLE source DROP KEY uix_1')
+    except (ProgrammingError, OperationalError): pass
+        
     try: session.execute("DROP TABLE livedesk_sms_sync")
     except (ProgrammingError, OperationalError): pass
     
-    try:
-        session.execute('ALTER TABLE source DROP KEY uix_source_type_name')
-    except (ProgrammingError, OperationalError): pass
        
   
