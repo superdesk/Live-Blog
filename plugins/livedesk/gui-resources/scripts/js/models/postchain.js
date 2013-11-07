@@ -17,6 +17,7 @@ function(Gizmo, Person)
 	    },
 	    insertExcludes: [ 'AuthorPerson' ],
 	    fixUrl: function(data){
+	    	console.log('fixUrl chain')
 	    	if(this.blogId && data.href) {
 	    		data.href = data.href.replace(/Blog\/Post/,'Blog/'+this.blogId+'/Post');
 	    	}
@@ -36,8 +37,7 @@ function(Gizmo, Person)
             else if(data && ( data.id !== undefined) && (this.url !== undefined))
                 this.href = this.url + data.id;
             return this;
-        },
-		url: new Gizmo.Url('/Post'),
+        },		url: new Gizmo.Url('/Post'),
 		
 		orderSync: function(id, before)
 		{
@@ -111,6 +111,7 @@ function(Gizmo, Person)
 		},
 		changeStatus: function(status)
 		{
+			console.log('this: ',this.modelDataBuild);
 			var self = this,
 				verificationHref = this.href.replace(/LiveDesk\/Blog\/(\d+)\/Post\/(\d+)/,'Data/PostVerification/$2');
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
@@ -131,5 +132,5 @@ function(Gizmo, Person)
 				});
 			return ret;
 		}
-	}, { register: 'Post' } );
+	}, { register: 'PostChain' } );
 });

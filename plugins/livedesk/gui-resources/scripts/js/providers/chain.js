@@ -13,6 +13,8 @@ define([
     config.guiJs('livedesk', 'models/posts'),
     config.guiJs('livedesk', 'models/users'),
     config.guiJs('livedesk', 'models/autoposts'),
+	config.guiJs('livedesk', 'models/autochainposts'),
+	config.guiJs('livedesk', 'models/autodeleteposts'),
 	config.guiJs('livedesk', 'models/source'),
 	config.guiJs('livedesk', 'models/sources'),
 	config.guiJs('livedesk', 'models/autocollection'),
@@ -37,7 +39,7 @@ define([
 			// }
 			// self.collection
 			// 	.on('read', self.render, self)
-			// 	.xfilter('EMail,FirstName,LastName,FullName,Name')
+			// 	.xfilter('EMail,FirstName,LastName,FullName,Name') 
 			// 	.sync()
 			self.data = [
 				{ "Key": "nostatus", "Name": _("No status")},
@@ -192,12 +194,46 @@ define([
             },
 
 			init: function(){
-				this._views = [];
-				this.collection
-					.on('read readauto', this.render, this)
-					.on('addingsauto', this.addAll, this)
-					.on('removeingsauto', this.removeAll, this)
+				var self = this;
+				self._views = [];
+				self.moreHidden = false;
+				self.collection.keepPolling = function(){
+					return self.el.is(":visible");
+				}
+				//self.collection.modelDataBuild = function(model){ return model;};
+				self.collection
+					.on('read readauto', function(evt)
+					{
+						self.render();
+						self.toggleMoreVisibility();
+					})
+					.on('addingsauto update', function(evt, data)
+					{
+						self.addAll(evt, data);
+						self.toggleMoreVisibility();
+					})
+					.on('removeingsauto', self.removeAll, self)
+					.limit(self.collection._stats.limit )
 					.xfilter();
+			},
+			toggleMoreVisibility: function()
+			{
+				var self = this;
+				if(self.moreHidden)
+					return;
+				if(self.collection._stats.offset >= self.collection._stats.total) {
+					self.moreHidden = true;
+					$('#more', self._parent.el).hide();
+				}
+			},
+			more: function(evnt, ui)
+			{
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order')
+					.sync();
 			},
 			activate: function(data){			
 				data = data || {};
@@ -241,9 +277,9 @@ define([
 			{
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
-					if(data[i].postview) {
-						data[i].postview.remove();
-						delete data[i].postview;
+					if(data[i].chainView) {
+						data[i].chainView.remove();
+						delete data[i].chainView;
 					}
 				}
 			},
@@ -323,22 +359,20 @@ define([
 				/*!
 				 * @TODO: remove this when source it will be put on the blog children.
 				 */
-				var self = this,
-					blogParts = self.blog.href.match(/Blog\/(\d+)/),
-					modelHref = model.href.replace(/Blog\/Post/,'Blog/'+blogParts[1]+'/Post');
-				model.setHref(modelHref);
-				model.data['href'] = modelHref;
-				var postView = new ChainPostView({ 
+				var self = this;
+				var chainView = new ChainPostView({ 
 					_parent: this,
 					model: model,
 					tmplImplementor: 'implementors/chain'
 				});
-				model.postview = postView;
-				this.orderOne(postView);
+				model.chainView = chainView;
+				this.orderOne(chainView);
 			},
 			addAll: function(evt, data){
-				for(var i = 0, count = data.length; i < count; i++) {
-					this.addOne(data[i]);
+				if(data) {
+					for(var i = 0, count = data.length; i < count; i++) {
+						this.addOne(data[i]);
+					}
 				}
 			},
 			search: function(what) {
@@ -429,11 +463,10 @@ define([
 			render: function(callback){
 				var self = this,
 					posts = self.model.get('PostSourceUnpublishedHidden');
-				posts.model = Gizmo.Register.PostDeleted;
-				//posts.param('True', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
+							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
@@ -466,9 +499,11 @@ define([
 				var self = this,
 					posts = self.model.get('PostSourceUnpublished');
 				//posts.param('False', 'isDeleted');
+				posts.model = Gizmo.Register.Post;
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = new TimelineView({ 
+					self.timelineView = new TimelineView({
+							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
@@ -561,7 +596,8 @@ define([
 						chainBlogLinkView,
 						timelineCollection,
 						$linkEl = self.el.find('.feed-info'),
-						$contentEl = self.el.find('.chain-header');
+						$contentEl = self.el.find('.chain-header'),
+						blogParts = self.blog.href.match(/Blog\/(\d+)/);
 
                     self.sourceBlogs.each(function(id,sourceBlog){
 						// chainBlog = new Gizmo.Register.Blog();
@@ -569,13 +605,15 @@ define([
 						// chainBlog.setHref(sourceBlog.get('URI').href);
 						// chainBlog.sync();
 						chainBlog = sourceBlog;
-						timelineCollection = new Gizmo.Register.AutoPosts();
+						timelineCollection = new Gizmo.Register.AutoChainPosts();
+						timelineCollection.model.prototype.blogId = blogParts[1];
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						timelineCollection.isCollectionDeleted = function(model) {
 							return(model.get('IsPublished') === 'True' || model.get('DeletedOn'));
 						}
 						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
-						hiddenTimelineCollection = new Gizmo.Register.AutoPosts();
+						hiddenTimelineCollection = new Gizmo.Register.AutoDeletePosts();
+						hiddenTimelineCollection.model.prototype.blogId = blogParts[1];
 						hiddenTimelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						hiddenTimelineCollection.isCollectionDeleted = function(model) {
 							return(model.get('IsPublished') === 'True' || !model.get('DeletedOn'));

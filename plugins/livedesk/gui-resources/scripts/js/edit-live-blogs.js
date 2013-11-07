@@ -126,7 +126,7 @@ function(providers, Gizmo, $, BlogAction)
 						links.append(providerLinkView.render().el);
 						contents.append(providerContentView.render().el);
 					}
-                                        $("[rel='tooltip']").tooltip();
+                    $("[rel='tooltip']").tooltip();
 				});
 			}
 		}),
@@ -138,6 +138,38 @@ function(providers, Gizmo, $, BlogAction)
 		({
 			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published'),
+			init: function(){
+				var self = this;
+				self.autoInit();
+				self.model.on('publish', function(evt, model){
+					self.clientSet(model);
+				});
+			},
+			clientSet: function(data) {
+				var self = this;
+				if(!Array.isArray(data)) {
+					data = [data];
+				}
+				for(var i = 0, counti = data.length; i < counti; i++) {
+					if(!self.isCollectionDeleted(data[i])) {
+						self._list.push(data[i]);
+						for(var arr = [], i=0, count = self._list.length; i < count; i++){
+							arr.push(self._list[i].get('Id'));
+						}
+					} else {
+						var model = false;
+						for( var j=0, countj = self._list.length; j < countj; j++ ) {
+							if(self._list[j] == data[i]) {
+								model = j;
+								break;
+							}
+						}
+						if(model !== false) {
+							self._list.splice(j,1);
+						}
+					}
+				}
+			},
 			parse: function(data) {
 				if(data.total)
 					if(data.offsetMore !== data.total) {
@@ -331,8 +363,9 @@ function(providers, Gizmo, $, BlogAction)
 						}
 						/*!
 						 * If the Change Id is received, then sync the hole model;
-						 */						 
-						if(isOnly(data, ['CId','Order'])) {
+						 */
+						//console.log('data: ',data);
+						if(isOnly(data, ['CId'])) {
 							self.model.xfilter(self.xfilter).sync();
 						}
 						else {
@@ -461,7 +494,6 @@ function(providers, Gizmo, $, BlogAction)
 			},	
 			remove: function(evt)
 			{
-				//console.log('evt: ',evt);
 				var self = this;
 				/**
 				 * @TODO remove only this view events from the model
@@ -636,7 +668,7 @@ function(providers, Gizmo, $, BlogAction)
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
-						data[i].postview.remove();
+						data[i].postview.remove(evt);
 						delete data[i].postview;
 					}
 				}
