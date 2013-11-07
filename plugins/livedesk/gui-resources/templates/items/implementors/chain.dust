@@ -6,6 +6,6 @@
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<ContainerIframe}{/ContainerIframe}
 {<TopBlocks}
+	{+PostHiddenAction}{/PostHiddenAction}
 	{+PostVerification}{/PostVerification}
 {/TopBlocks}
-{+PostHiddenAction}{/PostHiddenAction}
