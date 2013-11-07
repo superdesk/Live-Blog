@@ -150,6 +150,8 @@ class ChainedSyncProcess:
         assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
         source = self.sourceService.getById(blogSync.Source)
         
+        log.info('_syncChain blogId=%d, sourceId=%d', blogSync.Blog, blogSync.Source)
+        
         assert isinstance(source, Source)
         (scheme, netloc, path, params, query, fragment) = urlparse(source.URI)
 
@@ -159,7 +161,7 @@ class ChainedSyncProcess:
 
         url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
-                                    'X-Filter' : '*,Creator.*,Author.Source.*,Author.User.*', 'User-Agent' : 'Magic Browser'})
+                                    'X-Filter' : '*,Creator.*,Author.User.*,Author.Source.*', 'User-Agent' : 'Magic Browser'})
         
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
@@ -192,6 +194,9 @@ class ChainedSyncProcess:
                     localPost = Post()
                     localPost.Uuid = uuid
                     insert = True
+                    
+                #TODO: workaround, read again the Author because sometimes we get access denied
+                post['Author'] = self._readAuthor(post['Author']['href'])   
                 
                 #if exists local, update it, otherwise continue the original insert
                 localPost.Type = post['Type']['Key']
@@ -203,8 +208,9 @@ class ChainedSyncProcess:
                 localPost.Order = post['Order'] if 'Order' in post else None
                 localPost.CreatedOn = current_timestamp()              
                 if blogSync.Auto: localPost.PublishedOn = current_timestamp()
+                
+                log.info("received post: %s", str(localPost))
   
-                #update the user info if the cId is greater than the local one
                 if localPost.Creator and (localPost.Creator not in usersForIcons) and needUpdate:
                     try:
                         if isAuthor: usersForIcons[localPost.Creator] = post['Author']['User']
@@ -270,20 +276,27 @@ class ChainedSyncProcess:
         if 'Uuid' in userJSON: user.Uuid = userJSON.get('Uuid', '')
         else: user.Uuid = str(uuid4().hex)
         
-        if 'CId' in userJSON: cId = userJSON.get('CId', '')
-        else: cId = None
+        if 'Cid' in userJSON: cid = int(userJSON.get('Cid', ''))
+        else: cid = None
         
         user.Name = user.Uuid
         user.FirstName, user.LastName = userJSON.get('FirstName', ''), userJSON.get('LastName', '')
-        user.EMail, user.Password = userJSON.get('EMail', ''), '*'
+        user.Address, user.PhoneNumber = userJSON.get('Address', ''), userJSON.get('PhoneNumber', '')
+        user.EMail, user.Password = userJSON.get('EMail', ''), '~'
         user.Type = self.user_type_key
+
         
         needUpdate = False
         try: userId = self.userService.insert(user)
         except InputError:
             localUser = self.userService.getByUuid(user.Uuid)
             userId = localUser.Id
-            if localUser.Type == self.user_type_key and (not cId or userId.cId < cId): needUpdate = True
+            if localUser.Type == self.user_type_key and (cid is None or localUser.Cid < cid): 
+                needUpdate = True
+                user.Id = localUser.Id
+                user.Type = localUser.Type
+                user.Cid = cid
+                self.userService.update(user)
             
         collaborator = Collaborator()
         collaborator.User, collaborator.Source = userId, source.Id
@@ -292,7 +305,7 @@ class ChainedSyncProcess:
             collaborators = self.collaboratorService.getAll(userId, source.Id)
             collaboratorId = collaborators[0].Id
         
-        if 'User' in author:
+        if isAuthor:
             return [collaboratorId, userId, needUpdate, isAuthor]
         else:    
             q = QSource(name=author['Source']['Name'], isModifiable=False)
@@ -400,3 +413,22 @@ class ChainedSyncProcess:
                 self.personIconService.setIcon(userId, imageData.Id)
             except InputError:
                 log.error('Can not upload icon for chained user %s' % userId)
+                
+                
+    def _readAuthor(self, url):
+        
+        request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*,User.*'})
+        
+        try:
+            response = urlopen(request)
+        except (HTTPError, socket.error) as e:
+            return None
+        
+        if str(response.status) != '200':
+            return None
+        
+        try:
+            return json.load(codecs.getreader(self.encodingType)(response))
+        except ValueError as e:
+            log.error('Invalid JSON data %s' % e)
+            return None          
