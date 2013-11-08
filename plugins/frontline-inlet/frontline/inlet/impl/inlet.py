@@ -45,6 +45,8 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     The user type that is used for the anonymous users of SMS posts''')
     sms_provider_type = 'smsfeed'; wire.config('sms_provider_type', doc='''
     Key of the source type for SMS providers''') 
+    anonymous_sms = 'SMS'; wire.config('anonymous_sms', doc='''
+    Type default First Name of the anonymous SMS sender''')
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')
@@ -77,6 +79,7 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
             user = User()
             user.PhoneNumber = phoneNumber
             user.Name = self._freeSMSUserName()
+            user.FirstName = self.anonymous_sms
             user.Password = binascii.b2a_hex(os.urandom(32)).decode()
             user.Type = self.user_type_key
             userId = self.userService.insert(user)

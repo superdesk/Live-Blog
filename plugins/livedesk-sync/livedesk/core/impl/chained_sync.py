@@ -417,7 +417,7 @@ class ChainedSyncProcess:
                 
     def _readAuthor(self, url):
         
-        request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*,User.*'})
+        request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*,User.*,Source.*'})
         
         try:
             response = urlopen(request)

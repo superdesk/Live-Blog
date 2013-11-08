@@ -35,7 +35,6 @@ from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 from superdesk.source.meta.source import SourceMapped
-from superdesk.source.meta.type import SourceTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -142,12 +141,19 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = buildQuery(sql, q, BlogPostMapped)
         
         if q:
+            if QWithCId.search in q:
+                all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
+                sql = sql.filter(or_(BlogPostMapped.Meta.ilike(all), BlogPostMapped.CreatedOn.ilike(all), \
+                                     BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all), \
+                                     ))
+            
             if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
                and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
                 
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+                
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))     
                                    
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
@@ -417,7 +423,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         if isinstance(q, QWithCId) and QWithCId.search in q:
             all = self._processLike(q.search.ilike) if q.search.ilike is not None else self._processLike(q.search.like)
-            sql = sql.filter(or_(BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all)))
+            sql = sql.filter(or_(BlogPostMapped.Meta.ilike(all), BlogPostMapped.CreatedOn.ilike(all), \
+                                 BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all), \
+                                 ))
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
