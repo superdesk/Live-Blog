@@ -18,5 +18,5 @@
 {<SourceAuthor}{/SourceAuthor}
 {<ContainerIframe}{/ContainerIframe}
 {<AuthorInfo}
-<p rel="author">{Creator.PhoneNumber}  {Creator.FullName}bbb</p> <!-- User full name -->
+<p rel="author">{Creator.PhoneNumber}  {Creator.FullName}</p> <!-- User full name -->
 {/AuthorInfo}
