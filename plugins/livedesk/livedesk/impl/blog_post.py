@@ -260,7 +260,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=postId)
         postEntry.CId = self._nextCId()
-        postEntry.Order = self._nextOrdering(blogId)
         self.session().merge(postEntry)
 
         return postId
@@ -461,6 +460,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             or (published and (BlogPost.PublishedOn in post and post.PublishedOn is not None)):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
+                trimmed.Uuid = post.Uuid
                 trimmed.CId = post.CId
                 trimmed.IsPublished = post.IsPublished
                 trimmed.DeletedOn = post.DeletedOn
