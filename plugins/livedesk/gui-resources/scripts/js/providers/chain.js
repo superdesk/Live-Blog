@@ -499,7 +499,6 @@ define([
 				var self = this,
 					posts = self.model.get('PostSourceUnpublished');
 				//posts.param('False', 'isDeleted');
-				posts.model = Gizmo.Register.Post;
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({
