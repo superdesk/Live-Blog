@@ -128,6 +128,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
             userDb.typeId = self._userTypeId(user.Type)
+            userDb.Cid = userDb.Cid if userDb.Cid else 0
             userDb.Cid = user.Cid if user.Cid else userDb.Cid + 1
             self.session().flush((copy(user, userDb, exclude=('Type', 'CId')),))
         except SQLAlchemyError as e: handle(e, userDb)
