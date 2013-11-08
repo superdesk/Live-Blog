@@ -15,7 +15,7 @@ define([
 		},
 		autoInit: function(){
 			var self = this;
-			self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+			self._stats = { limit: 2, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 			self.model.on('unpublish publish reorder', function(evt, post){
 				if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 					self._stats.lastCId++;

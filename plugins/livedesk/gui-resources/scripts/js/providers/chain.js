@@ -213,17 +213,19 @@ define([
 						self.toggleMoreVisibility();
 					})
 					.on('removeingsauto', self.removeAll, self)
-					.limit(self.collection._stats.limit )
+					.limit(self.collection._stats.limit)
 					.xfilter();
 			},
 			toggleMoreVisibility: function()
 			{
+				console.log('toggle more visible');
 				var self = this;
 				if(self.moreHidden)
 					return;
+				console.log(self.collection._stats.offset, '>=', self.collection._stats.total);
 				if(self.collection._stats.offset >= self.collection._stats.total) {
 					self.moreHidden = true;
-					$('#more', self._parent.el).hide();
+					$('#more-chain', self._parent.el).hide();
 				}
 			},
 			more: function(evnt, ui)
@@ -406,7 +408,6 @@ define([
                     this.activate(e);
                 }
             },
-
 			deactivate: function(e) {
 				if(e) e.stopPropagation();
 				this.el.removeClass('active');
@@ -479,6 +480,12 @@ define([
 			}
 		}),
 		ChainBlogContentView = Gizmo.View.extend({
+			events: {
+				'#more-chain': { click: 'more'}
+			},
+            more: function() {
+            	console.log('more');
+            },
 			init: function(){
 				this.render();
 				this.model.chainBlogContentView = this;
