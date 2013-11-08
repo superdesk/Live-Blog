@@ -101,9 +101,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
         
-        if user.Uuid is None:
-            user.Uuid= str(uuid4().hex)
-        user.CId = 0     
+        if user.Uuid is None: user.Uuid= str(uuid4().hex)
+        if user.Cid is None: user.Cid = 0    
 
         userDb = UserMapped()
         userDb.password = user.Password
