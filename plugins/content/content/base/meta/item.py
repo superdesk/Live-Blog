@@ -1,0 +1,34 @@
+'''
+Created on Nov 7, 2013
+
+@package: content
+@copyright: 2013 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
+@author: Mugur Rus
+
+Contains the SQL alchemy meta for item API.
+'''
+
+from ally.api.validate import validate, ReadOnly
+from sqlalchemy.schema import Column
+from sqlalchemy.types import INTEGER, DateTime, String, TIMESTAMP
+from sql_alchemy.support.util_meta import UtcNow
+from content.base.api.item import Item
+from content.base.meta.metadata_content import Base
+
+# --------------------------------------------------------------------
+
+@validate(ReadOnly(Item.CreatedOn), ReadOnly(Item.VersionOn))
+class ItemMapped(Base, Item):
+    '''
+    Provides the mapping for Item.
+    '''
+    __tablename__ = 'content_item'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    GUID = Column('guid', String(255), nullable=False)
+    Version = Column('version', INTEGER(unsigned=True), nullable=False, default=1)
+    CreatedOn = Column('created_on', DateTime, nullable=False)
+    VersionOn = Column('version_on', TIMESTAMP, server_default=UtcNow(), nullable=False)
+    
+    id = Column('id', INTEGER(unsigned=True), primary_key=True)
