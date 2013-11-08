@@ -334,6 +334,9 @@ def upgradeSyncBlogFix():
     try: session.execute('ALTER TABLE person DROP KEY phone_number')
     except (ProgrammingError, OperationalError): pass
         
+    try: session.execute('ALTER TABLE person DROP KEY phone_number')
+    except (ProgrammingError, OperationalError): pass
+        
     try: session.execute("DROP TABLE livedesk_sms_sync")
     except (ProgrammingError, OperationalError): pass
     
