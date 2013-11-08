@@ -189,7 +189,7 @@ define([
                 'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
 					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
-					'PostVerification.Checker.Id, PostVerification.Checker.FullName'
+					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage'
 					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
             },
 
@@ -499,7 +499,6 @@ define([
 				var self = this,
 					posts = self.model.get('PostSourceUnpublished');
 				//posts.param('False', 'isDeleted');
-				posts.model = Gizmo.Register.Post;
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
 					self.timelineView = new TimelineView({
