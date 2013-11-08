@@ -330,6 +330,9 @@ def upgradeSyncBlogFix():
         
     try: session.execute('ALTER TABLE source DROP KEY uix_1')
     except (ProgrammingError, OperationalError): pass
+    
+    try: session.execute('ALTER TABLE person DROP KEY phone_number')
+    except (ProgrammingError, OperationalError): pass
         
     try: session.execute('ALTER TABLE person DROP KEY phone_number')
     except (ProgrammingError, OperationalError): pass
