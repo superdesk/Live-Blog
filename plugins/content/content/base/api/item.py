@@ -26,6 +26,7 @@ class Item:
     Version = int
     CreatedOn = datetime
     VersionOn = datetime
+    Type = str
 
 # --------------------------------------------------------------------
 

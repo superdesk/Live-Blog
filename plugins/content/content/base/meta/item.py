@@ -18,7 +18,7 @@ from content.base.meta.metadata_content import Base
 
 # --------------------------------------------------------------------
 
-@validate(ReadOnly(Item.CreatedOn), ReadOnly(Item.VersionOn))
+@validate(ReadOnly(Item.VersionOn))
 class ItemMapped(Base, Item):
     '''
     Provides the mapping for Item.
@@ -26,9 +26,14 @@ class ItemMapped(Base, Item):
     __tablename__ = 'content_item'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    GUID = Column('guid', String(255), nullable=False)
+    GUID = Column('guid', String(255), nullable=False, unique=True)
     Version = Column('version', INTEGER(unsigned=True), nullable=False, default=1)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     VersionOn = Column('version_on', TIMESTAMP, server_default=UtcNow(), nullable=False)
+    Type = Column('type', String(255), nullable=False)
     
+    # mapper arguments ----------------------------------------------
+    __mapper_args__ = { 'polymorphic_on':Type, 'polymorphic_identity':'news', 'with_polymorphic':'*' }
+
+    # Non REST model attribute --------------------------------------
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
