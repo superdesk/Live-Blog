@@ -266,8 +266,14 @@ function(providers, Gizmo, $, BlogAction)
 				actions.data('focuseout-stop',true);
 				if( !data.Content )
 					delete data.Content;
-				if($.type(data.Meta) === 'string')
+				if($.type(data.Meta) === 'string') {
 					data.Meta = JSON.parse(data.Meta);
+				} else {
+					if ( typeof data.Meta == 'undefined' ) {
+						data.Meta = {};
+					}
+				}
+					
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
