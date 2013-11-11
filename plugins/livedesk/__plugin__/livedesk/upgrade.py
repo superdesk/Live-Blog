@@ -280,6 +280,16 @@ def upgradeBlogFix():
     except (ProgrammingError, OperationalError): return
 
 @app.populate(priority=PRIORITY_LAST)
+def upgradePostFeedFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    try: session.execute("ALTER TABLE post ADD COLUMN fk_feed_id INT UNSIGNED")
+    except (ProgrammingError, OperationalError): return
+    session.execute("ALTER TABLE post ADD FOREIGN KEY fk_feed_id (fk_feed_id) REFERENCES source (id) ON DELETE RESTRICT")
+    
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeUuidFix():
     creator = alchemySessionCreator()
     session = creator()
@@ -304,18 +314,7 @@ def upgradeUuidFix():
     for post in posts:
         if post.Uuid is None: post.Uuid = str(uuid4().hex)
     session.commit()
-    
-
-@app.populate(priority=PRIORITY_LAST)
-def upgradePostFeedFix():
-    creator = alchemySessionCreator()
-    session = creator()
-    assert isinstance(session, Session)
-    
-    try: session.execute("ALTER TABLE post ADD COLUMN fk_feed_id INT UNSIGNED")
-    except (ProgrammingError, OperationalError): return
-    session.execute("ALTER TABLE post ADD FOREIGN KEY fk_feed_id (fk_feed_id) REFERENCES source (id) ON DELETE RESTRICT")
-    
+        
 @app.populate(priority=PRIORITY_LAST)
 def upgradeSyncBlogFix():
     creator = alchemySessionCreator()
@@ -331,9 +330,6 @@ def upgradeSyncBlogFix():
     try: session.execute('ALTER TABLE source DROP KEY uix_1')
     except (ProgrammingError, OperationalError): pass
     
-    try: session.execute('ALTER TABLE person DROP KEY phone_number')
-    except (ProgrammingError, OperationalError): pass
-        
     try: session.execute('ALTER TABLE person DROP KEY phone_number')
     except (ProgrammingError, OperationalError): pass
         
