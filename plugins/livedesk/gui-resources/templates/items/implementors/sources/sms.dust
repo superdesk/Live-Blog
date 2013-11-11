@@ -1,8 +1,8 @@
 {>"livedesk>items/base"/}
 {<FastActions}{/FastActions}
 {<ImportantActions}{/ImportantActions}
-{<AdditionalAttributes} data-id="{Meta.Id}"{/AdditionalAttributes}
-{<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
+{<AdditionalAttributes} data-id="{Id}"{/AdditionalAttributes}
+{<ContainerDescriptionText}{message|s}{/ContainerDescriptionText}
 {<TopBlocks}
 	{+PostHiddenAction}{/PostHiddenAction}
 {/TopBlocks}
