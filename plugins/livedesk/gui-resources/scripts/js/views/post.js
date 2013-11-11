@@ -184,6 +184,7 @@ define
                 if ( typeof post.Meta === 'string') {
                     post.Meta = JSON.parse(post.Meta);
                 }
+
                 $.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
                 $.tmpl('livedesk>items/item', { 
                     Base: self.tmplImplementor,
