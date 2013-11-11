@@ -185,14 +185,13 @@ define([
     	}),
 		TimelineView = Gizmo.View.extend({
 
-			headers: {
-                'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
+			xfilter:
+                'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
 					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
 					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage'
 					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
             },
-
 			init: function(){
 				var self = this;
 				self._views = [];
@@ -214,15 +213,14 @@ define([
 					})
 					.on('removeingsauto', self.removeAll, self)
 					.limit(self.collection._stats.limit)
-					.xfilter();
+					.xfilter(self.xfilter);
 			},
 			toggleMoreVisibility: function()
 			{
-				console.log('toggle more visible');
 				var self = this;
 				if(self.moreHidden)
 					return;
-				console.log(self.collection._stats.offset, '>=', self.collection._stats.total);
+				//console.log(self.collection._stats.offset, '>=', self.collection._stats.total);
 				if(self.collection._stats.offset >= self.collection._stats.total) {
 					self.moreHidden = true;
 					$('#more-chain', self._parent.el).hide();
@@ -249,7 +247,7 @@ define([
 						self.el.find('.chainblogs').show();
 					})
 					.auto({
-						headers: this.headers,
+						headers: { 'X-Filter': self.xfilter },
                         data: data
 					});
 			},
@@ -483,8 +481,9 @@ define([
 			events: {
 				'#more-chain': { click: 'more'}
 			},
-            more: function() {
-            	console.log('more');
+            more: function(evt) {
+            	var self = this;
+            	self.timelineView.more(evt);
             },
 			init: function(){
 				this.render();
