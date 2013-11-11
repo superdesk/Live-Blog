@@ -460,6 +460,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             or (published and (BlogPost.PublishedOn in post and post.PublishedOn is not None)):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
+                trimmed.Uuid = post.Uuid
                 trimmed.CId = post.CId
                 trimmed.IsPublished = post.IsPublished
                 trimmed.DeletedOn = post.DeletedOn
