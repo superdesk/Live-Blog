@@ -14,7 +14,7 @@ import json
 import logging
 import time
 import codecs
-import datetime
+from datetime import datetime
 from sched import scheduler
 from threading import Thread
 from urllib.request import urlopen, Request
@@ -206,6 +206,7 @@ class ChainedSyncProcess:
                 localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                 localPost.Content = post['Content'] if 'Content' in post else None
                 localPost.Order = post['Order'] if 'Order' in post else None
+                localPost.DeletedOn = datetime.strptime(post['DeletedOn'], '%m/%d/%y %I:%M %p') if 'DeletedOn' in post else None
                 localPost.CreatedOn = current_timestamp()              
                 if blogSync.Auto: localPost.PublishedOn = current_timestamp()
                 
