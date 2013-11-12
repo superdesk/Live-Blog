@@ -179,7 +179,7 @@ class ChainedSyncProcess:
         usersForIcons = {}
         for post in msg['PostList']:
             try:
-                if post['IsPublished'] != 'True' or 'DeletedOn' in post: continue
+                if post['IsPublished'] != 'True': continue
                 
                 insert = False 
                 if 'Uuid' in post: 
@@ -190,35 +190,39 @@ class ChainedSyncProcess:
                     uuid = str(uuid4().hex)
                     localPost = None 
                     
-                if localPost == None:      
+                if localPost == None:  
+                    if 'DeletedOn' in post: continue    
                     localPost = Post()
                     localPost.Uuid = uuid
                     insert = True
+                
+                if 'DeletedOn' not in post:       
+                    #TODO: workaround, read again the Author because sometimes we get access denied
+                    post['Author'] = self._readAuthor(post['Author']['href'])   
                     
-                #TODO: workaround, read again the Author because sometimes we get access denied
-                post['Author'] = self._readAuthor(post['Author']['href'])   
-                
-                #if exists local, update it, otherwise continue the original insert
-                localPost.Type = post['Type']['Key']
-                localPost.Author, localPost.Creator, needUpdate, isAuthor = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
-                localPost.Feed = source.Id
-                localPost.Meta = post['Meta'] if 'Meta' in post else None
-                localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
-                localPost.Content = post['Content'] if 'Content' in post else None
-                localPost.Order = post['Order'] if 'Order' in post else None
-                localPost.DeletedOn = datetime.strptime(post['DeletedOn'], '%m/%d/%y %I:%M %p') if 'DeletedOn' in post else None
-                localPost.CreatedOn = current_timestamp()              
-                if blogSync.Auto: localPost.PublishedOn = current_timestamp()
-                
-                log.info("received post: %s", str(localPost))
-  
-                if localPost.Creator and (localPost.Creator not in usersForIcons) and needUpdate:
-                    try:
-                        if isAuthor: usersForIcons[localPost.Creator] = post['Author']['User']
-                        else: usersForIcons[localPost.Creator] = post['Creator']
-                    except KeyError:
-                        pass
-
+                    #if exists local, update it, otherwise continue the original insert
+                    localPost.Type = post['Type']['Key']
+                    localPost.Author, localPost.Creator, needUpdate, isAuthor = self._getCollaboratorForAuthor(post['Author'], post['Creator'], source)
+                    localPost.Feed = source.Id
+                    localPost.Meta = post['Meta'] if 'Meta' in post else None
+                    localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
+                    localPost.Content = post['Content'] if 'Content' in post else None
+                    localPost.Order = post['Order'] if 'Order' in post else None
+                    localPost.CreatedOn = current_timestamp()              
+                    if blogSync.Auto: localPost.PublishedOn = current_timestamp()
+                    
+                    log.info("received post: %s", str(localPost))
+      
+                    if localPost.Creator and (localPost.Creator not in usersForIcons) and needUpdate:
+                        try:
+                            if isAuthor: usersForIcons[localPost.Creator] = post['Author']['User']
+                            else: usersForIcons[localPost.Creator] = post['Creator']
+                        except KeyError:
+                            pass
+                    
+                else:
+                    localPost.DeletedOn = datetime.strptime(post['DeletedOn'], '%m/%d/%y %I:%M %p')
+                            
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
 
@@ -226,7 +230,7 @@ class ChainedSyncProcess:
                 else: self.blogPostService.update(blogSync.Blog, localPost)
                 
                 # update blog sync entry
-                blogSync.LastActivity = datetime.datetime.now().replace(microsecond=0)
+                blogSync.LastActivity = datetime.now().replace(microsecond=0)
                 self.blogSyncService.update(blogSync)
                 
                 #create PostVerification
