@@ -11,6 +11,40 @@
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
+	<div>
+	_('Show only status: ')
+	<ul>
+	  <li data-status-key="nostatus">
+	    <button>
+	    <span class="label-nostatus">
+	    </span>
+	    No Status
+	    </button>
+	  </li>
+	  <li data-status-key="verified">
+	    <button>
+	    <span class="label-verified">
+	    </span>
+	    Verified
+	    </button>
+	  </li>
+	  <button>
+	  <li data-status-key="unverified">
+	    <button>
+	    <span class="label-unverified">
+	    </span>
+	    Unverified
+	    </button>
+	  </li>
+	  <li data-status-key="onverification">
+	    <button>
+	    <span class="label-onverification">
+	    </span>
+	    On verification
+	    </button>
+	  </li>
+	</ul>
+	</div>
 </div>
 {#Sources}
 <ul id="chain-{Id}" class="post-list scroller chainblogs" style="display:none;"></ul>

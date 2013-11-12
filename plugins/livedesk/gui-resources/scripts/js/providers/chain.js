@@ -185,18 +185,16 @@ define([
     	}),
 		TimelineView = Gizmo.View.extend({
 
-			headers: {
-                'X-Filter': 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
+			xfilter:
+                'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
 					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
 					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage'
 					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
             },
-
 			init: function(){
 				var self = this;
 				self._views = [];
-				self.moreHidden = false;
 				self.collection.keepPolling = function(){
 					return self.el.is(":visible");
 				}
@@ -213,17 +211,15 @@ define([
 						self.toggleMoreVisibility();
 					})
 					.on('removeingsauto', self.removeAll, self)
-					.limit(self.collection._stats.limit )
-					.xfilter();
+					.desc('order')
+					.limit(self.collection._stats.limit)
+					.xfilter(self.xfilter);
 			},
 			toggleMoreVisibility: function()
 			{
 				var self = this;
-				if(self.moreHidden)
-					return;
-				if(self.collection._stats.offset >= self.collection._stats.total) {
-					self.moreHidden = true;
-					$('#more', self._parent.el).hide();
+				if( (self.collection._stats.offset >= self.collection._stats.total) || self.collection.search) {
+					$('#more-chain', self._parent.el).hide();
 				}
 			},
 			more: function(evnt, ui)
@@ -247,7 +243,7 @@ define([
 						self.el.find('.chainblogs').show();
 					})
 					.auto({
-						headers: this.headers,
+						headers: { 'X-Filter': self.xfilter },
                         data: data
 					});
 			},
@@ -375,17 +371,28 @@ define([
 					}
 				}
 			},
+			filterStatus: function(status) {
+
+			},
 			search: function(what) {
                 var view = this;
                 this.deactivate();
                 this.collection.reset([]);
+                this.collection.resetStats();
                 this._views = [];
 				if (what) {
+					this.collection.search = what;
                     this.collection.sync({data: {search: what}}).done(function() {
 				        view.el.find('.chainblogs').show();
                     });
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
-                    this.collection.sync();
+					delete this.collection.search;
+					console.log(this.collection._stats.limit);
+                    this.collection
+						.limit(this.collection._stats.limit)
+						.offset(0)
+						.desc('order')
+                    	//.sync();
                     this.activate();
 				}
 			}
@@ -406,7 +413,6 @@ define([
                     this.activate(e);
                 }
             },
-
 			deactivate: function(e) {
 				if(e) e.stopPropagation();
 				this.el.removeClass('active');
@@ -479,6 +485,13 @@ define([
 			}
 		}),
 		ChainBlogContentView = Gizmo.View.extend({
+			events: {
+				'#more-chain': { click: 'more'}
+			},
+            more: function(evt) {
+            	var self = this;
+            	self.timelineView.more(evt);
+            },
 			init: function(){
 				this.render();
 				this.model.chainBlogContentView = this;
