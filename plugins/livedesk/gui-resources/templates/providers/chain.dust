@@ -14,8 +14,12 @@
 		</div>
 	</div>
 	<div class="chain-filter">
-	  _('Show only status');:
 	  <ul>
+	  	<li data-status-key="all" class="active">
+	      <a href="#">
+	       _('All');
+	      </a>
+	    </li>
 	    <li data-status-key="nostatus">
 	      <a href="#">
 	       _('No Status');
