@@ -189,9 +189,8 @@ define([
                 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type,'+
 				'AuthorName, Author.Source.Name, Author.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, Author.User.*, '+
 					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
-					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage'
+					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage',
 					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
-            },
 			init: function(){
 				var self = this;
 				self._views = [];
