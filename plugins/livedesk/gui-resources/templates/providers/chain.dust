@@ -13,6 +13,31 @@
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
+	<div class="chain-filter">
+	  _('Show only status');:
+	  <ul>
+	    <li data-status-key="nostatus">
+	      <a href="#">
+	       _('No Status');
+	      </a>
+	    </li>
+	    <li data-status-key="verified">
+	      <a href="#">
+	        _('Verified');
+	      </a>
+	    </li>
+	    <li data-status-key="unverified">
+	      <a href="#">
+	        _('Unverified');
+	      </a>
+	    </li>
+	    <li data-status-key="onverification">
+	      <a href="#">
+	        _('On verification');
+	      </a>
+	    </li>
+	  </ul>
+	</div>
 	{:else}
 	<p>_("No liveblogs");</p>
 	{/sourceBlogs}
