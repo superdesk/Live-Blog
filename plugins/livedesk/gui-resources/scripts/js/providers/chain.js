@@ -195,7 +195,6 @@ define([
 			init: function(){
 				var self = this;
 				self._views = [];
-				self.moreHidden = false;
 				self.collection.keepPolling = function(){
 					return self.el.is(":visible");
 				}
@@ -212,17 +211,14 @@ define([
 						self.toggleMoreVisibility();
 					})
 					.on('removeingsauto', self.removeAll, self)
+					.desc('order')
 					.limit(self.collection._stats.limit)
 					.xfilter(self.xfilter);
 			},
 			toggleMoreVisibility: function()
 			{
 				var self = this;
-				if(self.moreHidden)
-					return;
-				//console.log(self.collection._stats.offset, '>=', self.collection._stats.total);
-				if(self.collection._stats.offset >= self.collection._stats.total) {
-					self.moreHidden = true;
+				if( (self.collection._stats.offset >= self.collection._stats.total) || self.collection.search) {
 					$('#more-chain', self._parent.el).hide();
 				}
 			},
@@ -375,17 +371,28 @@ define([
 					}
 				}
 			},
+			filterStatus: function(status) {
+
+			},
 			search: function(what) {
                 var view = this;
                 this.deactivate();
                 this.collection.reset([]);
+                this.collection.resetStats();
                 this._views = [];
 				if (what) {
+					this.collection.search = what;
                     this.collection.sync({data: {search: what}}).done(function() {
 				        view.el.find('.chainblogs').show();
                     });
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
-                    this.collection.sync();
+					delete this.collection.search;
+					console.log(this.collection._stats.limit);
+                    this.collection
+						.limit(this.collection._stats.limit)
+						.offset(0)
+						.desc('order')
+                    	//.sync();
                     this.activate();
 				}
 			}
