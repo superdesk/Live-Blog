@@ -11,7 +11,7 @@ API specifications for livedesk blog posts.
 
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query, UPDATE, extension
-from ally.api.criteria import AsRangeOrdered, AsBoolean, AsLike
+from ally.api.criteria import AsRangeOrdered, AsBoolean, AsLike, AsEqual
 from ally.api.extension import IterPart
 from ally.api.type import Iter, Reference
 from livedesk.api.domain_livedesk import modelLiveDesk
@@ -47,6 +47,8 @@ class QWithCId:
     id = AsRangeOrdered
     cId = AsRangeOrdered
     search = AsLike
+    status = AsEqual
+    checker = AsEqual
 
 @query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):
