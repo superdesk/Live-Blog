@@ -12,22 +12,20 @@ Contains the SQL alchemy meta for text item API.
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from content.base.meta.item import ItemMapped
-from ally.api.validate import validate, ReadOnly
-from content.package.api.item_package import ItemPackage
+from content.package.api.item_package import ItemPackage, TYPE_PACKAGE
 
 # --------------------------------------------------------------------
 
-TYPE_PACKAGE = 'package'
-# The package type.
+CATEGORY_PACKAGE = TYPE_PACKAGE
+# The package category.
 
-@validate(ReadOnly(ItemPackage.Type))
 class ItemPackageMapped(ItemMapped, ItemPackage):
     '''
     Provides the mapping for ItemPackage.
     '''
-    __tablename__ = 'content_item_package'
+    __tablename__ = 'item_package'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8', extend_existing=True)
-    __mapper_args__ = dict(polymorphic_identity=TYPE_PACKAGE)
+    __mapper_args__ = dict(polymorphic_identity=CATEGORY_PACKAGE)
 
     HeadLine = Column('headline', String(1000), nullable=False)
 

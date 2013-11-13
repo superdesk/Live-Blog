@@ -9,7 +9,6 @@ Created on Nov 7, 2013
 Contains the SQL alchemy meta for item API.
 '''
 
-from ally.api.validate import validate, ReadOnly
 from sqlalchemy.schema import Column
 from sqlalchemy.types import INTEGER, DateTime, String, TIMESTAMP
 from sql_alchemy.support.util_meta import UtcNow
@@ -18,22 +17,22 @@ from content.base.meta.metadata_content import Base
 
 # --------------------------------------------------------------------
 
-@validate(ReadOnly(Item.VersionOn))
 class ItemMapped(Base, Item):
     '''
     Provides the mapping for Item.
     '''
-    __tablename__ = 'content_item'
+    __tablename__ = 'item'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     GUID = Column('guid', String(255), nullable=False, unique=True)
     Version = Column('version', INTEGER(unsigned=True), nullable=False, default=1)
-    CreatedOn = Column('created_on', DateTime, nullable=False)
+    CreatedOn = Column('created_on', DateTime, server_default=UtcNow(), nullable=False)
     VersionOn = Column('version_on', TIMESTAMP, server_default=UtcNow(), nullable=False)
     Type = Column('type', String(255), nullable=False)
-    
-    # mapper arguments ----------------------------------------------
-    __mapper_args__ = { 'polymorphic_on':Type, 'polymorphic_identity':'news', 'with_polymorphic':'*' }
 
     # Non REST model attribute --------------------------------------
     id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    category_ = Column('category_', String(255), nullable=False)
+
+    # mapper arguments ----------------------------------------------
+    __mapper_args__ = dict(polymorphic_on=category_, with_polymorphic='*')

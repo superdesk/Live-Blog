@@ -9,30 +9,21 @@ Created on Nov 11, 2013
 API specifications for content text item.
 '''
 
-from ally.api.config import query
-from ally.api.criteria import AsLikeOrdered
 from content.base.api.domain_content import modelContent
-from content.base.api.item import Item
-from ally.api.type import Reference
+from content.resource.api.item_resource import ItemResource
 
 # --------------------------------------------------------------------
 
-TYPE_PACKAGE = 'package'
-# The package type.(value of Item.Type for this item)
+CLASS_TEXT = 'text'
+# The text class (the value of ItemResource.Class for this item)
 
 @modelContent
-class ItemPackage(Item):
+class ItemText(ItemResource):
     '''
     Provides the text item model.
     '''
-    HeadLine = str
-    ContentSet = Reference
+    Content = str
 
 # --------------------------------------------------------------------
 
-@query(ItemPackage)
-class QItemPackage:
-    '''
-    Provides the query for active text item model.
-    '''
-    headLine = AsLikeOrdered
+# no query
