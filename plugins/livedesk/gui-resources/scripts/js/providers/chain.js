@@ -241,10 +241,13 @@ define([
 			activate: function(data){			
 				data = data || {};
 				var self = this,
-			    	data = $.extend(data, {thumbSize: 'medium'});
+			    	data = $.extend(data, {thumbSize: 'medium', 'desc': 'order'});
                 // if (autoSources.isPaused(self.sourceId)) {
                 //     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
                 // }
+                self.collection.reset([]);
+                self.collection.resetStats();
+                self._views = [];
 				self.collection
 					.on('read update readauto updateauto', function(){
 						self.el.find('.chainblogs').show();
@@ -394,7 +397,6 @@ define([
                     });
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
 					delete this.collection.search;
-					console.log(this.collection._stats.limit);
                     this.collection
 						.limit(this.collection._stats.limit)
 						.offset(0)
@@ -513,7 +515,7 @@ define([
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
                 $('#automod-info').toggle(isAuto);
-                isAuto ? this.timelineView.deactivate() : this.timelineView.activate({ isDeleted: 'False' });
+                isAuto ? this.timelineView.deactivate() : this.timelineView.activate({ isDeleted: 'False' }); //, limit:  this.timelineView.collection._stats.limit
 			},
 			render: function(){
 				var self = this,
