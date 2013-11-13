@@ -27,6 +27,7 @@ define([
 	'tmpl!livedesk>providers/chain/hidden-blog-content',
 	'tmpl!livedesk>providers/chain/timeline',
 	'tmpl!livedesk>citizen-desk/statuses-list',
+	'tmpl!livedesk>citizen-desk/statuses-filter-list',
 	'tmpl!livedesk>citizen-desk/checker-list',
 ], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
 
@@ -49,11 +50,18 @@ define([
 			];
 			self.render();
     	},
-    	render: function(){
-    		var self = this;
-    		//self.data = self.collection.feed();
-    		self.el.tmpl('livedesk>citizen-desk/statuses-list', self.data);
-    	}
+		render: function(){
+			var self = this;
+			//self.data = self.collection.feed();
+			self.el.tmpl('livedesk>citizen-desk/statuses-list', self.data);
+		}
+    }),
+    StatusesFilterView = StatusesView.extend({
+		render: function(){
+				var self = this;
+				//self.data = self.collection.feed();
+				self.el.tmpl('livedesk>citizen-desk/statuses-filter-list', self.data);
+		}    	
     });
     	var Users = Gizmo.Auth(new Gizmo.Register.Users());
     		Users
@@ -370,8 +378,8 @@ define([
 					}
 				}
 			},
-			filterStatus: function(status) {
-
+			filterStatus: function(keyStatus) {
+				console.log('filterStatus:',keyStatus);
 			},
 			search: function(what) {
                 var view = this;
@@ -530,6 +538,7 @@ define([
 				'.sf-searchbox input': {keypress: 'checkEnter'},
                 '.sf-toggle:checkbox': {change: 'toggleAutopublish'},
                 '#hidden-toggle': { click: 'toggleHidden' },
+                '[data-status-filter-key]': { click: 'filterStatus'},
 			},
 			init: function(){
 				// userSearch = new UserSearch();
@@ -569,7 +578,13 @@ define([
 					active.model.chainBlogContentView.timelineView.search(what);
 				}
 			},
-
+			filterStatus: function(evt){
+				var keyStatus = $(evt.target).attr('data-status-filter-key'),
+					active = this.getActiveView();
+				if (active) {
+					active.model.chainBlogContentView.timelineView.filterStatus(keyStatus);
+				}
+			},
 			removeSearch: function(evt){
                 evt.preventDefault();
 				var input = $(evt.target).parents('.sf-searchbox').find('input');

@@ -1,0 +1,6 @@
+<div class="chain-filter">
+  <h5>_('Show only status:');</h5>
+  <ul>
+    <li data-status-filter="{Key}">{Name}</li>
+  </ul>
+</div>
