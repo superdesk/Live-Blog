@@ -13,12 +13,14 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from content.base.meta.item import ItemMapped
 from content.package.api.item_package import ItemPackage, TYPE_PACKAGE
+from ally.api.validate import validate, Optional
 
 # --------------------------------------------------------------------
 
 CATEGORY_PACKAGE = TYPE_PACKAGE
 # The package category.
 
+@validate(Optional(ItemPackage.ContentSet))
 class ItemPackageMapped(ItemMapped, ItemPackage):
     '''
     Provides the mapping for ItemPackage.

@@ -20,6 +20,7 @@ from ally.container import wire
 from content.base.core.spec import IItemHandler
 from ally.api import config
 from ally.api.type import typeFor
+from sql_alchemy.support.util_service import deleteModel
 
 # --------------------------------------------------------------------
 
@@ -85,13 +86,10 @@ class ItemServiceAlchemy(EntityServiceAlchemy):
         '''
         Construct the item service
         '''
-        # TODO: remove
-        print(itemHandlers)
-
         self.itemHandlers = itemHandlers
         EntityServiceAlchemy.__init__(self, ItemMapped, QItem)
 
-    def insert(self, item, content):
+    def insert(self, item, content=None):
         '''
         Implement @see IItemService.insert
         '''
@@ -100,7 +98,7 @@ class ItemServiceAlchemy(EntityServiceAlchemy):
             result = handler.insert(item, content)
             if result is not None: return result
 
-    def update(self, item, content):
+    def update(self, item, content=None):
         '''
         Implement @see IItemService.update
         '''
@@ -112,6 +110,8 @@ class ItemServiceAlchemy(EntityServiceAlchemy):
         '''
         Implement @see IItemService.update
         '''
+        itemObj = self.getById(item)
         for handler in self.itemHandlers:
             assert isinstance(handler, IItemHandler), 'Invalid handler %s' % handler
-            if handler.delete(item): return True
+            handler.delete(itemObj)
+        return deleteModel(self.Mapped, item)
