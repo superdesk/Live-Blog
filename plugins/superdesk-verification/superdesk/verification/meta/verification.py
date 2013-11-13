@@ -36,4 +36,4 @@ class PostVerificationMapped(Base, PostVerification):
     status = relationship(VerificationStatusMapped, uselist=False, lazy='joined')
     #post = relationship(PostMapped, uselist=False, backref='verification', lazy='joined')
 
-PostMapped.PostVerification = column_property(select([PostMapped.Id], whereclause=PostMapped.Id==PostVerificationMapped.Id).correlate())#
+PostMapped.PostVerification = column_property(select([PostMapped.Id], whereclause=PostMapped.Id==PostVerificationMapped.Id))#
