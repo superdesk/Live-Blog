@@ -1,5 +1,5 @@
 <ul class="post-list scroller chainblogs" style="display:none;">
+	<div>
+		<button type="button" id="more-chain" class="btn btn-medium more-chain">_("More");</button>
+	</div>
 </ul>
-<div style="height: 50px;padding-top:137px;">
-	<button type="button" id="more-chain" class="btn btn-medium btn-primary">_("More");</button>
-</div>
