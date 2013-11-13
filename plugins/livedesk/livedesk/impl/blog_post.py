@@ -35,6 +35,8 @@ from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from livedesk.impl.blog_collaborator_group import updateLastAccessOn
 from superdesk.source.meta.source import SourceMapped
+from superdesk.verification.meta.verification import PostVerificationMapped
+from superdesk.verification.meta.status import VerificationStatusMapped
 
 # --------------------------------------------------------------------
 
@@ -75,12 +77,26 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getPublished
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
+        
+        postVerification = aliased(PostVerificationMapped, name='post_verification_filter')
 
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
+        
         if q:
             if QWithCId.cId in q and q.cId:
                 sql = sql.filter(BlogPostMapped.CId != None)
             sql = buildQuery(sql, q, BlogPostMapped)
+            
+            if QWithCId.status in q or QWithCId.checker in q:
+                sql = sql.join(postVerification, postVerification.Id == BlogPostMapped.Id)     
+                sql = sql.join(VerificationStatusMapped, VerificationStatusMapped.id == postVerification.statusId) 
+                
+            if QWithCId.status in q: 
+                sql = sql.filter(VerificationStatusMapped.Key == q.status.equal) 
+                
+            if QWithCId.checker in q: 
+                sql = sql.filter(postVerification.Checker == q.checker.equal)
+             
         if q is None or QWithCId.cId not in q:
             sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
 
@@ -99,21 +115,35 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+        
+        postVerification = aliased(PostVerificationMapped, name='post_verification_filter')
+        
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
 
         deleted = False
         if q:
             if QBlogPostUnpublished.isDeleted in q:
                 deleted = q.isDeleted.value  
+                
             if QWithCId.cId in q and q.cId:
                 sql = sql.filter(BlogPostMapped.CId != None)
             sql = buildQuery(sql, q, BlogPostMapped)
             
-        if q:
+            if QWithCId.status in q or QWithCId.checker in q:
+                sql = sql.join(postVerification, postVerification.Id == BlogPostMapped.Id)     
+                sql = sql.join(VerificationStatusMapped, VerificationStatusMapped.id == postVerification.statusId) 
+                
+            if QWithCId.status in q: 
+                sql = sql.filter(VerificationStatusMapped.Key == q.status.equal) 
+                
+            if QWithCId.checker in q: 
+                sql = sql.filter(postVerification.Checker == q.checker.equal)
+                
             if QWithCId.cId not in q:
                 sql = sql.filter(BlogPostMapped.PublishedOn == None) 
                 if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
                 else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+                
         else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))    
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
@@ -130,6 +160,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+        
+        postVerification = aliased(PostVerificationMapped, name='post_verification_filter')
               
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Feed == sourceId)
@@ -146,7 +178,17 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 sql = sql.filter(or_(BlogPostMapped.Meta.ilike(all), BlogPostMapped.CreatedOn.ilike(all), \
                                      BlogPostMapped.Content.ilike(all), BlogPostMapped.ContentPlain.ilike(all), \
                                      ))
-            
+                
+            if QWithCId.status in q or QWithCId.checker in q:
+                sql = sql.join(postVerification, postVerification.Id == BlogPostMapped.Id)     
+                sql = sql.join(VerificationStatusMapped, VerificationStatusMapped.id == postVerification.statusId) 
+                
+            if QWithCId.status in q: 
+                sql = sql.filter(VerificationStatusMapped.Key == q.status.equal) 
+                
+            if QWithCId.checker in q: 
+                sql = sql.filter(postVerification.Checker == q.checker.equal)
+                
             if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
                and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
                 

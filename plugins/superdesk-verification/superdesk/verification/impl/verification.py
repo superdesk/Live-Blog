@@ -80,7 +80,7 @@ class PostVerificationServiceAlchemy(EntityServiceAlchemy, IPostVerificationServ
         except SQLAlchemyError as e: handle(e, postVerificationDb)
         
         #increase the CId for blog post
-        sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.PostVerification == postVerification.Id)
+        sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.Id == postVerification.Id)
         blogPost = sql.one()
         self.blogPostService.updateCid(blogPost.Blog, blogPost.Id)
         
