@@ -188,7 +188,13 @@ $.extend(providers.comments, {
                         updated = true;
                     }
                 });
-                
+
+                if ( cmnt.Meta.hasOwnProperty('IsPublished') ) {
+                    if ( cmnt.Meta.IsPublished == "True" ) {
+                        cmnt.Meta.PublishedOn = "True";
+                    }
+                }
+
                 if ( ( ! updated && ! cmnt.Meta.PublishedOn && ! cmnt.Meta.DeletedOn && self.minId > cmnt.Meta.Id ) || sd.cId == -1 ) {
                     newPosts.push(cmnt);
                 }
