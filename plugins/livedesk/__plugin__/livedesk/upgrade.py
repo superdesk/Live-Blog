@@ -336,5 +336,28 @@ def upgradeSyncBlogFix():
     try: session.execute("DROP TABLE livedesk_sms_sync")
     except (ProgrammingError, OperationalError): pass
     
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeSourceSmsFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute('INSERT INTO source_type (`key`) values("smsblog")')
+    except (ProgrammingError, OperationalError): pass 
+    
+    try:
+        session.execute('INSERT INTO source_type (`key`) values("smsfeed")')
+    except (ProgrammingError, OperationalError): pass   
+    
+    try:
+        session.execute('UPDATE source SET fk_type_id =  (SELECT id FROM source_type WHERE `key`="smsfeed") \
+                          WHERE fk_type_Id = (SELECT id FROM source_type WHERE `key`="FrontlineSMS")')
+    except (ProgrammingError, OperationalError): pass 
+    
+    try:
+        session.execute('DELETE FROM source_type WHERE `key` ="FrontlineSMS"')
+    except (ProgrammingError, OperationalError): pass
        
   
