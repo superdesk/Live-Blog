@@ -258,7 +258,7 @@ define([
 				});
 				//dynamically get size of header and set top space for list
 	            var top_space = $('.chain-header').outerHeight() + 20;
-	            $('.post-list.chainblogs').css({'top': top_space});
+	            $('.postlist-container').css({'top': top_space});
 			},
 			removeOne: function(view) {
 				var 
