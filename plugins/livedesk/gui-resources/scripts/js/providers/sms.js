@@ -323,6 +323,12 @@ $.extend(providers.sms, {
             for ( var i = 0; i < smss.length; i++ ) {
                 var item = smss[i];
                 item['message'] = item.Content;
+                //add some meta info for the templates
+                var Meta = {Id: item.Id};
+                if ( item.DeletedOn ) {
+                    Meta.DeletedOn = item.DeletedOn;
+                };
+                item.Meta = Meta;
                 posts.push(item);
                 self.data.sms[item.Id] = item;
                 //increase the 'cId' if necessary
@@ -377,12 +383,9 @@ $.extend(providers.sms, {
                 self.extraItems[ sd.feedId ] += newPosts.length;
             }
 
-
-
             if ( posts.length > 0 ) {
                 //hide alert with no results message
                 $('.sms-list[data-feed-id="' + sd.feedId + '"] div.alert').css('display', 'none');
-
                 $.tmpl('livedesk>items/item', {
                     Post: posts,
                     Base: 'implementors/sources/sms',
