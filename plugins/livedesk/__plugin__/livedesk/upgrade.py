@@ -344,9 +344,6 @@ def upgradeSourceSmsFix():
     session = creator()
     assert isinstance(session, Session)
     
-    session.execute('DELETE FROM source_type WHERE `key` ="smsblog"')
-    session.execute('DELETE FROM source_type WHERE `key` ="smsfeed"')
-    session.execute('INSERT INTO source_type (`key`) values("FrontlineSMS")')
 
     try:
         if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsblog').count() == 0:
