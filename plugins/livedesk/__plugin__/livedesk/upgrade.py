@@ -31,6 +31,7 @@ from superdesk.user.meta.user_type import UserTypeMapped
 from superdesk.user.meta.user import UserMapped
 from uuid import uuid4
 from superdesk.post.meta.post import PostMapped
+from superdesk.source.meta.type import SourceTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -342,22 +343,30 @@ def upgradeSourceSmsFix():
     creator = alchemySessionCreator()
     session = creator()
     assert isinstance(session, Session)
+    
+    session.execute('DELETE FROM source_type WHERE `key` ="smsblog"')
+    session.execute('DELETE FROM source_type WHERE `key` ="smsfeed"')
+    session.execute('INSERT INTO source_type (`key`) values("FrontlineSMS")')
 
     try:
-        session.execute('INSERT INTO source_type (`key`) values("smsblog")')
-    except (ProgrammingError, OperationalError): pass 
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsblog').count() == 0:
+            session.execute('INSERT INTO source_type (`key`) values("smsblog")')
+    except (Exception): pass 
     
     try:
-        session.execute('INSERT INTO source_type (`key`) values("smsfeed")')
-    except (ProgrammingError, OperationalError): pass   
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsfeed').count() == 0:
+            session.execute('INSERT INTO source_type (`key`) values("smsfeed")')
+    except (Exception): pass   
+    
+    try:   
+        idSmsfeed = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsfeed').scalar()
+        idFrontlineSMS = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'FrontlineSMS').scalar()     
+        session.execute('UPDATE source SET fk_type_id =' + str(idSmsfeed) + ' WHERE id=' + str(idFrontlineSMS))
+    except (Exception): pass 
     
     try:
-        session.execute('UPDATE source SET fk_type_id =  (SELECT id FROM source_type WHERE `key`="smsfeed") \
-                          WHERE fk_type_Id = (SELECT id FROM source_type WHERE `key`="FrontlineSMS")')
-    except (ProgrammingError, OperationalError): pass 
-    
-    try:
-        session.execute('DELETE FROM source_type WHERE `key` ="FrontlineSMS"')
-    except (ProgrammingError, OperationalError): pass
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'FrontlineSMS').count() > 0:
+            session.execute('DELETE FROM source_type WHERE `key` ="FrontlineSMS"')
+    except (Exception): pass
        
-  
+    session.commit()
