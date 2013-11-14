@@ -343,6 +343,10 @@ def upgradeSourceSmsFix():
     creator = alchemySessionCreator()
     session = creator()
     assert isinstance(session, Session)
+    
+    session.execute('DELETE FROM source_type WHERE `key` ="smsblog"')
+    session.execute('DELETE FROM source_type WHERE `key` ="smsfeed"')
+    session.execute('INSERT INTO source_type (`key`) values("FrontlineSMS")')
 
     try:
         if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsblog').count() == 0:
@@ -357,7 +361,7 @@ def upgradeSourceSmsFix():
     try:   
         idSmsfeed = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsfeed').scalar()
         idFrontlineSMS = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'FrontlineSMS').scalar()     
-        session.execute('UPDATE source SET fk_type_id =' + str(idSmsfeed) + ' WHERE id=' + str(idFrontlineSMS))
+        session.execute('UPDATE source SET fk_type_id =' + str(idSmsfeed) + ' WHERE fk_type_id=' + str(idFrontlineSMS))
     except (Exception): pass 
     
     try:
