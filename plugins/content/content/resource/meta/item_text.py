@@ -13,14 +13,12 @@ from sqlalchemy.schema import Column, ForeignKey
 from content.resource.api.item_text import ItemText, CLASS_TEXT
 from content.resource.meta.item_resource import ItemResourceMapped
 from content.resource.api.item_resource import TYPE_RESOURCE
-from ally.api.validate import validate, Optional
 
 # --------------------------------------------------------------------
 
 CATEGORY_RESOURCE_TEXT = '%s:%s' % (TYPE_RESOURCE, CLASS_TEXT)
 # The text resource category
 
-@validate(Optional(ItemText.ContentSet))
 class ItemTextMapped(ItemResourceMapped, ItemText):
     '''
     Provides the mapping for ItemText.

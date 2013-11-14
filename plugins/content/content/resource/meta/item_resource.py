@@ -12,7 +12,6 @@ Contains the SQL alchemy meta for resource item API.
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from content.base.meta.item import ItemMapped
-from ally.api.validate import validate, Optional
 from content.resource.api.item_resource import ItemResource, TYPE_RESOURCE
 
 # --------------------------------------------------------------------
@@ -20,7 +19,6 @@ from content.resource.api.item_resource import ItemResource, TYPE_RESOURCE
 CATEGORY_RESOURCE = TYPE_RESOURCE
 # The resource category.
 
-@validate(Optional(ItemResource.ContentSet))
 class ItemResourceMapped(ItemMapped, ItemResource):
     '''
     Provides the mapping for ItemResource.
