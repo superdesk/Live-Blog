@@ -35,6 +35,8 @@ from superdesk.source.api.source import ISourceService
 from ally.container import wire
 from livedesk.api.blog_sync import IBlogSyncService
 from livedesk.meta.blog_sync import BlogSyncMapped
+from superdesk.security.api.user_rbac import IUserRbacService
+from security.rbac.api.rbac import QRole
 
 # --------------------------------------------------------------------
 
@@ -48,6 +50,11 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
     '''
+    
+    roleService = IUserRbacService; wire.entity('roleService')
+    # The role service used to get info about user assigned roles and rights
+    admin_role = 'Administrator'
+    
     def __init__(self):
         '''
         Construct the blog service.
@@ -133,10 +140,15 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if userId:
-            userFilter = (BlogMapped.Creator == userId) | exists().where((CollaboratorMapped.User == userId) \
-                                         & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
-                                         & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
-            sql = sql.filter(userFilter)
+            #TODO: change it for the new version of Ally-Py, where it is a complete implementation of security 
+            qRole = QRole()
+            qRole.name = self.admin_role
+            isAdmin = len(self.roleService.getRoles(userId, q=qRole))
+            if not isAdmin:
+                userFilter = (BlogMapped.Creator == userId) | exists().where((CollaboratorMapped.User == userId) \
+                                             & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
+                                             & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
+                sql = sql.filter(userFilter)
 
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
