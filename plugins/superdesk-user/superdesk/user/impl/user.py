@@ -127,7 +127,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
-            userDb.typeId = self._userTypeId(user.Type)
+            if user.Type: userDb.typeId = self._userTypeId(user.Type)
             userDb.Cid = userDb.Cid if userDb.Cid else 0
             userDb.Cid = user.Cid if user.Cid else userDb.Cid + 1
             self.session().flush((copy(user, userDb, exclude=('Type', 'CId')),))
