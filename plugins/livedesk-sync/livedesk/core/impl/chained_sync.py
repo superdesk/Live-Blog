@@ -199,6 +199,7 @@ class ChainedSyncProcess:
                 if 'DeletedOn' not in post:       
                     #TODO: workaround, read again the Author because sometimes we get access denied
                     post['Author'] = self._readAuthor(post['Author']['href'])   
+                    post['Creator'] = self._readCreator(post['Creator']['href'])
                     
                     #if exists local, update it, otherwise continue the original insert
                     localPost.Type = post['Type']['Key']
@@ -405,7 +406,7 @@ class ChainedSyncProcess:
         if shouldRemoveOld:
             try:
                 self.personIconService.detachIcon(userId)
-                self.metaInfoService.delete(localId)
+                #self.metaInfoService.delete(localId)
             except InputError:
                 log.error('Can not remove old icon for chained user %s' % userId)
 
@@ -415,7 +416,7 @@ class ChainedSyncProcess:
                 imageData = self.metaDataService.insert(userId, iconContent, 'http')
                 if (not imageData) or (not imageData.Id):
                     return
-                self.personIconService.setIcon(userId, imageData.Id)
+                self.personIconService.setIcon(userId, imageData.Id, False)
             except InputError:
                 log.error('Can not upload icon for chained user %s' % userId)
                 
@@ -436,4 +437,22 @@ class ChainedSyncProcess:
             return json.load(codecs.getreader(self.encodingType)(response))
         except ValueError as e:
             log.error('Invalid JSON data %s' % e)
-            return None          
+            return None    
+        
+    def _readCreator(self, url):
+        
+        request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*'})
+        
+        try:
+            response = urlopen(request)
+        except (HTTPError, socket.error) as e:
+            return None
+        
+        if str(response.status) != '200':
+            return None
+        
+        try:
+            return json.load(codecs.getreader(self.encodingType)(response))
+        except ValueError as e:
+            log.error('Invalid JSON data %s' % e)
+            return None               

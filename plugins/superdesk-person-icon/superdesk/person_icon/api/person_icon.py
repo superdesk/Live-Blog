@@ -47,7 +47,7 @@ class IPersonIconService:
         '''
 
     @call(method=INSERT)
-    def setIcon(self, personId:Person.Id, metaDataId:MetaData.Id) -> PersonIcon.Id:
+    def setIcon(self, personId:Person.Id, metaDataId:MetaData.Id, updateCid:bool=True) -> PersonIcon.Id:
         '''
         Associates the icon referenced by the metadata identifier with the person.
 
@@ -55,6 +55,8 @@ class IPersonIconService:
             The identifier of the person
         @param metaDataId: MetaData.Id
             The identifier of the metadata
+        @updateCid: bool
+            If true it will increase the change id for the person
         @raise InputError: If the any of the identifiers is not valid.
         @return: PersonIcon.Id
             Returns the identifier of the person for which the association took place.
