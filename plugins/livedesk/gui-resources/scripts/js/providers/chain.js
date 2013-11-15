@@ -4,6 +4,7 @@ define([
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
     config.guiJs('livedesk', 'views/post'),
+    config.guiJs('livedesk', 'models/statuses'),
     config.guiJs('livedesk', 'models/sync'),
     config.guiJs('livedesk', 'models/sync-collection'),
 	'jqueryui/draggable',
@@ -29,104 +30,103 @@ define([
 	'tmpl!livedesk>citizen-desk/statuses-list',
 	'tmpl!livedesk>citizen-desk/statuses-filter-list',
 	'tmpl!livedesk>citizen-desk/checker-list',
-], function(providers, $, Gizmo, BlogAction, PostView, SyncModel, SyncCollection) {
+], function(providers, $, Gizmo, BlogAction, PostView, StatusesView, SyncModel, SyncCollection) {
 
-    var autoSources = new SyncCollection();
-    var StatusesView = Gizmo.View.extend({
-    	init: function(){
-			var self = this;
-			// if(!self.collection) {
-			// 	self.collection = Gizmo.Auth(new Gizmo.Register.Statuses());
-			// }
-			// self.collection
-			// 	.on('read', self.render, self)
-			// 	.xfilter('EMail,FirstName,LastName,FullName,Name') 
-			// 	.sync()
-			self.data = [
-				{ "Key": "nostatus", "Name": _("No status")},
-				{ "Key": "verified", "Name": _("Verified")},
-				{ "Key": "unverified", "Name": _("Unverified")},
-				{ "Key": "onverification", "Name": _("On verification")}
-			];
-			self.render();
-    	},
-		render: function(){
-			var self = this;
-			//self.data = self.collection.feed();
-			self.el.tmpl('livedesk>citizen-desk/statuses-list', self.data);
-		}
-    }),
-    StatusesFilterView = StatusesView.extend({
-		render: function(){
-				var self = this;
-				//self.data = self.collection.feed();
-				self.el.tmpl('livedesk>citizen-desk/statuses-filter-list', self.data);
-		}    	
-    });
-    	var Users = Gizmo.Auth(new Gizmo.Register.Users());
-    		Users
-    			.xfilter('Id,EMail,FirstName,LastName,FullName,Name')
-    			//.limit(1)
-    			.sync();
+    var PostStatusesView = StatusesView.extend({
+    		template: 'livedesk>citizen-desk/statuses-list'
+	    }),
+	    StatusesFilterView = StatusesView.extend({
+			template: 'livedesk>citizen-desk/statuses-filter-list'  	
+	    }),
+		autoSources = new SyncCollection(),
+	    Users = Gizmo.Auth(new Gizmo.Register.Users());
+	   	Users.xfilter('Id,EMail,FirstName,LastName,FullName,Name')
+			//.limit(1)
+			.sync();
     	var
-    		UserVerification = Gizmo.View.extend({
-			init: function(){
-				var self = this;
-				self.data = [];
-				this.render();
-			},
+    		UserDrop = Gizmo.View.extend({
+				init: function(){
+					var self = this;
+					self.data = [];
+					this.render();
+				},
+				killMenu: function(){
+					var self = this;
+					$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
+				},
+				sync: function() {
+					if(!self.collection) {
+						self.collection = Gizmo.Auth(new Gizmo.Register.Users());
+					}
+					self.collection
+						.on('read', self.render, self)
+						.xfilter('EMail,FirstName,LastName,FullName,Name')
+						.sync()    			
+				},
+				render: function(evt, data){
+					var self = this;
+					self.collection.each(function(){
+						self.data.push({label: this.get('FullName'), value: this.feed()});
+					});
+					self.el.tmpl(self.template, self.getCurrent(), function(){
+						var autocomp = $('input',self.el).autocomplete({
+							autoFocus: true,
+							minLength: 0,
+							appendTo: $('.assignment-result-list',self.el),
+							source: self.data
+						}).data( "autocomplete" );
+						autocomp._renderItem = function( ul, item ) {
+								return $( "<li></li>" )
+									.data( "item.autocomplete", item )
+									.append( '<figure class="avatar-small"></figure><span>'+ item.label+'</span>'  )
+									.appendTo( ul );
+						};
+						autocomp._renderMenu = function( ul, items ) {
+							var self = this;
+							$.each( items, function( index, item ) {
+								self._renderItem( ul, item );
+							});
+							$( ul ).removeClass('ui-autocomplete');
+						};
+					});
+				},
+				getCurrent: function(){
+					return {};
+				}		
+    		}),
+    	UserVerification = UserDrop.extend({
+			template: 'livedesk>citizen-desk/checker-list',
 			events: {
-				'.assignment-result-list li': { 'click': 'changeChecker' },
-				'input': { 'click': 'stopPropagation' }
+				'input': { 'click': 'stopPropagation' },
+				'.assignment-result-list li': { 'click': 'changeChecker' }
 			},
 			stopPropagation: function(evt){
 				evt.stopImmediatePropagation();
-			},
-			killMenu: function(){
-				var self = this;
-				$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
-			},
-			sync: function() {
-				if(!self.collection) {
-					self.collection = Gizmo.Auth(new Gizmo.Register.Users());
-				}
-				self.collection
-					.on('read', self.render, self)
-					.xfilter('EMail,FirstName,LastName,FullName,Name')
-					.sync()    			
 			},
 			changeChecker: function(evt){
 				var self = this,
 					item = $(evt.target).closest('li').data( "item.autocomplete");
 				self.post.changeChecker(item.value);
 			},
-			render: function(evt, data){
-				var self = this;
-				self.collection.each(function(){
-					self.data.push({label: this.get('FullName'), value: this.feed()});
-				});
-				self.el.tmpl('livedesk>citizen-desk/checker-list', self.post.feed(), function(){
-					var autocomp = $('input',self.el).autocomplete({
-						autoFocus: true,
-						minLength: 0,
-						appendTo: $('.assignment-result-list',self.el),
-						source: self.data
-					}).data( "autocomplete" );
-					autocomp._renderItem = function( ul, item ) {
-							return $( "<li></li>" )
-								.data( "item.autocomplete", item )
-								.append( '<figure class="avatar-small"></figure><span>'+ item.label+'</span>'  )
-								.appendTo( ul );
-					};
-					autocomp._renderMenu = function( ul, items ) {
-						var self = this;
-						$.each( items, function( index, item ) {
-							self._renderItem( ul, item );
-						});
-						$( ul ).removeClass('ui-autocomplete');
-					};
-				});
+			getCurrent: function(){
+				return this.post.feed();
 			}
+		}),
+		UserFilter = UserDrop.extend({
+			template: 'livedesk>citizen-desk/checker-list',
+			events: {
+				'input': { 'click': 'stopPropagation' },
+				'.assignment-result-list li': { 'click': 'filterChecker' }
+			},
+			stopPropagation: function(evt){
+				evt.stopImmediatePropagation();
+			},
+			filterChecker: function(evt){
+				var self = this,
+					item = $(evt.target).closest('li').data( "item.autocomplete");
+				console.log(item.value);
+				self._parent.filterChecker(item.value);
+			}			
 		}),
     	ChainPostView = PostView.extend({
     		events: {
@@ -202,6 +202,8 @@ define([
 			init: function(){
 				var self = this;
 				self._views = [];
+                self.collection.reset([]);
+                self.collection.resetStats();
 				self.collection.keepPolling = function(){
 					return self.el.is(":visible");
 				}
@@ -219,6 +221,10 @@ define([
 					})
 					.on('removeingsauto', self.removeAll, self)
 					.desc('order')
+					.on('read update readauto updateauto', function(){
+						$('.postlist-container',self.el).show();
+						$('.chainblogs',self.el).show();
+					})
 					.limit(self.collection._stats.limit)
 					.xfilter(self.xfilter);
 			},
@@ -242,23 +248,15 @@ define([
 				data = data || {};
 				var self = this,
 			    	data = $.extend(data, {thumbSize: 'medium', 'desc': 'order'});
-                // if (autoSources.isPaused(self.sourceId)) {
-                //     data['cId.since'] = autoSources.getLastSyncId(this.sourceId);
-                // }
-                self.collection.reset([]);
-                self.collection.resetStats();
-                self._views = [];
 				self.collection
-					.on('read update readauto updateauto', function(){
-						self.el.find('.chainblogs').show();
-					})
 					.auto({
 						headers: { 'X-Filter': self.xfilter },
                         data: data
 					});
 			},
 			deactivate: function(){
-				this.el.find('.chainblogs').hide();
+					$('.postlist-container',this.el).hide();
+					$('.chainblogs',this.el).hide();
 				this.collection.stop();
 			},
 			render: function(evt){
@@ -381,8 +379,41 @@ define([
 					}
 				}
 			},
+			filterChecker: function(checker) {
+                var view = this;
+                this.deactivate();
+                this.collection.reset([]);
+                this.collection.resetStats();
+                this._views = [];
+				if (checker.Id !== '') {
+					this.collection.search = checker.Id;
+                    this.collection.sync({data: {checker: checker.Id}});
+				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
+					delete this.collection.search;
+                    this.collection
+						.limit(this.collection._stats.limit)
+						.offset(0)
+						.desc('order')
+                    this.activate();
+				}
+			},
 			filterStatus: function(keyStatus) {
-				console.log('filterStatus:',keyStatus);
+                var view = this;
+                this.deactivate();
+                this.collection.reset([]);
+                this.collection.resetStats();
+                this._views = [];
+				if (keyStatus !== 'all') {
+					this.collection.search = keyStatus;
+                    this.collection.sync({data: {status: keyStatus}});
+				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
+					delete this.collection.search;
+                    this.collection
+						.limit(this.collection._stats.limit)
+						.offset(0)
+						.desc('order')
+                    this.activate();
+				}
 			},
 			search: function(what) {
                 var view = this;
@@ -392,9 +423,7 @@ define([
                 this._views = [];
 				if (what) {
 					this.collection.search = what;
-                    this.collection.sync({data: {search: what}}).done(function() {
-				        view.el.find('.chainblogs').show();
-                    });
+                    this.collection.sync({data: {search: what}});
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
 					delete this.collection.search;
                     this.collection
@@ -581,10 +610,20 @@ define([
 				}
 			},
 			filterStatus: function(evt){
-				var keyStatus = $(evt.target).attr('data-status-filter-key'),
+				evt.preventDefault();
+				$('[data-status-filter-key]', self.el).removeClass('active');
+				var el = $(evt.target).closest('[data-status-filter-key]'),
+					keyStatus = el.attr('data-status-filter-key'),
 					active = this.getActiveView();
+				el.addClass('active');
 				if (active) {
 					active.model.chainBlogContentView.timelineView.filterStatus(keyStatus);
+				}
+			},
+			filterChecker: function(checker) {
+				var active = this.getActiveView();
+				if (active) {
+					active.model.chainBlogContentView.timelineView.filterChecker(checker);
 				}
 			},
 			removeSearch: function(evt){
@@ -626,6 +665,11 @@ define([
 						$contentEl = self.el.find('.chain-header'),
 						blogParts = self.blog.href.match(/Blog\/(\d+)/);
 
+					self.userFilter = new UserFilter({ 
+						el: $('.filter-assign',self.el),
+						collection: Users,
+						_parent: self
+					});
                     self.sourceBlogs.each(function(id,sourceBlog){
 						// chainBlog = new Gizmo.Register.Blog();
 						// chainBlog.defaults.PostUnpublished = Gizmo.Register.AutoPosts;

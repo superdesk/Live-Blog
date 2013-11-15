@@ -1,6 +1,8 @@
 <div class="chain-filter">
-  <h5>_('Show only status:');</h5>
   <ul>
-    <li data-status-filter="{Key}">{Name}</li>
+ 	<li data-status-filter-key="all" class="active">
+		<a href="#">_('All');</a>
+	</li>
+    <li data-status-filter-key="{Key}"><a href="#">{Name}</a></li>
   </ul>
 </div>

@@ -15,32 +15,23 @@
 	</div>
 	<div class="chain-filter">
 	  <ul>
-	  	<li data-status-key="all" class="active">
-	      <a href="#">
-	       _('All');
-	      </a>
-	    </li>
-	    <li data-status-key="nostatus">
-	      <a href="#">
-	       _('No Status');
-	      </a>
-	    </li>
-	    <li data-status-key="verified">
-	      <a href="#">
-	        _('Verified');
-	      </a>
-	    </li>
-	    <li data-status-key="unverified">
-	      <a href="#">
-	        _('Unverified');
-	      </a>
-	    </li>
-	    <li data-status-key="onverification">
-	      <a href="#">
-	        _('On verification');
-	      </a>
-	    </li>
+		<li data-status-filter-key="all" class="active">
+			<a href="#">_('All');</a>
+		</li>
+		<li data-status-filter-key="nostatus">
+			<a href="#">_('No Status');</a>
+		</li>
+		<li data-status-filter-key="verified">
+			<a href="#">_('Verified');</a>
+		</li>
+		<li data-status-filter-key="unverified">
+			<a href="#">_('Unverified');</a>
+		</li>
+		<li data-status-filter-key="onverification">
+			<a href="#">_('On verification');</a>
+		</li>
 	  </ul>
+	  <div class="filter-assign verification-box post-list"></div>
 	</div>
 	{:else}
 	<p>_("No liveblogs");</p>
