@@ -14,7 +14,7 @@ define([
 			this.autoInit();
 		},
 		resetStats: function() {
-			this._stats = { limit: 2, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+			this._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 		},
 		autoInit: function(){
 			var self = this;
