@@ -52,17 +52,19 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         metaData = self.metaDataService.getById(personIcon.MetaData, scheme, thumbSize)
         return metaData
 
-    def setIcon(self, personId, metaDataId):
+    def setIcon(self, personId, metaDataId, update):
         '''
         @see: IPersonIconService.setIcon
         '''
-        
-        user = User()
-        user.Id = personId
-        self.userService.update(user)
+     
+        if update:   
+            user = User()
+            user.Id = personId
+            self.userService.update(user)
         
         entityDb = PersonIconMapped()
         entityDb.Id, entityDb.MetaData = personId, metaDataId
+        
         try:
             self.session().merge(entityDb)
             self.session().flush((entityDb,))
