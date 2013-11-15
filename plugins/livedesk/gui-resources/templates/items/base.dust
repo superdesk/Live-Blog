@@ -185,7 +185,7 @@
 <!-- this template goes to the top (just after the drag-bar block) of the base.dust file template --> 
 	<div class="verification-box">
 		<div class="verification-label dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >{PostVerification.Status.Key} <b class="caret"></b></a>
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">{PostVerification.Status.Key} <b class="caret"></b></a>
 			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
 				<h5 class="dropdown-title">Change status</h5>
 				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
