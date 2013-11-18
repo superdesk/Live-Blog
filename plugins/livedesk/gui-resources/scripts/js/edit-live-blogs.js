@@ -9,6 +9,8 @@ define
     'gizmo/superdesk',
     'jquery',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('livedesk', 'views/user-verification'),
+    config.guiJs('livedesk', 'views/user-filter'),
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -34,8 +36,7 @@ define
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
  ], 
-function(providers, Gizmo, $, BlogAction) 
-{
+function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 		
     /*!
      * Returns true if the data object is compose of only given keys

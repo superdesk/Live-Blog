@@ -187,7 +187,7 @@
 		<div class="verification-label dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown">{PostVerification.Status.Key} <b class="caret"></b></a>
 			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
-				<h5 class="dropdown-title">Change status</h5>
+				<h5 class="dropdown-title">_('Change status');</h5>
 				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
 				<li data-status-key="verified"><span class="label-verified"></span>_('Verified');</li>
 				<li data-status-key="unverified"><span class="label-unverified"></span>_('Unverified');</li>
@@ -204,7 +204,16 @@
 	{?Meta.DeletedOn}
 		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
 	{:else}
-		<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
+		{?DeletedOn}
+			<a href="#toggle-post" data-action="unhide" data-id="{Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
+		{:else}
+			{#Id}
+				<a href="#toggle-post" data-action="hide" data-id="{Id}" class="close image" title="_('Delete');">&nbsp;</a>
+			{/Id}
+			{#Meta.Id}
+				<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
+			{/Meta.Id}
+		{/if}
 	{/Meta.DeletedOn}
 	</div>
 {/PostHiddenAction}
