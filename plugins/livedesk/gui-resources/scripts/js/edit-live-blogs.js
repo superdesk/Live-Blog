@@ -578,6 +578,19 @@ function(providers, Gizmo, $, BlogAction)
 				    .tooltip({placement: 'bottom'});
 				
 			},
+			clean: function(){
+				var self = this;
+				self._views = [];
+				self.moreHidden = false;
+				for(var i = 0, model, count = self.collection._list.length; i < count; i++) {
+					model = self.collection._list[i];
+					delete model.postview;
+					delete model.updater;
+				}
+                self.collection.reset([]);
+                self.collection.resetStats();
+                self.el.html();
+			},
 			toggleMoreVisibility: function()
 			{
 				var self = this;
@@ -818,8 +831,8 @@ function(providers, Gizmo, $, BlogAction)
 				});
 			},
 			update: function(e) {
-				var element = e.currentTarget;
-				$('[data-info="filter"]').html($(element).html());
+				//var element = e.currentTarget;
+				//$('[data-info="filter"]').html($(element).html()); 
 			}
 		}),
 		EditView = Gizmo.View.extend
