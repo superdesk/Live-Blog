@@ -47,7 +47,7 @@ class PostMapped(Base, Post):
     Content = Column('content', TEXT)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
-    WasPublished = Column('was_published', Boolean, nullable=False, default=False)
+    WasPublished = Column('was_published', Boolean, default=False)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
     @hybrid_property
