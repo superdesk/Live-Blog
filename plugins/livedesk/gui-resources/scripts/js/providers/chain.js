@@ -4,7 +4,9 @@ define([
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
     config.guiJs('livedesk', 'views/post'),
-    config.guiJs('livedesk', 'models/statuses'),
+    config.guiJs('livedesk', 'views/statuses'),
+    config.guiJs('livedesk', 'views/user-verification'),
+    config.guiJs('livedesk', 'views/user-filter'),
     config.guiJs('livedesk', 'models/sync'),
     config.guiJs('livedesk', 'models/sync-collection'),
 	'jqueryui/draggable',
@@ -30,8 +32,19 @@ define([
 	'tmpl!livedesk>citizen-desk/statuses-list',
 	'tmpl!livedesk>citizen-desk/statuses-filter-list',
 	'tmpl!livedesk>citizen-desk/checker-list',
-], function(providers, $, Gizmo, BlogAction, PostView, StatusesView, SyncModel, SyncCollection) {
-
+], function(
+		providers,
+		$,
+		Gizmo,
+		BlogAction,
+		PostView,
+		StatusesView,
+		UserVerification,
+		UserFilter,
+		SyncModel,
+		SyncCollection
+	) {
+	
     var PostStatusesView = StatusesView.extend({
     		template: 'livedesk>citizen-desk/statuses-list'
 	    }),
@@ -39,95 +52,6 @@ define([
 			template: 'livedesk>citizen-desk/statuses-filter-list'  	
 	    }),
 		autoSources = new SyncCollection(),
-	    Users = Gizmo.Auth(new Gizmo.Register.Users());
-	   	Users.xfilter('Id,EMail,FirstName,LastName,FullName,Name')
-			//.limit(1)
-			.sync();
-    	var
-    		UserDrop = Gizmo.View.extend({
-				init: function(){
-					var self = this;
-					self.data = [];
-					this.render();
-				},
-				killMenu: function(){
-					var self = this;
-					$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
-				},
-				sync: function() {
-					if(!self.collection) {
-						self.collection = Gizmo.Auth(new Gizmo.Register.Users());
-					}
-					self.collection
-						.on('read', self.render, self)
-						.xfilter('EMail,FirstName,LastName,FullName,Name')
-						.sync()    			
-				},
-				render: function(evt, data){
-					var self = this;
-					self.collection.each(function(){
-						self.data.push({label: this.get('FullName'), value: this.feed()});
-					});
-					self.el.tmpl(self.template, self.getCurrent(), function(){
-						var autocomp = $('input',self.el).autocomplete({
-							autoFocus: true,
-							minLength: 0,
-							appendTo: $('.assignment-result-list',self.el),
-							source: self.data
-						}).data( "autocomplete" );
-						autocomp._renderItem = function( ul, item ) {
-								return $( "<li></li>" )
-									.data( "item.autocomplete", item )
-									.append( '<figure class="avatar-small"></figure><span>'+ item.label+'</span>'  )
-									.appendTo( ul );
-						};
-						autocomp._renderMenu = function( ul, items ) {
-							var self = this;
-							$.each( items, function( index, item ) {
-								self._renderItem( ul, item );
-							});
-							$( ul ).removeClass('ui-autocomplete');
-						};
-					});
-				},
-				getCurrent: function(){
-					return {};
-				}		
-    		}),
-    	UserVerification = UserDrop.extend({
-			template: 'livedesk>citizen-desk/checker-list',
-			events: {
-				'input': { 'click': 'stopPropagation' },
-				'.assignment-result-list li': { 'click': 'changeChecker' }
-			},
-			stopPropagation: function(evt){
-				evt.stopImmediatePropagation();
-			},
-			changeChecker: function(evt){
-				var self = this,
-					item = $(evt.target).closest('li').data( "item.autocomplete");
-				self.post.changeChecker(item.value);
-			},
-			getCurrent: function(){
-				return this.post.feed();
-			}
-		}),
-		UserFilter = UserDrop.extend({
-			template: 'livedesk>citizen-desk/checker-list',
-			events: {
-				'input': { 'click': 'stopPropagation' },
-				'.assignment-result-list li': { 'click': 'filterChecker' }
-			},
-			stopPropagation: function(evt){
-				evt.stopImmediatePropagation();
-			},
-			filterChecker: function(evt){
-				var self = this,
-					item = $(evt.target).closest('li').data( "item.autocomplete");
-				console.log(item.value);
-				self._parent.filterChecker(item.value);
-			}			
-		}),
     	ChainPostView = PostView.extend({
     		events: {
     			'': { afterRender: 'addElements', mouseleave: 'killMenu'},
