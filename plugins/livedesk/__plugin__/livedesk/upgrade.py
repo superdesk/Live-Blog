@@ -413,11 +413,12 @@ def upgradePostWasPublishedFix():
     
 
     try:
-        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1) DEFAULT 1")
+        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1)")
     except (Exception): pass
     
     try:
         session.execute("UPDATE post SET was_published=0 WHERE published_on IS NULL")
+        session.execute("UPDATE post SET was_published=1 WHERE published_on IS NOT NULL")
     except (Exception): pass
     
        
