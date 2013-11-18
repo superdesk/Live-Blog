@@ -95,10 +95,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 sql = sql.filter(VerificationStatusMapped.Key == q.status.equal) 
                 
             if QWithCId.checker in q: 
-                sql = sql.filter(postVerification.Checker == q.checker.equal)
+                sql = sql.filter(postVerification.Checker == q.checker.equal)   
              
         if q is None or QWithCId.cId not in q:
             sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
+
+        #filter updates that were not published yet
+        sql = sql.filter(BlogPostMapped.WasPublished == True)       
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
@@ -285,6 +288,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
 
         post.PublishedOn = current_timestamp()
+        post.WasPublished = True
         post.deletedOn = None
         self.postService.update(post)
 
@@ -300,6 +304,14 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.updateCid
         '''
+        
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if post.PublishedOn is None: 
+            post.WasPublished = False
+            self.postService.update(post)
+            
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=postId)
         postEntry.CId = self._nextCId()
         self.session().merge(postEntry)
@@ -335,6 +347,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
 
         post.DeletedOn = None
+        post.WasPublished = False
         self.postService.update(post)
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
@@ -353,6 +366,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
         postEntry.CId = self._nextCId()
         postEntry.Order = self._nextOrdering(blogId)
+        postEntry.WasPublished = True
         self.session().add(postEntry)
         self.session().query(BlogPostMapped).get(postEntry.blogPostId).PublishedOn = current_timestamp()
 

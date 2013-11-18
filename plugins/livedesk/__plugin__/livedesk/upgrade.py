@@ -84,6 +84,9 @@ def upgradeUser():
 
     try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_LAST)
 def upgradeLiveBlog14():
@@ -116,6 +119,9 @@ def upgradeLiveBlog14():
     session.execute("ALTER TABLE user ADD UNIQUE uix_user_name (`name`)")
 
     insertSource('sms')
+    
+    session.commit()
+    session.close()
 
 @app.populate
 def upgradeInternationalizationSourceType():
@@ -126,6 +132,9 @@ def upgradeInternationalizationSourceType():
     try:
         session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 @app.populate
 def upgradeLiveBlog14First():
@@ -138,6 +147,9 @@ def upgradeLiveBlog14First():
     session.execute("ALTER TABLE user ADD FOREIGN KEY `fk_type_id` (`fk_type_id`) REFERENCES `user_type` (`id`) ON DELETE RESTRICT")
     session.execute("UPDATE user, user_type SET user.fk_type_id = user_type.id WHERE user_type.key = 'standard'")
     session.execute("ALTER TABLE user CHANGE COLUMN `fk_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14Last():
@@ -156,6 +168,9 @@ def upgradeLiveBlog14End():
                         'CHANGE COLUMN `content_plain` `content_plain` TEXT NULL DEFAULT NULL, '
                         'CHANGE COLUMN `content` `content` TEXT NULL DEFAULT NULL')
     except (ProgrammingError, OperationalError): return
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeMediaArchiveDeleteFix():
@@ -204,6 +219,9 @@ def upgradeMediaArchiveDeleteFix():
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 def createBlogMediaType(key):
     creator = alchemySessionCreator()
@@ -234,6 +252,9 @@ def upgradeBlogSourceDeleteFix():
     session.execute('ALTER TABLE `livedesk_blog_source` ADD CONSTRAINT `livedesk_blog_source_ibfk_2` '
                 'FOREIGN KEY (`fk_source` ) REFERENCES `source` (`id` ) '
                 'ON DELETE RESTRICT ON UPDATE RESTRICT')
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeSourceUnicityFix():
@@ -246,6 +267,9 @@ def upgradeSourceUnicityFix():
     except (ProgrammingError, OperationalError): return
     session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
                 'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')
+    
+    session.commit()
+    session.close()  
     
     
 @app.populate(priority=PRIORITY_FINAL)
@@ -267,6 +291,7 @@ def upgradeUserTypeFix():
     session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
     
     session.commit()
+    session.close()
     
     
 @app.populate(priority=PRIORITY_LAST)
@@ -279,6 +304,9 @@ def upgradeBlogFix():
         # add deleted on for blog in order to be able to hide archived blogs
         session.execute("ALTER TABLE  livedesk_blog ADD COLUMN deleted_on DATETIME")
     except (ProgrammingError, OperationalError): return
+    
+    session.commit()
+    session.close() 
 
 @app.populate(priority=PRIORITY_LAST)
 def upgradePostFeedFix():
@@ -289,6 +317,9 @@ def upgradePostFeedFix():
     try: session.execute("ALTER TABLE post ADD COLUMN fk_feed_id INT UNSIGNED")
     except (ProgrammingError, OperationalError): return
     session.execute("ALTER TABLE post ADD FOREIGN KEY fk_feed_id (fk_feed_id) REFERENCES source (id) ON DELETE RESTRICT")
+    
+    session.commit()
+    session.close() 
     
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeUuidFix():
@@ -315,6 +346,8 @@ def upgradeUuidFix():
     for post in posts:
         if post.Uuid is None: post.Uuid = str(uuid4().hex)
     session.commit()
+    
+    session.close() 
         
 @app.populate(priority=PRIORITY_LAST)
 def upgradeSyncBlogFix():
@@ -337,6 +370,8 @@ def upgradeSyncBlogFix():
     try: session.execute("DROP TABLE livedesk_sms_sync")
     except (ProgrammingError, OperationalError): pass
     
+    session.commit()
+    session.close() 
     
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeSourceSmsFix():
@@ -367,3 +402,24 @@ def upgradeSourceSmsFix():
     except (Exception): pass
        
     session.commit()
+    session.close() 
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradePostWasPublishedFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+
+    try:
+        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1) NOT NULL DEFAULT 1")
+    except (Exception): pass
+    
+    try:
+        session.execute("UPDATE post SET was_published=0 WHERE published_on IS NULL")
+    except (Exception): pass
+    
+       
+    session.commit()    
+    session.close() 

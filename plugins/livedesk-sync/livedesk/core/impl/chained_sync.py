@@ -210,7 +210,9 @@ class ChainedSyncProcess:
                     localPost.Content = post['Content'] if 'Content' in post else None
                     localPost.Order = post['Order'] if 'Order' in post else None
                     localPost.CreatedOn = current_timestamp()              
-                    if blogSync.Auto: localPost.PublishedOn = current_timestamp()
+                    if blogSync.Auto: 
+                        localPost.PublishedOn = current_timestamp()
+                        localPost.WasPublished = True
                     
                     log.info("received post: %s", str(localPost))
       
