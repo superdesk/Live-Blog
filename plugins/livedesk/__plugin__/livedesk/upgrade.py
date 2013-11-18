@@ -418,6 +418,7 @@ def upgradePostWasPublishedFix():
     
     try:
         session.execute("UPDATE post SET was_published=0 WHERE published_on IS NULL")
+        session.execute("UPDATE post SET was_published=1 WHERE published_on IS NOT NULL")
     except (Exception): pass
     
        
