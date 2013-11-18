@@ -43,6 +43,7 @@ class Post(Entity):
     Content = str
     CreatedOn = datetime
     PublishedOn = datetime
+    WasPublished = bool
     UpdatedOn = datetime
     DeletedOn = datetime
     AuthorName = str

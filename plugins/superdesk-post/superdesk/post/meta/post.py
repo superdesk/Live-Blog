@@ -17,7 +17,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.sql.expression import case
-from sqlalchemy.types import TEXT, DateTime, String
+from sqlalchemy.types import TEXT, DateTime, String, Boolean
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.type import PostTypeMapped
@@ -47,6 +47,7 @@ class PostMapped(Base, Post):
     Content = Column('content', TEXT)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
+    WasPublished = Column('was_published', Boolean, nullable=False, default=False)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
     @hybrid_property
