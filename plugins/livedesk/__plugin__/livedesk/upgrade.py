@@ -413,7 +413,7 @@ def upgradePostWasPublishedFix():
     
 
     try:
-        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1) DEFAULT 1")
+        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1)")
     except (Exception): pass
     
     try:
