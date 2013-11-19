@@ -17,6 +17,9 @@ from content.resource.api.item_text import ItemText, CLASS_TEXT
 from content.base.api.item import Item
 from content.resource.core.impl.item_resource import TYPE_RESOURCE
 from content.resource.meta.item_text import ItemTextMapped
+from ally.cdm.spec import ICDM, PathNotFound
+from ally.container import wire
+from ally.api.model import Content
 
 # --------------------------------------------------------------------
 
@@ -25,6 +28,8 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
     '''
     Handler for text item processing.
     '''
+    cdmItem = ICDM; wire.entity('cdmItem')
+    # the content delivery manager where to publish item content
 
     def register(self, models):
         '''
@@ -38,7 +43,9 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
         Implementation for @see IItemHandler.insert
         '''
         assert isinstance(item, Item), 'Invalid item %s' % item
-        # TODO: set the content
+        if content is not None:
+            self.cdmItem.publishContent(item.GUID, content)
+            item.ContentSet = self.cdmItem.getURI(item.GUID)
         if item.Type == TYPE_RESOURCE and ItemText.Class in item and item.Class == CLASS_TEXT:
             return insertModel(ItemTextMapped, item).GUID
 
@@ -47,7 +54,10 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
         Implementation for @see IItemHandler.update
         '''
         assert isinstance(item, Item), 'Invalid item %s' % item
-        # TODO: set the content
+        if content is not None:
+            assert isinstance(content, Content), 'Invalid content %' % content
+            self.cdmItem.publishContent(item.GUID, content)
+            item.ContentSet = self.cdmItem.getURI(item.GUID)
         if item.Type == TYPE_RESOURCE and ItemText.Class in item and item.Class == CLASS_TEXT:
             updateModel(ItemTextMapped, item)
             return True
@@ -58,4 +68,6 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
         Implementation for @see IItemHandler.delete
         '''
         assert isinstance(item, Item), 'Invalid item %s' % item
+        try: self.cdmItem.remove(item.GUID)
+        except PathNotFound: pass
         return True

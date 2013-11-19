@@ -31,7 +31,6 @@ from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from ally.api.error import InputError
 from superdesk.language.meta.language import LanguageAvailable
 from ally.api.validate import validate
-from superdesk.media_archive.impl.image_persist import ImagePersistanceAlchemy
 
 # --------------------------------------------------------------------
 
