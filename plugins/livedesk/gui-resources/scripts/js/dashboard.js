@@ -245,11 +245,11 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             self.collection.each(function()
             {
                 var model = this;
-                this.get('PostPublished').sync().done(function(data)
+                this.get('PostPublished').limit(0).sync().done(function(data)
                 { 
                     self.el.find('[data-model-id="'+model.get('Id')+'"]').text(data.total) 
                 });
-                this.get('PostUnpublished').sync().done(function(data)
+                this.get('PostUnpublished').limit(0).sync().done(function(data)
                 {
                     //self.el.find('[data-model-unpublished-id="'+model.get('Id')+'"]').text(data.total) 
                 });
