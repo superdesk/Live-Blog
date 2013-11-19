@@ -207,10 +207,10 @@
 		{?DeletedOn}
 			<a href="#toggle-post" data-action="unhide" data-id="{Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
 		{:else}
-			{#Id}
+			{?Id}
 				<a href="#toggle-post" data-action="hide" data-id="{Id}" class="close image" title="_('Delete');">&nbsp;</a>
 			{/Id}
-			{#Meta.Id}
+			{?Meta.Id}
 				<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
 			{/Meta.Id}
 		{/if}
