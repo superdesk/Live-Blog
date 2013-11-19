@@ -128,7 +128,7 @@
     /*padding-left: 55px ;*/
 }
 
-.liveblog-post-list li .result-text  {
+.liveblog-post-list li .result-text, .liveblog-post-list li .result-text span  {
     font-size: 14px ;
     color:#4d4d4d;
     line-height: 18px;
@@ -199,9 +199,6 @@
 }  
 
 
-.liveblog-post-list li .result-content a .result-text {
-
-}
 .youtubeservice h3,
 .link h3,
 .googleservice h3, 
@@ -308,6 +305,12 @@
 .link figure + h3 + .result-text {
     padding-left: 60px;
     padding-top: 3px;
+}
+.facebookservice figure + h3 + .result-text a,
+.twitterservice figure + h3 + .result-text a,
+.link figure + h3 + .result-text a {
+    font-weight: normal !important;
+    font-size: 13px !important;
 }
 .facebookservice figure + h3 + .result-text + .twitter-controls + p,
 .twitterservice figure + h3 + .result-text + .twitter-controls + p,
@@ -719,7 +722,10 @@ li.loading-more {
 li.loading-more:hover{
     background: none !important ;
 }
-
+li.loading-more span {
+    font-size: 12px !important;
+    margin-top: 0;
+}
 
 .sf-share {
     position: absolute;
@@ -728,9 +734,10 @@ li.loading-more:hover{
     left: 0px;
     bottom: 0px;
     line-height: 12px;
-    font-size: 11px;
-    color: #585858;
-    text-decoration: none;
+    font-size: 11px !important;
+    font-weight: normal !important;
+    color: #585858 !important;;
+    text-decoration: none !important;;
     background: url(img/share.png) no-repeat 0 2px;
     padding: 1px 0 0 18px;
     display: none;
