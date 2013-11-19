@@ -209,10 +209,11 @@
 		{:else}
 			{?Id}
 				<a href="#toggle-post" data-action="hide" data-id="{Id}" class="close image" title="_('Delete');">&nbsp;</a>
+				{:else}
+					{?Meta.Id}
+						<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
+					{/Meta.Id}
 			{/Id}
-			{?Meta.Id}
-				<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
-			{/Meta.Id}
 		{/if}
 	{/Meta.DeletedOn}
 	</div>
