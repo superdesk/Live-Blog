@@ -1,7 +1,7 @@
 {>"livedesk>items/{Base}"/}
 {<WrapupAdditionalActions}{/WrapupAdditionalActions}
 {<ProviderClass}commentpost{/ProviderClass}
-{<AdditionalAttributes}toata-pula="mare"{/AdditionalAttributes}
+{<AdditionalAttributes}{/AdditionalAttributes}
 {<ItemInfo}
 {<ContentImage}{/ContentImage}
 	{+PostInfo}
