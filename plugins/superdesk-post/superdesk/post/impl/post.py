@@ -198,8 +198,10 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
             post.Uuid = str(uuid4().hex)
             
         if post.WasPublished is None:
-            post.WasPublished = 0    
-            
+            if post.PublishedOn is None:        
+                post.WasPublished = 0
+            else: post.WasPublished = 1 
+               
         postDb = PostMapped()
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
