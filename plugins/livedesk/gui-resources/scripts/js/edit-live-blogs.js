@@ -966,12 +966,12 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 							Description: $.styledNodeHtml(descrInput)
 					};
 					self.model.set(data).sync().done(function() {
-						content.find('.tool-box-top .update-success').removeClass('hide')
-						setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+						content.find('.timeline-notifications .update-success').removeClass('hide')
+						setTimeout(function(){ content.find('.timeline-notifications .update-success').addClass('hide'); }, 4000);
 					})
 					.fail(function() {
-						content.find('.tool-box-top .update-error').removeClass('hide')
-						setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+						content.find('.timeline-notifications .update-error').removeClass('hide')
+						setTimeout(function(){ content.find('.timeline-notifications .update-error').addClass('hide'); }, 4000);
 					});
 				});
 				
@@ -1019,13 +1019,13 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 					data = { ClosedOn:  (this.model.get('ClosedOn')? null: now.format('yyyy-mm-dd HH:MM:ss'))},
 					content = $(this.el).find('[is-content]');
 				this.model.set(data).sync().done(function() {
-					content.find('.tool-box-top .update-success').removeClass('hide');
-					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+					content.find('.timeline-notifications .update-success').removeClass('hide');
+					setTimeout(function(){ content.find('.timeline-notifications .update-success').addClass('hide'); }, 4000);
 					self.textToggleStatus();
 				})
 				.fail(function() {
-					content.find('.tool-box-top .update-error').removeClass('hide')
-					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+					content.find('.timeline-notifications .update-error').removeClass('hide')
+					setTimeout(function(){ content.find('.timeline-notifications .update-error').addClass('hide'); }, 4000);
 				});
 			},
 			render: function()
@@ -1196,9 +1196,10 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				})
 				.on('click'+this.getNamespace(), '.collapse-title-page', function()
 				{
-					var intro = $('article#blog-intro', content);
-					!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
-					intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+					//var intro = $('article#blog-intro', content);
+					//!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
+					//intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+					$(this).parents().eq(3).toggleClass('collapsed');
 				});
 				self.textToggleStatus();
 			}
