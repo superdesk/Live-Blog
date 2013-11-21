@@ -21,7 +21,7 @@ from superdesk.source.api.type import SourceType
 from support.api.configuration import IConfigurationPrototype
 from superdesk.post.api.post import Post, QPostWithPublished
 from ally.support.api.entity_ided import Entity, IEntityCRUDService
-from superdesk.language.api.language import Language
+from internationalization.language.api.language import Language
 from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------

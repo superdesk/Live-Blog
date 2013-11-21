@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
-from superdesk.language.api.language import ILanguageService
+from internationalization.language.api.language import ILanguageService
 from superdesk.post.api.post import Post
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.source.api.source import ISourceService, QSource, Source

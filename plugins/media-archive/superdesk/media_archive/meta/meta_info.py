@@ -16,7 +16,7 @@ from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
 from .meta_data import MetaDataMapped
 from sqlalchemy.schema import UniqueConstraint
-from superdesk.language.meta.language import LanguageAvailable
+from internationalization.language.meta.language import LanguageAvailable
 
 # --------------------------------------------------------------------
 

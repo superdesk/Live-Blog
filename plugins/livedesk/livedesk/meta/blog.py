@@ -22,7 +22,7 @@ from sqlalchemy.sql.expression import select, func, case
 from livedesk.meta.blog_type import BlogTypeMapped
 from sqlalchemy.ext.hybrid import hybrid_property
 from superdesk.source.meta.source import SourceMapped
-from superdesk.language.meta.language import LanguageAvailable
+from internationalization.language.meta.language import LanguageAvailable
 from sql_alchemy.support.util_meta import relationshipModel
 from ally.api.validate import validate, ReadOnly
 
