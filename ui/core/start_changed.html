@@ -27,7 +27,7 @@
 		// other
 		this.lib_js_urn = 'core/scripts/js/'.replace(/\/+/g, '/');
 		
-		this.gui_url = '%s'
+		this.gui_url = '{gui}';
 		
 		var replace = function(format)
 		{
@@ -44,8 +44,7 @@
 		this.coreStyles = this.ccss = replace(this.lib_css_url);
 		
 		this.gui = replace(this.gui_url);
-		//this.guiJs = replace(this.gui('%s/scripts/js/%s'));
-		this.guiJs = replace('%s/scripts/js/%s');
+		this.guiJs = replace(this.gui('%s/scripts/js/%s'));
 		
 	};
 	</script>

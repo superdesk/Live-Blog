@@ -512,7 +512,8 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
             for( var i=0; i<aquery.length; i++ )
                 for( var j in aquery[i] ) query += encodeURIComponent(j) + "=" + encodeURIComponent(aquery[i][j]) + '&';
                 
-            return query + 'thumbSize=medium&limit='+this.page.limit;
+            //return query + 'thumbSize=medium&limit='+this.page.limit;
+            return query + 'limit='+this.page.limit;
             //return $.extend(this.filterView.getSearch(), { thumbSize: 'medium', limit: this.page.limit }); 
         },
         renderCallback: function()
@@ -530,7 +531,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         { 
             if(!this.collection)
             {
-                this.collection = new MetaDataInfos;
+                this.collection = giz.Auth(new MetaDataInfos);
                 //this.collection.on('read', this.renderList, this);
             }
             return this.collection; 

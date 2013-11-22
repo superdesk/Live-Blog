@@ -42,7 +42,8 @@ define([
             this.resetInput();
 
             this.loadRecaptcha = true;
-            this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
+            //this.href = this.model.data.CommentPost.href.replace('resources/', 'resources/my/'); // needed for captcha
+            this.href = this.model.data.CommentPost.href;
 
             this.backdropel = $("#backdrop").data('show-status',0);
 

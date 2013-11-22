@@ -3,7 +3,8 @@ function(Gizmo, jsSHA)
 {
     return Gizmo.Model.extend
     ({ 
-        url: new Gizmo.Url('Security/Authentication/Login'),
+        //url: new Gizmo.Url('Security/Authentication/Login'),
+        url: new Gizmo.Url('Security/Login'),
         authenticate: function(username, password, loginToken)
         {
             // build data for login

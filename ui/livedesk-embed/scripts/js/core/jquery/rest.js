@@ -508,7 +508,8 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 	{  
 	    _construct: { value: function()
 	    {
-	        this.config = $.extend({}, this.config, {resourcePath: '/resources/my/'});
+	        //this.config = $.extend({}, this.config, {resourcePath: '/resources/my/'});
+	        this.config = $.extend({}, this.config, {resourcePath: '/resources/'});
             //this.requestOptions.headers.Authorization = 111;
 	        resource.prototype._construct.apply(this, arguments);
 	        

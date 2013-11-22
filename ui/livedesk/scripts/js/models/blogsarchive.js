@@ -14,8 +14,10 @@ function(Gizmo)
             order = typeof order == 'undefined' ? 'createdOn' : order;
 
             //http://localhost:8080/resources/LiveDesk/Blog/?X-Filter=*&isLive=true&title.ilike=gen%%
-            var params = '&title.ilike=' + encodeURIComponent('%' + title + '%') + '&limit=' + limit + '&offset=' + offset + '&asc=' + order;
-            var getInfoHref = this.href+'?isLive=false&X-Filter=*'+params; // this.url.get() + params;
+            //TODO: add title back to params once the Ally-Py bug is solved (the title.ilike=... bug)
+            //var params = '&title.ilike=' + encodeURIComponent('%' + title + '%') + '&limit=' + limit + '&offset=' + offset + '&asc=' + order;
+            var params = '&limit=' + limit + '&offset=' + offset + '&asc=' + order;
+            var getInfoHref = (this.href.indexOf('?') ? this.href+'&' : this.href+'?') + 'isLive=false&X-Filter=*'+params; // this.url.get() + params;
             var
                 self = this,
                 dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },

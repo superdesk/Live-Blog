@@ -32,7 +32,8 @@ define([ 'jquery', 'gizmo' ], function( $, Gizmo)
         },
         href: function(source)
         {
-            return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
+            //return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
+            return source;
         }
     }),
     xfilter = function() // x-filter implementation

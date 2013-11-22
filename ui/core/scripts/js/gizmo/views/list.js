@@ -171,7 +171,9 @@ function($, superdesk, giz)
          */
         getCollection: function()
         {
-            return !this.collection ? (this.collection = new (giz.Collection.extend({ model: giz.Model}))) : this.collection;
+            if (!this.collection)
+                return giz.Auth(new (giz.Collection.extend({ model: giz.Model})));
+            return this.collection;
         },
         /*!
          * refresh collection data

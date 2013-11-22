@@ -6,7 +6,8 @@ function(giz, MetaData, MetaInfo, Language)
 {
     return giz.Model.extend
     ({ 
-        url: new giz.Url('Archive/MetaDataInfo/Query'),
+        //url: new giz.Url('Archive/MetaDataInfo/Query'),
+        url: new giz.Url('Archive/MetaInfo'),
         defaults:
         {
             Language: Language

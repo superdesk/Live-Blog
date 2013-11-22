@@ -128,6 +128,9 @@ def populateDefaultUsers():
             user.Type = 'standard'
             user.Password = hashlib.sha512(b'a').hexdigest()
             user.Id = userService.insert(user)
+            if user.Name == 'admin':
+                userRbacService.addRole(user.Id, 'Admin')
+                
 # TODO: uncomment when fixed
 #         if user.Name == 'admin':
 #             userRbacService.assignRole(user.Id, blogRoleAdministratorId())
