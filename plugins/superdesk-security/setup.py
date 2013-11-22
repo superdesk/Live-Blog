@@ -17,7 +17,7 @@ setup(
     name="superdesk_security",
     version="1.0",
     packages=find_packages(),
-    install_requires=['superdesk_user >= 1.0', 'security_rbac >= 1.0', 'security_http_acl >= 1.0' ],
+    install_requires=['superdesk_user >= 1.0', 'security_rbac >= 1.0'],
     platforms=['all'],
     zip_safe=True,
     package_data={

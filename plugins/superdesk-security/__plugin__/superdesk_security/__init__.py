@@ -19,7 +19,7 @@ LONG_DESCRIPTION = 'Authentication services'
 AUTHOR = 'Gabriel Nistor'
 AUTHOR_EMAIL = 'gabriel.nistor@sourcefabric.org'
 KEYWORDS = ['Ally', 'REST', 'Superdesk', 'plugin', 'security']
-INSTALL_REQUIRES = ['superdesk-user >= 1.0', 'security-rbac >= 1.0' ]
+INSTALL_REQUIRES = ['superdesk-user >= 1.0', 'security-rbac >= 1.0']
 
 __extra__  = dict(package_data={
         '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
