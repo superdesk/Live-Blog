@@ -21,6 +21,7 @@ from ally.cdm.impl.local_filesystem import IDelivery, HTTPDelivery,\
 from __plugin__.cdm.service import server_uri, repository_path
 from ally.cdm.spec import ICDM
 from ally.cdm.support import ExtendPathCDM
+from content.resource.core.spec import IReader
 
 
 # --------------------------------------------------------------------
@@ -64,3 +65,19 @@ def cdmItem() -> ICDM:
     The content delivery manager (CDM) for the items content.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'item/%s')
+
+@ioc.entity
+def cdmItemFormat() -> ICDM:
+    '''
+    The content delivery manager (CDM) for the items content format.
+    '''
+    return ExtendPathCDM(contentDeliveryManager(), 'item/%s')
+
+@ioc.entity
+def contentReaders() -> dict:
+    readersList = support.entitiesFor(IReader)
+    readers = dict()
+    for reader in readersList:
+        assert isinstance(reader, IReader), 'Invalid reader %s' % reader
+        reader.register(readers)
+    return readers
