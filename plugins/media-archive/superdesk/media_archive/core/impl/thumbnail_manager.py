@@ -123,6 +123,8 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         if not metaData.thumbnailFormatId: return metaData
 
         thumbPath = self.thumbnailPath(metaData.thumbnailFormatId, metaData, size)
+        #try: self.cdmThumbnail.getTimestamp(thumbPath)
+        #except PathNotFound:
         original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)
         original = self.cdmThumbnail.getURI(original, 'file')
 
