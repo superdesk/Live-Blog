@@ -14,6 +14,9 @@ define([
 				init: function(){
 					var self = this;
 					self.data = [];
+					if(!self.collection) {
+						self.collection = Users;
+					}
 					this.render();
 				},
 				killMenu: function(){
@@ -21,10 +24,8 @@ define([
 					$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
 				},
 				sync: function() {
-					if(!self.collection) {
-						self.collection = Gizmo.Auth(new Gizmo.Register.Users());
-					}
-					self.collection
+
+					this.collection
 						.on('read', self.render, self)
 						.xfilter('EMail,FirstName,LastName,FullName,Name')
 						.sync()    			

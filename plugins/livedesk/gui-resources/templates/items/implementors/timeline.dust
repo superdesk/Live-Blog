@@ -2,3 +2,7 @@
 {<TimeInfoShowed}{PublishedOn|userdate}{/TimeInfoShowed}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<AdditionalAttributes} id="post-{Id}" {/AdditionalAttributes}
+{<TopBlocks}
+	{+PostHiddenAction}{/PostHiddenAction}
+	{+PostVerification}{/PostVerification}
+{/TopBlocks}

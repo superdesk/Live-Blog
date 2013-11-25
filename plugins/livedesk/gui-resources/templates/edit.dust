@@ -3,7 +3,7 @@
 {<list}
 <div {ui.content} class="live-blog-content">
     
-	<section class="title-page">
+    <section class="title-page">
         <div class="alert alert-info" id="site-live-info" style="display:none">
             <a class="close image" data-dismiss="alert" href="#">&times;</a>
             <strong>_('Live site');</strong> - _('This is the Live site pane. Search or generate content in the left pane and drag &amp; drop it in the list below.');
@@ -22,8 +22,8 @@
                 <time>{CreatedOn}</time> {#LiveOn}<span class="update-time">_("last updated");<time>{LiveOn}</time></span>{/LiveOn}
             </p>
             <article id="blog-intro" class="article-description">
-            	{Description|s}
-    	    </article>
+                {Description|s}
+            </article>
         </div>
 
 
@@ -59,14 +59,16 @@
             </div>
 
 
-            <div class="dropdown pull-right">
+            <div class="dropdown pull-right post-verification-filter">
                 <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post status:"); <span data-info="filter">_("All statuses");</span> <b class="caret"></b></button>
                 <ul class="dropdown-menu sf-dropdown sf-dropdown-right">
-                    <li><a href="javascript:void(0)" data-value="all" data-action="update">All statuses</a></li>
-                    <li><a href="javascript:void(0)" data-value="nostatus" data-action="update">No status</a></li>
-                    <li><a href="javascript:void(0)" data-value="verified" data-action="update">Verified</a></li>
-                    <li><a href="javascript:void(0)" data-value="unverified" data-action="update">Unverified</a></li>
-                    <li><a href="javascript:void(0)" data-value="onverification" data-action="update">On verification</a></li>
+                    <li>
+                        <a href="javascript:void(0)" data-status-filter-key="all" data-action="update">All statuses</a>
+                    `</li>
+                    <li><a href="javascript:void(0)" data-status-filter-key="nostatus" data-action="update">No status</a></li>
+                    <li><a href="javascript:void(0)" data-status-filter-key="verified" data-action="update">Verified</a></li>
+                    <li><a href="javascript:void(0)" data-status-filter-key="unverified" data-action="update">Unverified</a></li>
+                    <li><a href="javascript:void(0)" data-status-filter-key="onverification" data-action="update">On verification</a></li>
                 </ul>
             </div>
 
@@ -80,7 +82,7 @@
             
 
         </div>
-    	<div class="timeline" id="timeline-view">
+        <div class="timeline" id="timeline-view">
             <ul class="new-results hide">
                 <li>
                     <button class="btn btn-large bottom-full">_("Show");{~s}<span></span>{~s}_("new results");</button>
@@ -94,7 +96,7 @@
             </div>
         </div>
     </section>
-	
+    
 </div>
 {! @TODO: Dust doesnt know to integrate blocks in bloks so I needed to add this manualy here !}
 {+footer}{/footer}
