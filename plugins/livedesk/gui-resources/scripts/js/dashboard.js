@@ -8,7 +8,7 @@ define
     'jquery/superdesk',
     config.guiJs('livedesk', 'models/blogsarchive'),
     config.guiJs('livedesk', 'models/blog'),
-	config.guiJs('livedesk', 'models/posttype'),
+    config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
     config.guiJs('livedesk', 'models/liveblogs'),
     'tmpl!livedesk>layouts/dashboard',

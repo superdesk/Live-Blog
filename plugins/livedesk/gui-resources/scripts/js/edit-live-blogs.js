@@ -198,12 +198,15 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 			events: 
 			{
 				'': { sortstop: 'reorder' },
+				'[data-status-key]': { click: 'changeStatus'},
+
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
 				
 				'.btn.cancel': {click: 'cancelActions', focusin: 'stopFocuseOut'},
 				'.btn.publish': {click: 'save', focusin: 'stopFocuseOut'},
 				'.editable': { focusin: 'edit'} //, focusout: 'focuseOut'}
+
 			},
 			showActions: function() {
 				var self = this;
@@ -234,6 +237,11 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 					});
 				});
 			},
+    		changeStatus: function(evt){
+    			var self = this,
+    				status = $(evt.target).closest( "li" ).attr('data-status-key');
+    			self.model.changeStatus(status);
+    		},
 			cancelActions: function(evt) {
 				this.stopFocuseOut(evt);
 				this.hideActions(evt);
@@ -307,8 +315,8 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 			{
 				var self = this;
 				self.el.data('view', self);
-				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable, Author.Source.Type.Key, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished, Creator.FullName, Creator.PhoneNumber';
+				self.xfilter = '*, Author.Source.*, Author.Source.Type.*,' +
+							   'AuthorPerson.*, Creator.*, PostVerification.Checker.*, PostVerification.Status.*';
 				
 				this.model
 				    .on('delete', this.remove, this)
@@ -482,6 +490,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 					Post: post
 				}, function(e, o) {
 					self.setElement(o);
+					self.addUserVerification();
 						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 
@@ -498,6 +507,13 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						});
 				});
 				return this;
+			},
+			addUserVerification: function(){
+				var self = this;
+				self.userVerification = new UserVerification({ 
+					el: $('.verification-assign',self.el),
+					post: self.model
+				});
 			},	
 			remove: function(evt)
 			{
@@ -579,7 +595,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				    .tooltip({placement: 'bottom'});
 				
 			},
-			clean: function(){
+			clean: function() {
 				var self = this;
 				self._views = [];
 				self.moreHidden = false;
@@ -590,7 +606,25 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				}
                 self.collection.reset([]);
                 self.collection.resetStats();
-                self.el.html();
+                self.el.html('');
+			},
+			filterStatus: function(keyStatus) {
+				this.clean();
+				console.log(this.collection._list);
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(keyStatus !== 'all') {
+					this.collection.auto({data: {status: keyStatus}});
+				}
+				else {
+					this.collection.auto({});
+				}
+			},
+			filterChecker: function(checker) {
+				this.collection.sync({data: {checker: checker.Id}});
 			},
 			toggleMoreVisibility: function()
 			{
@@ -811,8 +845,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 	            }
             }
 		}),
-		ActionsView = Gizmo.View.extend
-		({
+		ActionsView = Gizmo.View.extend({
 			events: {
 				'[data-action="update"]': { "click": "update" }
 			},
@@ -1186,13 +1219,8 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						$(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
 				})
 				.on('click'+this.getNamespace(), '.filter-posts a',function(){
-					var datatype = $(this).attr('data-value');
-					if(datatype == 'all') {
-						$('#timeline-view li').show();
-					} else {
-						$('#timeline-view li').show();
-						$('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
-					}
+					var value = $(this).attr('data-value');
+					self.timelineView.filterType(value);
 				})
 				.on('click'+this.getNamespace(), '.collapse-title-page', function()
 				{
@@ -1200,6 +1228,11 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 					//!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
 					//intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
 					$(this).parents().eq(3).toggleClass('collapsed');
+				})
+				.on('click'+this.getNamespace(), '[data-status-filter-key]', function(evt){
+					var keyStatus = $(this).attr('data-status-filter-key');
+					$('[data-info="filter"]')
+					self.timelineView.filterStatus(keyStatus);
 				});
 				self.textToggleStatus();
 			}

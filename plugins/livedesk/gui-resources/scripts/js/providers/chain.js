@@ -88,14 +88,13 @@ define([
     			//self.userVerification.killMenu();
     			$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
     		},
-    		addUserVerification: function(){
-    			var self = this;
-    			self.userVerification = new UserVerification({ 
-    				el: $('.verification-assign',self.el),
-    				post: self.model,
-    				collection: Users
-    			});
-    		},
+			addUserVerification: function(){
+				var self = this;
+				self.userVerification = new UserVerification({ 
+					el: $('.verification-assign',self.el),
+					post: self.model
+				});
+			},
     		addDraggable: function(){
 				var self = this, obj;
 				self.el.draggable({
@@ -591,7 +590,6 @@ define([
 
 					self.userFilter = new UserFilter({ 
 						el: $('.filter-assign',self.el),
-						collection: Users,
 						_parent: self
 					});
                     self.sourceBlogs.each(function(id,sourceBlog){
