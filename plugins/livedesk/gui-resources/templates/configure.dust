@@ -56,32 +56,6 @@
 				</div>
         	</fieldset>
         	<fieldset>
-        		<legend>Advertisment</legend>
-        		<div class="control-group">
-					<label class="control-label">_('Advertisment');</label>
-					<div class="controls advertisment">
-						<input type="checkbox" name="MediaToggle" value="on"{?EmbedConfig.MediaToggle} checked{/EmbedConfig.MediaToggle} class="sf-toggle on-off">
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Advertisment image");</label>
-					
-					<div class="controls">
-						<div class="input-prepend">
-							<span class="btn" data-toggle="modal-image">_('Image Upload');</span>
-							<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
-						</div>
-						<div id="MediaImageThumb" class="media-thumb"><img src="{EmbedConfig.MediaImage}"></div>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Advertisment target");</label>
-					<div class="controls">
-						<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
-					</div>
-				</div>
-        	</fieldset>
-        	<fieldset>
         		<legend>Api keys</legend>
         		<div class="api-keys"></div>
         		
