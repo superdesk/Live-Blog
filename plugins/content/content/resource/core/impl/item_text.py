@@ -20,6 +20,9 @@ from content.resource.meta.item_text import ItemTextMapped
 from ally.cdm.spec import ICDM, PathNotFound
 from ally.container import wire
 from ally.api.model import Content
+from ally.design.processor.assembly import Assembly
+from content.resource.core.parse.impl.parser import Parser
+from ally.design.processor.execution import FILL_ALL
 
 # --------------------------------------------------------------------
 
@@ -31,11 +34,11 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
     cdmItem = ICDM; wire.entity('cdmItem')
     # the content delivery manager where to publish item content
     
-    cdmItemFormat = ICDM; wire.entity('cdmItemFormat')
-    # the content delivery manager where to publish item format
-    
     contentReaders = dict; wire.entity('contentReaders')
     # the dictionary of content-type:reader pairs
+    
+    assemblyParseContent = Assembly; wire.entity('assemblyParseContent')
+    # assembly from which to generate processing for text items
 
     def register(self, models):
         '''
@@ -51,6 +54,11 @@ class ItemTextHandlerAlchemy(SessionSupport, IItemHandler):
         assert isinstance(item, Item), 'Invalid item %s' % item
         if content is not None:
             assert isinstance(content, Content), 'Invalid content %' % content
+            
+            processing = self.assemblyParseContent.create(parser=Parser)
+            parser = processing.ctx.parser(content=content)
+            processing.execute(FILL_ALL, parser=parser)
+            
             self.cdmItem.publishContent(item.GUID, content)
             item.ContentSet = self.cdmItem.getURI(item.GUID)
         if item.Type == TYPE_RESOURCE and ItemText.Class in item and item.Class == CLASS_TEXT:
