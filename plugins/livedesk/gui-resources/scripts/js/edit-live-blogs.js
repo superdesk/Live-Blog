@@ -34,7 +34,8 @@ define
 	'tmpl!livedesk>timeline-action-item',
     'tmpl!livedesk>provider-content',
     'tmpl!livedesk>provider-link',
-    'tmpl!livedesk>providers'
+    'tmpl!livedesk>providers',
+    'tmpl!livedesk>citizen-desk/timeline-checker-list' 
  ], 
 function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 		
@@ -553,6 +554,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 		TimelineView = Gizmo.View.extend
 		({
 			stack: [],
+			filter: { data : {}},
 			events: 
 			{
 				'ul.post-list': { sortstop: 'sortstop' },
@@ -608,23 +610,54 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
                 self.collection.resetStats();
                 self.el.html('');
 			},
-			filterStatus: function(keyStatus) {
+			filterType:  function(keyType) {
 				this.clean();
-				console.log(this.collection._list);
 				this.collection
 					.xfilter(this.xfilter)
 					.limit(this.collection._stats.limit)
 					.offset(this.collection._stats.offset)
 					.desc('order');
 				if(keyStatus !== 'all') {
-					this.collection.auto({data: {status: keyStatus}});
+					this.filter.data.status = keyStatus;
+					this.collection.auto( this.filter );
 				}
 				else {
-					this.collection.auto({});
+					delete this.data.filter.status;
+					this.collection.auto( this.filter );
+				}
+			},
+			filterStatus: function(keyStatus) {
+				this.clean();
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(keyStatus !== 'all') {
+					this.filter.data.status = keyStatus;
+					this.collection.auto( this.filter );
+				}
+				else {
+					delete this.data.filter.status;
+					this.collection.auto( this.filter );
 				}
 			},
 			filterChecker: function(checker) {
-				this.collection.sync({data: {checker: checker.Id}});
+				this.clean();
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(checker !== '') {
+					this.filter.data.checker = checker.Id;
+					this.collection.auto( this.filter );
+				}
+				else {
+					delete this.data.filter.checker;
+					this.collection.auto( this.filter );
+				}
+
 			},
 			toggleMoreVisibility: function()
 			{
@@ -1038,6 +1071,9 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
                     titleOffline.addClass('hide');
                 });
 			},
+			filterChecker: function(checker) {
+				this.timelineView.filterChecker(checker);
+			},
 			textToggleStatus: function()
 			{
 				newText = this.model.get('ClosedOn')? _('Reopen blog'): _('Close blog');
@@ -1116,6 +1152,12 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						_parent: self
 					});
 					
+					self.userFilter = new UserFilter({ 
+						el: $('.filter-assign',self.el),
+						template: 'livedesk>citizen-desk/timeline-checker-list',
+						_parent: self
+					});
+
 					self.providers = new ProvidersView
 					({
 						el: $('.side ', self.el),
@@ -1231,7 +1273,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				})
 				.on('click'+this.getNamespace(), '[data-status-filter-key]', function(evt){
 					var keyStatus = $(this).attr('data-status-filter-key');
-					$('[data-info="filter"]')
+					$('[data-info="filter"]').text($(this).text())
 					self.timelineView.filterStatus(keyStatus);
 				});
 				self.textToggleStatus();
