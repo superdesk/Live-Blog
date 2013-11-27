@@ -1,10 +1,13 @@
-'''
-Created on June 14, 2012
 
-@package: media archive video
-@copyright: 2012 Sourcefabric o.p.s.
+'''
+Created on Oct 1, 2013
+ 
+@package: distribution_manager
+@copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Mugur Rus
+@author: Cristian Domsa
+ 
+Auto-generated setup configuration for components/plugins needed for pypi.
 '''
 
 # --------------------------------------------------------------------
@@ -13,24 +16,19 @@ from setuptools import setup, find_packages
 
 # --------------------------------------------------------------------
 
-setup(
-    name="media_archive_video",
-    version="1.0",
-    packages=find_packages(),
-    install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'gui_action >= 1.0',
-                      'gui_core >= 1.0', 'internationalization >= 1.0'],
-    platforms=['all'],
-    zip_safe=True,
-    package_data={
-        '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
-    },
+setup(packages=find_packages('.'),
+      platforms=['all'],
+      zip_safe=True,
+      license='GPL v3',
+      url='http://www.sourcefabric.org/en/superdesk/', # project home page
+           package_data={'': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html']},
+     description='This plugin handles the video in the media archive.',
+     author='Gabriel Nistor',
+     install_requires=['ally-api >= 1.0', 'support-sqlalchemy >= 1.0', 'gui-action >= 1.0', 'gui-core >= 1.0', 'internationalization >= 1.0'],
+     author_email='gabriel.nistor@sourcefabric.org',
+     version='1.0',
+     keywords=['Ally', 'REST', 'Superdesk', 'plugin', 'Livedesk', 'media-archive'],
+     long_description='Video files management functionality',
+     name='media-archive-video',
 
-    # metadata for upload to PyPI
-    author="Gabriel Nistor",
-    author_email="gabriel.nistor@sourcefabric.org",
-    description="Media archive video plugin",
-    long_description='Video files management functionality',
-    license="GPL v3",
-    keywords="Ally REST framework plugin Livedesk",
-    url="http://www.sourcefabric.org/en/superdesk/", # project home page
-)
+     )

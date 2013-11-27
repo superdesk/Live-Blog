@@ -15,3 +15,10 @@ NAME = 'support'
 GROUP = 'support'
 VERSION = '1.0'
 DESCRIPTION = 'Provides the support services'
+LONG_DESCRIPTION = 'Support services that can be easlly extended for additional data'
+AUTHOR = 'Mugur Rus'
+AUTHOR_EMAIL = 'mugur.rus@sourcefabric.org'
+KEYWORDS = ['Ally', 'REST', 'Superdesk', 'plugin', '']
+INSTALL_REQUIRES = ['ally-api >= 1.0']
+
+__extra__  = dict()

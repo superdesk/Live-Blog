@@ -17,7 +17,7 @@ from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
     AsLikeExpression
 from superdesk.media_archive.api.meta_data import MetaDataBase
 from ally.support.api.entity_ided import Entity, QEntity, IEntityGetCRUDService
-from superdesk.language.api.language import Language
+from internationalization.language.api.language import Language
 from ally.api.option import SliceAndTotal # @UnusedImport
 
 # --------------------------------------------------------------------

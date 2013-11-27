@@ -74,8 +74,8 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         assert isinstance(imagePath, str), 'Invalid file path %s' % imagePath
 
         thumbPath = self.thumbnailPath(thumbnailFormatId, metaData)
-        try: thumbTimestamp = self.cdmThumbnail.getTimestamp(thumbPath)
-        except PathNotFound: thumbTimestamp = None
+        #TODO: Integrate timestamp interaction in CDM
+        thumbTimestamp = None
 
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
             imageExt, thumbProcPath = splitext(imagePath)[1], thumbPath
@@ -123,15 +123,15 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         if not metaData.thumbnailFormatId: return metaData
 
         thumbPath = self.thumbnailPath(metaData.thumbnailFormatId, metaData, size)
-        try: self.cdmThumbnail.getTimestamp(thumbPath)
-        except PathNotFound:
-            original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)
-            original = self.cdmThumbnail.getURI(original, 'file')
+        #try: self.cdmThumbnail.getTimestamp(thumbPath)
+        #except PathNotFound:
+        original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)
+        original = self.cdmThumbnail.getURI(original, 'file')
 
-            if size:
-                if size not in self.thumbnailSizes: raise InputError(_('Unknown size \'%s\'') % size)
-                width, height = self.thumbnailSizes[size]
-                self.thumbnailProcessor.processThumbnail(original, self.cdmThumbnail.getURI(thumbPath, 'file'), width, height)
+        if size:
+            if size not in self.thumbnailSizes: raise InputError(_('Unknown size \'%s\'') % size)
+            width, height = self.thumbnailSizes[size]
+            self.thumbnailProcessor.processThumbnail(original, self.cdmThumbnail.getURI(thumbPath, 'file'), width, height)
 
         metaData.Thumbnail = self.cdmThumbnail.getURI(thumbPath, scheme)
         return metaData

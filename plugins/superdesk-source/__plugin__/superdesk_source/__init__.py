@@ -11,10 +11,15 @@ Contains the superdesk source setup files.
 
 # --------------------------------------------------------------------
 
-NAME = 'Sources support'
+NAME = 'Sources source'
 GROUP = 'Superdesk'
 VERSION = '1.0'
-DESCRIPTION = \
-'''
-Provides the support for content sources.
-'''
+DESCRIPTION = 'Provides the support for content sources.'
+LONG_DESCRIPTION = 'Source management functionality (model, service)'
+AUTHOR = 'Gabriel Nistor'
+AUTHOR_EMAIL = 'gabriel.nistor@sourcefabric.org'
+KEYWORDS = ['Ally', 'REST', 'Superdesk', 'plugin', 'source']
+INSTALL_REQUIRES = ['ally-api >= 1.0', 'support-sqlalchemy >= 1.0', 'internationalization >= 1.0',
+                    'superdesk >= 1.0']
+
+__extra__  = dict()
