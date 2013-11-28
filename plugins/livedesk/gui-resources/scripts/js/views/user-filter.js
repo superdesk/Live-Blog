@@ -8,7 +8,7 @@ define([
 	return UserDrop.extend({
 		template: 'livedesk>citizen-desk/checker-list',
 		events: {
-			'button': { 'click': 'clearAssignment' },
+			'.clear-assignment': { 'click': 'clearAssignment' },
 			'input': { 'click': 'stopPropagation' },
 			'.assignment-result-list li': { 'click': 'filterChecker' }
 		},

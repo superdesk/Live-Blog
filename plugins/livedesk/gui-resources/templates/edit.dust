@@ -41,7 +41,7 @@
 
             <span class="timeline-title">_("Timeline"); </span>
             
-            <div class="filter-assign assignment-menu dropdown pull-right"></div>
+            <div class="filter-assign"></div>
 
             <div class="dropdown pull-right post-verification-filter">
                 <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post status:"); <span data-info="filter-status">_("All statuses");</span> <b class="caret"></b></button>
