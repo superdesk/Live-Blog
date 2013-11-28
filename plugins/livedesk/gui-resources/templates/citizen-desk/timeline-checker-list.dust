@@ -1,16 +1,18 @@
-<button class="btn-flat dropdown-toggle " data-toggle="dropdown">
-	_("Asignee:"); <span data-info="filter-checker">{PostVerification.Checker.FullName}</span> <b class="caret"></b>
-</button>
+<div class="assignment-menu dropdown pull-right">
+    <button class="btn-flat dropdown-toggle " data-toggle="dropdown">
+    	_("Asignee:"); <span data-info="filter-checker">{PostVerification.Checker.FullName}</span> <b class="caret"></b>
+    </button>
 
-<ul class="dropdown-menu sf-dropdown sf-dropdown-right assignment-box">
-    <h5 class="dropdown-title">_('Assignees');</h5>
-    <button id="clear-assignment" class="pull-right clear-assignment">x</button>
-    <div class="assignment-content">
-        <div class="sf-searchbox">
-            <input type="text" placeholder="_('Search');">
-        </div>
-        <div class="assignment-result-list">
-        </div>
-    </div>  
-</ul>
+    <ul class="dropdown-menu sf-dropdown sf-dropdown-right assignment-box">
+        <h5 class="dropdown-title">_('Assignees');</h5>
+        <button class="pull-right clear-assignment">x</button>
+        <div class="assignment-content">
+            <div class="sf-searchbox">
+                <input type="text" placeholder="_('Search');">
+            </div>
+            <div class="assignment-result-list">
+            </div>
+        </div>  
+    </ul>
+    </div>
 </div>

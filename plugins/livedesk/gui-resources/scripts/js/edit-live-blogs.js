@@ -198,7 +198,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 		({
 			events: 
 			{
-				'': { sortstop: 'reorder' },
+				'': { sortstop: 'reorder', mouseleave: 'killMenu' },
 				'[data-status-key]': { click: 'changeStatus'},
 
 				'a.close': { click: 'removeDialog' },
@@ -228,6 +228,11 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						actions.removeData('focuseout-stop');
 					}, 100);
 			},
+    		killMenu: function(evt) {
+				var self = this;
+    			//self.userVerification.killMenu();
+    			$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
+    		},
 			hideActions: function(evt, duration) {
 				var self = this,
 					actions = self.el.find('.actions'),
