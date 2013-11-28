@@ -638,7 +638,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 					this.collection.auto( this.filter );
 				}
 				else {
-					delete this.data.filter.status;
+					delete this.filter.data.status;
 					this.collection.auto( this.filter );
 				}
 			},
@@ -1072,6 +1072,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
                 });
 			},
 			filterChecker: function(checker) {
+				$('[data-info="filter-checker"]', this.el).text(checker.FullName)
 				this.timelineView.filterChecker(checker);
 			},
 			textToggleStatus: function()
@@ -1273,7 +1274,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				})
 				.on('click'+this.getNamespace(), '[data-status-filter-key]', function(evt){
 					var keyStatus = $(this).attr('data-status-filter-key');
-					$('[data-info="filter"]').text($(this).text())
+					$('[data-info="filter-status"]', self.el).text($(this).text())
 					self.timelineView.filterStatus(keyStatus);
 				});
 				self.textToggleStatus();

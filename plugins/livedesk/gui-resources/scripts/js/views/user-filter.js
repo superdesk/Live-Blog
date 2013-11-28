@@ -8,11 +8,17 @@ define([
 	return UserDrop.extend({
 		template: 'livedesk>citizen-desk/checker-list',
 		events: {
+			'button': { 'click': 'clearAssignment' },
 			'input': { 'click': 'stopPropagation' },
 			'.assignment-result-list li': { 'click': 'filterChecker' }
 		},
 		stopPropagation: function(evt){
 			evt.stopImmediatePropagation();
+		},
+		clearAssignment: function(evt){
+			this._parent.filterChecker({
+				FullName: _('All Assigners')
+			});
 		},
 		filterChecker: function(evt){
 			var self = this,
