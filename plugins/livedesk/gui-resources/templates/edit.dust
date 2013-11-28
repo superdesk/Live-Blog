@@ -44,11 +44,11 @@
             <div class="filter-assign assignment-menu dropdown pull-right"></div>
 
             <div class="dropdown pull-right post-verification-filter">
-                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post status:"); <span data-info="filter">_("All statuses");</span> <b class="caret"></b></button>
+                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post status:"); <span data-info="filter-status">_("All statuses");</span> <b class="caret"></b></button>
                 <ul class="dropdown-menu sf-dropdown sf-dropdown-right">
                     <li>
                         <a href="javascript:void(0)" data-status-filter-key="all" data-action="update">All statuses</a>
-                    `</li>
+                    </li>
                     <li><a href="javascript:void(0)" data-status-filter-key="nostatus" data-action="update">No status</a></li>
                     <li><a href="javascript:void(0)" data-status-filter-key="verified" data-action="update">Verified</a></li>
                     <li><a href="javascript:void(0)" data-status-filter-key="unverified" data-action="update">Unverified</a></li>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="dropdown pull-right">
-                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post type:"); <span data-info="filter">_("All posts");</span> <b class="caret"></b></button>
+                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post type:"); <span data-info="filter-type">_("All posts");</span> <b class="caret"></b></button>
                 <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
             </div>
 
