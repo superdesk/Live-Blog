@@ -35,8 +35,6 @@ from superdesk.media_archive.api.meta_info import IMetaInfoService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post, IPostService
-from superdesk.verification.api.verification import PostVerification,\
-    IPostVerificationService
 from uuid import uuid4
 
 # --------------------------------------------------------------------
@@ -63,9 +61,6 @@ class ChainedSyncProcess:
     
     postService = IPostService; wire.entity('postService')
     # post service used to insert/update posts
-    
-    postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
-    # post verification service used to insert post verification
 
     collaboratorService = ICollaboratorService; wire.entity('collaboratorService')
     # blog post service used to retrive collaborator
@@ -235,13 +230,6 @@ class ChainedSyncProcess:
                 # update blog sync entry
                 blogSync.LastActivity = datetime.now().replace(microsecond=0)
                 self.blogSyncService.update(blogSync)
-                
-                #create PostVerification
-                if insert: 
-                    postVerification = PostVerification()
-                    postVerification.Id = localPost.Id
-                    self.postVerificationService.insert(postVerification)
-                        
                 
             except KeyError as e:
                 log.error('Post from source %s is missing attribute %s' % (source.URI, e))
