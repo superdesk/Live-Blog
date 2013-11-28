@@ -32,6 +32,7 @@ from superdesk.user.meta.user import UserMapped
 from uuid import uuid4
 from superdesk.post.meta.post import PostMapped
 from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.verification.meta.status import VerificationStatusMapped
 
 # --------------------------------------------------------------------
 
@@ -424,3 +425,20 @@ def upgradePostWasPublishedFix():
        
     session.commit()    
     session.close() 
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradePostVerificationFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+
+    try:
+        idNoStatus = session.query(VerificationStatusMapped.id).filter(VerificationStatusMapped.Key == 'nostatus').scalar()
+        session.execute("INSERT INTO post_verification (fk_post_id, fk_user_id, fk_status_id) \
+                         SELECT id, NULL, " + idNoStatus + " FROM post WHERE id not in (SELECT fk_post_id FROM post_verification) ")
+    except (Exception): pass
+       
+    session.commit()    
+    session.close()     
