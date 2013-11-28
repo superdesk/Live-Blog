@@ -6,7 +6,7 @@ define([
     return Gizmo.Model.extend({
     	url: new Gizmo.Url('LiveDesk/BlogType'),
     	defaults: { 
-    		Post: Gizmo.Register.Posts
+    		BlogTypePost: Gizmo.Register.Posts
     	},
     	syncParse: function(data){
     		var self = this,

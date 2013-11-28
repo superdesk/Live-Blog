@@ -190,7 +190,9 @@ function($, superdesk, giz)
                 self.syncing = false; 
                 self.page.total = data.total;
             }};
-            return this.collection.xfilter('*').sync(options).done(function(){ self.render(); });
+            hrefsplit = this.collection.href.split('/');
+            hrefsplit[hrefsplit.length-1];
+            return this.collection.xfilter(hrefsplit[hrefsplit.length-1]+'.*').sync(options).done(function(){ self.render(); });
         },
         /*!
          * hook before refresh sync

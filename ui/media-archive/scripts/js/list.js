@@ -542,7 +542,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         refreshData: function()
         {
             data = gizList.ListView.prototype.refreshData.call(this);
-            data.thumbSize = 'medium';
+            data['MetaInfo.MetaData.thumbSize'] = 'medium';
             return data;
         },
         /*!

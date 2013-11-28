@@ -9,11 +9,11 @@ define
 ],
 function($, superdesk, gizmo, Action, jsSHA, AuthToken, AuthLogin)
 {
-    var 
+    //var 
     /*!
      * performs login
      */
-    AuthLoginApp = function(username, password, loginToken)
+    var AuthLoginApp = function(username, password, loginToken)
     {
         var shaUser = new jsSHA(username, "ASCII"),
             shaPassword = new jsSHA(password, "ASCII"),         
@@ -51,7 +51,8 @@ function($, superdesk, gizmo, Action, jsSHA, AuthToken, AuthLogin)
             $(authLogin).trigger('success');
         });
         return $(authLogin);
-    },
+    };
+    var
     AuthTokenApp = 
     {
         get: function(username, password) 

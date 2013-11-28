@@ -15,6 +15,8 @@
 			<URL>Localization/Language</URL>
 			<URL>RBAC/Role</URL>
 			<URL>Archive/MetaInfo</URL>
+			<URL>Archive/MetaType</URL>
+			<URL>Archive/QueryCriteria</URL>
 		</Allows>
 
 		<Description>Right containing the user actions.

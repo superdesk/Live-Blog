@@ -53,6 +53,7 @@ class PostMapped(Base, Post):
     @hybrid_property
     def AuthorName(self):
         if self.Author is None:
+            import pdb;pdb.set_trace()
             if self.creator is None: return None
             else: return self.creator.Name
         return self.author.Name

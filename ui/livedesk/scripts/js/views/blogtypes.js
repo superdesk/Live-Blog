@@ -20,7 +20,7 @@
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Id,Name,Post')
+                .xfilter('BlogType.Id,BlogType.Name,BlogType.BlogTypePost.Post.*')
                 .sync();
             self.collection.model.on('add',self.addOne, self);
         },

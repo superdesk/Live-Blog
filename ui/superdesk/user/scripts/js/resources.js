@@ -105,7 +105,9 @@ define([
     }]);
 
     resources.service('UserService', ['$resource', '$q', function($resource, $q) {
-        var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+        //TODO: Mihai remove this
+        //var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+        var UserImage = $resource('/resources/HR/Person/IconPersonMetaData/:userId', {userId: '@userId'});
 
         this.getImage = function(user) {
             var delay = $q.defer();

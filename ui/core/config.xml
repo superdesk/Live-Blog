@@ -9,21 +9,23 @@
 		<Allows methods="GET">
 			<URL>/</URL>
 			<URL>Security/Login/*/Gateway</URL>
+			<URL>HR/User/*</URL>
 		</Allows>
 	</Anonymous>
 
 	<Right name="View all actions">
 		<Actions>
 			<!-- This node should contain actions to be used to generate the top navigation menu -->
-			<Action path="menu" label="Live Blogs"/>
-			<Action path="submenu" parent="menu" script="content/livedesk/scripts/js/submenu-live-blogs.js" />
-
+			<Action path="menu" />
 			<!-- This node should contain actions to be used inside the application as main modules (whole page for edit/add/etc.) -->
 			<Action path="modules" />
 			<!-- This node should contain actions to be used inside the dashboard of the application as main modules (whole page for edit/add/etc.) -->
 			<Action path="dashboard" parent="modules"/>
 			
-			<Action path="user" parent="menu" label="Users" navbar="/users" script="content/superdesk/user/scripts/js/menu.js" />
+			<Action path="livedesk" parent="menu" label="Live Blogs"/>
+			<Action path="submenu" parent="menu.livedesk" script="content/livedesk/scripts/js/submenu-live-blogs.js"/>
+
+			<Action path="user" parent="menu" label="Users" navbar="/users" script="content/superdesk/user/scripts/js/menu.js"/>
 			<Action path="user" parent="modules" />
 
 			<Action path="update" parent="modules.user" script="content/superdesk/user/scripts/js/modules-update.js" />
