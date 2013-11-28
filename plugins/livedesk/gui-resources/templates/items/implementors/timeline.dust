@@ -1,4 +1,5 @@
 {>"livedesk>items/base"/}
+{<ImplementorClass}post-draggable post-{PostVerification.Status.Key}{/ImplementorClass}
 {<TimeInfoShowed}{PublishedOn|userdate}{/TimeInfoShowed}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<AdditionalAttributes} id="post-{Id}" {/AdditionalAttributes}
