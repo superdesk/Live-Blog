@@ -29,6 +29,8 @@ from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
 from uuid import uuid4
+from superdesk.verification.api.verification import PostVerification,\
+    IPostVerificationService
 
 # --------------------------------------------------------------------
 
@@ -49,6 +51,9 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     The maximal size for the content part of a post; limited only by db system if zero.''')
     content_plain_max_size = 65535; wire.config('content_plain_max_size', doc='''
     The maximal size for the content plain part of a post; limited only by db system if zero.''')
+    
+    postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
+    # post verification service used to insert post verification
 
     def __init__(self):
         '''
@@ -224,6 +229,11 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         self.session().add(postDb)
         self.session().flush((postDb,))
         post.Id = postDb.Id
+        
+        postVerification = PostVerification()
+        postVerification.Id = post.Id
+        self.postVerificationService.insert(postVerification)
+           
         return post.Id
 
     def update(self, post):
