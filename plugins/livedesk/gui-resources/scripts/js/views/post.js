@@ -191,7 +191,6 @@ define
                     Base: self.tmplImplementor,
                     Post: post
                 };
-                console.log(data);
                 $.tmpl('livedesk>items/item', data, function(e, o) {
                     self.setElement(o);
                     self.el.triggerHandler('afterRender');
