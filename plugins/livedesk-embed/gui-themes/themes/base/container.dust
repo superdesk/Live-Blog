@@ -1,5 +1,5 @@
 {+mainContainer}
-<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes}>
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes} data-hamster="aoleu">
 	{+main}
 	<div class="liveblog-container">
 		{!-- 
