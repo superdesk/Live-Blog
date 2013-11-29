@@ -63,6 +63,7 @@
             var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
+                    'VerificationToggle': self.el.find('[name="VerificationToggle"]').val(),
                     'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {
