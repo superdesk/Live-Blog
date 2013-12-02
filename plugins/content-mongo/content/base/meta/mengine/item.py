@@ -12,9 +12,8 @@ Contains the mongo engine meta for item API.
 from datetime import datetime
 from mongoengine.fields import StringField, IntField, DateTimeField
 
+from content.base.api.item import Item
 from mongo_engine.support.document import Base
-
-from ..api.item import Item
 
 
 # --------------------------------------------------------------------
