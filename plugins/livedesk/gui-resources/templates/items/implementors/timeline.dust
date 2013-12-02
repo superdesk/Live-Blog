@@ -1,5 +1,5 @@
 {>"livedesk>items/base"/}
-{<ImplementorClass}post-draggable
+{<ImplementorClass}post-draggable 
 	{@if cond="'{VerificationToggle}' == 'on'"}
 		post-{PostVerification.Status.Key}
 	{/if}
