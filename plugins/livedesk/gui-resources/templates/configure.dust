@@ -35,8 +35,14 @@
 						<input type="checkbox" name="UserComments" value="on"{?EmbedConfig.UserComments} checked{/EmbedConfig.UserComments} class="sf-toggle on-off">
 					</div>
 				</div>
+				<div class="control-group">
+					<label class="control-label">_('Verification status');</label>
+					<div class="controls verification">
+						<input type="checkbox" name="VerificationToggle" value="on"{?EmbedConfig.VerificationToggle} checked{/EmbedConfig.VerificationToggle} class="sf-toggle on-off">
+					</div>
+				</div>
 			</fieldset>
-			<fieldset>
+        	<fieldset>
         		<legend>Front-end</legend>
         		<div class="control-group">
 					<label class="control-label">_("Frontend server");</label>

@@ -6,6 +6,8 @@
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<ContainerIframe}{/ContainerIframe}
 {<TopBlocks}
-	{+PostHiddenAction}{/PostHiddenAction}
-	{+PostVerification}{/PostVerification}
+	{@if cond="'{VerificationToggle}' == 'on'"}
+		{+PostHiddenAction}{/PostHiddenAction}
+		{+PostVerification}{/PostVerification}
+	{/if}
 {/TopBlocks}

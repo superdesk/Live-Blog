@@ -286,10 +286,15 @@ define([
 				/*!
 				 * @TODO: remove this when source it will be put on the blog children.
 				 */
-				var self = this;
+				var self = this,
+					blog = this.blog.feed();
+				if($.type(blog['EmbedConfig']) === 'string') {
+					blog['EmbedConfig'] = $.parseJSON(blog['EmbedConfig']);
+				}
 				var chainView = new ChainPostView({ 
 					_parent: this,
 					model: model,
+					blog: blog,
 					tmplImplementor: 'implementors/chain'
 				});
 				model.chainView = chainView;

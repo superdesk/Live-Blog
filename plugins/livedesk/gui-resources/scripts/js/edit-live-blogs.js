@@ -485,12 +485,13 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				var self = this,
 					rendered = false,
 					post = self.model.feed(true);
-
+					embedConfig = self._parent._parent.embedConfig;
 				self.renderReorder();
 				if ( typeof post.Meta === 'string') {
 					post.Meta = JSON.parse(post.Meta);
 				}
 				$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
+				post.VerificationToggle = embedConfig && embedConfig.VerificationToggle;
 				$.tmpl('livedesk>items/item', { 
 					Base: 'implementors/timeline',
 					Post: post
@@ -1108,13 +1109,13 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 				var self = this,
                                 // template data
                                 //to do feed is not getting recursive read
-				mfeed = this.model.feed(),
-				embedConfig = {};
+					mfeed = this.model.feed();
+				self.embedConfig = {};
 				if((mfeed.EmbedConfig !== undefined) && $.isString(mfeed.EmbedConfig))
-					embedConfig = JSON.parse(mfeed.EmbedConfig);
+					self.embedConfig = JSON.parse(mfeed.EmbedConfig);
 
-				if(embedConfig.FrontendServer === undefined)
-					embedConfig.FrontendServer = config.api_url;
+				if(self.embedConfig.FrontendServer === undefined)
+					self.embedConfig.FrontendServer = config.api_url;
 				
 				var
 				data = $.extend({}, this.model.feed(), 
@@ -1130,13 +1131,14 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
 					},
-					OutputLink: embedConfig.FrontendServer,
-					OutputLinkAlt: document.URL.split(':')[0] + embedConfig.FrontendServer,
+					OutputLink: self.embedConfig.FrontendServer,
+					OutputLinkAlt: document.URL.split(':')[0] + self.embedConfig.FrontendServer,
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
 				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
                                 var creator = this.model.get('Creator').feed();
                                 $.extend(data, {'creatorName':creator.Name});
+                data.VerificationToggle = self.embedConfig && self.embedConfig.VerificationToggle;
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
