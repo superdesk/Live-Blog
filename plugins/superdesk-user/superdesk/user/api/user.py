@@ -64,9 +64,9 @@ class IUserService(IEntityService):
     '''
     
     @call
-    def getByUuid(self, name:User.Uuid) -> User:
+    def getByUuidAndType(self, uuid:User.Uuid, userType:User.Type) -> User:
         '''
-        Returns the user by name
+        Returns the user by Uuid and user type
         '''
     
     @call(method=UPDATE)
