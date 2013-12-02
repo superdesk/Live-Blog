@@ -30,7 +30,7 @@ class Source(Entity):
     Key = str
     IsModifiable = bool
     OriginName = str
-    OriginURI = str
+    OriginURI = Reference
 
 # --------------------------------------------------------------------
 
@@ -44,6 +44,9 @@ class QSource(QEntity):
     isModifiable = AsBoolean
     all = AsLike
     type = AsEqual
+    #TODO: Hack to be able to get the list of the chained blog sources for a blog;
+    #It should be removed when the new version of ally-py is used
+    blogId = AsEqual
 
 # --------------------------------------------------------------------
 
@@ -71,3 +74,15 @@ class ISourceService(IEntityGetCRUDService):
         @return: The id assigned to the source
         @raise InputError: If the source is not valid.
         '''
+        
+    @call(webName='Original')
+    def getOriginalSource(self, source:Source) -> Source.Id:   
+        '''
+        Return the source that has the URI equal with the received source OriginalURI.
+
+        @param source: Source
+            The source for that is requested the original source 
+
+        @return: The id of original source
+        @raise InputError: If the source is not valid.
+        ''' 

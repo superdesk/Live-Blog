@@ -9,6 +9,10 @@
 			<form class="form-horizontal form-large" style="margin-bottom: 50px;">
         	<fieldset>
         		<legend>General</legend>
+        		<div class="control-group">
+					<label class="control-label">_('Language');</label>
+					<div class="controls languages"></div>
+				</div>
 				<div class="control-group">
 					<label class="control-label">_('Provider link');</label>
 					<div class="controls output-link">
@@ -22,26 +26,6 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">_('Embed Theme');</label>
-					<div class="controls themes"></div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Embed script");</label>
-					<div class="controls">
-						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Frontend server");</label>
-					<div class="controls">
-						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Language');</label>
-					<div class="controls languages"></div>
-				</div>
-				<div class="control-group">
 					<label class="control-label">_('Configure type of blog');</label>
 					<div class="controls blogtypes"></div>
 				</div>
@@ -52,10 +36,36 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">_('Configure api keys');</label>
-					<div class="controls api-keys"></div>
+					<label class="control-label">_('Verification status');</label>
+					<div class="controls verification">
+						<input type="checkbox" name="VerificationToggle" value="on"{?EmbedConfig.VerificationToggle} checked{/EmbedConfig.VerificationToggle} class="sf-toggle on-off">
+					</div>
 				</div>
 			</fieldset>
+        	<fieldset>
+        		<legend>Front-end</legend>
+        		<div class="control-group">
+					<label class="control-label">_("Frontend server");</label>
+					<div class="controls">
+						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
+					</div>
+				</div>
+        		<div class="control-group">
+					<label class="control-label">_('Embed Theme');</label>
+					<div class="controls themes"></div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_("Embed script");</label>
+					<div class="controls">
+						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
+					</div>
+				</div>
+        	</fieldset>
+        	<fieldset>
+        		<legend>Api keys</legend>
+        		<div class="api-keys"></div>
+        		
+        	</fieldset>
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
             <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}

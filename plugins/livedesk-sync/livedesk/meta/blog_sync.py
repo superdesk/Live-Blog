@@ -15,7 +15,6 @@ from sqlalchemy.types import DateTime, Boolean
 from livedesk.api.blog_sync import BlogSync
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.source.meta.source import SourceMapped
-from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -31,6 +30,5 @@ class BlogSyncMapped(Base, BlogSync):
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id), nullable=False)
     CId = Column('id_change', INTEGER(unsigned=True))
-    SyncStart = Column('sync_start', DateTime)
+    LastActivity = Column('last_activity', DateTime)
     Auto = Column('auto', Boolean, nullable=False)
-    Creator = Column('fk_user_id', ForeignKey(UserMapped.Id), nullable=False)

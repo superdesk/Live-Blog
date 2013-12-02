@@ -24,6 +24,14 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
             PostPublished: Posts,
             PostUnpublished: Posts
         },
+        hideSync: function()
+        {
+            var self = this,
+                hideHref = self.href+'/Hide',
+                dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(hideHref).update();
+            return ret;
+        },
         putLive: function()
         {
             var putLiveHref = this.href+'/PutLive';

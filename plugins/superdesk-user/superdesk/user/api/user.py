@@ -10,7 +10,8 @@ The API specifications for the user.
 '''
 
 from ally.api.config import service, query, UPDATE, call, model
-from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike, AsBoolean
+from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike, AsBoolean,\
+    AsEqual, AsRange
 from ally.support.api.entity import IEntityService, QEntity, Entity
 from datetime import datetime
 from superdesk.api.domain_superdesk import modelHR
@@ -24,6 +25,8 @@ class User(Person):
     '''    
     Provides the user model.
     '''
+    Uuid = str
+    Cid = int
     Type = UserType
     Name = str
     CreatedOn = datetime
@@ -45,6 +48,8 @@ class QUser(QPerson):
     '''
     Query for user service
     '''
+    uuid = AsEqual
+    cid = AsRange
     name = AsLikeOrdered
     all = AsLike
     createdOn = AsDateTimeOrdered
@@ -57,6 +62,12 @@ class IUserService(IEntityService):
     '''
     User model service interface
     '''
+    
+    @call
+    def getByUuid(self, name:User.Uuid) -> User:
+        '''
+        Returns the user by name
+        '''
     
     @call(method=UPDATE)
     def changePassword(self, id:User.Id, password:Password):
