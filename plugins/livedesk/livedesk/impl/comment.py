@@ -10,16 +10,15 @@ Contains the SQL alchemy implementation for comment inlet API.
 '''
 
 from ..api.comment import IBlogCommentService
-from ..api.blog_post import IBlogPostService, QBlogPost
+from ..api.blog_post import IBlogPostService
 from ..meta.blog import BlogMapped
 from ..meta.blog_post import BlogPostMapped
-from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, func
 from superdesk.post.api.post import Post
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -34,6 +33,8 @@ from ally.container import wire
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 import os, binascii
+from livedesk.api.blog_post import QBlogPostUnpublished, QWithCId, IterPost,\
+    BlogPost
 
 # --------------------------------------------------------------------
 
@@ -77,13 +78,36 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
         sql = self.session().query(BlogPostMapped).filter(BlogPostMapped.Blog == blogId)
         sql = sql.join(CollaboratorMapped).join(SourceMapped).join(SourceTypeMapped)
         sql = sql.filter(SourceTypeMapped.Key == self.source_type_key)
+        
+        deleted = False
         if q:
-            assert isinstance(q, QBlogPost), 'Invalid query %s' % q
+            assert isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
+            if QBlogPostUnpublished.isDeleted in q:
+                deleted = q.isDeleted.value                
             sql = buildQuery(sql, q, BlogPostMapped)
-
+            
+        if q:
+            if (QWithCId.cId not in q) or (QWithCId.cId in q and QWithCId.cId.start not in q \
+               and QWithCId.cId.end not in q and QWithCId.cId.since not in q and QWithCId.cId.until not in q):
+                
+                sql = sql.filter(BlogPostMapped.PublishedOn == None) 
+                if deleted: sql = sql.filter(BlogPostMapped.DeletedOn != None)
+                else: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+        else: sql = sql.filter((BlogPostMapped.PublishedOn == None) & (BlogPostMapped.DeletedOn == None))
+            
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        posts = self._trimPosts(sqlLimit.all(), deleted= not deleted, unpublished=False, published=True)
+        if detailed:
+            posts = IterPost(posts, sql.count(), offset, limit)
+            
+            lastCidSql = self.session().query(func.MAX(BlogPostMapped.CId))
+            lastCidSql = lastCidSql.join(CollaboratorMapped, BlogPostMapped.Author == CollaboratorMapped.Id)
+            lastCidSql = lastCidSql.join(SourceMapped).join(SourceTypeMapped)
+            lastCidSql = lastCidSql.filter(SourceTypeMapped.Key == self.source_type_key)
+            
+            posts.lastCId = lastCidSql.scalar()
+            
+        return posts
 
     def getOriginalComments(self, blogId, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -154,11 +178,12 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
             collab.User = userId
             collabId = self.collaboratorService.insert(collab)
 
-        # create post request
+        # create blog post request
         post = Post()
         post.Type = self.post_type_key
         post.Creator = userId
         post.Author = collabId
+        post.Feed = sourceId
         post.Content = commentText
         post.CreatedOn = datetime.now()
 
@@ -176,4 +201,22 @@ class BlogCommentServiceAlchemy(EntityServiceAlchemy, IBlogCommentService):
                 self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
+            
+    def _trimPosts(self, posts, deleted=True, unpublished=True, published=False):
+        '''
+        Trim the information from the deleted posts.
+        '''
+        for post in posts:
+            assert isinstance(post, BlogPostMapped)
+            if (deleted and BlogPost.DeletedOn in post and post.DeletedOn is not None) \
+            or (unpublished and (BlogPost.PublishedOn not in post or post.PublishedOn is None)) \
+            or (published and (BlogPost.PublishedOn in post and post.PublishedOn is not None)):
+                trimmed = BlogPost()
+                trimmed.Id = post.Id
+                trimmed.CId = post.CId
+                trimmed.IsPublished = post.IsPublished
+                trimmed.DeletedOn = post.DeletedOn
+                yield trimmed
+            else:
+                yield post        
 

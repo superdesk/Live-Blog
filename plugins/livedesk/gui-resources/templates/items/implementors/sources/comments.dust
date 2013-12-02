@@ -1,9 +1,11 @@
 {>"livedesk>items/base"/}
 {<FastActions}{/FastActions}
 {<ImportantActions}{/ImportantActions}
-{<AdditionalAttributes} data-id="{Meta.Id}"{/AdditionalAttributes}
+{<AdditionalAttributes} data-id="{Meta.Id}" {?Meta.DeletedOn}data-hidden="true"{:else}data-hidden="false"{/Meta.DeletedOn}{/AdditionalAttributes}
 {<ContainerDescriptionText}{Meta.message|s}{/ContainerDescriptionText}
+{<TopBlocks}
+	{+PostHiddenAction}{/PostHiddenAction}
+{/TopBlocks}
 {<Container}{/Container}
 {<EditableClass}{/EditableClass}
 {<EditableAttribute}{/EditableAttribute}
-

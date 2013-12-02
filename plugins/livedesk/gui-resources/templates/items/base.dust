@@ -3,6 +3,10 @@
 	<div class="drag-bar"></div>
 	
 	<!-- user posts verification interface goes here -->
+	<div class="top-box-container">
+		{+TopBlocks}{/TopBlocks}
+	</div>
+	
 
 	{+FastActions}
 	<div class="tool-box-right">
@@ -177,3 +181,40 @@
 		</div -->
 </li>
 {/Post}
+{<PostVerification}
+<!-- this template goes to the top (just after the drag-bar block) of the base.dust file template --> 
+	<div class="verification-box">
+		<div class="verification-label dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">{PostVerification.Status.Key} <b class="caret"></b></a>
+			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+				<h5 class="dropdown-title">_('Change status');</h5>
+				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
+				<li data-status-key="verified"><span class="label-verified"></span>_('Verified');</li>
+				<li data-status-key="unverified"><span class="label-unverified"></span>_('Unverified');</li>
+				<li data-status-key="onverification"><span class="label-onverification"></span>_('On verification');</li>
+			</ul>
+		</div>
+		<div class="verification-assign">
+		</div>
+	</div>
+{/PostVerification}
+
+{<PostHiddenAction}
+	<div class="hide-unhide-container">
+	{?Meta.DeletedOn}
+		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
+	{:else}
+		{?DeletedOn}
+			<a href="#toggle-post" data-action="unhide" data-id="{Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
+		{:else}
+			{?Id}
+				<a href="#toggle-post" data-action="hide" data-id="{Id}" class="close image" title="_('Delete');">&nbsp;</a>
+				{:else}
+					{?Meta.Id}
+						<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
+					{/Meta.Id}
+			{/Id}
+		{/if}
+	{/Meta.DeletedOn}
+	</div>
+{/PostHiddenAction}

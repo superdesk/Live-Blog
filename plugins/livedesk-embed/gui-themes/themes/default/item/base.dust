@@ -2,12 +2,15 @@
 _('by');
 _('Share');
 !}
-<li class="{+item_class}default{/item_class}">
+<li class="{+item_class}default{/item_class} {?PostVerification.Status.Key}post-{PostVerification.Status.Key}{/PostVerification.Status.Key}">
 	<a name="{Order}"></a>
 	{+head}
 	<div class="result-header">
 		{+PostInfo}
 		<div class="post_info">
+			{+VerificationInfo}
+			<a class="verification-label" title="verification status"></a>
+			{/VerificationInfo}
 			{+TimeInfo}
 			<time data-date={CreatedOnISO}>{CreatedOn}</time>
 			{/TimeInfo}

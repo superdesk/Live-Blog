@@ -14,9 +14,16 @@ define([
 
     var PROVIDER_TYPE = 'blog provider';
     var BLOG_TYPE = 'chained blog';
-    var SMS_TYPE = 'FrontlineSMS';
+    var SMS_TYPE = 'smsblog';
+    var mainBlogId = 0;
+    var smsHackUrl = '//';
 
     var fetchOptions = {headers: {'X-Filter': 'Id, Name, URI'}, reset: true};
+    function getLastItem( myString ) {
+        var hackArray = myString.split('/');
+        var lastItem = hackArray[hackArray.length - 1];
+        return lastItem;
+    }
 
     /**
      * Get gizmo url for given path
@@ -167,7 +174,8 @@ define([
         },
 
         getBlogs: function() {
-            return new ExternalBlogCollection([], {url: this.get('URI')});
+            //@TODO remove the explicit X-Filter parameters and just keep them in the headers
+            return new ExternalBlogCollection([], {url: this.get('URI') + '?X-Filter=Title,Description'});
         },
 
         parse: function(response) {
@@ -267,7 +275,7 @@ define([
         },
 
         change: function(e) {
-            var checked = $(e.target).prop('checked');
+            var checked = $(e.target).attr('checked');
 
             if (checked) {
                 this.model.activate();
@@ -296,7 +304,12 @@ define([
          */
         toggleCheckbox: function() {
             $input = $(this.el).find('input:checkbox');
-            $input.prop('checked', ! $input.prop('checked'));
+            //$input.attr('checked', ! $input.prop('checked'));
+            if ( $input.attr('checked') ) {
+                $input.removeAttr('checked');
+            } else {
+                $input.attr('checked', 'checked');
+            }
             $input.change();
         }
     });
@@ -442,7 +455,6 @@ define([
                 var show = true;
                 if (q.length) {
                     var text = $(this).text();
-                    console.log('sms text is ', text);
                     var reg = new RegExp(q, 'i');
                     show = reg.test(text);
                 }
@@ -470,13 +482,14 @@ define([
     
 
     var optionsAllFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
-    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id'}, reset: true};
-    
+    var optionsSmsFeeds = {headers: {'X-Filter': 'Name,Id,URI'}, reset: true};
+     
 
     var SmsFeed = Source.extend({
         idAttribute: 'Id',
         defaults: {
-            Name: 'some feed'
+            Name: 'some feed',
+            URI: '//'
         }
     });
     var SmsFeedsCollection = Backbone.Collection.extend({
@@ -496,6 +509,7 @@ define([
             'data-type': 'sms-feed-li'
         },
         checkclick: function() {
+            var self = this;
             if ( this.$('input').attr('checked') ) {
                 //we add
                 var name = this.model.get('Name');
@@ -503,13 +517,26 @@ define([
                     Name: this.model.get('Name'),
                     Type: SMS_TYPE,
                     IsModifiable: 'True',
-                    URI: name
+                    URI: SMS_TYPE + '/' + name,
+                    OriginURI: name
                 };
-                allSourceCollection.create(newSource, { wait: true, success: this.assigned } );
+                $.ajax({
+                    url: smsHackUrl,
+                    type: 'POST',
+                    data: newSource
+                }).done(function(data) {
+                    var smsblog_id = getLastItem(data.href);
+                    self.$('input').attr('data-smsblog-id', smsblog_id);
+                });
+                //allSourceCollection.create(newSource, { wait: true, success: this.assigned } );
             } else {
                 //we remove
-                var other = allSourceCollection.get(this.model.get('Id'));
-                other.destroy();
+                var smsblogId = this.$('input').attr('data-smsblog-id');
+                var remUrl = smsHackUrl + '/' + smsblogId;
+                $.ajax({
+                    url: remUrl,
+                    type: 'DELETE'
+                });
             }
         },
         assigned: function() {
@@ -569,11 +596,13 @@ define([
     var SourceModel = Source.extend({
         idAttribute: 'Id',
         defaults: {
-            Name: 'some feed'
+            Name: 'some feed',
+            URI: '//',
+            OriginURI: '//'
         } 
     });
     SourceModel.bind('remove', function(){
-        console.log('hamster');
+        //
     });
 
     var AllSourceCollection = Backbone.Collection.extend({
@@ -592,13 +621,15 @@ define([
             })
         }
     });
-    var optionsAllSources = {headers: {'X-Filter': 'Type.Key,Name,Id'}, reset: true};
+    var optionsAllSources = {headers: {'X-Filter': '*'}, reset: true};
 
     var checkSelectedFeeds = function(selected) {
         for ( var i = 0; i < selected.length; i ++ ) {
             var select = selected[i];
             var feedId = select.id;
-            $('[data-type="sms-feed"][data-feed-id="' + feedId + '"]').attr("checked", "checked").attr("data-checked", 1);
+            selectJSON = select.toJSON();
+            var originURI = selectJSON.OriginURI.href;
+            $('[data-type="sms-feed"][data-uri="' + originURI + '"]').attr("checked", "checked").attr("data-checked", 1).attr("data-smsblog-id", selectJSON.Id);
         }
     };
 
@@ -613,16 +644,19 @@ define([
             //@TODO get it in a smarter way
             var hackArray = blogHref.split('/');
             var blogId = hackArray[hackArray.length - 1];
+            mainBlogId = blogId;
+            smsHackUrl = getGizmoUrl('LiveDesk/Blog/' + mainBlogId + '/Source');
 
             smsFeedsCollection = new SmsFeedsCollection;
-            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/FrontlineSMS/Source');
+            smsFeedsCollection.url = getGizmoUrl('Data/SourceType/smsfeed/Source');
             smsFeedsCollection.fetch(optionsSmsFeeds).done(function(){
                 runSmsFeedsView();
             });
 
             allSourceCollection = new AllSourceCollection;
-            allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/1/Source');
-            allSourceCollection.fetch(optionsAllSources).done(function(response){
+            //allSourceCollection.url = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
+            allSourceCollection.url = getGizmoUrl('Data/SourceType/smsblog/Source?blogId=' + blogId + '&X-Filter=*');
+            allSourceCollection.fetch({}).done(function(response){
                 jQ.on('managefeeds/allfeedsloaded', function(){
                     var smsSources = allSourceCollection.filterType(SMS_TYPE);
                     checkSelectedFeeds(smsSources);

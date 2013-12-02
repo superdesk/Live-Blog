@@ -25,6 +25,7 @@ from sqlalchemy.sql.functions import current_timestamp
 from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
 from superdesk.user.meta.user_type import UserTypeMapped
+from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -50,6 +51,14 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         '''
         user = self.session().query(UserMapped).get(id)
         if not user: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        assert isinstance(user, UserMapped), 'Invalid user %s' % user
+        return user
+    
+    def getByUuid(self, uuid):
+        '''
+        @see: IUserService.getByName
+        '''
+        user = self.session().query(UserMapped).filter(UserMapped.Uuid == uuid).one()
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
@@ -91,6 +100,9 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.insert
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
+        
+        if user.Uuid is None: user.Uuid= str(uuid4().hex)
+        if user.Cid is None: user.Cid = 0    
 
         userDb = UserMapped()
         userDb.password = user.Password
@@ -115,8 +127,10 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
-            userDb.typeId = self._userTypeId(user.Type)
-            self.session().flush((copy(user, userDb, exclude=('Type',)),))
+            if user.Type: userDb.typeId = self._userTypeId(user.Type)
+            userDb.Cid = userDb.Cid if userDb.Cid else 0
+            userDb.Cid = user.Cid if user.Cid else userDb.Cid + 1
+            self.session().flush((copy(user, userDb, exclude=('Type', 'CId')),))
         except SQLAlchemyError as e: handle(e, userDb)
 
     def delete(self, id):

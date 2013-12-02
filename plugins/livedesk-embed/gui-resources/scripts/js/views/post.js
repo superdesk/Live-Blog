@@ -99,10 +99,16 @@
 			data.HashIdentifier = self._parent.hashIdentifier;
 
 			if(data.Meta) {
+<<<<<<< HEAD
 				if(typeof JSON !== 'object') {
 					data.Meta = json_parse(data.Meta);
 				} else {
 					data.Meta = JSON.parse(data.Meta);
+=======
+				data.Meta = JSON.parse(data.Meta);
+				if ( data.AuthorName ) {
+					data.Meta.Creator = { 'Name': data.AuthorName };	
+>>>>>>> sourcefabric/citizen
 				}
 			}
 			if(data.Meta && data.Meta.annotation) {
@@ -136,11 +142,16 @@
 			} else {
 				data.permalink = self._parent.location + '&' + newHash;
 			}
-			if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
-				data.item = "posttype/"+data.Type.Key;
-			}
-			else if(data.Type)
-				data.item = "source/"+data.Author.Source.Name;
+			if ( data.Author.Source.Type.Key === 'smsblog') {
+				//ugly hack is ugly
+				data.item = "source/sms";
+			} else {
+				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
+					data.item = "posttype/"+data.Type.Key;
+				}
+				else if(data.Type)
+					data.item = "source/"+data.Author.Source.Name;
+			} 
 			if(data.CreatedOn) {
 				createdOn = new Date(Date.parse(data.CreatedOn));
 				data.CreatedOn = createdOn.format(_('mm/dd/yyyy HH:MM o'));

@@ -1,3 +1,16 @@
 {>"livedesk>items/base"/}
+{<ImplementorClass}post-draggable 
+	{@if cond="'{VerificationToggle}' == 'on'"}
+		post-{PostVerification.Status.Key}
+	{/if}
+{/ImplementorClass}
 {<TimeInfoShowed}{PublishedOn|userdate}{/TimeInfoShowed}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
+{<AdditionalAttributes} id="post-{Id}" {/AdditionalAttributes}
+
+{<TopBlocks}
+	{@if cond="'{VerificationToggle}' == 'on'"}
+		{+PostHiddenAction}{/PostHiddenAction}
+		{+PostVerification}{/PostVerification}
+	{/if}
+{/TopBlocks}

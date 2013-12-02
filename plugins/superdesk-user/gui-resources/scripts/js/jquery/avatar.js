@@ -91,16 +91,16 @@ define(['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery/md5'], function(
 				params = $.extend({}, self.defaults, defaults || {}),
 				parts = params.needle.split('.'),
 				email;
-				if(( parts.length === 1 ) && data[parts[0]]) {
-					email = data[parts[0]];
-				} else if( ( parts.length === 2 ) && data[parts[0]] && data[parts[0]][parts[1]] ) {
-					email = data[parts[0]][parts[1]];
-				}
-				else
-					return;
 				if( data[params.imageAttribute] ) {
 					data[params.key] = '<img data-avatar-id="'+data[params.idAttribute]+'" src="'+data[params.imageAttribute].href+'" />';
 				} else {
+                    if(( parts.length === 1 ) && data[parts[0]]) {
+                        email = data[parts[0]];
+                    } else if( ( parts.length === 2 ) && data[parts[0]] && data[parts[0]][parts[1]] ) {
+                        email = data[parts[0]][parts[1]];
+                    }
+                    else
+                        return;
 					data[params.key] = '<img data-avatar-id="'+data[params.idAttribute]+'" src="'+self.get(email, defaults)+'" />';
 				}
 		}

@@ -7,13 +7,17 @@
     config.guiJs('livedesk', 'views/configure/api-keys'),
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('media-archive', 'upload'),
+    config.guiJs('media-archive', 'adv-upload'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
     'tmpl!core>layouts/footer-dinamic',
     'tmpl!livedesk>configure',
-    'tmpl!livedesk>configure/languages'
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action ) {
+    'tmpl!livedesk>configure/languages',
+    'tmpl!livedesk>providers/edit/imagelink',
+], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+   var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -22,18 +26,44 @@
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
 			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
-            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' }
+            '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
+            "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
         init: function() {
+            var self = this;
+            $(uploadView).on('complete', function(){
+                self.handleImageUpload();
+            });
+        },
+        handleImageUpload: function(imgData) {
+            var self = this;
+            var imgData = uploadView.getRegisteredItems();
+            var myData = false;
+            for ( var propName in imgData) {
+                myData = imgData[propName].data;
+                break;
+            }
+            if (myData) {
+                self.el.find('[name="MediaImage"]').val(myData.Content.href);
+                $.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
+                    self.el.find('#MediaImageThumb').html(o);
+                });
+            }
+        },
+        openUploadScreen: function() {
+            uploadView.activate();
+            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
         },
         selectInput: function(evt) {
 			$(evt.target).select();
 		},
         save: function(evt){
-            var self = this,
-                EmbedConfig = {
+            var self = this;
+
+            var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
+                    'VerificationToggle': self.el.find('[name="VerificationToggle"]:checked').val(),
                     'UserComments': self.el.find('[name="UserComments"]').is(':checked')
                 },
                 data = {

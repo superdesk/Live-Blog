@@ -28,6 +28,9 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPost, QPostPublishe
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from sqlalchemy.sql.functions import current_timestamp
+from uuid import uuid4
+from superdesk.verification.api.verification import PostVerification,\
+    IPostVerificationService
 
 # --------------------------------------------------------------------
 
@@ -48,12 +51,31 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     The maximal size for the content part of a post; limited only by db system if zero.''')
     content_plain_max_size = 65535; wire.config('content_plain_max_size', doc='''
     The maximal size for the content plain part of a post; limited only by db system if zero.''')
+    
+    postVerificationService = IPostVerificationService; wire.entity('postVerificationService')
+    # post verification service used to insert post verification
 
     def __init__(self):
         '''
         Construct the post service.
         '''
         EntityGetServiceAlchemy.__init__(self, PostMapped)
+        
+    def getByUuidAndSource(self, uuid, sourceId):
+        '''
+        @see: IPostService.getByUuidAndSource
+        '''
+        
+        sql = self.session().query(PostMapped)
+        sql = sql.filter(PostMapped.Feed == sourceId)
+        sql = sql.filter(PostMapped.Uuid == uuid)
+        
+        try:
+            post = sql.distinct().one()
+        except Exception:
+            post = None
+            
+        return post    
 
     def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -155,8 +177,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
 
         sql = self._buildQueryWithCId(q, sql)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def getAllBySourceType(self, sourceTypeKey, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -176,12 +198,21 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         @see: IPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
+        
+        if post.Uuid is None:
+            post.Uuid = str(uuid4().hex)
+            
+        if post.WasPublished is None:
+            if post.PublishedOn is None:        
+                post.WasPublished = 0
+            else: post.WasPublished = 1 
+               
         postDb = PostMapped()
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
 
         postDb = self._adjustTexts(postDb)
-
+    
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
         if not postDb.Author:
             colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == postDb.Creator).all()
@@ -198,6 +229,11 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         self.session().add(postDb)
         self.session().flush((postDb,))
         post.Id = postDb.Id
+        
+        postVerification = PostVerification()
+        postVerification.Id = post.Id
+        self.postVerificationService.insert(postVerification)
+           
         return post.Id
 
     def update(self, post):
@@ -206,7 +242,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = self.session().query(PostMapped).get(post.Id)
-        if not postDb or postDb.DeletedOn is not None: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
+        if not postDb: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
 
         if Post.Type in post: postDb.typeId = self._typeId(post.Type)
         if post.UpdatedOn is None: postDb.UpdatedOn = current_timestamp()

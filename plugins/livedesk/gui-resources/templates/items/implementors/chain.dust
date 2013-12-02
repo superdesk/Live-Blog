@@ -1,7 +1,13 @@
 {>"livedesk>items/base"/}
-{<ImplementorClass}post-draggable{/ImplementorClass}
+{<ImplementorClass}post-draggable {@if cond="'{VerificationToggle}' == 'on'"} post-{PostVerification.Status.Key} {/if} {/ImplementorClass}
 {<AdditionalAttributes} data-post-id="{Id}" data-colab-id="{Creator.Id}" {/AdditionalAttributes}
 {<FastActions}{/FastActions}
 {<ImportantActionsPublish}{/ImportantActionsPublish}
 {<ImportantActionsPrepublish}{/ImportantActionsPrepublish}
 {<ContainerIframe}{/ContainerIframe}
+{<TopBlocks}
+	{@if cond="'{VerificationToggle}' == 'on'"}
+		{+PostVerification}{/PostVerification}
+	{/if}
+	{+PostHiddenAction}{/PostHiddenAction}
+{/TopBlocks}

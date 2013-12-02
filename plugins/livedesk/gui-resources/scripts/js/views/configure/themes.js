@@ -60,7 +60,6 @@
             themeNoProtocol = theme.get('URL').href.replace('\\','/').split("//")
             themeNoProtocol.shift();
             themeNoProtocol = "//" + themeNoProtocol.join('//');
-            console.log(themeNoProtocol);
             themePath = themeNoProtocol.replace(config.api_url, frontendServer);
             themePathArray = themePath.split('/');
             themePathArray.pop()

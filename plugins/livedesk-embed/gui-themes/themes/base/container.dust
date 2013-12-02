@@ -1,0 +1,116 @@
+{+mainContainer}
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes} data-hamster="aoleu">
+	{+main}
+	<div class="liveblog-container">
+		{!-- 
+			liveblog header - optional block
+			(title, description ...)
+		--!}
+		{+headerContainer}
+		<div class="liveblog-header">
+			{+header}
+				{+blogTitle}{/blogTitle}
+				{+blogDescription}{/blogDescription}
+				{+blogMedia}{/blogMedia}
+			{/header}
+		</div>
+		{/headerContainer}
+		
+		{+contentContainer}
+		<div class="liveblog-content">
+			{+userComment}
+				{+userCommentBox}{/userCommentBox}
+				{+userCommentBoxMessage}{/userCommentBoxMessage}
+				{+userCommentBackdrop}{/userCommentBackdrop}
+			{/userComment}
+			{+content}
+				{+contentTopContainer}
+				<div class="liveblog-content-top">
+					{+contentTop}
+						{+status}{/status}
+						{+statusNewPost}{/statusNewPost}
+						{+actionUserComment}{/actionUserComment}
+						{+actionTotop}{/actionTotop}
+					{/contentTop}
+				</div>
+				{/contentTopContainer}
+
+				{+contentMiddleContainer}
+				<div class="liveblog-content-middle" id="wrapper"> 
+					{+contentMiddle}
+						{+postsList}{/postsList}
+					{/contentMiddle}
+				</div>
+				{/contentMiddleContainer}
+
+				{+contentBottomContainer}
+				<div class="liveblog-content-bottom">
+					{+contentBottom}
+					{+actionUserComment}{/actionUserComment}
+					{+actionTotop}{/actionTotop}
+					{/contentBottom}
+				</div>
+				{/contentBottomContainer}
+			{/content}
+		{/contentContainer}
+		{+footerContainer}
+		<div class="liveblog-footer">
+			{+footer}
+			{/footer}
+		</div>
+		{/footerContainer}
+	</div>
+	{/container}
+</div>
+{/mainContainer}
+
+{! -- predefined blocks for block header !}
+
+{<blogTitle}
+<h3 data-gimme="blog.title"></h3>
+{/blogTitle}
+
+{<blogMedia}
+<div class="header-ad" data-gimme="blog.media-toggle" {#EmbedConfig.MediaToggle} style="display:block" {:else} style="display:none" {/EmbedConfig.MediaToggle}>
+	<a data-gimme="blog.media-url" href="{EmbedConfig.MediaUrl}" target="_blank"><img data-gimme="blog.media-image" src="{EmbedConfig.MediaImage}"></a>
+</div>
+{/blogMedia}
+
+{<blogDescription}
+<p data-gimme="blog.description"></p>
+{/blogDescription}
+
+{! -- predefined blocks for content top block !}
+{<status}
+<p data-gimme="blog.status" class="update-time"></p>
+{/status}
+
+{<statusNewPost}
+<a data-gimme="posts.pending-message" class="new-posts-label"></a>
+{/statusNewPost}
+
+{<actionTotop}
+<a data-gimme="posts.to-top" class="pintotop button">_('to top');</a>
+{/actionTotop}
+
+{<actionUserComment}
+<a data-gimme="blog.comment" href="#" class="comment button">_('comment');</a>
+{/actionUserComment}
+
+{<userCommentBox}
+<div data-gimme="blog.comment-box"></div>
+{/userCommentBox}
+
+{<userCommentBoxMessage}
+<div data-gimme="blog.comment-box-message"></div>
+{/userCommentBoxMessage}
+
+{<userCommentBackdrop}
+<div data-gimme="blog.comment-box-backdrop"></div>
+{/userCommentBackdrop}
+
+{<postsList}
+<ul data-gimme="posts.list" class="liveblog-postlist">
+	{#Plugins.posts.list}{>"{.}"/}{/Plugins.posts.list}
+</ul>
+{/postsList}

@@ -15,7 +15,7 @@ function(Gizmo)
 
             //http://localhost:8080/resources/LiveDesk/Blog/?X-Filter=*&isLive=true&title.ilike=gen%%
             var params = '&title.ilike=' + encodeURIComponent('%' + title + '%') + '&limit=' + limit + '&offset=' + offset + '&asc=' + order;
-            var getInfoHref = this.href+'?isLive=false&X-Filter=*'+params; // this.url.get() + params;
+            var getInfoHref = this.href+'&X-Filter=*'+params; // this.url.get() + params;
             var
                 self = this,
                 dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },

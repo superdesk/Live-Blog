@@ -8,7 +8,7 @@ define
     'jquery/superdesk',
     config.guiJs('livedesk', 'models/blogsarchive'),
     config.guiJs('livedesk', 'models/blog'),
-	config.guiJs('livedesk', 'models/posttype'),
+    config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
     config.guiJs('livedesk', 'models/liveblogs'),
     'tmpl!livedesk>layouts/dashboard',
@@ -244,6 +244,8 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             data['archive'] = [];
             self.collection.each(function()
             {
+                /**
+                 * @TODO: remove this when performance issue on averdade is fixed.
                 var model = this;
                 this.get('PostPublished').limit(0).sync().done(function(data)
                 { 
@@ -253,6 +255,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
                 {
                     //self.el.find('[data-model-unpublished-id="'+model.get('Id')+'"]').text(data.total) 
                 });
+                */
                 data['live'].push(self.cleanDescription(this.data));
             });
             
