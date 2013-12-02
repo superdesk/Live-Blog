@@ -13,7 +13,7 @@
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
-	
+	{@if cond="'{verificationStatus}' == 'on'"}
 	<div class="chain-filter clearfix">
 		<h6>_('Filter');</h6>
 		<section class="filter pull-left">
@@ -42,6 +42,7 @@
 		</section>
 	  	
 	</div>
+	{/if}
 	{:else}
 	<p>_("No liveblogs");</p>
 	{/sourceBlogs}

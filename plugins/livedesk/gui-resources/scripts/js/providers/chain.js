@@ -584,7 +584,11 @@ define([
                 if (self.sourceBlogs._list.length > 0) {
                     sourceBlogs = true;
                 }
-                $.tmpl('livedesk>providers/chain', {sourceBlogs: sourceBlogs}, function(e,o){
+                if($.type(self.blog.data.EmbedConfig) === 'string') {
+                	self.blog.data.EmbedConfig = JSON.parse(self.blog.data.EmbedConfig)
+                }
+                var verificationStatus = self.blog.data.EmbedConfig && self.blog.data.EmbedConfig.VerificationToggle;
+                $.tmpl('livedesk>providers/chain', {sourceBlogs: sourceBlogs, verificationStatus: verificationStatus }, function(e,o){
 						$(self.el).html(o);
 					var chainBlog,
 						chainBlogLinkView,

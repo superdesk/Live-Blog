@@ -7,7 +7,7 @@
 {<ContainerIframe}{/ContainerIframe}
 {<TopBlocks}
 	{@if cond="'{VerificationToggle}' == 'on'"}
-		{+PostHiddenAction}{/PostHiddenAction}
 		{+PostVerification}{/PostVerification}
 	{/if}
+	{+PostHiddenAction}{/PostHiddenAction}
 {/TopBlocks}
