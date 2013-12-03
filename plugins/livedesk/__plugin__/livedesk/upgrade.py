@@ -320,7 +320,7 @@ def upgradePostFeedFix():
     session.commit()
     session.close() 
     
-@app.populate(priority=PRIORITY_FINAL)
+@app.populate(priority=PRIORITY_LAST)
 def upgradeUuidFix():
     creator = alchemySessionCreator()
     session = creator()
@@ -440,3 +440,36 @@ def upgradePostVerificationFix():
        
     session.commit()
     session.close()
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeUserUuidUniqueFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+
+    idStandard = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'standard').scalar()
+    idChained = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()  
+
+    # find duplicate uuid and set other value
+    inSql = session.query(UserMapped.Uuid)
+    inSql = inSql.filter(UserMapped.typeId == idStandard)
+    
+    sql = session.query(UserMapped)
+    sql = sql.filter(UserMapped.typeId == idChained)
+    sql = sql.filter(UserMapped.Uuid.in_(inSql))
+    users= sql.all()
+    
+    for user in users:
+        user.Uuid = str(uuid4().hex)
+    session.commit()
+
+    try:
+        session.execute("ALTER TABLE `user` ADD UNIQUE INDEX `uuid` (`uuid` ASC)")
+    except (Exception): pass
+       
+    session.commit()
+    session.close()    
+    
+    

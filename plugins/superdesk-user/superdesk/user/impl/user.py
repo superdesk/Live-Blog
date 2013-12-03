@@ -56,9 +56,12 @@ class UserServiceAlchemy(SessionSupport, IUserService):
     
     def getByUuid(self, uuid):
         '''
-        @see: IUserService.getByName
+        @see: IUserService.getByUuid
         '''
-        user = self.session().query(UserMapped).filter(UserMapped.Uuid == uuid).one()
+        sql = self.session().query(UserMapped)
+        sql = sql.filter(UserMapped.Uuid == uuid)
+        user = sql.one()
+        
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
