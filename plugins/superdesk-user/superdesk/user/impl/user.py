@@ -26,7 +26,6 @@ from superdesk.user.api.user import IUserService, QUser, User, Password
 from superdesk.user.meta.user import UserMapped
 from superdesk.user.meta.user_type import UserTypeMapped
 from uuid import uuid4
-from sqlalchemy.sql.expression import and_
 
 # --------------------------------------------------------------------
 
@@ -55,13 +54,14 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
     
-    def getByUuidAndType(self, uuid, userType):
+    def getByUuid(self, uuid):
         '''
-        @see: IUserService.getByUuidAndType
+        @see: IUserService.getByUuid
         '''
-        user = self.session().query(UserMapped)
-        user = user.join(UserTypeMapped, UserTypeMapped.id == UserMapped.typeId)
-        user = filter(and_(UserMapped.Uuid == uuid, UserTypeMapped.Key == userType)).one()
+        sql = self.session().query(UserMapped)
+        sql = sql.filter(UserMapped.Uuid == uuid)
+        user = sql.one()
+        
         assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 

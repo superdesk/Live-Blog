@@ -285,7 +285,7 @@ class ChainedSyncProcess:
         needUpdate = False
         try: userId = self.userService.insert(user)
         except InputError:
-            localUser = self.userService.getByUuidAndType(user.Uuid, self.user_type_key)
+            localUser = self.userService.getByUuid(user.Uuid)
             userId = localUser.Id
             if localUser.Type == self.user_type_key and (cid is None or localUser.Cid < cid): 
                 needUpdate = True
