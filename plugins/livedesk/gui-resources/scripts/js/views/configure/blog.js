@@ -180,9 +180,13 @@
                     $(val).parent().parent().on("click", function(e){
                         e.preventDefault();
                         if (!$(e.target).hasClass("sf-disable")) {
-                            $(e.target).toggleClass('sf-checked');
-                            var own_box = $(e.target).find(".sf-toggle");        
-                            own_box.prop('checked', $(e.target).hasClass('sf-checked'));
+                            var correctTarget = $(e.target);
+                            if ( $(e.target).hasClass("sf-toggle-custom-inner") ) {
+                                correctTarget = $(e.target).parent();
+                            }
+                            correctTarget.toggleClass('sf-checked');
+                            var own_box = correctTarget.find(".sf-toggle");        
+                            own_box.prop('checked', correctTarget.hasClass('sf-checked'));
                             own_box.change();
                         }
                     });
