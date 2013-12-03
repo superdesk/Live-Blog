@@ -32,6 +32,7 @@ define([
 	'tmpl!livedesk>citizen-desk/statuses-list',
 	'tmpl!livedesk>citizen-desk/statuses-filter-list',
 	'tmpl!livedesk>citizen-desk/checker-list',
+	'tmpl!livedesk>citizen-desk/chain-checker-list'
 ], function(
 		providers,
 		$,
@@ -539,6 +540,7 @@ define([
 			},
 			filterStatus: function(evt){
 				evt.preventDefault();
+				this.clearCheckerFilter();
 				$('[data-status-filter-key]', self.el).removeClass('active');
 				var el = $(evt.target).closest('[data-status-filter-key]'),
 					keyStatus = el.attr('data-status-filter-key'),
@@ -549,7 +551,9 @@ define([
 				}
 			},
 			filterChecker: function(checker) {
+				this.clearStatusFilter();
 				var active = this.getActiveView();
+				$('#chain-checker-name', this.el).text(checker.FullName)
 				if (active) {
 					active.model.chainBlogContentView.timelineView.filterChecker(checker);
 				}
@@ -599,6 +603,7 @@ define([
 
 					self.userFilter = new UserFilter({ 
 						el: $('.filter-assign',self.el),
+						template: 'livedesk>citizen-desk/chain-checker-list',
 						_parent: self
 					});
                     self.sourceBlogs.each(function(id,sourceBlog){
@@ -636,12 +641,21 @@ define([
 					});
 				});
 			},
+			clearStatusFilter: function(){
+				$('[data-status-filter-key]', this.el).removeClass('active');
+				$('[data-status-filter-key="all"]', this.el).addClass('active');
+			},
+			clearCheckerFilter: function(){
+				$('#chain-checker-name').text(_('All Assigners'));
+			},
 			toggleHidden: function(e) {
 				e.preventDefault();
 				var self = this,
 					view = this.activeView;
 				var elem = $('#hidden-toggle');
 				var is_active = elem.hasClass('active');
+				self.clearStatusFilter();
+				self.clearCheckerFilter();
 				if (view) {
 					if (is_active) {
 						//we want to go in normal view

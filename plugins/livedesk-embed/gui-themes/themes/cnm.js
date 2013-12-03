@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=112',
+	urlArgs: 'v=113',
 	paths: {
 		'theme': 'livedesk-embed/themes/cnm'
 	}

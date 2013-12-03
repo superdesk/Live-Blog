@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=1', 
+	urlArgs: 'v=2', 
 	paths: {
 		'theme': 'livedesk-embed/themes/ctkno'
 	}

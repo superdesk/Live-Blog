@@ -1,7 +1,6 @@
 ﻿define([
 	'jquery',
 	'gizmo/superdesk',
-	'utils/json_parse',
 	'jquery/tmpl',
 	'jquery/utils',
 	'utils/encode_url',
@@ -25,7 +24,7 @@
 	'tmpl!theme/item/source/soundcloud',
 	'tmpl!theme/item/source/instagram',
 	'tmpl!theme/item/source/sms'
-], function( $, Gizmo, json_parse ) {
+], function( $, Gizmo ) {
 	return Gizmo.View.extend ({
 		init: function()
 		{
@@ -99,16 +98,9 @@
 			data.HashIdentifier = self._parent.hashIdentifier;
 
 			if(data.Meta) {
-<<<<<<< HEAD
-				if(typeof JSON !== 'object') {
-					data.Meta = json_parse(data.Meta);
-				} else {
-					data.Meta = JSON.parse(data.Meta);
-=======
-				data.Meta = JSON.parse(data.Meta);
+				data.Meta = $.parseJSON(data.Meta);
 				if ( data.AuthorName ) {
-					data.Meta.Creator = { 'Name': data.AuthorName };	
->>>>>>> sourcefabric/citizen
+					data.Meta.Creator = { 'Name': data.AuthorName };
 				}
 			}
 			if(data.Meta && data.Meta.annotation) {

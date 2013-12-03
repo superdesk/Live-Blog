@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=102',
+	urlArgs: 'v=103',
 	paths: {
 		'theme': 'livedesk-embed/themes/ksml-light'
 	}
