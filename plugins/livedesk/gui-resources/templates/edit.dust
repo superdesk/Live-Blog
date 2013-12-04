@@ -55,8 +55,7 @@
                         <li><a href="javascript:void(0)" data-status-filter-key="onverification" data-action="update">On verification</a></li>
                     </ul>
                 </div>
-
-                <div class="dropdown pull-right">
+                <div class="dropdown pull-right" style="display:none;">
                     <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post type:"); <span data-info="filter-type">_("All posts");</span> <b class="caret"></b></button>
                     <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
                 </div>
