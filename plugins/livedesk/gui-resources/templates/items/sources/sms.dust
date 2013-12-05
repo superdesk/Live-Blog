@@ -7,14 +7,16 @@
 	</figure>
 	{+PostInfo}
 	<div class="post-info">
-		{+AuthorInfo}
-			<p rel="author">{Meta.Creator.PhoneNumber}  {Meta.Creator.FullName}</p> <!-- User full name -->
-		{/AuthorInfo}
+		{+AuthorInfo}{/AuthorInfo}
 		{+TimeInfo}
 			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
 		{/TimeInfo}
+		{+ExtraPostInfo}{/ExtraPostInfo}
 	</div>
 	{/PostInfo}
 {/ItemInfo}
 {<SourceAuthor}{/SourceAuthor}
 {<ContainerIframe}{/ContainerIframe}
+{<AuthorInfo}
+<p rel="author">{Creator.PhoneNumber}  {Creator.FullName}</p> <!-- User full name -->
+{/AuthorInfo}

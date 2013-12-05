@@ -13,7 +13,6 @@ from ally.container import app, ioc
 from ..superdesk.db_superdesk import alchemySessionCreator
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import exists
 
@@ -22,7 +21,7 @@ from sqlalchemy.sql.expression import exists
 @ioc.config
 def sms_source_types():
     ''' The source types used during SMS processing '''
-    return ['sms source', 'sms provider']
+    return ['smsblog', 'smsfeed'] 
 
 @ioc.config
 def sms_post_types():

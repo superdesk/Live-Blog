@@ -34,6 +34,7 @@ from livedesk.api.blog_sync import IBlogSyncService
 from superdesk.collaborator.api.collaborator import ICollaboratorService
 from livedesk.api.comment import IBlogCommentService
 from __plugin__.captcha.acl import captcha
+from superdesk.verification.api.verification import IPostVerificationService
 
 # --------------------------------------------------------------------
 
@@ -127,6 +128,7 @@ def registerAclLivedeskView():
     r.allGet(ISourceService)
     r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
     r.allGet(IBlogPostService, filter=filterClosedBlog())
+    r.allGet(IPostVerificationService)
 
 @gui.setup
 def registerAclManageOwnPost():
@@ -160,6 +162,7 @@ def registerAclLivedeskUpdate():
           ref(IBlogPostService).insertAndPublish, ref(IBlogPostService).unpublish, ref(IBlogPostService).reorder,
           ref(IBlogPostService).delete, filter=filterClosedBlog())
     r.add(ref(IBlogPostService).update)
+    r.add(ref(IPostVerificationService).update)
 
 # --------------------------------------------------------------------
 
@@ -183,5 +186,5 @@ def updateCollaboratorSpecification():
 
 @ioc.before(captcha)
 def updateCaptchaForComments():
-   captcha().add(ref(IBlogCommentService).addComment)
+    captcha().add(ref(IBlogCommentService).addComment)
 

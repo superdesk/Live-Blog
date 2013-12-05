@@ -1,0 +1,3 @@
+{#Blog}
+<div id="hidden-chain-{Id}" class="blog-content"></div>
+{/Blog}

@@ -2,71 +2,87 @@
 
 {<list}
 <div {ui.content} class="live-blog-content">
-	<section class="title-page">
-        <header>
-        	<a class="pull-right collapse-button" href="javascript:void(0)">
-        		<i class="icon-chevron-down"></i> <span class="button-text collapse-title-page">_("Collapse");</span>
-        	</a>
-            <h2>{Title|s}</h2>
-            <p class="article-info">_
-            	_("Reported by ");<span class="blog-author">{creatorName}</span>, 
-            	<time>{CreatedOn}</time> {#LiveOn}<span class="update-time">_("last updated");<time>{LiveOn}</time></span>{/LiveOn}
-           	</p>
-        </header>
-        <article id="blog-intro">
-        	{Description|s}
-	    </article>
-    </section>
-    <section class="blog-section">
-    	<div class="tool-box-top">
-            <div class="pull-right alert alert-success hide update-success">
-    			_("Blog information updated!");
-    		</div>
-    		<div class="pull-right  alert alert-error hide update-error">
-    			_("There was a problem updating the information!");
-    		</div>
+    
+    <section class="title-page">
+        <div class="alert alert-info" id="site-live-info" style="display:none">
+            <a class="close image" data-dismiss="alert" href="#">&times;</a>
+            <strong>_('Live site');</strong> - _('This is the Live site pane. Search or generate content in the left pane and drag &amp; drop it in the list below.');
         </div>
+        <header>
+            <a class="pull-right collapse-button" href="javascript:void(0)">
+                <i class="icon-chevron-down collapse-hide"></i>
+                <i class="icon-chevron-left collapse-show"></i>
+                <span class="button-text collapse-title-page">_("Collapse");</span>
+            </a>
+            <h2>{Title|s}</h2>
+        </header>
+        <div class="collapse-hide">
+            <p class="article-info">_
+                _("Reported by ");<span class="blog-author">{creatorName}</span>, 
+                <time>{CreatedOn}</time> {#LiveOn}<span class="update-time">_("last updated");<time>{LiveOn}</time></span>{/LiveOn}
+            </p>
+            <article id="blog-intro" class="article-description">
+                {Description|s}
+            </article>
+        </div>
+
+
+        <div class="timeline-notifications collapse-hide" >
+            <div class="alert alert-success hide update-success">
+                _("Blog information updated!");
+            </div>
+            <div class="alert alert-error hide update-error">
+                _("There was a problem updating the information!");
+            </div>
+        </div>
+    </section>
+    <section class="timeline-section">
         <div class="pull-right timeline-controls">
 
-            <button data-toggle="autorefresh" class="btn-flat" title='_("Pin timeline so you will not get disturbed by new incoming posts");'>_("Pin");</button>
+            <span class="timeline-title">_("Timeline"); </span>
+            {@if cond="'{VerificationToggle}' == 'on'"}
+                <div class="filter-assign"></div>
+
+                <div class="dropdown pull-right post-verification-filter">
+                    <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post status:"); <span data-info="filter-status">_("All statuses");</span> <b class="caret"></b></button>
+                    <ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+                        <li>
+                            <a href="javascript:void(0)" data-status-filter-key="all" data-action="update">All statuses</a>
+                        </li>
+                        <li><a href="javascript:void(0)" data-status-filter-key="nostatus" data-action="update">No status</a></li>
+                        <li><a href="javascript:void(0)" data-status-filter-key="verified" data-action="update">Verified</a></li>
+                        <li><a href="javascript:void(0)" data-status-filter-key="unverified" data-action="update">Unverified</a></li>
+                        <li><a href="javascript:void(0)" data-status-filter-key="onverification" data-action="update">On verification</a></li>
+                    </ul>
+                </div>
+                <div class="dropdown pull-right" style="display:none;">
+                    <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Post type:"); <span data-info="filter-type">_("All posts");</span> <b class="caret"></b></button>
+                    <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
+                </div>
+            {/if}
+
             
-            <div class="dropdown pull-right">
-                <button data-toggle="dropdown" class="btn-flat dropdown-toggle">_("Filter:"); <span data-info="filter">_("All posts");</span> <b class="caret"></b></button>
-                <ul class="dropdown-menu filter-posts sf-dropdown sf-dropdown-right"><!-- List is populated from another template --></ul>
+
+            
+
+        </div>
+        <div class="timeline" id="timeline-view">
+            <ul class="new-results hide">
+                <li>
+                    <button class="btn btn-large bottom-full">_("Show");{~s}<span></span>{~s}_("new results");</button>
+                </li>
+            </ul>
+            <div class="results-placeholder">
+                _("Loading. please wait...");
             </div>
-		</div>
-        <ul class="nav nav-tabs">
-			<li class="active"><a href="#timeline-view" data-toggle="tab">_("Timeline");</a></li>
-			<!-- li class=""><a href="#map-view" data-toggle="tab">_("Map View");</a></li-->
-        </ul>
-        <div class="tab-content">
-			<div class="tab-pane active" id="timeline-view">
-				<ul class="new-results hide">
-					<li>
-						<button class="btn btn-large bottom-full">_("Show");{~s}<span></span>{~s}_("new results");</button>
-					</li>
-				</ul>
-				<div class="results-placeholder">
-					_("Loading. please wait...");
-				</div>
-            </div>
-        	<div class="tab-pane" id="map-view">
-            22
+            <div style="height: 50px;padding-top:10px;">
+                <button type="button" id="more" class="btn btn-medium btn-primary">_("More");</button>
             </div>
         </div>
     </section>
-	<div style="height: 50px;padding-top:10px;">
-		<button type="button" id="more" class="btn btn-medium btn-primary">_("More");</button>
-	</div>
+    
 </div>
 {! @TODO: Dust doesnt know to integrate blocks in bloks so I needed to add this manualy here !}
 {+footer}{/footer}
-<div id="footer" class="footer">
-  <div class="footer-logo">
-    Sourcefabric o.p.s
-  </div>
-  <div class="footer-text">
-    Powered by <a href="https://www.sourcefabric.org/en/superdesk" title="Sourcefabric Superdesk">Superdesk</a> technology
-  </div>
-</div>
+
 {/list}

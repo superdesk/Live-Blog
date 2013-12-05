@@ -25,7 +25,14 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, \
     Collaborator
 from superdesk.source.api.source import ISourceService, QSource, Source
 from ally.container.app import PRIORITY_FINAL, PRIORITY_LAST
-from __plugin__.livedesk.populate_default_data import createSourceType
+from __plugin__.livedesk.populate_default_data import createSourceType,\
+    createUserType
+from superdesk.user.meta.user_type import UserTypeMapped
+from superdesk.user.meta.user import UserMapped
+from uuid import uuid4
+from superdesk.post.meta.post import PostMapped
+from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.verification.meta.status import VerificationStatusMapped
 
 # --------------------------------------------------------------------
 
@@ -78,6 +85,9 @@ def upgradeUser():
 
     try: session.execute('ALTER TABLE user DROP COLUMN deleted_on')
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_LAST)
 def upgradeLiveBlog14():
@@ -110,6 +120,9 @@ def upgradeLiveBlog14():
     session.execute("ALTER TABLE user ADD UNIQUE uix_user_name (`name`)")
 
     insertSource('sms')
+    
+    session.commit()
+    session.close()
 
 @app.populate
 def upgradeInternationalizationSourceType():
@@ -120,6 +133,9 @@ def upgradeInternationalizationSourceType():
     try:
         session.execute("ALTER TABLE inter_source CHANGE `type` `type` ENUM('" + TYPE_PYTHON.replace("'", "''") + "', '" + TYPE_JAVA_SCRIPT.replace("'", "''") + "', '" + TYPE_HTML.replace("'", "''") + "')")
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 @app.populate
 def upgradeLiveBlog14First():
@@ -132,6 +148,9 @@ def upgradeLiveBlog14First():
     session.execute("ALTER TABLE user ADD FOREIGN KEY `fk_type_id` (`fk_type_id`) REFERENCES `user_type` (`id`) ON DELETE RESTRICT")
     session.execute("UPDATE user, user_type SET user.fk_type_id = user_type.id WHERE user_type.key = 'standard'")
     session.execute("ALTER TABLE user CHANGE COLUMN `fk_type_id` `fk_type_id` INT UNSIGNED NOT NULL")
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14Last():
@@ -150,6 +169,9 @@ def upgradeLiveBlog14End():
                         'CHANGE COLUMN `content_plain` `content_plain` TEXT NULL DEFAULT NULL, '
                         'CHANGE COLUMN `content` `content` TEXT NULL DEFAULT NULL')
     except (ProgrammingError, OperationalError): return
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeMediaArchiveDeleteFix():
@@ -198,6 +220,9 @@ def upgradeMediaArchiveDeleteFix():
                     'FOREIGN KEY (`fk_metainfo_id` ) REFERENCES `archive_meta_info` (`id` ) '
                     'ON DELETE CASCADE ON UPDATE RESTRICT')
     except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close()
 
 def createBlogMediaType(key):
     creator = alchemySessionCreator()
@@ -228,6 +253,9 @@ def upgradeBlogSourceDeleteFix():
     session.execute('ALTER TABLE `livedesk_blog_source` ADD CONSTRAINT `livedesk_blog_source_ibfk_2` '
                 'FOREIGN KEY (`fk_source` ) REFERENCES `source` (`id` ) '
                 'ON DELETE RESTRICT ON UPDATE RESTRICT')
+    
+    session.commit()
+    session.close()
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeSourceUnicityFix():
@@ -239,4 +267,209 @@ def upgradeSourceUnicityFix():
         session.execute('ALTER TABLE `source` DROP KEY `uix_source_type_name`')
     except (ProgrammingError, OperationalError): return
     session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
-                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')
+                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')    
+    session.commit()
+    session.close()
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeUserTypeFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    createUserType('sms')
+    createUserType('chained blog')
+
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'sms').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "SMS-%"')
+    
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'commentator').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE name LIKE "Comment-%"')
+    
+    id = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()
+    session.execute('UPDATE user SET fk_type_id = ' + str(id) + ' WHERE LENGTH(name) > 35')
+    
+    session.commit()
+    session.close()
+    
+    
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        # add deleted on for blog in order to be able to hide archived blogs
+        session.execute("ALTER TABLE  livedesk_blog ADD COLUMN deleted_on DATETIME")
+    except (ProgrammingError, OperationalError): return
+    
+    session.commit()
+    session.close() 
+
+@app.populate(priority=PRIORITY_LAST)
+def upgradePostFeedFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    try: session.execute("ALTER TABLE post ADD COLUMN fk_feed_id INT UNSIGNED")
+    except (ProgrammingError, OperationalError): return
+    session.execute("ALTER TABLE post ADD FOREIGN KEY fk_feed_id (fk_feed_id) REFERENCES source (id) ON DELETE RESTRICT")
+    
+    session.commit()
+    session.close() 
+    
+@app.populate(priority=PRIORITY_LAST)
+def upgradeUuidFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    # add uuid column for post and user
+    try:
+        session.execute("ALTER TABLE  post ADD COLUMN uuid VARCHAR(32)")   
+        session.execute("ALTER TABLE  user ADD COLUMN uuid VARCHAR(32) NULL UNIQUE")
+        session.execute("ALTER TABLE  user ADD COLUMN cid int DEFAULT 0")
+    except (ProgrammingError, OperationalError): return    
+    
+    session.commit()
+    
+    # init uuid column for post and user
+    users= session.query(UserMapped).all()
+    for user in users:
+        if user.Uuid is None: user.Uuid = str(uuid4().hex)
+    session.commit()
+    
+    posts= session.query(PostMapped).all()
+    for post in posts:
+        if post.Uuid is None: post.Uuid = str(uuid4().hex)
+    session.commit()
+    
+    session.close() 
+        
+@app.populate(priority=PRIORITY_LAST)
+def upgradeSyncBlogFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    try: 
+        session.execute('ALTER TABLE livedesk_blog_sync DROP FOREIGN KEY livedesk_blog_sync_ibfk_3')
+        session.execute("ALTER TABLE livedesk_blog_sync DROP COLUMN fk_user_id")
+        session.execute("ALTER TABLE livedesk_blog_sync CHANGE sync_start last_activity DATETIME")
+    except (ProgrammingError, OperationalError): pass
+        
+    try: session.execute('ALTER TABLE source DROP KEY uix_1')
+    except (ProgrammingError, OperationalError): pass
+    
+    try: session.execute('ALTER TABLE person DROP KEY phone_number')
+    except (ProgrammingError, OperationalError): pass
+        
+    try: session.execute("DROP TABLE livedesk_sms_sync")
+    except (ProgrammingError, OperationalError): pass
+    
+    session.commit()
+    session.close() 
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeSourceSmsFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+
+    try:
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsblog').count() == 0:
+            session.execute('INSERT INTO source_type (`key`) values("smsblog")')
+    except (Exception): pass 
+    
+    try:
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsfeed').count() == 0:
+            session.execute('INSERT INTO source_type (`key`) values("smsfeed")')
+    except (Exception): pass   
+    
+    try:   
+        idSmsfeed = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'smsfeed').scalar()
+        idFrontlineSMS = session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'FrontlineSMS').scalar()     
+        session.execute('UPDATE source SET fk_type_id =' + str(idSmsfeed) + ' WHERE fk_type_id=' + str(idFrontlineSMS))
+    except (Exception): pass 
+    
+    try:
+        if session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == 'FrontlineSMS').count() > 0:
+            session.execute('DELETE FROM source_type WHERE `key` ="FrontlineSMS"')
+    except (Exception): pass
+       
+    session.commit()
+    session.close() 
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradePostWasPublishedFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+
+    try:
+        session.execute("ALTER TABLE post ADD COLUMN was_published TINYINT(1)")
+    except (Exception): pass
+    
+    try:
+        session.execute("UPDATE post SET was_published=0 WHERE published_on IS NULL")
+        session.execute("UPDATE post SET was_published=1 WHERE published_on IS NOT NULL")
+    except (Exception): pass
+    
+       
+    session.commit()    
+    session.close() 
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradePostVerificationFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+
+    try:
+        idNoStatus = session.query(VerificationStatusMapped.id).filter(VerificationStatusMapped.Key == 'nostatus').scalar()
+        session.execute("INSERT INTO post_verification (fk_post_id, fk_user_id, fk_status_id) \
+                         SELECT id, NULL, " + idNoStatus + " FROM post WHERE id not in (SELECT fk_post_id FROM post_verification) ")
+    except (Exception): pass
+       
+    session.commit()
+    session.close()
+    
+    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeUserUuidUniqueFix():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+
+    idStandard = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'standard').scalar()
+    idChained = session.query(UserTypeMapped.id).filter(UserTypeMapped.Key == 'chained blog').scalar()  
+
+    # find duplicate uuid and set other value
+    inSql = session.query(UserMapped.Uuid)
+    inSql = inSql.filter(UserMapped.typeId == idStandard)
+    
+    sql = session.query(UserMapped)
+    sql = sql.filter(UserMapped.typeId == idChained)
+    sql = sql.filter(UserMapped.Uuid.in_(inSql))
+    users= sql.all()
+    
+    for user in users:
+        user.Uuid = str(uuid4().hex)
+    session.commit()
+
+    try:
+        session.execute("ALTER TABLE `user` ADD UNIQUE INDEX `uuid` (`uuid` ASC)")
+    except (Exception): pass
+       
+    session.commit()
+    session.close()    
+    
+    

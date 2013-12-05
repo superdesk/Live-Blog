@@ -94,6 +94,8 @@ def createSourceTypes():
 @app.populate
 def createLiveBlogUserTypes():
     createUserType('commentator')
+    createUserType('sms')
+    createUserType('chained blog')
 
 def createBlogMediaType(key):
     creator = alchemySessionCreator()
@@ -354,4 +356,5 @@ def createBlogPosts():
         if pst.Type == 'advertisement':
             blogPostService.insert(getBlogsIds()[blog], pst)
             pst.Id = None
+            pst.Uuid = None
         blogPostService.insertAndPublish(getBlogsIds()[blog], pst)

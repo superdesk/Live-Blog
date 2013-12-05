@@ -149,7 +149,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         try:
             self.session().add(videoDataEntry)
             self.session().flush((videoDataEntry,))
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             metaDataMapped.IsAvailable = False
             raise InputError(Ref(_('Cannot save the video data'),))
 

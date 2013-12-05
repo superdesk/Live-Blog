@@ -1,5 +1,6 @@
 <div class="chain-header">
 	{?sourceBlogs}
+	<a class="btn btn-flat pull-right" id="hidden-toggle"><i class="icon-trash"></i>_('View deleted items');</a>
 	<p>_("Select liveblogs:");</p>
 	<p class="feed-info">
     </p>
@@ -15,6 +16,36 @@
 			<a href="#"><i class="icon-remove"></i></a>
 		</div>
 	</div>
+	{@if cond="'{verificationStatus}' == 'on'"}
+	<div class="chain-filter clearfix">
+		<h6>_('Filter');</h6>
+		<section class="filter pull-left">
+			<header>_('by post status');</header>
+			<ul class="status-filter">
+				<li data-status-filter-key="all" class="active">
+					<a href="#">_('All');</a>
+				</li>
+				<li data-status-filter-key="nostatus">
+					<a href="#">_('No Status');</a>
+				</li>
+				<li data-status-filter-key="verified">
+					<a href="#">_('Verified');</a>
+				</li>
+				<li data-status-filter-key="unverified">
+					<a href="#">_('Unverified');</a>
+				</li>
+				<li data-status-filter-key="onverification">
+					<a href="#">_('On verification');</a>
+				</li>
+			</ul>
+		</section>
+		<section class="filter pull-right">
+			<header>_('by assignee');</header>
+			<div class="filter-assign verification-box post-list"></div>
+		</section>
+	  	
+	</div>
+	{/if}
 	{:else}
 	<p>_("No liveblogs");</p>
 	{/sourceBlogs}

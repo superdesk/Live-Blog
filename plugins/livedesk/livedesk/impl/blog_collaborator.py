@@ -64,6 +64,10 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
 
     collaboratorSpecification = CollaboratorSpecification; wire.entity('collaboratorSpecification')
     userActionService = IUserActionService; wire.entity('userActionService')
+    default_user_type_key = 'standard'; wire.config('default_user_type_key', doc='''
+    Default user type for users without specified the user type key''')
+    internal_source_name = 'internal'; wire.config('internal_source_name', doc='''
+    Source for collaborators''')
 
     def __init__(self):
         '''
@@ -117,6 +121,8 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         sql = sql.filter(UserMapped.Active == True)
+        sql = sql.filter(UserMapped.Type == self.default_user_type_key)
+        
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
@@ -126,16 +132,20 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         @see: IBlogCollaboratorService.getPotential
         '''
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
-        sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)
+        sql = self.session().query(CollaboratorMapped)
+        sql = sql.join(UserMapped, CollaboratorMapped.User == UserMapped.Id)
+        sql = sql.join(SourceMapped, SourceMapped.Id == CollaboratorMapped.Source)
         sql = sql.filter(not_(CollaboratorMapped.Id.in_(sqlBlog)))
         sql = sql.filter(UserMapped.Active == True)
+        sql = sql.filter(UserMapped.Type == self.default_user_type_key)
+        sql = sql.filter(SourceMapped.Name == self.internal_source_name)
         sql = sql.order_by(CollaboratorMapped.Name)
         if excludeSources: sql = sql.filter(CollaboratorMapped.User != None)
         if qu: sql = buildQuery(sql, qu, UserMapped)
         if qs: sql = buildQuery(sql, qs, SourceMapped)
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        if detailed: return IterPart(sqlLimit.distinct(), sql.distinct().count(), offset, limit)
+        return sqlLimit.distinct()
 
     def addCollaboratorAsDefault(self, blogId, collaboratorId):
         '''

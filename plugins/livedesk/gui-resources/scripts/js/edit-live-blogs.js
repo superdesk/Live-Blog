@@ -11,6 +11,8 @@ define
     config.guiJs('livedesk', 'action'),
     config.guiJs('media-archive', 'upload'),
     'router',
+    config.guiJs('livedesk', 'views/user-verification'),
+    config.guiJs('livedesk', 'views/user-filter'),
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -34,9 +36,10 @@ define
 	'tmpl!livedesk>timeline-action-item',
     'tmpl!livedesk>provider-content',
     'tmpl!livedesk>provider-link',
-    'tmpl!livedesk>providers'
+    'tmpl!livedesk>providers',
+    'tmpl!livedesk>citizen-desk/timeline-checker-list' 
  ], 
-function(providers, Gizmo, $, BlogAction, upload, router)
+function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, UserFilter)
 {
     /*!
      * Returns true if the data object is compose of only given keys
@@ -139,6 +142,38 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 		({
 			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published'),
+			init: function(){
+				var self = this;
+				self.autoInit();
+				self.model.on('publish', function(evt, model){
+					self.clientSet(model);
+				});
+			},
+			clientSet: function(data) {
+				var self = this;
+				if(!Array.isArray(data)) {
+					data = [data];
+				}
+				for(var i = 0, counti = data.length; i < counti; i++) {
+					if(!self.isCollectionDeleted(data[i])) {
+						self._list.push(data[i]);
+						for(var arr = [], i=0, count = self._list.length; i < count; i++){
+							arr.push(self._list[i].get('Id'));
+						}
+					} else {
+						var model = false;
+						for( var j=0, countj = self._list.length; j < countj; j++ ) {
+							if(self._list[j] == data[i]) {
+								model = j;
+								break;
+							}
+						}
+						if(model !== false) {
+							self._list.splice(j,1);
+						}
+					}
+				}
+			},
 			parse: function(data) {
 				if(data.total)
 					if(data.offsetMore !== data.total) {
@@ -165,13 +200,16 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 		({
 			events: 
 			{
-				'': { sortstop: 'reorder' },
+				'': { sortstop: 'reorder', mouseleave: 'killMenu' },
+				'[data-status-key]': { click: 'changeStatus'},
+
 				'a.close': { click: 'removeDialog' },
 				'a.unpublish': { click: 'unpublishDialog' },
 				
 				'.btn.cancel': {click: 'cancelActions', focusin: 'stopFocuseOut'},
 				'.btn.publish': {click: 'save', focusin: 'stopFocuseOut'},
 				'.editable': { focusin: 'edit'} //, focusout: 'focuseOut'}
+
 			},
 			showActions: function() {
 				var self = this;
@@ -192,6 +230,11 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						actions.removeData('focuseout-stop');
 					}, 100);
 			},
+    		killMenu: function(evt) {
+				var self = this;
+    			//self.userVerification.killMenu();
+    			$('.dropdown.open .dropdown-toggle', self.el).dropdown('toggle');
+    		},
 			hideActions: function(evt, duration) {
 				var self = this,
 					actions = self.el.find('.actions'),
@@ -202,6 +245,11 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 					});
 				});
 			},
+    		changeStatus: function(evt){
+    			var self = this,
+    				status = $(evt.target).closest( "li" ).attr('data-status-key');
+    			self.model.changeStatus(status);
+    		},
 			cancelActions: function(evt) {
 				this.stopFocuseOut(evt);
 				this.hideActions(evt);
@@ -235,8 +283,14 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				actions.data('focuseout-stop',true);
 				if( !data.Content )
 					delete data.Content;
-				if($.type(data.Meta) === 'string')
+				if($.type(data.Meta) === 'string') {
 					data.Meta = JSON.parse(data.Meta);
+				} else {
+					if ( typeof data.Meta == 'undefined' ) {
+						data.Meta = {};
+					}
+				}
+					
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
@@ -269,8 +323,8 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 			{
 				var self = this;
 				self.el.data('view', self);
-				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished, Creator.FullName';
+				self.xfilter = '*, Author.Source.*, Author.Source.Type.*,' +
+							   'AuthorPerson.*, Creator.*, PostVerification.Checker.*, PostVerification.Status.*';
 				
 				this.model
 				    .on('delete', this.remove, this)
@@ -281,8 +335,10 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						 * @TODO: remove this
 						 * Dirty hack to actualize the owncollection
 						 */
-						var editposts = providers['edit'].collections.posts;
-						editposts.xfilter(editposts._xfilter).sync();
+						 if ( providers['edit'].collections ) {
+						 	var editposts = providers['edit'].collections.posts;
+						 	editposts.xfilter(editposts._xfilter).sync();
+						 }
 				    }, this)
 					.on('read', function()
 					{
@@ -330,8 +386,9 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						}
 						/*!
 						 * If the Change Id is received, then sync the hole model;
-						 */						 
-						if(isOnly(data, ['CId','Order'])) {
+						 */
+						//console.log('data: ',data);
+						if(isOnly(data, ['CId'])) {
 							self.model.xfilter(self.xfilter).sync();
 						}
 						else {
@@ -430,17 +487,19 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				var self = this,
 					rendered = false,
 					post = self.model.feed(true);
-
+					embedConfig = self._parent._parent.embedConfig;
 				self.renderReorder();
 				if ( typeof post.Meta === 'string') {
 					post.Meta = JSON.parse(post.Meta);
 				}
 				$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
+				post.VerificationToggle = embedConfig && embedConfig.VerificationToggle;
 				$.tmpl('livedesk>items/item', { 
 					Base: 'implementors/timeline',
 					Post: post
 				}, function(e, o) {
 					self.setElement(o);
+					self.addUserVerification();
 						BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
 							$('.editable', self.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 
@@ -457,10 +516,16 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						});
 				});
 				return this;
+			},
+			addUserVerification: function(){
+				var self = this;
+				self.userVerification = new UserVerification({ 
+					el: $('.verification-assign',self.el),
+					post: self.model
+				});
 			},	
 			remove: function(evt)
 			{
-				//console.log('evt: ',evt);
 				var self = this;
 				/**
 				 * @TODO remove only this view events from the model
@@ -497,6 +562,7 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 		TimelineView = Gizmo.View.extend
 		({
 			stack: [],
+			filter: { data : {}},
 			events: 
 			{
 				'ul.post-list': { sortstop: 'sortstop' },
@@ -542,6 +608,68 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				    .on('click', function(){ self.configAutorefresh.call(self, this); })
 				    .tooltip({placement: 'bottom'});
 				
+			},
+			clean: function() {
+				var self = this;
+				self._views = [];
+				self.moreHidden = false;
+				for(var i = 0, model, count = self.collection._list.length; i < count; i++) {
+					model = self.collection._list[i];
+					delete model.postview;
+					delete model.updater;
+				}
+                self.collection.reset([]);
+                self.collection.resetStats();
+                self.el.html('');
+			},
+			filterType:  function(keyType) {
+				this.clean();
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(keyStatus !== 'all') {
+					this.filter.data.status = keyStatus;
+					this.collection.auto( this.filter );
+				}
+				else {
+					delete this.data.filter.status;
+					this.collection.auto( this.filter );
+				}
+			},
+			filterStatus: function(keyStatus) {
+				this.clean();
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(keyStatus !== 'all') {
+					this.filter.data.status = keyStatus;
+					this.collection.auto( this.filter );
+				}
+				else {
+					delete this.filter.data.status;
+					this.collection.auto( this.filter );
+				}
+			},
+			filterChecker: function(checker) {
+				this.clean();
+				this.collection
+					.xfilter(this.xfilter)
+					.limit(this.collection._stats.limit)
+					.offset(this.collection._stats.offset)
+					.desc('order');
+				if(checker !== '') {
+					this.filter.data.checker = checker.Id;
+					this.collection.auto( this.filter );
+				}
+				else {
+					delete this.data.filter.checker;
+					this.collection.auto( this.filter );
+				}
+
 			},
 			toggleMoreVisibility: function()
 			{
@@ -632,12 +760,14 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				 * Dirty hack to actualize the owncollection
 				 */
 				//console.log('removings: ',data);
-				var editposts = providers['edit'].collections.posts;
-				editposts.xfilter(editposts._xfilter).sync();
+				if ( providers['edit'].collections ) {
+					var editposts = providers['edit'].collections.posts;
+					editposts.xfilter(editposts._xfilter).sync();
+				}
 				var self = this;
 				for( var i = 0, count = data.length; i < count; i++ ) {
 					if(data[i].postview) {
-						data[i].postview.remove();
+						data[i].postview.remove(evt);
 						delete data[i].postview;
 					}
 				}
@@ -760,8 +890,7 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 	            }
             }
 		}),
-		ActionsView = Gizmo.View.extend
-		({
+		ActionsView = Gizmo.View.extend({
 			events: {
 				'[data-action="update"]': { "click": "update" }
 			},
@@ -781,13 +910,14 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				});
 			},
 			update: function(e) {
-				var element = e.currentTarget;
-				$('[data-info="filter"]').html($(element).html());
+				//var element = e.currentTarget;
+				//$('[data-info="filter"]').html($(element).html()); 
 			}
 		}),
 		EditView = Gizmo.View.extend
 		({
 			timelineView: null,
+			namespace: 'edit-view',
 			events: 
 			{
 				'[is-content] section header h2': { focusout: 'save' },
@@ -834,7 +964,7 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 			{
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
-				
+				this.model.off('read update');
 				this.model.xfilter('Creator.*').sync()
 				    // once	
 				    .done(function()
@@ -893,7 +1023,8 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 					self.timelineView.publish(post);
 					// stupid bug in jqueryui you can make draggable desstroy
 					setTimeout(function(){
-						$(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
+						$(ui.draggable).draggable("destroy");
+						$(ui.draggable).remove();
 					},1);
 				}
 			},
@@ -913,12 +1044,12 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 							Description: $.styledNodeHtml(descrInput)
 					};
 					self.model.set(data).sync().done(function() {
-						content.find('.tool-box-top .update-success').removeClass('hide')
-						setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+						content.find('.timeline-notifications .update-success').removeClass('hide')
+						setTimeout(function(){ content.find('.timeline-notifications .update-success').addClass('hide'); }, 4000);
 					})
 					.fail(function() {
-						content.find('.tool-box-top .update-error').removeClass('hide')
-						setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+						content.find('.timeline-notifications .update-error').removeClass('hide')
+						setTimeout(function(){ content.find('.timeline-notifications .update-error').addClass('hide'); }, 4000);
 					});
 				});
 				
@@ -952,6 +1083,10 @@ function(providers, Gizmo, $, BlogAction, upload, router)
                     titleOffline.addClass('hide');
                 });
 			},
+			filterChecker: function(checker) {
+				$('[data-info="filter-checker"]', this.el).text(checker.FullName)
+				this.timelineView.filterChecker(checker);
+			},
 			textToggleStatus: function()
 			{
 				newText = this.model.get('ClosedOn')? _('Reopen blog'): _('Close blog');
@@ -966,13 +1101,13 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 					data = { ClosedOn:  (this.model.get('ClosedOn')? null: now.format('yyyy-mm-dd HH:MM:ss'))},
 					content = $(this.el).find('[is-content]');
 				this.model.set(data).sync().done(function() {
-					content.find('.tool-box-top .update-success').removeClass('hide');
-					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+					content.find('.timeline-notifications .update-success').removeClass('hide');
+					setTimeout(function(){ content.find('.timeline-notifications .update-success').addClass('hide'); }, 4000);
 					router.reload();
 				})
 				.fail(function() {
-					content.find('.tool-box-top .update-error').removeClass('hide')
-					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+					content.find('.timeline-notifications .update-error').removeClass('hide')
+					setTimeout(function(){ content.find('.timeline-notifications .update-error').addClass('hide'); }, 4000);
 				});
 			},
 			render: function()
@@ -980,13 +1115,13 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 				var self = this,
                                 // template data
                                 //to do feed is not getting recursive read
-				mfeed = this.model.feed(),
-				embedConfig = {};
+					mfeed = this.model.feed();
+				self.embedConfig = {};
 				if((mfeed.EmbedConfig !== undefined) && $.isString(mfeed.EmbedConfig))
-					embedConfig = JSON.parse(mfeed.EmbedConfig);
+					self.embedConfig = JSON.parse(mfeed.EmbedConfig);
 
-				if(embedConfig.FrontendServer === undefined)
-					embedConfig.FrontendServer = config.api_url;
+				if(self.embedConfig.FrontendServer === undefined)
+					self.embedConfig.FrontendServer = config.api_url;
 				
 				var
 				data = $.extend({}, this.model.feed(), 
@@ -1002,13 +1137,14 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
 					},
-					OutputLink: embedConfig.FrontendServer,
-					OutputLinkAlt: document.URL.split(':')[0] + embedConfig.FrontendServer,
+					OutputLink: self.embedConfig.FrontendServer,
+					OutputLinkAlt: document.URL.split(':')[0] + self.embedConfig.FrontendServer,
 				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
 				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
                                 var creator = this.model.get('Creator').feed();
                                 $.extend(data, {'creatorName':creator.Name});
+                data.VerificationToggle = self.embedConfig && self.embedConfig.VerificationToggle;
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					BlogAction.get('modules.livedesk.blog-publish').done(function(action) {
@@ -1031,6 +1167,12 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						_parent: self
 					});
 					
+					self.userFilter = new UserFilter({ 
+						el: $('.filter-assign',self.el),
+						template: 'livedesk>citizen-desk/timeline-checker-list',
+						_parent: self
+					});
+
 					self.providers = new ProvidersView
 					({
 						el: $('.side ', self.el),
@@ -1138,19 +1280,20 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 						$(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
 				})
 				.on('click'+this.getNamespace(), '.filter-posts a',function(){
-					var datatype = $(this).attr('data-value');
-					if(datatype == 'all') {
-						$('#timeline-view li').show();
-					} else {
-						$('#timeline-view li').show();
-						$('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
-					}
+					var value = $(this).attr('data-value');
+					self.timelineView.filterType(value);
 				})
 				.on('click'+this.getNamespace(), '.collapse-title-page', function()
 				{
-					var intro = $('article#blog-intro', content);
-					!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
-					intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+					//var intro = $('article#blog-intro', content);
+					//!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
+					//intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+					$(this).parents().eq(3).toggleClass('collapsed');
+				})
+				.on('click'+this.getNamespace(), '[data-status-filter-key]', function(evt){
+					var keyStatus = $(this).attr('data-status-filter-key');
+					$('[data-info="filter-status"]', self.el).text($(this).text())
+					self.timelineView.filterStatus(keyStatus);
 				});
 				self.textToggleStatus();
 			}

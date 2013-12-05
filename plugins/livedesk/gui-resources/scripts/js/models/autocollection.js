@@ -10,9 +10,15 @@ define([
 		 * for auto refresh
 		 */
 		keep: false,
-		init: function(){ 
+		init: function(){
+			this.autoInit();
+		},
+		resetStats: function() {
+			this._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+		},
+		autoInit: function(){
 			var self = this;
-			self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+			self.resetStats();
 			self.model.on('unpublish publish reorder', function(evt, post){
 				if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 					self._stats.lastCId++;
@@ -62,20 +68,29 @@ define([
 			var self = this;
 			ret = this.stop().start(params);
 			this._idInterval = setInterval(function(){
-				self.start(params);
+				if(self.keepPolling()) {
+					self.start(params);
+				} else {
+					self.stop();
+				}
 			}, this._timeInterval);
 			return ret;
+		},
+		keepPolling: function(){
+			return true;
 		},
 		start: function(params)
 		{
 			var self = this;
 			params = params || {};
 			requestOptions = $.extend(true, {
-				data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, 
+				data: {'cId.since': this._stats.lastCId, 'order.start': self._stats.fistOrder }, 
 				headers: { 'X-Filter': 'CId, Order, IsPublished, DeletedOn'}
 			},params);
 			if(self._stats.lastCId === 0) {
 				delete requestOptions.data['cId.since'];
+			}
+			if(self._stats.fistOrder === Infinity) {
 				delete requestOptions.data['order.start'];
 			}
 			if(!this.keep && self.view && !self.view.checkElement()) 
@@ -110,6 +125,7 @@ define([
 		{
 			for(var i=0, CId, count=data.length; i<count; i++) {
 				var CId = parseInt(data[i].get('CId'))
+				//console.log(CId);
 				if( !isNaN(CId) && (this._stats.lastCId < CId) )
 					this._stats.lastCId = CId;
 			}
@@ -122,9 +138,9 @@ define([
 
 		return (this.href &&
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(options).done(function(data)
-			{					
-				var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
-				 // important or it will infiloop
+			{	
+				var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length; 
+				// important or it will infiloop
 				for( var i=0; i < list.length; i++ )
 				{
 					var model = false;
@@ -139,12 +155,13 @@ define([
 						//console.log('is model');
 						if(self.isCollectionDeleted(list[i])) {
 							//console.log('is collection deleted');
+							self._list.splice(j,1);
 							if( self.hasEvent('removeingsauto') ) {
 								removeings.push(list[i]);
 							}
 
 						} else if( !list[i].isDeleted() ) {
-							//console.log('is deleted')
+							//console.log('is not deleted')
 							self._list.push(list[i]);
 							changeset.push(list[i]);
 							if( self.hasEvent('addingsauto') ) {

@@ -17,6 +17,7 @@
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
 ], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+   var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
@@ -29,6 +30,29 @@
             "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
         init: function() {
+            var self = this;
+            $(uploadView).on('complete', function(){
+                self.handleImageUpload();
+            });
+        },
+        handleImageUpload: function(imgData) {
+            var self = this;
+            var imgData = uploadView.getRegisteredItems();
+            var myData = false;
+            for ( var propName in imgData) {
+                myData = imgData[propName].data;
+                break;
+            }
+            if (myData) {
+                self.el.find('[name="MediaImage"]').val(myData.Content.href);
+                $.tmpl('livedesk>providers/edit/imagelink' , {fullimg: myData.Content.href, thumbimg:myData.Thumbnail.href}, function(e,o) {
+                    self.el.find('#MediaImageThumb').html(o);
+                });
+            }
+        },
+        openUploadScreen: function() {
+            uploadView.activate();
+            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
         },
         handleImageUpload: function(imgData) {
             var self = this;
@@ -54,6 +78,8 @@
             var self = this;
             // make mediaUrl a global url in case it is not
             var mediaUrl = self.el.find('[name="MediaUrl"]').val();
+
+            var EmbedConfig = {
             if ( mediaUrl.indexOf("http://") != 0 && mediaUrl.indexOf("https://") != 0 && mediaUrl.indexOf("//") != 0 ) {
                 mediaUrl = "//" + mediaUrl;
             }
@@ -62,6 +88,7 @@
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
                     'MediaImage': self.el.find('[name="MediaImage"]').val(),
+                    'VerificationToggle': self.el.find('[name="VerificationToggle"]:checked').val(),
                     'MediaToggle': self.el.find('[name="MediaToggle"]').is(':checked'),
                     'MediaUrl': mediaUrl,
                     'UserComments': self.el.find('[name="UserComments"]').is(':checked')
@@ -180,9 +207,13 @@
                     $(val).parent().parent().on("click", function(e){
                         e.preventDefault();
                         if (!$(e.target).hasClass("sf-disable")) {
-                            $(e.target).toggleClass('sf-checked');
-                            var own_box = $(e.target).find(".sf-toggle");        
-                            own_box.prop('checked', $(e.target).hasClass('sf-checked'));
+                            var correctTarget = $(e.target);
+                            if ( $(e.target).hasClass("sf-toggle-custom-inner") ) {
+                                correctTarget = $(e.target).parent();
+                            }
+                            correctTarget.toggleClass('sf-checked');
+                            var own_box = correctTarget.find(".sf-toggle");        
+                            own_box.prop('checked', correctTarget.hasClass('sf-checked'));
                             own_box.change();
                         }
                     });

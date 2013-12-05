@@ -4,13 +4,12 @@ Created on April 24, 2013
 @package: frontline inlet
 @copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Martin Saturka
+@author: Martin Saturkahttp://localhost:8080/resources/LiveDesk/Blog/1/Post/10/Publish
 
 API specifications for frontline inlet.
 '''
 
-from ally.api.config import service, call, query, GET
-from ally.api.criteria import AsLikeOrdered
+from ally.api.config import service, call, GET
 from ally.api.type import Iter
 from ally.support.api.keyed import Entity
 from frontline.api.domain_sms import modelSMS

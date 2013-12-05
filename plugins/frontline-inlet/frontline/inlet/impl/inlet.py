@@ -37,12 +37,16 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     '''
     Implementation for @see: IInletService
     '''
-    sms_source_type_key = 'sms source'; wire.config('sms_source_type_key', doc='''
+    sms_source_type_key = 'smsblog'; wire.config('sms_source_type_key', doc='''
     Type of the sources for the SMS inlet feeds''')
     sms_post_type_key = 'normal'; wire.config('sms_post_type_key', doc='''
     Type of the posts created on the SMS that come via inlet feeds''')
-    sms_provider_type = 'sms provider'; wire.config('sms_provider_type', doc='''
-    Key of the source type for sms providers''')
+    user_type_key = 'sms'; wire.config('user_type_key', doc='''
+    The user type that is used for the anonymous users of SMS posts''')
+    sms_provider_type = 'smsfeed'; wire.config('sms_provider_type', doc='''
+    Key of the source type for SMS providers''') 
+    anonymous_sms = 'SMS'; wire.config('anonymous_sms', doc='''
+    Type default First Name of the anonymous SMS sender''')
 
     postService = IPostService; wire.entity('postService')
     sourceService = ISourceService; wire.entity('sourceService')
@@ -75,7 +79,9 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
             user = User()
             user.PhoneNumber = phoneNumber
             user.Name = self._freeSMSUserName()
+            user.FirstName = self.anonymous_sms
             user.Password = binascii.b2a_hex(os.urandom(32)).decode()
+            user.Type = self.user_type_key
             userId = self.userService.insert(user)
 
         # make the source (for inlet type) part of collaborator
@@ -87,7 +93,7 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
             source = Source()
             source.Type = self.sms_provider_type
             source.Name = typeKey
-            source.URI = ''
+            source.URI = typeKey
             source.IsModifiable = True
             sourceId = self.sourceService.insert(source)
 
@@ -129,10 +135,10 @@ class InletServiceAlchemy(EntityServiceAlchemy, IInletService):
     # ------------------------------------------------------------------
 
     def _freeSMSUserName(self):
-        userName = 'SMS-' + binascii.b2a_hex(os.urandom(8)).decode()
         while True:
+            userName = 'SMS-' + binascii.b2a_hex(os.urandom(8)).decode()
             try:
-                userDb = self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
+                self.session().query(UserMapped).filter(UserMapped.Name == userName).one()
             except:
                 return userName
 
