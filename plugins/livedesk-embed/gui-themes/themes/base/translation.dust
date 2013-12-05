@@ -1,6 +1,6 @@
 {!
 _('to top');
-_('updated on ');
+_('updated at ');
 _('new posts');
 _('Load top Posts');
 _('Loading posts...');
