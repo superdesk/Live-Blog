@@ -61,7 +61,7 @@
         },
         addBlogTypeModal: function(evt) {
             var self = this;
-            self.configBlogType.model = Gizmo.Auth(new Gizmo.Register.BlogType({ Post: []}));
+            self.configBlogType.model = Gizmo.Auth(new Gizmo.Register.BlogType({ BlogTypePost: []}));
             self.configBlogType.render();
             self.configBlogType.switchModal(evt, 0);
         }

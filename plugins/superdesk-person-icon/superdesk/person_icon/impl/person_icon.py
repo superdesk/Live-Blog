@@ -41,8 +41,7 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         '''
         @see: IPersonIconService.getById
         '''
-        personIcon = self.session().query(PersonIcon).get(id)
-        
+        personIcon = self.session().query(PersonIcon).get(id)        
         if not personIcon: raise InputError(_('Invalid person icon'), str(id))
         assert isinstance(personIcon, PersonIcon)
         assert isinstance(self.metaDataService, IMetaDataService)
