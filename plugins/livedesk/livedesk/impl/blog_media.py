@@ -9,7 +9,7 @@ Created on May 12, 2013
 Contains the SQL alchemy meta for livedesk blog media API.
 '''
 
-from livedesk.api.blog_media import BlogMedia, BlogMediaType, IBlogMediaService, IBlogMediaTypeService
+from livedesk.api.blog_media import BlogMedia, IBlogMediaService, IBlogMediaTypeService
 from livedesk.meta.blog_media import BlogMediaMapped, BlogMediaTypeMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sql_alchemy.impl.keyed import EntityGetServiceAlchemy, EntityFindServiceAlchemy
@@ -61,7 +61,7 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
         sql = self.session().query(BlogMediaMapped)
         sql = sql.filter(BlogMediaMapped.Blog == blogId)
         if typeKey:
-            sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaMapped.Key == typeKey)
+            sql = sql.join(BlogMediaTypeMapped).filter(BlogMediaMapped.Type == typeKey)
         sql = sql.order_by(BlogMediaMapped.Id)
 
         sqlLimit = buildLimits(sql, offset, limit)
@@ -133,7 +133,7 @@ class BlogMediaServiceAlchemy(EntityServiceAlchemy, IBlogMediaService):
             firstMedia.Rank, secondMedia.Rank = firstRank, secondRank
             self.session().flush((secondMedia,))
             self.session().flush((firstMedia,))
-        except SQLAlchemyError as e: handle(e, mediaDb)
+        except SQLAlchemyError as e: handle(e)
 
     # ----------------------------------------------------------------
 

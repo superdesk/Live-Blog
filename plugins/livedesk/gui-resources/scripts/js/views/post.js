@@ -28,6 +28,7 @@ define
                 '.btn.publish': {click: 'save', focusin: 'stopFocuseOut'},
                 '.editable': { focusin: 'edit'} //, focusout: 'focuseOut'}
             },
+            additional: {},
             showActions: function() {
                 var self = this;
                 self.el.find('.actions').removeClass('hide');
@@ -185,10 +186,12 @@ define
                     post.Meta = JSON.parse(post.Meta);
                 }
                 $.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
-                $.tmpl('livedesk>items/item', { 
+                post.VerificationToggle = self.blog.EmbedConfig && self.blog.EmbedConfig.VerificationToggle;
+                var data = { 
                     Base: self.tmplImplementor,
                     Post: post
-                }, function(e, o) {
+                };
+                $.tmpl('livedesk>items/item', data, function(e, o) {
                     self.setElement(o);
                     self.el.triggerHandler('afterRender');
                 });

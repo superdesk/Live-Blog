@@ -9,18 +9,18 @@ Created on April 26, 2013
 API implementation for liveblog sync.
 '''
 
-from livedesk.api.blog_sync import IBlogSyncService, QBlogSync, BlogSync
+from livedesk.api.blog_sync import IBlogSyncService, QBlogSync
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from ally.container.support import setup
-from livedesk.meta.blog_sync import BlogSyncMapped
-from sqlalchemy.sql.functions import current_timestamp
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from ally.api.extension import IterPart
-from ally.container import wire
-from sqlalchemy.orm.util import aliased
+import datetime
 from sqlalchemy.sql.expression import or_
+from livedesk.meta.blog import BlogSourceDB
+from livedesk.meta.blog_sync import BlogSyncMapped
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -29,18 +29,36 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
     '''
     Implementation for @see IBlogSyncService
     '''
+    
     blog_provider_type = 'blog provider'; wire.config('blog_provider_type', doc='''
     Key of the source type for blog providers''')
+    sms_provider_type = 'sms provider'; wire.config('sms_provider_type', doc='''
+    Key of the source type for sms providers''')
 
     def __init__(self):
         '''
         Construct the blog sync service.
         '''
         EntityServiceAlchemy.__init__(self, BlogSyncMapped, QBlogSync)
-
-    def getAll(self, offset=None, limit=None, detailed=False, q=None):
+        
+    def checkTimeout(self, blogSyncId, timeout):
         '''
-        @see IBlogSyncService.getAll
+        @see IBlogSyncService.checkTimeout
+        '''  
+        crtTime = datetime.datetime.now().replace(microsecond=0)  
+        referenceTime = crtTime - datetime.timedelta(seconds=timeout)
+        
+        sql = self.session().query(BlogSyncMapped)
+        sql = sql.filter(BlogSyncMapped.Id == blogSyncId)
+        sql = sql.filter(or_(BlogSyncMapped.LastActivity == None, BlogSyncMapped.LastActivity < referenceTime))
+        result = sql.update({BlogSyncMapped.LastActivity : crtTime}) 
+        self.session().commit()       
+
+        return result
+
+    def getBySourceType(self, sourceType, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see IBlogSyncService.getBySourceType
         '''
         sql = self.session().query(BlogSyncMapped)
         if q:
@@ -48,10 +66,11 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
             sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
 
         sql_prov = self.session().query(SourceMapped.URI)
         sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
-        sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
+        sql_prov = sql_prov.filter(SourceTypeMapped.Key == sourceType)
 
         sql = sql.filter(SourceMapped.OriginURI.in_(sql_prov))
 
@@ -59,8 +78,8 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
         
-        
-    def getBlogSyncByBlogAndSource(self, blog, source):
+
+    def getByBlog(self, blogId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see IBlogSyncService.getBlogSyncByBlogAndSource
         '''
@@ -71,43 +90,24 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
             return sql.one()
         except: return None
         
-    def getBlogSync(self, blog, offset, limit, detailed, q):
         '''
-        @see IBlogSyncService.getBlogSync
+        @see IBlogSyncService.getByBlog
         '''
-        sql = self.session().query(BlogSyncMapped).filter(BlogSyncMapped.Blog == blog)
-        if q: sql = buildQuery(sql, q, BlogSyncMapped)
+        sql = self.session().query(BlogSyncMapped)
+        if q:
+            assert isinstance(q, QBlogSync), 'Invalid blog sync query %s' % q
+            sql = buildQuery(sql, q, BlogSyncMapped)
 
         sql = sql.join(SourceMapped, SourceMapped.Id == BlogSyncMapped.Source)
+        sql = sql.join(BlogSourceDB, SourceMapped.Id == BlogSourceDB.source)
+        sql = sql.filter(BlogSourceDB.blog == blogId)
 
         sql_prov = self.session().query(SourceMapped.URI)
         sql_prov = sql_prov.join(SourceTypeMapped, SourceTypeMapped.id == SourceMapped.typeId)
         sql_prov = sql_prov.filter(SourceTypeMapped.Key == self.blog_provider_type)
 
-        sql = sql.filter(or_(SourceMapped.OriginURI == None, SourceMapped.OriginURI.in_(sql_prov)))
+        sql = sql.filter(SourceMapped.OriginURI.in_(sql_prov))
 
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
-
-    def insert(self, blogSync):
-        '''
-        @see IBlogSyncService.insert
-        '''
-        assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
-
-#        if blogSync.Auto and blogSync.SyncStart is None:
-#            blogSync.SyncStart = current_timestamp()
-        return super().insert(blogSync)
-
-    def update(self, blogSync):
-        '''
-        @see IBlogSyncService.update
-        '''
-        assert isinstance(blogSync, BlogSync), 'Invalid blog sync %s' % blogSync
-
-        blogSyncDb = self.getById(blogSync.Id)
-
-        if blogSync.Auto and not blogSyncDb.Auto and blogSync.SyncStart is None:
-            blogSync.SyncStart = current_timestamp()
-        return super().update(blogSync)

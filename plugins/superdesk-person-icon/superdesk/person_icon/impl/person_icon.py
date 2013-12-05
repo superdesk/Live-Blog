@@ -20,6 +20,7 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.person_icon.meta.person_icon import PersonIconMapped
+from superdesk.user.api.user import IUserService, User
 
 # --------------------------------------------------------------------
 
@@ -31,6 +32,8 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
     '''
     metaDataService = IMetaDataService; wire.entity('metaDataService')
     # provides the metadata service in order to retrieve metadata of the person icon
+    
+    userService = IUserService; wire.entity('userService')
 
     def __init__(self):
         '''
@@ -49,12 +52,19 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         metaData = self.metaDataService.getById(personIcon.MetaData, scheme, thumbSize)
         return metaData
 
-    def setIcon(self, personId, metaDataId):
+    def setIcon(self, personId, metaDataId, update):
         '''
         @see: IPersonIconService.setIcon
         '''
+     
+        if update:   
+            user = User()
+            user.Id = personId
+            self.userService.update(user)
+        
         entityDb = PersonIconMapped()
         entityDb.Id, entityDb.MetaData = personId, metaDataId
+        
         try:
             self.session().merge(entityDb)
             self.session().flush((entityDb,))

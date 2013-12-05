@@ -18,8 +18,9 @@ define([
                             for ( var i = 0; i < smss.length; i ++ ) {
                                 smss[i].assigned = false;
                                 for ( var j = 0; j < allAssigned.length; j ++ ) {
-                                    if ( allAssigned[j].Id == smss[i].Id ) {
+                                    if ( allAssigned[j].Name == smss[i].Name ) {
                                         smss[i].assigned = true;
+                                        smss[i].source = allAssigned[j].Id
                                         break;
                                     }
                                 }

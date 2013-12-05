@@ -11,7 +11,7 @@ API specifications for posts.
 
 from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean, AsLikeOrdered, \
-    AsRangeOrdered
+    AsRangeOrdered, AsEqual
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from datetime import datetime
@@ -30,10 +30,12 @@ class Post(Entity):
     '''
     Provides the post message model.
     '''
+    Uuid = str
     Type = PostType
     Creator = User
     Author = Collaborator
     PostVerification = PostVerification
+    Feed = Source
     IsModified = bool
     IsPublished = bool
     Meta = str
@@ -41,9 +43,11 @@ class Post(Entity):
     Content = str
     CreatedOn = datetime
     PublishedOn = datetime
+    WasPublished = bool
     UpdatedOn = datetime
     DeletedOn = datetime
     AuthorName = str
+    
     
 
 # --------------------------------------------------------------------
@@ -56,6 +60,7 @@ class QWithCId:
           It partially emulates the cId parameter behavior of BlogPosts.
           It should be done more properly at some future.
     '''
+    uuid = AsEqual
     cId = AsRangeOrdered
 
 @query(Post)
@@ -99,6 +104,12 @@ class IPostService(IEntityGetCRUDService):
     '''
     Provides the service methods for the post.
     '''
+
+    @call(webName='Uuid')
+    def getByUuidAndSource(self, uuid:str, source:Source.Id) -> Post:
+        '''
+        Returns the post that has the same uuid and is for the same source
+        '''
 
     @call(webName='Unpublished')
     def getUnpublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None,

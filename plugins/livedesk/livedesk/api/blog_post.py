@@ -11,7 +11,7 @@ API specifications for livedesk blog posts.
 
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query, UPDATE, extension
-from ally.api.criteria import AsRangeOrdered, AsBoolean, AsLike
+from ally.api.criteria import AsRangeOrdered, AsBoolean, AsLike, AsEqual
 from ally.api.extension import IterPart
 from ally.api.type import Iter, Reference
 from livedesk.api.domain_livedesk import modelLiveDesk
@@ -44,8 +44,11 @@ class QWithCId:
     '''
     Provides the query for cId.
     '''
+    id = AsRangeOrdered
     cId = AsRangeOrdered
     search = AsLike
+    status = AsEqual
+    checker = AsEqual
 
 @query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):
@@ -147,12 +150,19 @@ class IBlogPostService:
         '''
         Publishes the post in the blog.
         '''
-        
+    
+    @call(method=INSERT, webName='CId')
+    def updateCid(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Update the Cid for the blog post.
+        ''' 
+            
     @call(method=INSERT, webName='Hide')
     def hide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''
         Hide the post from the blog.
         '''    
+        
     @call(method=INSERT, webName='Unhide')
     def unhide(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''

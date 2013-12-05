@@ -17,13 +17,14 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.sql.expression import case
-from sqlalchemy.types import TEXT, DateTime
+from sqlalchemy.types import TEXT, DateTime, String, Boolean
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.user.meta.user import UserMapped
 from ally.container.binder_op import validateManaged, validateRequired, \
     EVENT_PROP_UPDATE
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -36,14 +37,17 @@ class PostMapped(Base, Post):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Uuid = Column('uuid', String(32))
     Type = association_proxy('type', 'Key')
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
+    Feed = Column('fk_feed_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'))
     Meta = Column('meta', TEXT)
     ContentPlain = Column('content_plain', TEXT)
     Content = Column('content', TEXT)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
+    WasPublished = Column('was_published', Boolean)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
     @hybrid_property

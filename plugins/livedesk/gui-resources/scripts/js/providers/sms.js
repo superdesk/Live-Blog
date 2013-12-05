@@ -28,25 +28,33 @@ $.extend(providers.sms, {
     data: [],
     blogId: 1,
     topIds: [],
-    smsType: 'FrontlineSMS',
+    total: [],
+    extraItems: [],
+    curFeedId: -1,
+    smsType: 'smsblog',
     keyword:[],
     prepareAuxData: function(feeds) {
         var self = this;
         //prepare for 0 results
         self.topIds[0] = 0;
         self.keyword[0] = '';
+        self.total[0] = 0;
+        self.extraItems[0] = 0;
 
         //initialize the 'top cids' array
         for ( var i = 0; i < feeds.length; i ++ ) {
             self.topIds[feeds[i].Id] = 0;
             self.keyword[feeds[i].Id] = '';
+            self.total[feeds[i].Id] = 0;
+            self.extraItems[feeds[i].Id] = 0;
         }
     },
     getAssignedFeeds: function() {
         var self = this;
         var dfd = $.Deferred();
-        var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
-        myUrl = url.get() + '?X-filter=Type.Key,Name,Id';
+        //var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
+        var url = new Gizmo.Url('Data/SourceType/smsblog/Source?blogId=' + this.blogId );
+        myUrl = url.get() + '&X-filter=Type.Key,Name,Id';
         self.assignedFeeds = [];
         $.ajax({
             url: myUrl,
@@ -69,7 +77,7 @@ $.extend(providers.sms, {
         //get all feeds and generate 'holders'
         var self = this;
         var dfd = $.Deferred();
-        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+        var url = new Gizmo.Url('Data/SourceType/smsfeed/Source');
         feedsUrl = url.get() + '?X-Filter=Id,Name';
         $.ajax({
             url: feedsUrl,
@@ -90,7 +98,7 @@ $.extend(providers.sms, {
         this.blogId = hackArray[hackArray.length - 1];
 
         //get assigned feeds
-        var url = new Gizmo.Url('Data/SourceType/FrontlineSMS/Source');
+        var url = new Gizmo.Url('Data/SourceType/smsblog/Source');
 
         this.getAssignedFeeds().done(function(){
             self.getAllFeeds().done(function(){
@@ -122,7 +130,7 @@ $.extend(providers.sms, {
             var keyword = $('.sms-search-query[data-feed-id="' + feedId + '"]').val();
             if ( keycode == 13 ) {
                 self.keyword[feedId] = keyword;
-                //self.getAllSmss({cId: -1, clearResults: true});
+                self.getAllSmss({cId: -1, clearResults: true});
             }
         });
         //clear keyword search
@@ -130,7 +138,7 @@ $.extend(providers.sms, {
             var feedId = self.getActiveTab();
             $('.sms-search-query[data-feed-id="' + feedId + '"]').val('');
             self.keywords[feedId] = '';
-            //self.getAllSmss({cId: -1, clearResults: true});
+            self.getAllSmss({cId: -1, clearResults: true});
 
         });
 	},
@@ -156,11 +164,11 @@ $.extend(providers.sms, {
         $('.sms-clear-search[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-list[data-feed-id="' + feedId + '"]').css('display','block');
         $('.sms-load-more-holder[data-feed-id="' + feedId + '"]').css('display','block');
+        self.curFeedId = feedId;
         self.getAllSmss({feedId: feedId});
     },
     render: function(){
         var self = this;
-
         if ( self.onlyAssigned ) {
             var feeds = self.assignedFeeds;
             var onlyAssigned = 'checked="checked"';
@@ -193,15 +201,58 @@ $.extend(providers.sms, {
         //dynamically get size of header and set top space for list
         var top_space = $('#sms .sms-header').outerHeight() + 20;
         $('.sms-results-holder').css({'top': top_space});
+
+        //show hidden 
+        self.el.off('click','[data-type="hidden-toggle-sms"]').on('click','[data-type="hidden-toggle-sms"]', function( e ){
+            $(this).toggleClass('active');
+            if ( $(this).attr('data-active') == 'false' ) {
+                $(this).attr('data-active', 'true');
+                //show hidden comments
+                self.getAllSmss({cId: -1, clearResults: true});
+            } else {
+                $(this).attr('data-active', 'false');
+                //hide hidden comments
+                self.getAllSmss({cId: -1, clearResults: true});
+            }
+        });
     },
     refreshFeeds: function() {
         var self = this;
         var feedId = self.getActiveTab();
         var cId = self.topIds[feedId];
-        self.getAllSmss({cId: cId, prepend: true, feedId: feedId});
+        if ( $( document ).find('a[data-type="hidden-toggle-sms"]').attr('data-active') != 'true' ) {
+            self.getAllSmss({cId: cId, prepend: true, feedId: feedId});
+        }
     },
     getActiveTab: function() {
         return parseInt($('.sms-header .feed-info button.active').attr('data-feed-id'));
+    },
+    getHiddenToggle: function() {
+        return $( document ).find('a[data-type="hidden-toggle-sms"]').attr('data-active');
+    },
+    conflictingResults: function() {
+        var self = this;
+        var activeTab = self.curFeedId;
+        var firstItem = self.el.find('ul[data-feed-id="' + activeTab + '"] li.smspost a').first().attr('data-action');
+
+        if ( self.getHiddenToggle() == 'true' && firstItem == 'hide') {
+            //toggle is set to show hidden and the elements are hidden
+            return true;
+        } else {
+            if ( self.getHiddenToggle() != 'true' && firstItem == 'unhide' ) {
+                //toggle is set to show visible items and the elemets are hidden
+                return true;
+            } else {
+                if ( firstItem == undefined ) {
+                    //no sms item in list, can't determine if conflict or not, redo the search
+                    return true;
+                } else {
+                    return false;    
+                }
+                
+            }
+        }
+        
     },
     getAllSmss: function(paramObject) {
         var self = this;
@@ -222,13 +273,27 @@ $.extend(providers.sms, {
         //search data... short name 'sd'
         var sd = $.extend({}, dsd, paramObject);
 
+        if ( self.conflictingResults() ) {
+            sd.clearResults = true;
+        }
 
         //check to see if the search really needs to be done
-        if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults) {
+        if ( $('.sms-list[data-feed-id="' + sd.feedId + '"]').html() == '' || sd.forceAppend || sd.prepend || sd.clearResults ) {
             //no search with results on this feed yet or pagination
             //just go on
         } else {
             return;
+        }
+
+        var deletedText = '&isDeleted=false';
+        if ( self.getHiddenToggle() == 'true' ) {
+            var deletedText = '&isDeleted=true';
+        }
+
+        if ( sd.cId == -1 ) {
+            cIdText = '';
+        } else {
+            cIdText = '&cId.since=' + sd.cId
         }
 
         var keywordSearch = '';
@@ -238,9 +303,9 @@ $.extend(providers.sms, {
         if ( self.keyword[sd.feedId].length > 0 ) {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword[sd.feedId] + '%')
         }
-        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
-        myUrl = url.get() + '?X-Filter=Content,Id,CreatedOn,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + '&cId.since=' + sd.cId + keywordSearch;
-        //console.log('myUrl ', myUrl );
+        //var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
+        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post/SourceUnpublished');
+        myUrl = url.get() + '?X-Filter=*,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + cIdText + keywordSearch + deletedText;
         
         $.ajax({
             url: myUrl,
@@ -259,15 +324,69 @@ $.extend(providers.sms, {
             for ( var i = 0; i < smss.length; i++ ) {
                 var item = smss[i];
                 item['message'] = item.Content;
-                posts.push({ Meta: item });
+                //add some meta info for the templates
+                var Meta = {Id: item.Id};
+                if ( item.DeletedOn ) {
+                    Meta.DeletedOn = item.DeletedOn;
+                };
+                item.Meta = Meta;
+                posts.push(item);
                 self.data.sms[item.Id] = item;
                 //increase the 'cId' if necessary
-                if ( parseInt(self.topIds[sd.feedId]) < parseInt(item.Id) ) {
-                    self.topIds[sd.feedId] = parseInt(item.Id);
+                if ( parseInt(self.topIds[sd.feedId]) < parseInt(item.CId) ) {
+                    self.topIds[sd.feedId] = parseInt(item.CId);
+                }
+            }
+
+            //go throught the comments and see if they are updates for what we already have
+            var newPosts = [];
+
+            for ( var i = 0; i < posts.length; i++ ) {
+                var cmnt = posts[ i ];
+                var updated = false;
+                var Id = cmnt.Id;
+                var unhideTxt = _("Unhide");
+                var hideTxt = _("Hide");
+                $('.sms-list').find('li.smspost').each(function(){
+                    if ( Id == $(this).attr('data-id') ) {
+                        //we need to update the item
+                        if ( cmnt.IsPublished == "True" ) {
+                            //$( this ).attr('data-hidden', 'true').css('display', 'none');
+                            $( this ).remove();
+                            self.total[ sd.feedId ] -- ;
+                            self.extraItems[ sd.feedId ] -- ;
+                        } else {
+                            if ( cmnt.DeletedOn ) {
+                                //got deleted
+                                $( this ).attr('data-hidden', 'true').css('display', 'none');
+                                $( this ).find('a[href="#toggle-post"]').attr('data-action', 'unhide').text(unhideTxt);
+                                self.total[ sd.feedId ] -- ;
+                                self.extraItems[ sd.feedId ] -- ;
+                            } else {
+                                $( this ).attr('data-hidden', 'false').css('display', 'block');
+                                $( this ).find('a[href="#toggle-post"]').attr('data-action', 'hide').text(hideTxt);
+                                self.total[ sd.feedId ] ++ ;
+                                self.extraItems ++ ;
+                            }
+                        }
+                        updated = true;
+                    }
+                });
+                if ( ( ! updated && cmnt.IsPublished != "True" && ! cmnt.DeletedOn ) || sd.cId == -1 ) {
+                    newPosts.push(cmnt);
                 }
 
             }
+            posts = newPosts;
+            if ( sd.cId == -1 || sd.forceAppend == true ) {
+                self.extraItems[ sd.feedId ] = 0;
+            } else {
+                self.extraItems[ sd.feedId ] += newPosts.length;
+            }
+
             if ( posts.length > 0 ) {
+                //hide alert with no results message
+                $('.sms-list[data-feed-id="' + sd.feedId + '"] div.alert').css('display', 'none');
                 $.tmpl('livedesk>items/item', {
                     Post: posts,
                     Base: 'implementors/sources/sms',
@@ -281,6 +400,17 @@ $.extend(providers.sms, {
                     } else {
                         el = $('.sms-list[data-feed-id="' + sd.feedId + '"]').append(o).find('.smspost');
                     }
+
+                    el.on('click', 'a[href="#toggle-post"]', function(e){
+                        e.preventDefault();
+                        var id = $(this).attr('data-id');
+                        var action = $(this).attr('data-action');
+                        if ( action == 'hide' ) {
+                            self.hideSms(id);
+                        } else {
+                            self.unhideSms(id);
+                        }
+                    });
 
                     BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
                         el.draggable(
@@ -296,8 +426,7 @@ $.extend(providers.sms, {
                                 $(ui.helper).css('width', item.width());
                                 var itemNo = $(this).attr('data-id');
                                 var elData = self.adaptor.universal(self.data.sms[ itemNo ]);
-                                $(this).data('data', elData );
-
+                                $(this).data('post', itemNo );
                             }
                         });
                     }).fail(function(){
@@ -306,11 +435,12 @@ $.extend(providers.sms, {
                     if ( sd.prepend ) {
                         return;
                     }
-                    if ( sd.offset + sd.limit < total ) {
+                    var offset = sd.offset + sd.limit + self.extraItems[ sd.feedId ];
+                    if ( offset < total ) {
                         $('.sms-load-more-holder[data-feed-id="' + sd.feedId + '"]').css('display','block').tmpl('livedesk>providers/load-more', {name : 'sms-load-more-' + sd.feedId}, function(){
                             $(this).find('[name="sms-load-more-' + sd.feedId + '"]').on('click', function(){
-                                var offset = sd.offset + sd.limit;
-                                //self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
+                                var offset = sd.offset + sd.limit + self.extraItems[ sd.feedId ];
+                                self.getAllSmss( $.extend({}, sd, {offset: offset, forceAppend: true, clearResults: false}) );
                             });
                         });
                     } else {
@@ -327,6 +457,28 @@ $.extend(providers.sms, {
                 
             }
         });
+    },
+    hideSms: function(smsId) {
+        var self = this;
+        var feedId = self.getActiveTab();
+        var msg = _("Are you sure you want to hide the sms?");
+        //if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + smsId + '/Hide');
+            $.post( url.get() , function( data ) {
+                self.extraItems[ feedId ] -- ;
+                $( document ).find('li.smspost[data-id="' + smsId + '"]').remove();
+            });
+        //}
+    },
+    unhideSms: function(smsId) {
+        var msg = _("Are you sure you want to un-hide the sms?");
+        var newText = _("Hide");
+        //if ( confirm( msg ) ) {
+            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + smsId + '/Unhide');
+            $.post( url.get() , function( data ) {
+                $( document ).find('li.smspost[data-id="' + smsId + '"]').remove();
+            });
+        //}
     }
 });
 return providers;

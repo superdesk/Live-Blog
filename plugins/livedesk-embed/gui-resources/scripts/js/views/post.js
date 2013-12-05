@@ -1,4 +1,4 @@
-define([
+﻿define([
 	'jquery',
 	'gizmo/superdesk',
 	'dust',
@@ -47,8 +47,12 @@ define([
 				if ( !isNaN(self.order) && (order != self.order)) {
 					self._parent.orderOne(self);
 				}
+
 				if(data.Meta) {
-					data.Meta = $.parseJSON(data.Meta);
+				data.Meta = $.parseJSON(data.Meta);
+				if ( data.AuthorName ) {
+					data.Meta.Creator = { 'Name': data.AuthorName };
+				}
 				}
 				if(data.Meta && data.Meta.annotation) {
 					if(data.Meta.annotation[1] === null) {
@@ -73,6 +77,16 @@ define([
 					}
 				}
 
+			if ( data.Author.Source.Type.Key === 'smsblog') {
+				//ugly hack is ugly
+				data.item = "source/sms";
+			} else {
+				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
+					data.item = "posttype/"+data.Type.Key;
+				}
+				else if(data.Type)
+					data.item = "source/"+data.Author.Source.Name;
+			} 
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
 					data.CreatedOn = createdOn.format(_('post-date'));
