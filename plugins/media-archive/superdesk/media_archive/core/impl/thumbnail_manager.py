@@ -82,7 +82,7 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
             thumbName, thumbExt = splitext(thumbPath)
             if imageExt != thumbExt: thumbPath = thumbName + imageExt
 
-            self.cdmThumbnail.publishFromFile(thumbPath, imagePath)
+            self.cdmThumbnail.publishFromFile(thumbPath, imagePath, {})
 
             if thumbPath != thumbProcPath:
                 thumbPath, thumbProcPath = self.cdmThumbnail.getURI(thumbPath, 'file'), self.cdmThumbnail.getURI(thumbProcPath, 'file')

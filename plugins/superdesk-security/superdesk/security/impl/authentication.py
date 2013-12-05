@@ -26,6 +26,7 @@ from sql_alchemy.support.session import commitNow
 from sql_alchemy.support.util_service import SessionSupport
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
+from sqlalchemy import func
 from superdesk.security.api.authentication import Login
 from superdesk.security.core.spec import ICleanupService
 from superdesk.security.meta.authentication import LoginMapped, TokenMapped
@@ -160,8 +161,9 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
             commitNow()  # We make sure that the delete has been performed
 
             sql = self.session().query(UserMapped)
-            sql = sql.filter(UserMapped.Name == authentication.UserName).filter(UserMapped.Active == True)
-            try: user = sql.one()
+            sql = sql.filter(func.lower(UserMapped.Name) == authentication.UserName.lower()).filter(UserMapped.Active == True)
+            try: 
+                user = sql.one()
             except NoResultFound: user = None
 
             if user is not None:
@@ -171,7 +173,6 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
                                        bytes(user.password, 'utf8'), hashlib.sha512).hexdigest()
                 hashedToken = hmac.new(bytes(hashedToken, 'utf8'),
                                        bytes(authentication.Token, 'utf8'), hashlib.sha512).hexdigest()
-
                 if authentication.HashedToken == hashedToken:
                     hash = hashlib.sha512()
                     hash.update(urandom(self.authentication_token_size))
