@@ -173,7 +173,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
                                        bytes(user.password, 'utf8'), hashlib.sha512).hexdigest()
                 hashedToken = hmac.new(bytes(hashedToken, 'utf8'),
                                        bytes(authentication.Token, 'utf8'), hashlib.sha512).hexdigest()
-                if (authentication.HashedToken == hashedToken):
+                if authentication.HashedToken == hashedToken:
                     hash = hashlib.sha512()
                     hash.update(urandom(self.authentication_token_size))
 
