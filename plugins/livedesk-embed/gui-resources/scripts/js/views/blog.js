@@ -73,7 +73,7 @@ define([
 					if(self.model.get('ClosedOn') === undefined) {
 						var t = '<time data-date="'+now.getTime()+'">'+now.format(_('status-date'))+"</time>";
 						$('[data-gimme="blog.status"]',self.el)
-								.html(_('updated on %s').format([t]));
+								.html(_('updated at %s').format([t]));
 					}
 				},
 				hideNewPosts: function(){
