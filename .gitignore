@@ -14,9 +14,11 @@
 /distribution/plugins/*.egg
 *.properties
 *.properties.bak
+.settings
 
 .project
 .pydevproject
+.pydevproject~
 /.metadata/
 
 *.egg-info/
