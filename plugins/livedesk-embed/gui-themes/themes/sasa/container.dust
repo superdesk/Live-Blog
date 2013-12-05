@@ -1,6 +1,6 @@
 {!
 _('to top');
-_('updated on ');
+_('updated at ');
 _('new posts');
 _('Load top Posts');
 _('Loading posts...');
@@ -20,7 +20,7 @@ _('Your message was sent for approval');
 	{+header}
 		<div id="liveblog-header">
 			<div id="liveblog-status" class="update-time">
-				<span id="liveblog-status-time">_('updated on ');</span>
+				<span id="liveblog-status-time">_('updated at ');</span>
 				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
 			</div>
 			

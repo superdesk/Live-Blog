@@ -353,7 +353,7 @@ define([
 				this.el.find('#liveblog-status').fadeOut(function(){
 					var t = '<time data-date="'+now.getTime()+'">'+now.format(_('HH:MM'))+"</time>";
 					$(this).find('#liveblog-status-time')
-						.html(_('updated on %s').format([t])).end().fadeIn();
+						.html(_('updated at %s').format([t])).end().fadeIn();
 					$.dispatcher.triggerHandler('after-render',self);
 				});
 			}
