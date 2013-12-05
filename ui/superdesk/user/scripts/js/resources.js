@@ -4,29 +4,32 @@ define([
 ],function(angular) {
     'use strict';
 
-    var resources = angular.module('users.resources', ['ngResource']);
+    var resources = angular.module('users.resources', ['ngResource'])
+                        .config(function($httpProvider){
+                            $httpProvider.defaults.headers.get = {'Authorization': localStorage.getItem('superdesk.login.session')}
+                        });
 
     resources.factory('Role', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/RBAC/Role/:Id/:Action', {Id: '@Id', Action: '@Action'}, {
-            query: {method: 'GET', params: {'X-Filter': '*'}},
+            query: {method: 'GET', params: {'X-Filter': 'Role.*'}},
             update: {method: 'PUT'},
-            save: {method: 'POST', params: {'X-Filter': 'Id'}}
+            save: {method: 'POST', params: {'X-Filter': 'Role.Id'}}
         });
     }]);
 
     resources.factory('User', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/HR/User/:Id/:Action/:Action2', {Id: '@Id', Action: '@Action', Action2: '@Action2'}, {
-            query: {method: 'GET', params: {'X-Filter': '*'}},
+            query: {method: 'GET', params: {'X-Filter': 'User.*'}},
             update: {method: 'PUT'},
-            save: {method: 'POST', params: {'X-Filter': 'Id'}}
+            save: {method: 'POST', params: {'X-Filter': 'User.Id'}}
         });
     }]);
     
     resources.factory('UserRole', ['$resource', '$q', function($resource, $q) {
         return $resource('/resources/HR/User/:Id/Role', {Id: '@Id'}, {
-            query: {method: 'GET', params: {'X-Filter': '*'}},
+            query: {method: 'GET', params: {'X-Filter': 'Role.*'}},
             update: {method: 'PUT'},
-            save: {method: 'POST', params: {'X-Filter': 'Id'}}
+            save: {method: 'POST', params: {'X-Filter': 'Role.Id'}}
         });
     }]);
 
@@ -102,7 +105,9 @@ define([
     }]);
 
     resources.service('UserService', ['$resource', '$q', function($resource, $q) {
-        var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+        //TODO: Mihai remove this
+        //var UserImage = $resource('/resources/HR/Person/:userId/MetaData/Icon', {userId: '@userId'});
+        var UserImage = $resource('/resources/HR/Person/IconPersonMetaData/:userId', {userId: '@userId'});
 
         this.getImage = function(user) {
             var delay = $q.defer();

@@ -15,11 +15,12 @@
         init: function(){
             var self = this;
             if( !self.collection ) {
-                self.collection = new Gizmo.Register.BlogTypes();
+                self.collection = Gizmo.Auth(new Gizmo.Register.BlogTypes());
+                //self.collection = new Gizmo.Register.BlogTypes();
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Id,Name,Post')
+                .xfilter('BlogType.Id,BlogType.Name,BlogType.BlogTypePost.Post.*')
                 .sync();
             self.collection.model.on('add',self.addOne, self);
         },
@@ -60,7 +61,7 @@
         },
         addBlogTypeModal: function(evt) {
             var self = this;
-            self.configBlogType.model = Gizmo.Auth(new Gizmo.Register.BlogType({ Post: []}));
+            self.configBlogType.model = Gizmo.Auth(new Gizmo.Register.BlogType({ BlogTypePost: []}));
             self.configBlogType.render();
             self.configBlogType.switchModal(evt, 0);
         }

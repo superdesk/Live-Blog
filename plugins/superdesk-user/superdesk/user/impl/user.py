@@ -44,7 +44,7 @@ class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
         assert isinstance(self.default_user_type_key, str), 'Invalid default user type %s' % self.default_user_type_key
         assert isinstance(self.allNames, set), 'Invalid all name %s' % self.allNames
         EntityServiceAlchemy.__init__(self, UserMapped, QUser, all=self.queryAll, inactive=self.queryInactive)
-
+    
     def getAll(self, q=None, **options):
         '''
         @see: IUserService.getAll

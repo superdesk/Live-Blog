@@ -46,7 +46,8 @@ define(function()
             'Post/2': { href: 'Post/2', Content: 'B' },
             'Post/3': { href: 'Post/3', Content: 'C' },
             "Collaborator/1/Post/Published":{ 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/2', Content: 'B' }] },
-            "my/Collaborator/1/Post/Published":{ 'PostList': [] },
+            //"my/Collaborator/1/Post/Published":{ 'PostList': [] },
+            "Collaborator/1/Post/Published":{ 'PostList': [] },
             "Collaborator/1/Post/Unpublished":
             {
                 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/3', Content: 'C' }]
@@ -88,9 +89,11 @@ define(function()
                 
             },
             
-            "my/Person/1":
+            //"my/Person/1":
+            "Person/1":
             {
-                "Collaborator": {"href": "my/Person/1/Collaborator"}, 
+                //"Collaborator": {"href": "my/Person/1/Collaborator"}, 
+                "Collaborator": {"href": "Person/1/Collaborator"}, 
                 "FullName": "Test Person", 
                 "Id": "1", 
                 "FirstName": "Person", 

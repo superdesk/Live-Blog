@@ -57,7 +57,8 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
                 //source = source.data.root+source.data.url;
                 source = source.getUrl();
             }
-            var ret = source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
+            //var ret = source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
+            var ret = source;
             return ret;
         }
     }),

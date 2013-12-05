@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Config>
 	<Anonymous>
+		<Allows methods="POST">
+			<URL>Security/Authentication</URL>
+			<URL>Security/Login</URL>
+		</Allows>
+		
 		<Allows methods="GET">
 			<URL>/</URL>
+			<URL>Security/Login/*/Gateway</URL>
+			<URL>HR/User/*</URL>
 		</Allows>
 	</Anonymous>
+
 	<Right name="View all actions">
 		<Actions>
 			<!-- This node should contain actions to be used to generate the top navigation menu -->
@@ -12,15 +20,57 @@
 			<!-- This node should contain actions to be used inside the application as main modules (whole page for edit/add/etc.) -->
 			<Action path="modules" />
 			<!-- This node should contain actions to be used inside the dashboard of the application as main modules (whole page for edit/add/etc.) -->
-			<Action path="dashboard" parent="modules" />
+			<Action path="dashboard" parent="modules"/>
+			
+			<Action path="livedesk" parent="menu" label="Live Blogs"/>
+			<Action path="submenu" parent="menu.livedesk" script="content/livedesk/scripts/js/submenu-live-blogs.js"/>
+
+			<Action path="user" parent="menu" label="Users" navbar="/users" script="content/superdesk/user/scripts/js/menu.js"/>
+			<Action path="user" parent="modules" />
+
+			<Action path="update" parent="modules.user" script="content/superdesk/user/scripts/js/modules-update.js" />
+			<Action path="list" parent="modules.user" script="content/superdesk/user/scripts/js/list.js" />
+			<Action path="add" parent="modules.user" script="content/superdesk/user/scripts/js/modules-add.js" />
+
+			
+			<Action path="livedesk" parent="modules.dashboard" script="content/livedesk/scripts/js/dashboard.js"/>
+
+			<Action path="livedesk" parent="modules"/>
+			<Action path="add" parent="modules.livedesk" script="content/livedesk/scripts/js/add-live-blogs.js"/>
+			<Action path="edit" parent="modules.livedesk" script="content/livedesk/scripts/js/edit-live-blogs.js"/>
+			<Action path="blog-edit" parent="modules.livedesk" script="content/livedesk/scripts/js/edit-live-blogs.js"/>
+			<Action path="blog-publish" parent="modules.livedesk" script="content/livedesk/scripts/js/blog-publish.js"/>
+			<Action path="blog-post-publish" parent="modules.livedesk" script="content/livedesk/scripts/js/blog-post-publish.js"/>
+			<Action path="configure" parent="modules.livedesk" script="content/livedesk/scripts/js/configure-blog.js"/>
+			<Action path="manage-collaborators" parent="modules.livedesk" script="content/livedesk/scripts/js/manage-collaborators.js"/>
+			<Action path="manage-feeds" parent="modules.livedesk" script="content/livedesk/scripts/js/manage-feeds.js"/>
+			<Action path="archive" parent="modules.livedesk" script="content/livedesk/scripts/js/archive.js"/>
+
+
+			<Action path="media-archive" parent="menu" label="Media Archive" navbar="/media-archive" script="content/media-archive/scripts/js/menu.js"/>
+			
+			<Action path="media-archive" parent="modules"/>
+			<Action path="add" parent="modules.media-archive" script="content/media-archive/scripts/js/add-media.js"/>
+			<Action path="main" parent="modules.media-archive" script="content/media-archive/scripts/js/main.js"/>
+			<Action path="configure" parent="modules.media-archive" script="content/media-archive/scripts/js/configure-media-archive.js"/>
+			
+			<Action path="audio" parent="modules.media-archive" script="content/media-archive-audio/scripts/js/media-archive/"/>
+
+			<Action path="video" parent="modules.media-archive" script="content/media-archive-video/scripts/js/media-archive/"/>
+
+			<Action path="types" parent="modules.media-archive"/>
+			<Action path="image" parent="modules.media-archive.types" script="content/media-archive-image/scripts/js/media-archive/"/>
+
 		</Actions>
 	
 		<Allows methods="GET">
 			<URL>GUI/Action</URL>
 			<URL>GUI/Action/*</URL>
 			<URL>GUI/Action/*/SubAction</URL>
+			<URL>HR/User</URL>
+			<URL>HR/User/*</URL>
 		</Allows>
-	
+
 		<Description>Right containing all actions.
 		</Description>
 	</Right>

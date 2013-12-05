@@ -311,7 +311,8 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
         },
         getUploadEndpoint: function()
         {
-            return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
+            //return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
+            return $.superdesk.apiUrl+'/resources/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
         }
     });
     

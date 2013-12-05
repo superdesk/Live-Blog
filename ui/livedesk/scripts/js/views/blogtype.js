@@ -59,7 +59,7 @@
                 });
                 self.postPosts = new PostPostsView({
                     el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
-                    collection: self.model.get('Post')
+                    collection: self.model.get('BlogTypePost')
                 });
             });
         }

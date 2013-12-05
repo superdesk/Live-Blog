@@ -23,8 +23,8 @@ function( gizmo, $, Actions )
             var dfd = new $.Deferred,
                 self = this,
 
-                searchCache = function()
-                {
+                searchCache = function() {
+
                     var results = [], searchPath = path; 
                     //if( path.lastIndexOf('*') === path.length-1 ) searchPath = path.substr(0, path.length-1);
                     searchPath = searchPath.split('*').join('%').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1").replace(/%/g,'[\\w\\d\\-_]+');
@@ -35,17 +35,34 @@ function( gizmo, $, Actions )
                     return results;    
                 },
                 cachedResults = searchCache();
-                
+
             if( cachedResults.length === 0 )
             {
+                pathSplit = path.split('.*');
+                xfilterLevel = pathSplit.length - 1;
+                var actionId = pathSplit[0];
+                
+                //add actionId as part of the url - for the new XFilter
+                if (self.actions.href.data.url)
+                    self.actions.href.data.url += '/'+actionId+'/';
+
+                xfilterArg = ""
+                for (i=0; i<xfilterLevel; i++){xfilterArg += "ActionSubAction.Action.";}
+                xfilterArg += '*'
+                
                 self.actions
-                    .sync({data: {path: path}})
-                    .done(function()
-                    { 
+                    .xfilter(xfilterArg)
+                    .sync()
+                    .done(function() {
                         self.actions.each(function(){ self.cache[this.get('Path')] = this; });
                         dfd.resolve(searchCache());
                     })
                     .fail(function(){ dfd.reject(); });
+
+                //clear actionId from url
+                if (self.actions.href.data.url)
+                    self.actions.href.data.url = self.actions.href.data.url.replace('/'+actionId+'/', '');
+                
                 return dfd;
             }
             return dfd.resolve(cachedResults);
@@ -58,17 +75,32 @@ function( gizmo, $, Actions )
         {
             var dfd = new $.Deferred,
                 self = this;
+
             if( !self.cache[path] )
             {
-                var searchPath = path.substr(0, path.lastIndexOf('.'));
-                self.actions.sync({data: {path: searchPath+'.*'}})
+                var actionId = path.substr(0, path.lastIndexOf('.'));
+                
+                //add actionId as part of the url - for the new XFilter
+                if (self.actions.href.data.url)
+                    self.actions.href.data.url += '/'+actionId+'/';
+
+                self.actions
+                    .xfilter("ActionSubAction.Action.*")
+                    .sync()
                     .done(function()
                     { 
                         self.actions.each(function(){ self.cache[this.get('Path')] = this; });
                         self.cache[path] && dfd.resolve(self.cache[path]);
                         dfd.reject();
                     })
-                    .fail(function(){ dfd.reject(); });
+                    .fail(function(){ 
+                        dfd.reject(); 
+                    });
+
+                //clear actionId from url
+                if (self.actions.href.data.url)
+                    self.actions.href.data.url = self.actions.href.data.url.replace('/'+actionId+'/', '');
+
                 return dfd;
             }
             return dfd.resolve(self.cache[path]);
@@ -78,12 +110,15 @@ function( gizmo, $, Actions )
          * get a bunch of scripts from a path and initialize them
          * @param string path
          */
-        initApps: function(path)
-        {
-            var args = []; 
+        initApps: function(path) {
+
+            var args = [],
+                self = this; 
             Array.prototype.push.apply( args, arguments );
             args.shift();
-            return this.getMore(path).done(function(apps) {
+
+            getScripts = function() {
+                apps = self.actions._list;
                 for (var i = 0; i < apps.length; i++) {
                     var action = apps[i];
                     apps[i].get('Script') && require([apps[i].get('Script').href], function(app) {
@@ -92,7 +127,9 @@ function( gizmo, $, Actions )
                         args.pop();
                     });
                 }
-            });
+            }
+
+            return this.getMore(path).done(getScripts);
         },
         initApp: function(path)
         {

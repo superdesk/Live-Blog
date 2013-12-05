@@ -260,6 +260,7 @@ def defaultBlogs():
     '''
     Reads blogs data from blogs.csv (CSV) file
     '''
+    #import pdb;pdb.set_trace()
     blogs = {}
     blogsFile = join(dirname(abspath(__file__)), 'blogs.csv')
     with openURI(blogsFile, byteMode=False) as csvfile:

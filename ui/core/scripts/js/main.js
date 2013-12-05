@@ -79,6 +79,7 @@ require(['concat', 'backbone'], function(){
         router.route('', 'home', function() {
 	        $.superdesk.applyLayout('layouts/dashboard', {}, function() {
                 Action.initApps('modules.dashboard.*', $($.superdesk.layoutPlaceholder));
+                //Action.initApps('modules.*', $($.superdesk.layoutPlaceholder));
             });
         });
 	});

@@ -15,19 +15,19 @@
 	    // use this if you have some sort of server tech like mod_rewrite,
 	    // and also would be nice to add a <base /> tag
 	    
-		this.domain = '{server_url}';
+		this.domain = 'localhost:8080';
 		this.api_url = '//' + this.domain;
 		this.rest_url = '//' + this.domain + '/resources';
 		this.content_url =  '//' + this.domain + '/content';
-		this.lib_url = this.content_url + '/{lib_core}';
+		this.lib_url = this.content_url + '/core/';
 		this.lib_js_url = this.lib_url + 'scripts/js/%s';
 		this.lib_css_url = this.lib_url + 'styles/css/%s';
 		this.version = 4;
 		this.url_args = 'v=' + this.version;
 		// other
-		this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
+		this.lib_js_urn = 'core/scripts/js/'.replace(/\/+/g, '/');
 		
-		this.gui_url = '{gui}';
+		this.gui_url = '%s'
 		
 		var replace = function(format)
 		{
@@ -44,7 +44,8 @@
 		this.coreStyles = this.ccss = replace(this.lib_css_url);
 		
 		this.gui = replace(this.gui_url);
-		this.guiJs = replace(this.gui('%s/scripts/js/%s'));
+		//this.guiJs = replace(this.gui('%s/scripts/js/%s'));
+		this.guiJs = replace('%s/scripts/js/%s');
 		
 	};
 	</script>

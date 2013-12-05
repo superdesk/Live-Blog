@@ -124,7 +124,8 @@ define('gizmo', ['jquery', 'utils/class', 'jquery/loadingblock'], function($,Cla
                     if( source instanceof Url ) 
                     {
                         var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
-						a = $.ajax(self.href(source.get()), options);
+						//a = $.ajax(self.href(source.get()), options);
+                        a = $.ajax(self.href(source.getUrl()), options);
                     } 
                     else 
                     {
@@ -141,7 +142,9 @@ define('gizmo', ['jquery', 'utils/class', 'jquery/loadingblock'], function($,Cla
 
             return {
 
-                read: function(userOptions){ return reqFnc({}, self.readOptions, userOptions); },
+                read: function(userOptions){ 
+                    return reqFnc({}, self.readOptions, userOptions); 
+                },
 
                 update: function(data, userOptions){ return reqFnc(data, self.updateOptions, userOptions); },
 
@@ -746,102 +749,106 @@ define('gizmo', ['jquery', 'utils/class', 'jquery/loadingblock'], function($,Cla
         /*!
          * @param options
          */
+
         sync: function()
         {
             var self = this;
             self._setToUrl();
-            return (this.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
-                {					
-                    var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
-                     // important or it will infiloop
-                    for( var i=0; i < list.length; i++ )
-                    {
-                        var model = false;
-                        for( var j=0; j<count; j++ ) {
-							if( list[i].hash() == self._list[j].hash() )
-                            {
-								model = list[i];
-                                break;
+
+            syncActions = function(data)
+            {                      
+                var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
+                 // important or it will infiloop
+                for( var i=0; i < list.length; i++ )
+                {
+                    var model = false;
+                    for( var j=0; j<count; j++ ) {
+                        if( list[i].hash() == self._list[j].hash() )
+                        {
+                            model = list[i];
+                            break;
+                        }
+                    }
+                    if( !model ) {
+                        //console.log('is not in the collection');
+                        if(self.isCollectionDeleted(list[i])) {
+                            //console.log('is collection deleted');
+                            if( self.hasEvent('updates') ) {
+                                updates.push(list[i]);
                             }
-						}
-                        if( !model ) {
-                            //console.log('is not in the collection');
-                            if(self.isCollectionDeleted(list[i])) {
-                                //console.log('is collection deleted');
+                        }
+                        else {
+                            if( !list[i].isDeleted() ) {
+                                //console.log('is not delete');
+                                self._list.push(list[i]);
+                                changeset.push(list[i]);
+                                if( self.hasEvent('addings') ) {
+                                    addings.push(list[i]);
+                                }
+                            } else {
+                                //console.log('is delete');
                                 if( self.hasEvent('updates') ) {
                                     updates.push(list[i]);
                                 }
                             }
-                            else {
-                                if( !list[i].isDeleted() ) {
-    								//console.log('is not delete');
-                                    self._list.push(list[i]);
-    								changeset.push(list[i]);
-                                    if( self.hasEvent('addings') ) {
-                                        addings.push(list[i]);
-                                    }
-    							} else {
-                                    //console.log('is delete');
-                                    if( self.hasEvent('updates') ) {
-                                        updates.push(list[i]);
-                                    }
-    							}
-                            }
                         }
-                        else {
-                            //console.log('is in collection');
-                            if( self.hasEvent('updates') ) {
-                                updates.push(model);
+                    }
+                    else {
+                        //console.log('is in collection');
+                        if( self.hasEvent('updates') ) {
+                            updates.push(model);
+                        }
+                        if(self.isCollectionDeleted(model)) {
+                            self._list.splice(j,1);
+                            if( self.hasEvent('removeings') ) {
+                                removeings.push(model);
                             }
-                            if(self.isCollectionDeleted(model)) {
-                                self._list.splice(j,1);
-                                if( self.hasEvent('removeings') ) {
-                                    removeings.push(model);
-                                }
 
-                            } else {
-                                if( model.isDeleted()) {
-                                    model._remove();                                
-                                } else if( model.isChanged() ){
-    								changeset.push(model);
-    							}
-                                else {
-                                    model.on('delete', function(){ self.remove(this.hash()); })
-                                            .on('garbage', function(){ this.desynced = true; });
-                                }
+                        } else {
+                            if( model.isDeleted()) {
+                                model._remove();                                
+                            } else if( model.isChanged() ){
+                                changeset.push(model);
+                            }
+                            else {
+                                model.on('delete', function(){ self.remove(this.hash()); })
+                                        .on('garbage', function(){ this.desynced = true; });
                             }
                         }
                     }
-                    self.desynced = false;
-					/**
-					 * If the initial data is empty then trigger READ event
-					 * else UPDATE with the changeset if there are some
-					 */
-					if( ( count === 0) ){
-						//console.log('read');
+                }
+                self.desynced = false;
+                /**
+                 * If the initial data is empty then trigger READ event
+                 * else UPDATE with the changeset if there are some
+                 */
+                if( ( count === 0) ){
+                    //console.log('read');
 
-						self.triggerHandler('read',[self._list, attr]);
-                    } else {                    
-                        /**
-                         * Trigger handler with changeset extraparameter as a vector of vectors,
-                         * caz jquery will send extraparameters as arguments when calling handler
-                         */
-                        if( updates.length && self.hasEvent('updates') ) {
-                            self.triggerHandler('updates', [updates,attr]);
-                        }
-                        if( addings.length && self.hasEvent('addings') ) {
-                            self.triggerHandler('addings', [addings,attr]);
-                        }
-                        if( removeings.length && self.hasEvent('removeings') ) {
-                            self.triggerHandler('removeings', [removeings,attr]);
-                        }
-                        if( self.hasEvent('modified') ) {
-                            self.triggerHandler('modified', [list,attr]);
-                        }
-						self.triggerHandler('update', [changeset,attr]);
-					}
-                }));
+                    self.triggerHandler('read',[self._list, attr]);
+                } else {                    
+                    /**
+                     * Trigger handler with changeset extraparameter as a vector of vectors,
+                     * caz jquery will send extraparameters as arguments when calling handler
+                     */
+                    if( updates.length && self.hasEvent('updates') ) {
+                        self.triggerHandler('updates', [updates,attr]);
+                    }
+                    if( addings.length && self.hasEvent('addings') ) {
+                        self.triggerHandler('addings', [addings,attr]);
+                    }
+                    if( removeings.length && self.hasEvent('removeings') ) {
+                        self.triggerHandler('removeings', [removeings,attr]);
+                    }
+                    if( self.hasEvent('modified') ) {
+                        self.triggerHandler('modified', [list,attr]);
+                    }
+                    self.triggerHandler('update', [changeset,attr]);
+                }
+            };
+
+            return (this.href &&
+                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(syncActions));
         },
         /*!
          * overwrite this to add other logic in implementation
@@ -865,24 +872,35 @@ define('gizmo', ['jquery', 'utils/class', 'jquery/loadingblock'], function($,Cla
 		/**
 		 * should be override by implementation
          * is important that the parse deletes the list itself
+         *
+         * the method does a Breadth First Search in data object looking for an Array
+         * it then deletes the array from data and returns it
 		 */
 		parse: function(data)
 		{
 			var ret = data;
-			if( !Array.isArray(data) ) for( i in data )
-			{
-				if( $.isArray(data[i]) )
-				{
-					ret = data[i];
-                    /*!
-                     * Important that the data is delete from the list itself
-                     * if not deleted the list we could get a very big object
-                     */
-                    delete data[i];
-					break;
-				}
-			}
-			return ret;
+            
+            queue = [data];
+            while(queue.length > 0){
+                var obj = queue.pop();
+                for(var attr in obj){
+                    if( $.isArray(obj[attr])) {
+                        ret = obj[attr];
+                        /*!
+                         * Important that the data is delete from the list itself
+                         * if not deleted the list we could get a very big object
+                         */ 
+                        delete obj[attr];
+                        return ret;
+                    }
+                    
+                    else if($.isPlainObject(obj[attr])) {
+                        queue.push(obj[attr]);
+                    }
+                }
+            }
+
+            return ret;
 		},
         /*!
          * the list parser private method, to be called from sync

@@ -1,6 +1,5 @@
 define
 ([ 
-    
     'jquery',
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
