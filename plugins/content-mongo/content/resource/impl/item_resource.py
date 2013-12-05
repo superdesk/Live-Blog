@@ -30,3 +30,4 @@ class ItemResourceServiceMongo(EntityServiceMongo, IItemResourceService):
         Construct the content item service
         '''
         EntitySupportMongo.__init__(self, ItemResourceMapped, QItemResource)
+        

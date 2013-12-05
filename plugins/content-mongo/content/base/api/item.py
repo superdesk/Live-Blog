@@ -48,3 +48,4 @@ class IItemService(IEntityGetPrototype, IEntityQueryPrototype):
     '''
     Provides the service methods for items.
     '''
+    
