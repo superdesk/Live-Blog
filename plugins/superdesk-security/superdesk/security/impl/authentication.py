@@ -161,7 +161,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationService, IClea
             commitNow()  # We make sure that the delete has been performed
 
             sql = self.session().query(UserMapped)
-            sql = sql.filter(func.lower(UserMapped.Name) == func.lower(authentication.UserName)).filter(UserMapped.Active == True)
+            sql = sql.filter(func.lower(UserMapped.Name) == authentication.UserName.lower()).filter(UserMapped.Active == True)
             try: 
                 user = sql.one()
             except NoResultFound: user = None
