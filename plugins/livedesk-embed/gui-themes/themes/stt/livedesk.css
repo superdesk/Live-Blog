@@ -198,6 +198,14 @@
     background-image: url("img/soundcloud-16px.png");
 }  
 
+#livedesk-root .result-header .post_info figure {
+    overflow: hidden;
+}
+#livedesk-root .result-header .post_info figure img {
+    height: 48px;
+    max-width: 48px !important;
+}
+
 
 .liveblog-post-list li .result-content a .result-text {
 
