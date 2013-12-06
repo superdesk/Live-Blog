@@ -14,7 +14,6 @@ set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%ally-http-asyncore-server
 set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%ally-http-mongrel2-server
 set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%service-cdm
 set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%service-gateway
-set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%service-gateway-recaptcha
 
 SET ALLYPLUG=%ALLYPATH%plugins\
 
