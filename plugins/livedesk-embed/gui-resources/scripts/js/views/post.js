@@ -15,19 +15,20 @@
 			{
 				var self = this;
 				self.model
-						.on('read update', function(evt, data){
-								/**
-								 * Quickfix.
-								 * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
-								 */
-				   				if( self._parent.collection.isCollectionDeleted(self.model) )
-									return;
-								self.render(evt, data);
-						})
-						.on('delete', self.remove, self)
-						//.xfilter(self.xfilter)
-						//.sync();
-				self.render();
+          .on('read update', function(evt, data){
+            /**
+             * Quickfix.
+             * @TODO: make the isCollectionDelete check in gizmo before triggering the update.
+             */
+            if( self._parent.collection.isCollectionDeleted(self.model) ){
+              return;
+            }
+            self.render(evt, data);
+          })
+          .on('delete', self.remove, self)
+          //.xfilter(self.xfilter)
+          //.sync();
+        self.render();
 			},
 			remove: function(evt)
 			{
@@ -35,11 +36,11 @@
 				self._parent.removeOne(self);
 				self.el.remove();
 				self.model.off('read update delete');
-				return self;			
-			},	
+				return self;
+			},
 			render: function(evt, data)
 			{
-				var self = this, 
+				var self = this,
 					data = self.model.feed(true),
 					order = parseFloat(self.model.get('Order')),
 					publishedOn, createdOn, baseTheme, shortItem;
@@ -49,44 +50,45 @@
 				}
 
 				if(data.Meta) {
-				data.Meta = $.parseJSON(data.Meta);
-				if ( data.AuthorName ) {
-					data.Meta.Creator = { 'Name': data.AuthorName };
-				}
-				}
-				if(data.Meta && data.Meta.annotation) {
-					if(data.Meta.annotation[1] === null) {
-						data.Meta.annotation = data.Meta.annotation[0];
-						data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
-					}
-					if ( typeof data.Meta.annotation !== 'string') {
-						if(data.Meta.annotation[0]) {
-							var aux = data.Meta.annotation;
-							data.Meta.annotation = {
-								'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-								'after': $.trimTag(['<br>', '<br />'], aux[1])
-							}
-						} else {
-							data.Meta.annotation = {
-								'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before), 
-								'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
-							}					
-						}
-					} else {
-						data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
-					}
-				}
+          data.Meta = $.parseJSON(data.Meta);
+          if ( data.AuthorName ) {
+            data.Meta.Creator = { 'Name': data.AuthorName };
+          }
+        }
+        if(data.Meta && data.Meta.annotation) {
+          if(data.Meta.annotation[1] === null) {
+            data.Meta.annotation = data.Meta.annotation[0];
+            data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
+          }
+          if ( typeof data.Meta.annotation !== 'string') {
+            if(data.Meta.annotation[0]) {
+              var aux = data.Meta.annotation;
+              data.Meta.annotation = {
+                'before': $.trimTag(['<br>', '<br />'], aux[0]),
+                'after': $.trimTag(['<br>', '<br />'], aux[1])
+              }
+            } else {
+              data.Meta.annotation = {
+                'before': $.trimTag(['<br>', '<br />'], data.Meta.annotation.before),
+                'after': $.trimTag(['<br>', '<br />'], data.Meta.annotation.after)
+              }
+            }
+          } else {
+            data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
+          }
+        }
 
-			if ( data.Author.Source.Type.Key === 'smsblog') {
-				//ugly hack is ugly
-				data.item = "source/sms";
-			} else {
-				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
-					data.item = "posttype/"+data.Type.Key;
-				}
-				else if(data.Type)
-					data.item = "source/"+data.Author.Source.Name;
-			} 
+        if ( data.Author.Source.Type && data.Author.Source.Type.Key === 'smsblog') {
+          //ugly hack is ugly
+          data.item = "source/sms";
+        } else {
+          if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
+            data.item = "posttype/"+data.Type.Key;
+          }
+          else if(data.Type){
+            data.item = "source/"+data.Author.Source.Name;
+          }
+        }
 				if(data.CreatedOn) {
 					createdOn = new Date(Date.parse(data.CreatedOn));
 					data.CreatedOn = createdOn.format(_('post-date'));
@@ -99,7 +101,7 @@
 				}
 				if(data.Content && liveblog.adminServer) {
 					data.Content = data.Content.replace(liveblog.adminServer,livedesk.frontendServer);
-				}			
+				}
 				if(data.Author.Source.IsModifiable ===  'True' || data.Author.Source.Name === 'internal') {
 					if(data.Type.Key === 'advertisement') {
 						self.item = "/item/posttype/infomercial";
@@ -126,7 +128,7 @@
 					 * @ENDTODO
 					 */
 					data.Meta.AuthorName = _('%(full_name)s commentator').format({"full_name": cleanName});
-				}	
+				}
 				shortItem = self.item;
 				self.item = (dust.defined('theme'+self.item))? 'theme'+self.item: 'themeBase'+self.item;
 				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
@@ -134,7 +136,7 @@
 				$.dispatcher.triggerHandler('post-view.render-' + shortItem, self);
 				$.each(self.data, function(key, value){
 					if($.isFunction(value)){
-						data[key] = value.call(self, data);	
+						data[key] = value.call(self, data);
 					} else {
 						data[key] = value;
 					}
@@ -146,7 +148,7 @@
 					 */
 					var sharelink = $('.sf-share', self.el);
 					sharelink.on(self.getEvent('click'), function(evt){
-					    evt.preventDefault();
+            evt.preventDefault();
 						var share = $(this);
 						var added = share.attr('data-added');
 						if ( added != 'yes') {
@@ -170,7 +172,6 @@
 								fburl += '&p[images][' + i + ']=' + src;
 								i ++;
 							});
-							
 
 							var socialParams = {
 								'fbclick': "$.socialShareWindow('" + fburl + "',400,570); return false;",
@@ -183,7 +184,7 @@
 							}
 							$.tmpl('themeBase/item/social-share', socialParams, function(e, o){
 								share.after(o);
-								share.attr('data-added', 'yes');	
+								share.attr('data-added', 'yes');
 							});
 						}
 						var propName = 'visibility',
@@ -201,7 +202,7 @@
 					 */
 					 $.dispatcher.triggerHandler('post-view.rendered-after-' + shortItem, self);
 				});
-						
+
 			}
 		});
 		$.dispatcher.triggerHandler('post-view.class',PostView);
