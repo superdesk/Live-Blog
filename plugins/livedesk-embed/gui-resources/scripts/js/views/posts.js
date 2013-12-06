@@ -23,7 +23,7 @@ define([
 								   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
 								   'IsModified, AuthorImage,' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
-								   'Meta, IsPublished, Creator.FullName'
+								   'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, Author.Source.Type.Key'
 				}
 			},
 			pendingAutoupdates: [],
