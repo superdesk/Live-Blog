@@ -78,8 +78,6 @@
             var self = this;
             // make mediaUrl a global url in case it is not
             var mediaUrl = self.el.find('[name="MediaUrl"]').val();
-
-            var EmbedConfig = {
             if ( mediaUrl.indexOf("http://") != 0 && mediaUrl.indexOf("https://") != 0 && mediaUrl.indexOf("//") != 0 ) {
                 mediaUrl = "//" + mediaUrl;
             }
