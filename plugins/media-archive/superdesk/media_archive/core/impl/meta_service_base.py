@@ -225,7 +225,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         '''
         Build the sql alchemy based on the provided data.
         '''
-        sql = self.session().query(self.MetaInfo)
+        sql = self.session().query(self.MetaInfo.Id)
         if dataId: sql = sql.filter(self.MetaInfo.MetaData == dataId)
         if languageId: sql = sql.filter(self.MetaInfo.Language == languageId)
         if qi:
