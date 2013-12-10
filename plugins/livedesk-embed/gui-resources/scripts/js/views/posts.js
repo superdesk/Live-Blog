@@ -5,6 +5,7 @@ define([
 	'dispatcher'
 ], function($, Gizmo, PostViewDef) {
 	return function(){
+		"use strict";
 		var PostView = PostViewDef(),
 			PostsView = Gizmo.View.extend({
 			events: {},
@@ -23,7 +24,7 @@ define([
 								   'AuthorName, Author.Source.Name, Author.Source.Id, Author.Source.IsModifiable,' +
 								   'IsModified, AuthorImage,' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id,' +
-								   'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, Author.Source.Type.Key'
+								   'Meta, IsPublished, Creator.FullName, Author.Source.Type.Key'
 				}
 			},
 			pendingAutoupdates: [],
@@ -141,7 +142,7 @@ define([
 					for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
 						this.addOne(this.pendingAutoupdates[i]);
 					}
-					$.dispatcher.triggerHandler('posts-view.added-pending',self);
+					$.dispatcher.triggerHandler('added-pending.posts-view',self);
 	            	self.triggerHandler('addingsauto',[self.pendingAutoupdates]);
 					self.pendingAutoupdates = [];
 				}
@@ -152,7 +153,7 @@ define([
 				var self = this;
 				if(self._flags.autoRender) {
 					self.addAllPending(evt);
-					$.dispatcher.triggerHandler('posts-view.added-auto',self);
+					$.dispatcher.triggerHandler('added-auto.posts-view',self);
 				} else {
 					self._parent.showNewPosts(self.pendingAutoupdates.length);
 				}
@@ -165,17 +166,17 @@ define([
 					this.addOne(data[i]);
 				}
 				if(data.length)
-					$.dispatcher.triggerHandler('posts-view.addAll',self);
+					$.dispatcher.triggerHandler('add-all.posts-view',self);
 			},
 
 			render: function(evt, data) {		
 				var self = this;
 				self.collection.triggerHandler('rendered');
 				self.addAll(evt, data);
-				$.dispatcher.triggerHandler('posts-view.rendered',self);
+				$.dispatcher.triggerHandler('rendered-after.posts-view',self);
 			}
 		});
-		$.dispatcher.triggerHandler('posts-view.class',PostsView);
+		$.dispatcher.triggerHandler('class.posts-view',PostsView);
 		return PostsView;
 	}
 });

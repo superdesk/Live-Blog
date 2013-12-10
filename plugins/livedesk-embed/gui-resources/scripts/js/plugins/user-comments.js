@@ -12,7 +12,7 @@ define([
 			$.dispatcher.on('blog-view.rendered-after', function(){
 				var view = this;
 				$('[data-gimme="blog.comment"]',view.el).hide();
-			});	
+			});
 			return;
 		}
 		$.dispatcher.on('blog-view.class', function(){

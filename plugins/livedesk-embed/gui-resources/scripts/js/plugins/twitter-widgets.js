@@ -10,8 +10,10 @@ define([
 	'twitterWidgets'
 ], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
-		$.dispatcher.on('post-view.rendered-after-/item/source/twitter', function(){
+		$.dispatcher.on('rendered-after.post-view', function(){
 			var self = this;
+			if(self.shortItem != '/item/source/twitter')
+				return;
 			if(!self._parent._waypoints)
 				self._parent._waypoints = [];
 			self._parent._waypoints.push(self.el);
@@ -31,7 +33,7 @@ define([
 				context: self._parent.el
 			});
 		});
-		$.dispatcher.on('posts-view.rendered', function(){
+		$.dispatcher.on('rendered-after.posts-view', function(){
 			var self = this;
 			if( !self._waypoints )
 				return;

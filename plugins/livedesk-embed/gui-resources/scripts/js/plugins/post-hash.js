@@ -9,7 +9,7 @@ define([
 			href = location.href,
 			hash = 'liveblog',
 			hashMark = '?';
-		$.dispatcher.on('post-view.class', function(evt){
+		$.dispatcher.on('class.post-view', function(evt){
 			var view = this.prototype;
 			view.getHash = function(options){
 				var self = this,
@@ -29,7 +29,7 @@ define([
 			}
 			view.data.permalink = view.getHash;
 		});
-		$.dispatcher.on('posts-view.class', function(evt){
+		$.dispatcher.on('class.posts-view', function(evt){
 			var view = this.prototype;
 			//view._config.hashIdentifier = hash;
 			/*!

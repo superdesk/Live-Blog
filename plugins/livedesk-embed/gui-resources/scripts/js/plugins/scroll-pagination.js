@@ -8,7 +8,7 @@ define([
 	return plugins['scroll-pagination'] = function(config) {
 		
 		buttonPaginationPlugin(config);
-		$.dispatcher.on('blog-view.class', function(evt){
+		$.dispatcher.on('class.blog-view', function(evt){
 			var view = this.prototype;
 			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" }
 			view.toTop = function(evt) {
@@ -16,7 +16,7 @@ define([
 				$('[data-gimme="posts.list"]', self.el).scrollTop(0);
 			}
 		});
-		$.dispatcher.on('blog-view.rendered-before', function(evt){
+		$.dispatcher.on('rendered-before.blog-view', function(evt){
 			var view = this;
 
 			$('[data-gimme="posts.list"]',view.el)
@@ -24,12 +24,12 @@ define([
 				.css('overflow-x','hidden')
 				.css('height', '500px')
 		});
-		$.dispatcher.on('posts-view.rendered',function(){
+		$.dispatcher.on('rendered-after.posts-view',function(){
 			var view = this;
-			view.on('addingsauto addings remove', view.scrollRefresh, view)
+			view.on('addingsauto addings remove', view.scrollRefresh, view);
 			view.scrollRefresh();
 		});
-		$.dispatcher.on('posts-view.class', function(evt){
+		$.dispatcher.on('class.posts-view', function(evt){
 			var view = this.prototype;
 
 			view.events[''] = { "scroll": "scrollFn"}

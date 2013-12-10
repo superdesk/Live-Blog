@@ -131,7 +131,8 @@
 				self.item = (dust.defined('theme'+self.item))? 'theme'+self.item: 'themeBase'+self.item;
 				data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
 				data.frontendServer = liveblog.frontendServer;
-				$.dispatcher.triggerHandler('post-view.render-' + shortItem, self);
+				self.shortItem = shortItem;
+				$.dispatcher.triggerHandler('render.post-view', self);
 				$.each(self.data, function(key, value){
 					if($.isFunction(value)){
 						data[key] = value.call(self, data);	
@@ -199,12 +200,12 @@
 					/*!
 					 * @END TODO
 					 */
-					 $.dispatcher.triggerHandler('post-view.rendered-after-' + shortItem, self);
+					 $.dispatcher.triggerHandler('rendered-after.post-view', self);
 				});
 						
 			}
 		});
-		$.dispatcher.triggerHandler('post-view.class',PostView);
+		$.dispatcher.triggerHandler('class.post-view',PostView);
 		return PostView;
 	}
 });
