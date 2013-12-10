@@ -220,8 +220,20 @@ define([
             };
         });
 
-        $('#area-main').tmpl('livedesk>manage-feeds');
-        $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
-        angular.bootstrap(document, ['manageFeeds']);        
+        var myBlog = Gizmo.Auth(new Gizmo.Register.Blog(blogHref));
+        myBlog.sync().done(function(data){
+            var myData = {
+                Title: data.Title, 
+                Id: data.Id,
+                ui: {
+                    content: 'is-content=1', 
+                    submenu: 'is-submenu', 
+                    submenuActive4: 'active'    
+                }
+            }
+            $('#area-main').tmpl( 'livedesk>manage-feeds', myData );
+            $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
+            angular.bootstrap(document, ['manageFeeds']);        
+        });
     }
 });
