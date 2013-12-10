@@ -11,7 +11,7 @@ define([
 		var propName = 'visibility',
 			propValue = { 'show': 'visible', 'hide': 'hidden' };
 
-		$.dispatcher.on('posts-view.class', function(evt){
+		$.dispatcher.on('class.posts-view', function(evt){
 			var view = this.prototype;
 			view.events['[data-gimme="post.share-permalink"]'] = { "click focus": "permalinkInput" }
 			view.permalinkInput = function(evt){

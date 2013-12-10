@@ -4,6 +4,7 @@ define([
 	'plugins/permanent-link',
 	'plugins/user-comments',
 	'plugins/twitter-widgets',
+	'plugins/citizen',
 	'css!theme/liveblog'
 ], function(){
 	return {
@@ -11,6 +12,8 @@ define([
 		plugins: [ 'wrappup-toggle', 
 					'scroll-pagination', 
 					'permanent-link',
-					'user-comments' ]
+					'user-comments',
+					'twitter-widgets',
+					'citizen' ]
 	}
 });

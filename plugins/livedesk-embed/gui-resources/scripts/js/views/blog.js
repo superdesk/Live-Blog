@@ -90,7 +90,7 @@ define([
 				render: function(){
 					var self = this;
 					self.el.tmpl('themeBase/container', self.model.feed(), function(){
-						$.dispatcher.triggerHandler('blog-view.rendered-before', self);
+						$.dispatcher.triggerHandler('rendered-before.blog-view', self);
 						self.update();
 						self.postsView = new PostsView({ 
 							el: $('[data-gimme="posts.list"]',self.el),
@@ -99,7 +99,7 @@ define([
 						});
 						self.ensureStatus();
 						self.updateStatus();
-						$.dispatcher.triggerHandler('blog-view.rendered-after', self);
+						$.dispatcher.triggerHandler('rendered-after.blog-view', self);
 					});
 				},
 				update: function(){
@@ -133,7 +133,7 @@ define([
 					$('[data-gimme="blog.description"]', self.el).html(self.model.get('Description'));
 				}
 			});
-		$.dispatcher.triggerHandler('blog-view.class',BlogView);
+		$.dispatcher.triggerHandler('class.blog-view',BlogView);
 		return BlogView;
 	}
 });

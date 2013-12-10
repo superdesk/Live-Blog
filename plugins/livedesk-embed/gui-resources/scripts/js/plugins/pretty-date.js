@@ -36,8 +36,8 @@ define(['jquery', 'livedesk-embed/dispatcher' ], function($){
 	}
 	return function(config) {
 		if (config && config.PrettyDate) {
-			var interval;
-			$.dispatcher.on('after-render', function(){
+			var interval;  
+			$.dispatcher.on('rendered-after.blog-view', function(){
 					var self = this,
 						render = function(){
 							self.el.find('[data-date]').each(function(){

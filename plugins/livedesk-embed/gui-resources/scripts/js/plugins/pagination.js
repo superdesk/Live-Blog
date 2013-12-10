@@ -4,7 +4,7 @@ define([
 	'dispatcher'
 ], function($, plugins){
 	return plugins['pagination'] = function(config) {
-		$.dispatcher.on('posts-view.class', function(evt){
+		$.dispatcher.on('class.posts-view', function(evt){
 			var view = this.prototype;
 			if(liveblog.limit)
 				view._config.collection.limit = parseInt(liveblog.limit);
@@ -32,7 +32,7 @@ define([
 				if(self._flags.loadingNextPage || self._flags.atEnd ){
 					return;	
 				}
-				$.dispatcher.triggerHandler('posts-view.loading', self);
+				$.dispatcher.triggerHandler('loading.posts-view', self);
 				self._flags.loadingNextPage = true;
 				$.each(self._config.collection, function(key, value) {
 					if($.isArray(value))
@@ -48,7 +48,7 @@ define([
 								self._flags.atEnd = true;
 							}
 							self._flags.loadingNextPage = false;
-							$.dispatcher.triggerHandler('posts-view.loaded', self);
+							$.dispatcher.triggerHandler('loaded.posts-view', self);
 						});
 			}
 			view.hasNextPage = function(){

@@ -8,12 +8,11 @@ define([
 	delete plugins['button-pagination'];
 	return plugins['scroll-pagination'] = function(config) {
 		buttonPaginationPlugin(config);
-		$.dispatcher.on('blog-view.class', function(evt){
+		$.dispatcher.on('class.blog-view', function(evt){
 			var view = this.prototype;			
 		});
-		$.dispatcher.on('blog-view.rendered-before', function(evt){
+		$.dispatcher.on('rendered-before.blog-view', function(evt){
 			var self = this;
-			console.log($('[data-gimme="posts.list"]', self.el));
 			new IScroll('#wrapper', {
 				bounceEasing: 'elastic',
 				bounceTime: 1200,

@@ -15,7 +15,7 @@ define([
 		var propName = 'display',
 			propValue = { 'show': 'block', 'hide': 'none' };
 
-		$.dispatcher.on('blog-view.class', function(evt){
+		$.dispatcher.on('class.blog-view', function(evt){
 			var view = this.prototype;
 			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" }
 			view.toTop = function(evt) {
@@ -25,7 +25,7 @@ define([
 			}
 		});
 
-		$.dispatcher.on('posts-view.rendered', function(evt){
+		$.dispatcher.on('rendered-after.posts-view', function(evt){
 			var view = this,
 				data = {};
 			data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
@@ -40,7 +40,7 @@ define([
 					.appendTo('[data-gimme="posts.list"]',view.el);
 			});
 		});
-		$.dispatcher.on('posts-view.class', function(){
+		$.dispatcher.on('class.posts-view', function(){
 			var view = this.prototype;
 			view.events['[data-gimme="posts.nextPage"]'] = {
 				'click': 'buttonNextPage'
@@ -85,7 +85,9 @@ define([
 				var self = this,
 					item = $('[data-gimme="posts.beforePage"]',self.el);
 				item.addClass('loading');
-				$(self.el).html('');
+				$(self.el)
+					.children(':not([data-gimme="posts.beforePage"],[data-gimme="posts.nextPage"])')
+						.remove();
 				self._flags.beforePage = false;
 				self.beforePage().done(function(){
 					item.removeClass('loading');
@@ -94,7 +96,7 @@ define([
 
 			}
 		});
-		$.dispatcher.on('posts-view.rendered', function(){
+		$.dispatcher.on('rendered-after.posts-view', function(){
 			this.checkNextPage();
 			this.checkBeforePage();
 		});
