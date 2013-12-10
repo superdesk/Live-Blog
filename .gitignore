@@ -12,13 +12,11 @@
 *.pyc
 /distribution/components/*.egg
 /distribution/plugins/*.egg
-*.properties
-*.properties.bak
+*.properties*
 .settings
 
 .project
-.pydevproject
-.pydevproject~
+.pydevproject*
 /.metadata/
 
 *.egg-info/
