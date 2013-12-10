@@ -79,17 +79,7 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         return sqlLimit.all()
         
 
-    def getByBlog(self, blogId, offset=None, limit=None, detailed=False, q=None):
-        '''
-        @see IBlogSyncService.getBlogSyncByBlogAndSource
-        '''
-        try:
-            sql = self.session().query(BlogSyncMapped)
-            sql = sql.filter(BlogSyncMapped.Blog == blog)
-            sql = sql.filter(BlogSyncMapped.Source ==source)
-            return sql.one()
-        except: return None
-        
+    def getByBlog(self, blogId, offset=None, limit=None, detailed=False, q=None):        
         '''
         @see IBlogSyncService.getByBlog
         '''
@@ -111,3 +101,10 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
+    
+    def update(self, entity):
+        '''
+        @see: IBlogSyncService.update
+        '''
+        EntityServiceAlchemy.update(self, entity)
+        self.session().commit()
