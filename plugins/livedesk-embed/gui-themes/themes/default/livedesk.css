@@ -91,6 +91,7 @@
     -webkit-box-sizing: border-box;
     -o-box-sizing: border-box;
     -moz-box-sizing: border-box;
+    float:none;
 }
 .liveblog-post-list li .attributes  {
     font-size: 11px ;
@@ -223,10 +224,13 @@
     line-height: 18px;
 }
 
+
 .instagramservice .result-content a .result-text p,
 .flickrservice .result-content .result-text p {
     padding: 5px 0;
     margin: 0;
+    overflow: hidden;
+    word-break: break-word;
 }
 
 
