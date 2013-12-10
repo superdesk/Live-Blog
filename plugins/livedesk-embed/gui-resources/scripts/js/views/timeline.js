@@ -388,6 +388,7 @@ define([
 			self.el.tmpl('theme/container');
 			self.renderBlog();
 			self.ensureStatus();
+      self.updateStatus();
 			data = postPublished._list;
 			postPublished.total = postPublished.listTotal;
 			self.toggleMoreVisibility();
