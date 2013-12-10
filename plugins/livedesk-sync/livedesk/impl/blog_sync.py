@@ -106,5 +106,5 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         '''
         @see: IBlogSyncService.update
         '''
-        self.super().update(self, entity)
+        EntityServiceAlchemy.update(self, entity)
         self.session().commit()
