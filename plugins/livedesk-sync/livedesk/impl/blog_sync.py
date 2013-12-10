@@ -21,8 +21,11 @@ from sqlalchemy.sql.expression import or_
 from livedesk.meta.blog import BlogSourceDB
 from livedesk.meta.blog_sync import BlogSyncMapped
 from ally.container import wire
+import logging
 
 # --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 @setup(IBlogSyncService, name='blogSyncService')
 class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
@@ -102,9 +105,12 @@ class BlogSyncServiceAlchemy(EntityServiceAlchemy, IBlogSyncService):
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
         return sqlLimit.all()
     
-    def update(self, entity):
+    def getById(self, id):
         '''
-        @see: IBlogSyncService.update
+        @see: IEntityGetService.getById
         '''
-        EntityServiceAlchemy.update(self, entity)
-        self.session().commit()
+        blogSync = EntityServiceAlchemy.getById(self, id)
+        log.info('read Id=%d, Auto=%s' % (blogSync.Id, blogSync.Auto))
+        return blogSync
+        
+    
