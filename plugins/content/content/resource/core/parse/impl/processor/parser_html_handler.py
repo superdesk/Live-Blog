@@ -10,13 +10,44 @@ Parses HTML content and generates pre-formatting indexes.
 '''
 
 import logging
+from io import BytesIO
+from codecs import getwriter
 from ally.design.processor.handler import HandlerProcessor
-from content.resource.core.parse.impl.parser import Parser
 from ally.design.processor.execution import Chain
+from ally.design.processor.context import Context
+from ally.design.processor.attribute import defines, requires
+from ally.support.util_io import IInputStream
+from content.resource.core.parse.impl.html_parser import TextItemHMTLParser
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------
+
+class Parser(Context):
+    '''
+    Context used by the content parser processors. 
+    '''
+    # ---------------------------------------------------------------- Defined
+    textPlain = defines(IInputStream, doc='''
+    The text content with the formatting removed
+    ''')
+    formatting = defines(dict, doc='''
+    @rtype: dict
+    Dictionary of index:formatting tag pairs identifying formatting tags in the
+    plain text content.
+    ''')
+    # ---------------------------------------------------------------- Required
+    content = requires(IInputStream, doc='''
+    The content to be parsed.
+    ''')
+    charSet = requires(str, doc='''
+    The content character set
+    ''')
+    type = requires(str, doc='''
+    The content mime type
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -37,8 +68,17 @@ class ParserHTMLHandler(HandlerProcessor):
         '''
         assert isinstance(chain, Chain), 'Invalid chain %s' % chain
         assert isinstance(parser, Parser), 'Invalid parser %s' % parser
-        
-        if not parser.content: return
-        # TODO: implement
 
-        print('in parser')
+        if not parser.content: return
+        assert isinstance(parser.content, IInputStream), 'Invalid content %s' % parser.content
+        if not parser.type or parser.type.lower() != 'text/html': return
+        
+        outb = BytesIO()
+        outw = getwriter(parser.charSet if parser.charSet else 'utf-8')(outb)
+
+        parserHTML = TextItemHMTLParser(strict=False)
+        parser.formatting = parserHTML.parse(parser.content, parser.charSet if parser.charSet else 'utf-8', outw)
+        
+        outb.seek(0)
+        
+        parser.textPlain = outb

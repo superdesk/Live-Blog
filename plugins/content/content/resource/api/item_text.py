@@ -23,6 +23,7 @@ class ItemText(ItemResource):
     Provides the text item model.
     '''
     Content = str
+    MimeType = str
 
 # --------------------------------------------------------------------
 
