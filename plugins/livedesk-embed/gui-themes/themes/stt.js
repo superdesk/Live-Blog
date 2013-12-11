@@ -1,5 +1,5 @@
 requirejs.config({
-	urlArgs: 'v=103',
+	urlArgs: 'v=104',
 	paths: {
 		'theme': 'livedesk-embed/themes/stt'
 	}
@@ -10,7 +10,7 @@ require(['stt.min'], function() {
 		for(name in livedesk.theme) {
 			define('tmpl!theme/'+name, ['dust/compiler'], function(dust){
 				dust.loadSource(dust.compile(livedesk.theme[name],'theme/'+name));
-			});		
+			});
 		}
 		function loadCss(url) {
 			var link = document.createElement("link");
@@ -19,7 +19,7 @@ require(['stt.min'], function() {
 			link.href = url;
 			document.getElementsByTagName("head")[0].appendChild(link);
 		}
-		loadCss(require.toUrl('theme/livedesk.css'));//'css!theme/livedesk', 
+		loadCss(require.toUrl('theme/livedesk.css'));//'css!theme/livedesk',
 		require(['livedesk-embed/main']);
 	});
 });
