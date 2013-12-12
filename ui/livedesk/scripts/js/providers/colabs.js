@@ -107,10 +107,10 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
         
         remove: function()
         {
-            var pos = this.colab.get('PostUnpublished')._list.indexOf(this.model),
+            var pos = this.colab.get('UnpublishedPost')._list.indexOf(this.model),
                 pos2 = this.colab._viewModels.indexOf(this.model.get('Id'));
             if( pos !== -1 )
-                this.colab.get('PostUnpublished')._list.splice(pos,1);
+                this.colab.get('UnpublishedPost')._list.splice(pos,1);
             if( pos2 !== -1 )
                 this.colab._viewModels.splice(pos2,1);
             this.el.remove();
@@ -193,7 +193,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     self.setupHeader.call(self, this);
                     self.setupColabStream.call(self, this); 
                 });
-                collaborators.xfilter('User.Id', 'User.FullName', 'User.EMail', 'PostUnpublished').sync();
+                collaborators.xfilter('User.Id', 'User.FullName', 'User.EMail', 'UnpublishedPost').sync();
             });
             
             $('.'+providers.colabs.className)
@@ -217,9 +217,9 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             this.colabsList.each(function()
             {
                 var colab = this,
-                    post = colab.get('PostUnpublished');
+                    post = colab.get('UnpublishedPost');
                 // get post list and sync it with the server
-                this.get('PostUnpublished')
+                this.get('UnpublishedPost')
                     .xfilter('*,Author.Source.*,Creator.*')
                     .sync({data: {'cId.since': this._latestPost}, global: false})
                     .done(function(data){ colab._latestPost = parseInt(data.lastCId);self.readPostsHandle.call(post, colab, $.noop, self); });
@@ -328,7 +328,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     .sync();
 
                     // get posts for each collaborator
-                    var post = colab.get('PostUnpublished');
+                    var post = colab.get('UnpublishedPost');
                     post.xfilter('*,Author.Source.*,Creator.*')
                         .sync()
                         .done(function(data){

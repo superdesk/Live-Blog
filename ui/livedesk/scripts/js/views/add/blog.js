@@ -113,7 +113,7 @@
                 };
             self.model.
                 set(data).
-                xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type').
+                xfilter('Blog.Id,Blog.Description,Blog.Title,Blog.CreatedOn,Blog.Creator.*,Blog.Language,Blog.Type').
                 sync().
                 done(function(liveBlog) {
                     self.el.modal('hide');

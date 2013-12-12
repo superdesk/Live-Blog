@@ -11,7 +11,7 @@ define([
             self.collection
                 .off('read update', self.render)
                 .on('read update', self.render, self)
-                .xfilter('*')
+                .xfilter('Post.*')
                 .sync();
             //console.log('posts: ',self.collection._clientId)
         },

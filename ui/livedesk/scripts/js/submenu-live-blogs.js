@@ -40,7 +40,7 @@ define
         {
             this.model.href = localStorage.getItem('superdesk.login.selfHref')+'/Blog?isOpen=true';
             this.model._list = [];
-            this.model.xfilter('Title, Id').sync();
+            this.model.xfilter('Blog.Title, Blog.Id').sync();
         },
 
         render: function()

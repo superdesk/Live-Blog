@@ -233,7 +233,7 @@ define('providers/edit', [
 						self.blog.get('Type').off('read.edit update.edit');
 						self.blog.get('Type').get('Post')
 							.one('read update', function(evt){ self.addBlogTypePosts(evt);})
-							.xfilter('Id,Name,Content,Meta').sync();
+							.xfilter('Post.Id,Post.Name,Post.Content,Post.Meta').sync();
 					})
 					.sync();
 

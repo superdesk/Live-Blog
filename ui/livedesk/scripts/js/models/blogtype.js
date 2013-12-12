@@ -12,7 +12,7 @@ define([
     		var self = this,
                 ret = self.set(data);
             if(self._new) {
-                return ret.xfilter('Id').sync().done(function(data){
+                return ret.xfilter('BlogType.Name,BlogType.BlogTypePost.*').sync().done(function(data){
                     self._parseHash(data);
                     self.Class.triggerHandler('add', self);
                 });

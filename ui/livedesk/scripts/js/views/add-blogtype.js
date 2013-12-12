@@ -37,7 +37,7 @@
         init: function(){
             var self = this;
             if( !self.model ) {
-                self.model = Gizmo.Auth(new Gizmo.Register.BlogType({ Post: []}));
+                self.model = Gizmo.Auth(new Gizmo.Register.BlogType({ BlogTypePost: []}));
             }
             self.render();
         },
@@ -47,7 +47,7 @@
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
                 self.postPosts = new PostsView({
                     el: self.el.find('.blogtype-content'),
-                    collection: self.model.get('Post'),
+                    collection: self.model.get('BlogTypePost'),
                     _parent: self
                 });
             });
@@ -61,20 +61,20 @@
         save: function(evt) {
             evt.preventDefault();
             var self = this;
-            var postspost = self.model.data['Post'];
-            delete self.model.data['Post'];
+            var postspost = self.model.data['BlogTypePost'];
+            delete self.model.data['BlogTypePost'];
             self.model
                 .syncParse({ Name: self.el.find('[name="blogtypename"]').val()})
                 .done(function(){
-                    self.model.data['Post'] = postspost;
-                    self.model.get('Post').savePending(self.model.href+'/Post');
+                    self.model.data['BlogTypePost'] = postspost;
+                    self.model.get('BlogTypePost').savePending(self.model.href+'/BlogTypePost');
                     self.el.find('[name="blogtypename"]').removeClass('alert-error');
                     self.el.find('.modal').modal('hide');
                 })
                 .fail(function(){
                     self.el.find('[name="blogtypename"]').addClass('alert-error');
                 });
-            self.model.data['Post'] = postspost;
+            self.model.data['BlogTypePost'] = postspost;
         },
         resetMeta: function() {
             var self = this,
@@ -163,7 +163,7 @@
                         Name: self._post_settings.name
                     });
             }
-            self.model.get('Post').addPending(self.currentPost);
+            self.model.get('BlogTypePost').addPending(self.currentPost);
             this.switchModal(evt, 0);
         },
         savePostClose: function(evt) {

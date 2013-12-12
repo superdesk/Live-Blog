@@ -39,21 +39,21 @@ define([
         });
     }]);
 
-    resources.factory('PostPublished', ['$resource', '$q', function($resource, $q) {
-        return $resource('/resources/HR/User/:Id/Post/Published', {Id: '@Id'}, {
+    resources.factory('PublishedPost', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/PublishedPost', {Id: '@Id'}, {
             query: {method: 'GET', params: {'X-Filter': '*'}}
         });
     }]);
 
-    resources.factory('PostUnpublished', ['$resource', '$q', function($resource, $q) {
-        return $resource('/resources/HR/User/:Id/Post/Unpublished', {Id: '@Id'}, {
+    resources.factory('UnpublishedPost', ['$resource', '$q', function($resource, $q) {
+        return $resource('/resources/HR/User/:Id/UnpublishedPost', {Id: '@Id'}, {
             query: {method: 'GET', params: {'X-Filter': '*'}}
         });
     }]);
 
     resources.factory('UserDetailLoader',
-    ['User', 'UserRole', 'Post', 'PostPublished', 'PostUnpublished', '$q',
-    function(User, UserRole, Post, PostPublished, PostUnpublished, $q) {
+    ['User', 'UserRole', 'Post', 'PublishedPost', 'UnpublishedPost', '$q',
+    function(User, UserRole, Post, PublishedPost, UnpublishedPost, $q) {
         return function(userId) {
             var delay = $q.defer();
             User.query({Id: userId}, function(user) {
@@ -61,10 +61,10 @@ define([
                     user.roleList = role.RoleList;
                     Post.query({Id: userId}, function(post) {
                         user.postList = post.PostList;
-                        PostPublished.query({Id: userId}, function(postPublished) {
-                            user.postPublishedList = postPublished.PostList;
-                            PostUnpublished.query({Id: userId}, function(postUnpublished) {
-                                user.postUnpublishedList = postUnpublished.PostList;
+                        PublishedPost.query({Id: userId}, function(publishedPost) {
+                            user.publishedPostList = publishedPost.PostList;
+                            UnpublishedPost.query({Id: userId}, function(unpublishedPost) {
+                                user.unpublishedPostList = unpublishedPost.PostList;
                                 delay.resolve(user);
                             });
                         });

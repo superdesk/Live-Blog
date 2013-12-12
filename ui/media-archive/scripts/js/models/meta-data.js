@@ -7,15 +7,15 @@ function(giz, MetaInfoList)
         url: new giz.Url('Archive/MetaData'),
         defaults: 
         {
-            MetaInfo: MetaInfoList
+            MetaDataMetaInfo: MetaInfoList
         },
-        infoNode: 'MetaInfo',
+        infoNode: 'MetaDataMetaInfo',
         refresh: function(thumbSize)
         {
             var self = this;
             this.sync({data: {thumbSize: thumbSize || 'medium'}}).done(function()
             {
-                self.get(self.infoNode).xfilter('*').sync().done(function()
+                self.get(self.infoNode).xfilter('MetaData.*').sync().done(function()
                 {
                     self.triggerHandler('full-refresh', self);
                 });

@@ -269,7 +269,7 @@
 					self.setElement(o);
 					self.timelineView = new TimelineView({ 
 							el: self.el,
-							collection: self.model.get('PostPublished'),
+							collection: self.model.get('PublishedPost'),
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href
 					});
@@ -351,7 +351,7 @@
 
                     self.sourceBlogs.each(function(id,sourceBlog){
 						chainBlog = new Gizmo.Register.Blog();
-						chainBlog.defaults.PostPublished = Gizmo.Register.AutoPosts;
+						chainBlog.defaults.PublishedPost = Gizmo.Register.AutoPosts;
 						chainBlog.setHref(sourceBlog.get('URI').href);
 						chainBlog.sync();
                         chainBlog.sourceId = sourceBlog.get('Id');
