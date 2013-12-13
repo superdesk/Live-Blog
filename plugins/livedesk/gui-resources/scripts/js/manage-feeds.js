@@ -179,6 +179,7 @@ define([
                     };
 
                     if ( $scope.provider == -1 ) {
+                        //new provider
                         provider.addData(getGizmoUrl('Data/Source'), myData).then(function(data){
                             provider.createProviderObject(data).then(function(data){
                                 $scope.chains.push(data);
@@ -192,29 +193,32 @@ define([
                         }); 
                     } else {
 
-                        //get the new blogs
-                        if ( $scope.provider.URI.href != $scope.newUrl ) {
-                            //unchain the existing blogs
-                            provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
-                            provider.getBlogs($scope.newUrl).then(function(data){
-                                $scope.provider.blogList = data;
+                        //editing existing provider
+                        provider.getBlogs($scope.newUrl).then(function(newBlogsdata){
+                            //we got the new blogs (can be empty)
+                            var editData = {
+                                Name: $scope.newTitle,
+                                URI: $scope.newUrl
+                            };
+                            provider.editProvider(getGizmoUrl('Data/Source/' + $scope.provider.Id), editData ).then(function(data){
+                                //was able to edit the provider
+                                //unchain blogs
+                                provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
+                                //update provider object
+                                $scope.provider.blogList = newBlogsdata;
+                                $scope.provider.URI.href = $scope.newUrl;
+                                $scope.provider.Name = $scope.newTitle;
+                                //close the form
+                                cleanEditForm();
+                            }, function(data) {
+                                //was not able to edit the provider
+                                $scope.msg.newInputError = true;
                             });
-                            $scope.provider.URI.href = $scope.newUrl;
-                        }
-                        $scope.provider.Name = $scope.newTitle;
-                        cleanEditForm();
-
-                        //this is commented out because the PUT problem that Gabriel has to fix
-                        /*
-                        provider.editProvider(getGizmoUrl('Data/Source/' + $scope.provider.Id), {Name: $scope.newTitle, URI: $scope.newUrl}).then(function(data){
-                            console.log('the PUT request succeded');
-                            //change the object
-                        }, function(data) {
-                            console.log('error ON PUT ', data);
-                            $scope.newInputError = true;
+                        }, function() {
+                            //error getting the new blogs
+                            $scope.msg.newUrlError = true;
                         });
-*/
-                        
+
                     }
                 }
             };
