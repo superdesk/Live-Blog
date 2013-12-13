@@ -173,16 +173,6 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         self.metaDataService = metaDataService
         self.type = type
 
-    def getById(self, id):
-        '''
-        @see: IMetaDataService.getById
-        '''
-        #import pdb;pdb.set_trace()
-        #metaInfo = self.session().query(self.MetaInfo).get(id)
-        #if metaInfo is None: raise InputError(_('Unknown meta info'), self.MetaInfo.Id)
-        
-        return self.session().query(self.Mapped).filter(self.MappedId == id).one()
-
     def getMetaInfos(self, dataId=None, languageId=None, qi=None, qd=None, **options):
         '''
         @see: IMetaInfoService.getMetaInfos
