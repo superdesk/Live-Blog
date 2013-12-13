@@ -1,6 +1,6 @@
 define
 ([
-    'jquery', 
+    'jquery',
     'gizmo/superdesk',
     config.guiJs('media-archive', 'upload'),
     config.guiJs('media-archive', 'list'),
@@ -10,10 +10,10 @@ define
     'tmpl!media-archive>adv-upload/archive-list',
     'tmpl!media-archive>adv-upload/archive-list-item',
     'tmpl!media-archive>adv-upload/archive-filter'
-], 
+],
 function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
 {
-    var 
+    var
     FilterView = gizmo.View.extend
     ({
         tagName: 'span',
@@ -21,7 +21,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         init: function(){ this.render(); },
         render: function()
         {
-            var self = this; 
+            var self = this;
             $(this.el).tmpl('media-archive>adv-upload/archive-filter');
         },
         placeInView: function(el)
@@ -29,7 +29,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             el.append(this.el);
         },
         getSearch: function()
-        {   
+        {
             return [{'all.inc': $('[name="search"]', this.el).val() }];
         },
         key2Search: function(evt)
@@ -37,8 +37,8 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             switch(evt.keyCode)
             {
                 case 27: $('[name="search"]', this.el).val('');
-                case 13: 
-                    $(this).triggerHandler('trigger-search'); 
+                case 13:
+                    $(this).triggerHandler('trigger-search');
                     evt.preventDefault();
                 break;
             }
@@ -46,21 +46,21 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
     }),
     // use custom item template
     ItemView = MA.ItemView.extend
-    ({ 
+    ({
         tmpl: 'media-archive>adv-upload/archive-list-item',
-        events: 
+        events:
         {
             '.add-button': { 'click': 'selectSelf' }
         },
         tagName: 'li',
         selectSelf: function(evt)
         {
-            if( $(evt.currentTarget.parentNode).hasClass("grid-selected") == true ) 
+            if( $(evt.currentTarget.parentNode).hasClass("grid-selected") == true )
             {
                 $(evt.currentTarget.parentNode).removeClass("grid-selected");
                 $(evt.currentTarget).find("i").attr("class","icon-plus icon-white");
             }
-            else 
+            else
             {
                 $(evt.currentTarget.parentNode).addClass("grid-selected");
                 $(evt.currentTarget).find("i").attr("class","icon-minus icon-white");
@@ -71,11 +71,8 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
     // use custom template and the above declared item view
     // new method to get generic item view
     ListView = MA.ListView.extend
-    ({ 
+    ({
         tmpl: 'media-archive>adv-upload/archive-list',
-        /*!
-         * 
-         */
         getItemView: function(model)
         {
             var self = this,
@@ -84,23 +81,14 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             iview.render();
             return iview.el;
         },
-        /*!
-         * 
-         */
         getFilterView: function()
         {
             return new FilterView;
         },
-        /*!
-         * 
-         */
         renderCallback: function()
         {
             this.filterView.placeInView($('[data-placeholder="media-archive-filter"]', this._parent.el));
         },
-        /*!
-         * 
-         */
         registerItem: function(evt, model)
         {
             var meta = model.getMetaData(),
@@ -108,15 +96,16 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             meta.sync({data: {thumbSize: this.thumbSize}}).done(function(){ $(self).triggerHandler('register-item', [meta]); });
         }
     }),
-    
     /*!
      * main upload view
      */
     UploadView = gizmo.View.extend
     ({
-        events: 
+        events:
         {
-            "[data-action='browse']": { 'change': 'upload' },
+            "[data-action='browse']": { 'change': 'uploadSelectedFile' },
+            "[data-action='drag-and-drop']": { 'dragover': 'dragOverDisplay',
+                                              'drop': 'uploadDroppedFile' },
             "[data-action='cancel-upload']": { 'click': 'cancelUpload' },
             "[data-proxy='browse']": { 'click': 'proxyBrowse' },
             "[data-action='complete']": { 'click': 'complete' },
@@ -134,8 +123,14 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
          * handler for what to display during the upload
          */
         uploadingDisplay: function()
-        { 
-            
+        {
+        },
+        /* Handle what to display on dragover */
+        dragOverDisplay: function(evt)
+        {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.originalEvent.dataTransfer.dropEffect = 'copy';
         },
         /*!
          * handler on upload complete
@@ -145,31 +140,31 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             var content = false;
             // either get it from the responseXML or responseText
             try
-            { 
+            {
                 var xml = $(event.target.responseXML.firstChild),
                     content = xml.find('Thumbnail');
                     id = $('>Id', xml).get(0).text();
             }
-            catch(e){ 
+            catch(e){
                 var txt = $(event.target.responseText),
                     content = txt.find('thumbnail'),
                     id = txt.find('Id:eq(0)').text();
             }
             if(!content) return;
             var img = new Image,
-                self = this; 
+                self = this;
             img.src = content.attr('href');
             img.onload = function()
             {
                 $('form', self.el).addClass('hide');
                 $('[data-placeholder="preview-area"]', self.el).removeClass('hide');
-                $('[data-placeholder="preview"]', self.el).html(img); 
+                $('[data-placeholder="preview"]', self.el).html(img);
             };
             img.onerror = function(){  };
-            
+
             var meta = new MetaData(MetaData.prototype.url.get()+'/'+id);
             meta.sync({data: {thumbSize: 'large'}}).done(function()
-            { 
+            {
                 self.lastUpload = meta.get('Id');
                 self.registerItem(null, meta);
             });
@@ -188,7 +183,7 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             $('[data-action="browse"]', this.el).trigger('click');
         },
-        
+
         returnImageList: {},
         registerItem: function(evt, model)
         {
@@ -204,21 +199,36 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
         {
             return this.returnImageList;
         },
-        
+
         /*!
          * performs upload
          */
-        upload: function()
+        upload: function(file)
         {
             var self = this;
-            var xhr = UploadCom.upload( $('[data-action="browse"]', self.el)[0].files[0], 
-                        'upload_file', 
-                        $("form", self.el).attr('action'), 
-                        self.uploadingDisplay );
+            var xhr = UploadCom.upload(
+                        file,
+                        'upload_file',
+                        $("form", self.el).attr('action'),
+                        self.uploadingDisplay);
             xhr.onload = function(){
-                $('[data-action="browse"]').val('');
+                if ($('[data-action="browse"]')){
+                    $('[data-action="browse"]').val('');
+                }
                 self.uploadComplete.apply(self, arguments);
             };
+        },
+        uploadSelectedFile: function()
+        {
+            var file = $('[data-action="browse"]', self.el)[0].files[0];
+            this.upload(file);
+        },
+        uploadDroppedFile: function(evt)
+        {
+            evt.stopPropagation();
+            evt.preventDefault();
+            var file = evt.originalEvent.dataTransfer.files[0];
+            this.upload(file);
         },
         complete: function()
         {
@@ -261,6 +271,6 @@ function($, gizmo, UploadCom, MA, MetaDataInfo, MetaData)
             return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
         }
     });
-    
+
     return UploadView;
 });
