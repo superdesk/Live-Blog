@@ -7,26 +7,13 @@
 	</div> 
 
 	<div class="form-row">
-		<div class="btn-group pull-left">
-			<button class="btn" data-toggle="modal-image">Image Upload <span class="caret"></span></button>
-
-			<!-- <ul class="dropdown-menu">
-				<li><a href="#">From computer</a></li>
-				<li><a href="#">From Media archive</a></li>
-				<li><a href="#">Paste from URL</a></li>
-			</ul> -->
-		<input type="text" class="input-mini-upload" data-type="image-width" placeholder="width" style="margin-left:5px"><span style="float:left; margin-left:10px">x</span><input type="text" class="input-mini-upload" placeholder="height" style="margin-left:10px;" data-type="image-height">
-
+		<div class=" pull-left">
+			<button class="btn pull-left" data-toggle="modal-image">Image Upload</button>
 		</div>
-		
-	</div>
-
-	<div class="form-row" style="height:30px">
-		<input type="text" class="upload-url" placeholder="http://">
 	</div>
 
 	<div class="form-row">
-		<textarea class="upload-caption" placeholder="Image Caption" style="width:90%!important;"></textarea>
+		<textarea class="upload-caption" placeholder="Image Caption"></textarea>
 	</div>
 
 </article>
