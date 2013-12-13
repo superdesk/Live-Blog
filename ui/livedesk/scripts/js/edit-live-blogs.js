@@ -865,11 +865,11 @@ function(providers, Gizmo, $, BlogAction, upload, router)
 									return Gizmo.Auth(new Gizmo.Register.NewCollaborator({
 											Source: sourceId,
 											User: userId
-										})).xfilter('Id').sync();
+										})).xfilter('Collaborator.Id').sync();
 								},
 								user = Gizmo.Auth(new Gizmo.Register.User(data.NewUser));
 
-							user.xfilter('Id')
+							user.xfilter('User.Id')
 								.sync()
 									.done(function(dataUser){
 										addCollaborator(data.NewCollaborator.Source,dataUser.Id)

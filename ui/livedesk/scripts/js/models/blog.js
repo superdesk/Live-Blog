@@ -21,8 +21,8 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
             CollaboratorPotential: Collaborators,
             Admin: Admins,
             Post: Posts,
-            PostPublished: Posts,
-            PostUnpublished: Posts
+            BlogPublishedPost: Posts,
+            BlogUnpublishedPost: Posts
         },
         putLive: function()
         {

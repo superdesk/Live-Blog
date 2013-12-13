@@ -70,8 +70,8 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             Collaborator = giz.Model.extend({ defaults:
             { 
                 Post: ColabPost,
-                PostPublished: [Post],
-                PostUnpublished: [Post],
+                PublishedPost: [Post],
+                UnpublishedPost: [Post],
                 Source: Source,
                 Person: Person
             }});
@@ -247,7 +247,7 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
                         'model reads authenticated resources');
             });
             // a bit of testing on xfilter as well
-            p.xfilter('Id', 'Name').sync();
+            p.xfilter('Person.Id', 'Person.Name').sync();
             
             var notUniqueModel = giz.Model.extend({ pushUnique: null, _uniq: null }),
                 p1 = new notUniqueModel('Person/1'),

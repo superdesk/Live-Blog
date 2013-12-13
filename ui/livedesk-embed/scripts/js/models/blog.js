@@ -5,7 +5,7 @@ define([
 	return Gizmo.Model.extend({
 		url: new Gizmo.Url('LiveDesk/Blog'),		
 		defaults: {
-			PostPublished: Gizmo.Register.Posts
+			PublishedPost: Gizmo.Register.Posts
 		}
 	}, { register: 'Blog' } );
 });

@@ -105,8 +105,8 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         '''
         Build the sql alchemy based on the provided data.
         '''
-        sql = self.session().query(self.MetaData)
-        if typeId: sql = sql.filter(self.MetaData.typeId == typeId)
+        sql = self.session().query(self.MetaData.Id)
+        if typeId: sql = sql.filter(self.MetaData.Type == typeId)
         if q:
             assert isinstance(q, self.QMetaData)
             sql = buildQuery(sql, q, self.MetaData)
@@ -225,7 +225,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         '''
         Build the sql alchemy based on the provided data.
         '''
-        sql = self.session().query(self.MetaInfo)
+        sql = self.session().query(self.MetaInfo.Id)
         if dataId: sql = sql.filter(self.MetaInfo.MetaData == dataId)
         if languageId: sql = sql.filter(self.MetaInfo.Language == languageId)
         if qi:

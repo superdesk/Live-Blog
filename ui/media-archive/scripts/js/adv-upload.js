@@ -29,7 +29,8 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
         fd.append(filename || 'upload_file', file);
         var xhr = new XMLHttpRequest();
         // replace or add format we want as response in url // path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';
-        xhr.open('POST', (path+' ').replace(/(((\.[\w\d-]+)?\?)|(\s$))/,'.'+format+'$1'), true);
+        //xhr.open('POST', (path+' ').replace(/(((\.[\w\d-]+)?\?)|(\s$))/,'.'+format+'$1'), true);
+        xhr.open('POST', path, true);
         xhr.setRequestHeader('X-Filter', 'Content');
         startCb && startCb.apply(this);
         xhr.send(fd);
@@ -311,8 +312,8 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
         },
         getUploadEndpoint: function()
         {
-            //return $.superdesk.apiUrl+'/resources/my/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
-            return $.superdesk.apiUrl+'/resources/HR/User/'+localStorage.getItem('superdesk.login.id')+'/MetaData/Upload?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
+            //return $.superdesk.apiUrl+'/resources/HR/User/'+localStorage.getItem('superdesk.login.id')+'/UploadMetaData?thumbSize='+(this.thumbSize||'large')+'&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session');
+            return $.superdesk.apiUrl+'/resources/HR/User/'+localStorage.getItem('superdesk.login.id')+'/UploadMetaData?thumbSize='+(this.thumbSize||'large')+'&X-Filter=MetaData.*';
         }
     });
     

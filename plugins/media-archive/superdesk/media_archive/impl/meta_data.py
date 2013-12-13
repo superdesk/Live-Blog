@@ -100,7 +100,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaData.Id), '/', path))
         contentPath = self.cdmArchive.getURI(path, 'file')
 
-        self.cdmArchive.publishContent(path, content)
+        self.cdmArchive.publishContent(path, content, {})
         metaData.content = path
         metaData.SizeInBytes = getsize(contentPath)
 

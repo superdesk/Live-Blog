@@ -7,8 +7,8 @@ define(function()
                 "Source": {"href": "Source/1", "Id": "1"}, 
                 "Person": {"href": "Person/1", "Id": "1"},
                 "Post": {"href": "Collaborator/1/Post"},
-                "PostPublished": {"href": "Collaborator/1/Post/Published"},
-                "PostUnpublished": {"href": "Collaborator/1/Post/Unpublished"}, 
+                "PublishedPost": {"href": "Collaborator/1/PublishedPost/"},
+                "UnpublishedPost": {"href": "Collaborator/1/UnpublishedPost/"}, 
                 "Id": "1", "Name": "Test User"
             },
             "Collaborator/1/Post":
@@ -45,10 +45,10 @@ define(function()
             'Post/1': { href: 'Post/1', Content: 'A' },
             'Post/2': { href: 'Post/2', Content: 'B' },
             'Post/3': { href: 'Post/3', Content: 'C' },
-            "Collaborator/1/Post/Published":{ 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/2', Content: 'B' }] },
+            "Collaborator/1/PublishedPost/":{ 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/2', Content: 'B' }] },
             //"my/Collaborator/1/Post/Published":{ 'PostList': [] },
-            "Collaborator/1/Post/Published":{ 'PostList': [] },
-            "Collaborator/1/Post/Unpublished":
+            "Collaborator/1/PublishedPost/":{ 'PostList': [] },
+            "Collaborator/1/UnpublishedPost/":
             {
                 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/3', Content: 'C' }]
             },

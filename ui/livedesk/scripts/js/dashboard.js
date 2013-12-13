@@ -244,11 +244,11 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             self.collection.each(function()
             {
                 var model = this;
-                this.get('PostPublished').sync().done(function(data)
+                this.get('BlogPublishedPost').sync().done(function(data)
                 { 
                     self.el.find('[data-model-id="'+model.get('Id')+'"]').text(data.total) 
                 });
-                this.get('PostUnpublished').sync().done(function(data)
+                this.get('BlogUnpublishedPost').sync().done(function(data)
                 {
                     //self.el.find('[data-model-unpublished-id="'+model.get('Id')+'"]').text(data.total) 
                 });
@@ -282,7 +282,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
         activate: function(element)
         {
             this.el.appendTo(element);
-            this.collection.xfilter('*,Creator.*,PostPublished').sync();
+            this.collection.xfilter('Blog.*,Blog.Creator.*,Blog.BlogPublishedPost.*').sync();
         }
         
     }),

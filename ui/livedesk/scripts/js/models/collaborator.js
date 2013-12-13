@@ -11,8 +11,8 @@ function( Gizmo ) {
         defaults:
         { 
             Post: Gizmo.Register.Posts,
-            PostPublished: Gizmo.Register.Posts,
-            PostUnpublished: Gizmo.Register.UnpublishedPosts,
+            PublishedPost: Gizmo.Register.Posts,
+            UnpublishedPost: Gizmo.Register.UnpublishedPosts,
             Source: Gizmo.Register.Source,
             Person: Gizmo.Register.Person,
             User: Gizmo.Register.User

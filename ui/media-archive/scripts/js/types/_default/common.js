@@ -26,7 +26,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             this.collection = giz.Auth(new Languages());
             this.collection.on('read update', this.render, this);
-            this.collection.xfilter('Id, Name').sync();
+            this.collection.xfilter('Language.Code, Language.Name').sync();
         },
         render: function(selected)
         {
@@ -332,7 +332,7 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         getInfoCollection: function()
         {
-            return this.model.get('MetaInfo');
+            return this.model.get('MetaDataMetaInfo');
         },
         parentList: null,
         /*!
@@ -462,7 +462,9 @@ function($, superdesk, giz, MetaInfo, Languages)
         viewDetails: function(){ this.currentItem.viewDetails.call(this.currentItem); },
         edit: function(){ this.currentItem.edit.call(this.currentItem); },
         download: function(){ this.currentItem.download.call(this.currentItem); },
-        remove: function(){ this.currentItem.remove.call(this.currentItem); }
+        remove: function(){ 
+            this.currentItem.remove.call(this.currentItem); 
+        }
     }),
     
     HoverMenu = new HoverMenuView,

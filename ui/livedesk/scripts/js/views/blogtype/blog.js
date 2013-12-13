@@ -99,7 +99,7 @@
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, ''),
                     Creator: localStorage.getItem('superdesk.login.id')
                 };
-            self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type,Admin').sync().done(function(liveBlog){
+            self.model.set(data).xfilter('Blog.Id,Blog.Description,Blog.Title,Blog.CreatedOn,Blog.Creator.*,Blog.Language,Blog.Type,Blog.Admin').sync().done(function(liveBlog){
                     require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
                         function(EditApp){
                             $.superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 

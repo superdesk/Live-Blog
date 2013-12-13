@@ -60,7 +60,7 @@ define([
 					if(self.model.get('ClosedOn')) {
 						closedOn = new Date(self.model.get('ClosedOn'));
 						self.stop();
-						self.model.get('PostPublished').stop();
+						self.model.get('PublishedPost').stop();
 						$('[data-gimme="blog.status"]',self.el).html(_('The liveblog coverage was stopped ')+closedOn.format(_('closed-date')));
 					}
 				},
@@ -94,7 +94,7 @@ define([
 						self.update();
 						self.postsView = new PostsView({ 
 							el: $('[data-gimme="posts.list"]',self.el),
-							collection: self.model.get('PostPublished'),
+							collection: self.model.get('PublishedPost'),
 							_parent: self
 						});
 						self.ensureStatus();

@@ -3,7 +3,7 @@ var presentation = this,
 	{
 		var personForms = [];
 		// get user's person instances and display them
-		args.users.get('Person').xfilter('FirstName,LastName,Id,Address')
+		args.users.get('Person').xfilter('Person.FirstName,Person.LastName,Person.Id,Person.Address')
 		.spawn()
 		.done(function(data, person)
 		{

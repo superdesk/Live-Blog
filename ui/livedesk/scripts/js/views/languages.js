@@ -16,7 +16,7 @@
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Id,Name,Code')
+                .xfilter('Language.Name,Language.Code')
                 .sync();
         },
         render: function(evt, data){
