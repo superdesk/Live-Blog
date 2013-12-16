@@ -123,11 +123,13 @@ define([
 					'Meta, IsPublished, Creator.FullName, PostVerification.Status.Key, '+
 					'PostVerification.Checker.Id, PostVerification.Checker.FullName, AuthorImage',
 					//'PostVerification.Checker.Id, PostVerification.Checker.FirstName, PostVerification.Checker.LastName, PostVerification.Checker.Name'
+			filter: { data : {}},
 			init: function(){
 				var self = this;
 				self._views = [];
                 self.collection.reset([]);
                 self.collection.resetStats();
+                self.filter.data = {thumbSize: 'medium', 'desc': 'order'};
 				self.collection.keepPolling = function(){
 					return self.el.is(":visible");
 				}
@@ -170,12 +172,13 @@ define([
 			},
 			activate: function(data){			
 				data = data || {};
-				var self = this,
-			    	data = $.extend(data, {thumbSize: 'medium', 'desc': 'order'});
+				var self = this;
+			    
+			    self.filter.data = $.extend(self.filter.data, data);
 				self.collection
 					.auto({
 						headers: { 'X-Filter': self.xfilter },
-                        data: data
+                        data: self.filter.data
 					});
 			},
 			deactivate: function(){
@@ -308,6 +311,10 @@ define([
 					}
 				}
 			},
+			clearCheckerFilter: function(checker) {
+				delete this.collection.search;
+				delete this.filter.data.checker;
+			},
 			filterChecker: function(checker) {
                 var view = this;
                 this.deactivate();
@@ -316,15 +323,20 @@ define([
                 this._views = [];
 				if (checker.Id !== '') {
 					this.collection.search = checker.Id;
-                    this.collection.sync({data: {checker: checker.Id}});
+					this.filter.data.checker = checker.Id;
+                    this.collection.sync(this.filter);
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
-					delete this.collection.search;
+					this.clearCheckerFilter(); 
                     this.collection
 						.limit(this.collection._stats.limit)
 						.offset(0)
 						.desc('order')
                     this.activate();
 				}
+			},
+			clearStatusFilter: function(){
+				delete this.filter.data.status;
+				delete this.collection.search;				
 			},
 			filterStatus: function(keyStatus) {
                 var view = this;
@@ -334,9 +346,10 @@ define([
                 this._views = [];
 				if (keyStatus !== 'all') {
 					this.collection.search = keyStatus;
-                    this.collection.sync({data: {status: keyStatus}});
+					this.filter.data.status = keyStatus;
+                    this.collection.sync(this.filter);
 				} else if (!autoSources.isAuto(this.sourceId)) { // reset after
-					delete this.collection.search;
+					this.clearStatusFilter();
                     this.collection
 						.limit(this.collection._stats.limit)
 						.offset(0)
@@ -508,6 +521,7 @@ define([
 				self.chainBlogLinkViews = [];
 				self.chainBlogContentViews = [];
 				self.hiddenChainBlogContentViews = [];
+				self.hiddenToggle = false;
 				if($.type(self.sourceBlogs) === 'undefined') {
 					self.sourceBlogs = new Gizmo.Register.Sources();
 					/*!
@@ -540,22 +554,26 @@ define([
 			},
 			filterStatus: function(evt){
 				evt.preventDefault();
-				this.clearCheckerFilter();
 				$('[data-status-filter-key]', self.el).removeClass('active');
 				var el = $(evt.target).closest('[data-status-filter-key]'),
 					keyStatus = el.attr('data-status-filter-key'),
 					active = this.getActiveView();
 				el.addClass('active');
 				if (active) {
-					active.model.chainBlogContentView.timelineView.filterStatus(keyStatus);
+					if(this.hiddenToggle)
+						active.model.hiddenChainBlogContentView.timelineView.filterStatus(keyStatus);
+					else
+						active.model.chainBlogContentView.timelineView.filterStatus(keyStatus);
 				}
 			},
 			filterChecker: function(checker) {
-				this.clearStatusFilter();
 				var active = this.getActiveView();
 				$('#chain-checker-name', this.el).text(checker.FullName)
 				if (active) {
-					active.model.chainBlogContentView.timelineView.filterChecker(checker);
+					if(this.hiddenToggle)
+						active.model.hiddenChainBlogContentView.timelineView.filterChecker(checker);
+					else
+						active.model.chainBlogContentView.timelineView.filterChecker(checker);
 				}
 			},
 			removeSearch: function(evt){
@@ -642,10 +660,12 @@ define([
 				});
 			},
 			clearStatusFilter: function(){
+				this.activeView.model.chainBlogContentView.timelineView.clearStatusFilter();
 				$('[data-status-filter-key]', this.el).removeClass('active');
 				$('[data-status-filter-key="all"]', this.el).addClass('active');
 			},
 			clearCheckerFilter: function(){
+				this.activeView.model.chainBlogContentView.timelineView.clearCheckerFilter();
 				$('#chain-checker-name').text(_('All Assigners'));
 			},
 			toggleHidden: function(e) {
@@ -658,12 +678,14 @@ define([
 				self.clearCheckerFilter();
 				if (view) {
 					if (is_active) {
+						self.hiddenToggle = false;
 						//we want to go in normal view
 						view.model.chainBlogContentView.activate();
 						view.model.hiddenChainBlogContentView.deactivate();
 					}
 					else {
 						//we want to go in deleted items view
+						self.hiddenToggle = true;
 						view.model.hiddenChainBlogContentView.activate();
 						view.model.chainBlogContentView.deactivate();
 					}
