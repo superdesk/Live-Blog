@@ -121,7 +121,6 @@ https://github.com/imakewebthings/jquery-waypoints/blob/master/licenses.txt
           }
           return $.each(triggered, function(i, waypoint) {
             if (waypoint.options.continuous || i === triggered.length - 1) {
-              console.log('trigger')
               return waypoint.trigger([direction]);
             }
           });
@@ -177,13 +176,10 @@ https://github.com/imakewebthings/jquery-waypoints/blob/master/licenses.txt
               return;
             }
             if (oldOffset !== null && (oldOffset < (_ref = axis.oldScroll) && _ref <= waypoint.offset)) {
-              console.log('trigger1')
               return waypoint.trigger([axis.backward]);
             } else if (oldOffset !== null && (oldOffset > (_ref1 = axis.oldScroll) && _ref1 >= waypoint.offset)) {
-              console.log('trigger2')
               return waypoint.trigger([axis.forward]);
             } else if (oldOffset === null && axis.oldScroll >= waypoint.offset) {
-              console.log(axis.oldScroll, waypoint.offset)
               return waypoint.trigger([axis.forward]);
             }
           });

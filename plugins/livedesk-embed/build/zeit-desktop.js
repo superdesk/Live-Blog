@@ -21,6 +21,7 @@
 		'utils': 'core/utils',
 		'gettext': 'core/gettext',
 		'gizmo': 'core/gizmo',
+		
 		'twitterWidgets': 'empty:'
     },
 	baseUrl: '../gui-resources/scripts/js',

@@ -20,7 +20,9 @@
 		'dust': 'core/dust',
 		'utils': 'core/utils',
 		'gettext': 'core/gettext',
-		'gizmo': 'core/gizmo'
+		'gizmo': 'core/gizmo',
+
+		'twitterWidgets': 'empty:'
     },
 	baseUrl: '../gui-resources/scripts/js',
 	mainConfigFile: '../gui-themes/themes/zeit_solo/desktop.js',
