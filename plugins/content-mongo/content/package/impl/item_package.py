@@ -1,26 +1,25 @@
 '''
-Created on Nov 7, 2013
+Created on Dec 13, 2013
 
 @package: content
 @copyright: 2013 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mugur Rus
 
-Implementation for resource item.
+Implementation for content package item.
 '''
 
 from ally.api.validate import validate
 from ally.container.support import setup
-from content.resource.api.item_resource import IItemResourceService, \
-    QItemResource
-from content.resource.meta.mengine.item_resource import ItemResourceMapped
 from mongo_engine.impl.entity import EntityServiceMongo, EntitySupportMongo
+from content.package.api.item_package import IItemPackageService, QItemPackage
+from content.package.meta.mengine.item_package import ItemPackageMapped
 
 # --------------------------------------------------------------------
 
-@setup(IItemResourceService, name='itemResourceService')
-@validate(ItemResourceMapped)
-class ItemResourceServiceMongo(EntityServiceMongo, IItemResourceService):
+@setup(IItemPackageService, name='itemPackageService')
+@validate(ItemPackageMapped)
+class ItemPackageServiceMongo(EntityServiceMongo, IItemPackageService):
     '''
     Implementation for @see: IItemResourceService
     '''
@@ -29,4 +28,4 @@ class ItemResourceServiceMongo(EntityServiceMongo, IItemResourceService):
         '''
         Construct the content item service
         '''
-        EntitySupportMongo.__init__(self, ItemResourceMapped, QItemResource)
+        EntitySupportMongo.__init__(self, ItemPackageMapped, QItemPackage)

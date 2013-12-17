@@ -18,9 +18,9 @@ from ally.support.api.entity import IEntityPrototype
 # --------------------------------------------------------------------
 
 CLASS_TEXT = 'text'
-# The text class (the value of ItemResource.Class for this item)
+# The text class (the value of ItemResource.ItemClass for this item)
 
-@modelContent(polymorph={ItemResource.Class: CLASS_TEXT})
+@modelContent(polymorph={ItemResource.ItemClass: CLASS_TEXT})
 class ItemText(ItemResource):
     '''
     Provides the text item model.

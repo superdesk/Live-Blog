@@ -10,13 +10,12 @@ Contains the mongo engine meta for resource item API.
 '''
 
 from mongoengine.fields import StringField
-
 from ally.api.validate import validate, ReadOnly
 from content.base.meta.mengine.item import ItemMapped
 from content.resource.api.item_resource import ItemResource, TYPE_RESOURCE
 
-
 # --------------------------------------------------------------------
+
 @validate(ReadOnly(ItemResource.Type))
 class ItemResourceMapped(ItemMapped, ItemResource):
     '''
@@ -24,7 +23,6 @@ class ItemResourceMapped(ItemMapped, ItemResource):
     '''
     HeadLine = StringField(max_length=1000, required=True)
     ContentSet = StringField(max_length=1024, required=True)
-    Class = StringField(max_length=100, required=True)
     
     def __init__(self, *args, **values):
         super().__init__(*args, **values)

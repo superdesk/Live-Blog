@@ -15,8 +15,8 @@ from content.resource.api.item_text import IItemTextService, QItemText
 from content.resource.meta.mengine.item_text import ItemTextMapped
 from mongo_engine.impl.entity import EntityServiceMongo, EntitySupportMongo
 
-
 # --------------------------------------------------------------------
+
 @setup(IItemTextService, name='itemTextService')
 @validate(ItemTextMapped)
 class ItemTextServiceMongo(EntityServiceMongo, IItemTextService):

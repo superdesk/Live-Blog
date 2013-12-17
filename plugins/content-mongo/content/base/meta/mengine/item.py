@@ -11,12 +11,11 @@ Contains the mongo engine meta for item API.
 
 from datetime import datetime
 from mongoengine.fields import StringField, IntField, DateTimeField
-
 from content.base.api.item import Item
 from mongo_engine.support.document import Base
 
-
 # --------------------------------------------------------------------
+
 class ItemMapped(Base, Item):
     '''
     Provides the mapping for Item.
@@ -24,4 +23,8 @@ class ItemMapped(Base, Item):
     GUID = StringField(max_length=1000, primary_key=True)
     Version = IntField(min_value=1, default=1, required=True)
     CreatedOn = DateTimeField(default=datetime.utcnow, required=True)
+    VersionOn = DateTimeField(default=datetime.utcnow, required=True)
     Type = StringField(max_length=100, required=True)
+    ItemClass = StringField(max_length=100, required=True)
+    Provider = StringField(max_length=1000, required=True)
+    PubStatus = StringField(max_length=100, required=True)

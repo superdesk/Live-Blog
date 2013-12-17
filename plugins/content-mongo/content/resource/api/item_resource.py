@@ -16,8 +16,8 @@ from ally.support.api.entity import IEntityPrototype
 from content.base.api.domain_content import modelContent
 from content.base.api.item import Item, QItem
 
-
 # --------------------------------------------------------------------
+
 TYPE_RESOURCE = 'resource'
 # The resource type.(value of Item.Type for this item)
 
@@ -27,7 +27,6 @@ class ItemResource(Item):
     Provides the resource item model.
     '''
     HeadLine = str
-    Class = str
     ContentSet = Reference
 
 # --------------------------------------------------------------------

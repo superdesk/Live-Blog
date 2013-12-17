@@ -13,9 +13,9 @@ from ally.api.validate import validate, ReadOnly
 from content.resource.api.item_text import ItemText, CLASS_TEXT
 from content.resource.meta.mengine.item_resource import ItemResourceMapped
 
-
 # --------------------------------------------------------------------
-@validate(ReadOnly(ItemText.Class))
+
+@validate(ReadOnly(ItemText.ItemClass))
 class ItemTextMapped(ItemResourceMapped, ItemText):
     '''
     Provides the mapping for ItemText.

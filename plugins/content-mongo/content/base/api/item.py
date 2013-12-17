@@ -28,6 +28,9 @@ class Item:
     CreatedOn = datetime
     VersionOn = datetime
     Type = str
+    ItemClass = str
+    Provider = str
+    PubStatus = str
 
 # --------------------------------------------------------------------
 
@@ -36,10 +39,14 @@ class QItem:
     '''
     Provides the query for active item model.
     '''
-    gUID = AsLikeOrdered
+    guid = AsLikeOrdered
     version = AsRangeIntOrdered
     createdOn = AsDateTimeOrdered
     versionOn = AsDateTimeOrdered
+    type = AsLikeOrdered
+    itemClass = AsLikeOrdered
+    provider = AsLikeOrdered
+    pubStatus = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -48,4 +55,3 @@ class IItemService(IEntityGetPrototype, IEntityQueryPrototype):
     '''
     Provides the service methods for items.
     '''
-    
