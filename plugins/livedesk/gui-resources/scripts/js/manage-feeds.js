@@ -75,7 +75,8 @@ define([
                     Name: name,
                     Type: SMS_TYPE,
                     IsModifiable: 'True',
-                    URI: name
+                    OriginURI: name,
+                    URI: SMS_TYPE + '/' + name
                 };
                 var assignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
                 $http.post(assignUrl, newSource);
