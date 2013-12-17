@@ -5,8 +5,8 @@
         loggingLevel: 'WARNING'
     },
  	paths: {
- 		'theme': '../../../gui-themes/themes/zeit/desktop',
- 		'themeFile': '../../../gui-themes/themes/zeit/desktop',
+ 		'theme': '../../../gui-themes/themes/zeit_solo/desktop',
+ 		'themeFile': '../../../gui-themes/themes/zeit_solo/desktop',
 		'themeBase': '../../../gui-themes/themes/base',
 		
 		'require': 'core/require',
@@ -20,18 +20,14 @@
 		'dust': 'core/dust',
 		'utils': 'core/utils',
 		'gettext': 'core/gettext',
-		'gizmo': 'core/gizmo',
-		'twitterWidgets': 'empty:'
+		'gizmo': 'core/gizmo'
     },
 	baseUrl: '../gui-resources/scripts/js',
-	mainConfigFile: '../gui-themes/themes/zeit/desktop.js',
+	mainConfigFile: '../gui-themes/themes/zeit_solo/desktop.js',
 	name: 'themeFile',
-	out: '../gui-themes/themes/zeit/desktop.min.js',
+	out: '../gui-themes/themes/zeit_solo/desktop.min.js',
 	preserveLicenseComments: false,
 	optimize: 'closure',
-	exclude: [
-		'twitterWidgets'
-	],
 	excludeShallow: [
 		'jquery',
 		'jquery/utils',
@@ -67,8 +63,6 @@
 		'require/normalize',
 
 		'require/tmpl',
-		'tmpl!themeBase/item/base',
-
-		'twitterWidgets'
+		'tmpl!themeBase/item/base'
 	]
 })
