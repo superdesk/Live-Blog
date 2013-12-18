@@ -404,7 +404,7 @@ def upgradeSourceSmsFix():
     session.close() 
     
     
-@app.populate(priority=PRIORITY_FINAL)
+@app.populate(priority=PRIORITY_LAST)
 def upgradePostWasPublishedFix():
     creator = alchemySessionCreator()
     session = creator()
