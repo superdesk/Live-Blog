@@ -10,7 +10,8 @@ define([
 		buttonPaginationPlugin(config);
 		$.dispatcher.on('class.blog-view', function(evt){
 			var view = this.prototype;
-			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" }
+			view.events['[data-gimme="posts.to-top"]'] = { 'click': "toTop" };
+			view.events['[data-gimme="posts.pending-message"]'] = { 'click': "toTop" };
 			view.toTop = function(evt) {
 				var self = this;
 				$('[data-gimme="posts.list"]', self.el).scrollTop(0);
