@@ -320,7 +320,7 @@ def upgradePostFeedFix():
     session.commit()
     session.close() 
     
-@app.populate(priority=PRIORITY_LAST)
+@app.populate(priority=PRIORITY_FINAL)
 def upgradeUuidFix():
     creator = alchemySessionCreator()
     session = creator()
