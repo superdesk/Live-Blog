@@ -160,9 +160,9 @@ define([
 			},
 
 			addAll: function(evt, data) {
-				var i, self = this;
+				var self = this;
 				self.triggerHandler('addings',[data]);
-				for(i = 0, count = data.length; i < count; i++) {
+				for(var i = 0, count = data.length; i < count; i++) {
 					this.addOne(data[i]);
 				}
 				if(data.length)
