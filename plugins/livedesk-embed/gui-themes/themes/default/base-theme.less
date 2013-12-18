@@ -305,12 +305,13 @@ background: #f0f0f0;
 							height: 16px;
 							display: none;
 							float: left;
+							margin-right: 10px;
 						}
-						.post-verified .verification-label {
+						&.post-verified .verification-label {
 							display: block;
 							background: url(img/icon_verified.png) no-repeat 0 0;
 						}
-						.post-unverified .verification-label {
+						&.post-unverified .verification-label {
 							display: block;
 							background: url(img/icon_unverified.png) no-repeat 0 0;
 						}
@@ -340,6 +341,7 @@ background: #f0f0f0;
 							img {
 								width: @publisher-avatar-width;
 								max-width: @publisher-avatar-width;
+								min-height: @publisher-avatar-width;
 								height: auto;
 								display: block;
 							}
@@ -348,6 +350,7 @@ background: #f0f0f0;
 						/* end of separate block styles */
 						.post-header {
 							position: relative;
+							line-height: 16px;
 						}
 						.post-content {
 							min-height: @content-minheight;

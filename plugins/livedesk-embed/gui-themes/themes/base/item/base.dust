@@ -5,6 +5,7 @@
     {+headerContainer}
       <div class="post-header">
       {+header}
+        {+verificationLabel}{/verificationLabel}
         {+postDateContainer}{/postDateContainer}
         {+userNameContainer}{/userNameContainer}
         {+shareContainer}{/shareContainer}
@@ -81,6 +82,9 @@
 <span class="post-publisher-name">{+publisherName}{Creator.FullName}{/publisherName}</span>
 {/publisherNameContainer}
 
+{<verificationLabel}
+<a class="verification-label" title="verification status"></a>
+{/verificationLabel}
 
 {<userAvatar}
   {+publisherAvatar}{/publisherAvatar}
