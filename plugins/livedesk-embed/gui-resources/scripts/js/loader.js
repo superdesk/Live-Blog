@@ -1,5 +1,5 @@
 var requirejs;
-liveblog.version = 7;// = {Version};
+liveblog.version = 8;// = {Version};
 if( window && (window.location.href.indexOf('liveblog-debug') !== -1) 
 	&& (window['localStorage'] !== null) && window['localStorage'].getItem('liveblog-debug') ) {
 	var loadJs = liveblog.loadJs, script = liveblog.script;
