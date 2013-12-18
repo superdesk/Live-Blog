@@ -50,10 +50,6 @@
                 });
             }
         },
-        openUploadScreen: function() {
-            uploadView.activate();
-            $(uploadView.el).addClass('modal hide fade responsive-popup').modal();
-        },
         handleImageUpload: function(imgData) {
             var self = this;
             if (imgData.length) {
@@ -66,7 +62,6 @@
         },
         openUploadScreen: function() {
             var self = this;
-            var uploadView = new UploadView({thumbSize: 'medium'});
             uploadView.activate().then(function(data) {
                 self.handleImageUpload(data);
             });
