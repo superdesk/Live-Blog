@@ -352,7 +352,7 @@ body
 /* BOX SHARE-LINKS */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .share-box
 {
-	display: none;
+	/*display: none;*/
 	position: absolute;
 	z-index: 5;
 	top: -7px; /* #D# */
