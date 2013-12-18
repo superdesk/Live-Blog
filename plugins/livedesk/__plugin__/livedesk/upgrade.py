@@ -336,12 +336,12 @@ def upgradeUuidFix():
     session.commit()
     
     # init uuid column for post and user
-    users= session.query(UserMapped).all()
+    users= session.query(UserMapped.Id, UserMapped.Uuid).all()
     for user in users:
         if user.Uuid is None: user.Uuid = str(uuid4().hex)
     session.commit()
     
-    posts= session.query(PostMapped).all()
+    posts= session.query(PostMapped.Id, PostMapped.Uuid).all()
     for post in posts:
         if post.Uuid is None: post.Uuid = str(uuid4().hex)
     session.commit()
@@ -456,7 +456,7 @@ def upgradeUserUuidUniqueFix():
     inSql = session.query(UserMapped.Uuid)
     inSql = inSql.filter(UserMapped.typeId == idStandard)
     
-    sql = session.query(UserMapped)
+    sql = session.query(UserMapped.Id, UserMapped.Uuid)
     sql = sql.filter(UserMapped.typeId == idChained)
     sql = sql.filter(UserMapped.Uuid.in_(inSql))
     users= sql.all()
