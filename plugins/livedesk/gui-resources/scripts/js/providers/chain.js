@@ -437,9 +437,9 @@ define([
                 var isAuto = autoSources.isAuto(self.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
-                $('#automod-info').toggle(isAuto);
+                $('#automod-info').toggle(1);
                 if(self.timelineView) {
-                	isAuto ? self.timelineView.deactivate() : self.timelineView.activate({ isDeleted: 'True' });
+                	self.timelineView.activate({ isDeleted: 'True' });
             	} else {
             		self.render(function(){
             			self.timelineView.activate({ isDeleted: 'True' });
