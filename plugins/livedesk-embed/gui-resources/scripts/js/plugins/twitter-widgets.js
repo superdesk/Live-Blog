@@ -1,6 +1,10 @@
 requirejs.config({
-    paths: { "twitterWidgets": "//platform.twitter.com/widgets" }
+    paths: { "twitterWidgets": "//platform.twitter.com/widgets" },
+    shim: {
+      'twitterWidgets':  { 'exports': 'twttr' }
+    }
 });
+
 define([
 	'jquery',
 	'plugins',
@@ -9,7 +13,8 @@ define([
 	'dispatcher',
 ], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
-    require(['twitterWidgets'], function(){
+    require(['twitterWidgets'], function(twttr){
+
       $.dispatcher.on('rendered-after.post-view', function(){
         if(this.shortItem != '/item/source/twitter')
           return;
@@ -21,7 +26,10 @@ define([
         addWaypoints(this);
       });
       $.dispatcher.on('add-all.posts-view', function(){
-        addWaypoints(this);
+        var self = this;
+        twttr.ready(function(){
+          addWaypoints(self);
+        });
       });
 
       var addWaypoints = function(self){
@@ -29,7 +37,7 @@ define([
           return;
         $.each(self._twitterPosts, function(index, post){
           post.el.waypoint(function(){
-            window.twttr.widgets.createTweet(
+            twttr.widgets.createTweet(
               post.templateData.Meta.id_str,
               post.el.find('.post-content-full').get(0),
               function(){
