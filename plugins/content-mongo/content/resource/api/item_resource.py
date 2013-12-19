@@ -26,6 +26,7 @@ class ItemResource(Item):
     '''
     Provides the resource item model.
     '''
+    ContentType = str
     HeadLine = str
     ContentSet = Reference
 
@@ -36,6 +37,7 @@ class QItemResource(QItem):
     '''
     Provides the query for active text item model.
     '''
+    contentType = AsLikeOrdered
     headLine = AsLikeOrdered
 
 # --------------------------------------------------------------------

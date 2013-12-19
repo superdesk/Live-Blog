@@ -21,6 +21,7 @@ class ItemResourceMapped(ItemMapped, ItemResource):
     '''
     Provides the mapping for ItemResource.
     '''
+    ContentType = StringField(max_length=100, required=True)
     HeadLine = StringField(max_length=1000, required=True)
     ContentSet = StringField(max_length=1024, required=True)
     

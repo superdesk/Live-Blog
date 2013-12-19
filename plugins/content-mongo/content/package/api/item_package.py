@@ -9,65 +9,65 @@ Created on Dec 13, 2013
 API specifications for content package item.
 '''
 
-from ally.api.config import query, service
-from ally.api.criteria import AsLikeOrdered
+from ally.api.config import service, call, UPDATE
 from content.base.api.domain_content import modelContent
 from content.base.api.item import Item, QItem
 from ally.support.api.entity import IEntityPrototype
-from ally.api.type import List
-
-# --------------------------------------------------------------------
-
-@modelContent(id='GUID')
-class Ref:
-    '''
-    Provides the reference model (reference to item).
-    '''
-    GUID = str
-    ResidRef = str
-    Title = str
-    Description = str
-
-@modelContent(id='GUID')
-class Group:
-    '''
-    Provides the group model (group of references).
-    '''
-    GUID = str
-    Id = str
-    Role = str
-    Mode = str
-    Title = str
-    Refs = List(str)
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
 TYPE_PACKAGE = 'package'
 # The package type.(value of Item.Type for this item)
-CLASS_COMPOSITE = 'composite'
-# The text class (the value of ItemResource.ItemClass for this item)
 
 @modelContent(polymorph={Item.Type: TYPE_PACKAGE})
 class ItemPackage(Item):
     '''
     Provides the package item model.
     '''
-    RootGroup = str
-    Groups = List(str)
 
 # --------------------------------------------------------------------
 
-@query(ItemPackage)
-class QItemPackage(QItem):
-    '''
-    Provides the query for active text item model.
-    '''
-    headLine = AsLikeOrdered
-
-# --------------------------------------------------------------------
-
-@service(('Entity', ItemPackage), ('QEntity', QItemPackage))
+@service(('Entity', ItemPackage), ('QEntity', QItem))
 class IItemPackageService(IEntityPrototype):
     '''
     Provides the service methods for pacakge items.
     '''
+
+    @call(webName='Sub')
+    def getItems(self, packageId:ItemPackage.GUID) -> Iter(Item):
+        '''
+        Return the list of items for a package.
+
+        @param packageId: ItemPackage.GUID
+            The package item identifier
+        @param Item: Item.GUID
+            The identifier of the item to be removed.
+        @return: Iter(Item)
+            Return an iterator over the list of items.
+        '''
+
+    @call(method=UPDATE, webName='Sub')
+    def addItem(self, packageId:ItemPackage.GUID, itemId:Item.GUID):
+        '''
+        Add an item to the list of items referenced by this package.
+
+        @param packageId: ItemPackage.GUID
+            The package item identifier
+        @param Item: Item.GUID
+            The identifier of the item to be removed.
+        '''
+
+    @call(webName='Sub')
+    def removeItem(self, packageId:ItemPackage.GUID, itemId:Item.GUID) -> bool:
+        '''
+        Remove an item from the list of items referenced by this package.
+        
+        @param packageId: ItemPackage.GUID
+            The package item identifier
+        @param Item: Item.GUID
+            The identifier of the item to be removed.
+        @return: bool
+            Return True if the item existed in the references list and was deleted,
+            False otherwise.
+        '''

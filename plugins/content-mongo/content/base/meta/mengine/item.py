@@ -25,6 +25,5 @@ class ItemMapped(Base, Item):
     CreatedOn = DateTimeField(default=datetime.utcnow, required=True)
     VersionOn = DateTimeField(default=datetime.utcnow, required=True)
     Type = StringField(max_length=100, required=True)
-    ItemClass = StringField(max_length=100, required=True)
     Provider = StringField(max_length=1000, required=True)
     PubStatus = StringField(max_length=100, required=True)

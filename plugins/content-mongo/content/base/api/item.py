@@ -28,7 +28,6 @@ class Item:
     CreatedOn = datetime
     VersionOn = datetime
     Type = str
-    ItemClass = str
     Provider = str
     PubStatus = str
 
@@ -44,7 +43,6 @@ class QItem:
     createdOn = AsDateTimeOrdered
     versionOn = AsDateTimeOrdered
     type = AsLikeOrdered
-    itemClass = AsLikeOrdered
     provider = AsLikeOrdered
     pubStatus = AsLikeOrdered
 

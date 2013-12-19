@@ -8,57 +8,43 @@ from ally.container import app
 from ..mongo_engine.db_application import database, mongo_database_url
 from mongoengine.connection import connect, disconnect
 from content.resource.meta.mengine.item_text import ItemTextMapped
-from content.package.meta.mengine.item_package import ItemPackageMapped,\
-    RefMapped, GroupMapped
+from content.package.meta.mengine.item_package import ItemPackageMapped
 
 @app.deploy()
 def populate():
     connect(database(), host=mongo_database_url())
     ItemTextMapped.drop_collection()
     
-    item = ItemTextMapped()
-    item.GUID = '111'
-    item.Version = 1
-    item.Type = 'resource'
-    item.ItemClass = 'text'
-    item.Provider = 'AAP'
-    item.PubStatus = 'usable'
-    item.HeadLine = 'good news today'
-    item.ContentSet = 'http://some.url.com/resource/id111'
-    item.save()
+    item1 = ItemTextMapped()
+    item1.GUID = '111'
+    item1.Version = 1
+    item1.Type = 'resource'
+    item1.ContentType = 'text'
+    item1.Provider = 'AAP'
+    item1.PubStatus = 'usable'
+    item1.HeadLine = 'good news today'
+    item1.ContentSet = 'http://some.url.com/resource/id111'
+    item1.save()
 
-    item = ItemTextMapped()
-    item.GUID = '222'
-    item.Version = 1
-    item.Type = 'resource'
-    item.ItemClass = 'text'
-    item.Provider = 'AAP'
-    item.PubStatus = 'usable'
-    item.HeadLine = 'best news tomorrow'
-    item.ContentSet = 'http://some.url.com/resource/id222'
-    item.save()
-    
-    ref = RefMapped()
-    ref.GUID = '444'
-    ref.ResidRef = 'aap:ref1'
-    ref.Title = 'best news tomorrow'
-    ref.Description = 'description of best news tomorrow'
-    
-    group = GroupMapped()
-    group.GUID = '555'
-    group.Id = 'g1'
-    group.Role = 'top news'
-    group.Refs.append(ref)
-    
-    item = ItemPackageMapped()
-    item.GUID = '333'
-    item.Version = 1
-    item.Type = 'package'
-    item.ItemClass = 'composite'
-    item.Provider = 'AAP'
-    item.PubStatus = 'usable'
-    item.Root = 'g1'
-    item.Groups.append(group)
-    item.save()
+    item2 = ItemTextMapped()
+    item2.GUID = '222'
+    item2.Version = 1
+    item2.Type = 'resource'
+    item2.ContentType = 'text'
+    item2.Provider = 'AAP'
+    item2.PubStatus = 'usable'
+    item2.HeadLine = 'best news tomorrow'
+    item2.ContentSet = 'http://some.url.com/resource/id222'
+    item2.save()
+
+    pack = ItemPackageMapped()
+    pack.GUID = '333'
+    pack.Version = 1
+    pack.Type = 'package'
+    pack.Provider = 'AAP'
+    pack.PubStatus = 'usable'
+    pack.Items.append(item1)
+    pack.Items.append(item2)
+    pack.save()
     
     disconnect()

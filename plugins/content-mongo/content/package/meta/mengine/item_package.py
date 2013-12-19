@@ -9,42 +9,20 @@ Created on Dec 13, 2013
 Contains the mongo engine meta for package item API.
 '''
 
-from mongoengine.fields import StringField, ListField, EmbeddedDocumentField
+from mongoengine.fields import ListField, ReferenceField
 from ally.api.validate import validate, ReadOnly
 from content.base.meta.mengine.item import ItemMapped
-from content.package.api.item_package import ItemPackage, TYPE_PACKAGE, Ref,\
-    Group
-from mongoengine.document import EmbeddedDocument
+from content.package.api.item_package import ItemPackage, TYPE_PACKAGE
+from mongoengine.queryset.base import NULLIFY
 
 # --------------------------------------------------------------------
-
-class RefMapped(EmbeddedDocument, Ref):
-    '''
-    Provides the mapping for Ref model.
-    '''
-    GUID = StringField(max_length=100, primary_key=True)
-    ResidRef = StringField(max_length=100, required=True)
-    Title = StringField(max_length=1000, required=True)
-    Description = StringField(max_length=10000)
-
-class GroupMapped(EmbeddedDocument, Group):
-    '''
-    Provides the mapping for Group model.
-    '''
-    GUID = StringField(max_length=100, primary_key=True)
-    Id = StringField(max_length=100, required=True)
-    Role = StringField(max_length=100, required=True)
-    Mode = StringField(max_length=100)
-    Title = StringField(max_length=1000)
-    Refs = ListField(EmbeddedDocumentField(RefMapped))
 
 @validate(ReadOnly(ItemPackage.Type))
 class ItemPackageMapped(ItemMapped, ItemPackage):
     '''
     Provides the mapping for ItemPackage.
     '''
-    Root = StringField(max_length=100, required=True)
-    Groups = ListField(EmbeddedDocumentField(GroupMapped), required=True)
+    Items = ListField(ReferenceField('ItemMapped', reverse_delete_rule=NULLIFY))
     
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
