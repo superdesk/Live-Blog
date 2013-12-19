@@ -58,7 +58,7 @@ define([
                     view.popup.show();
                     view.backdropel.data('show-status',1).show(); 
                     view.lbpostlist.addClass('comment-active');
-                    view.timeline.pause();
+                    view.blogview.stop();
                     break;
                 case 1:
                     view.backdropel.data('show-status',0).hide();
@@ -67,7 +67,7 @@ define([
                     view.resetInput();
                     view.lbpostlist.removeClass('comment-active');
                     view.popup.hide();
-                    view.timeline.sync();
+                    view.blogview.start();
                     break;
             }
 

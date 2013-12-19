@@ -9,17 +9,17 @@ define([
 ], function($, plugins, UserCommentsPopupView){
 	return plugins["user-comments"] = function(config){
 		if(!config.UserComments) {
-			$.dispatcher.on('blog-view.rendered-after', function(){
+			$.dispatcher.on('rendered-after.blog-view', function(){
 				var view = this;
 				$('[data-gimme="blog.comment"]',view.el).hide();
 			});
 			return;
 		}
-		$.dispatcher.on('blog-view.class', function(){
+		$.dispatcher.on('class.blog-view', function(){
 			var view = this.prototype;
 			//view.events['[data-gimme="blog.comment"]'] = { "click": "userComments" };
 		});
-		$.dispatcher.on('blog-view.rendered-after', function(){
+		$.dispatcher.on('rendered-after.blog-view', function(){
 			var view = this;
 			$.tmpl('themeBase/plugins/user-comment', {}, function(e,o){
 				$('[data-gimme="blog.comment-box"]',view.el).replaceWith(o);	
