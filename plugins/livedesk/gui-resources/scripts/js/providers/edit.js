@@ -34,6 +34,7 @@ define('providers/edit', [
     'tmpl!livedesk>providers/generic-error',
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
+  var uploadView = new UploadView({thumbSize: 'medium'});
 	var 
 	OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
@@ -257,7 +258,6 @@ define('providers/edit', [
 		},
 		openUploadScreen: function() {
 			var self = this;
-			var uploadView = new UploadView({thumbSize: 'medium'});
 			uploadView.activate().then(function(data) {
 				self.handleImageUpload(data);
 			});
