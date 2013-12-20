@@ -463,7 +463,7 @@ function(providers, Gizmo, $, BlogAction, UserVerification, UserFilter) {
 						ways = { prev: 1, next: -1}, 
 						anti = { prev: 'next', next: 'prev'};
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
-						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
+						(cursor !== undefined) && (cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
 					);
 					var other = cursor[dir];
