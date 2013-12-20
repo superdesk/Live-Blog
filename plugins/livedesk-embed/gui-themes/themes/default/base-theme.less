@@ -338,11 +338,10 @@ background: #f0f0f0;
 							border: 1px solid #e8e8e8;
 							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
 							float: left;
-							img {
+							.post-publisher-avatar-img {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								min-height: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
+								background-size: cover !important;
 								display: block;
 							}
 						}
@@ -582,7 +581,7 @@ background: #f0f0f0;
 							.post-publisher-avatar {
 								background: url(img/comment-icon.png) no-repeat 0 0;
 								border-color: @lb-background; 
-								img {
+								.post-publisher-avatar-img {
 									display: none;
 								}
 							}
@@ -921,10 +920,11 @@ background: #f0f0f0;
 								max-height: none;
 								padding: 1px;
 								border: 1px solid #e8e8e8;
-								img {
+								.post-publisher-avatar-img {
 									width: @publisher-avatar-width-mobile;
-									max-width: @publisher-avatar-width-mobile;
-									height: auto;
+									height: @publisher-avatar-width-mobile;
+									background-size: cover !important;
+									display: block;
 								}
 							}
 
@@ -1013,7 +1013,7 @@ background: #f0f0f0;
 							}
 							&.usercomments {
 								.post-publisher-avatar {
-									background-size: 32px 32px;
+									background-size: 32px 32px !important;
 								}
 							}
 							&.soundcloud {
