@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Livedesk>
+	<CollaboratorType name="Collaborator">
+		<Action path="menu" />
+		<Action path="menu.menu2" />
+		<Action path="menu.menu3" />
+	</CollaboratorType>
+	<CollaboratorType name="Admin">
+		<Action path="menu" />
+		<Action path="menu.menu2" />
+		<Action path="menu.menu3" />
+		<Action path="menu.menu4" />
+	</CollaboratorType>
+</Livedesk>
