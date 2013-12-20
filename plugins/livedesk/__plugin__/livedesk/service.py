@@ -11,9 +11,7 @@ Contains the services for livedesk.
 
 from ally.cdm.spec import ICDM
 from ally.container import support, bind, ioc, app
-from ally.internationalization import NC_
 from livedesk.core.spec import IBlogCollaboratorGroupCleanupService
-from livedesk.impl.blog_collaborator import CollaboratorSpecification
 from sched import scheduler
 from threading import Thread
 import time
@@ -34,14 +32,6 @@ support.loadAllEntities(SERVICES)
 
 @ioc.entity
 def blogThemeCDM() -> ICDM: return contentDeliveryManager()
-
-# --------------------------------------------------------------------
-
-@ioc.entity
-def collaboratorSpecification() -> CollaboratorSpecification:
-    b = CollaboratorSpecification()
-    b.collaborator_types = [NC_('collaborator type', 'Collaborator'), NC_('collaborator type', 'Administrator')]
-    return b
 
 # --------------------------------------------------------------------
 

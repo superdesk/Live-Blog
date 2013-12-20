@@ -9,50 +9,34 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog collaborator API.
 '''
 
-from ..api.blog_collaborator import IBlogCollaboratorService
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import not_
+
+from ally.api.error import InputError
+from ally.api.validate import validate
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.internationalization import _
+from ally.support.api.util_service import processCollection
 from livedesk.api.blog_collaborator import BlogCollaborator
+from livedesk.api.blog_collaborator_type import \
+    IBlogCollaboratorTypeActionService
 from livedesk.meta.blog import BlogMapped
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorEntry, BlogCollaboratorTypeMapped
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import not_
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.source.meta.source import SourceMapped
-from superdesk.user.meta.user import UserMapped
 from sql_alchemy.support.util_service import SessionSupport, iterateCollection, \
     buildQuery
-from ally.api.error import InputError
-from ally.api.validate import validate
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.security.api.user_rbac import IUserRbacService
+from superdesk.source.meta.source import SourceMapped
+from superdesk.user.meta.user import UserMapped
+
+from ..api.blog_collaborator import IBlogCollaboratorService
+
 
 # --------------------------------------------------------------------
-
-@injected
-class CollaboratorSpecification:
-    '''
-    The class that provides the collaborator configurations.
-    '''
-
-    collaborator_types = list
-    # The collaborator types to be assigned to added blog collaborators, if the type is not specified then the first entry
-    # is used.
-    type_filter = list  # list[tuple(string, Filter)]
-    # Contains the user to blog filter to be used for a certain type, this have to be in the proper order.
-    type_actions = dict
-    # The action names to be associated with a collaborator type.
-
-    def __init__(self):
-        return
-        assert isinstance(self.collaborator_types, list), 'Invalid collaborator types %s' % self.collaborator_types
-        assert isinstance(self.type_filter, list), 'Invalid type filter %s' % self.type_filter
-        assert isinstance(self.type_actions, dict), 'Invalid type actions %s' % self.type_actions
-        if __debug__:
-            for name in self.collaborator_types: assert isinstance(name, str), 'Invalid collaborator type name %s' % name
-
 @injected
 @setup(IBlogCollaboratorService, name='blogCollaboratorService')
 @validate(BlogCollaboratorMapped)
@@ -61,46 +45,18 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     Implementation for @see: IBlogCollaboratorService
     '''
 
-    collaboratorSpecification = CollaboratorSpecification; wire.entity('collaboratorSpecification')
-# TODO: uncomment and fix
-#     userActionService = IUserActionService; wire.entity('userActionService')
+    userRbacService = IUserRbacService; wire.entity('userRbacService')
+    blogCollaboratorTypeActionService = IBlogCollaboratorTypeActionService; wire.entity('blogCollaboratorTypeActionService')
 
     def __init__(self):
         '''
         Construct the blog collaborator service.
         '''
-        assert isinstance(self.collaboratorSpecification, CollaboratorSpecification), \
-        'Invalid collaborator specification %s' % self.collaboratorSpecification
-# TODO: uncomment and fix
-#         assert isinstance(self.userActionService, IUserActionService), \
-#         'Invalid user actions service %s' % self.userActionService
+        assert isinstance(self.userRbacService, IUserRbacService), \
+        'Invalid user actions service %s' % self.userRbacService
+        assert isinstance(self.blogCollaboratorTypeActionService, IBlogCollaboratorTypeActionService), \
+        'Invalid collaborator actions service %s' % self.blogCollaboratorTypeActionService
         super().__init__()
-
-        self._collaboratorTypeIds = {}
-
-    def getAllTypes(self):
-        '''
-        @see: IBlogCollaboratorService.getAllTypes
-        '''
-        return self.session().query(BlogCollaboratorTypeMapped.Name).all()
-
-
-    def getActions(self, userId, blogId, path=None, origPath=None):
-        '''
-        @see: IBlogCollaboratorService.getActions
-        '''
-        # TODO: uncomment and fix
-#         actions = list(self.userActionService.getAll(userId, path))
-#         paths = { a.Path for a in actions }
-#         for name, f in self.collaboratorSpecification.type_filter:
-#             assert isinstance(f, Filter), 'Invalid filter'
-#             assert isinstance(f.filter, IAclFilter)
-#             if f.filter.isAllowed(userId, blogId):
-#                 collActions = list(self.collaboratorSpecification.type_actions.get(name))
-#                 collPaths = { a.Path for a in collActions }.difference(paths)
-#                 actions.extend([action for action in collActions if action.Path in collPaths])
-#                 break
-#         return actions
 
     def getById(self, blogId, collaboratorId):
         '''
@@ -112,6 +68,36 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
 
         try: return sql.one()
         except NoResultFound: raise InputError(_('No collaborator'), ref=BlogCollaboratorMapped.Id)
+        
+    def getActions(self, userId, blogId, **options):
+        '''
+        @see: IBlogCollaboratorService.getActions
+        '''
+        actions = set(self.userRbacService.getActions(userId))
+        typeName = self.collaboratorType(userId, blogId)
+        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getActions(typeName))
+        
+        return processCollection(actions, **options)
+        
+    def getActionsRoot(self, userId, blogId, **options):
+        '''
+        @see: IBlogCollaboratorService.getActionsRoot
+        '''
+        actions = set(self.userRbacService.getActionsRoot(userId))
+        typeName = self.collaboratorType(userId, blogId)
+        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getActionsRoot(typeName))
+        
+        return processCollection(actions, **options)
+        
+    def getSubActions(self, userId, blogId, parentPath, **options):
+        '''
+        @see: IBlogCollaboratorService.getSubActions
+        '''
+        actions = set(self.userRbacService.getSubActions(userId, parentPath))
+        typeName = self.collaboratorType(userId, blogId)
+        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getSubActions(typeName, parentPath))
+        
+        return processCollection(actions, **options)
 
     def getAll(self, blogId, **options):
         '''
@@ -140,13 +126,19 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         @see: IBlogCollaboratorService.addCollaboratorAsDefault
         '''
-        self.addCollaborator(blogId, collaboratorId, self.collaboratorSpecification.collaborator_types[0])
+        sql = self.session().query(BlogCollaboratorTypeMapped.Name)
+        sql = sql.filter(BlogCollaboratorTypeMapped.IsDefault == True)
+        
+        try: typeName, = sql.one()
+        except NoResultFound: raise InputError(_('No default collaborator type is available'))
+        
+        self.addCollaborator(blogId, collaboratorId, typeName)
 
     def addCollaborator(self, blogId, collaboratorId, typeName):
         '''
         @see: IBlogCollaboratorService.addCollaborator
         '''
-        typeId = self.collaboratorTypeIds()[typeName]
+        typeId = self.typeId(typeName)
         if typeId is None: raise InputError(_('Invalid collaborator type'), BlogCollaborator.Type)
 
         sql = self.session().query(BlogCollaboratorEntry)
@@ -181,20 +173,21 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
             raise InputError(_('Cannot remove'), BlogCollaboratorMapped)
 
     # ----------------------------------------------------------------
-
-    def collaboratorTypeIds(self):
-        '''
-        Provides the collaborator types ids dictionary.
-        '''
-        if not self._collaboratorTypeIds:
-            for name in self.collaboratorSpecification.collaborator_types:
-                sql = self.session().query(BlogCollaboratorTypeMapped)
-                sql = sql.filter(BlogCollaboratorTypeMapped.Name == name)
-                try: bt = sql.one()
-                except NoResultFound:
-                    bt = BlogCollaboratorTypeMapped()
-                    bt.Name = name
-                    self.session().add(bt)
-                    self.session().flush((bt,))
-                self._collaboratorTypeIds[name] = bt.id
-        return self._collaboratorTypeIds
+    
+    def collaboratorType(self, userId, blogId):
+        ''' Provides the collaborator type name, if one is available.'''
+        sql = self.session().query(BlogCollaboratorTypeMapped.Name).join(BlogCollaboratorMapped)
+        sql = sql.filter(BlogCollaboratorMapped.User == userId).filter(BlogCollaboratorMapped.Blog == blogId)
+        
+        try: typeName, = sql.one()
+        except NoResultFound: return
+        return typeName
+    
+    def typeId(self, typeName):
+        ''' Provides the collaborator type name, if one is available.'''
+        sql = self.session().query(BlogCollaboratorTypeMapped.id)
+        sql = sql.filter(BlogCollaboratorTypeMapped.Name == typeName)
+        
+        try: typeId, = sql.one()
+        except NoResultFound: return
+        return typeId

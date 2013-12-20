@@ -17,16 +17,10 @@ from superdesk.collaborator.api.collaborator import Collaborator
 from superdesk.source.api.source import QSource
 from superdesk.user.api.user import QUser, User
 from gui.action.api.action import Action
-from ally.api.option import SliceAndTotal # @UnusedImport
+from ally.api.option import SliceAndTotal  # @UnusedImport
+from .blog_collaborator_type import BlogCollaboratorType
 
 # --------------------------------------------------------------------
-
-@modelLiveDesk(id='Name')
-class BlogCollaboratorType:
-    '''
-    Provides the blog collaborator type.
-    '''
-    Name = str
 
 @modelLiveDesk(name=Collaborator)
 class BlogCollaborator(Collaborator):
@@ -47,23 +41,32 @@ class IBlogCollaboratorService:
     '''
     Provides the service methods for the blog collaborators.
     '''
-        
-    @call
-    def getAllTypes(self) -> Iter(BlogCollaboratorType.Name):
-        '''
-        Provides all the blog collaborator types.
-        '''
 
-    @call
-    def getActions(self, userId:User.Id, blogId:Blog, path:str=None, origPath:str=None) -> Iter(Action.Path):
-        '''
-        Get all actions registered for the provided user for the blog.
-        '''
-
+    # TODO: refactor: At a latter stage try to remove the blogId from this method since that info is already captured
+    # in the collaborator id, probably this was done this way for filters, but we can have a specific collaborator filter
+    # rather then have the blog id.
     @call
     def getById(self, blogId:Blog, collaboratorId:BlogCollaborator) -> BlogCollaborator:
         '''
         Provides the blog collaborator based on the id.
+        '''
+    
+    @call(webName='All')
+    def getActions(self, userId:User.Id, blogId:Blog, **options:SliceAndTotal) -> Iter(Action.Path):
+        '''
+        Get all actions registered for the provided user for the blog.
+        '''
+    
+    @call
+    def getActionsRoot(self, userId:User.Id, blogId:Blog, **options:SliceAndTotal) -> Iter(Action.Path):
+        '''
+        Get root actions registered for the provided user for the blog.
+        '''
+        
+    @call(webName='Sub')
+    def getSubActions(self, userId:User.Id, blogId:Blog, parentPath:Action.Path, **options:SliceAndTotal) -> Iter(Action.Path):
+        '''
+        Get sub actions of the action path registered for the provided user for the blog.
         '''
 
     @call
