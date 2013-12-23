@@ -93,7 +93,7 @@
 {<publisherAvatar}
 {?AuthorImage}
 <div class="post-publisher-avatar">
-  <img class="post-publisher-avatar-img" src="{AuthorImage.href}" />
+  <span class="post-publisher-avatar-img" style="background:url('{AuthorImage.href}');"></span>
 </div>
 {:else}
 <div class="post-publisher-avatar"></div>

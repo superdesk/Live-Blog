@@ -181,19 +181,33 @@ background: #f0f0f0;
 					}
 					&.comment {
 						top:0;
-						left: 0;
-					}
-				}
-			}
-			.liveblog-content-top {
-				.button {
-					&.comment {
-						top:0;
 						left: auto;
 						right: 80px;
 					}
 				}
+
+				.new-posts-label {
+					position: absolute;
+					top: 4px;
+					left: 50%;
+					margin-left: -30px;
+					background: #3676be;
+					color: #fff;
+					padding: 0 5px;
+					height: @postlist-header-height - 8;
+					line-height: @postlist-header-height - 8 ;
+					text-decoration: none;
+					font-size: 10px;
+					font-weight: bold;
+					display: none;
+					&:hover {
+						cursor: default;
+						background: #225c9c;
+					}
+				}
+
 			}
+
 			.liveblog-content-middle {
 				max-height: @postlist-maxheight;
 				min-height: @postlist-minheight;
@@ -338,11 +352,10 @@ background: #f0f0f0;
 							border: 1px solid #e8e8e8;
 							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
 							float: left;
-							img {
+							.post-publisher-avatar-img {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								min-height: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
+								background-size: cover !important;
 								display: block;
 							}
 						}
@@ -582,7 +595,7 @@ background: #f0f0f0;
 							.post-publisher-avatar {
 								background: url(img/comment-icon.png) no-repeat 0 0;
 								border-color: @lb-background; 
-								img {
+								.post-publisher-avatar-img {
 									display: none;
 								}
 							}
@@ -921,10 +934,11 @@ background: #f0f0f0;
 								max-height: none;
 								padding: 1px;
 								border: 1px solid #e8e8e8;
-								img {
+								.post-publisher-avatar-img {
 									width: @publisher-avatar-width-mobile;
-									max-width: @publisher-avatar-width-mobile;
-									height: auto;
+									height: @publisher-avatar-width-mobile;
+									background-size: cover !important;
+									display: block;
 								}
 							}
 
@@ -1013,7 +1027,7 @@ background: #f0f0f0;
 							}
 							&.usercomments {
 								.post-publisher-avatar {
-									background-size: 32px 32px;
+									background-size: 32px 32px !important;
 								}
 							}
 							&.soundcloud {
