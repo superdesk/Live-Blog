@@ -11,9 +11,10 @@ API specifications for content text item.
 
 from content.base.api.domain_content import modelContent
 from content.resource.api.item_resource import ItemResource, QItemResource
-from ally.api.config import service, query
-from ally.api.criteria import AsLike
+from ally.api.config import service, call, GET
 from ally.support.api.entity import IEntityPrototype
+from ally.api.model import Content
+from ally.api.type import Reference
 
 # --------------------------------------------------------------------
 
@@ -25,21 +26,62 @@ class ItemText(ItemResource):
     '''
     Provides the text item model.
     '''
-    Content = str
+
+@modelContent(id='Content')
+class Formatted:
+    ''' '''
+    Content = Reference
 
 # --------------------------------------------------------------------
 
-@query(ItemResource)
-class QItemText(QItemResource):
-    '''
-    Provides the query for active text item model.
-    '''
-    content = AsLike
+# no query
 
 # --------------------------------------------------------------------
 
-@service(('Entity', ItemText), ('QEntity', QItemText))
+@service(('Entity', ItemText), ('QEntity', QItemResource))
 class IItemTextService(IEntityPrototype):
     '''
     Provides the service methods for text items.
     '''
+
+    @call(method=GET, webName='AsHTML')
+    def asHTML(self, guid:ItemText) -> Formatted:
+        '''
+        Return the text item content in HTML format.
+        
+        @param guid: ItemText
+            The text item identifier.
+        @return: object
+            The text item content
+        '''
+
+    @call
+    def insert(self, item:ItemText, content:Content) -> ItemText.GUID:
+        '''
+        Insert the text item.
+        
+        @param item: ItemText
+            The text item to be inserted.
+        @return: object
+            The identifier of the text item
+        '''
+
+    @call
+    def update(self, item:ItemText, content:Content=None):
+        '''
+        Update the text item.
+        
+        @param item: Item
+            The text item to be updated.
+        '''
+
+    @call
+    def delete(self, identifier:ItemText) -> bool:
+        '''
+        Delete the text item having the given identifier.
+        
+        @param identifier: object
+            The identifier of the text item to be deleted.
+        @return: boolean
+            True if the delete is successful, false otherwise.
+        '''

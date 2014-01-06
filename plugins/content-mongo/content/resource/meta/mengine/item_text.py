@@ -23,4 +23,4 @@ class ItemTextMapped(ItemResourceMapped, ItemText):
 
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
-        self.Class = CONTENT_TYPE_TEXT
+        self.ContentType = CONTENT_TYPE_TEXT
