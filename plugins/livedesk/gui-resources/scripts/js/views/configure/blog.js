@@ -25,7 +25,6 @@
             '[data-action="cancel"]': { 'click': 'close' },
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
-			'[name="OutputLink"]': { click: 'selectInput', focusIn: 'selectInput' },
             '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
             "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
