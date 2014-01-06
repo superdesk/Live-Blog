@@ -75,6 +75,17 @@ class ISourceService(IEntityGetCRUDService):
         @raise InputError: If the source is not valid.
         '''
         
+    @call
+    def update(self, source:Source):
+        '''
+        Update the source.
+
+        @param source: Source
+            The source to be updated.
+
+        @raise InputError: If the source is not valid.
+        '''    
+        
     @call(webName='Original')
     def getOriginalSource(self, source:Source) -> Source.Id:   
         '''
