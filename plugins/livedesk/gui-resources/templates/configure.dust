@@ -20,12 +20,6 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">_('Output link');</label>
-					<div class="controls output-link">
-						<input type="text" readonly="readonly" name="OutputLink"  value="{OutputLink}"/>
-					</div>
-				</div>
-				<div class="control-group">
 					<label class="control-label">_('Configure type of blog');</label>
 					<div class="controls blogtypes"></div>
 				</div>
