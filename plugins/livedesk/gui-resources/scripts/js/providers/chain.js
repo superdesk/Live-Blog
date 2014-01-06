@@ -432,12 +432,13 @@ define([
 				this.timelineView.deactivate();
 			},
 			activate: function() {
+				console.log('active: ',this.model.sourceId);
 				var self = this;
 				self.active = true;
                 var isAuto = autoSources.isAuto(self.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
-                $('#automod-info').toggle(1);
+                $('#automod-info').hide();
                 if(self.timelineView) {
                 	self.timelineView.activate({ isDeleted: 'True' });
             	} else {
@@ -593,6 +594,7 @@ define([
                 }
 			},
 			setActive: function(view) {
+				this.clearHidden();
                 this.activeView = view;
 				for (var i = 0; i < this.chainBlogLinkViews.length; i++) {
 					if (this.chainBlogLinkViews[i] !== this.activeView) {
@@ -667,6 +669,9 @@ define([
 			clearCheckerFilter: function(){
 				this.activeView.model.chainBlogContentView.timelineView.clearCheckerFilter();
 				$('#chain-checker-name').text(_('All Assigners'));
+			},
+			clearHidden: function(){
+				$('#hidden-toggle',this.el).removeClass('active');
 			},
 			toggleHidden: function(e) {
 				e.preventDefault();
