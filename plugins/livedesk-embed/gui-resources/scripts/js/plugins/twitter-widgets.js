@@ -13,28 +13,27 @@ define([
 	'dispatcher',
 ], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
-    require(['twitterWidgets'], function(twttr){
 
-      $.dispatcher.on('rendered-after.post-view', function(){
-        if(this.shortItem != '/item/source/twitter')
-          return;
-        if(!this._parent._twitterPosts)
-          this._parent._twitterPosts = [];
-        this._parent._twitterPosts.push(this);
-      });
-      $.dispatcher.on('added-pending.posts-view', function(){
-        addWaypoints(this);
-      });
-      $.dispatcher.on('add-all.posts-view', function(){
-        var self = this;
-        twttr.ready(function(){
-          addWaypoints(self);
-        });
-      });
+    $.dispatcher.on('rendered-after.post-view', function(){
+      if(this.shortItem != '/item/source/twitter')
+        return;
+      if(!this._parent._twitterPosts)
+        this._parent._twitterPosts = [];
+      this._parent._twitterPosts.push(this);
+    });
 
-      var addWaypoints = function(self){
-        if(!self._twitterPosts)
-          return;
+    $.dispatcher.on('added-pending.posts-view', function(){
+      addWaypoints(this);
+    });
+
+    $.dispatcher.on('add-all.posts-view', function(){
+      addWaypoints(this);
+    });
+
+    var addWaypoints = function(self){
+      if(!self._twitterPosts){ return; }
+
+      require(['twitterWidgets'], function(twttr){
         $.each(self._twitterPosts, function(index, post){
           post.el.waypoint(function(){
             twttr.widgets.createTweet(
@@ -53,10 +52,10 @@ define([
           });
         });
         self._twitterPosts = [];
-      }
-    }, function(err){
-      // twitterWidgets dependency failed to load, probably blocked by user
-      return;
-    });
+      }, function(err){
+        // twitterWidgets dependency failed to load, probably blocked by user with adblock
+        return;
+      });
+    }
 	}
 });
