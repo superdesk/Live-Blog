@@ -75,7 +75,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         actions = set(self.userRbacService.getActions(userId))
         typeName = self.collaboratorType(userId, blogId)
-        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getActions(typeName))
+        if typeName: actions.update(set(self.blogCollaboratorTypeActionService.getActions(typeName)))
         
         return processCollection(actions, **options)
         
@@ -85,7 +85,8 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         actions = set(self.userRbacService.getActionsRoot(userId))
         typeName = self.collaboratorType(userId, blogId)
-        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getActionsRoot(typeName))
+        if typeName:
+            actions.update(set(self.blogCollaboratorTypeActionService.getActionsRoot(typeName)))
         
         return processCollection(actions, **options)
         
@@ -95,7 +96,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         actions = set(self.userRbacService.getSubActions(userId, parentPath))
         typeName = self.collaboratorType(userId, blogId)
-        if typeName: actions.extend(self.blogCollaboratorTypeActionService.getSubActions(typeName, parentPath))
+        if typeName: actions.update(set(self.blogCollaboratorTypeActionService.getSubActions(typeName, parentPath)))
         
         return processCollection(actions, **options)
 

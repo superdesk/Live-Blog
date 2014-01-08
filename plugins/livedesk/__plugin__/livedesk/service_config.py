@@ -9,7 +9,7 @@ Created on Dec 19, 2013
 Contains the Livedesk configuration service.
 '''
 
-from ally.container import ioc
+from ally.container import ioc, support
 from ally.design.processor.assembly import Assembly
 from __setup__.ally.notifier import registersListeners
 from ally.xml.digester import Node, RuleRoot
@@ -18,9 +18,15 @@ from ally.xml.parser import ParserHandler
 from ally.notifier.impl.processor.configuration_notifier import ConfigurationListeners
 from livedesk.impl.rules import CollaboratorTypeRule
 from ally.xml.rules import ActionRule
+from __plugin__.gui_core.service import uriRepositoryCaching, synchronizeAction
 
 # --------------------------------------------------------------------
-    
+# The synchronization processors
+syncCollaboratorType = syncCollaboratorActions = support.notCreated  # Just to avoid errors
+support.createEntitySetup('livedesk.impl.processor.synchronize.**.*')
+
+#-------------------------------------------------------------------------
+
 @ioc.config
 def livedesk_configuration():
     ''' The URI path where the XML Livedesk configuration is found.'''
@@ -51,13 +57,14 @@ def configurationLiveDeskListener() -> Handler:
 # --------------------------------------------------------------------
 
 @ioc.before(nodeRootXML)
-def updateRootNodeXMLForGroups():
+def updateRootNodeXMLForCollaboratorType():
     nodeRootXML().addRule(CollaboratorTypeRule(), 'Livedesk/CollaboratorType')
     nodeRootXML().addRule(ActionRule(), 'Livedesk/CollaboratorType/Action')
 
 @ioc.before(assemblyLivedeskConfiguration)
 def updateAssemblyConfiguration():
-    assemblyLivedeskConfiguration().add(parserXML())
+    assemblyLivedeskConfiguration().add(parserXML(), uriRepositoryCaching(), synchronizeAction(), 
+                                        syncCollaboratorType(), syncCollaboratorActions())
 
 @ioc.before(registersListeners)
 def updateRegistersListenersForConfiguration():
