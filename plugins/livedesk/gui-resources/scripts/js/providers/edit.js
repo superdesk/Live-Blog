@@ -163,9 +163,12 @@ define('providers/edit', [
 				self.addOne(model);
 			});
 
-			if (this._parent.blog.isOpen()) {
+			/*!
+			 * @TODO: find out how this "close blog" feature supposed to work.
+			 */
+			//if (this._parent.blog.isOpen()) {
 				this.posts.sync();
-			}
+			//}
 		},
 		render: function(evt, data){
 			if ( data === undefined)

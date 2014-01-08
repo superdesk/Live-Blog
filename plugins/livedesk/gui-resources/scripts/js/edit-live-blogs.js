@@ -595,9 +595,12 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 					.offset(self.collection._stats.offset)
 					.desc('order');
 
-				if (self._parent.model.isOpen()) {
+				/*!
+				 * @TODO: find out how this "close blog" feature supposed to work.
+				 */
+				//if (self._parent.model.isOpen()) {
 					self.collection.auto();
-				}
+				//}
 
 				self.collection.view = self;
 				
@@ -969,6 +972,7 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 				    // once	
 				    .done(function()
 				    {
+				    	console.log('render edit');
 				        self.render();
 				    });
 			},
