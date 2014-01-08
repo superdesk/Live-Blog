@@ -175,6 +175,7 @@ define([
 				var self = this;
 			    
 			    self.filter.data = $.extend(self.filter.data, data);
+				//self.collection.resetStats();
 				self.collection
 					.auto({
 						headers: { 'X-Filter': self.xfilter },
@@ -437,7 +438,7 @@ define([
                 var isAuto = autoSources.isAuto(self.model.sourceId);
                 $('.autopublish input:checkbox').prop('checked', isAuto);
                 $('.autopublish .sf-toggle-custom').toggleClass('sf-checked', isAuto);
-                $('#automod-info').toggle(1);
+                $('#automod-info').hide();
                 if(self.timelineView) {
                 	self.timelineView.activate({ isDeleted: 'True' });
             	} else {
@@ -593,6 +594,7 @@ define([
                 }
 			},
 			setActive: function(view) {
+				this.clearHidden();
                 this.activeView = view;
 				for (var i = 0; i < this.chainBlogLinkViews.length; i++) {
 					if (this.chainBlogLinkViews[i] !== this.activeView) {
@@ -668,12 +670,25 @@ define([
 				this.activeView.model.chainBlogContentView.timelineView.clearCheckerFilter();
 				$('#chain-checker-name').text(_('All Assigners'));
 			},
+			clearHidden: function(){
+				var self = this,
+					view = this.activeView,
+					elem = $('#hidden-toggle', self.el),
+					is_active = elem.hasClass('active');
+				if (view) {
+					if (is_active) {
+						self.hiddenToggle = false;
+						view.model.hiddenChainBlogContentView.deactivate();
+					}
+				}
+				elem.removeClass('active');
+			},
 			toggleHidden: function(e) {
 				e.preventDefault();
 				var self = this,
-					view = this.activeView;
-				var elem = $('#hidden-toggle');
-				var is_active = elem.hasClass('active');
+					view = this.activeView,
+					elem = $('#hidden-toggle', self.el),
+					is_active = elem.hasClass('active');
 				self.clearStatusFilter();
 				self.clearCheckerFilter();
 				if (view) {

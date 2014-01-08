@@ -153,6 +153,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
          */
         showNewResults: function(e, count, callback, auto)
         {
+            auto = true;
             if( !$('.'+providers.colabs.className).parents('li:eq(0)').hasClass('active') )
                 this.notifications.removeClass('hide').text(count);
             
