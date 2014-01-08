@@ -72,7 +72,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             if(!(theLang in this.currentMeta)) return false;
             
             for( var i in this.currentMeta[theLang] )
-                if( typeof this.currentMeta[theLang][i] == 'string' && $.inArray(i, ['href', 'Language', 'Id']) == -1 )
+                if( typeof this.currentMeta[theLang][i] == 'string' && $.inArray(i, ['href', 'Language', 'Code']) == -1 )
                     $('.metadata-details', this.el)
                         .append( '<dt>'+_(i)+'</dt>' )
                         .append( '<dd>'+this.currentMeta[theLang][i]+'</dd>' );
@@ -218,7 +218,7 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         getInfoNode: function()
         {
-            return this.model.get('MetaInfo');
+            return this.model.get('MetaDataMetaInfo');
         },
         /*!
          * return new meta info object
@@ -240,10 +240,11 @@ function($, superdesk, giz, MetaInfo, Languages)
             metaInfo.each(function()
             {
                 var model = this,
-                    editMeta = self.currentMeta[this.get('Language').get('Id')],
+                    editMeta = self.currentMeta[this.get('Language').get('Code')],
                     data = {};
                 if(!editMeta) return true;
                 for( var i in editMeta ) if( i != 'href' && typeof editMeta[i] == 'string' ) data[i] = editMeta[i];
+                console.log(model.href);
                 model.set(data).sync().done(self.postSave);
             });
 
