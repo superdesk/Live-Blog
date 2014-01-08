@@ -205,12 +205,14 @@ define([
                             };
                             provider.editProvider(getGizmoUrl('Data/Source/' + $scope.provider.Id), editData ).then(function(data){
                                 //was able to edit the provider
-                                //unchain blogs
-                                provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
                                 //update provider object
-                                $scope.provider.blogList = newBlogsdata;
-                                $scope.provider.URI.href = $scope.newUrl;
                                 $scope.provider.Name = $scope.newTitle;
+                                if ($scope.provider.URI.href != $scope.newUrl){
+                                  //unchain blogs
+                                  provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
+                                  $scope.provider.blogList = newBlogsdata;
+                                  $scope.provider.URI.href = $scope.newUrl;
+                                }
                                 //close the form
                                 cleanEditForm();
                             }, function(data) {
