@@ -1,7 +1,7 @@
 define([ 'providers' ], function( providers ) {
 	providers.ads = {
 		className: 'big-icon-ads',       
-		tooltip: _('Advertisment'),
+		tooltip: _('Advertisement'),
 		init: function() {
 			var args = arguments;
 			require(['providers','providers/ads'], function(providers){ 
