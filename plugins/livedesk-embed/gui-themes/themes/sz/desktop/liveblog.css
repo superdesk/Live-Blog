@@ -634,7 +634,7 @@ body
 }
 
 /* EINZELNE SOURCE-ICONS */
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .attributes .source-icon {	background: #fff url(img/twitter-16px.png) no-repeat 0 0; }
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .attributes .source-icon {	background: #fff url(img/tw-16px.png) no-repeat 0 0; }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.facebook .attributes .source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0; }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.google .attributes .source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0; }
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.instagram .attributes .source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0; }
