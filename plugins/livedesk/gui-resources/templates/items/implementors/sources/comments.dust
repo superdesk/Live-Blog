@@ -8,11 +8,6 @@
 	{?Meta.DeletedOn}<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}">Unhide</a>{:else}<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}">Hide</a>{/Meta.DeletedOn}
 </div>
 {/ExtraPostInfo}
-{<TopBlocks}
-	{+PostHiddenAction}{/PostHiddenAction}
-{/TopBlocks}
-</div>
-{/ExtraPostInfo}
 {<Container}{/Container}
 {<EditableClass}{/EditableClass}
 {<EditableAttribute}{/EditableAttribute}
