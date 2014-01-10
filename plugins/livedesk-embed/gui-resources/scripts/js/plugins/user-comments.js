@@ -13,12 +13,19 @@ define([
         var view = this;
         $('[data-gimme="blog.comment"]',view.el).hide();
       });
-      return;
     }
-    $.dispatcher.on('class.blog-view', function(){
-      var view = this.prototype;
-      //view.events['[data-gimme="blog.comment"]'] = { "click": "userComments" };
+    $.dispatcher.on('config-updated.blog-view', function(){
+      var view = this.view;
+      if(this.config.UserComments){
+        $('[data-gimme="blog.comment"]',view.el).show();
+      } else {
+        $('[data-gimme="blog.comment"]',view.el).hide();
+      }
     });
+    //$.dispatcher.on('class.blog-view', function(){
+      //var view = this.prototype;
+      //view.events['[data-gimme="blog.comment"]'] = { "click": "userComments" };
+    //});
     $.dispatcher.on('rendered-after.blog-view', function(){
       var view = this;
       $.tmpl('themeBase/plugins/user-comment', {}, function(e,o){
