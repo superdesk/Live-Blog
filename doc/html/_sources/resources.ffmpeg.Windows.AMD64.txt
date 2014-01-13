@@ -1,0 +1,10 @@
+AMD64 Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg.Windows.AMD64.bin
+

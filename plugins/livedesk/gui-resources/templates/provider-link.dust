@@ -1,0 +1,1 @@
+<li class="{classActived} {link}">	<a href="#{link}" data-toggle="tab" rel="tooltip" title={tooltip} data-placement="right">		<i class="{className}"></i>		<span class="badge badge-inverse hide notifications"></span>		<span class="badge badge-info hide config-notif">!</span>	</a></li>

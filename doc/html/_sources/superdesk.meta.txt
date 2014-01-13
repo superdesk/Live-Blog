@@ -1,0 +1,19 @@
+meta Package
+============
+
+:mod:`meta` Package
+-------------------
+
+.. automodule:: superdesk.meta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`metadata_superdesk` Module
+--------------------------------
+
+.. automodule:: superdesk.meta.metadata_superdesk
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

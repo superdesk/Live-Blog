@@ -1,0 +1,41 @@
+{! overwrite item blocks if needed in specific templates like so
+	{<body}
+		...
+	{/body}
+	{<side}
+		...
+	{/side}
+!}
+
+<div class="media-box-hover-list {Type}" style="-moz-user-select: none;">	
+
+
+  	{+body}
+		<figure>{Content|s}</figure>
+		
+		<!--
+		<div class="actions-left">
+			<div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
+		</div>
+        -->
+
+		<div class="media-info">
+			{+title}
+		    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
+		    {/title}
+		</div>
+    {/body}
+
+	{+side}
+	<div class="actions-right">
+    	<div class="btn-group">
+        	<button class="btn btn-mini">_('Action');</button>
+			<button data-toggle="dropdown" class="btn btn-mini dropdown-toggle">
+            	<span class="caret"></span>
+			</button>
+			{>"media-archive>types/_default/menu"/}
+        </div>
+    </div>
+    {/side}
+    
+</div>

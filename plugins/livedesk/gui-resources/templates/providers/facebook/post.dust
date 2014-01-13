@@ -1,0 +1,27 @@
+<li class="facebook draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
+    <div class="drag-bar"></div>
+    <div class="tool-box-right" style="z-index: 1000">
+    	<a href="#delete-post" data-toggle="modal" class="close image" title="_('Delete');">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="_('Unpublish');">&nbsp;</a>{/PublishedOn}
+    </div>
+    <div class="editable annotation">
+            {Meta.annotation.before|s}
+    </div>
+    <figure><img src="//graph.facebook.com/{Meta.from.id}/picture" width="48" height="48" alt="1"></figure>
+    <div class="result-content">
+        <h3><span class="author">{Meta.from.name}</span></h3>
+        <p class="result-text">{Meta.message|s|trim200}</p>
+        <p class="attributes"><i class="source-icon"></i>
+        <a href="{permalink}" target="_blank"><time>{Meta.formated_time}</time></a>
+        </p>
+    </div>
+    <div class="editable annotation">
+            {Meta.annotation.after|s}
+    </div>	
+    <div class="btn-group pull-right clearfix actions hide">
+    	<button class="btn btn-mini cancel">Cancel</button>
+    	<button class="btn btn-mini btn-primary publish">Publish</button>
+   	</div>		
+</li>
+
+

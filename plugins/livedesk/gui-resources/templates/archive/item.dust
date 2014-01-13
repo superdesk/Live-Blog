@@ -1,0 +1,14 @@
+{#User}
+	<td>
+		<a name="{href}" />
+		{Id}
+	</td>
+	<td>{Title}</td>
+	<td>{CreatedOn}</td>
+	<td>    
+		<div class="btn-group">
+			<a class="btn view" href="#live-blog/{Id}" data-blog-title="{Title}" data-blog-link="{href}">_('View');</a>
+			<a class="btn" href="#live-blog/{Id}/hide" data-action="hide">_('Hide');</a>
+    	</div>
+    </td>
+{/User}

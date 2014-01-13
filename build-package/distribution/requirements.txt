@@ -1,0 +1,8 @@
+Babel>=1.0
+pytz
+httplib2>=0.7
+MySql-connector-python>=0.3
+PyYAML>=3.0
+SQLAlchemy>=0.7
+ally-py >= 0.1
+liveblog

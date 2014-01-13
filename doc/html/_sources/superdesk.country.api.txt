@@ -1,0 +1,19 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: superdesk.country.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`country` Module
+---------------------
+
+.. automodule:: superdesk.country.api.country
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

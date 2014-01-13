@@ -1,0 +1,10 @@
+all Package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.all.all
+

@@ -1,0 +1,11 @@
+impl Package
+============
+
+:mod:`collaborator` Module
+--------------------------
+
+.. automodule:: superdesk.collaborator.impl.collaborator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

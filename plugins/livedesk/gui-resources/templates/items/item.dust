@@ -1,0 +1,23 @@
+{?Item}
+		{>"livedesk>items/{Item}"/}
+	{:else}
+		{#Post}
+			{!@TODO: Change this with the select helper from dust 1.0!}
+			{@if cond="'{Author.Source.Type.Key}' === 'smsblog'"}
+				{>"livedesk>items/sources/sms"/}
+			{:else}
+				{@if cond="'{Author.Source.Name}'==='internal' || '{Author.Source.IsModifiable}'==='True'"}
+					{>"livedesk>items/types/{Type.Key}"/}
+				{:else}
+					{@if cond="'{Author.Source.Name}'==='google'"}
+						{>"livedesk>items/sources/{Author.Source.Name}/{Meta.type}"/}
+					{:else}
+						{>"livedesk>items/sources/{Author.Source.Name}"/}
+					{/if}
+				{/if}
+			{/if}
+		{:else}
+			
+				ERROR: NO ITEM@ TEMPLATE FOUND
+		{/Post}
+{/Item}

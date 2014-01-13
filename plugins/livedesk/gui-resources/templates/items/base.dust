@@ -1,0 +1,220 @@
+{#Post}
+<li class="{+DraggableClass}draggable{/DraggableClass} {+ProviderClass}{/ProviderClass} {+ImplementorClass}{/ImplementorClass} clearfix" {+AdditionalAttributes}{/AdditionalAttributes}>
+	<div class="drag-bar"></div>
+	
+	<!-- user posts verification interface goes here -->
+	<div class="top-box-container">
+		{+TopBlocks}{/TopBlocks}
+	</div>
+	
+
+	{+FastActions}
+	<div class="tool-box-right">
+		<a href="{+FastActionsDeleteModal}#delete-post{/FastActionsDeleteModal}" class="close image" data-toggle="modal" title="Delete">x</a>
+		{+FastActionsUnPublish}
+		<a href="#unpublish-post" data-toggle="modal" class="unpublish image" title="Unpublish">&nbsp;</a>
+		{/FastActionsUnPublish}
+	</div>
+	{/FastActions}
+	{+AdditionalActions}
+		{+WrapupAdditionalActions}
+			<div class="arrow">
+			</div>		
+		{/WrapupAdditionalActions}
+	{/AdditionalActions}
+
+	{+ItemInfo}
+		{+Avatar}
+		<figure class="avatar">
+			{Avatar|s}
+		</figure>
+		{/Avatar}
+		{+PostInfo}
+		<div class="post-info">
+			{+AuthorInfo}
+			<p rel="author">{+AuthorName}{Creator.FullName}{/AuthorName}</p> <!-- User full name -->
+			{/AuthorInfo}
+			{+TimeInfo}
+			<time data-date="{+TimeInfoIso}{/TimeInfoIso}">{+TimeInfoShowed}{CreatedOn}{/TimeInfoShowed}</time> <!-- time of the post -->
+			{/TimeInfo}
+		</div>
+		{/PostInfo}
+	{/ItemInfo}
+	<div class="result-content-full">
+		{+TopAnnotation}
+		<div class="top editable annotation" contenteditable="true">
+			{?Meta.annotation.before}
+				{Meta.annotation.before|s}
+			{:else}
+				<br/>
+			{/Meta.annotation.before}
+		</div>
+		{/TopAnnotation}
+		<div class="result-content">
+			{+ContentImage}
+			<figure>
+				<a href="{+ContentImageLink}{/ContentImageLink}" {+ContentImageLinkAttributes}{/ContentImageLinkAttributes} title="{+ContentImageTitle}{/ContentImageTitle}" target="_blank">
+					<!-- a tag displays only for clickable images :
+						> google images
+						> flickr
+						> instagram
+					-->
+					<img src="{+ContentImageUrl}{/ContentImageUrl}" alt="{+ContentImageAlt}{/ContentImageAlt}" {+ContentImageAttributes}{/ContentImageAttributes}/>
+				</a>
+			</figure>
+			<!-- figure tag displays for:
+				> internal link
+				> twitter
+				> google link
+				> google news
+				> flickr
+				> instagram
+				> youtube
+			-->
+			{/ContentImage}
+			<div class="result-text{+EditableClass} editable {/EditableClass}" {+EditableAttribute} contenteditable="true"{/EditableAttribute}>
+				{+ContainerIframe}
+                <div class="video-container">
+				<iframe src="{+ContainerIframeUrl}{/ContainerIframeUrl}" class='{+ContainerIframeClass}{/ContainerIframeClass}' {+ContainerIframeAttributes}{/ContainerIframeAttributes}></iframe>
+                </div>
+				{/ContainerIframe}
+				{+ContainerAdditional}
+					{+ContainerTitle}
+					<h3>
+						<a href="{+ContainerTitleLink}{/ContainerTitleLink}" target="_blank">{+ContainerTitleName}{/ContainerTitleName}</a>
+					</h3>
+					{/ContainerTitle}
+					{+ContainerDescription}
+							<div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
+							<!-- p.result-description tag displays for:
+								> internal link
+								> twitter
+								> google link
+								> google news
+								> google images
+								> flickr
+								> youtube
+								> soundcloud
+							-->
+					{/ContainerDescription}
+				{/ContainerAdditional}
+				{+Container}
+					{Content|s}
+				{/Container}
+			</div>
+		</div>
+		{+Attributes}
+			<div class="attributes">
+				<i class="source-icon">
+					{+SourceIcon}
+					<img src="http://g.etfv.co/{+SourceLink}{/SourceLink}" style="max-width: 16px" border="0">
+					{/SourceIcon}
+				</i>
+				<!-- i.source-icon and a.author-name tag displays for:
+					> internal link
+					> twitter
+					> google link
+					> google news
+					> google images
+					> youtube
+					> soundcloud
+				-->
+				{+SourceInfo}
+					{+SourceAuthor}
+					<a class="author-name" href="{+AuthorLink}{/AuthorLink}" target="_blank">{+AuthorShowed}{AuthorName}{/AuthorShowed}</a>
+					<!-- a.author-name tag displays for:
+						> internal link
+						> google link
+						> google news
+						> google images
+						> youtube
+						> soundcloud
+					-->
+					{/SourceAuthor}
+					{+SourceTime}
+					<time data-date="{+TimeIso}{/TimeIso}">{+TimeShowed}{/TimeShowed}</time>
+					<!-- time tag displays for:
+						> twitter
+						> youtube
+						> soundcloud
+					-->
+					{/SourceTime}
+				{/SourceInfo}
+			</div>
+		{/Attributes}
+		{+BottomAnnotation}
+		<!-- BOTTOM ANNOTATION - Displays for twitter provider posts, and NEVER for internal posts -->
+		<div class="bottom editable annotation" contenteditable="true">
+			{?Meta.annotation.after}
+				{Meta.annotation.after|s}
+			{/Meta.annotation.after}
+		</div>
+		{/BottomAnnotation}
+	</div>
+	{+ImportantActions}
+		{+ImportantActionsPublish}
+		<div class="pull-right clearfix actions hide">
+			<button class="btn btn-mini cancel">_("Cancel");</button>
+			<button class="btn btn-mini btn-primary publish">_("Publish");</button>
+		</div>
+
+		<div class="message-error">
+			_("There an error updating the post!");
+		</div>
+
+		<div class="message-success">
+			_("Post has been updated!");
+		</div>
+		{/ImportantActionsPublish}
+		{+ImportantActionsPrepublish}
+			<div class="pull-right clearfix actions">
+				<button class="btn btn-mini cancel">_("Cancel");</button>
+				<button class="btn btn-mini btn-primary publish">_("Publish");</button>
+			</div>
+			<div class="message-error">
+				_("There an error saving the post!");
+			</div>
+		{/ImportantActionsPrepublish}
+	{/ImportantActions}
+		<!--  div class="saveonly">
+			<button class="btn btn-small btn-primary" type="submit">Save</button>
+		</div -->
+</li>
+{/Post}
+{<PostVerification}
+<!-- this template goes to the top (just after the drag-bar block) of the base.dust file template --> 
+	<div class="verification-box">
+		<div class="verification-label dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" >{PostVerification.Status.Key} <b class="caret"></b></a>
+			<ul class="dropdown-menu sf-dropdown sf-dropdown-right">
+				<h5 class="dropdown-title">_('Change status');</h5>
+				<li data-status-key="nostatus"><span class="label-nostatus"></span>_('No Status');</li>
+				<li data-status-key="verified"><span class="label-verified"></span>_('Verified');</li>
+				<li data-status-key="unverified"><span class="label-unverified"></span>_('Unverified');</li>
+				<li data-status-key="onverification"><span class="label-onverification"></span>_('On verification');</li>
+			</ul>
+		</div>
+		<div class="verification-assign">
+		</div>
+	</div>
+{/PostVerification}
+
+{<PostHiddenAction}
+	<div class="hide-unhide-container">
+	{?Meta.DeletedOn}
+		<a href="#toggle-post" data-action="unhide" data-id="{Meta.Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
+	{:else}
+		{?DeletedOn}
+			<a href="#toggle-post" data-action="unhide" data-id="{Id}" class="undo-delete"><i class="icon-undo"></i>_('Undo delete');</a>
+		{:else}
+			{?Id}
+				<a href="#toggle-post" data-action="hide" data-id="{Id}" class="close image" title="_('Delete');">&nbsp;</a>
+				{:else}
+					{?Meta.Id}
+						<a href="#toggle-post" data-action="hide" data-id="{Meta.Id}" class="close image" title="_('Delete');">&nbsp;</a>
+					{/Meta.Id}
+			{/Id}
+		{/if}
+	{/Meta.DeletedOn}
+	</div>
+{/PostHiddenAction}

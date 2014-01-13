@@ -1,0 +1,19 @@
+meta Package
+============
+
+:mod:`source` Module
+--------------------
+
+.. automodule:: superdesk.source.meta.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: superdesk.source.meta.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,12 @@
+post Package
+============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.post.api
+    superdesk.post.impl
+    superdesk.post.meta
+

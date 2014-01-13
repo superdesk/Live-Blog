@@ -1,0 +1,32 @@
+{#Item}
+
+	<li class="media-image clearfix">
+
+	{+side}
+	<div class="dropdown">
+    	<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
+        <ul class="dropdown-menu sf-dropdown-simple pull-right">
+        	<li><a data-action="view-meta" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details');</a></li>
+            <li><a data-action="delete" href="javascript:void(0)"><i class="icon-trash"></i> _('Detach');</a></li>
+        </ul>
+    </div>
+    {/side}
+  
+	{+body}
+	<figure>
+		<img src="{Thumbnail.href}" />
+	</figure>
+	{/body}
+
+	<div class="media-description approved"> <!-- if image is approved put class "approved", else put class "unapproved" -->
+		{+title}
+		{?Title}{Title}{/Title}
+		<span class="size-info">{Name}</span>
+		{/title}
+		
+	</div>
+
+</li>
+
+
+{/Item}

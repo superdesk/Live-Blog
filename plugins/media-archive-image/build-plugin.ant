@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="media-archive-image" default="build" basedir=".">
+
+	<property name="root" value="../" />
+	<property name="destination" value="." />
+	<property name="egg.media.archive.image" value="superdesk-media-archive-image-1.0.egg" />
+
+	<target name="clean">
+		<delete file="${destination}/${egg.media.archive}" />
+	</target>
+
+	<target name="build" depends="clean">
+		<zip destfile="${destination}/${egg.media.archive.image}" basedir="${root}/media-archive-image">
+			<exclude name="**/__pycache__/" />
+			<exclude name="/.*" />
+			<exclude name="/*.egg" />
+		</zip>
+	</target>
+
+</project>

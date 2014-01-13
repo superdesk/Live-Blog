@@ -1,0 +1,13 @@
+Windows Package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg.Windows.AMD64
+    resources.ffmpeg.Windows.all
+    resources.ffmpeg.Windows.x86
+    resources.ffmpeg.Windows.x86_64
+

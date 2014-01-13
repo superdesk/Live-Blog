@@ -1,0 +1,11 @@
+impl Package
+============
+
+:mod:`user` Module
+------------------
+
+.. automodule:: superdesk.user.impl.user
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,19 @@
+impl Package
+============
+
+:mod:`source` Module
+--------------------
+
+.. automodule:: superdesk.source.impl.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: superdesk.source.impl.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

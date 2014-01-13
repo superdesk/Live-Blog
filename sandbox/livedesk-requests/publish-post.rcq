@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest-client version="2.3.3"><request><http-version>1.1</http-version><URL>http://localhost/resources/my/LiveDesk/Blog/1/Post/9/Publish</URL><method>POST</method><headers><header key="Content-Language" value="en"/><header key="Content-Type" value="text/xml"/><header key="Authorization" value="1"/></headers></request></rest-client>

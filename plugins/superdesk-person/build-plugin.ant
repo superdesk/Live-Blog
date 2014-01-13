@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="superdesk-person" default="build" basedir=".">
+
+	<property name="root" value="../"/>
+	<property name="destination" value="."/>
+	<property name="egg.superdesk.person" value="superdesk-person-1.0.egg"/>
+
+	<target name="clean">
+		<delete file="${destination}/${egg.superdesk.person}" />
+	</target>
+
+	<target name="build" depends="clean">
+		<zip destfile="${destination}/${egg.superdesk.person}" basedir="${root}/superdesk-person">
+			<exclude name="**/__pycache__/"/>
+			<exclude name="/.*"/>
+			<exclude name="/*.egg"/>
+		</zip>
+	</target>
+
+</project>

@@ -1,0 +1,21 @@
+{>"media-archive>types/_default/view"/}
+
+{<content}
+
+	<figure style="min-height:256px">
+		<img src="{Item.Thumbnail.href}" />
+	</figure>
+	
+{/content}
+
+{+meta}
+
+	{#Meta}
+		<dl>
+			<dt>_('Title');</dt><dd>{Title}</dd>
+            <dt>_('Description');</dt><dd>{Description}</dd>
+            <dt>_('Caption');</dt><dd>{Caption}</dd>
+        </dl>
+	{/Meta}
+
+{/meta}

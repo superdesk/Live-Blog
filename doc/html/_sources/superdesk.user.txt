@@ -1,0 +1,12 @@
+user Package
+============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.user.api
+    superdesk.user.impl
+    superdesk.user.meta
+

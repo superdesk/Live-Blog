@@ -1,0 +1,138 @@
+Installation procedure for Live Blog v1.0 (for developers)
+http://www.sourcefabric.org
+
+
+PREPARATION
+-----------
+
+The following applications need to be installed prior to Live Blog:
+
+1. Python 3.2
+Live Blog requires Python 3.2 with standard libraries.
+
+2. Java
+Version 1.5 or later. The 'java' binary must be in the system path.
+
+3. MongoDB 2.x
+Not necessary for Live Blog after disabling the 'Article' part, as it is explained below.
+
+
+INSTALLATION FROM SOURCES (FOR DEVELOPERS)
+-------------------------------------------
+
+1. Install the Ally-Py framework
+See https://github.com/sourcefabric/Ally-py
+
+I.e. clone the Ally-Py to a directory, e.g. /var/opt/ally-py
+Content of that directory should comprise:
+'build', 'components', 'distribution', 'plugins', etc.
+
+2. Create a directory named "superdesk" inside Ally-Py directory and copy
+the content of this package in.
+
+It can look like /var/opt/ally-py/superdesk and its subdirectories
+are 'build', 'distribution', 'plugins', etc.
+
+3. Build eggs by running the following command:
+[path_to_superdesk]/build-eggs
+
+It can be e.g. /var/opt/ally-py/superdesk/build-eggs
+
+4. Create the configuration files by running the following command:
+[path_to_python3.2] [path_to_superdesk]/distribution/application.py -dump
+
+E.g.: python3 /var/opt/ally-py/superdesk/distribution/application.py -dump
+In this example the content of the package was copied in the
+/var/opt/ally-py/superdesk directory and python3 binary is in the system path.
+
+5. Start the REST Ally server by running the following command:
+[path_to_python3.2] [path_to_superdesk]/distribution/application.py
+
+E.g.: python3 /var/opt/ally-py/superdesk/distribution/application.py
+Here python3 is supposed to be the python3.2 shell, available in the system path.
+
+6. Use the web interface to the Superdesk
+The admin interface can be accessed from a browser on the same system at
+the URL: http://localhost:8080/content/lib/core/start.html
+
+Log in with admin and password a
+
+Access from the Internet
+------------------------
+In order to access the application from other machines the following changes
+need to be done:
+
+1. Edit the file 'superdesk/distribution/application.properties', search for
+the property 'server_host' and change it to '0.0.0.0'
+E.g.: server_host: 0.0.0.0
+
+2. Edit the file 'superdesk/distribution/plugins.properties', search for the
+properties 'server_url' and 'embed_server_url' and change them to
+'[machine_name_or_ip]:8080
+E.g.: server_url: my.machine.domain.com:8080
+
+3. Restart the REST Ally server.
+
+Embedding Live Blog into your site
+----------------------------------
+
+In order to embed the output of your liveblog into your site take the
+following steps:
+
+1. Open the admin interface (see above)
+2. Select the blog that you want to embed from the menu
+3. Click 'Configure Blog' button
+4. Select an embed theme
+5. Copy the content of the field 'Embed script' and paste it into your site
+content.
+
+Changing the database server
+----------------------------
+
+Edit the file superdesk/distribution/plugins.properties, search for db_superdesk.database_url
+and modify the URL. E.g.:
+db_superdesk.database_url: mysql+mysqlconnector://root:@localhost/livedesk
+
+The URL is a string in the form
+    ``dialect+driver://user:password@host/dbname[?key=value..]``, where
+    ``dialect`` is a database name such as ``mysql``, ``oracle``, 
+    ``postgresql``, etc., and ``driver`` the name of a DBAPI, such as 
+    ``psycopg2``, ``pyodbc``, ``cx_oracle``, etc.  Alternatively, 
+    the URL can be an instance of :class:`~sqlalchemy.engine.url.URL`.
+
+Read the SQLAlchemy manual for more details:
+http://docs.sqlalchemy.org/en/latest/core/engines.html
+
+MongoDB related parts
+---------------------
+MongoDB is required for Superdesk, unless the 'Article' functionality is disabled.
+Live Blog itself does not utilize articles, thus it is possible to leave the articles part out.
+
+For disabling the 'Article' menu and functionality, set the 'excluded_plugins' option
+in the superdesk/distribution/application.properties file, and restart the Superdesk then.
+It shall be like:
+
+# The prefix for the plugins to be excluded, something like: gui-action, introspection-request.
+excluded_plugins:
+- content_article
+- content_packager
+- content_publisher
+
+For the complete Superdesk including the 'Article' part, the MongoDB database system is required.
+You should read the http://docs.mongodb.org/manual/installation/
+page if MongoDB is not already available on the system.
+Under some Linux systems, it can be installed via: sudo apt-get install mongodb
+
+The MongoDB system to be used can be set via options in
+the superdesk/distribution/plugins.properties file.
+The default setting is:
+
+# The name of the mongoDb database
+publisherService.mongodb_database: mongodb
+
+# The port of the mongoDb server
+publisherService.mongodb_port: 27017
+
+# The address of the mongoDb server
+publisherService.mongodb_server: localhost
+

@@ -1,0 +1,11 @@
+gui-resources Package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts
+    gui-resources.templates
+

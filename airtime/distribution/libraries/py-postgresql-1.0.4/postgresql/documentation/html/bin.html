@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Commands &mdash; py-postgresql 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py-postgresql 1.0.4 documentation" href="index.html" />
+    <link rel="next" title="Modules" href="modules.html" />
+    <link rel="prev" title="Gotchas" href="gotchas.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="Modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gotchas.html" title="Gotchas"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h1>
+<p>This chapter discusses the usage of the available console scripts.</p>
+<div class="section" id="postgresql-bin-pg-python">
+<h2>postgresql.bin.pg_python<a class="headerlink" href="#postgresql-bin-pg-python" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">pg_python</span></tt> command provides a simple way to write Python scripts against a
+single target database. It acts like the regular Python console command, but
+takes standard PostgreSQL options as well to specify the client parameters
+to make establish connection with. The Python environment is then augmented
+with the following built-ins:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">db</span></tt></dt>
+<dd>The PG-API connection object.</dd>
+<dt><tt class="docutils literal"><span class="pre">xact</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.xact</span></tt>, the transaction creator.</dd>
+<dt><tt class="docutils literal"><span class="pre">settings</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.settings</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">prepare</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.prepare</span></tt>, the statement creator.</dd>
+<dt><tt class="docutils literal"><span class="pre">proc</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.proc</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">do</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.do</span></tt>, execute a single DO statement.</dd>
+<dt><tt class="docutils literal"><span class="pre">sqlexec</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">db.execute</span></tt>, execute multiple SQL statements (<tt class="docutils literal"><span class="pre">None</span></tt> is always returned)</dd>
+</dl>
+</div></blockquote>
+<div class="section" id="pg-python-usage">
+<h3>pg_python Usage<a class="headerlink" href="#pg-python-usage" title="Permalink to this headline">¶</a></h3>
+<p>Usage: postgresql.bin.pg_python [connection options] [script] ...</p>
+<dl class="docutils">
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--unix=<var>UNIX</var></span></kbd></td>
+<td>path to filesystem socket</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--ssl-mode=<var>SSLMODE</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>SSL requirement for connectivity: require, prefer,
+allow, disable</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-s <var>SETTINGS</var></span>, <span class="option">--setting=<var>SETTINGS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>run-time parameters to set upon connecting</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-I <var>PQ_IRI</var></span>, <span class="option">--iri=<var>PQ_IRI</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>database locator string
+[pq://user:password&#64;host:port/database?setting=value]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-h <var>HOST</var></span>, <span class="option">--host=<var>HOST</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>database server host</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-p <var>PORT</var></span>, <span class="option">--port=<var>PORT</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>database server port</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-U <var>USER</var></span>, <span class="option">--username=<var>USER</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>user name to connect as</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-W</span>, <span class="option">--password</span></kbd></td>
+<td>prompt for password</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-d <var>DATABASE</var></span>, <span class="option">--database=<var>DATABASE</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>database&#8217;s name</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--pq-trace=<var>PQ_TRACE</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>trace PQ protocol transmissions</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-C <var>PYTHON_CONTEXT</var></span>, <span class="option">--context=<var>PYTHON_CONTEXT</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Python context code to run[<a class="reference external" href="file://,module">file://,module</a>:,&lt;code&gt;]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-m <var>PYTHON_MAIN</var></span></kbd></td>
+<td>Python module to run as script(__main__)</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-c <var>PYTHON_MAIN</var></span></kbd></td>
+<td>Python expression to run(__main__)</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td>show program&#8217;s version number and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="interactive-console-backslash-commands">
+<h3>Interactive Console Backslash Commands<a class="headerlink" href="#interactive-console-backslash-commands" title="Permalink to this headline">¶</a></h3>
+<p>Inspired by <tt class="docutils literal"><span class="pre">psql</span></tt>:</p>
+<div class="highlight-python"><pre>&gt;&gt;&gt; \?
+Backslash Commands:
+
+  \?      Show this help message.
+  \E      Edit a file or a temporary script.
+  \e      Edit and Execute the file directly in the context.
+  \i      Execute a Python script within the interpreter&#x27;s context.
+  \set    Configure environment variables. \set without arguments to show all
+  \x      Execute the Python command within this process.</pre>
+</div>
+</div>
+<div class="section" id="pg-python-examples">
+<h3>pg_python Examples<a class="headerlink" href="#pg-python-examples" title="Permalink to this headline">¶</a></h3>
+<p>Module execution taking advantage of the new built-ins:</p>
+<div class="highlight-python"><pre>$ python3 -m postgresql.bin.pg_python -h localhost -W -m timeit &quot;prepare(&#x27;SELECT 1&#x27;).first()&quot;
+Password for pg_python[pq://jwp@localhost:5432]:
+1000 loops, best of 3: 1.35 msec per loop
+
+$ python3 -m postgresql.bin.pg_python -h localhost -W -m timeit -s &quot;ps=prepare(&#x27;SELECT 1&#x27;)&quot; &quot;ps.first()&quot;
+Password for pg_python[pq://jwp@localhost:5432]:
+1000 loops, best of 3: 442 usec per loop</pre>
+</div>
+<p>Simple interactive usage:</p>
+<div class="highlight-python"><pre>$ python3 -m postgresql.bin.pg_python -h localhost -W
+Password for pg_python[pq://jwp@localhost:5432]:
+&gt;&gt;&gt; ps = prepare(&#x27;select 1&#x27;)
+&gt;&gt;&gt; ps.first()
+1
+&gt;&gt;&gt; c = ps()
+&gt;&gt;&gt; c.read()
+[(1,)]
+&gt;&gt;&gt; ps.close()
+&gt;&gt;&gt; import sys
+&gt;&gt;&gt; sys.exit(0)</pre>
+</div>
+</div>
+</div>
+<div class="section" id="postgresql-bin-pg-dotconf">
+<h2>postgresql.bin.pg_dotconf<a class="headerlink" href="#postgresql-bin-pg-dotconf" title="Permalink to this headline">¶</a></h2>
+<p>pg_dotconf is used to modify a PostgreSQL cluster&#8217;s configuration file.
+It provides a means to apply settings specified from the command line and from a
+file referenced using the <tt class="docutils literal"><span class="pre">-f</span></tt> option.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><tt class="docutils literal"><span class="pre">include</span></tt> directives in configuration files are <em>completely</em> ignored. If
+modification of an included file is desired, the command must be applied to
+that specific file.</p>
+</div>
+<div class="section" id="pg-dotconf-usage">
+<h3>pg_dotconf Usage<a class="headerlink" href="#pg-dotconf-usage" title="Permalink to this headline">¶</a></h3>
+<p>Usage: postgresql.bin.pg_dotconf [&#8211;stdout] [-f filepath] postgresql.conf ([param=val]|[param])*</p>
+<dl class="docutils">
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td>show program&#8217;s version number and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-f <var>SETTINGS</var></span>, <span class="option">--file=<var>SETTINGS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>A file of settings to <em>apply</em> to the given
+&#8220;postgresql.conf&#8221;</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--stdout</span></kbd></td>
+<td>Redirect the product to standard output instead of
+writing back to the &#8220;postgresql.conf&#8221; file</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>Modifying a simple configuration file:</p>
+<div class="highlight-python"><pre>$ echo &quot;setting = value&quot; &gt;pg.conf
+
+# change &#x27;setting&#x27;
+$ python3 -m postgresql.bin.pg_dotconf pg.conf setting=newvalue
+
+$ cat pg.conf
+setting = &#x27;newvalue&#x27;
+
+# new settings are appended to the file
+$ python3 -m postgresql.bin.pg_dotconf pg.conf another_setting=value
+$ cat pg.conf
+setting = &#x27;newvalue&#x27;
+another_setting = &#x27;value&#x27;
+
+# comment a setting
+$ python3 -m postgresql.bin.pg_dotconf pg.conf another_setting
+
+$ cat pg.conf
+setting = &#x27;newvalue&#x27;
+#another_setting = &#x27;value&#x27;</pre>
+</div>
+<p>When a setting is given on the command line, it must been seen as one argument
+to the command, so it&#8217;s <em>very</em> important to avoid invocations like:</p>
+<div class="highlight-python"><pre>$ python3 -m postgresql.bin.pg_dotconf pg.conf setting = value
+ERROR: invalid setting, &#x27;=&#x27; after &#x27;setting&#x27;
+HINT: Settings must take the form &#x27;setting=value&#x27; or &#x27;setting_name_to_comment&#x27;. Settings must also be received as a single argument.</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Commands</a><ul>
+<li><a class="reference internal" href="#postgresql-bin-pg-python">postgresql.bin.pg_python</a><ul>
+<li><a class="reference internal" href="#pg-python-usage">pg_python Usage</a></li>
+<li><a class="reference internal" href="#interactive-console-backslash-commands">Interactive Console Backslash Commands</a></li>
+<li><a class="reference internal" href="#pg-python-examples">pg_python Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#postgresql-bin-pg-dotconf">postgresql.bin.pg_dotconf</a><ul>
+<li><a class="reference internal" href="#pg-dotconf-usage">pg_dotconf Usage</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gotchas.html"
+                        title="previous chapter">Gotchas</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="next chapter">Modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bin.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="Modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gotchas.html" title="Gotchas"
+             >previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, James William Pye &lt;x@jwp.name&gt;.
+      Last updated on Apr 30, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

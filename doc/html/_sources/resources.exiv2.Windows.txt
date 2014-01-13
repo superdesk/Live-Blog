@@ -1,0 +1,13 @@
+Windows Package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Windows.AMD64
+    resources.exiv2.Windows.all
+    resources.exiv2.Windows.x86
+    resources.exiv2.Windows.x86_64
+

@@ -1,0 +1,51 @@
+meta Package
+============
+
+:mod:`blog` Module
+------------------
+
+.. automodule:: livedesk.meta.blog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`blog_admin` Module
+------------------------
+
+.. automodule:: livedesk.meta.blog_admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`blog_collaborator` Module
+-------------------------------
+
+.. automodule:: livedesk.meta.blog_collaborator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`blog_post` Module
+-----------------------
+
+.. automodule:: livedesk.meta.blog_post
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`blog_type` Module
+-----------------------
+
+.. automodule:: livedesk.meta.blog_type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`blog_type_post` Module
+----------------------------
+
+.. automodule:: livedesk.meta.blog_type_post
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

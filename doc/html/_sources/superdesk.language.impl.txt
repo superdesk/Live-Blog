@@ -1,0 +1,19 @@
+impl Package
+============
+
+:mod:`impl` Package
+-------------------
+
+.. automodule:: superdesk.language.impl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`language` Module
+----------------------
+
+.. automodule:: superdesk.language.impl.language
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

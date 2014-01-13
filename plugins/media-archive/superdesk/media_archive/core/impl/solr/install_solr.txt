@@ -1,0 +1,16 @@
+Solr - install and configuration for Media Archive
+
+1. Check/install Java1.5 or greater
+2. Download http://lucene.apache.org/solr/downloads.html from Apache Solr 3.6.2
+3. Unzip/untar the file to disk
+4. On <install directory>/example create the media_archive directory
+5. Copy on new created directory all files from media-archive plugin, "superdesk/media_archive/core/imp/solr" directory
+6. Start the Solr server with the following command: java -Dsolr.solr.home=media_archive -jar start.jar
+7. By default the server starts at the following address: http://localhost:8983/solr
+8. On plugins.properties the default Solr server address is: SolrSearchProvider.solr_server_url: localhost:8983/solr/
+   If the Solr don't have the default address, please set here the new address. 
+9. On plugins.properties the default search provider is SQL. It should be set to Solr by changing the property: use_solr_search: true  
+
+Important:
+Re-indexing is not implemented, so if switch from database search and data exists on database, no result will be get from Solr server.  
+ 

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+python_cli=python3
+
+ally_py_dir=..
+
+dirs="$ally_py_dir/components $ally_py_dir/plugins plugins"
+
+export PYTHONPATH=distribution/tools/distribute-0.6.27-py3.2.egg
+
+for dir in $dirs; do $python_cli "$dir/build_egg.py"; done
+
+$python_cli "plugins/copy_eggs.py"

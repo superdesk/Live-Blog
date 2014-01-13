@@ -1,0 +1,27 @@
+  {+item_header}{/item_header}
+  <figure class="avatar-small" data-user-id="{#User}{Id}{/User}"></figure>
+  <a href="javascript:void(0)" class="collaborator-name">{Name}</a>
+  <span data="collaborator_name">{#User}{FullName}{/User}</span>
+  <div class="table-buttons">
+    <a title="delete collaborator" data-toggle="modal" href="#delete_internal_collaborator"> <i class="icon-remove"></i>
+    </a>
+  </div>
+  <div class="dropdown dropdown-simple">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="javascript:void(0)">
+      View only <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu bottom-up pull-right">
+      <li>
+        <a href="javascript:void(0)">View only</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)">Edit</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)">Publish</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)">Admin</a>
+      </li>
+    </ul>
+  </div>

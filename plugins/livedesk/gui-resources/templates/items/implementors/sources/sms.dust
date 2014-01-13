@@ -1,0 +1,12 @@
+{>"livedesk>items/base"/}
+{<FastActions}{/FastActions}
+{<ImportantActions}{/ImportantActions}
+{<AdditionalAttributes} data-id="{Id}"{/AdditionalAttributes}
+{<ContainerDescriptionText}{message|s}{/ContainerDescriptionText}
+{<TopBlocks}
+	{+PostHiddenAction}{/PostHiddenAction}
+{/TopBlocks}
+{<Container}{/Container}
+{<EditableClass}{/EditableClass}
+{<EditableAttribute}{/EditableAttribute}
+

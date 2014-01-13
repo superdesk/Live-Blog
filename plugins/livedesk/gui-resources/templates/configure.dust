@@ -1,0 +1,93 @@
+{>"livedesk>layouts/livedesk"/}
+{<body}
+<section class="scroller main-section configure-blog" {ui.content}>
+	<header>
+		<h3>_('Configure:'); {Title|t}</h3>
+	</header>
+	<div class="row-fluid">
+		<div class="span8">
+			<form class="form-horizontal form-large" style="margin-bottom: 50px;">
+        	<fieldset>
+        		<legend>General</legend>
+        		<div class="control-group">
+					<label class="control-label">_('Language');</label>
+					<div class="controls languages"></div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_('Provider link');</label>
+					<div class="controls output-link">
+						<input type="text" readonly="readonly" name="ProviderLink"  value="{ProviderLink}"/>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_('Configure type of blog');</label>
+					<div class="controls blogtypes"></div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_('User comments');</label>
+					<div class="controls user-comments">
+						<input type="checkbox" name="UserComments" value="on"{?EmbedConfig.UserComments} checked{/EmbedConfig.UserComments} class="sf-toggle on-off">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_('Verification status');</label>
+					<div class="controls verification">
+						<input type="checkbox" name="VerificationToggle" value="on"{?EmbedConfig.VerificationToggle} checked{/EmbedConfig.VerificationToggle} class="sf-toggle on-off">
+					</div>
+				</div>
+			</fieldset>
+        	<fieldset>
+        		<legend>Front-end</legend>
+        		<div class="control-group">
+					<label class="control-label">_("Frontend server");</label>
+					<div class="controls">
+						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
+					</div>
+				</div>
+        		<div class="control-group">
+					<label class="control-label">_('Embed Theme');</label>
+					<div class="controls themes"></div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_("Embed script");</label>
+					<div class="controls">
+						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
+					</div>
+					<label class="control-label">_('Advertisement');</label>
+					<div class="controls advertisement">
+						<input type="checkbox" name="MediaToggle" value="on"{?EmbedConfig.MediaToggle} checked{/EmbedConfig.MediaToggle} class="sf-toggle on-off">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_("Advertisement image");</label>
+					<div class="controls">
+						<span class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</span>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
+						<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_("Advertisement target");</label>
+					<div class="controls">
+						<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
+					</div>
+				</div>
+				<div class="control-group">
+				</div>
+        	</fieldset>
+        	<fieldset>
+        		<legend>Api keys</legend>
+        		<div class="api-keys"></div>
+        		
+        	</fieldset>
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
+            <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}
+            <button type="button" class="btn" data-action="cancel">Cancel</button>
+          </div>
+        
+      </form>
+      </div>
+    </div>
+
+</section>
+{/body}

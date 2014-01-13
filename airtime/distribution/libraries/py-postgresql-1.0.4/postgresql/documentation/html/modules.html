@@ -1,0 +1,2160 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Modules &mdash; py-postgresql 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py-postgresql 1.0.4 documentation" href="index.html" />
+    <link rel="next" title="Changes in v1.0" href="changes-v1.0.html" />
+    <link rel="prev" title="Commands" href="bin.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="changes-v1.0.html" title="Changes in v1.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bin.html" title="Commands"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
+<p>Modules intended for general use.</p>
+<div class="section" id="module-postgresql">
+<span id="postgresql"></span><h2><a class="reference internal" href="#module-postgresql" title="postgresql"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql</span></tt></a><a class="headerlink" href="#module-postgresql" title="Permalink to this headline">¶</a></h2>
+<p>py-postgresql is a Python package for using PostgreSQL. This includes low-level
+protocol tools, a driver(PG-API and DB-API), and cluster management tools.</p>
+<p>If it&#8217;s not documented in the narratives, <cite>postgresql.documentation.index</cite>, then
+the stability of the APIs should <em>not</em> be trusted.</p>
+<p>See &lt;<a class="reference external" href="http://postgresql.org">http://postgresql.org</a>&gt; for more information about PostgreSQL.</p>
+<dl class="data">
+<dt id="postgresql.version">
+<tt class="descclassname">postgresql.</tt><tt class="descname">version</tt><em class="property"> = '1.0.4'</em><a class="headerlink" href="#postgresql.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>The version string of py-postgresql.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="postgresql.version_info">
+<tt class="descclassname">postgresql.</tt><tt class="descname">version_info</tt><em class="property"> = (1, 0, 4)</em><a class="headerlink" href="#postgresql.version_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The version triple of py-postgresql: (major, minor, patch).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.open">
+<tt class="descclassname">postgresql.</tt><tt class="descname">open</tt><big>(</big><em>iri=None</em>, <em>prompt_title=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>postgresql.api.Connection</cite> to the server referenced by the given
+<cite>iri</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">postgresql</span>
+<span class="go"># General Format:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">postgresql</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&#39;pq://user:password@host:port/database&#39;</span><span class="p">)</span>
+
+<span class="go"># Connect to &#39;postgres&#39; at localhost.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">postgresql</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&#39;localhost/postgres&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Connection keywords can also be used with <cite>open</cite>. See the narratives for
+more information.</p>
+<p>The <cite>prompt_title</cite> keyword is ignored. <cite>open</cite> will never prompt for
+the password unless it is explicitly instructed to do so.</p>
+<p>(Note: &#8220;pq&#8221; is the name of the protocol used to communicate with PostgreSQL)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.sys">
+<span id="postgresql-sys"></span><h2><a class="reference internal" href="#module-postgresql.sys" title="postgresql.sys"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.sys</span></tt></a><a class="headerlink" href="#module-postgresql.sys" title="Permalink to this headline">¶</a></h2>
+<p>py-postgresql system functions and data.</p>
+<div class="section" id="data">
+<h3>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">libpath</span></tt></dt>
+<dd>The local file system paths that contain query libraries.</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="overridable-functions">
+<h3>Overridable Functions<a class="headerlink" href="#overridable-functions" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt>excformat</dt>
+<dd>Information that makes up an exception&#8217;s displayed &#8220;body&#8221;.
+Effectively, the implementation of <cite>postgresql.exception.Error.__str__</cite></dd>
+<dt>msghook</dt>
+<dd>Display a message.</dd>
+</dl>
+</div></blockquote>
+<dl class="function">
+<dt id="postgresql.sys.default_errformat">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">default_errformat</tt><big>(</big><em>val</em><big>)</big><a class="headerlink" href="#postgresql.sys.default_errformat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Built-in error formatter. DON&#8217;T TOUCH!</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.sys.default_msghook">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">default_msghook</tt><big>(</big><em>msg</em>, <em>format_message=&lt;function format_element at 0x102bd4380&gt;</em><big>)</big><a class="headerlink" href="#postgresql.sys.default_msghook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Built-in message hook. DON&#8217;T TOUCH!</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.sys.errformat">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">errformat</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.sys.errformat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised Database Error formatter pointing to default_excformat.</p>
+<p>Override if you like. All postgresql.exceptions.Error&#8217;s are formatted using
+this function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.sys.msghook">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">msghook</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.sys.msghook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Message hook pointing to default_msghook.</p>
+<p>Override if you like. All untrapped messages raised by
+driver connections come here to be printed to stderr.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.sys.reset_errformat">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">reset_errformat</tt><big>(</big><em>with_func=&lt;function errformat at 0x102bab2f8&gt;</em><big>)</big><a class="headerlink" href="#postgresql.sys.reset_errformat" title="Permalink to this definition">¶</a></dt>
+<dd><p>restore the original excformat function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.sys.reset_msghook">
+<tt class="descclassname">postgresql.sys.</tt><tt class="descname">reset_msghook</tt><big>(</big><em>with_func=&lt;function msghook at 0x102bab408&gt;</em><big>)</big><a class="headerlink" href="#postgresql.sys.reset_msghook" title="Permalink to this definition">¶</a></dt>
+<dd><p>restore the original msghook function</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-postgresql.string">
+<span id="postgresql-string"></span><h2><a class="reference internal" href="#module-postgresql.string" title="postgresql.string"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.string</span></tt></a><a class="headerlink" href="#module-postgresql.string" title="Permalink to this headline">¶</a></h2>
+<p>String split and join operations for dealing with literals and identifiers.</p>
+<p>Notably, the functions in this module are intended to be used for simple
+use-cases. It attempts to stay away from &#8220;real&#8221; parsing and simply provides
+functions for common needs, like the ability to identify unquoted portions of a
+query string so that logic or transformations can be applied to only unquoted
+portions. Scanning for statement terminators, or safely interpolating
+identifiers.</p>
+<p>All functions deal with strict quoting rules.</p>
+<dl class="function">
+<dt id="postgresql.string.escape_ident">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">escape_ident</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.escape_ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace every instance of &#8221; with &#8220;&#8221;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.escape_literal">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">escape_literal</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.escape_literal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace every instance of &#8216; with &#8216;&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.qname">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">qname</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#postgresql.string.qname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quote the identifiers and join them using &#8216;.&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.quote_ident">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">quote_ident</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.quote_ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace every instance of &#8216; with  <em>and</em> place &#8216; on each end</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.quote_ident_if_needed">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">quote_ident_if_needed</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.quote_ident_if_needed" title="Permalink to this definition">¶</a></dt>
+<dd><p>If needed, replace every instance of &#8216;&#8221;&#8217; with &#8216;&#8221;&#8220;&#8217; <em>and</em> place &#8216;&#8221;&#8217; on each end.
+Otherwise, just return the text.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.quote_literal">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">quote_literal</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.quote_literal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Escape the literal and wrap it in [single] quotations</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#postgresql.string.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>split the string up by into non-quoted and quoted portions. Zero and even
+numbered indexes are unquoted portions, while odd indexes are quoted
+portions.</p>
+<p>Unquoted portions are regular strings, whereas quoted portions are
+pair-tuples specifying the quotation mechanism and the content thereof.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;select $$foobar$$&quot;</span><span class="p">))</span>
+<span class="go">[&#39;select &#39;, (&#39;$$&#39;, &#39;foobar&#39;), &#39;&#39;]</span>
+</pre></div>
+</div>
+<p>If the split ends on a quoted section, it means the string&#8217;s quote was not
+terminated. Subsequently, there will be an even number of objects in the
+list.</p>
+<p>Quotation errors are detected, but never raised. Rather it&#8217;s up to the user
+to identify the best course of action for the given split.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split_ident">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split_ident</tt><big>(</big><em>text</em>, <em>sep='</em>, <em>'</em>, <em>quote='&quot;'</em>, <em>maxsplit=-1</em><big>)</big><a class="headerlink" href="#postgresql.string.split_ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a series of identifiers using the specified separator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split_qname">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split_qname</tt><big>(</big><em>text</em>, <em>maxsplit=-1</em><big>)</big><a class="headerlink" href="#postgresql.string.split_qname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call to .split_ident() with a &#8216;.&#8217; sep parameter.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split_sql">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split_sql</tt><big>(</big><em>sql</em>, <em>sep=';'</em><big>)</big><a class="headerlink" href="#postgresql.string.split_sql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given SQL, safely split using the given separator.
+Notably, this yields fully split text. This should be used instead of
+split_sql_str() when quoted sections need be still be isolated.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">split_sql</span><span class="p">(</span><span class="s">&#39;select $$1$$ AS &quot;foo;&quot;; select 2;&#39;</span><span class="p">))</span>
+<span class="go">[[&#39;select &#39;, (&#39;$$&#39;, &#39;1&#39;), &#39; AS &#39;, (&#39;&quot;&#39;, &#39;foo;&#39;), &#39;&#39;], (&#39; select 2&#39;,), [&#39;&#39;]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split_sql_str">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split_sql_str</tt><big>(</big><em>sql</em>, <em>sep=';'</em><big>)</big><a class="headerlink" href="#postgresql.string.split_sql_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identical to split_sql but yields unsplit text.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">split_sql_str</span><span class="p">(</span><span class="s">&#39;select $$1$$ AS &quot;foo;&quot;; select 2;&#39;</span><span class="p">))</span>
+<span class="go">[&#39;select $$1$$ AS &quot;foo;&quot;&#39;, &#39; select 2&#39;, &#39;&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.split_using">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">split_using</tt><big>(</big><em>text</em>, <em>quote</em>, <em>sep='.'</em>, <em>maxsplit=-1</em><big>)</big><a class="headerlink" href="#postgresql.string.split_using" title="Permalink to this definition">¶</a></dt>
+<dd><p>split the string on the seperator ignoring the separator in quoted areas.</p>
+<p>This is only useful for simple quoted strings. Dollar quotes, and backslash
+escapes are not supported.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.string.unsplit">
+<tt class="descclassname">postgresql.string.</tt><tt class="descname">unsplit</tt><big>(</big><em>splitted_iter</em><big>)</big><a class="headerlink" href="#postgresql.string.unsplit" title="Permalink to this definition">¶</a></dt>
+<dd><p>catenate a split string. This is needed to handle the special
+cases created by pg.string.split(). (Run-away quotations, primarily)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.exceptions">
+<span id="postgresql-exceptions"></span><h2><a class="reference internal" href="#module-postgresql.exceptions" title="postgresql.exceptions"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.exceptions</span></tt></a><a class="headerlink" href="#module-postgresql.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>PostgreSQL exceptions and warnings with associated state codes.</p>
+<p>The primary entry points of this module is the <cite>ErrorLookup</cite> function and the
+<cite>WarningLookup</cite> function. Given an SQL state code, they give back the most
+appropriate Error or Warning subclass.</p>
+<dl class="docutils">
+<dt>For more information on error codes see:</dt>
+<dd><a class="reference external" href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">http://www.postgresql.org/docs/current/static/errcodes-appendix.html</a></dd>
+</dl>
+<p>This module is executable via -m: python -m postgresql.exceptions.
+It provides a convenient way to look up the exception object mapped to by the
+given error code:</p>
+<div class="highlight-python"><pre>$ python -m postgresql.exceptions XX000
+postgresql.exceptions.InternalError [XX000]</pre>
+</div>
+<p>If the exact error code is not found, it will try to find the error class&#8217;s
+exception(The first two characters of the error code make up the class
+identity):</p>
+<div class="highlight-python"><pre>$ python -m postgresql.exceptions XX400
+postgresql.exceptions.InternalError [XX000]</pre>
+</div>
+<p>If that fails, it will return <cite>postgresql.exceptions.Error</cite></p>
+<dl class="exception">
+<dt id="postgresql.exceptions.AuthenticationMethodError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">AuthenticationMethodError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.AuthenticationMethodError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.DriverError" title="postgresql.exceptions.DriverError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverError</span></tt></a>, <a class="reference internal" href="#postgresql.exceptions.Disconnection" title="postgresql.exceptions.Disconnection"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Disconnection</span></tt></a></p>
+<p>Server requested an authentication method that is not supported by the
+driver.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.CFError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">CFError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.CFError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Configuration File Error</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.CardinalityError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">CardinalityError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.CardinalityError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Wrong number of rows returned</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ClientCannotConnectError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ClientCannotConnectError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ClientCannotConnectError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ConnectionError</span></tt></p>
+<p>Client was unable to establish a connection to the server.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ConnectTimeoutError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ConnectTimeoutError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ConnectTimeoutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.DriverError" title="postgresql.exceptions.DriverError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverError</span></tt></a>, <a class="reference internal" href="#postgresql.exceptions.Disconnection" title="postgresql.exceptions.Disconnection"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Disconnection</span></tt></a></p>
+<p>Client was unable to esablish a connection in the given time</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ConnectionDoesNotExistError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ConnectionDoesNotExistError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ConnectionDoesNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ConnectionError</span></tt></p>
+<p>The connection is closed or was never connected.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ConnectionFailureError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ConnectionFailureError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ConnectionFailureError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ConnectionError</span></tt></p>
+<p>Raised when a connection is dropped</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.DPDSEError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">DPDSEError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.DPDSEError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Dependent Privilege Descriptors Still Exist</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.Disconnection">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">Disconnection</tt><a class="headerlink" href="#postgresql.exceptions.Disconnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Exception" title="postgresql.exceptions.Exception"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Exception</span></tt></a></p>
+<p>Exception identifying errors that result in disconnection</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.DriverError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">DriverError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.DriverError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Errors originating in the driver&#8217;s implementation.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.EREError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">EREError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.EREError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>External Routine Exception</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ERIEError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ERIEError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ERIEError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>External Routine Invocation Exception</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.Error">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">Error</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.message.Message</span></tt>, <a class="reference internal" href="#postgresql.exceptions.Exception" title="postgresql.exceptions.Exception"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Exception</span></tt></a></p>
+<p>A PostgreSQL Error</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.EscapeCharacterError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">EscapeCharacterError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.EscapeCharacterError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DataError</span></tt></p>
+<p>Invalid escape character</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.Exception">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">Exception</tt><a class="headerlink" href="#postgresql.exceptions.Exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Base PostgreSQL exception class</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.FeatureError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">FeatureError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.FeatureError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Unsupported feature</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ICVError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ICVError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ICVError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Integrity Contraint Violation</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.IRError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">IRError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.IRError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Insufficient Resource Error</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ITSError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ITSError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ITSError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.TransactionError</span></tt></p>
+<p>Invalid Transaction State</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.exceptions.IgnoredClientParameterWarning">
+<em class="property">class </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">IgnoredClientParameterWarning</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.IgnoredClientParameterWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverWarning</span></tt></p>
+<p>Warn the user of a valid, but ignored parameter.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.InFailedTransactionError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">InFailedTransactionError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.InFailedTransactionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.ITSError" title="postgresql.exceptions.ITSError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ITSError</span></tt></a></p>
+<p>Occurs when an action occurs in a failed transaction.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.InconsistentCursorIsolationError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">InconsistentCursorIsolationError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.InconsistentCursorIsolationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.ITSError" title="postgresql.exceptions.ITSError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ITSError</span></tt></a></p>
+<p>The held cursor requires the same isolation.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.InsecurityError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">InsecurityError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.InsecurityError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.DriverError" title="postgresql.exceptions.DriverError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverError</span></tt></a>, <a class="reference internal" href="#postgresql.exceptions.Disconnection" title="postgresql.exceptions.Disconnection"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Disconnection</span></tt></a></p>
+<p>Error signifying a secure channel to a server cannot be established.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.LoadError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">LoadError</tt><a class="headerlink" href="#postgresql.exceptions.LoadError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Exception" title="postgresql.exceptions.Exception"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Exception</span></tt></a></p>
+<p>Failed to load a library</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.OIError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">OIError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.OIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Operator Intervention</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ONIPSError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ONIPSError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ONIPSError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Object Not In Prerequisite State</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.OperationError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">OperationError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.OperationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.DriverError" title="postgresql.exceptions.DriverError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverError</span></tt></a></p>
+<p>An invalid operation on an interface element.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.PLEError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">PLEError</tt><a class="headerlink" href="#postgresql.exceptions.PLEError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.OverflowError</span></tt></p>
+<p>Program Limit Exceeded</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.PLPGSQLError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">PLPGSQLError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.PLPGSQLError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Error raised by a PL/PgSQL procedural function</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.PLPGSQLRaiseError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">PLPGSQLRaiseError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.PLPGSQLRaiseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.PLPGSQLError" title="postgresql.exceptions.PLPGSQLError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.PLPGSQLError</span></tt></a></p>
+<p>Error raised by a PL/PgSQL RAISE statement.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ReadOnlyTransactionError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ReadOnlyTransactionError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ReadOnlyTransactionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.ITSError" title="postgresql.exceptions.ITSError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ITSError</span></tt></a></p>
+<p>Occurs when an alteration occurs in a read-only transaction.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.SEARVError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">SEARVError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.SEARVError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>Syntax Error or Access Rule Violation</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.SIOError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">SIOError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.SIOError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>System I/O</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.SREError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">SREError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.SREError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>SQL Routine Exception</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.SavepointError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">SavepointError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.SavepointError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.TransactionError</span></tt></p>
+<p>Classification error designating errors that relate to savepoints.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.SchemaAndDataStatementsError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">SchemaAndDataStatementsError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.SchemaAndDataStatementsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.ITSError" title="postgresql.exceptions.ITSError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.ITSError</span></tt></a></p>
+<p>Mixed schema and data statements not allowed.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.ServerNotReadyError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">ServerNotReadyError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.ServerNotReadyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.OIError" title="postgresql.exceptions.OIError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.OIError</span></tt></a>, <a class="reference internal" href="#postgresql.exceptions.Disconnection" title="postgresql.exceptions.Disconnection"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Disconnection</span></tt></a></p>
+<p>Thrown when a connection is established to a server that is still starting up.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.TRError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">TRError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.TRError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.TransactionError</span></tt></p>
+<p>Transaction Rollback</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.exceptions.TypeConversionWarning">
+<em class="property">class </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">TypeConversionWarning</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.TypeConversionWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverWarning</span></tt></p>
+<p>Report a potential issue with a conversion.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.exceptions.TypeIOError">
+<em class="property">exception </em><tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">TypeIOError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.TypeIOError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.DriverError" title="postgresql.exceptions.DriverError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.DriverError</span></tt></a></p>
+<p>Driver failed to pack or unpack a tuple.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.exceptions.map_errors_and_warnings">
+<tt class="descclassname">postgresql.exceptions.</tt><tt class="descname">map_errors_and_warnings</tt><big>(</big><em>objs</em>, <em>error_container={'': &lt;class 'postgresql.exceptions.Error'&gt;</em>, <em>'--SEC': &lt;class 'postgresql.exceptions.InsecurityError'&gt;</em>, <em>'21000': &lt;class 'postgresql.exceptions.CardinalityError'&gt;</em>, <em>'08004': &lt;class 'postgresql.exceptions.ConnectionRejectionError'&gt;</em>, <em>'34000': &lt;class 'postgresql.exceptions.CursorNameError'&gt;</em>, <em>'08006': &lt;class 'postgresql.exceptions.ConnectionFailureError'&gt;</em>, <em>'23514': &lt;class 'postgresql.exceptions.CheckError'&gt;</em>, <em>'08000': &lt;class 'postgresql.exceptions.ConnectionError'&gt;</em>, <em>'08003': &lt;class 'postgresql.exceptions.ConnectionDoesNotExistError'&gt;</em>, <em>'0B000': &lt;class 'postgresql.exceptions.TransactionInitiationError'&gt;</em>, <em>'P0001': &lt;class 'postgresql.exceptions.PLPGSQLRaiseError'&gt;</em>, <em>'P0000': &lt;class 'postgresql.exceptions.PLPGSQLError'&gt;</em>, <em>'P0003': &lt;class 'postgresql.exceptions.PLPGSQLTooManyRowsError'&gt;</em>, <em>'P0002': &lt;class 'postgresql.exceptions.PLPGSQLNoDataFoundError'&gt;</em>, <em>'2200M': &lt;class 'postgresql.exceptions.XMLDocumentError'&gt;</em>, <em>'2200L': &lt;class 'postgresql.exceptions.NotXMLError'&gt;</em>, <em>'2200N': &lt;class 'postgresql.exceptions.XMLContentError'&gt;</em>, <em>'2200C': &lt;class 'postgresql.exceptions.EscapeCharacterError'&gt;</em>, <em>'2200B': &lt;class 'postgresql.exceptions.EscapeCharacterConflictError'&gt;</em>, <em>'57P01': &lt;class 'postgresql.exceptions.AdminShutdownError'&gt;</em>, <em>'2200D': &lt;class 'postgresql.exceptions.EscapeOctetError'&gt;</em>, <em>'2200G': &lt;class 'postgresql.exceptions.SpecificTypeMismatch'&gt;</em>, <em>'2200F': &lt;class 'postgresql.exceptions.ZeroLengthString'&gt;</em>, <em>'40001': &lt;class 'postgresql.exceptions.SerializationError'&gt;</em>, <em>'40000': &lt;class 'postgresql.exceptions.TRError'&gt;</em>, <em>'40003': &lt;class 'postgresql.exceptions.StatementCompletionUnknownError'&gt;</em>, <em>'40002': &lt;class 'postgresql.exceptions.IntegrityConstraintViolationError'&gt;</em>, <em>'2D000': &lt;class 'postgresql.exceptions.TransactionTerminationError'&gt;</em>, <em>'42601': &lt;class 'postgresql.exceptions.SyntaxError'&gt;</em>, <em>'2200S': &lt;class 'postgresql.exceptions.XMLCommentError'&gt;</em>, <em>'42602': &lt;class 'postgresql.exceptions.SEARVNameError'&gt;</em>, <em>'2200T': &lt;class 'postgresql.exceptions.XMLProcessingInstructionError'&gt;</em>, <em>'0LP01': &lt;class 'postgresql.exceptions.GrantorOperationError'&gt;</em>, <em>'08001': &lt;class 'postgresql.exceptions.ClientCannotConnectError'&gt;</em>, <em>'53300': &lt;class 'postgresql.exceptions.TooManyConnectionsError'&gt;</em>, <em>'44000': &lt;class 'postgresql.exceptions.WithCheckOptionError'&gt;</em>, <em>'40P01': &lt;class 'postgresql.exceptions.DeadlockError'&gt;</em>, <em>'22008': &lt;class 'postgresql.exceptions.DateTimeFieldOverflowError'&gt;</em>, <em>'22021': &lt;class 'postgresql.exceptions.EncodingError'&gt;</em>, <em>'42846': &lt;class 'postgresql.exceptions.CoercionError'&gt;</em>, <em>'22001': &lt;class 'postgresql.exceptions.StringRightTruncationError'&gt;</em>, <em>'22000': &lt;class 'postgresql.exceptions.DataError'&gt;</em>, <em>'22003': &lt;class 'postgresql.exceptions.NumericRangeError'&gt;</em>, <em>'22002': &lt;class 'postgresql.exceptions.NullValueNoIndicatorParameter'&gt;</em>, <em>'22005': &lt;class 'postgresql.exceptions.AssignmentError'&gt;</em>, <em>'22004': &lt;class 'postgresql.exceptions.NullValueNotAllowedError'&gt;</em>, <em>'22007': &lt;class 'postgresql.exceptions.DateTimeFormatError'&gt;</em>, <em>'42712': &lt;class 'postgresql.exceptions.DuplicateAliasError'&gt;</em>, <em>'3F000': &lt;class 'postgresql.exceptions.SchemaNameError'&gt;</em>, <em>'XX001': &lt;class 'postgresql.exceptions.DataCorruptedError'&gt;</em>, <em>'XX000': &lt;class 'postgresql.exceptions.InternalError'&gt;</em>, <em>'XX002': &lt;class 'postgresql.exceptions.IndexCorruptedError'&gt;</em>, <em>'42710': &lt;class 'postgresql.exceptions.DuplicateObjectError'&gt;</em>, <em>'08P01': &lt;class 'postgresql.exceptions.ProtocolError'&gt;</em>, <em>'53000': &lt;class 'postgresql.exceptions.IRError'&gt;</em>, <em>'38001': &lt;class 'postgresql.exceptions.ContainingSQLNotPermittedError'&gt;</em>, <em>'26000': &lt;class 'postgresql.exceptions.StatementNameError'&gt;</em>, <em>'08007': &lt;class 'postgresql.exceptions.TransactionResolutionUnknownError'&gt;</em>, <em>'3D000': &lt;class 'postgresql.exceptions.CatalogNameError'&gt;</em>, <em>'42611': &lt;class 'postgresql.exceptions.ColumnDefinitionError'&gt;</em>, <em>'0P000': &lt;class 'postgresql.exceptions.RoleSpecificationError'&gt;</em>, <em>'42P20': &lt;class 'postgresql.exceptions.WindowError'&gt;</em>, <em>'09000': &lt;class 'postgresql.exceptions.TriggeredActionError'&gt;</em>, <em>'22018': &lt;class 'postgresql.exceptions.CastCharacterValueError'&gt;</em>, <em>'42501': &lt;class 'postgresql.exceptions.InsufficientPrivilegeError'&gt;</em>, <em>'39P01': &lt;class 'postgresql.exceptions.TriggerProtocolError'&gt;</em>, <em>'39P02': &lt;class 'postgresql.exceptions.SRFProtocolError'&gt;</em>, <em>'22012': &lt;class 'postgresql.exceptions.ZeroDivisionError'&gt;</em>, <em>'22010': &lt;class 'postgresql.exceptions.IndicatorParameterValueError'&gt;</em>, <em>'22011': &lt;class 'postgresql.exceptions.SubstringError'&gt;</em>, <em>'--TIO': &lt;class 'postgresql.exceptions.TypeIOError'&gt;</em>, <em>'22015': &lt;class 'postgresql.exceptions.IntervalFieldOverflowError'&gt;</em>, <em>'0L000': &lt;class 'postgresql.exceptions.GrantorError'&gt;</em>, <em>'25P01': &lt;class 'postgresql.exceptions.NoActiveTransactionError'&gt;</em>, <em>'25P02': &lt;class 'postgresql.exceptions.InFailedTransactionError'&gt;</em>, <em>'22020': &lt;class 'postgresql.exceptions.LimitValueError'&gt;</em>, <em>'39004': &lt;class 'postgresql.exceptions.NullValueNotAllowed'&gt;</em>, <em>'2202E': &lt;class 'postgresql.exceptions.ArrayElementError'&gt;</em>, <em>'39001': &lt;class 'postgresql.exceptions.InvalidSQLState'&gt;</em>, <em>'39000': &lt;class 'postgresql.exceptions.ERIEError'&gt;</em>, <em>'2B000': &lt;class 'postgresql.exceptions.DPDSEError'&gt;</em>, <em>'22P01': &lt;class 'postgresql.exceptions.FloatingPointError'&gt;</em>, <em>'22P03': &lt;class 'postgresql.exceptions.BinaryRepresentationError'&gt;</em>, <em>'22P02': &lt;class 'postgresql.exceptions.TextRepresentationError'&gt;</em>, <em>'22P05': &lt;class 'postgresql.exceptions.UntranslatableCharacterError'&gt;</em>, <em>'22P04': &lt;class 'postgresql.exceptions.BadCopyError'&gt;</em>, <em>'22P06': &lt;class 'postgresql.exceptions.NonstandardUseOfEscapeCharacterError'&gt;</em>, <em>'22027': &lt;class 'postgresql.exceptions.TrimError'&gt;</em>, <em>'22026': &lt;class 'postgresql.exceptions.StringDataLengthError'&gt;</em>, <em>'22025': &lt;class 'postgresql.exceptions.EscapeSequenceError'&gt;</em>, <em>'22024': &lt;class 'postgresql.exceptions.UnterminatedCStringError'&gt;</em>, <em>'22023': &lt;class 'postgresql.exceptions.ParameterValueError'&gt;</em>, <em>'22022': &lt;class 'postgresql.exceptions.IndicatorOverflowError'&gt;</em>, <em>'0F001': &lt;class 'postgresql.exceptions.LocatorSpecificationError'&gt;</em>, <em>'0F000': &lt;class 'postgresql.exceptions.LocatorError'&gt;</em>, <em>'58000': &lt;class 'postgresql.exceptions.SIOError'&gt;</em>, <em>'23503': &lt;class 'postgresql.exceptions.ForeignKeyError'&gt;</em>, <em>'3B000': &lt;class 'postgresql.exceptions.SavepointError'&gt;</em>, <em>'3B001': &lt;class 'postgresql.exceptions.InvalidSavepointSpecificationError'&gt;</em>, <em>'55P03': &lt;class 'postgresql.exceptions.UnavailableLockError'&gt;</em>, <em>'55P02': &lt;class 'postgresql.exceptions.ImmutableRuntimeParameterError'&gt;</em>, <em>'F0001': &lt;class 'postgresql.exceptions.LockFileExistsError'&gt;</em>, <em>'F0000': &lt;class 'postgresql.exceptions.CFError'&gt;</em>, <em>'2201B': &lt;class 'postgresql.exceptions.RegularExpressionError'&gt;</em>, <em>'2201F': &lt;class 'postgresql.exceptions.PowerFunctionArgumentError'&gt;</em>, <em>'2201G': &lt;class 'postgresql.exceptions.WidthBucketFunctionArgumentError'&gt;</em>, <em>'2201E': &lt;class 'postgresql.exceptions.LogArgumentError'&gt;</em>, <em>'2201X': &lt;class 'postgresql.exceptions.OffsetValueError'&gt;</em>, <em>'55000': &lt;class 'postgresql.exceptions.ONIPSError'&gt;</em>, <em>'55006': &lt;class 'postgresql.exceptions.ObjectInUseError'&gt;</em>, <em>'42939': &lt;class 'postgresql.exceptions.ReservedNameError'&gt;</em>, <em>'42P09': &lt;class 'postgresql.exceptions.AmbiguousAliasError'&gt;</em>, <em>'42P08': &lt;class 'postgresql.exceptions.AmbiguousParameterError'&gt;</em>, <em>'42P07': &lt;class 'postgresql.exceptions.DuplicateTableError'&gt;</em>, <em>'42P06': &lt;class 'postgresql.exceptions.DuplicateSchemaError'&gt;</em>, <em>'42P05': &lt;class 'postgresql.exceptions.DuplicatePreparedStatementError'&gt;</em>, <em>'42P04': &lt;class 'postgresql.exceptions.DuplicateDatabaseError'&gt;</em>, <em>'42P03': &lt;class 'postgresql.exceptions.DuplicateCursorError'&gt;</em>, <em>'42P02': &lt;class 'postgresql.exceptions.UndefinedParameterError'&gt;</em>, <em>'42P01': &lt;class 'postgresql.exceptions.UndefinedTableError'&gt;</em>, <em>'--cIO': &lt;class 'postgresql.exceptions.CompositeError'&gt;</em>, <em>'57P03': &lt;class 'postgresql.exceptions.ServerNotReadyError'&gt;</em>, <em>'42830': &lt;class 'postgresql.exceptions.ForeignKeyCreationError'&gt;</em>, <em>'57P02': &lt;class 'postgresql.exceptions.CrashShutdownError'&gt;</em>, <em>'24000': &lt;class 'postgresql.exceptions.CursorStateError'&gt;</em>, <em>'58P01': &lt;class 'postgresql.exceptions.UndefinedFileError'&gt;</em>, <em>'58P02': &lt;class 'postgresql.exceptions.DuplicateFileError'&gt;</em>, <em>'27000': &lt;class 'postgresql.exceptions.TriggeredDataChangeViolation'&gt;</em>, <em>'42723': &lt;class 'postgresql.exceptions.DuplicateFunctionError'&gt;</em>, <em>'42725': &lt;class 'postgresql.exceptions.AmbiguousFunctionError'&gt;</em>, <em>'42P18': &lt;class 'postgresql.exceptions.IndeterminateTypeError'&gt;</em>, <em>'42P19': &lt;class 'postgresql.exceptions.RecursionError'&gt;</em>, <em>'42804': &lt;class 'postgresql.exceptions.TypeMismatchError'&gt;</em>, <em>'03000': &lt;class 'postgresql.exceptions.SQLNotYetCompleteError'&gt;</em>, <em>'42P10': &lt;class 'postgresql.exceptions.ColumnReferenceError'&gt;</em>, <em>'42P11': &lt;class 'postgresql.exceptions.CursorDefinitionError'&gt;</em>, <em>'42P12': &lt;class 'postgresql.exceptions.DatabaseDefinitionError'&gt;</em>, <em>'42P13': &lt;class 'postgresql.exceptions.FunctionDefinitionError'&gt;</em>, <em>'42P14': &lt;class 'postgresql.exceptions.PreparedStatementDefinitionError'&gt;</em>, <em>'57000': &lt;class 'postgresql.exceptions.OIError'&gt;</em>, <em>'42P16': &lt;class 'postgresql.exceptions.TableDefinitionError'&gt;</em>, <em>'42P17': &lt;class 'postgresql.exceptions.ObjectDefinitionError'&gt;</em>, <em>'53200': &lt;class 'postgresql.exceptions.MemoryError'&gt;</em>, <em>'20000': &lt;class 'postgresql.exceptions.CaseNotFoundError'&gt;</em>, <em>'2F005': &lt;class 'postgresql.exceptions.FunctionExecutedNoReturnStatementError'&gt;</em>, <em>'2F004': &lt;class 'postgresql.exceptions.ReadingDataProhibitedError'&gt;</em>, <em>'2F000': &lt;class 'postgresql.exceptions.SREError'&gt;</em>, <em>'2F003': &lt;class 'postgresql.exceptions.StatementProhibitedError'&gt;</em>, <em>'2F002': &lt;class 'postgresql.exceptions.DataModificationProhibitedError'&gt;</em>, <em>'38004': &lt;class 'postgresql.exceptions.ReadingSQLDataNotPermittedError'&gt;</em>, <em>'38002': &lt;class 'postgresql.exceptions.ModifyingSQLDataNotPermittedError'&gt;</em>, <em>'38003': &lt;class 'postgresql.exceptions.ProhibitedSQLStatementError'&gt;</em>, <em>'38000': &lt;class 'postgresql.exceptions.EREError'&gt;</em>, <em>'42000': &lt;class 'postgresql.exceptions.SEARVError'&gt;</em>, <em>'23000': &lt;class 'postgresql.exceptions.ICVError'&gt;</em>, <em>'23001': &lt;class 'postgresql.exceptions.RestrictError'&gt;</em>, <em>'--PIO': &lt;class 'postgresql.exceptions.ParameterError'&gt;</em>, <em>'57014': &lt;class 'postgresql.exceptions.QueryCanceledError'&gt;</em>, <em>'42803': &lt;class 'postgresql.exceptions.GroupingError'&gt;</em>, <em>'28000': &lt;class 'postgresql.exceptions.AuthenticationSpecificationError'&gt;</em>, <em>'0A000': &lt;class 'postgresql.exceptions.FeatureError'&gt;</em>, <em>'42701': &lt;class 'postgresql.exceptions.DuplicateColumnError'&gt;</em>, <em>'42702': &lt;class 'postgresql.exceptions.AmbiguousColumnError'&gt;</em>, <em>'42703': &lt;class 'postgresql.exceptions.UndefinedColumnError'&gt;</em>, <em>'42704': &lt;class 'postgresql.exceptions.UndefinedObjectError'&gt;</em>, <em>'2BP01': &lt;class 'postgresql.exceptions.DPDSEObjectError'&gt;</em>, <em>'--CIO': &lt;class 'postgresql.exceptions.ColumnError'&gt;</em>, <em>'42883': &lt;class 'postgresql.exceptions.UndefinedFunctionError'&gt;</em>, <em>'25004': &lt;class 'postgresql.exceptions.BadIsolationForBranchError'&gt;</em>, <em>'25005': &lt;class 'postgresql.exceptions.NoActiveTransactionForBranchError'&gt;</em>, <em>'25006': &lt;class 'postgresql.exceptions.ReadOnlyTransactionError'&gt;</em>, <em>'25007': &lt;class 'postgresql.exceptions.SchemaAndDataStatementsError'&gt;</em>, <em>'25000': &lt;class 'postgresql.exceptions.ITSError'&gt;</em>, <em>'25001': &lt;class 'postgresql.exceptions.ActiveTransactionError'&gt;</em>, <em>'25002': &lt;class 'postgresql.exceptions.BranchAlreadyActiveError'&gt;</em>, <em>'25003': &lt;class 'postgresql.exceptions.BadAccessModeForBranchError'&gt;</em>, <em>'--OPE': &lt;class 'postgresql.exceptions.OperationError'&gt;</em>, <em>'23505': &lt;class 'postgresql.exceptions.UniqueError'&gt;</em>, <em>'25008': &lt;class 'postgresql.exceptions.InconsistentCursorIsolationError'&gt;</em>, <em>'23502': &lt;class 'postgresql.exceptions.NotNullError'&gt;</em>, <em>'42P15': &lt;class 'postgresql.exceptions.SchemaDefinitionError'&gt;</em>, <em>'--TOE': &lt;class 'postgresql.exceptions.ConnectTimeoutError'&gt;</em>, <em>'42809': &lt;class 'postgresql.exceptions.WrongObjectTypeError'&gt;</em>, <em>'42622': &lt;class 'postgresql.exceptions.NameTooLongError'&gt;</em>, <em>'22009': &lt;class 'postgresql.exceptions.TimeZoneDisplacementValueError'&gt;</em>, <em>'--000': &lt;class 'postgresql.exceptions.DriverError'&gt;</em>, <em>'--AUT': &lt;class 'postgresql.exceptions.AuthenticationMethodError'&gt;</em>, <em>'2201W': &lt;class 'postgresql.exceptions.LimitValueError'&gt;</em>, <em>'53100': &lt;class 'postgresql.exceptions.DiskFullError'&gt;}</em>, <em>warning_container={'01-TP': &lt;class 'postgresql.exceptions.TypeConversionWarning'&gt;</em>, <em>'02001': &lt;class 'postgresql.exceptions.NoMoreSetsReturned'&gt;</em>, <em>'02000': &lt;class 'postgresql.exceptions.NoDataWarning'&gt;</em>, <em>'01008': &lt;class 'postgresql.exceptions.ImplicitZeroBitPaddingWarning'&gt;</em>, <em>'01006': &lt;class 'postgresql.exceptions.PrivilegeNotRevokedWarning'&gt;</em>, <em>'01007': &lt;class 'postgresql.exceptions.PrivilegeNotGrantedWarning'&gt;</em>, <em>'01004': &lt;class 'postgresql.exceptions.StringDataRightTruncationWarning'&gt;</em>, <em>'01003': &lt;class 'postgresql.exceptions.NullValueEliminatedInSetFunctionWarning'&gt;</em>, <em>'01000': &lt;class 'postgresql.exceptions.Warning'&gt;</em>, <em>'01P01': &lt;class 'postgresql.exceptions.DeprecationWarning'&gt;</em>, <em>'01-CP': &lt;class 'postgresql.exceptions.IgnoredClientParameterWarning'&gt;</em>, <em>'01-00': &lt;class 'postgresql.exceptions.DriverWarning'&gt;</em>, <em>'0100C': &lt;class 'postgresql.exceptions.DynamicResultSetsReturnedWarning'&gt;}</em><big>)</big><a class="headerlink" href="#postgresql.exceptions.map_errors_and_warnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the code-to-error and code-to-warning associations.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.temporal">
+<span id="postgresql-temporal"></span><h2><a class="reference internal" href="#module-postgresql.temporal" title="postgresql.temporal"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.temporal</span></tt></a><a class="headerlink" href="#module-postgresql.temporal" title="Permalink to this headline">¶</a></h2>
+<p>Temporary PostgreSQL cluster for the process.</p>
+<dl class="class">
+<dt id="postgresql.temporal.Temporal">
+<em class="property">class </em><tt class="descclassname">postgresql.temporal.</tt><tt class="descname">Temporal</tt><a class="headerlink" href="#postgresql.temporal.Temporal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Manages a temporary cluster for the duration of the process.</p>
+<p>Instances of this class reference a distinct cluster. These clusters are
+transient; they will only exist until the process exits.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">postgresql.temporal</span> <span class="kn">import</span> <span class="n">pg_tmp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">pg_tmp</span><span class="p">:</span>
+<span class="gp">... </span> <span class="n">ps</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&#39;SELECT 1&#39;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="k">assert</span> <span class="n">ps</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Or <cite>pg_tmp</cite> can decorate a method or function.</p>
+<dl class="method">
+<dt id="postgresql.temporal.Temporal.cluster_dirname">
+<tt class="descname">cluster_dirname</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.temporal.Temporal.cluster_dirname" title="Permalink to this definition">¶</a></dt>
+<dd><p>S.format(<a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs) -&gt; str</p>
+<p>Return a formatted version of S, using substitutions from args and kwargs.
+The substitutions are identified by braces (&#8216;{&#8216; and &#8216;}&#8217;).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="postgresql.temporal.pg_tmp">
+<tt class="descclassname">postgresql.temporal.</tt><tt class="descname">pg_tmp</tt><em class="property"> = &lt;postgresql.temporal.Temporal object at 0x1024c7c10&gt;</em><a class="headerlink" href="#postgresql.temporal.pg_tmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The process&#8217; temporary cluster.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.installation">
+<span id="postgresql-installation"></span><h2><a class="reference internal" href="#module-postgresql.installation" title="postgresql.installation"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.installation</span></tt></a><a class="headerlink" href="#module-postgresql.installation" title="Permalink to this headline">¶</a></h2>
+<p>Collect and access PostgreSQL installation information.</p>
+<dl class="class">
+<dt id="postgresql.installation.Installation">
+<em class="property">class </em><tt class="descclassname">postgresql.installation.</tt><tt class="descname">Installation</tt><big>(</big><em>info</em><big>)</big><a class="headerlink" href="#postgresql.installation.Installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.api.Installation" title="postgresql.api.Installation"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.api.Installation</span></tt></a></p>
+<p>Class providing a Python interface to PostgreSQL installation information.</p>
+<dl class="attribute">
+<dt id="postgresql.installation.Installation.ssl">
+<tt class="descname">ssl</tt><a class="headerlink" href="#postgresql.installation.Installation.ssl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the installation was compiled with SSL support.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.installation.default">
+<tt class="descclassname">postgresql.installation.</tt><tt class="descname">default</tt><big>(</big><em>typ=&lt;class 'postgresql.installation.Installation'&gt;</em><big>)</big><a class="headerlink" href="#postgresql.installation.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the default Installation.</p>
+<p>Uses default_pg_config() to identify the executable.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.installation.default_pg_config">
+<tt class="descclassname">postgresql.installation.</tt><tt class="descname">default_pg_config</tt><big>(</big><em>execname='pg_config'</em>, <em>envkey='PGINSTALLATION'</em><big>)</big><a class="headerlink" href="#postgresql.installation.default_pg_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the default <cite>pg_config</cite> executable on the system.</p>
+<p>If &#8216;PGINSTALLATION&#8217; is in the environment, use it.
+Otherwise, look through the system&#8217;s PATH environment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.installation.pg_config_dictionary">
+<tt class="descclassname">postgresql.installation.</tt><tt class="descname">pg_config_dictionary</tt><big>(</big><em>*pg_config_path</em><big>)</big><a class="headerlink" href="#postgresql.installation.pg_config_dictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dictionary of the information available in the given
+pg_config_path. This provides a one-shot solution to fetching information
+from the pg_config binary. Returns a dictionary object.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.cluster">
+<span id="postgresql-cluster"></span><h2><a class="reference internal" href="#module-postgresql.cluster" title="postgresql.cluster"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.cluster</span></tt></a><a class="headerlink" href="#module-postgresql.cluster" title="Permalink to this headline">¶</a></h2>
+<p>Create, control, and destroy PostgreSQL clusters.</p>
+<p>postgresql.cluster provides a programmer&#8217;s interface to controlling a PostgreSQL
+cluster. It provides direct access to proper signalling interfaces.</p>
+<dl class="class">
+<dt id="postgresql.cluster.Cluster">
+<em class="property">class </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">Cluster</tt><big>(</big><em>installation</em>, <em>data_directory</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.api.Cluster" title="postgresql.api.Cluster"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.api.Cluster</span></tt></a></p>
+<p>Interface to a PostgreSQL cluster.</p>
+<p>Provides mechanisms to start, stop, restart, kill, drop, and initalize a
+cluster(data directory).</p>
+<p>Cluster does not strive to be consistent with <tt class="docutils literal"><span class="pre">pg_ctl</span></tt>. This is considered
+to be a base class for managing a cluster, and is intended to be extended to
+accommodate for a particular purpose.</p>
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.address">
+<tt class="descname">address</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the host-port pair from the configuration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.connect">
+<tt class="descname">connect</tt><big>(</big><em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an established connection from the connector.</p>
+<p>Cluster must be running.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.connection">
+<tt class="descname">connection</tt><big>(</big><em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a connection object to the cluster, but do not connect.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.connector">
+<tt class="descname">connector</tt><big>(</big><em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a postgresql.driver connector based on the given keywords and
+listen_addresses and port configuration in settings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.cluster.Cluster.daemon_path">
+<tt class="descname">daemon_path</tt><a class="headerlink" href="#postgresql.cluster.Cluster.daemon_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the executable to use to startup the cluster.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.drop">
+<tt class="descname">drop</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the cluster and remove it from the filesystem</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.get_pid_from_file">
+<tt class="descname">get_pid_from_file</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.get_pid_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current pid from the postmaster.pid file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.cluster.Cluster.hba_file">
+<tt class="descname">hba_file</tt><a class="headerlink" href="#postgresql.cluster.Cluster.hba_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the HBA file of the cluster.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.init">
+<tt class="descname">init</tt><big>(</big><em>password=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the cluster at the given <cite>data_directory</cite> using the
+provided keyword parameters as options to the command.</p>
+<p><cite>command_option_map</cite> provides the mapping of keyword arguments
+to command options.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.initialized">
+<tt class="descname">initialized</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not the data directory <em>appears</em> to be a valid cluster.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.kill">
+<tt class="descname">kill</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the cluster immediately(SIGKILL).</p>
+<p>Does <em>not</em> wait for shutdown.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.cluster.Cluster.pid">
+<tt class="descname">pid</tt><a class="headerlink" href="#postgresql.cluster.Cluster.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we have the subprocess, use the pid on the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.ready_for_connections">
+<tt class="descname">ready_for_connections</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.ready_for_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the daemon is running, and is not in startup mode.</p>
+<p>This only works for clusters configured for TCP/IP connections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.reload">
+<tt class="descname">reload</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.reload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal the cluster to reload its configuration file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.restart">
+<tt class="descname">restart</tt><big>(</big><em>logfile=None</em>, <em>settings=None</em>, <em>timeout=10</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart the cluster gracefully.</p>
+<p>This provides a higher level interface to stopping then starting the
+cluster. It will perform the wait operations and block until the
+restart is complete.</p>
+<p>If waiting is not desired, .start() and .stop() should be used directly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.running">
+<tt class="descname">running</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.running" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not the postmaster is running.</p>
+<p>This does <em>not</em> mean the cluster is accepting connections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.shutdown">
+<tt class="descname">shutdown</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shutdown the cluster as soon as possible, disconnecting clients.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.start">
+<tt class="descname">start</tt><big>(</big><em>logfile=None</em>, <em>settings=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the cluster.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the cluster gracefully waiting for clients to disconnect(SIGTERM).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.wait_until_started">
+<tt class="descname">wait_until_started</tt><big>(</big><em>timeout=10</em>, <em>delay=0.05</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.wait_until_started" title="Permalink to this definition">¶</a></dt>
+<dd><p>After the <cite>start</cite> method is used, this can be ran in order to block
+until the cluster is ready for use.</p>
+<p>This method loops until <cite>ready_for_connections</cite> returns <cite>True</cite> in
+order to make sure that the cluster is actually up.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.cluster.Cluster.wait_until_stopped">
+<tt class="descname">wait_until_stopped</tt><big>(</big><em>timeout=10</em>, <em>delay=0.05</em><big>)</big><a class="headerlink" href="#postgresql.cluster.Cluster.wait_until_stopped" title="Permalink to this definition">¶</a></dt>
+<dd><p>After the <cite>stop</cite> method is used, this can be ran in order to block until
+the cluster is shutdown.</p>
+<p>Additionally, catching <cite>ClusterTimeoutError</cite> exceptions would be a
+starting point for making decisions about whether or not to issue a kill
+to the daemon.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.ClusterError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.exceptions.Error" title="postgresql.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Error</span></tt></a></p>
+<p>General cluster error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.ClusterInitializationError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterInitializationError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterInitializationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.cluster.ClusterError" title="postgresql.cluster.ClusterError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.cluster.ClusterError</span></tt></a></p>
+<p>General cluster initialization failure</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.ClusterNotRunningError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterNotRunningError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterNotRunningError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.cluster.ClusterError" title="postgresql.cluster.ClusterError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.cluster.ClusterError</span></tt></a></p>
+<p>Cluster is not running</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.ClusterStartupError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterStartupError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterStartupError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.cluster.ClusterError" title="postgresql.cluster.ClusterError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.cluster.ClusterError</span></tt></a></p>
+<p>Cluster startup failed</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.ClusterTimeoutError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterTimeoutError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterTimeoutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.cluster.ClusterError" title="postgresql.cluster.ClusterError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.cluster.ClusterError</span></tt></a></p>
+<p>Cluster operation timed out</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.cluster.ClusterWarning">
+<em class="property">class </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">ClusterWarning</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.ClusterWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.exceptions.Warning</span></tt></p>
+<p>Warning issued by cluster operations</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.cluster.InitDBError">
+<em class="property">exception </em><tt class="descclassname">postgresql.cluster.</tt><tt class="descname">InitDBError</tt><big>(</big><em>message</em>, <em>code=None</em>, <em>details={}</em>, <em>source=None</em>, <em>creator=None</em><big>)</big><a class="headerlink" href="#postgresql.cluster.InitDBError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.cluster.ClusterInitializationError" title="postgresql.cluster.ClusterInitializationError"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.cluster.ClusterInitializationError</span></tt></a></p>
+<p>A non-zero result was returned by the initdb command</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.copyman">
+<span id="postgresql-copyman"></span><h2><a class="reference internal" href="#module-postgresql.copyman" title="postgresql.copyman"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.copyman</span></tt></a><a class="headerlink" href="#module-postgresql.copyman" title="Permalink to this headline">¶</a></h2>
+<p>Manage complex COPY operations; one-to-many COPY streaming.</p>
+<p>Primarily this module houses the <cite>CopyManager</cite> class, and the <cite>transfer</cite>
+function for a high-level interface to using the <cite>CopyManager</cite>.</p>
+<dl class="class">
+<dt id="postgresql.copyman.CallReceiver">
+<em class="property">class </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">CallReceiver</tt><big>(</big><em>callable</em><big>)</big><a class="headerlink" href="#postgresql.copyman.CallReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.copyman.Receiver</span></tt></p>
+<p>Call the given object with a list of COPY lines.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.copyman.CopyFail">
+<em class="property">exception </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">CopyFail</tt><big>(</big><em>manager</em>, <em>reason=None</em>, <em>receiver_faults=None</em>, <em>producer_fault=None</em><big>)</big><a class="headerlink" href="#postgresql.copyman.CopyFail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Exception thrown by the CopyManager when the COPY operation failed.</p>
+<p>The &#8216;manager&#8217; attribute the CopyManager that raised the CopyFail.</p>
+<p>The &#8216;reason&#8217; attribute is a string indicating why it failed.</p>
+<p>The &#8216;receiver_faults&#8217; attribute is a mapping of receivers to exceptions that were
+raised on exit.</p>
+<p>The &#8216;producer_fault&#8217; attribute specifies if the producer raise an exception
+on exit.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.copyman.CopyManager">
+<em class="property">class </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">CopyManager</tt><big>(</big><em>producer</em>, <em>*receivers</em><big>)</big><a class="headerlink" href="#postgresql.copyman.CopyManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterator</span></tt></p>
+<p>A class for managing COPY operations.</p>
+<p>Connects the producer to the receivers.</p>
+<dl class="method">
+<dt id="postgresql.copyman.CopyManager.reconcile">
+<tt class="descname">reconcile</tt><big>(</big><em>r</em><big>)</big><a class="headerlink" href="#postgresql.copyman.CopyManager.reconcile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconcile a receiver that faulted.</p>
+<p>This method should be used to add back a receiver that failed to
+complete its write operation, but is capable of completing the
+operation at this time.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.copyman.NullProducer">
+<em class="property">class </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">NullProducer</tt><a class="headerlink" href="#postgresql.copyman.NullProducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.copyman.Producer</span></tt></p>
+<p>Produces no copy data.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.copyman.ProducerFault">
+<em class="property">exception </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">ProducerFault</tt><big>(</big><em>manager</em><big>)</big><a class="headerlink" href="#postgresql.copyman.ProducerFault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.copyman.Fault</span></tt></p>
+<p>Exception raised when the Producer caused an exception.</p>
+<p>Normally, Producer faults are fatal.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.copyman.ProtocolProducer">
+<em class="property">class </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">ProtocolProducer</tt><big>(</big><em>recv_into</em>, <em>buffer_size=10240</em><big>)</big><a class="headerlink" href="#postgresql.copyman.ProtocolProducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.copyman.Producer</span></tt></p>
+<p>Producer using a PQv3 data stream.</p>
+<p>Normally, this class needs to be subclassed as it assumes that the given
+recv_into function will write COPY messages.</p>
+<dl class="method">
+<dt id="postgresql.copyman.ProtocolProducer.recover">
+<tt class="descname">recover</tt><big>(</big><em>view</em><big>)</big><a class="headerlink" href="#postgresql.copyman.ProtocolProducer.recover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a view containing data read from the wire, recover the
+controller&#8217;s state.</p>
+<p>This needs to be implemented by subclasses in order for the
+ProtocolReceiver to pass control back to the original state machine.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="postgresql.copyman.ReceiverFault">
+<em class="property">exception </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">ReceiverFault</tt><big>(</big><em>manager</em>, <em>faults</em><big>)</big><a class="headerlink" href="#postgresql.copyman.ReceiverFault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.copyman.Fault</span></tt></p>
+<p>Exception raised when Receivers cause an exception.</p>
+<p>Faults should be trapped if recovery from an exception is
+possible, or if the failed receiver is optional to the succes of the
+operation.</p>
+<p>The &#8216;manager&#8217; attribute is the CopyManager that raised the fault.</p>
+<p>The &#8216;faults&#8217; attribute is a dictionary mapping the receiver to the exception
+instance raised.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.copyman.WireState">
+<em class="property">class </em><tt class="descclassname">postgresql.copyman.</tt><tt class="descname">WireState</tt><big>(</big><em>condition=&lt;method-wrapper '__ne__' of bytes object at 0x102778260&gt;</em><big>)</big><a class="headerlink" href="#postgresql.copyman.WireState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Manages the state of the wire.</p>
+<p>This class manages three possible positions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Between wire messages</li>
+<li>Inside message header</li>
+<li>Inside message (with complete header)</li>
+</ol>
+</div></blockquote>
+<p>The wire state will become unusable when the configured condition is True.</p>
+<dl class="method">
+<dt id="postgresql.copyman.WireState.update">
+<tt class="descname">update</tt><big>(</big><em>view</em>, <em>getlen=&lt;function unpack at 0x102611490&gt;</em>, <em>len=&lt;built-in function len&gt;</em><big>)</big><a class="headerlink" href="#postgresql.copyman.WireState.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the state of the COPY and new data, advance the position on the
+COPY stream.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="postgresql.copyman.default_buffer_size">
+<tt class="descclassname">postgresql.copyman.</tt><tt class="descname">default_buffer_size</tt><em class="property"> = 10240</em><a class="headerlink" href="#postgresql.copyman.default_buffer_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>10KB buffer for COPY messages by default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.copyman.transfer">
+<tt class="descclassname">postgresql.copyman.</tt><tt class="descname">transfer</tt><big>(</big><em>producer</em>, <em>*receivers</em><big>)</big><a class="headerlink" href="#postgresql.copyman.transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a COPY operation using the given statements:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">copyman</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">copyman</span><span class="o">.</span><span class="n">transfer</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;COPY table TO STDOUT&quot;</span><span class="p">),</span> <span class="n">dst</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;COPY table FROM STDIN&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="postgresql.copyman.ulong_pack">
+<tt class="descclassname">postgresql.copyman.</tt><tt class="descname">ulong_pack</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.copyman.ulong_pack" title="Permalink to this definition">¶</a></dt>
+<dd><p>S.pack(v1, v2, ...) -&gt; bytes</p>
+<p>Return a bytes object containing values v1, v2, ... packed according
+to the format string S.format.  See help(struct) for more on format
+strings.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.alock">
+<span id="postgresql-alock"></span><h2><a class="reference internal" href="#module-postgresql.alock" title="postgresql.alock"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.alock</span></tt></a><a class="headerlink" href="#module-postgresql.alock" title="Permalink to this headline">¶</a></h2>
+<p>Tools for Advisory Locks</p>
+<dl class="class">
+<dt id="postgresql.alock.ALock">
+<em class="property">class </em><tt class="descclassname">postgresql.alock.</tt><tt class="descname">ALock</tt><big>(</big><em>database</em>, <em>*identifiers</em><big>)</big><a class="headerlink" href="#postgresql.alock.ALock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>Advisory Lock class for managing the acquisition and release of a sequence
+of PostgreSQL advisory locks.</p>
+<p>ALock()&#8217;s are fairly consistent with threading.RLock()&#8217;s. They can be
+acquired multiple times, and they must be released the same number of times
+for the lock to actually be released.</p>
+<p>A notably difference is that ALock&#8217;s manage a sequence of lock identifiers.
+This means that a given ALock() may represent multiple advisory locks.</p>
+<dl class="method">
+<dt id="postgresql.alock.ALock.acquire">
+<tt class="descname">acquire</tt><big>(</big><em>blocking=True</em>, <em>len=&lt;built-in function len&gt;</em><big>)</big><a class="headerlink" href="#postgresql.alock.ALock.acquire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire the locks using the configured identifiers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.alock.ALock.locked">
+<tt class="descname">locked</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.alock.ALock.locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the locks have been acquired. This method is sensitive to the
+connection&#8217;s state. If the connection is closed, it will return False.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.alock.ALock.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#postgresql.alock.ALock.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mode of the lock class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.alock.ALock.release">
+<tt class="descname">release</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.alock.ALock.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the locks using the configured identifiers.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-postgresql.api">
+<span id="postgresql-api"></span><h2><a class="reference internal" href="#module-postgresql.api" title="postgresql.api"><tt class="xref py py-mod docutils literal"><span class="pre">postgresql.api</span></tt></a><a class="headerlink" href="#module-postgresql.api" title="Permalink to this headline">¶</a></h2>
+<p>Application Programmer Interfaces for PostgreSQL.</p>
+<p><tt class="docutils literal"><span class="pre">postgresql.api</span></tt> is a collection of Python APIs for the PostgreSQL DBMS. It
+is designed to take full advantage of PostgreSQL&#8217;s features to provide the
+Python programmer with substantial convenience.</p>
+<p>This module is used to define &#8220;PG-API&#8221;. It creates a set of ABCs
+that makes up the basic interfaces used to work with a PostgreSQL server.</p>
+<dl class="class">
+<dt id="postgresql.api.Message">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Message</tt><a class="headerlink" href="#postgresql.api.Message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>A message emitted by PostgreSQL.
+A message being a NOTICE, WARNING, INFO, etc.</p>
+<dl class="attribute">
+<dt id="postgresql.api.Message.code">
+<tt class="descname">code</tt><a class="headerlink" href="#postgresql.api.Message.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SQL state code of the message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Message.details">
+<tt class="descname">details</tt><a class="headerlink" href="#postgresql.api.Message.details" title="Permalink to this definition">¶</a></dt>
+<dd><p>The additional details given with the message. Common keys <em>should</em> be the
+following:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;severity&#8217;</li>
+<li>&#8216;context&#8217;</li>
+<li>&#8216;detail&#8217;</li>
+<li>&#8216;hint&#8217;</li>
+<li>&#8216;file&#8217;</li>
+<li>&#8216;line&#8217;</li>
+<li>&#8216;function&#8217;</li>
+<li>&#8216;position&#8217;</li>
+<li>&#8216;internal_position&#8217;</li>
+<li>&#8216;internal_query&#8217;</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Message.isconsistent">
+<tt class="descname">isconsistent</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#postgresql.api.Message.isconsistent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the fields of the <cite>other</cite> Message object is consistent with the
+fields of <cite>self</cite>.</p>
+<p>This <em>must</em> return the result of the comparison of code, source, message,
+and details.</p>
+<p>This method is provided as the alternative to overriding equality;
+often, pointer equality is the desirable means for comparison, but
+equality of the fields is also necessary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Message.message">
+<tt class="descname">message</tt><a class="headerlink" href="#postgresql.api.Message.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>The primary message string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Message.source">
+<tt class="descname">source</tt><a class="headerlink" href="#postgresql.api.Message.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Where the message originated from. Normally, &#8216;SERVER&#8217;, but sometimes
+&#8216;CLIENT&#8217;.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Statement">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Statement</tt><a class="headerlink" href="#postgresql.api.Statement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Callable</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterable</span></tt></p>
+<p>Instances of <cite>Statement</cite> are returned by the <cite>prepare</cite> method of
+<cite>Database</cite> instances.</p>
+<p>A Statement is an Iterable as well as Callable.</p>
+<p>The Iterable interface is supported for queries that take no arguments at
+all. It allows the syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&#39;select * FROM table&#39;</span><span class="p">):</span>
+<span class="gp">... </span> <span class="k">pass</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="postgresql.api.Statement.chunks">
+<tt class="descname">chunks</tt><big>(</big><em>*parameters</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator producing sequences of rows produced by the cursor
+created from the statement bound with the given parameters.</p>
+<p>Chunking iterators are <em>never</em> scrollable.</p>
+<p>Supporting cursors will be WITH HOLD when outside of a transaction.</p>
+<p><cite>chunks</cite> is designed for moving large data sets efficiently.</p>
+<p>Each iteration returns sequences of rows <em>normally</em> of length(seq) ==
+chunksize. If chunksize is unspecified, a default, positive integer will
+be filled in. The rows contained in the sequences are only required to
+support the basic <cite>collections.Sequence</cite> interfaces; simple and quick
+sequence types should be used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Statement.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new statement object using the same factors as <cite>self</cite>.</p>
+<p>When used for refreshing plans, the new clone should replace references to
+the original.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Statement.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the prepared statement releasing resources associated with it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.column">
+<tt class="descname">column</tt><big>(</big><em>*parameters</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator producing the values of the first column in
+the cursor created from the statement bound with the given parameters.</p>
+<p>Column iterators are never scrollable.</p>
+<p>Supporting cursors will be WITH HOLD when outside of a transaction to
+allow cross-transaction access.</p>
+<p><cite>column</cite> is designed for the situations involving large data sets.</p>
+<p>Each iteration returns a single value. <cite>column</cite> is equivalent to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">(</span><span class="o">*</span><span class="n">parameters</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.column_names">
+<tt class="descname">column_names</tt><a class="headerlink" href="#postgresql.api.Statement.column_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;str&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The attribute names of the columns produced by the statement.</p>
+<p>A sequence of <cite>str</cite> objects stating the column name:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;column1&#39;</span><span class="p">,</span> <span class="s">&#39;column2&#39;</span><span class="p">,</span> <span class="s">&#39;emp_name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.column_types">
+<tt class="descname">column_types</tt><a class="headerlink" href="#postgresql.api.Statement.column_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;type&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The Python types of the columns produced by the statement.</p>
+<p>A sequence of type objects:</p>
+<div class="last highlight-python"><pre>[&lt;class &#x27;int&#x27;&gt;, &lt;class &#x27;str&#x27;&gt;]</pre>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.declare">
+<tt class="descname">declare</tt><big>(</big><em>*parameters</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.declare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a scrollable cursor with hold using the statement bound with the
+given parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.first">
+<tt class="descname">first</tt><big>(</big><em>*parameters</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the prepared statement with the given arguments as parameters.
+If the statement returns rows with multiple columns, return the first
+row. If the statement returns rows with a single column, return the
+first column in the first row. If the query does not return rows at all,
+return the count or <cite>None</cite> if no count exists in the completion message.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;SELECT * FROM ttable WHERE key = $1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="s">&quot;somekey&quot;</span><span class="p">)</span>
+<span class="go">(&#39;somekey&#39;, &#39;somevalue&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;SELECT &#39;foo&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">&#39;foo&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;INSERT INTO atable (col) VALUES (1)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.load_chunks">
+<tt class="descname">load_chunks</tt><big>(</big><em>iterable</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.load_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an iterable, <cite>iterable</cite>, feed the produced parameters of the chunks
+produced by the iterable to the query. This is a bulk-loading interface
+for parameterized queries.</p>
+<p>Effectively, it is equivalent to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+<span class="gp">... </span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="n">q</span><span class="p">(</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Its purpose is to allow the implementation to take advantage of the
+knowledge that a series of chunks of parameters are to be loaded so
+that the operation can be optimized.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.load_rows">
+<tt class="descname">load_rows</tt><big>(</big><em>iterable</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.load_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an iterable, <cite>iterable</cite>, feed the produced parameters to the
+query. This is a bulk-loading interface for parameterized queries.</p>
+<p>Effectively, it is equivalent to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+<span class="gp">... </span> <span class="n">q</span><span class="p">(</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Its purpose is to allow the implementation to take advantage of the
+knowledge that a series of parameters are to be loaded so that the
+operation can be optimized.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.parameter_types">
+<tt class="descname">parameter_types</tt><a class="headerlink" href="#postgresql.api.Statement.parameter_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;type&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The Python types expected of parameters given to the statement.</p>
+<p>A sequence of type objects:</p>
+<div class="last highlight-python"><pre>[&lt;class &#x27;int&#x27;&gt;, &lt;class &#x27;str&#x27;&gt;]</pre>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.pg_column_types">
+<tt class="descname">pg_column_types</tt><a class="headerlink" href="#postgresql.api.Statement.pg_column_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;int&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The type Oids of the columns produced by the statement.</p>
+<p>A sequence of <cite>int</cite> objects stating the SQL type name:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.pg_parameter_types">
+<tt class="descname">pg_parameter_types</tt><a class="headerlink" href="#postgresql.api.Statement.pg_parameter_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;int&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The type Oids of the parameters required by the statement.</p>
+<p>A sequence of <cite>int</cite> objects stating the PostgreSQL type Oid:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Statement.rows">
+<tt class="descname">rows</tt><big>(</big><em>*parameters</em><big>)</big><a class="headerlink" href="#postgresql.api.Statement.rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator producing rows produced by the cursor
+created from the statement bound with the given parameters.</p>
+<p>Row iterators are never scrollable.</p>
+<p>Supporting cursors will be WITH HOLD when outside of a transaction to
+allow cross-transaction access.</p>
+<p><cite>rows</cite> is designed for the situations involving large data sets.</p>
+<p>Each iteration returns a single row. Arguably, best implemented:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chunks</span><span class="p">(</span><span class="o">*</span><span class="n">parameters</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.sql_column_types">
+<tt class="descname">sql_column_types</tt><a class="headerlink" href="#postgresql.api.Statement.sql_column_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;str&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The type of the columns produced by the statement.</p>
+<p>A sequence of <cite>str</cite> objects stating the SQL type name:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;INTEGER&#39;</span><span class="p">,</span> <span class="s">&#39;VARCHAR&#39;</span><span class="p">,</span> <span class="s">&#39;INTERVAL&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.sql_parameter_types">
+<tt class="descname">sql_parameter_types</tt><a class="headerlink" href="#postgresql.api.Statement.sql_parameter_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; [&lt;class &#8216;str&#8217;&gt;]</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The type of the parameters required by the statement.</p>
+<p>A sequence of <cite>str</cite> objects stating the SQL type name:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;INTEGER&#39;</span><span class="p">,</span> <span class="s">&#39;VARCHAR&#39;</span><span class="p">,</span> <span class="s">&#39;INTERVAL&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.statement_id">
+<tt class="descname">statement_id</tt><a class="headerlink" href="#postgresql.api.Statement.statement_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;str&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The statment&#8217;s identifier.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Statement.string">
+<tt class="descname">string</tt><a class="headerlink" href="#postgresql.api.Statement.string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;object&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The SQL string of the prepared statement.</p>
+<p class="last"><cite>None</cite> if not available. This can happen in cases where a statement is
+prepared on the server and a reference to the statement is sent to the
+client which subsequently uses the statement via the <cite>Database</cite>&#8216;s
+<cite>statement</cite> constructor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Cursor">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Cursor</tt><a class="headerlink" href="#postgresql.api.Cursor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.api.Result</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterator</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterable</span></tt></p>
+<p>A <cite>Cursor</cite> object is an interface to a sequence of tuples(rows). A result
+set. Cursors publish a file-like interface for reading tuples from a cursor
+declared on the database.</p>
+<p><cite>Cursor</cite> objects are created by invoking the <cite>Statement.declare</cite>
+method or by opening a cursor using an identifier via the
+<cite>Database.cursor_from_id</cite> method.</p>
+<dl class="method">
+<dt id="postgresql.api.Cursor.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cursor.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new cursor using the same factors as <cite>self</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Cursor.direction">
+<tt class="descname">direction</tt><a class="headerlink" href="#postgresql.api.Cursor.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;bool&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The default <cite>direction</cite> argument for read().</p>
+<p>When <cite>True</cite> reads are FORWARD.
+When <cite>False</cite> reads are BACKWARD.</p>
+<p class="last">Cursor operation option.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cursor.read">
+<tt class="descname">read</tt><big>(</big><em>quantity=None</em>, <em>direction=None</em><big>)</big><a class="headerlink" href="#postgresql.api.Cursor.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read, fetch, the specified number of rows and return them in a list.
+If quantity is <cite>None</cite>, all records will be fetched.</p>
+<p><cite>direction</cite> can be used to override the default configured direction.</p>
+<p>This alters the cursor&#8217;s position.</p>
+<p>Read does not directly correlate to FETCH. If zero is given as the
+quantity, an empty sequence <em>must</em> be returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cursor.seek">
+<tt class="descname">seek</tt><big>(</big><em>offset</em>, <em>whence='ABSOLUTE'</em><big>)</big><a class="headerlink" href="#postgresql.api.Cursor.seek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the cursor&#8217;s position to the given offset with respect to the
+whence parameter and the configured direction.</p>
+<p>Whence values:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">&quot;ABSOLUTE&quot;</span></tt></dt>
+<dd>Absolute.</dd>
+<dt><tt class="docutils literal"><span class="pre">1</span></tt> or <tt class="docutils literal"><span class="pre">&quot;RELATIVE&quot;</span></tt></dt>
+<dd>Relative.</dd>
+<dt><tt class="docutils literal"><span class="pre">2</span></tt> or <tt class="docutils literal"><span class="pre">&quot;FROM_END&quot;</span></tt></dt>
+<dd>Absolute from end.</dd>
+<dt><tt class="docutils literal"><span class="pre">3</span></tt> or <tt class="docutils literal"><span class="pre">&quot;FORWARD&quot;</span></tt></dt>
+<dd>Relative forward.</dd>
+<dt><tt class="docutils literal"><span class="pre">4</span></tt> or <tt class="docutils literal"><span class="pre">&quot;BACKWARD&quot;</span></tt></dt>
+<dd>Relative backward.</dd>
+</dl>
+</div></blockquote>
+<p>Direction effects whence. If direction is BACKWARD, ABSOLUTE positioning
+will effectively be FROM_END, RELATIVE&#8217;s position will be negated, and
+FROM_END will effectively be ABSOLUTE.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Connector">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Connector</tt><big>(</big><em>user=None</em>, <em>password=None</em>, <em>database=None</em>, <em>settings=None</em>, <em>category=None</em><big>)</big><a class="headerlink" href="#postgresql.api.Connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>A connector is an object providing the necessary information to establish a
+connection. This includes credentials, database settings, and many times
+addressing information.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Category">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Category</tt><a class="headerlink" href="#postgresql.api.Category" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>A category is an object that initializes the subject connection for a
+specific purpose.</p>
+<p>Arguably, a runtime class for use with connections.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Database">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Database</tt><a class="headerlink" href="#postgresql.api.Database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>The interface to an individual database. <cite>Connection</cite> objects inherit from
+this</p>
+<dl class="attribute">
+<dt id="postgresql.api.Database.backend_id">
+<tt class="descname">backend_id</tt><a class="headerlink" href="#postgresql.api.Database.backend_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; (&lt;class &#8216;int&#8217;&gt;, None)</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The backend&#8217;s process identifier.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Database.client_address">
+<tt class="descname">client_address</tt><a class="headerlink" href="#postgresql.api.Database.client_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; (&lt;class &#8216;str&#8217;&gt;, None)</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The client address that the server sees. This is obtainable by querying
+the <tt class="docutils literal"><span class="pre">pg_catalog.pg_stat_activity</span></tt> relation.</p>
+<p class="last"><cite>None</cite> if unavailable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Database.client_port">
+<tt class="descname">client_port</tt><a class="headerlink" href="#postgresql.api.Database.client_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; (&lt;class &#8216;int&#8217;&gt;, None)</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The client port that the server sees. This is obtainable by querying
+the <tt class="docutils literal"><span class="pre">pg_catalog.pg_stat_activity</span></tt> relation.</p>
+<p class="last"><cite>None</cite> if unavailable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.cursor_from_id">
+<tt class="descname">cursor_from_id</tt><big>(</big><em>cursor_id</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.cursor_from_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Cursor</cite> object from the given <cite>cursor_id</cite> that was already
+declared on the server.</p>
+<p><cite>Cursor</cite> objects created this way must <em>not</em> be closed when the object
+is garbage collected. Rather, the user must explicitly close it for
+the server resources to be released. This is in contrast to <cite>Cursor</cite>
+objects that are created by invoking a <cite>Statement</cite> or a SRF
+<cite>StoredProcedure</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.do">
+<tt class="descname">do</tt><big>(</big><em>language</em>, <em>source</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.do" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a DO statement using the given language and source.
+Always returns <cite>None</cite>.</p>
+<p>Likely to be a function of Connection.execute.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.execute">
+<tt class="descname">execute</tt><big>(</big><em>sql</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an arbitrary block of SQL. Always returns <cite>None</cite> and raise
+an exception on error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.iternotifies">
+<tt class="descname">iternotifies</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.iternotifies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator to the notifications received by the connection. The
+iterator <em>must</em> produce triples in the form <tt class="docutils literal"><span class="pre">(channel,</span> <span class="pre">payload,</span> <span class="pre">pid)</span></tt>.</p>
+<p>If timeout is not <cite>None</cite>, <cite>None</cite> <em>must</em> be emitted at the specified
+timeout interval. If the timeout is zero, all the pending notifications
+<em>must</em> be yielded by the iterator and then <cite>StopIteration</cite> <em>must</em> be
+raised.</p>
+<p>If the connection is closed for any reason, the iterator <em>must</em> silently
+stop by raising <cite>StopIteration</cite>. Further error control is then the
+responsibility of the user.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.listen">
+<tt class="descname">listen</tt><big>(</big><em>*channels</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.listen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start listening to the given channels.</p>
+<p>Equivalent to issuing &#8220;LISTEN &lt;x&gt;&#8221; for x in channels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.listening_channels">
+<tt class="descname">listening_channels</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Database.listening_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an <em>iterator</em> to all the channels currently being listened to.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.notify">
+<tt class="descname">notify</tt><big>(</big><em>*channels</em>, <em>**channel_and_payload</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.notify" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOTIFY the channels with the given payload.</p>
+<p>Equivalent to issuing &#8220;NOTIFY &lt;channel&gt;&#8221; or &#8220;NOTIFY &lt;channel&gt;, &lt;payload&gt;&#8221;
+for each item in <cite>channels</cite> and <cite>channel_and_payload</cite>. All NOTIFYs issued
+<em>must</em> occur in the same transaction.</p>
+<p>The items in <cite>channels</cite> can either be a string or a tuple. If a string,
+no payload is given, but if an item is a <cite>builtins.tuple</cite>, the second item
+will be given as the payload. <cite>channels</cite> offers a means to issue NOTIFYs
+in guaranteed order.</p>
+<p>The items in <cite>channel_and_payload</cite> are all payloaded NOTIFYs where the
+keys are the channels and the values are the payloads. Order is undefined.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>sql</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <cite>Statement</cite> instance bound to the connection
+using the given SQL.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;SELECT 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">s</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+<span class="go">(1,)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.proc">
+<tt class="descname">proc</tt><big>(</big><em>procedure_id</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.proc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>StoredProcedure</cite> instance using the given identifier.</p>
+<p>The <cite>proc_id</cite> given can be either an <tt class="docutils literal"><span class="pre">Oid</span></tt>, or a <tt class="docutils literal"><span class="pre">regprocedure</span></tt>
+that identifies the stored procedure to create the interface for.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">proc</span><span class="p">(</span><span class="s">&#39;version()&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="p">()</span>
+<span class="go">&#39;PostgreSQL 8.3.0&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">qstr</span> <span class="o">=</span> <span class="s">&quot;select oid from pg_proc where proname = &#39;generate_series&#39;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">qstr</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">1069</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_series</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">proc</span><span class="p">(</span><span class="mi">1069</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">generate_series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="go">[1, 2, 3, 4, 5]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Database.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the connection into it&#8217;s original state.</p>
+<p>Issues a <tt class="docutils literal"><span class="pre">RESET</span> <span class="pre">ALL</span></tt> to the database. If the database supports
+removing temporary tables created in the session, then remove them.
+Reapply initial configuration settings such as path.</p>
+<p>The purpose behind this method is to provide a soft-reconnect method
+that re-initializes the connection into its original state. One
+obvious use of this would be in a connection pool where the connection
+is being recycled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Database.settings">
+<tt class="descname">settings</tt><a class="headerlink" href="#postgresql.api.Database.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;postgresql.api.Settings&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>A <cite>Settings</cite> instance bound to the <cite>Database</cite>.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.statement_from_id">
+<tt class="descname">statement_from_id</tt><big>(</big><em>statement_id</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.statement_from_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Statement</cite> object that was already prepared on the
+server. The distinction between this and a regular query is that it
+must be explicitly closed if it is no longer desired, and it is
+instantiated using the statement identifier as opposed to the SQL
+statement itself.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Database.unlisten">
+<tt class="descname">unlisten</tt><big>(</big><em>*channels</em><big>)</big><a class="headerlink" href="#postgresql.api.Database.unlisten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop listening to the given channels.</p>
+<p>Equivalent to issuing &#8220;UNLISTEN &lt;x&gt;&#8221; for x in channels.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Database.version_info">
+<tt class="descname">version_info</tt><a class="headerlink" href="#postgresql.api.Database.version_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;tuple&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">A version tuple of the database software similar Python&#8217;s <cite>sys.version_info</cite>.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">version_info</span>
+<span class="go">(8, 1, 3, &#39;&#39;, 0)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Database.xact">
+<tt class="descname">xact</tt><a class="headerlink" href="#postgresql.api.Database.xact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;postgresql.api.Transaction&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>Create a <cite>Transaction</cite> object using the given keyword arguments as its
+configuration.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Connection">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Connection</tt><a class="headerlink" href="#postgresql.api.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#postgresql.api.Database" title="postgresql.api.Database"><tt class="xref py py-class docutils literal"><span class="pre">postgresql.api.Database</span></tt></a></p>
+<p>The interface to a connection to a PostgreSQL database. This is a
+<cite>Database</cite> interface with the additional connection management tools that
+are particular to using a remote database.</p>
+<dl class="method">
+<dt id="postgresql.api.Connection.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Connection.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create another connection using the same factors as <cite>self</cite>. The returned
+object should be open and ready for use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Connection.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Connection.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the connection.</p>
+<p>Does nothing if the connection is already closed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Connection.closed">
+<tt class="descname">closed</tt><a class="headerlink" href="#postgresql.api.Connection.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;bool&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first"><cite>True</cite> if the <cite>Connection</cite> is closed, <cite>False</cite> if the <cite>Connection</cite> is
+open.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">closed</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Connection.connect">
+<tt class="descname">connect</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Connection.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Establish the connection to the server and initialize the category.</p>
+<p>Does nothing if the connection is already established.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Connection.connector">
+<tt class="descname">connector</tt><a class="headerlink" href="#postgresql.api.Connection.connector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;postgresql.api.Connector&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The <cite>Connector</cite> instance facilitating the <cite>Connection</cite> object&#8217;s
+communication and initialization.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Transaction">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Transaction</tt><a class="headerlink" href="#postgresql.api.Transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>A <cite>Tranaction</cite> is an element that represents a transaction in the session.
+Once created, it&#8217;s ready to be started, and subsequently committed or
+rolled back.</p>
+<p>Read-only transaction:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">(</span><span class="n">mode</span> <span class="o">=</span> <span class="s">&#39;read only&#39;</span><span class="p">):</span>
+<span class="gp">... </span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Read committed isolation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">(</span><span class="n">isolation</span> <span class="o">=</span> <span class="s">&#39;READ COMMITTED&#39;</span><span class="p">):</span>
+<span class="gp">... </span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Savepoints are created if inside a transaction block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">():</span>
+<span class="gp">... </span> <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="o">...</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="postgresql.api.Transaction.abort">
+<tt class="descname">abort</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Transaction.abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abort the transaction.</p>
+<p>If the transaction is a savepoint, ROLLBACK TO the savepoint identifier.</p>
+<p>If the transaction is a transaction block, issue an ABORT.</p>
+<p>If the transaction has already been aborted, do nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Transaction.begin">
+<tt class="descname">begin</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Transaction.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the transaction.</p>
+<p>If the database is in a transaction block, the transaction should be
+configured as a savepoint. If any transaction block configuration was
+applied to the transaction, raise a <cite>postgresql.exceptions.OperationError</cite>.</p>
+<p>If the database is not in a transaction block, start one using the
+configuration where:</p>
+<p><cite>self.isolation</cite> specifies the <tt class="docutils literal"><span class="pre">ISOLATION</span> <span class="pre">LEVEL</span></tt>. Normally, <tt class="docutils literal"><span class="pre">READ</span>
+<span class="pre">COMMITTED</span></tt>, <tt class="docutils literal"><span class="pre">SERIALIZABLE</span></tt>, or <tt class="docutils literal"><span class="pre">READ</span> <span class="pre">UNCOMMITTED</span></tt>.</p>
+<p><cite>self.mode</cite> specifies the mode of the transaction. Normally, <tt class="docutils literal"><span class="pre">READ</span>
+<span class="pre">ONLY</span></tt> or <tt class="docutils literal"><span class="pre">READ</span> <span class="pre">WRITE</span></tt>.</p>
+<p>If the transaction is already open, do nothing.</p>
+<p>If the transaction has been committed or aborted, raise an
+<cite>postgresql.exceptions.OperationError</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Transaction.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Transaction.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit the transaction.</p>
+<p>If the transaction is a block, issue a COMMIT statement.</p>
+<p>If the transaction was started inside a transaction block, it should be
+identified as a savepoint, and the savepoint should be released.</p>
+<p>If the transaction has already been committed, do nothing.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Transaction.isolation">
+<tt class="descname">isolation</tt><a class="headerlink" href="#postgresql.api.Transaction.isolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; (None, &lt;class &#8216;str&#8217;&gt;)</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The isolation level of the transaction block:</p>
+<p>START TRANSACTION &lt;isolation&gt; [MODE];</p>
+<p class="last">The <cite>isolation</cite> property is a string and will be directly interpolated into
+the START TRANSACTION statement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Transaction.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#postgresql.api.Transaction.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; (None, &lt;class &#8216;str&#8217;&gt;)</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">The mode of the transaction block:</p>
+<p>START TRANSACTION [ISOLATION] &lt;mode&gt;;</p>
+<p class="last">The <cite>mode</cite> property is a string and will be directly interpolated into the
+START TRANSACTION statement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Transaction.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Transaction.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abort the transaction.</p>
+<p>If the transaction is a savepoint, ROLLBACK TO the savepoint identifier.</p>
+<p>If the transaction is a transaction block, issue an ABORT.</p>
+<p>If the transaction has already been aborted, do nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Transaction.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Transaction.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the transaction.</p>
+<p>If the database is in a transaction block, the transaction should be
+configured as a savepoint. If any transaction block configuration was
+applied to the transaction, raise a <cite>postgresql.exceptions.OperationError</cite>.</p>
+<p>If the database is not in a transaction block, start one using the
+configuration where:</p>
+<p><cite>self.isolation</cite> specifies the <tt class="docutils literal"><span class="pre">ISOLATION</span> <span class="pre">LEVEL</span></tt>. Normally, <tt class="docutils literal"><span class="pre">READ</span>
+<span class="pre">COMMITTED</span></tt>, <tt class="docutils literal"><span class="pre">SERIALIZABLE</span></tt>, or <tt class="docutils literal"><span class="pre">READ</span> <span class="pre">UNCOMMITTED</span></tt>.</p>
+<p><cite>self.mode</cite> specifies the mode of the transaction. Normally, <tt class="docutils literal"><span class="pre">READ</span>
+<span class="pre">ONLY</span></tt> or <tt class="docutils literal"><span class="pre">READ</span> <span class="pre">WRITE</span></tt>.</p>
+<p>If the transaction is already open, do nothing.</p>
+<p>If the transaction has been committed or aborted, raise an
+<cite>postgresql.exceptions.OperationError</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Settings">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Settings</tt><a class="headerlink" href="#postgresql.api.Settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.MutableMapping</span></tt></p>
+<p>A mapping interface to the session&#8217;s settings. This provides a direct
+interface to <tt class="docutils literal"><span class="pre">SHOW</span></tt> or <tt class="docutils literal"><span class="pre">SET</span></tt> commands. Identifiers and values need
+not be quoted specially as the implementation must do that work for the
+user.</p>
+<dl class="method">
+<dt id="postgresql.api.Settings.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#postgresql.api.Settings.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the setting with the corresponding key. If the setting does not
+exist, return the <cite>default</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Settings.getset">
+<tt class="descname">getset</tt><big>(</big><em>keys</em><big>)</big><a class="headerlink" href="#postgresql.api.Settings.getset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary containing the key-value pairs of the requested
+settings. If <em>any</em> of the keys do not exist, a <cite>KeyError</cite> must be raised
+with the set of keys that did not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Settings.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Settings.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator to all of the setting value pairs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Settings.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Settings.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator to all of the settings&#8217; keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Settings.update">
+<tt class="descname">update</tt><big>(</big><em>mapping</em><big>)</big><a class="headerlink" href="#postgresql.api.Settings.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each key-value pair, incur the effect of the <cite>__setitem__</cite> method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Settings.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Settings.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator to all of the settings&#8217; values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.StoredProcedure">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">StoredProcedure</tt><a class="headerlink" href="#postgresql.api.StoredProcedure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Callable</span></tt></p>
+<p>A function stored on the database.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Driver">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Driver</tt><a class="headerlink" href="#postgresql.api.Driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>The <cite>Driver</cite> element provides the <cite>Connector</cite> and other information
+pertaining to the implementation of the driver. Information about what the
+driver supports is available in instances.</p>
+<dl class="method">
+<dt id="postgresql.api.Driver.connect">
+<tt class="descname">connect</tt><big>(</big><em>**kw</em><big>)</big><a class="headerlink" href="#postgresql.api.Driver.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a connection using the given parameters for the Connector.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Installation">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Installation</tt><a class="headerlink" href="#postgresql.api.Installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>Interface to a PostgreSQL installation. Instances would provide various
+information about an installation of PostgreSQL accessible by the Python</p>
+<dl class="attribute">
+<dt id="postgresql.api.Installation.ssl">
+<tt class="descname">ssl</tt><a class="headerlink" href="#postgresql.api.Installation.ssl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;bool&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>Whether the installation supports SSL.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Installation.type">
+<tt class="descname">type</tt><a class="headerlink" href="#postgresql.api.Installation.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The &#8220;type&#8221; of PostgreSQL. Normally, the first component of the string
+returned by pg_config.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Installation.version">
+<tt class="descname">version</tt><a class="headerlink" href="#postgresql.api.Installation.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>A version string consistent with what <cite>SELECT version()</cite> would output.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Installation.version_info">
+<tt class="descname">version_info</tt><a class="headerlink" href="#postgresql.api.Installation.version_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd><p class="first">A tuple specifying the version in a form similar to Python&#8217;s
+sys.version_info. (8, 3, 3, &#8216;final&#8217;, 0)</p>
+<p class="last">See <cite>postgresql.versionstring</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="postgresql.api.Cluster">
+<em class="property">class </em><tt class="descclassname">postgresql.api.</tt><tt class="descname">Cluster</tt><a class="headerlink" href="#postgresql.api.Cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">postgresql.python.element.Element</span></tt></p>
+<p>Interface to a PostgreSQL cluster&#8211;a data directory. An implementation of
+this provides a means to control a server.</p>
+<dl class="attribute">
+<dt id="postgresql.api.Cluster.data_directory">
+<tt class="descname">data_directory</tt><a class="headerlink" href="#postgresql.api.Cluster.data_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;str&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The path to the data directory of the cluster.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.drop">
+<tt class="descname">drop</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the server and completely remove the data directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.init">
+<tt class="descname">init</tt><big>(</big><em>initdb=None</em>, <em>user=None</em>, <em>password=None</em>, <em>encoding=None</em>, <em>locale=None</em>, <em>collate=None</em>, <em>ctype=None</em>, <em>monetary=None</em>, <em>numeric=None</em>, <em>time=None</em>, <em>text_search_config=None</em>, <em>xlogdir=None</em><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the cluster at the <cite>data_directory</cite> associated with the Cluster
+instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Cluster.installation">
+<tt class="descname">installation</tt><a class="headerlink" href="#postgresql.api.Cluster.installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property -&gt; &lt;class &#8216;postgresql.api.Installation&#8217;&gt;</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>The installation used by the cluster.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.kill">
+<tt class="descname">kill</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.restart">
+<tt class="descname">restart</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart the cluster.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="postgresql.api.Cluster.settings">
+<tt class="descname">settings</tt><a class="headerlink" href="#postgresql.api.Cluster.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Property</p>
+<dl class="docutils">
+<dt>GET::</dt>
+<dd>A <cite>Settings</cite> interface to the <tt class="docutils literal"><span class="pre">postgresql.conf</span></tt> file associated with the
+cluster.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the cluster.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal the server to shutdown.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.wait_until_started">
+<tt class="descname">wait_until_started</tt><big>(</big><em>timeout=10</em><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.wait_until_started" title="Permalink to this definition">¶</a></dt>
+<dd><p>After the start() method is ran, the database may not be ready for use.
+This method provides a mechanism to block until the cluster is ready for
+use.</p>
+<p>If the <cite>timeout</cite> is reached, the method <em>must</em> throw a
+<cite>postgresql.exceptions.ClusterTimeoutError</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postgresql.api.Cluster.wait_until_stopped">
+<tt class="descname">wait_until_stopped</tt><big>(</big><em>timeout=10</em><big>)</big><a class="headerlink" href="#postgresql.api.Cluster.wait_until_stopped" title="Permalink to this definition">¶</a></dt>
+<dd><p>After the stop() method is ran, the database may still be running.
+This method provides a mechanism to block until the cluster is completely
+shutdown.</p>
+<p>If the <cite>timeout</cite> is reached, the method <em>must</em> throw a
+<cite>postgresql.exceptions.ClusterTimeoutError</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Modules</a><ul>
+<li><a class="reference internal" href="#module-postgresql"><tt class="docutils literal"><span class="pre">postgresql</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.sys"><tt class="docutils literal"><span class="pre">postgresql.sys</span></tt></a><ul>
+<li><a class="reference internal" href="#data">Data</a></li>
+<li><a class="reference internal" href="#overridable-functions">Overridable Functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-postgresql.string"><tt class="docutils literal"><span class="pre">postgresql.string</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.exceptions"><tt class="docutils literal"><span class="pre">postgresql.exceptions</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.temporal"><tt class="docutils literal"><span class="pre">postgresql.temporal</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.installation"><tt class="docutils literal"><span class="pre">postgresql.installation</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.cluster"><tt class="docutils literal"><span class="pre">postgresql.cluster</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.copyman"><tt class="docutils literal"><span class="pre">postgresql.copyman</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.alock"><tt class="docutils literal"><span class="pre">postgresql.alock</span></tt></a></li>
+<li><a class="reference internal" href="#module-postgresql.api"><tt class="docutils literal"><span class="pre">postgresql.api</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bin.html"
+                        title="previous chapter">Commands</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="changes-v1.0.html"
+                        title="next chapter">Changes in v1.0</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/modules.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="changes-v1.0.html" title="Changes in v1.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bin.html" title="Commands"
+             >previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, James William Pye &lt;x@jwp.name&gt;.
+      Last updated on Apr 30, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
