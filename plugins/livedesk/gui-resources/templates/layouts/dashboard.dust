@@ -31,7 +31,7 @@
 				<div class="active-blogs-text">
 					{Description}
 				</div>
-				<ul class="active-blogs-notification clearfix">
+				<ul class="active-blogs-notification clearfix" style="display:none"> 
 					<li class="posticon-notification" data-model-id="{Id}"></li>
 					<!--
 						<li class="active-notification" data-model-unpublished-id="{Id}"></li>
