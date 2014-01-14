@@ -8,4 +8,5 @@
     {+userAvatar}{/userAvatar}
     {+userNameContainer}{/userNameContainer}
     <a class="logo-badge" href="#" title="by STT"></a>
+    {+shareContainer}{/shareContainer}
 {/contentside}
