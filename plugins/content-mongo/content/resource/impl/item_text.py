@@ -91,34 +91,36 @@ class ItemTextServiceMongo(EntityServiceMongo, IItemTextService):
         Implementation for @see IItemTextService.insert
         '''
         assert isinstance(item, Item), 'Invalid item %s' % item
-        if item.Type == TYPE_RESOURCE and ItemText.ContentType in item and item.Class == CONTENT_TYPE_TEXT:
-            assert isinstance(content, Content), 'Invalid content %' % content
-            
-            item.MimeType = content.type
+        assert isinstance(content, Content), 'Invalid content %' % content
+                
+        item.Type = TYPE_RESOURCE
+        item.ContentType = CONTENT_TYPE_TEXT
 
-            cntStream = BytesIO()
-            pipe(content, cntStream)
-            cntStream.seek(0)
+        item.MimeType = content.type
 
-            processing = self.assemblyParseContent.create(parser=Parser)
-            parser = processing.ctx.parser(content=cntStream, charSet=content.charSet, type=content.type)
-            args = processing.execute(FILL_ALL, parser=parser)
-            
-            cntStream.seek(0)
-            
-            self.cdmItem.publishContent(item.GUID, cntStream, {})
-            self.cdmItem.publishContent('%s.%s' % (item.GUID, PLAIN_TEXT_EXT), args.parser.textPlain, {})
-            
-            # publish formatting file in CDM
-            fStream = BytesIO()
-            writer = getwriter(content.charSet if content.charSet else 'utf-8')(fStream)
-            json.dump(args.parser.formatting, writer)
-            fStream.seek(0)
-            self.cdmItem.publishContent('%s.%s' % (item.GUID, JSON_EXT), writer, {})
+        cntStream = BytesIO()
+        pipe(content, cntStream)
+        cntStream.seek(0)
 
-            item.ContentSet = self.cdmItem.getURI(item.GUID)
+        processing = self.assemblyParseContent.create(parser=Parser)
+        parser = processing.ctx.parser(content=cntStream, charSet=content.charSet, type=content.type)
+        args = processing.execute(FILL_ALL, parser=parser)
+        
+        cntStream.seek(0)
+        
+        self.cdmItem.publishContent(item.GUID, cntStream, {})
+        self.cdmItem.publishContent('%s.%s' % (item.GUID, PLAIN_TEXT_EXT), args.parser.textPlain, {})
+        
+        # publish formatting file in CDM
+        fStream = BytesIO()
+        writer = getwriter(content.charSet if content.charSet else 'utf-8')(fStream)
+        json.dump(args.parser.formatting, writer)
+        fStream.seek(0)
+        self.cdmItem.publishContent('%s.%s' % (item.GUID, JSON_EXT), writer, {})
 
-            return insertModel(ItemTextMapped, item).GUID
+        item.ContentSet = self.cdmItem.getURI(item.GUID)
+        
+        return insertModel(ItemTextMapped, item).GUID
 
     def update(self, item, content=None):
         '''
@@ -134,14 +136,15 @@ class ItemTextServiceMongo(EntityServiceMongo, IItemTextService):
             return True
         return False
 
-    def delete(self, item):
+    def delete(self, guid):
         '''
         Implementation for @see IItemTextService.delete
         '''
-        assert isinstance(item, Item), 'Invalid item %s' % item
+        assert isinstance(guid, str), 'Invalid item %s' % guid
+        super().delete(guid)
         try:
-            self.cdmItem.remove(item.GUID)
-            self.cdmItem.remove('%s.%s' % (item.GUID, PLAIN_TEXT_EXT))
-            self.cdmItem.remove('%s.%s' % (item.GUID, JSON_EXT))
+            self.cdmItem.remove(guid)
+            self.cdmItem.remove('%s.%s' % (guid, PLAIN_TEXT_EXT))
+            self.cdmItem.remove('%s.%s' % (guid, JSON_EXT))
         except PathNotFound: pass
         return True

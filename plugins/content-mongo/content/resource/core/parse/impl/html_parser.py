@@ -82,9 +82,9 @@ class TextItemHMTLParser(HTMLParser):
         tag = tag.lower()
         symbol = TAGS_MAP.get(tag)
         if not symbol and not self.acceptUnknownTags:
-            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()))
+            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()[0], self.getpos()[1]))
         if self._currentTag() and self._currentTag() not in BLOCK_TAGS:
-            raise HTMLParseError('Invalid tag %s at line %s and column %s' % (tag, self.getpos()))
+            raise HTMLParseError('Invalid tag %s at line %s and column %s' % (tag, self.getpos()[0], self.getpos()[1]))
     
         self._format[self._pos] = (START_SYMBOL, symbol, attrs)
         if self._currentTag() != tag: self._tagsStack.append(tag)
@@ -96,7 +96,7 @@ class TextItemHMTLParser(HTMLParser):
         assert isinstance(tag, str), 'Invalid tag %s' % tag
         symbol = TAGS_MAP.get(tag.lower())
         if not symbol and not self.acceptUnknownTags:
-            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()))
+            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()[0], self.getpos()[1]))
         self._format[self._pos] = (END_SYMBOL, symbol)
         self._dropTagsSince(tag)
 
@@ -107,7 +107,7 @@ class TextItemHMTLParser(HTMLParser):
         assert isinstance(tag, str), 'Invalid tag %s' % tag
         symbol = TAGS_MAP.get(tag.lower())
         if not symbol and not self.acceptUnknownTags:
-            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()))
+            raise HTMLParseError('Unsupported tag %s at line %s and column %s' % (tag, self.getpos()[0], self.getpos()[1]))
         self._format[self._pos] = (START_END_SYMBOL, symbol, attrs)
 
     def handle_data(self, data):

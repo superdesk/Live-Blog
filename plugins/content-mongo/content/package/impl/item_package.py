@@ -12,12 +12,10 @@ Implementation for content package item.
 from ally.api.validate import validate
 from ally.container.support import setup
 from mongo_engine.impl.entity import EntityServiceMongo, EntitySupportMongo
-from content.package.api.item_package import IItemPackageService, ItemPackage,\
-    TYPE_PACKAGE
+from content.package.api.item_package import IItemPackageService
 from content.package.meta.mengine.item_package import ItemPackageMapped
 from content.base.api.item import QItem, IItemService
 from content.base.meta.mengine.item import ItemMapped
-from ally.api.error import IdError
 from ally.container import wire
 
 # --------------------------------------------------------------------
