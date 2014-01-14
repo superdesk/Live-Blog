@@ -242,7 +242,8 @@ define([
             }
             $('#area-main').tmpl( 'livedesk>manage-feeds', myData );
             $('#controller-heaven').attr('ng-controller', 'chainedBlogs');
-            angular.bootstrap(document, ['manageFeeds']);        
+            angular.bootstrap(document, ['manageFeeds']);
+            $.superdesk.hideLoader();
         });
     }
 });

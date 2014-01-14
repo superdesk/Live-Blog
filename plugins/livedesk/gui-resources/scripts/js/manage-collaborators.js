@@ -397,6 +397,7 @@ define([
 
 			$.superdesk.applyLayout('livedesk>manage-collaborators', data, function(){
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);
+				$.superdesk.hideLoader();
 			});
 		}
 	});

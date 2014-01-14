@@ -212,6 +212,7 @@
                 });
 
             });
+            $.superdesk.hideLoader();
         }
     });
 });
