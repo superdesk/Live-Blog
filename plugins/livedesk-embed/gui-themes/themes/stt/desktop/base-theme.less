@@ -354,11 +354,12 @@ background: #fff;
 							min-height: @publisher-avatar-width;
 							max-height: none;
 							background: url(img/default-liveblog-avatar.png) no-repeat 0 0;
-							img {
+							span {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
 								display: block;
+								background-size: cover !important;
+								background-position: center;
 							}
 						}
 
