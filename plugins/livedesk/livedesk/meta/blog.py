@@ -18,7 +18,7 @@ from superdesk.user.meta.user import UserMapped
 from support.api.configuration import Configuration
 from support.meta.configuration import ConfigurationDescription
 from sqlalchemy.types import String, DateTime, Text
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import column_property, join
 from sqlalchemy.sql.expression import select, func, case
 from ally.support.sqlalchemy.mapper import validate
 from ally.container.binder_op import validateManaged
@@ -62,9 +62,10 @@ validateManaged(BlogMapped.CreatedOn)
 
 # --------------------------------------------------------------------
 
-from livedesk.meta.blog_post import BlogPostMapped
-BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn)]).
-                                       where(BlogPostMapped.Blog == BlogMapped.Id))
+from livedesk.meta.blog_post import PostMapped, BlogPostEntry
+BlogMapped.UpdatedOn = column_property(select([func.max(PostMapped.UpdatedOn)]).
+                                       select_from(join(PostMapped, BlogPostEntry, PostMapped.Id == BlogPostEntry.blogPostId)).
+                                       where(BlogPostEntry.Blog == BlogMapped.Id))
 
 # --------------------------------------------------------------------
 
