@@ -131,6 +131,10 @@ define([
 
 					$('[data-gimme="blog.title"]', self.el).html(self.model.get('Title'));
 					$('[data-gimme="blog.description"]', self.el).html(self.model.get('Description'));
+
+          if (!$.isEmptyObject(embedConfig)){
+            $.dispatcher.triggerHandler('config-updated.blog-view', { view: self, config: embedConfig });
+          }
 				}
 			});
 		$.dispatcher.triggerHandler('class.blog-view',BlogView);
