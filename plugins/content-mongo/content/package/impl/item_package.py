@@ -42,7 +42,7 @@ class ItemPackageServiceMongo(EntityServiceMongo, IItemPackageService):
         assert isinstance(packageId, str), 'Invalid package item identifier %s' % packageId
         package = self.getById(packageId)
         assert isinstance(package, ItemPackageMapped), 'Invalid package item identifier %s' % packageId
-        return (item for item in package.Items)
+        return (item.GUID for item in package.Items)
 
     def addItem(self, packageId, itemId):
         '''
@@ -64,4 +64,5 @@ class ItemPackageServiceMongo(EntityServiceMongo, IItemPackageService):
         assert isinstance(itemId, str), 'Invalid item identifier %s' % itemId
         package = self.getById(packageId)
         assert isinstance(package, ItemPackageMapped), 'Invalid package item identifier %s' % packageId
-        return bool(ItemPackageMapped.objects(GUID=packageId).update_one(pull__Items=itemId))
+        bool(ItemPackageMapped.objects(GUID=packageId).update_one(pull__Items=itemId))
+        return True

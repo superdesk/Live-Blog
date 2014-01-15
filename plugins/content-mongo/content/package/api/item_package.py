@@ -35,7 +35,7 @@ class IItemPackageService(IEntityPrototype):
     '''
 
     @call(webName='Sub')
-    def getItems(self, packageId:ItemPackage.GUID) -> Iter(Item):
+    def getItems(self, packageId:ItemPackage.GUID) -> Iter(Item.GUID):
         '''
         Return the list of items for a package.
 
