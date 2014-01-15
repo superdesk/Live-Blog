@@ -1,2 +1,0 @@
-<a data-gimme="post.permalink" href="{permalink}" rel="bookmark" class="permalink">#</a>
-<input data-gimme="post.share-permalink" type="text" style="visibility:hidden" value="{permalink}">
