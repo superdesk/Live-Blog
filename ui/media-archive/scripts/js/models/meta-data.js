@@ -15,7 +15,7 @@ function(giz, MetaInfoList)
             var self = this;
             this.sync({data: {thumbSize: thumbSize || 'medium'}}).done(function()
             {
-                self.get(self.infoNode).xfilter('MetaData.*').sync().done(function()
+                self.get(self.infoNode).xfilter('MetaInfo.*').sync().done(function()
                 {
                     self.triggerHandler('full-refresh', self);
                 });

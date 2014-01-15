@@ -140,7 +140,7 @@
                     tmpl: 'livedesk>configure/languages',
                     el: self.el.find('.languages'),
                     _parent: self,
-                    tmplData: { selected: self.model.get('Language').get('Id')}
+                    tmplData: { selected: self.model.get('Language').get('Code')}
                 });
                 self.blogtypesView = new BlogTypesView({
                     el: self.el.find('.blogtypes'),

@@ -4,10 +4,10 @@
 <ul class="blogtype-list">
   {#BlogTypes}
   {+blogtype_item}
-  <li blogtypeid="{Id}">
+  <li blogtypeid="{Name}">
     <div class="blogtype-header">
       <label class="radio">
-          <input type="radio" value="{Id}" name="blogtypeselection">
+          <input type="radio" value="{Name}" name="blogtypeselection">
       </label>
       
       <div class="tool-box-right">
