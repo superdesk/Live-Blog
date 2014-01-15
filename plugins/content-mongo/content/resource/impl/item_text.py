@@ -92,12 +92,48 @@ class ItemTextServiceMongo(EntityServiceMongo, IItemTextService):
         '''
         assert isinstance(item, Item), 'Invalid item %s' % item
         assert isinstance(content, Content), 'Invalid content %' % content
-                
+        
         item.Type = TYPE_RESOURCE
         item.ContentType = CONTENT_TYPE_TEXT
-
         item.MimeType = content.type
 
+        self._saveContent(item, content)
+        
+        return insertModel(ItemTextMapped, item).GUID
+
+    def update(self, item, content=None):
+        '''
+        Implementation for @see IItemTextService.update
+        '''
+        assert isinstance(item, Item), 'Invalid item %s' % item
+
+        item.Type = TYPE_RESOURCE
+        item.ContentType = CONTENT_TYPE_TEXT
+        
+        if content is not None:
+            assert isinstance(content, Content), 'Invalid content %' % content
+            self._saveContent(item, content)
+        updateModel(ItemTextMapped, item)
+
+    def delete(self, guid):
+        '''
+        Implementation for @see IItemTextService.delete
+        '''
+        assert isinstance(guid, str), 'Invalid item %s' % guid
+        super().delete(guid)
+        try:
+            self.cdmItem.remove(guid)
+            self.cdmItem.remove('%s.%s' % (guid, PLAIN_TEXT_EXT))
+            self.cdmItem.remove('%s.%s' % (guid, JSON_EXT))
+        except PathNotFound: pass
+        return True
+
+    # ----------------------------------------------------------------
+
+    def _saveContent(self, item, content):
+        '''
+        Save item content to CDM 
+        '''
         cntStream = BytesIO()
         pipe(content, cntStream)
         cntStream.seek(0)
@@ -119,32 +155,3 @@ class ItemTextServiceMongo(EntityServiceMongo, IItemTextService):
         self.cdmItem.publishContent('%s.%s' % (item.GUID, JSON_EXT), writer, {})
 
         item.ContentSet = self.cdmItem.getURI(item.GUID)
-        
-        return insertModel(ItemTextMapped, item).GUID
-
-    def update(self, item, content=None):
-        '''
-        Implementation for @see IItemTextService.update
-        '''
-        assert isinstance(item, Item), 'Invalid item %s' % item
-        if content is not None:
-            assert isinstance(content, Content), 'Invalid content %' % content
-            self.cdmItem.publishContent(item.GUID, content)
-            item.ContentSet = self.cdmItem.getURI(item.GUID)
-        if item.Type == TYPE_RESOURCE and ItemText.ContentType in item and item.Class == CONTENT_TYPE_TEXT:
-            updateModel(ItemTextMapped, item)
-            return True
-        return False
-
-    def delete(self, guid):
-        '''
-        Implementation for @see IItemTextService.delete
-        '''
-        assert isinstance(guid, str), 'Invalid item %s' % guid
-        super().delete(guid)
-        try:
-            self.cdmItem.remove(guid)
-            self.cdmItem.remove('%s.%s' % (guid, PLAIN_TEXT_EXT))
-            self.cdmItem.remove('%s.%s' % (guid, JSON_EXT))
-        except PathNotFound: pass
-        return True
