@@ -28,6 +28,7 @@ from sql_alchemy.support.util_service import SessionSupport, buildQuery, \
 from ally.api.error import InputError
 from livedesk.meta.blog_type import BlogTypeMapped
 from ally.api.validate import validate
+from superdesk.post.meta.post import PostMapped
 
 # --------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         @see: IBlogPostService.getById
         '''
-        sql = self.session().query(BlogTypePostMapped)
+        sql = self.session().query(BlogTypePostMapped).join(PostMapped).join(BlogTypeMapped)
         sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id == postId)
 

@@ -16,8 +16,8 @@ from content.base.meta.mengine.item import ItemMapped
 from mongo_engine.impl.entity import EntityGetServiceMongo, \
     EntityQueryServiceMongo, EntitySupportMongo
 
-
 # --------------------------------------------------------------------
+
 @setup(IItemService, name='itemService')
 @validate(ItemMapped)
 class ItemServiceMongo(EntityGetServiceMongo, EntityQueryServiceMongo, IItemService):

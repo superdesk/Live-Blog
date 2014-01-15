@@ -21,6 +21,7 @@ from content.base.core.spec import IItemHandler
 from ally.api import config
 from ally.api.type import typeFor
 from sql_alchemy.support.util_service import deleteModel
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
@@ -93,6 +94,9 @@ class ItemServiceAlchemy(EntityServiceAlchemy):
         '''
         Implement @see IItemService.insert
         '''
+        assert isinstance(item, self.Entity), 'Invalid item %s' % item
+        if self.Entity.CreatedOn not in item or not item.CreatedOn:
+            item.CreatedOn = current_timestamp()
         for handler in self.itemHandlers:
             assert isinstance(handler, IItemHandler), 'Invalid handler %s' % handler
             result = handler.insert(item, content)

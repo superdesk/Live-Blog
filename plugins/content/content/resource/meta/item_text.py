@@ -13,6 +13,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from content.resource.api.item_text import ItemText, CLASS_TEXT
 from content.resource.meta.item_resource import ItemResourceMapped
 from content.resource.api.item_resource import TYPE_RESOURCE
+from sqlalchemy.types import String
 
 # --------------------------------------------------------------------
 
@@ -26,6 +27,8 @@ class ItemTextMapped(ItemResourceMapped, ItemText):
     __tablename__ = 'item_resource_text'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8', extend_existing=True)
     __mapper_args__ = dict(polymorphic_identity=CATEGORY_RESOURCE_TEXT)
+    
+    MimeType = Column('mime_type', String(255), nullable=False)
 
     # Non REST model attribute --------------------------------------
     itemId = Column('fk_item_id', ForeignKey(ItemResourceMapped.itemId, ondelete='CASCADE'), primary_key=True)

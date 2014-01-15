@@ -21,10 +21,8 @@ from ally.cdm.impl.local_filesystem import IDelivery, HTTPDelivery,\
 from __plugin__.cdm.service import server_uri, repository_path
 from ally.cdm.spec import ICDM
 from ally.cdm.support import ExtendPathCDM
-from content.resource.core.spec import IReader
 from ally.design.processor.handler import Handler
 from content.resource.core.parse.impl.processor.parser_html_handler import ParserHTMLHandler
-from content.resource.core.parse.impl.processor.formatting_process_handler import FormattingProcessorHandler
 from ally.design.processor.assembly import Assembly
 
 
@@ -70,15 +68,6 @@ def cdmItem() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'item/%s')
 
-@ioc.entity
-def contentReaders() -> dict:
-    readersList = support.entitiesFor(IReader)
-    readers = dict()
-    for reader in readersList:
-        assert isinstance(reader, IReader), 'Invalid reader %s' % reader
-        reader.register(readers)
-    return readers
-
 # --------------------------------------------------------------------
 
 @ioc.entity
@@ -91,9 +80,6 @@ def assemblyParseContent() -> Assembly:
 @ioc.entity
 def parserHTMLProvider() -> Handler: return ParserHTMLHandler()
 
-@ioc.entity
-def formattingProcessorProvider() -> Handler: return FormattingProcessorHandler()
-
 @ioc.before(assemblyParseContent)
 def updateAssemblyParseContent():
-    assemblyParseContent().add(parserHTMLProvider(), formattingProcessorProvider())
+    assemblyParseContent().add(parserHTMLProvider())

@@ -16,8 +16,8 @@ from content.resource.api.item_resource import IItemResourceService, \
 from content.resource.meta.mengine.item_resource import ItemResourceMapped
 from mongo_engine.impl.entity import EntityServiceMongo, EntitySupportMongo
 
-
 # --------------------------------------------------------------------
+
 @setup(IItemResourceService, name='itemResourceService')
 @validate(ItemResourceMapped)
 class ItemResourceServiceMongo(EntityServiceMongo, IItemResourceService):
@@ -30,4 +30,3 @@ class ItemResourceServiceMongo(EntityServiceMongo, IItemResourceService):
         Construct the content item service
         '''
         EntitySupportMongo.__init__(self, ItemResourceMapped, QItemResource)
-        

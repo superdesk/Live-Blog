@@ -26,7 +26,7 @@ class ItemMapped(Base, Item):
 
     GUID = Column('guid', String(255), nullable=False, unique=True)
     Version = Column('version', INTEGER(unsigned=True), nullable=False, default=1)
-    CreatedOn = Column('created_on', DateTime, server_default=UtcNow(), nullable=False)
+    CreatedOn = Column('created_on', DateTime, nullable=False)
     VersionOn = Column('version_on', TIMESTAMP, server_default=UtcNow(), nullable=False)
     Type = Column('type', String(255), nullable=False)
 
