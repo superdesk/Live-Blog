@@ -6,6 +6,5 @@ define([
 
     return Gizmo.Register.AutoCollection.extend({ 
 		model: Gizmo.Register.Post,
-        more: 'some'
 	}, { register: 'AutoPosts' });
 });
