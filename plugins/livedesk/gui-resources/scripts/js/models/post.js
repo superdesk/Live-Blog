@@ -95,7 +95,7 @@ function(Gizmo, Person)
 				hideHref = this.href + '/Hide',
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
-					//self.triggerHandler('update',{});
+					self.removeUnique();
 				});
 			return ret;
 		},
@@ -105,7 +105,7 @@ function(Gizmo, Person)
 				hideHref = this.href + '/Unhide',
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(hideHref).insert({},{headers: { 'X-Filter': ''}}).done(function(){
-					//self.triggerHandler('update',{});
+					self.removeUnique();
 				});
 			return ret;
 		},

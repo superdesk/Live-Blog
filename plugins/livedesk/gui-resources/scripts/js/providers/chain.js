@@ -69,6 +69,7 @@ define([
     			evt.preventDefault();
     			var self = this;
     			self.model.hide().done(function(){
+    				self._parent.removeModel(self.model);
     				self.el.remove();
     			});
     		},
@@ -76,6 +77,7 @@ define([
 				evt.preventDefault();
 				var self = this;
 				self.model.unhide().done(function(){
+					self._parent.removeModel(self.model);
 					self.el.remove();
 				});
     		},
@@ -161,6 +163,7 @@ define([
 					$('#more-chain', self._parent.el).hide();
 				}
 			},
+
 			more: function(evnt, ui)
 			{
 				this.collection
@@ -175,8 +178,9 @@ define([
 				var self = this;
 			    
 			    self.filter.data = $.extend(self.filter.data, data);
-				//self.collection.resetStats();
+				self.collection.resetStats();
 				self.collection
+					.limit(self.collection._stats.limit)
 					.auto({
 						headers: { 'X-Filter': self.xfilter },
                         data: self.filter.data
@@ -196,6 +200,9 @@ define([
 				//dynamically get size of header and set top space for list
 	            var top_space = $('.chain-header').outerHeight() + 20;
 	            $('.postlist-container').css({'top': top_space});
+			},
+			removeModel: function(model) {
+				this.collection.remove(model.hash());
 			},
 			removeOne: function(view) {
 				var 
