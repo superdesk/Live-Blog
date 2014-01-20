@@ -14,7 +14,7 @@ liveblog.runner = function() {
 liveblog.callbackVersion = function(ver) {
 	requirejs = {
 		baseUrl: this.baseUrl,
-		urlArgs: 'version=' + ver.major + '.' + ver.minor + '.' + ver.release
+		urlArgs: 'version=' + ver.major + '.' + ver.minor + '.' + ver.revision
 	}
 	//this.loadJs('//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.6/require.min.js').setAttribute('data-main','main');
 	this.loadJs('core/require').setAttribute('data-main','main');	
