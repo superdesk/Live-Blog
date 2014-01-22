@@ -1,3 +1,27 @@
+
+@font-face{
+	font-family:SZSansRegular;
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans.eot?r=f50626789a");
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans.eot?r=f50626789a#iefix") format("eot"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans.woff?r=84018410c4") format("woff"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans.otf?r=7cc2496a8d") format("opentype");
+}
+
+@font-face{
+	font-family:SZSansBold;
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Bold.eot?r=5d9e70f6d9");
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Bold.eot?r=5d9e70f6d9#iefix") format("eot"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Bold.woff?r=50049b0907") format("woff"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Bold.otf?r=0f5e976100") format("opentype");
+}
+@font-face{
+	font-family:SZSansItalic;
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Italic.eot?r=7fa74cd412");
+	src:url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Italic.eot?r=7fa74cd412#iefix") format("eot"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Italic.woff?r=0f692b43f0") format("woff"), 
+	url("http://polpix.sueddeutsche.com/staticassets/fonts/sz-sans/SZSans-Italic.otf?r=c86f15af1e") format("opentype");
+}
+
 /******************* outer page styles ****************/
 /******************************************************/
 //should be changed to fit the client requests
@@ -21,7 +45,15 @@ background: #fff;
 /******************************************************/
 
 
-@lb-font 	: Arial, Helvetica, sans-serif !important;
+@lb-font 	: 'SZSansRegular';
+
+.font-italic() {
+	font-family: 'SZSansItalic';
+}
+.font-bold() {
+	font-family: 'SZSansBold' !important;
+	font-weight: normal !important;
+}
 
 @lb-width	: 100%;
 @lb-background: #fff;
@@ -42,10 +74,10 @@ background: #fff;
 @post-padding:10px;
 	/*****************************************************************/
 	/* change this only if you want to get custom post item paddings */
-	@post-padding-top : @post-padding;		
+	@post-padding-top : 5px;		
 	@post-padding-right : 0;
 	@post-padding-bottom : @post-padding;
-	@post-padding-left : 0;
+	@post-padding-left : 15px;
 	/****************************************************************/
 
 @publisher-avatar-width : 48px;
@@ -104,6 +136,15 @@ background: #fff;
 		list-style-type: none;
 		float: none;
 	}
+	h1,h2,h3,h4,h5,h6 {
+		.font-bold();
+	}
+	b,strong {
+		.font-bold();
+	}
+	i {
+		.font-italic();
+	}
 	a {
 		text-decoration: none;
 		color: #08c;
@@ -121,7 +162,7 @@ background: #fff;
 	margin: 10px 0;
 	background: @lb-background;
 	font-size: 100%;
-	line-height: 130%;
+	line-height: 140%;
 	font-family: @lb-font;
 
 	.liveblog-container {
@@ -155,7 +196,7 @@ background: #fff;
 				.button {
 					background: #101010;
 					font-size: 11px;
-					font-weight: bold;
+					.font-bold();
 					padding: 0 10px;
 					color: #fff;
 					height: @postlist-header-height;
@@ -189,24 +230,25 @@ background: #fff;
 					li {
 
 						padding: @post-padding-top @post-padding-right 2*@post-padding-bottom @post-padding-left;
-						border-top :1px solid #cccccc;
+						border-top :1px solid #dcdcdc;
+						color : #666;
+
 						&:last-child {
-							border-bottom :1px solid #cccccc;
+							border-bottom :1px solid #dcdcdc;
 						}
 
 						/* separate block styles */
 						.post-datetime {
-							font-size: 0.75em;
-							color:#222;								
+							.font-bold();
+							color:#333333;								
 							margin-right: 15px;
 							height: 12px;
 							display: inline-block;
 							line-height: 12px;
 						}
 						.post-publisher-name {
-							font-size: 0.75em;
-							text-transform: uppercase;
-							color:#222;	
+							.font-bold();
+							color:#888888;	
 						}
 						.post-buttons {
 							position: absolute;
@@ -254,15 +296,15 @@ background: #fff;
 							}
 						}
 						.post-info {
-							margin-bottom: 5px;
+							margin-bottom: 10px;
 							position: relative;
 						}
 						.post-text {
-							line-height: 150%;
+							line-height: 140%;
 						}
 
 						.post-comment {
-							font-size: 0.875em;
+							
 							&.comment-before {
 								padding-bottom: 8px;
 							}
@@ -272,7 +314,7 @@ background: #fff;
 						}
 						.post-content-full {
 							font-size: @user-text-size;
-							line-height: 130%;							
+							line-height: 140%;							
 						}
 
 						.post-publisher-avatar {
@@ -280,15 +322,18 @@ background: #fff;
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							padding: 2px;
-							border: 1px solid #e8e8e8;
-							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
+							padding: 3px;
+							border: 1px solid #fff;
+							background: url(img/default-liveblog-avatar_48.png) no-repeat 3px 3px;
 							float: left;
-							img {
+							.border-radius(2px);
+							box-shadow: 0 0 3px 0 #aaa;
+							span {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
 								display: block;
+								background-size: cover !important;
+								background-position: center;
 							}
 						}
 
@@ -321,14 +366,14 @@ background: #fff;
 								width: 16px;
 								height: 16px;
 								display: inline-block;
-								margin-right: 4px;
+								margin-right: 6px;
 								vertical-align: top;
 							}
 							span {
-								font-size: 0.6875em;
+								font-size: 0.75em;
 								text-transform: uppercase;
-								line-height: 16px;
-								height: 16px;
+								line-height: 18px;
+								height: 18px;
 								vertical-align: top;
 							}
 						}
@@ -343,30 +388,15 @@ background: #fff;
 
 						/* POST SPECIFIC STYLES */
 
-						&.twitter, &.facebook, &.google, &.link, &.instagram, &.flickr, &.youtube, &.soundcloud {
-							background: #f6f6f6;
-							.post-publisher-avatar {
-								display: none;
-							}
-							.post-info {
-								display: none;
-							}
-							.post-core-content {
-								.post-text {
-									font-size: 0.875em;
-									line-height: 130%;
-								}
-							}
-						}
-
 						&.twitter, &.facebook, &.google, &.youtube {
 							.post-core-content {
 								h5 {
+									margin-top: 5px;
 									font-size: 1em;
 									padding-bottom: 2px;
 									a {
-										font-size: 0.875em;
-										color:#222;
+										text-decoration: underline;
+										color:#666;
 									}
 									span {
 										font-size: 0.75em;
@@ -385,8 +415,9 @@ background: #fff;
 								font-size: 1em;
 								padding-bottom: 2px;
 								a {
+									text-decoration: underline;
 									font-size: 0.875em;
-									color:#222;
+									color:#666;
 								}
 							}
 							.result-text {
@@ -500,6 +531,8 @@ background: #fff;
 							}
 							.post-content {
 								min-height: 0;
+								margin: 0;
+								padding: 10px 0;
 								.post-content-main {
 									margin-left: 0;
 									margin-top: 0;
@@ -513,7 +546,7 @@ background: #fff;
 											background: url(img/big-toggle.png) no-repeat 0 0;
 										}
 										.post-text {
-											font-weight: bold;
+											.font-bold();
 											color: #fff;
 											padding-left: 40px;
 										}
@@ -522,7 +555,7 @@ background: #fff;
 							}
 							&.wrapup-open {
 								.big-toggle {
-									background: url(img/big-toggle.png) no-repeat 0 -21px !important;
+									background: url(img/big-toggle.png) no-repeat 0 -25px !important;
 								}
 							}
 						}
@@ -553,12 +586,11 @@ background: #fff;
 						}
 						&.quote {
 							.post-core-content {
+								.font-italic();
 								padding-left: 45px;
 								background: url(img/quotes.png) no-repeat 0 0;
 							}
 						}
-
-
 
 
 						&.wrapup, &.advertisement {
@@ -578,7 +610,7 @@ background: #fff;
 								background: #969696;
 								color: #fff !important;
 								display: inline-block;
-								font-weight: bold;
+								.font-bold();
 								font-size: 0.875em;
 								vertical-align: top;
 								&:hover {
