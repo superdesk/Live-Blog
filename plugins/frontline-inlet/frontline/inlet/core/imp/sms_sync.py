@@ -63,10 +63,10 @@ class SmsSyncProcess:
     syncThreads = {}
     # dictionary of threads that perform synchronization
 
-    sync_interval = 10; wire.config('sync_interval', doc='''
+    sync_interval = 60; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for sms.''')
     
-    timeout_inteval = 60#; wire.config('timeout_interval', doc='''
+    timeout_inteval = 180#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
     user_type_key = 'sms'; wire.config('user_type_key', doc='''
