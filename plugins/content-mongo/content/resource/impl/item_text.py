@@ -14,8 +14,7 @@ from codecs import getwriter
 from io import BytesIO
 from ally.api.validate import validate
 from ally.container.support import setup
-from content.resource.api.item_text import IItemTextService, ItemText,\
-    CONTENT_TYPE_TEXT
+from content.resource.api.item_text import IItemTextService, CONTENT_TYPE_TEXT
 from content.resource.meta.mengine.item_text import ItemTextMapped
 from mongo_engine.impl.entity import EntityServiceMongo, EntitySupportMongo
 from ally.cdm.spec import ICDM, PathNotFound

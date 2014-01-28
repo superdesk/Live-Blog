@@ -44,7 +44,7 @@ class IItemTextService(IEntityPrototype):
     Provides the service methods for text items.
     '''
 
-    @call(method=GET, webName='AsHTML')
+    @call(method=GET, webName='HTML')
     def asHTML(self, guid:ItemText) -> Formatted:
         '''
         Return the text item content in HTML format.
