@@ -942,7 +942,8 @@ USER COMMENTS
 }
 .comment-backdrop {
     display: none;
-    position: absolute;
+    height: auto !important;
+    position: absolute !important;
     background: rgb(30,30,30); /* The Fallback */
     background: rgba(0,0,0,0.7);
     top: 0;
