@@ -24,6 +24,8 @@ import hashlib
 from __plugin__.media_archive.actions import rightMediaArchiveUpload
 from __plugin__.livedesk.actions import rightLivedeskUpdate
 from __plugin__.superdesk_user.actions import rightUserView
+from general_setting.api.general_setting import IGeneralSettingService,\
+    GeneralSetting
 
 # --------------------------------------------------------------------
 
@@ -139,3 +141,23 @@ def populateDefaultUsers():
             userRbacService.assignRole(user.Id, blogRoleEditorId())
         else:
             userRbacService.assignRole(user.Id, blogRoleCollaboratorId())
+            
+@app.populate
+def populateVersionConfig():    
+    generalSettingService = support.entityFor(IGeneralSettingService)
+    assert isinstance(generalSettingService, IGeneralSettingService)    
+    
+    generalSetting = GeneralSetting()
+    generalSetting.Group = 'version'
+    
+    generalSetting.Key = 'major'
+    generalSetting.Value = '1'
+    generalSettingService.insert(generalSetting)  
+    
+    generalSetting.Key = 'minor'
+    generalSetting.Value = '6'
+    generalSettingService.insert(generalSetting) 
+    
+    generalSetting.Key = 'revision'
+    generalSetting.Value = '0'
+    generalSettingService.insert(generalSetting) 

@@ -14,7 +14,7 @@ from ..livedesk_embed.gui import themes_path
 from ..superdesk.db_superdesk import alchemySessionCreator
 from __plugin__.internationalization.db_internationalization import alchemySessionCreator as alchemySessionCreatorInternationalization
 from internationalization.api.source import TYPE_PYTHON, TYPE_JAVA_SCRIPT, TYPE_HTML
-from ally.container import app
+from ally.container import app, support
 from ally.container.support import entityFor
 from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
 from livedesk.meta.blog_media import BlogMediaTypeMapped
@@ -33,6 +33,9 @@ from uuid import uuid4
 from superdesk.post.meta.post import PostMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.verification.meta.status import VerificationStatusMapped
+from general_setting.meta.general_setting import GeneralSettingMapped
+from general_setting.api.general_setting import GeneralSetting,\
+    IGeneralSettingService
 
 # --------------------------------------------------------------------
 
@@ -472,4 +475,32 @@ def upgradeUserUuidUniqueFix():
     session.commit()
     session.close()    
     
+@app.populate(priority=PRIORITY_FINAL)
+def populateVersionConfig(): 
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
+    generalSettingService = support.entityFor(IGeneralSettingService)
+    assert isinstance(generalSettingService, IGeneralSettingService)    
+    
+    generalSetting = GeneralSetting()
+    generalSetting.Group = 'version'
+    
+    
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'major').count() == 0:
+        generalSetting.Key = 'major'
+        generalSetting.Value = '1'
+        generalSettingService.insert(generalSetting)  
+    
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'minor').count() == 0:
+        generalSetting.Key = 'minor'
+        generalSetting.Value = '6'
+        generalSettingService.insert(1, generalSetting) 
+    
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'major').count() == 0:
+        generalSetting.Key = 'revision'
+        generalSetting.Value = '0'
+        generalSettingService.insert(1, generalSetting)    
+
     
