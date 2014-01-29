@@ -942,7 +942,8 @@ USER COMMENTS
 }
 .comment-backdrop {
     display: none;
-    position: absolute;
+    height: auto !important;
+    position: absolute !important;
     background: rgb(30,30,30); /* The Fallback */
     background: rgba(0,0,0,0.7);
     top: 0;
@@ -1020,7 +1021,7 @@ USER COMMENTS
 
 /* MOBILE VIEW */
 
-
+/*
     .mobile#livedesk-root .liveblog-post-list {
         margin-left: 5px;
     }
@@ -1128,8 +1129,6 @@ USER COMMENTS
         padding: 5px 0;
     }
 
-
-
-
+*/
 
 
