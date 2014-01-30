@@ -913,6 +913,7 @@ USER COMMENTS
     text-transform: uppercase;
     text-decoration: none;
     border: 0;
+    top: auto !important;
 }
 #livedesk-root .comment-box .cancel { 
     right: 110px;
