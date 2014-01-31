@@ -890,14 +890,16 @@ USER COMMENTS
     color: #4d4d4d;
     font-family: Arial, Helvetica, sans-serif;
     margin-bottom: 20px;
+    border: 1px solid #95915c;
 }
 #livedesk-root .comment-box textarea {
     min-height: 100px;
+    max-height: 200px;
 }
 
 #livedesk-root .comment-box input:focus,
 #livedesk-root .comment-box textarea:focus {
-    border-color: 1px solid #95915c;
+    border: 1px solid #444;
     outline: none;
 }
 
@@ -913,9 +915,11 @@ USER COMMENTS
     text-transform: uppercase;
     text-decoration: none;
     border: 0;
+    top: auto !important;
 }
+
 #livedesk-root .comment-box .cancel { 
-    right: 110px;
+    right: 122px;
     background-color: #a8a8a8;
 }
 #livedesk-root .comment-box .cancel:hover {
@@ -928,6 +932,11 @@ USER COMMENTS
 #livedesk-root .comment-box .send:hover {
     background-color: #9e9a62;
 }
+#livedesk-root .comment-box .button:focus,
+#livedesk-root .comment-box .button:active {
+    outline: none !important;
+}
+
 #livedesk-root .comment-box .error {
     background-color: #ffeded;
     border: 1px solid #ffabab;
@@ -942,7 +951,8 @@ USER COMMENTS
 }
 .comment-backdrop {
     display: none;
-    position: absolute;
+    height: auto !important;
+    position: absolute !important;
     background: rgb(30,30,30); /* The Fallback */
     background: rgba(0,0,0,0.7);
     top: 0;
@@ -1019,7 +1029,7 @@ USER COMMENTS
 
 
 /* MOBILE VIEW */
-
+/*
 
     .mobile#livedesk-root .liveblog-post-list {
         margin-left: 5px;
@@ -1128,8 +1138,7 @@ USER COMMENTS
         padding: 5px 0;
     }
 
-
-
+*/
 
 
 
