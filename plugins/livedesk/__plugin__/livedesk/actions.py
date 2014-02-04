@@ -35,6 +35,18 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService
 from livedesk.api.comment import IBlogCommentService
 from __plugin__.captcha.acl import captcha
 from superdesk.verification.api.verification import IPostVerificationService
+from superdesk.language.api.language import ILanguageService
+from security.rbac.api.rbac import IRoleService
+from superdesk.post.api.post import IPostService
+from superdesk.post.api.type import IPostTypeService
+from superdesk.source.api.type import ISourceTypeService
+from superdesk.verification.api.status import IVerificationStatusService
+from superdesk.user.api.user_type import IUserTypeService
+from livedesk.api.blog_media import IBlogMediaTypeService
+from security.api.right import IRightService
+from security.api.right_type import IRightTypeService
+from livedesk.api.version import IVersionService
+from superdesk.media_archive.api.meta_data import IMetaDataService
 
 # --------------------------------------------------------------------
 
@@ -129,6 +141,18 @@ def registerAclLivedeskView():
     r.add(ref(IBlogService).getAll, filter=filterAuthenticated())
     r.allGet(IBlogPostService, filter=filterClosedBlog())
     r.allGet(IPostVerificationService)
+    r.allGet(ILanguageService)
+    r.allGet(IRoleService)
+    r.allGet(IPostService)
+    r.allGet(IPostTypeService)
+    r.allGet(ISourceTypeService)
+    r.allGet(IVerificationStatusService)
+    r.allGet(IUserTypeService)
+    r.allGet(IBlogMediaTypeService)
+    r.allGet(IRightService)
+    r.allGet(IRightTypeService)
+    r.allGet(IVersionService)
+    r.allGet(IMetaDataService)
 
 @gui.setup
 def registerAclManageOwnPost():
