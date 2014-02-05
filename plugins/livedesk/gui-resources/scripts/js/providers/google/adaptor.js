@@ -17,19 +17,22 @@ define([
                             self.author = collabs[0].Id;
                     });
             },
-            universal: function(obj) {
+            parse: function(obj) {
                 var meta =  jQuery.extend(true, {}, obj);
                 delete meta['$idx'];
                 delete meta['$len'];
+                return {
+                    Creator: localStorage.getItem('superdesk.login.id'),
+                    Content: obj.content,
+                    Type: 'normal',
+                    Author: this.author,
+                    Meta: meta
+                };
+            },
+            universal: function(obj) {
                 return new PrepublishView({
-                    sourceTemplate: 'sources/google/'+meta.type,
-                    data: {
-                        Creator: localStorage.getItem('superdesk.login.id'),
-                        Content: obj.content,
-                        Type: 'normal',
-                        Author: this.author,
-                        Meta: meta
-                    }
+                    sourceTemplate: 'sources/google/'+obj.type,
+                    data: this.parse(obj)
                 });
             }
         }

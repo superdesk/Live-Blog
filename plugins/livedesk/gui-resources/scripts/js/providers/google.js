@@ -20,118 +20,189 @@ define('providers/google', [
     'tmpl!livedesk>providers/no-results',
     'tmpl!livedesk>providers/loading'
 ], function( providers, str, $, BlogAction ) {
-$.extend(providers.google, {
-	initialized: false,
-	url: 'https://ajax.googleapis.com/ajax/services/search/%(type)s?v=1.0&start=%(start)s&q=%(text)s&callback=?',
-	urls: {
-		web: '',
-		news: '',
-		images: ''
-	},
-	data: [],
-	init: function(){
-//		if(!this.initialized) {
-			this.urls.web = str.format(this.url,{type:'web'});
-			this.urls.news = str.format(this.url,{type:'news'});
-			this.urls.images = str.format(this.url,{type:'images'});
-			this.adaptor.init();
+    'use strict';
+
+    function trimTo(content, amount) {
+        if (typeof content == 'undefined') {
+            content = '';
+        }
+
+        if (content.length > amount) {
+            return content.substr(0, amount) + ' ...';
+        } else {
+            return content;
+        }
+    }
+
+    var GoogleProvider = function(type) {
+        var URL = 'https://ajax.googleapis.com/ajax/services/search/%(type)s?v=1.0&start=%(start)s&q=%(text)s&callback=?';
+        var provider = this;
+
+        provider.type = type;
+        provider.data = [];
+
+        this.getURL = function(query, start) {
+            return str.format(URL, {type: provider.type, start: start, text: query});
+        };
+
+        this.getData = function(idx) {
+            return provider.data[idx];
+        };
+
+        /**
+         * Search provider
+         *
+         * @param {string} query
+         * @param {int} start
+         * @return {object} promise
+         */
+        this.search = function(query, start) {
+            start = parseInt(start) || 0;
+            if (start === 0) {
+                provider.data = [];
+            }
+
+            var delay = $.Deferred();
+            $.getJSON(this.getURL(query, start),
+                function(response) {
+                    var posts = [];
+                    for (var i = 0; i < response.responseData.results.length; i++) {
+                        response.responseData.results[i].type = type;
+                        response.responseData.results[i].trimContent = trimTo(response.responseData.results[i].content, 200);
+                        posts.push({Meta: response.responseData.results[i]});
+                    }
+
+                    provider.data.push.apply(provider.data, response.responseData.results);
+                    delay.resolve(
+                        posts,
+                        parseInt(response.responseData.cursor.currentPageIndex),
+                        response.responseData.cursor.pages
+                    );
+                });
+            return delay.promise();
+        };
+    };
+
+    $.extend(providers.google, {
+        initialized: false,
+        providers: {},
+
+        init: function(){
+            if (!this.initialized) {
+                this.initialized = true;
+                this.adaptor.init();
+
+                this.providers.web = new GoogleProvider('web');
+                this.providers.news = new GoogleProvider('news');
+                this.providers.images = new GoogleProvider('images');
+            }
+
             this.render();
-//		}
-		this.initialized = true;
-	},
-	render: function() {
-		var self = this;
-		this.el.tmpl('livedesk>providers/google', {}, function(){
-			$(self.el)
-            .off('click.livedesk')
-            .on('click.livedesk', '#ggl-search-controls>li', function(evt) {
-              evt.preventDefault();
-              $(this).siblings().removeClass('active') .end()
-					 .addClass('active');			  
-			  var myArr = $(this).attr('id').split('-');
-			  
-			  //hide all ggl result holders
-			  self.el.find('.scroller').css('visibility', 'hidden');
-			  //show only the one we need
-			  $('#ggl-'+myArr[1]+'-holder').css('visibility', 'visible');
-			  self.startSearch(false);
-			})
-            .off('keyup.livedesk')
-			.on('keyup.livedesk','#google-search-text', function(e){
-				if(e.keyCode == 13 && $(this).val().length > 0) {
-					//enter press on google search text
-					//check what search it is
-					self.startSearch(true);
-				}
-			});
-		});	  
-	},
-    startSearch: function(fresh) {
-	   var self = this;
-	   fresh = typeof fresh !== 'undefined' ? fresh : false;
-       if ( $('#ggl-web-tab').hasClass('active') ) {
+        },
+
+        getProvider: function(type) {
+            return this.providers[type];
+        },
+
+        render: function() {
+            var self = this;
+            this.el.tmpl('livedesk>providers/google', {}, function(){
+                $(self.el)
+                    .off('click.livedesk')
+                    .on('click.livedesk', '#ggl-search-controls>li', function(evt) {
+                        evt.preventDefault();
+                        $(this).siblings().removeClass('active') .end()
+                            .addClass('active');			  
+
+                        var myArr = $(this).attr('id').split('-');
+
+                        //hide all ggl result holders
+                        self.el.find('.scroller').css('visibility', 'hidden');
+
+                        //show only the one we need
+                        $('#ggl-'+myArr[1]+'-holder').css('visibility', 'visible');
+                        self.startSearch(false);
+                    })
+                    .off('keyup.livedesk')
+                    .on('keyup.livedesk','#google-search-text', function(e){
+                        if(e.keyCode == 13 && $(this).val().length > 0) {
+                            //enter press on google search text
+                            //check what search it is
+                            self.startSearch(true);
+                        }
+                    });
+            });	  
+        },
+
+        startSearch: function(fresh) {
+            fresh =  !! fresh;
+
+            if ($('#ggl-web-tab').hasClass('active')) {
                //do google search
                if (fresh || $('#ggl-web-results').html() == '') {
-                   self.doWeb();
+                   this.doSearch('web');
                }
-           }
-           
-           if ( $('#ggl-news-tab').hasClass('active') ) {
-               //do google search
-               if (fresh || $('#ggl-news-results').html() == '') {
-				   self.doNews();
-               }
-           }
-           
-           if ( $('#ggl-images-tab').hasClass('active') ) {
-               //do google search
-               if (fresh || $('#ggl-images-results').html() == '') {
-				   self.doImages();
-               }
-               
-           }
-	},
+            }
+
+            if ( $('#ggl-news-tab').hasClass('active') ) {
+                //do google search
+                if (fresh || $('#ggl-news-results').html() == '') {
+                    this.doSearch('news');
+                }
+            }
+
+            if ( $('#ggl-images-tab').hasClass('active') ) {
+                //do google search
+                if (fresh || $('#ggl-images-results').html() == '') {
+                    this.doSearch('images');
+                }
+            }
+        },
         
-    showLoading : function(where) {
-             $(where).tmpl('livedesk>providers/loading', function(){
-             });
+        showLoading: function(el) {
+            el.tmpl('livedesk>providers/loading');
         },
-    stopLoading : function(where) {
-            $(where).html('');
+
+        stopLoading : function(el) {
+            el.html('');
         },
-	doWeb: function (start) {
-                var self = this, el, posts = [];
-                var text = $('#google-search-text').val();
-                if (text.length < 1) {
-                    return;
-                }
-                $('#ggl-web-more').html('');
-                start = typeof start !== 'undefined' ? start : 0;
-                if ( start == 0) {
-                    self.data.web = [];
-                    $('#ggl-web-results').html('');
-                }
-                var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
-                this.showLoading('#ggl-web-more');
-                $.getJSON(str.format(this.urls.web,{
-                    start: start,
-                    text: text
-                }), {}, function(data){
-                    self.stopLoading('#ggl-web-more');
-                    self.data.web = self.data.web.concat(data.responseData.results);
-                    data.responseData.date = currentDate;
-                    if ( data.responseData.results.length > 0 ) {
-                        for( var i = 0, count = data.responseData.results.length; i < count; i++ ){
-                            data.responseData.results[i].type = 'web';
-                            posts.push({ Meta: data.responseData.results[i]});
-                        }
-                         $.tmpl('livedesk>items/item', { 
+
+        doSearch: function(type, start) {
+            var self = this;
+            var showMore = $('#ggl-' + type + '-holder').find('.sources-show-more');
+            var text = $('#google-search-text').val();
+            if (text.length < 1) {
+                return;
+            }
+
+            showMore.html('');
+            start = parseInt(start, 10) || 0;
+            if (start === 0) {
+                $('#ggl-' + type + '-results').html('');
+            }
+
+            var currentDate = new Date();
+            this.showLoading(showMore);
+
+            var provider = this.getProvider(type);
+            provider.search(text, start).
+                then(function(posts, cpage, pages) {
+                    self.stopLoading(showMore);
+                    //data.responseData.date = currentDate;
+                    if (posts.length > 0 ) {
+                         $.tmpl('livedesk>items/item', {
                                 Post: posts,
                                 Base: 'implementors/sources/google',
-                                Item: 'sources/google/web',
+                                Item: 'sources/google/' + type,
                                 startx: start,
                             }, function(e,o) {
-                                el = $('#ggl-web-results').append(o).find('.google');
+                                var getData = function(item) {
+                                    var idx = parseInt(item.attr('idx'), 10);
+                                    var startx = parseInt(item.attr('startx'), 10);
+                                    return provider.getData(startx + idx);
+                                };
+
+                                var el = $('#ggl-' + type + '-results').append(o).find('.google');
                                 BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
 									el.draggable({
                                         scroll: true,
@@ -144,29 +215,37 @@ $.extend(providers.google, {
                                         zIndex: 2700,
                                         clone: true,
                                         start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
+                                            var item = $(evt.currentTarget);
                                             $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                            $(this).data('data', self.adaptor.universal(self.data.web[startx+idx]));
+                                            $(this).data('data', self.adaptor.universal(getData(item)));
+                                        }
+                                    });
+
+                                    $('.saveonly button', self.el).click(function(e) {
+                                        if ($(e.target).attr('disabled')) {
+                                            return;
                                         }
 
+                                        var item = $(e.target).closest('li');
+                                        var model = self.adaptor.parse(getData(item));
+                                        model.Meta = JSON.stringify(model.Meta);
+                                        $.post(self.theBlog + '/Post', model, function(data, textStatus) {
+                                            item.find('.saveonly button').attr('disabled', 'disabled');
+                                        }, 'json');
                                     });
                                 }).fail(function(){
                                     el.removeClass('draggable');
                                 });
                         });
-                        var cpage = parseInt(data.responseData.cursor.currentPageIndex);
+
                         cpage += 1;
-
-                        var pages = data.responseData.cursor.pages;
-
-                        for(var i=0; i< pages.length; i++) {
+                        for (var i = 0; i < pages.length; i++) {
                             var page = pages[i];
                             if (cpage < page.label) {
                                 //show load more results
-                                $('#ggl-web-more').tmpl('livedesk>providers/google-more', function(){
-                                    $(this).find('[name="more_results"]').on('click', function(){
-                                        self.doWeb(page.start)
+                                showMore.tmpl('livedesk>providers/google-more', function() {
+                                    $(this).find('[name="more_results"]').on('click', function() {
+                                        self.doSearch(type, page.start);
                                     });
                                 });
                                 break;
@@ -175,188 +254,12 @@ $.extend(providers.google, {
                     } else {
                         //no results
                         $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
-                            $('#ggl-web-results').append(o);
+                            $('#ggl-' + type + '-results').append(o);
                         });
                     }
                 });
-            },
-        trimTo : function(content, amount) {
-            if (typeof content == 'undefined') {
-                content = '';
-            }
-            if ( typeof amount != 'number' ) {
-                amount = 200;
-            }
-            if ( content.length > 200) {
-                return content.substr(0, amount) + ' ...'
-            } else {
-                return content;
-            }
-        },
-	doNews: function (start) {
-                var self = this, el, posts = [];
-                var text = $('#google-search-text').val();		
-                if (text.length < 1) {
-                    return;
-                }		
-                $('#ggl-news-more').html('');
-                start = typeof start !== 'undefined' ? start : 0;
-                if ( start == 0) {
-                    self.data.news = [];
-                    $('#ggl-news-results').html('');
-                }
-                var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
-                this.showLoading('#ggl-news-more');
-                $.getJSON(str.format(this.urls.news,{
-                    start: start, 
-                    text: text
-                }), {}, function(data){
-                    self.stopLoading('#ggl-news-more');
-                    self.data.news = self.data.news.concat(data.responseData.results);
-                    data.responseData.date = currentDate;
-                    if ( data.responseData.results.length > 0 ) {
-                        for( var item, i = 0, count = data.responseData.results.length; i < count; i++ ){
-                            item = data.responseData.results[i];
-                            item.type = 'news';
-                            item.trimContent = self.trimTo(item.content, 200);
-                            posts.push({ Meta: item});
-                        }
-                        $.tmpl('livedesk>items/item', { 
-                                Post: posts,
-                                Base: 'implementors/sources/google',
-                                Item: 'sources/google/news',
-                                startx: start,
-                            }, function(e,o) {
-                                el = $('#ggl-news-results').append(o).find('.google');
-                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        addClasses: false,
-                                        revert: 'invalid',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                            $(this).data('data', self.adaptor.universal(self.data.news[startx+idx]));
-                                        }
+        }
+    });
 
-                                    });
-                                }).fail(function(){
-                                    el.removeClass('draggable');
-                                });
-                        });
-                        var cpage = parseInt(data.responseData.cursor.currentPageIndex);
-                        cpage += 1;
-
-                        var pages = data.responseData.cursor.pages;
-
-                        for(var i=0; i< pages.length; i++) {
-                            var page = pages[i];
-                            if (cpage < page.label) {
-                                //show load more results
-                                $('#ggl-news-more').tmpl('livedesk>providers/google-more', function(){
-                                    $(this).find('[name="more_results"]').on('click', function(){
-                                        self.doNews(page.start)
-                                    });
-                                });
-                                break;
-                            }
-                        }
-                    } else {
-                        //no results
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
-                            $('#ggl-news-results').append(o);
-                        });
-                    }
-                    
-			
-                });
-            },
-	doImages: function (start) {
-                var self = this, el, posts = [];
-                var text = $('#google-search-text').val();		
-                if (text.length < 1) {
-                    return;
-                }		
-                $('#ggl-images-more').html('');
-                start = typeof start !== 'undefined' ? start : 0;
-                if ( start == 0) {
-                    self.data.images = [];
-                    $('#ggl-images-results').html('');
-                }
-                var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
-                this.showLoading('#ggl-images-more');
-                $.getJSON(str.format(this.urls.images,{
-                    start: start, 
-                    text: text
-                }), {}, function(data){
-                    self.stopLoading('#ggl-images-more');
-                    self.data.images = self.data.images.concat(data.responseData.results);
-                    data.responseData.date = currentDate;
-                    if ( data.responseData.results.length > 0 ) {
-                        for( var i = 0, count = data.responseData.results.length; i < count; i++ ){
-                            data.responseData.results[i].type = 'images';
-                            posts.push({ Meta: data.responseData.results[i]});
-                        }
-                        console.log(posts);
-                         $.tmpl('livedesk>items/item', { 
-                                Post: posts,
-                                Base: 'implementors/sources/google',
-                                Item: 'sources/google/images',
-                                startx: start,
-                            }, function(e,o) {
-                                el = $('#ggl-images-results').append(o).find('.google');
-                                BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                    el.draggable({
-                                        addClasses: false,
-                                        revert: 'invalid',
-                                        helper: 'clone',
-                                        appendTo: 'body',
-                                        zIndex: 2700,
-                                        clone: true,
-                                        start: function(evt, ui) {
-                                            item = $(evt.currentTarget);
-                                            $(ui.helper).css('width', item.width());
-                                            var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                            $(this).data('data', self.adaptor.universal(self.data.images[startx+idx]));
-                                        }
-
-                                    });
-                                }).fail(function(){
-                                    el.removeClass('draggable');
-                                });
-                        });			
-                        var cpage = parseInt(data.responseData.cursor.currentPageIndex);
-                        cpage += 1;
-
-                        var pages = data.responseData.cursor.pages;
-
-                        for(var i=0; i< pages.length; i++) {
-                            var page = pages[i];
-                            if (cpage < page.label) {
-                                //show load more results
-                                $('#ggl-images-more').tmpl('livedesk>providers/google-more', function(){
-                                    $(this).find('[name="more_results"]').on('click', function(){
-                                        self.doImages(page.start)
-                                    });
-                                });
-                                break;
-                            }
-                        }
-                    } else {
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
-                            $('#ggl-images-results').append(o);
-                        });
-                    }
-                    
-			
-                });
-            }		
-});
-
-
-return providers;
+    return providers;
 });

@@ -125,6 +125,7 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
 						
 						providerLinkView.theBlog = self.theBlog;
+						provider.theBlog = self.theBlog;
 						
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
 						links.append(providerLinkView.render().el);
