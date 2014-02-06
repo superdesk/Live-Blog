@@ -1,4 +1,4 @@
-define(['gizmo'], function(Gizmo)
+define(['gizmo/superdesk'], function(Gizmo)
 {
     return Gizmo.Model.extend({
 	},{ register: 'PostType' });

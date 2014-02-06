@@ -24,7 +24,8 @@ function($, superdesk, giz, MetaInfo, Languages)
         tagName: 'span',
         init: function()
         {
-            this.collection = new Languages();
+            this.collection = giz.Auth(new Languages());
+            //this.collection = new Languages();
             this.collection.on('read update', this.render, this);
             this.collection.xfilter('Id, Name').sync();
         },

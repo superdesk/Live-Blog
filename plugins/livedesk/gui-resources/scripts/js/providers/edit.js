@@ -226,7 +226,7 @@ define('providers/edit', [
 			self.meta = {};
 			self.theBlog = self.blogUrl;
 
-			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
+			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../Data/PostType'));
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			

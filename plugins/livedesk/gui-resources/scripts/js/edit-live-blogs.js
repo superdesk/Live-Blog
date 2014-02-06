@@ -901,8 +901,7 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 				var self = this,
 					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
 							
-				self.collection = Gizmo.Auth(new PostTypes(self.theBlog+'/../../../../Data/PostType'));
-				
+				self.collection = Gizmo.Auth(new PostTypes(self.theBlog+'/../../../Data/PostType'));
 				self.collection.on('read', function(){ self.render(); }).xfilter('Key').sync();				
 			},
 			render: function(){
@@ -972,7 +971,6 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 				    // once	
 				    .done(function()
 				    {
-				    	console.log('render edit');
 				        self.render();
 				    });
 			},
