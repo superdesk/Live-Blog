@@ -47,6 +47,9 @@ from security.api.right import IRightService
 from security.api.right_type import IRightTypeService
 from livedesk.api.version import IVersionService
 from superdesk.media_archive.api.meta_data import IMetaDataService
+from superdesk.user.api.user import IUserService
+from superdesk.security.api.user_rbac import IUserRbacService
+from general_setting.api.general_setting import IGeneralSettingService
 
 # --------------------------------------------------------------------
 
@@ -153,6 +156,9 @@ def registerAclLivedeskView():
     r.allGet(IRightTypeService)
     r.allGet(IVersionService)
     r.allGet(IMetaDataService)
+    r.allGet(IUserService)
+    r.allGet(IUserRbacService)
+    r.allGet(IGeneralSettingService)
 
 @gui.setup
 def registerAclManageOwnPost():
