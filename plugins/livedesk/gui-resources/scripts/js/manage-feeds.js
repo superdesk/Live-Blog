@@ -34,11 +34,11 @@ define([
         var PROVIDER_TYPE = 'blog provider';
         var blogId = getLastId(blogHref);
 
-        var sourcesUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source') + '?X-Filter=*';
-        var smsUrl = getGizmoUrl('Data/SourceType/smsfeed/Source') + '?X-Filter=Name,Id';
-        var smsSourcesUrl = getGizmoUrl('Data/SourceType/smsblog/Source?blogId=' + blogId + '&X-Filter=*') ;
+        var sourcesUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source') + '?X-Filter=*';
+        var smsUrl = getGizmoUrl('my/Data/SourceType/smsfeed/Source' + '?X-Filter=Name,Id') ;
+        var smsSourcesUrl = getGizmoUrl('my/Data/SourceType/smsblog/Source?blogId=' + blogId + '&X-Filter=*') ;
 
-        var providersUrl = getGizmoUrl('Data/SourceType/' + PROVIDER_TYPE + '/Source') + '?X-Filter=Name,Id,URI';
+        var providersUrl = getGizmoUrl('my/Data/SourceType/' + PROVIDER_TYPE + '/Source') + '?X-Filter=Name,Id,URI';
         var chainBlogUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
   
 
@@ -88,7 +88,7 @@ define([
             };
 
             //get the sms feeds
-            smsData.getData(smsUrl, smsSourcesUrl).then(function(data){
+            smsData.getData(Gizmo.Auth(smsUrl), smsSourcesUrl).then(function(data){
                 $scope.smss = data;
                 $scope.msg.noSmsFeeds = $scope.smss.length === 0;
             });

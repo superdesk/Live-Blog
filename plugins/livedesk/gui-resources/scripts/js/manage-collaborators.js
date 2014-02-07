@@ -94,7 +94,7 @@ define([
 		    
 		    var data = this.model.feed('', true),
 		        self = this;
-		    (new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
+		    Gizmo.Auth(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
@@ -243,7 +243,7 @@ define([
 		render: function(){
 			var self = this;
 			
-			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
+			Gizmo.Auth(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
             .one('read', function()
             { 
                 var meta = this.get('MetaDataIcon')
@@ -305,7 +305,7 @@ define([
 				.xfilter('Id,Type,Name,User.Id,User.FullName,User.EMail')
 				.limit(self.collection.config("limit"))
 				.sync();
-			self.blogTypesCollaborator = new Gizmo.Register.BlogCollaaboratorTypes();
+			self.blogTypesCollaborator = Gizmo.Auth(new Gizmo.Register.BlogCollaaboratorTypes());
 			self.blogTypesCollaborator.sync();
 		},
 		addOne: function(model) {

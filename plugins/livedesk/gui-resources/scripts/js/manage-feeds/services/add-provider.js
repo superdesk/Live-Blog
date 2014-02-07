@@ -18,7 +18,15 @@ define([
                 createProviderObject: function(source) {
                 	var mySource = {};
                     var deffered = $q.defer();
-                	$http.get(source.href).success(function(data){
+                    var srcUrl = source.href;
+
+                    //hack to add my in the request
+                    if ( srcUrl.indexOf( 'my' ) == -1 ) {
+                        var indexRes = srcUrl.indexOf('/Data');
+                        srcUrl = srcUrl.slice(0, indexRes) + '/my' + srcUrl.slice(indexRes);
+                    }
+
+                	$http.get(srcUrl).success(function(data){
                 		mySource = {
                 			Id: data.Id,
                 			Name: data.Name,

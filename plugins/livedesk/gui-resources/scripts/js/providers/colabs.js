@@ -317,7 +317,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 colab.sync().done(function()
                 { 
                     // hacking user image
-                    (new Person(Person.prototype.url.get()+'/'+colab.get('User').get('Id')))
+                    giz.Auth(new Person(Person.prototype.url.get()+'/'+colab.get('User').get('Id')))
                     .on('read', function()
                     { 
                         var meta = this.get('MetaDataIcon')
