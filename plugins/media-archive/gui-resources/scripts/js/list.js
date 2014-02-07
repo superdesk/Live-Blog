@@ -530,7 +530,7 @@ function($, superdesk, giz, gizList, Action, MetaData, MetaType, MetaDataInfo, Q
         { 
             if(!this.collection)
             {
-                this.collection = giz.Auth(new MetaDataInfos);
+                this.collection = new MetaDataInfos;
                 //this.collection.on('read', this.renderList, this);
             }
             return this.collection; 
