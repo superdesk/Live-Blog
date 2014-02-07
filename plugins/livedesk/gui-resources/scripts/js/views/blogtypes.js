@@ -15,7 +15,7 @@
         init: function(){
             var self = this;
             if( !self.collection ) {
-                self.collection = new Gizmo.Auth(Gizmo.Register.BlogTypes());
+                self.collection = Gizmo.Auth(new Gizmo.Register.BlogTypes());
             }
             self.collection
                 .on('read update', self.render, self)

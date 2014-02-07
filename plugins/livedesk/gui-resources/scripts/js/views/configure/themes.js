@@ -13,7 +13,7 @@
         init: function() {
             var self = this;
             if( !self.collection ) {
-                self.collection = new Gizmo.Register.Themes();
+                self.collection = Gizmo.Auth ( new Gizmo.Register.Themes() );
             }
             self.collection
                 .on('read update', self.render, self)
