@@ -3,7 +3,7 @@
 <div id="livedesk-root">
 	{+main}
 	<div class="liveblog-container">
-
+    Hello: {@msg text="Hahah"}{/msg}
 		{+contentContainer}
 		<div class="liveblog-content">
 			{+content}

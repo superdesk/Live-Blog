@@ -22,8 +22,6 @@ define
 
 function($, superdesk, giz, Action, User, Person, sha, uploadCom)
 {
-    console.log( 'arguments ', arguments);
-    console.log(' uploadCom ', uploadCom);
     var 
     // TODO place in appropriate plugins
     Source = giz.Model.extend({url: new giz.Url('Data/Source')}),
@@ -77,10 +75,10 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         },
         render: function()
         {
-            var self = this,
+            var self = this,            
             // set icon
-                icon = new PersonIcon;
-                icon.href = this.model.get('MetaDataIcon').href.replace('my/', '');
+                icon = giz.Auth(new PersonIcon);
+                icon.href = this.model.get('MetaDataIcon').href;
             icon.sync({data: { thumbSize: 'small'}}).done(function()
             { 
                 $('figure img', self.el).attr('src', icon.get('Thumbnail').href);
@@ -536,8 +534,8 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             $('#user-edit-modal figure.user-avatar img', this.el).attr('src', config.content_url+'/lib/core/images/default_profile_3_bigger.png');
             $('.control-group').removeClass('error');
             
-            var personModel = /*giz.Auth(*/new Person(model.hash().replace('User', 'Person').replace('my/', ''))/*)*/,
-                roleCollection = new RoleCollection({href: new giz.Url('HR/User/'+model.get('Id')+'/Role')});
+            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person').replace('my/', ''))),
+                roleCollection = giz.Auth(new RoleCollection({href: new giz.Url('HR/User/'+model.get('Id')+'/Role')}));
                 checkColab = function(id)
                 {
                     $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', false);
@@ -700,7 +698,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             this._resetEvents = false;
             
             // get available roles and add them to templates
-            this._roleList = new RoleCollection({href: localStorage.getItem('superdesk.login.selfHref').replace('my/', '')+'/Role'});
+            this._roleList = giz.Auth(new RoleCollection({href: localStorage.getItem('superdesk.login.selfHref')+'/Role'}));
             this._roleList.xfilter('*').sync().done(function()
             {
                 $.tmpl('superdesk/user>add', {Roles: self._roleList.feed()}, function(e, o){ self._dialogs.add.append(o); });
