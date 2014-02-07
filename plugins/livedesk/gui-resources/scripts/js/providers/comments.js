@@ -30,8 +30,15 @@ $.extend(providers.comments, {
         var self = this;
         this.adaptor.init();
         self.data.comments = [];
+        var srcUrl = typeof blogUrl === 'string' ? blogUrl : blogUrl[0]
+        
+        if ( srcUrl.indexOf( 'my' ) == -1 ) {
+            var indexRes = srcUrl.indexOf('/LiveDesk');
+            srcUrl = srcUrl.slice(0, indexRes) + '/my' + srcUrl.slice(indexRes);
+        }
         $.ajax({
-            url: typeof blogUrl === 'string' ? blogUrl : blogUrl[0]
+            url: srcUrl,
+            headers: {'Authorization': localStorage.getItem('superdesk.login.session')}
         }).done(function(data){
             self.blogId = data.Id;
             self.render();
@@ -98,7 +105,7 @@ $.extend(providers.comments, {
 
         var sd = $.extend({}, dsd, paramObject);
         //console.log(sd);
-        var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/Comment/');
+        var url = new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/Comment/');
         var keywordSearch = '';
         if ( self.keyword.length > 0 ) {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword + '%')
@@ -124,7 +131,8 @@ $.extend(providers.comments, {
         myUrl = url.get() + '?X-Filter=*&offset=' + sd.offset + limitText + cIdText + keywordSearch + deletedText + '&desc=id';
         $.ajax({
             url: myUrl,
-            dataType: "json"
+            dataType: "json",
+            headers: {'Authorization': localStorage.getItem('superdesk.login.session')}
         }).done(function(xdata){
             
             var data = xdata;

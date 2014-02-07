@@ -1,12 +1,15 @@
 define([
+    'jquery',
+    'gizmo/superdesk',
 	'angular',
     'lib/livedesk/scripts/js/manage-feeds/manage-feeds'
-	], function(ngular, feeds){
+	], function(jQuery, Gizmo, ngular, feeds){
 		feeds.factory('smsData', function($http, $q){
             return {
                 getData: function(smsUrl, sourcesUrl) {
                     var deffered = $q.defer();
                     //a bit messy way of getting the sms feeds and the assigned sms feeds
+
                     $http({method: 'GET', url: smsUrl}).
                     success(function(data, status, headers, config) {
                         var smss = data.SourceList;

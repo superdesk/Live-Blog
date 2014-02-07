@@ -11,7 +11,7 @@
         init: function(){
             var self = this;
             if( !self.collection ) {
-                self.collection = new Gizmo.Register.Languages();
+                self.collection = Gizmo.Auth(new Gizmo.Register.Languages());
             }
             self.collection
                 .on('read update', self.render, self)
