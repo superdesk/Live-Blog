@@ -10,7 +10,7 @@ define([
         adaptor: {
             init: function() {
                 var self = this;
-                new $.rest('Data/Collaborator/')
+                new $.restAuth('Data/Collaborator/')
                     .xfilter('Id,Source.Name,Name,User.Name')
                     .done(function(collabs) {
                         self.data = collabs;
@@ -56,7 +56,7 @@ define([
                     }
 
                     if(!found) {
-                        new $.rest('Data/Collaborator/?qu.name=' + chainUserName).
+                        new $.restAuth('Data/Collaborator/?qu.name=' + chainUserName).
                             xfilter('Id,Source.Name,Name,User.Name').
                             done(function(collabs) {
                                 if (collabs.length) {

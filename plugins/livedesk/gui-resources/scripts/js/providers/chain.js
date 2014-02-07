@@ -52,7 +52,7 @@ define([
 	    StatusesFilterView = StatusesView.extend({
 			template: 'livedesk>citizen-desk/statuses-filter-list'  	
 	    }),
-		autoSources = new SyncCollection(),
+		autoSources = Gizmo.Auth(new SyncCollection()),
     	ChainPostView = PostView.extend({
     		events: {
     			'': { afterRender: 'addElements', mouseleave: 'killMenu'},
@@ -531,12 +531,12 @@ define([
 				self.hiddenChainBlogContentViews = [];
 				self.hiddenToggle = false;
 				if($.type(self.sourceBlogs) === 'undefined') {
-					self.sourceBlogs = new Gizmo.Register.Sources();
+					self.sourceBlogs = Gizmo.Auth(new Gizmo.Register.Sources());
 					/*!
 					 * @TODO: remove this when source it will be put on the blog children.
 					 */
 					href = this.blog.get('Source').href;
-					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'Data/SourceType/chained%20blog/Source?blogId=$1');
+					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'my/Data/SourceType/chained%20blog/Source?blogId=$1');
 					self.sourceBlogs.setHref(href);
 					self.sourceBlogs
 						.on('read', this.render, this)
@@ -544,7 +544,9 @@ define([
 						.sync();
 				}
 
-                autoSources.url = this.blog.get('Sync').href;
+                autoSources.url = this.blog.get('Sync').href.replace('/resources', '/resources/my');
+                var heads = autoSources.xfilter;
+                heads["Authorization"] = localStorage.getItem('superdesk.login.session');
                 autoSources.fetch({headers: autoSources.xfilter, reset: true});
 			},
 
