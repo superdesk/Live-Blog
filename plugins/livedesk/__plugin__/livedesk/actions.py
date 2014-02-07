@@ -20,7 +20,7 @@ from ally.container import ioc, support
 from ally.internationalization import NC_
 from ally.support.util import ref
 from gui.action.api.action import Action
-from livedesk.api.blog import IBlogService
+from livedesk.api.blog import IBlogService, IBlogSourceService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_theme import IBlogThemeService
@@ -47,6 +47,9 @@ from security.api.right import IRightService
 from security.api.right_type import IRightTypeService
 from livedesk.api.version import IVersionService
 from superdesk.media_archive.api.meta_data import IMetaDataService
+from superdesk.user.api.user import IUserService
+from superdesk.security.api.user_rbac import IUserRbacService
+from general_setting.api.general_setting import IGeneralSettingService
 
 # --------------------------------------------------------------------
 
@@ -153,6 +156,11 @@ def registerAclLivedeskView():
     r.allGet(IRightTypeService)
     r.allGet(IVersionService)
     r.allGet(IMetaDataService)
+    r.allGet(IUserService)
+    r.allGet(IUserRbacService)
+    r.allGet(IGeneralSettingService)
+    r.allGet(IBlogSourceService)
+    r.allGet(IBlogCommentService)
 
 @gui.setup
 def registerAclManageOwnPost():

@@ -15,7 +15,6 @@ from ally.api.type import Iter
 from livedesk.api.domain_livedesk import modelLiveDesk
 from livedesk.api.blog import Blog
 from livedesk.api.blog_post import QBlogPostUnpublished
-from livedesk.api.blog_post import QBlogPostUnpublished
 
 # --------------------------------------------------------------------
 

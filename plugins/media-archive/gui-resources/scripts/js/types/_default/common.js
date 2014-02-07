@@ -25,7 +25,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         init: function()
         {
             this.collection = giz.Auth(new Languages());
-            //this.collection = new Languages();
             this.collection.on('read update', this.render, this);
             this.collection.xfilter('Id, Name').sync();
         },

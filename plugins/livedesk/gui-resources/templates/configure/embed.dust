@@ -1,11 +1,11 @@
-<div id="livedesk-root"></div>
+<div id="livedesk-root-container"></div>
 <script type="text/javascript">
 //<![CDATA[{~n}
 	var liveblog = (function(d){
 		var self = this;
 		self.data = {
 			id: {Id},
-			el: '#livedesk-root',
+			el: '#livedesk-root-container',
 			{?Language}
 			'language': '{Language}',
 			{/Language}

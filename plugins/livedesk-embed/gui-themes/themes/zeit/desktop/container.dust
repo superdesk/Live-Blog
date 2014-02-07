@@ -3,7 +3,6 @@
 <div id="livedesk-root">
 	{+main}
 	<div class="liveblog-container">
-
 		{+contentContainer}
 		<div class="liveblog-content">
 			{+content}
