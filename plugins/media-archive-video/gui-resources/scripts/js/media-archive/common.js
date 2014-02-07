@@ -18,7 +18,7 @@ function($, superdesk, giz, base, VideoData, VideoInfo, VideoInfoList)
     ({
         getModel: function()
         {
-            this.model = new VideoData(VideoData.prototype.url.get()+'/'+this.model.get('Id'));
+            this.model = giz.Auth(new VideoData(VideoData.prototype.url.get()+'/'+this.model.get('Id')));
             return this.model;
         },
         tmpl: 'media-archive-video>media-archive/view',

@@ -18,7 +18,7 @@ function($, superdesk, giz, base, AudioData, AudioInfo, AudioInfoList)
     ({
         getModel: function()
         {
-            this.model = new AudioData(AudioData.prototype.url.get()+'/'+this.model.get('Id'));
+            this.model = giz.Auth(new AudioData(AudioData.prototype.url.get()+'/'+this.model.get('Id')));
             return this.model;
         },
         tmpl: 'media-archive-audio>media-archive/view',

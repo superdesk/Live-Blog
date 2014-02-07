@@ -18,7 +18,7 @@ function($, superdesk, giz, base, ImageData, ImageInfo, ImageInfoList)
     ({
         getModel: function()
         {
-            this.model = new ImageData(ImageData.prototype.url.get()+'/'+this.model.get('Id'));
+            this.model = giz.Auth(new ImageData(ImageData.prototype.url.get()+'/'+this.model.get('Id')));
             return this.model;
         },
         tmpl: 'media-archive-image>media-archive/view',
