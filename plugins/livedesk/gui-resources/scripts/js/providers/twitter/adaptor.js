@@ -12,7 +12,7 @@ define([
         adaptor: {
             init: function() {
                 var self = this;
-                new $.rest('Data/Collaborator/')
+                new $.restAuth('Data/Collaborator/')
                     .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'twitter'}})
                     .done(function(collabs) {
