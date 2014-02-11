@@ -53,7 +53,7 @@ $.extend(providers.sms, {
         var self = this;
         var dfd = $.Deferred();
         //var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
-        var url = new Gizmo.Auth(Gizmo.Url('Data/SourceType/smsblog/Source?blogId=' + this.blogId ));
+        var url = Gizmo.Auth(new Gizmo.Url('Data/SourceType/smsblog/Source?blogId=' + this.blogId ));
         myUrl = url.get() + '&X-filter=Type.Key,Name,Id';
         self.assignedFeeds = [];
         $.ajax({
@@ -77,7 +77,7 @@ $.extend(providers.sms, {
         //get all feeds and generate 'holders'
         var self = this;
         var dfd = $.Deferred();
-        var url = new Gizmo.Auth(Gizmo.Url('Data/SourceType/smsfeed/Source'));
+        var url = Gizmo.Auth(new Gizmo.Url('Data/SourceType/smsfeed/Source'));
         feedsUrl = url.get() + '?X-Filter=Id,Name';
         $.ajax({
             url: feedsUrl,
