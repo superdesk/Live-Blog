@@ -1,6 +1,7 @@
 {>"themeBase/container"/}
 
 {<headerContainer}
+	{+blogMedia}{/blogMedia}
 {/headerContainer}
 
 {<contentBottomContainer}
