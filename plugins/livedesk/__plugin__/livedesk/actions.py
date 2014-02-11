@@ -161,6 +161,7 @@ def registerAclLivedeskView():
     r.allGet(IGeneralSettingService)
     r.allGet(IBlogSourceService)
     r.allGet(IBlogCommentService)
+    r.allGet(ICollaboratorService)
 
 @gui.setup
 def registerAclManageOwnPost():
