@@ -1,5 +1,5 @@
 /distribution/app.log
-/distribution/test.py
+/distribution/test*.py
 /distribution/plugins.properties.bck
 /distribution/application.properties.bck
 
