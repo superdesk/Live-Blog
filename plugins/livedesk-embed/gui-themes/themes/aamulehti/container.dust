@@ -2,6 +2,7 @@
 
 
 {<headerContainer}
+	{+blogMedia}{/blogMedia}
 {/headerContainer}
 
 {<contentBottomContainer}
