@@ -1,6 +1,8 @@
  define([
     'jquery', 
     'gizmo/superdesk',
+    'angular',
+    config.guiJs('livedesk', 'seo-config'),
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
     config.guiJs('livedesk', 'views/configure/themes'),
@@ -16,7 +18,7 @@
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+], function( $, Gizmo, angular, SeoConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
    var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
@@ -212,6 +214,7 @@
                 });
 
             });
+            angular.bootstrap(document, ['seoConf']);
             $.superdesk.hideLoader();
         }
     });
