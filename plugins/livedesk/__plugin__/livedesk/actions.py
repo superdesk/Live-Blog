@@ -50,6 +50,7 @@ from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.user.api.user import IUserService
 from superdesk.security.api.user_rbac import IUserRbacService
 from general_setting.api.general_setting import IGeneralSettingService
+from url_info.api.url_info import IURLInfoService
 
 # --------------------------------------------------------------------
 
@@ -162,6 +163,7 @@ def registerAclLivedeskView():
     r.allGet(IBlogSourceService)
     r.allGet(IBlogCommentService)
     r.allGet(ICollaboratorService)
+    r.allGet(IURLInfoService)
 
 @gui.setup
 def registerAclManageOwnPost():
