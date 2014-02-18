@@ -12,12 +12,14 @@ API implementation for liveblog seo.
 import datetime
 import logging
 
+from ally.api.extension import IterPart
 from ally.container.support import setup
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from livedesk.api.blog_post import BlogPost
 from livedesk.api.blog_seo import IBlogSeoService, QBlogSeo
 from livedesk.meta.blog_seo import BlogSeoMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.sql.expression import or_
-from livedesk.api.blog_post import BlogPost
 
 
 # --------------------------------------------------------------------
@@ -34,6 +36,25 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         Construct the blog seo service.
         '''
         EntityServiceAlchemy.__init__(self, BlogSeoMapped, QBlogSeo)
+        
+        
+    def getAll(self, blogId=None, themeId=None, offset=None, limit=None, detailed=False, q=None):
+        '''
+        @see: IBlogSeo.getAll
+        '''     
+        
+        sql = self.session().query(BlogSeoMapped)
+        
+        if blogId: sql = sql.filter(BlogSeoMapped.Blog == blogId)
+        if themeId: sql = sql.filter(BlogSeoMapped.BlogTheme == themeId)
+        
+        if q:
+            assert isinstance(q, QBlogSeo), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, BlogSeoMapped)
+       
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all() 
         
     def existsChanges(self, blogSeoId, lastCId):
         '''

@@ -26,8 +26,8 @@ class BlogSeoMapped(Base, BlogSeo):
     __tablename__ = 'livedesk_blog_seo'
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), unique=True, nullable=False)
-    Theme = Column('fk_theme_id', ForeignKey(BlogThemeMapped.Id), nullable=False)
+    Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
+    BlogTheme = Column('fk_theme_id', ForeignKey(BlogThemeMapped.Id), nullable=False)
     RefreshActiv = Column('refresh_activ', Boolean, nullable=False)
     RefreshInterval = Column('refresh_interval', INTEGER, nullable=False)
     CallbackActiv = Column('callback_activ', Boolean, nullable=False)
