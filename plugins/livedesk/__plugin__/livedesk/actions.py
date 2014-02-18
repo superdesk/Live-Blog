@@ -51,6 +51,7 @@ from superdesk.user.api.user import IUserService
 from superdesk.security.api.user_rbac import IUserRbacService
 from general_setting.api.general_setting import IGeneralSettingService
 from url_info.api.url_info import IURLInfoService
+from livedesk.api.blog_seo import IBlogSeoService
 
 # --------------------------------------------------------------------
 
@@ -164,6 +165,7 @@ def registerAclLivedeskView():
     r.allGet(IBlogCommentService)
     r.allGet(ICollaboratorService)
     r.allGet(IURLInfoService)
+    r.allGet(IBlogSeoService)
 
 @gui.setup
 def registerAclManageOwnPost():
