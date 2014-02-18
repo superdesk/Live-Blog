@@ -53,11 +53,12 @@ $.extend(providers.sms, {
         var self = this;
         var dfd = $.Deferred();
         //var url = new Gizmo.Url('LiveDesk/Blog/'+ this.blogId +'/Source');
-        var url = Gizmo.Auth(new Gizmo.Url('Data/SourceType/smsblog/Source?blogId=' + this.blogId ));
+        var url = Gizmo.Auth(new Gizmo.Url('my/Data/SourceType/smsblog/Source?blogId=' + this.blogId ));
         myUrl = url.get() + '&X-filter=Type.Key,Name,Id';
         self.assignedFeeds = [];
         $.ajax({
             url: myUrl,
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
             success: function(data) {
                 var sources = data.SourceList;
                 for ( var i = 0; i < sources.length; i ++) {
@@ -77,10 +78,11 @@ $.extend(providers.sms, {
         //get all feeds and generate 'holders'
         var self = this;
         var dfd = $.Deferred();
-        var url = Gizmo.Auth(new Gizmo.Url('Data/SourceType/smsfeed/Source'));
+        var url = Gizmo.Auth(new Gizmo.Url('my/Data/SourceType/smsfeed/Source'));
         feedsUrl = url.get() + '?X-Filter=Id,Name';
         $.ajax({
             url: feedsUrl,
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
             success: function(data) {
                 self.allFeeds = data.SourceList;
                 self.prepareAuxData(self.allFeeds);
@@ -304,12 +306,14 @@ $.extend(providers.sms, {
             keywordSearch = '&content.ilike=' + encodeURIComponent('%' + self.keyword[sd.feedId] + '%')
         }
         //var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post');
-        var url = new Gizmo.Url('Data/Source/' + sd.feedId + '/Post/SourceUnpublished');
+        var url = new Gizmo.Url('my/Data/Source/' + sd.feedId + '/Post/SourceUnpublished');
         myUrl = url.get() + '?X-Filter=*,Creator.*&desc=createdOn&offset=' + sd.offset + '&limit=' + sd.limit + cIdText + keywordSearch + deletedText;
+
         
         $.ajax({
             url: myUrl,
             global: false,
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') }
         }).done(function(data){
             var total = data.total;
             var smss = data.PostList;

@@ -290,7 +290,7 @@ define('providers/edit', [
             if ( url.search('http://') == -1 && url.search('https://') == -1) {
                 url = 'http://' + url;
             }
-			var urlinfo = new URLInfo;
+			var urlinfo = Gizmo.Auth(new URLInfo);
 
 			urlinfo.getInfoSync(url).done(function(siteData){
 				var myThumb = '';

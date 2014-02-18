@@ -498,7 +498,7 @@ define([
 			},
 			render: function(){
 				var self = this,
-					posts = self.model.get('PostSourceUnpublished');
+					posts = Gizmo.Auth(self.model.get('PostSourceUnpublished'));
 				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
@@ -752,7 +752,7 @@ define([
 		this.adaptor._parent = this;
 		this.adaptor.init();
 
-	    var blog = new Gizmo.Auth(new Gizmo.Register.Blog(blogUrl));
+	    var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogUrl));
         blog.on('read', function() {
 			chain = new ChainBlogsView({
 				el: this.el, 
