@@ -10,7 +10,7 @@ background: #fff;
 }
 
 .container {
-	width: 620px;
+	width: 600px;
 	margin-left: 20px;
 	margin-top: 20px;
 	overflow: hidden; //quirks fix
@@ -26,7 +26,7 @@ background: #fff;
 @lb-width	: 100%;
 @lb-background: #fff;
 
-@lb-color 	: #95915c;
+@lb-color 	: #1A988B;
 @lb-color2 	: #a8a8a8;
 
 @postlist-minheight : 0;	//default 0
@@ -52,8 +52,8 @@ background: #fff;
 @publisher-avatar-width : 48px;
 
 
-@show-left-column : true;		// true/false
-@left-column-width : 150px; 	// (avatar width)
+@show-left-column : false;	// true/false
+@left-column-width : 70px; 	// (avatar width)
 
 
 @content-minheight : 0px;	//Min height of post main content
@@ -75,6 +75,9 @@ background: #fff;
 		clear: both;
 	}
 }
+.clearfix {
+	.lbclearfix();
+}
 
 @user-text-size : @text-size/16em;
 @user-text-size-headings : @text-size-headings/12em;
@@ -93,30 +96,6 @@ background: #fff;
    @left-column-width:0;
 }
 .initiate(@show-left-column);
-
-/*************** Scroller styles for WEBKIT ***********/
-
-
-/*  Webkit scroll */
-
-::-webkit-scrollbar {
-    width: 12px;
-    height: 8px;
-    margin: -1px 1px;
-    background:#a8a8a8;
-}
-
-::-webkit-scrollbar-thumb {
-    width: 10px;
-    background:#656565;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #515151;
-}
-
-/* END OF SCROLLBAR */
-
 
 /******************************************************/
 /******************************************************/
@@ -147,13 +126,13 @@ background: #fff;
 	margin: 10px 0;
 	background: @lb-background;
 	font-size: 100%;
-	line-height: 130%;
+	line-height: 140%;
 	font-family: @lb-font;
 
 	.liveblog-container {
 		padding: 10px 0;
 		.header-ad {
-			margin: 10px -5px 0; //inverse of .liveblog-header padding
+			margin: 10px -5px 0;//inverse of .liveblog-header padding
 			img {
 				text-decoration: none;
 				border:0;
@@ -163,37 +142,31 @@ background: #fff;
 		.liveblog-header, .liveblog-footer {
 			padding: 5px;
 			h3 {
-				font-size: 2em;
+				font-size: 1.375em;
 				padding-bottom: 5px;
-				font-weight: normal;
-				font-family: 'Futura HV','Cabin',arial,serif;
-				line-height: 40px;
-				margin-bottom: 5px;
-				border-bottom:1px solid #ccc;
 			}
 			p {
 				font-size: @user-text-size;
 			}
+			
 		}
-
 		.liveblog-content {
 			position: relative;
 			margin: 10px 0;
 			.liveblog-content-top, .liveblog-content-bottom {
-				background: #262626;
+				background: #4f4f4f;
 				height: @postlist-header-height;
 				position: relative;
-				z-index: 2;
 				.update-time {
 					height: @postlist-header-height;
 					line-height: @postlist-header-height;
-					color: #fff;
+					color: #b8b8b8;
 					text-transform: uppercase;
 					font-size: 11px;
 					padding-left: 5px;
 				}
 				.button {
-					background: @lb-color;
+					background: #101010;
 					font-size: 11px;
 					font-weight: bold;
 					padding: 0 10px;
@@ -201,28 +174,39 @@ background: #fff;
 					height: @postlist-header-height;
 					line-height: @postlist-header-height;
 					position: absolute;
-					&:hover {
-						cursor: pointer;
-					}
 					&.pintotop {
 						top:0;
 						right: 0;
 					}
 					&.comment {
 						top:0;
-						left: 0;
-					}
-				}
-			}
-			.liveblog-content-top {
-				.button {
-					&.comment {
-						top:0;
 						left: auto;
 						right: 80px;
 					}
 				}
+
+				.new-posts-label {
+					position: absolute;
+					top: 4px;
+					left: 50%;
+					margin-left: -30px;
+					background: #3676be;
+					color: #fff;
+					padding: 0 5px;
+					height: @postlist-header-height - 8;
+					line-height: @postlist-header-height - 8 ;
+					text-decoration: none;
+					font-size: 10px;
+					font-weight: bold;
+					display: none;
+					&:hover {
+						cursor: default;
+						background: #225c9c;
+					}
+				}
+
 			}
+
 			.liveblog-content-middle {
 				max-height: @postlist-maxheight;
 				min-height: @postlist-minheight;
@@ -231,13 +215,12 @@ background: #fff;
 				&.liveblog-scroll {
 					height: 500px;
 				}
-
 				.liveblog-postlist {
 					li {
 
 						padding: @post-padding-top @post-padding-right @post-padding-bottom @post-padding-left;
 
-						border-top :2px solid #4d4d4d;
+						border-top :1px solid #eee;
 						padding-top: @post-padding-top;
 						margin-bottom: @post-padding-top; 
 
@@ -245,29 +228,24 @@ background: #fff;
 						.post-datetime {
 							font-size: 0.6875em;
 							font-weight: bold;
-							color:#262626;							
+							color:@lb-color;	
+							padding-right: 10px;
+							border-right: 1px solid #a0a0a0;
+							margin-right: 10px;
 							height: 12px;
-							display: block;
+							display: inline-block;
 							line-height: 12px;
-							padding-bottom: 5px;
 						}
 						.post-publisher-name {
 							font-size: 0.6875em;
-							display: block;
-							color:#888;	
-							margin: 3px 0 5px;
-						}
-						.logo-badge {
-							width: 26px;
-							height: 8px;
-							background: url(img/stt-logo.png) no-repeat 0 0;
-							display: block;
-							margin: 5px 0 5px 0;
+							font-weight: bold;
+							color:@lb-color2;	
 						}
 						.post-buttons {
 							position: absolute;
-							left: 0;
-							bottom:0;
+							right: 0;
+							top:0;
+							margin-top: 4px;
 							height: 15px;
 							width: 95px;
 							display: none;
@@ -290,10 +268,10 @@ background: #fff;
 								padding: 10px;
 								border: 1px solid #D0D0D0;
 								position: absolute;
-								left: -3px;
-								bottom: 20px;
+								top: 18px;
+								right: 45px;
 								z-index: 5;
-								width: 170px;
+								width: 140px;
 								height: 24px;
 								.social {
 									width: 24px;
@@ -327,14 +305,29 @@ background: #fff;
 								border: 1px solid #D0D0D0;
 								padding: 4px 6px;
 								width: 180px;
-								bottom: 18px;
-								left: 66px;
+								top: 14px;
+								right: 0;
 								&:focus {
 									outline:none;
 								}
 							}
 						}
 
+						.verification-label {
+							width: 16px;
+							height: 16px;
+							display: none;
+							float: left;
+							margin-right: 10px;
+						}
+						&.post-verified .verification-label {
+							display: block;
+							background: url(img/icon_verified.png) no-repeat 0 0;
+						}
+						&.post-unverified .verification-label {
+							display: block;
+							background: url(img/icon_unverified.png) no-repeat 0 0;
+						}
 						.post-comment {
 							font-size: @user-text-size;
 							&.comment-before {
@@ -346,7 +339,7 @@ background: #fff;
 						}
 						.post-content-full {
 							font-size: @user-text-size;
-							line-height: 130%;							
+							line-height: 140%;							
 						}
 
 						.post-publisher-avatar {
@@ -354,19 +347,22 @@ background: #fff;
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							background: url(img/default-liveblog-avatar.png) no-repeat 0 0;
-							span {
+							padding: 2px;
+							border: 1px solid #e8e8e8;
+							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
+							float: left;
+							.post-publisher-avatar-img {
 								width: @publisher-avatar-width;
 								height: @publisher-avatar-width;
-								display: block;
 								background-size: cover !important;
-								background-position: center;
+								display: block;
 							}
 						}
 
 						/* end of separate block styles */
 						.post-header {
 							position: relative;
+							line-height: 16px;
 						}
 						.post-content {
 							min-height: @content-minheight;
@@ -374,11 +370,8 @@ background: #fff;
 							margin-top: 10px;
 
 							.post-content-side {
-								position: relative;
-								padding-bottom: 20px; //space for share and link button
 								float: left;
 								display: @display-left-column;
-								width: @left-column-width;
 							}
 							.post-content-main {
 								margin-left: @left-column-width;
@@ -421,14 +414,12 @@ background: #fff;
 							.post-core-content {
 								.post-text {
 									img {
-										height: auto !important;
 										max-width: 100%;
 									}
 								}
 							}
 						}
-
-						&.twitter, &.facebook, &.googlenews, &.googlesearch {
+						&.twitter, &.facebook, &.googlenews, &.googlesearch, {
 							.post-core-content {
 								background: #f5f5f5;
 								border: 1px solid #e5e5e5;
@@ -437,7 +428,7 @@ background: #fff;
 							}
 						}
 
-						&.twitter, &.facebook, &.google, &.youtube {
+						&.twitter, &.facebook, &.google, &.youtube, &.sms {
 							.post-core-content {
 								h5 {
 									padding-bottom: 2px;
@@ -453,7 +444,6 @@ background: #fff;
 						&.twitter, &.facebook {
 							.post-external {
 								padding-left: 50px;
-								min-height: 42px;
 								.post-external-avatar {
 									width: 42px;
 									height: 42px;
@@ -551,10 +541,10 @@ background: #fff;
 							}
 						}
 						&.wrapup {
-							background: #909090;
+							background: #e8e8e8;
 							border: 0;
 							margin: 0;
-							padding:5px 20px 10px 20px;
+							padding:5px 20px;
 							.post-header, .post-content-side, .post-footer {
 								display: none;
 							}
@@ -574,7 +564,7 @@ background: #fff;
 										}
 										.post-text {
 											font-weight: bold;
-											color: #fff;
+											color: #262626;
 											padding-left: 40px;
 										}
 									}
@@ -582,7 +572,7 @@ background: #fff;
 							}
 							&.wrapup-open {
 								.big-toggle {
-									background: url(img/big-toggle.png) no-repeat 0 -26px !important;
+									background: url(img/big-toggle.png) no-repeat 0 -21px !important;
 								}
 							}
 						}
@@ -604,7 +594,7 @@ background: #fff;
 							.post-publisher-avatar {
 								background: url(img/comment-icon.png) no-repeat 0 0;
 								border-color: @lb-background; 
-								img {
+								.post-publisher-avatar-img {
 									display: none;
 								}
 							}
@@ -624,11 +614,12 @@ background: #fff;
 								font-size: 1em;
 								padding-bottom: 2px;
 								a {
-									font-size: 0.92em;
+									font-size: 0.875em;
+									color:#222;
 								}
 							}
 							.result-text {
-								font-size: 0.92em;
+								font-size: 0.875em;
 							}
 							.attributes {
 								a {
@@ -637,7 +628,6 @@ background: #fff;
 									line-height: 16px;
 									height: 16px;
 									vertical-align: top;
-									color:#000;
 								}
 							}
 						}
@@ -650,14 +640,14 @@ background: #fff;
 								width: 180px;
 								height: 35px;
 								line-height: 35px;
-								background: #95915c;
+								background: #969696;
 								color: #fff !important;
 								display: inline-block;
 								font-weight: bold;
 								font-size: 0.875em;
 								vertical-align: top;
 								&:hover {
-									background: #aba773;
+									background: #787878;
 									cursor: pointer;
 								}
 							}
@@ -730,7 +720,6 @@ background: #fff;
 
 		.comment-box , 
 		.comment-box-message {
-			display: none;
 		    position: absolute;
 		    top: 40px;
 		    right: 25px;
@@ -763,8 +752,9 @@ background: #fff;
 			    color: #4d4d4d;
 			    font-family: Arial, Helvetica, sans-serif;
 			    margin-bottom: 20px;
+			    border: 1px solid #aaa;
 			    &:focus {
-			    	border-color: 1px solid #95915c;
+			    	border: 1px solid #787878;
 		    		outline: none;
 			    }
 		    }
@@ -794,9 +784,9 @@ background: #fff;
 			    }
 			    &.send {
 			    	right: 20px;
-		    		background-color: #95915c;
+		    		background-color: #4f4f4f;
 		    		&:hover {
-		    			background-color: #a09c69;
+		    			background-color: #5f5f5f;
 		    		}
 			    }
 			}
@@ -822,13 +812,92 @@ background: #fff;
 
 	}
 
+
+	/* quirks mode fixies 
+
+		maxheight won't work, instead, height param is used
+	*/
+	&.quirks {
+		width: auto;
+		.liveblog-container {
+			.liveblog-content {
+				.liveblog-content-middle {
+					height: @postlist-maxheight;  
+
+					.liveblog-postlist {
+						li {
+							.post-buttons {
+								margin-right: 20px;
+								display: block !important;
+							}
+							.post-content-side {
+								margin-top: 15px;
+							}
+
+							.post-external {
+								position: relative;
+							}
+							.post-external-avatar-img {
+								display: block;
+								width: 42px;
+								height: 42px;
+								position: absolute;
+								left:-50px;
+								top: 0px;
+							}
+
+							&.instagram, &.flickr, &.googleimage {
+								.post-external-image-link {
+									max-width: 100%;
+									.post-external-image-img {
+										max-width: 100%;
+										margin-bottom: 5px;
+										display: block;
+										width: 100%;
+									}
+								}
+							}
+							&.wrapup {
+								.post-core-content {
+									position: relative;
+									.big-toggle {
+										float: none !important;
+										position: absolute;
+										top:0;
+										left:0;
+									}
+									.post-text {
+										margin-top: -15px;
+									}
+								}
+							}
+
+							&.youtube {
+								.post-external {
+									.post-frame-container {
+										iframe {
+											padding-top: 0px;
+											padding-bottom: 60.25%;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
 	&.mobile {
 		background: none;
 		.liveblog-container {
 			.liveblog-content {
 				.liveblog-content-middle {
 					margin: 0 7px;
-					height: auto;  
+					height: @postlist-maxheight;  
 
 					.liveblog-postlist {
 						li {
@@ -844,8 +913,6 @@ background: #fff;
 								line-height: 100%;
 								display: block;
 								padding: 2px 0 6px;
-								font-weight: bold;
-								margin: 0;
 							}
 
 							.post-datetime {
@@ -857,19 +924,21 @@ background: #fff;
 							}
 							@publisher-avatar-width-mobile : 32px;
 							.post-publisher-avatar {
+								display: none;
 								float: left;
-								margin-right: 10px;
-								background-size: @publisher-avatar-width-mobile;
+								margin-right: 6px;
+
 								width: @publisher-avatar-width-mobile;
 								max-width: @publisher-avatar-width-mobile;
 								min-height: @publisher-avatar-width-mobile;
 								max-height: none;
 								padding: 1px;
 								border: 1px solid #e8e8e8;
-								img {
+								.post-publisher-avatar-img {
 									width: @publisher-avatar-width-mobile;
-									max-width: @publisher-avatar-width-mobile;
-									height: auto;
+									height: @publisher-avatar-width-mobile;
+									background-size: cover !important;
+									display: block;
 								}
 							}
 
@@ -890,24 +959,15 @@ background: #fff;
 
 							.post-buttons {
 								display: block;
-								right:15px;
+								left:10px;
+								right: auto;
 								top:5px;
-								.permalink {
-
-								}
 								.sf-share {
-									margin-right: 20px;
-								}
-								.share-box {
-									top: -55px;
-								}
-								input {
-									top: -37px;
+
 								}
 							}
 
 							.post-content {
-								margin: 0 !important;
 								padding: 10px;
 
 								.post-content-main {
@@ -967,7 +1027,7 @@ background: #fff;
 							}
 							&.usercomments {
 								.post-publisher-avatar {
-									background-size: 32px 32px;
+									background-size: 32px 32px !important;
 								}
 							}
 							&.soundcloud {
@@ -982,95 +1042,7 @@ background: #fff;
 				}
 			}
 		}
-		.comment-box {
-			left: 5px;
-			right: 5px;
-			.content {
-				padding: 5px 5px 60px 5px;
-				width: auto;
-			}
-			#recaptcha_area{
-				overflow: hidden;
-			}
-		}
 	}
-
-	/* quirks mode fixies 
-
-		maxheight won't work, instead, height param is used
-	*/
-	&.quirks {
-		width: auto;
-		.liveblog-container {
-			.liveblog-content {
-				.liveblog-content-middle {
-					height: @postlist-maxheight;  
-
-					.liveblog-postlist {
-						li {
-							.post-buttons {
-								margin-right: 20px;
-								display: block !important;
-							}
-
-							.post-external {
-								position: relative;
-							}
-							.post-external-avatar-img {
-								display: block;
-								width: 42px;
-								height: 42px;
-								position: absolute;
-								top: 0px;
-							}
-
-							&.instagram, &.flickr, &.googleimage {
-								.post-external-image-link {
-									max-width: 100%;
-									.post-external-image-img {
-										max-width: 100%;
-										margin-bottom: 5px;
-										display: block;
-										width: 100%;
-									}
-								}
-							}
-							&.wrapup {
-								.post-core-content {
-									position: relative;
-									.big-toggle {
-										float: none !important;
-										position: absolute;
-										top:0;
-										left:0;
-									}
-									.post-text {
-										margin-top: -15px;
-									}
-								}
-							}
-
-							&.youtube {
-								.post-external {
-									.post-frame-container {
-										iframe {
-											padding-top: 0px;
-											padding-bottom: 60.25%;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		.comment-backdrop {
-			background: #212121;
-		}
-	}
-
 }
 
 
