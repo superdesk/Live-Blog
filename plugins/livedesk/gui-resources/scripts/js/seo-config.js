@@ -33,7 +33,6 @@ define([
                     success(function(data, status, headers, config) {
                     	var SeoList = data.SeoList;
                     	if ( SeoList.length ) {
-                    		console.log('have config');
                     		//pick the first one for now
                     		varSeoConfigItemLink = SeoList[0].href;
                     		$http({method: 'GET', url: varSeoConfigItemLink}).
@@ -41,7 +40,6 @@ define([
 		                    	deffered.resolve(data);
 		                    });
                     	} else {
-                    		console.log('no config ');
                     		deffered.resolve({Id: 0});
                     	}
                         
@@ -82,7 +80,7 @@ define([
 	            seoInterfaceData.getThemes(getGizmoUrl('my/LiveDesk/BlogTheme?X-Filter=Name,Id')).then(function(data) {
 	            	$scope.availableThemes = data;
 	            });
-	            seoInterfaceData.getSeoConfig(getGizmoUrl('LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
+	            seoInterfaceData.getSeoConfig(getGizmoUrl('my/LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
 	            	if ( data.Id == 0 ) {
 	            		$scope.Id = 0;
 	            		$scope.SeoTheme = "1";
