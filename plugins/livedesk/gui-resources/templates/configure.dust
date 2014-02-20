@@ -7,36 +7,44 @@
 	<div class="row-fluid">
 		<div class="span8">
 			<form class="form-horizontal form-large" style="margin-bottom: 50px;">
-			<fieldset ng-controller="seoInterface">
+			<fieldset ng-controller="seoInterface" ng-init="init({BlogId})" name="seoAngular">
+				<input type="hidden" ng-model="Id" name="Id">
+				<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
         		<legend>SEO</legend>
         		<div class="control-group">
-					<label class="control-label">_('Active');</label>
+					<label class="control-label">_('Refresh Active');</label>
 					<div class="controls seoactive">
-						<input type="checkbox" name="SeoActive" value="on" class="sf-toggle on-off">
+						<seo-toggler toggle="RefreshActiv" true-value="True" false-value="False"></seo-toggler>
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">_('Rebuild period');</label>
+					<label class="control-label">_('Refresh Interval');</label>
 					<div class="controls seorebuild">
-						<input type="text" name="SeoRebuild" value="" size="4" ng-model="chains"/> _('*seconds');
+						<input type="text" name="RefreshInterval" value="" size="4" ng-model="RefreshInterval"/>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">_('Embed Theme');</label>
 					<div class="controls themez">
-						<select name="SeoThemes" ng-model="seoTheme" ng-options="t.Name as t.Name for t in availableThemes"></select>
+						<select name="SeoTheme" ng-model="SeoTheme" ng-options="t.Id as t.Name for t in availableThemes"></select>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">_('Callback URL');</label>
 					<div class="controls seocallbackurl">
-						<input type="text" name="SeoCallbackUrl" value=""/>
+						<input type="text" name="CallbackURL" ng-model="CallbackURL"/>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">_('Callback Active');</label>
 					<div class="controls seocallbackactive">
-						<input type="checkbox" name="SeoCallbackActive" value="on" class="sf-toggle on-off">
+						<seo-toggler toggle="CallbackActiv" true-value="True" false-value="False"></seo-toggler>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">_('Save');</label>
+					<div class="controls">
+						<input type="button" ng-click="save()" value="_('Save');" id="saveSeoConfig"/>
 					</div>
 				</div>
 			</fieldset>

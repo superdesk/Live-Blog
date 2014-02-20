@@ -78,6 +78,10 @@
                 mediaUrl = "//" + mediaUrl;
             }
 
+            //trigger save for seoconfig
+            var angScope = angular.element($('[name="seoAngular"]')).scope();
+            angScope.save();
+
             var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
                     'FrontendServer': self.el.find('[name="FrontendServer"]').val(),
@@ -189,6 +193,9 @@
                 // TODO: move this in emebed view or in theme view
                 self.el.find('#emebed-script').focus(function() { $(this).select(); } );
 
+                angular.bootstrap(document, ['seoConf']);
+                var angScope = angular.element($('[name="seoAngular"]')).scope();
+
                 /* sf-toggle*/
                 self.el.find('.sf-toggle').each(function(i,val){
                     var additional_class="";
@@ -199,7 +206,7 @@
                     $(val).hide();
 
                     $(val).parent().parent().on("click", function(e){
-                        e.preventDefault();
+                        e.preventDefault();                        
                         if (!$(e.target).hasClass("sf-disable")) {
                             var correctTarget = $(e.target);
                             if ( $(e.target).hasClass("sf-toggle-custom-inner") ) {
@@ -214,7 +221,6 @@
                 });
 
             });
-            angular.bootstrap(document, ['seoConf']);
             $.superdesk.hideLoader();
         }
     });
