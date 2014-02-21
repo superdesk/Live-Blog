@@ -15,8 +15,8 @@ import logging
 from ally.api.extension import IterPart
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.api.blog_post import BlogPost
 from livedesk.api.blog_seo import IBlogSeoService, QBlogSeo
+from livedesk.meta.blog_post import BlogPostMapped
 from livedesk.meta.blog_seo import BlogSeoMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.sql.expression import or_
@@ -60,11 +60,11 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         '''
         @see IBlogSeoService.checkChanges
         '''  
-        sql = self.session().query(BlogPost)
-        sql = sql.filter(BlogPost.Blog == blogSeoId)
-        sql = sql.filter(BlogPost.CId > lastCId)
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.filter(BlogPostMapped.Blog == blogSeoId)
+        sql = sql.filter(BlogPostMapped.CId > lastCId)
         
-        return sql.count() > 0       
+        return sql.first() != None       
         
     def checkTimeout(self, blogSeoId, timeout):
         '''
