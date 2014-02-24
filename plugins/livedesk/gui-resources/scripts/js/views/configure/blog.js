@@ -1,6 +1,8 @@
  define([
     'jquery', 
     'gizmo/superdesk',
+    'angular',
+    config.guiJs('livedesk', 'seo-config'),
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
     config.guiJs('livedesk', 'views/configure/themes'),
@@ -16,7 +18,7 @@
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
-], function( $, Gizmo, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+], function( $, Gizmo, angular, SeoConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
    var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
@@ -75,6 +77,10 @@
             if ( mediaUrl.indexOf("http://") != 0 && mediaUrl.indexOf("https://") != 0 && mediaUrl.indexOf("//") != 0 ) {
                 mediaUrl = "//" + mediaUrl;
             }
+
+            //trigger save for seoconfig
+            var angScope = angular.element($('[name="seoAngular"]')).scope();
+            angScope.save();
 
             var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),
@@ -187,6 +193,9 @@
                 // TODO: move this in emebed view or in theme view
                 self.el.find('#emebed-script').focus(function() { $(this).select(); } );
 
+                angular.bootstrap(document, ['seoConf']);
+                var angScope = angular.element($('[name="seoAngular"]')).scope();
+
                 /* sf-toggle*/
                 self.el.find('.sf-toggle').each(function(i,val){
                     var additional_class="";
@@ -197,7 +206,7 @@
                     $(val).hide();
 
                     $(val).parent().parent().on("click", function(e){
-                        e.preventDefault();
+                        e.preventDefault();                        
                         if (!$(e.target).hasClass("sf-disable")) {
                             var correctTarget = $(e.target);
                             if ( $(e.target).hasClass("sf-toggle-custom-inner") ) {

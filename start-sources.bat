@@ -64,7 +64,7 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%frontline
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%frontline-inlet
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-verification
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%general-setting
-
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%livedesk-seo
 
 IF NOT EXIST distribution\application.properties python distribution\application.py -dump
 
