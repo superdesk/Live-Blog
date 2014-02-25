@@ -84,16 +84,16 @@ define([
 	            	if ( data.Id == 0 ) {
 	            		$scope.Id = 0;
 	            		$scope.SeoTheme = "1";
-	            		$scope.CallbackActiv = 'False';
-	            		$scope.RefreshActiv = 'False';
+	            		$scope.CallbackActive = 'False';
+	            		$scope.RefreshActive = 'False';
 	            		$scope.CallbackURL = '';
 	            		$scope.RefreshInterval = 60;
 	            	} else {
 	            		$scope.Id = data.Id;
 		            	$scope.SeoTheme = data.BlogTheme.Id;
-		            	$scope.CallbackActiv = data.CallbackActiv;
+		            	$scope.CallbackActive = data.CallbackActive;
 		            	$scope.CallbackURL = data.CallbackURL;
-		            	$scope.RefreshActiv = data.RefreshActiv;
+		            	$scope.RefreshActive = data.RefreshActive;
 		            	$scope.RefreshInterval = data.RefreshInterval;
 	            	}
 	            	for ( var i = 0; i < $scope.boxCounter; i++ ) {
@@ -104,9 +104,9 @@ define([
             $scope.save = function() {
             	var data = {
             		BlogTheme: $scope.SeoTheme.toString(),
-	            	CallbackActiv: $scope.CallbackActiv,
+	            	CallbackActive: $scope.CallbackActive,
 	            	CallbackURL: $scope.CallbackURL,
-	            	RefreshActiv: $scope.RefreshActiv,
+	            	RefreshActive: $scope.RefreshActive,
 	            	RefreshInterval: $scope.RefreshInterval.toString()	
             	}
             	if ( $scope.Id == 0 ) {
