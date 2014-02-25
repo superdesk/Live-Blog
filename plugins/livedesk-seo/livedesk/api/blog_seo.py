@@ -14,7 +14,8 @@ from livedesk.api.blog import Blog
 from datetime import datetime
 from livedesk.api.domain_livedesk import modelLiveDesk
 from ally.api.config import query, service, call, UPDATE
-from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean
+from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean,\
+    AsLikeOrdered
 from livedesk.api.blog_theme import BlogTheme
 from ally.api.type import Iter
 
@@ -27,13 +28,14 @@ class BlogSeo(Entity):
     '''
     Blog = Blog
     BlogTheme = BlogTheme
-    RefreshActiv = bool
+    RefreshActive = bool
     RefreshInterval = int
-    CallbackActiv = bool
+    MaxPosts = int
+    CallbackActive = bool
     CallbackURL = str
+    NextSync = datetime
     LastCId = int
     LastSync = datetime
-    NextSync = datetime
     LastBlocked = datetime
 
 # --------------------------------------------------------------------
@@ -43,12 +45,14 @@ class QBlogSeo(QEntity):
     '''
     Provides the query for BlogSeo.
     '''
-    refreshActiv = AsBoolean
+    refreshActive = AsBoolean
     refreshInterval = AsRangeOrdered
-    callbackActiv = AsBoolean
+    maxPosts = AsRangeOrdered
+    callbackActive = AsBoolean
+    callbackURL = AsLikeOrdered
+    nextSync = AsDateTimeOrdered
     lastCId = AsRangeOrdered
     lastSync = AsDateTimeOrdered
-    nextSync = AsDateTimeOrdered
     lastBlocked = AsDateTimeOrdered
     
 # --------------------------------------------------------------------

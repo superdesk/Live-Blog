@@ -9,10 +9,19 @@ Created on Feb 5, 2014
 Contains the services for livedesk SEO.
 '''
 
-#from ally.container import support
-#from livedesk.core.impl.seo_sync import SeoSyncProcess
+from ally.container import support, ioc
+from livedesk.core.impl.seo_sync import SeoSyncProcess
+from ally.cdm.spec import ICDM
+from __plugin__.cdm import contentDeliveryManager
 
 # --------------------------------------------------------------------
  
-#support.createEntitySetup(SeoSyncProcess)
+support.createEntitySetup(SeoSyncProcess)
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def htmlCDM() -> ICDM: return contentDeliveryManager()
+
+# --------------------------------------------------------------------
 

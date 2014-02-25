@@ -15,7 +15,7 @@ import logging
 from ally.api.extension import IterPart
 from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.api.blog_seo import IBlogSeoService, QBlogSeo
+from livedesk.api.blog_seo import IBlogSeoService, QBlogSeo, BlogSeo
 from livedesk.meta.blog_post import BlogPostMapped
 from livedesk.meta.blog_seo import BlogSeoMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
@@ -36,6 +36,22 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         Construct the blog seo service.
         '''
         EntityServiceAlchemy.__init__(self, BlogSeoMapped, QBlogSeo)
+        
+    
+    def insert(self, blogSeo):
+        '''
+        @see: IBlogSeo.insert
+        '''
+        
+        assert isinstance(blogSeo, BlogSeo), 'Invalid blog seo %s' % blogSeo
+    
+        if blogSeo.NextSync is None:
+            blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
+            
+        if blogSeo.LastCId is None:
+            blogSeo.LastCId = 0     
+        
+        return super().insert(blogSeo)
         
         
     def getAll(self, blogId=None, themeId=None, offset=None, limit=None, detailed=False, q=None):
@@ -60,6 +76,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         '''
         @see IBlogSeoService.checkChanges
         '''  
+        
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogSeoId)
         sql = sql.filter(BlogPostMapped.CId > lastCId)

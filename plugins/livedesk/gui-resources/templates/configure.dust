@@ -81,7 +81,7 @@
         		<div class="control-group">
 					<label class="control-label">_('Refresh Active');</label>
 					<div class="controls seoactive">
-						<seo-toggler toggle="RefreshActiv" true-value="True" false-value="False"></seo-toggler>
+						<seo-toggler toggle="RefreshActive" true-value="True" false-value="False"></seo-toggler>
 					</div>
 				</div>
 				<div class="control-group">
@@ -99,7 +99,7 @@
 				<div class="control-group">
 					<label class="control-label">_('Callback Active');</label>
 					<div class="controls seocallbackactive">
-						<seo-toggler toggle="CallbackActiv" true-value="True" false-value="False"></seo-toggler>
+						<seo-toggler toggle="CallbackActive" true-value="True" false-value="False"></seo-toggler>
 					</div>
 				</div>
 				<div class="control-group">
