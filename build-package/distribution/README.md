@@ -24,13 +24,19 @@ Installing Superdesk
 
         $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3-pip python-virtualenv
 
-1. Build and install python 3.2
+2. Add ubuntu PPA
+
+        $ sudo apt-add-repository ppa:fkrull/deadsnakes
+        $ sudo apt-get update
+        $ sudo apt-get install python3.2
+
+2. OR build and install python 3.2
 
         $ cd /tmp
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
+        $ ./configure --prefix=/opt/python32
         $ make && sudo make install
 
 ### Redhat/Centos/sles
@@ -43,28 +49,28 @@ Installing Superdesk
         # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
         # rpm --import https://fedoraproject.org/static/0608B895.txt
 
-1. Install necessary software:
+2. Install necessary software:
 
         # yum groupinstall "Development tools"
         # yum install exiv2 ffmpeg GraphicsMagick zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
 
-1. Build and install python 3.2
+3. Build and install python 3.2
 
         $ cd /tmp
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
+        $ ./configure --prefix=/opt/python32
         $ make && sudo make install
 
-1. Build and install distribute
+4. Build and install distribute
 
         $ cd /tmp
         $ wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.35.tar.gz --no-check-certificate
         $ tar xf distribute-0.6.35.tar.gz
         $ cd distribute-0.6.35
-        $ /opt/superdesk/python32/bin/python3.2 setup.py install
-        $ /opt/superdesk/python32/bin/easy_install-3.2 pip virtualenv
+        $ /opt/python32/bin/python3.2 setup.py install
+        $ /opt/python32/bin/easy_install-3.2 pip virtualenv
 
 ### Archlinux or Manjaro
 
@@ -80,24 +86,24 @@ Installing Superdesk
         $ sudo useradd superdesk -b /opt -m
         $ sudo su superdesk
 
-1. Change to `/opt/superdesk` and unzip `liveblog.zip`
+2. Change to `/opt/superdesk` and unzip `liveblog.zip`
 
         $ cd /opt/superdesk/
         $ unzip liveblog.zip
 
-1. Create a python virtual environment using one of the following methods:
+3. Create a python virtual environment using one of the following methods:
 
     If your distro has python 3.2:
 
         $ virtualenv -p python3.2 env
 
-    If you installed Python 3.2 manually in the ``superdesk`` folder:
+    If you installed Python 3.2 manually in the ``opt`` folder:
 
-        $ virtualenv -p /opt/superdesk/python32/bin/python3.2 env
+        $ virtualenv -p /opt/python32/bin/python3.2 env
 
-    If you installed `virtualenv` manually in the `superdesk` folder:
+    If you installed `virtualenv` manually in the `opt` folder:
  
-        $ ./python32/bin/virtualenv-3.2 -p /opt/superdesk/python32/bin/python3.2 env 
+        $ ../python32/bin/virtualenv-3.2 -p /opt/python32/bin/python3.2 env 
              
 
 4. Activate the python virtual environment and install the requirements
@@ -113,7 +119,7 @@ Installing Superdesk
         $ python application.py -dump
         $ cp -f plugins-linux.properties plugins.properties
 
-1. Edit the configuration file and change the IP address
+2. Edit the configuration file and change the IP address
 
 
 ## Running Superdesk
