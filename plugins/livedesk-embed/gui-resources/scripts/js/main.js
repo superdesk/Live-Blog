@@ -1,4 +1,4 @@
-requirejs.config({
+require.config({
 	paths: 	{
 		'themeBase': '../../themes/base',
 		
@@ -57,7 +57,7 @@ require(['core.min'], function(){
 				 */
 				liveblog.language = liveblog.language? liveblog.language: blog.get('Language').Code;
 				liveblog.theme 	 = liveblog.theme? liveblog.theme: embedConfig.theme;
-				requirejs.config({
+				require.config({
 					paths: 	{
 						'themeFile': '../../themes/' + liveblog.theme + min,
 						'theme': '../../themes/' + liveblog.theme
@@ -77,9 +77,9 @@ require(['core.min'], function(){
 						} else {
 
 						}
-						requirejs.undef('theme');
-						requirejs.undef('themeFile');
-						requirejs.config({
+						require.undef('theme');
+						require.undef('themeFile');
+						require.config({
 							paths: 	{
 								'themeFile': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment + min,
 								'theme': '../../themes/'+liveblog.theme + '/' + liveblog.enviroment
