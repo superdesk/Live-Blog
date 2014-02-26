@@ -1,4 +1,4 @@
-requirejs.config({
+require.config({
 	baseUrl: livedesk.FrontendServer+'/content/lib/',
 	paths: 	{
 		'livedesk-embed': 'livedesk-embed/scripts/js/',

@@ -1,4 +1,4 @@
-requirejs.config({
+require.config({
     paths: { "twitterWidgets": "//platform.twitter.com/widgets" },
     shim: {
       'twitterWidgets':  { 'exports': 'twttr' }
