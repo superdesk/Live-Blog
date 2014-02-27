@@ -35,6 +35,8 @@ class BlogSeoMapped(Base, BlogSeo):
     CallbackURL = Column('callback_url', String(512), nullable=True)
     NextSync = Column('next_sync', DateTime)
     LastCId = Column('last_cid', INTEGER(unsigned=True))
+    HtmlURL = Column('html_url', String(512), nullable=True)
     LastSync = Column('last_sync', DateTime)
+    CallbackStatus = Column('callback_status', String(512), nullable=True)
     LastBlocked = Column('last_blocked', DateTime)
     
