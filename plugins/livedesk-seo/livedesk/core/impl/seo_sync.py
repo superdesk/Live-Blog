@@ -135,13 +135,15 @@ class SeoSyncProcess:
         '''
         assert isinstance(blogSeo, BlogSeo), 'Invalid blog seo %s' % blogSeo
         
+        self.blogSeoService.getLastCId(blogSeo)
         blog = self.blogService.getBlog(blogSeo.Blog)
         theme = self.blogThemeService.getById(blogSeo.BlogTheme)
-        
+                   
         (scheme, netloc, path, params, query, fragment) = urlparse(self.html_generation_server)
 
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('blogId', blogSeo.Blog))
+        q.append(('cId', blogSeo.LastCId))
         q.append(('theme', theme.Name))
         if blogSeo.MaxPosts is not None:
             q.append(('maxPosts', blogSeo.MaxPosts))
@@ -173,26 +175,36 @@ class SeoSyncProcess:
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
             return
+        
+        blogSeo.HtmlURL = self.htmlCDM.getURI(path)
 
         if blogSeo.CallbackActive:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
+            
+            if not scheme: scheme = 'http'
+            if not netloc: 
+                netloc = path
+                path = ''
     
             q = parse_qsl(query, keep_blank_values=True)
             q.append(('blogId', blogSeo.Blog))
             q.append(('blogTitle', blog.Title))
             q.append(('theme', theme.Name))
-            #TODO: add the url to the generated file
+            q.append(('htmlFile', self.htmlCDM.getURI(path)))
                 
             url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
             req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                         'User-Agent' : 'Magic Browser'})
             
             try: resp = urlopen(req)
-            except (HTTPError, socket.error) as e:
+            except Exception as e:
                 log.error('Read error on %s: %s' % (blogSeo.CallbackURL, e))
+                blogSeo.CallbackStatus = 'Error opening URL:' + url  
             else: 
                 if str(resp.status) != '200':
                     log.error('Read problem on %s, status: %s' % (blogSeo.CallbackURL, resp.status))
+                    blogSeo.CallbackStatus = resp.status
+                else: blogSeo.CallbackStatus = 'OK'    
         
         blogSeo.LastSync = datetime.datetime.now().replace(microsecond=0) 
         blogSeo.LastBlocked = None 

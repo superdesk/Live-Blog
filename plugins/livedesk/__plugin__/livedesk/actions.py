@@ -200,6 +200,8 @@ def registerAclLivedeskUpdate():
           ref(IBlogPostService).delete, filter=filterClosedBlog())
     r.add(ref(IBlogPostService).update)
     r.add(ref(IPostVerificationService).update)
+    r.add(ref(IBlogSeoService).insert, ref(IBlogSeoService).update)
+    
 
 # --------------------------------------------------------------------
 

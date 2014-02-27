@@ -13,7 +13,7 @@ from ally.support.api.entity import Entity, IEntityService, QEntity
 from livedesk.api.blog import Blog
 from datetime import datetime
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.api.config import query, service, call, UPDATE
+from ally.api.config import query, service, call, UPDATE, GET
 from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered, AsBoolean,\
     AsLikeOrdered
 from livedesk.api.blog_theme import BlogTheme
@@ -35,7 +35,9 @@ class BlogSeo(Entity):
     CallbackURL = str
     NextSync = datetime
     LastCId = int
+    HtmlURL = str
     LastSync = datetime
+    CallbackStatus = str
     LastBlocked = datetime
 
 # --------------------------------------------------------------------
@@ -52,7 +54,9 @@ class QBlogSeo(QEntity):
     callbackURL = AsLikeOrdered
     nextSync = AsDateTimeOrdered
     lastCId = AsRangeOrdered
+    htmlURL = AsLikeOrdered
     lastSync = AsDateTimeOrdered
+    callbackStatus = AsLikeOrdered
     lastBlocked = AsDateTimeOrdered
     
 # --------------------------------------------------------------------
@@ -62,14 +66,17 @@ class IBlogSeoService(IEntityService):
     '''
     Provides the service methods for the blog seo.
     '''  
-    
+    @call(webName="lastCId", method=GET)
+    def getLastCId(self, blogSeo:BlogSeo) -> BlogSeo:
+        '''
+        Get the value for the lastCId 
+        ''' 
     @call
     def getAll(self, blogId:Blog.Id=None, themeId:BlogTheme.Id=None, offset:int=None, limit:int=None,
                detailed:bool=True, q:QBlogSeo=None) -> Iter(BlogSeo):
         '''
         Provides the list of all blog seo.
-        '''
-            
+        '''   
     @call(webName="existsChanges", method=UPDATE)
     def existsChanges(self, blogSeoId:BlogSeo.Id, lastCid:BlogSeo.LastCId) -> bool:
         '''
@@ -84,4 +91,4 @@ class IBlogSeoService(IEntityService):
     def updateNextSync(self, blogSeoId:BlogSeo.Id, crtTime:datetime):
         '''
         Calculate the next sync datetime for already expired sync 
-        '''                       
+        '''                            

@@ -19,7 +19,7 @@ from livedesk.api.blog_seo import IBlogSeoService, QBlogSeo, BlogSeo
 from livedesk.meta.blog_post import BlogPostMapped
 from livedesk.meta.blog_seo import BlogSeoMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from sqlalchemy.sql.expression import or_
+from sqlalchemy.sql.expression import or_, func
 
 
 # --------------------------------------------------------------------
@@ -52,7 +52,33 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.LastCId = 0     
         
         return super().insert(blogSeo)
+    
         
+    def update(self, blogSeo):
+        '''
+        @see: IBlogSeo.update
+        '''
+       
+        assert isinstance(blogSeo, BlogSeo), 'Invalid blog seo %s' % blogSeo
+    
+        if blogSeo.LastCId is None:
+            blogSeo.LastCId = 0  
+            blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
+            
+        if not blogSeo.CallbackActive:
+            blogSeo.CallbackStatus = '' 
+        
+        return super().update(blogSeo)    
+    
+    
+    def getLastCId(self, blogSeo):
+        '''
+        @see IBlogSeoService.getLastCId
+        '''   
+        sql = self.session().query(func.max(BlogPostMapped.CId).label("LastCId"))
+        sql = sql.filter(BlogSeoMapped.Id == blogSeo.Id)
+        blogSeo.LastCId = sql.one()[0]
+        return blogSeo
         
     def getAll(self, blogId=None, themeId=None, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -108,7 +134,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         sql.update({BlogSeoMapped.NextSync : nextSync}) 
         self.session().commit()       
 
-    
+
 
     
  
