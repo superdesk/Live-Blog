@@ -207,7 +207,8 @@
 	min-height: 0;
 	overflow-x: hidden !important;
 	overflow-y: auto;
-	width: 540px;
+	width: auto;
+	max-width: 540px;
 }
 
 /* POST */
