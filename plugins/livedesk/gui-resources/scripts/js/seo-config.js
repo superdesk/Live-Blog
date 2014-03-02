@@ -81,6 +81,7 @@ define([
 	            	$scope.availableThemes = data;
 	            });
 	            seoInterfaceData.getSeoConfig(getGizmoUrl('my/LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
+					
 	            	if ( data.Id == 0 ) {
 	            		$scope.Id = 0;
 	            		$scope.SeoTheme = "1";
@@ -88,6 +89,9 @@ define([
 	            		$scope.RefreshActive = 'False';
 	            		$scope.CallbackURL = '';
 	            		$scope.RefreshInterval = 60;
+	            		$scope.MaxPosts = 10;
+	            		$scope.HtmlURL = '';
+	            		$scope.LastSynk = 0;
 	            	} else {
 	            		$scope.Id = data.Id;
 		            	$scope.SeoTheme = data.BlogTheme.Id;
@@ -95,10 +99,47 @@ define([
 		            	$scope.CallbackURL = data.CallbackURL;
 		            	$scope.RefreshActive = data.RefreshActive;
 		            	$scope.RefreshInterval = data.RefreshInterval;
+		            	$scope.MaxPosts = data.MaxPosts;
+		            	$scope.HtmlURL = data.HtmlURL;
+		            	$scope.LastSynk = data.LastSynk;
 	            	}
+
 	            	for ( var i = 0; i < $scope.boxCounter; i++ ) {
 	            		$scope.updateCheckbox[i]();
 	            	}
+
+	            	//testing data to be removed after real tests
+	            	data.HtmlURL = "http://yahoo.com";
+	            	data.CallbackStatus = '200';
+	            	data.LastSynk = "October 13, 1975 11:13:00";
+
+	            	//on-off switches for data that may or may not be present
+	            	$scope.HtmlURLSwitch = false;
+	            	$scope.CallbackStatusSwitch = false;
+
+	            	//vars to keep the text info
+	            	$scope.HtmlURLText = '';
+	            	$scope.CallbackStatusText = '';
+
+	 				//general info on the html created
+	            	if ( data.HtmlURL ) {
+	            		$scope.HtmlURLSwitch = true;
+	            		$scope.HtmlURL = data.HtmlURL;
+	            		$scope.HtmlURLText =  _('SEO html');
+	            		//add timeinfo to text if it exists
+	            		if ( data.LastSynk ) {
+	            			var lastSynk = new Date( data.LastSynk );
+	            			$scope.HtmlURLText += _(' generated on ');
+	            			$scope.HtmlURLText += lastSynk.format('yyyy-mm-dd HH:MM:ss');
+	            		}
+	            	}
+	            	$scope.HtmlURLText = $scope.HtmlURLText.toString();
+	            	//info on callback status if it exists
+	            	if ( data.CallbackStatus ) {
+	            		$scope.CallbackStatusSwitch = true;
+	            		$scope.CallbackStatusText = _('Callback URL responded with ');
+	            		$scope.CallbackStatusText += data.CallbackStatus;
+	            	}	            	
 	            });
             };
             $scope.save = function() {
@@ -107,7 +148,8 @@ define([
 	            	CallbackActive: $scope.CallbackActive,
 	            	CallbackURL: $scope.CallbackURL,
 	            	RefreshActive: $scope.RefreshActive,
-	            	RefreshInterval: $scope.RefreshInterval.toString()	
+	            	RefreshInterval: $scope.RefreshInterval.toString(),
+	            	MaxPosts: $scope.MaxPosts.toString()	
             	}
             	if ( $scope.Id == 0 ) {
             		//new request
