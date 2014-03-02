@@ -14,6 +14,7 @@ define([
 		seoconf.config(function($httpProvider){
 			delete $httpProvider.defaults.headers.common['X-Requested-With'];
 			$httpProvider.defaults.headers.get = { 'Authorization': localStorage.getItem('superdesk.login.session') }
+			$httpProvider.defaults.headers.post = { 'Authorization': localStorage.getItem('superdesk.login.session') }
 		});
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
@@ -48,7 +49,7 @@ define([
 				},
 				newConfig: function(url, data) {
 					var deffered = $q.defer();
-                    $http({method: 'POST', url: url, data: data}).
+                    $http({method: 'POST', url: url, data: data, headers: {'Content-Type': 'text/json'}}).
                     success(function(data, status, headers, config) {
                     	$http({method: 'GET', url: data.href}).
 	                    success(function(data, status, headers, config) {
@@ -109,9 +110,9 @@ define([
 	            	}
 
 	            	//testing data to be removed after real tests
-	            	data.HtmlURL = "http://yahoo.com";
-	            	data.CallbackStatus = '200';
-	            	data.LastSynk = "October 13, 1975 11:13:00";
+	            	//data.HtmlURL = "http://yahoo.com";
+	            	//data.CallbackStatus = '200';
+	            	//data.LastSynk = "October 13, 1975 11:13:00";
 
 	            	//on-off switches for data that may or may not be present
 	            	$scope.HtmlURLSwitch = false;
@@ -154,7 +155,7 @@ define([
             	if ( $scope.Id == 0 ) {
             		//new request
             		data.Blog = $scope.BlogId.toString();
-            		seoInterfaceData.newConfig(getGizmoUrl('LiveDesk/Seo'), data).then(function(data) {
+            		seoInterfaceData.newConfig(getGizmoUrl('my/LiveDesk/Seo'), data).then(function(data) {
             			//set the seo object scope id to the newly created one
             			$scope.Id = data.Id;
             		});
