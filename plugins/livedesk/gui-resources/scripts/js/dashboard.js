@@ -272,7 +272,9 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
                 Action.get('modules.livedesk.add')
                     .done(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', ''); })
                     .fail(function(){ $('#welcome-screen-create-liveblog', self.el).css('display', 'none'); });
-                
+
+                //stop infinite loader
+                $.superdesk.hideLoader();
             });
            
             
