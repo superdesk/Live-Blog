@@ -583,6 +583,12 @@
 	font-weight: normal;
 }
 
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.normal .post-core-content img {
+	height: auto !important;
+	width: auto;
+	max-width: 100%;
+}
+
 /* NICHT IM HTML 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-header
 {

@@ -342,7 +342,15 @@ background: #fff;
 						}
 
 						/* POST SPECIFIC STYLES */
-
+						&.normal {
+							.post-core-content {
+								img {
+									width: auto;
+									max-width: 100%;
+									height: auto !important;
+								}
+							}
+						}
 						&.twitter, &.facebook, &.google, &.link, &.instagram, &.flickr, &.youtube, &.soundcloud {
 							background: #f6f6f6;
 							.post-publisher-avatar {
