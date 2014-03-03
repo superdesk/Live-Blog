@@ -41,11 +41,11 @@ if __name__ == '__main__':
     warnings.filterwarnings('ignore', '.*already imported.*ally*')
     # To remove the warnings of pkg utils from setup tools
 
-    try: import application
+    try: import ally_start
     except ImportError:
         print('Corrupted or missing ally component, make sure that this component is not missing from python path '
               'or components eggs', file=sys.stderr)
         sys.exit(1)
-    deployTime = timeit.timeit(application.__deploy__, number=1)
+    deployTime = timeit.timeit(ally_start.__deploy__, number=1)
     print('=' * 50, 'Application deployed in %.2f seconds' % deployTime)
 

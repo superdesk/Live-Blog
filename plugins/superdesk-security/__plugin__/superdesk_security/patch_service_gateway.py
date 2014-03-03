@@ -35,4 +35,10 @@ else:
         '''
         The authenticated user base access root URI.
         '''
-        return '/'.join((root_uri_resources(), DOMAIN + nameForModel(Login), '%s', nameForModel(Gateway)))
+        uri = []
+        if root_uri_resources(): uri.append(root_uri_resources())
+        uri.append(DOMAIN.strip('/'))
+        uri.append(nameForModel(Login))
+        uri.append('%s')
+        uri.append(nameForModel(Gateway))
+        return '/'.join(uri)
