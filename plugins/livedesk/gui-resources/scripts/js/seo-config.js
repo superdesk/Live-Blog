@@ -109,11 +109,6 @@ define([
 	            		$scope.updateCheckbox[i]();
 	            	}
 
-	            	//testing data to be removed after real tests
-	            	//data.HtmlURL = "http://yahoo.com";
-	            	//data.CallbackStatus = '200';
-	            	//data.LastSynk = "October 13, 1975 11:13:00";
-
 	            	//on-off switches for data that may or may not be present
 	            	$scope.HtmlURLSwitch = false;
 	            	$scope.CallbackStatusSwitch = false;
@@ -122,7 +117,7 @@ define([
 	            	$scope.HtmlURLText = '';
 	            	$scope.CallbackStatusText = '';
 
-	 				//general info on the html created
+	            	//general info on the html created
 	            	if ( data.HtmlURL ) {
 	            		$scope.HtmlURLSwitch = true;
 	            		$scope.HtmlURL = data.HtmlURL;
