@@ -5,14 +5,14 @@ Created on Nov 29, 2013
 '''
 
 from ally.container import app
-from ..mongo_engine.db_application import database, mongo_database_url
+from ..mongo_engine.db_application import database, database_url
 from mongoengine.connection import connect, disconnect
 from content.resource.meta.mengine.item_text import ItemTextMapped
 from content.package.meta.mengine.item_package import ItemPackageMapped
 
 @app.deploy()
 def populate():
-    connect(database(), host=mongo_database_url())
+    connect(database(), host=database_url())
     ItemTextMapped.drop_collection()
     
     item1 = ItemTextMapped()
