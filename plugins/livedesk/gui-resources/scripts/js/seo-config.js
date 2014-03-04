@@ -14,6 +14,7 @@ define([
 		seoconf.config(function($httpProvider){
 			delete $httpProvider.defaults.headers.common['X-Requested-With'];
 			$httpProvider.defaults.headers.get = { 'Authorization': localStorage.getItem('superdesk.login.session') }
+			$httpProvider.defaults.headers.post = { 'Authorization': localStorage.getItem('superdesk.login.session') }
 		});
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
@@ -48,7 +49,7 @@ define([
 				},
 				newConfig: function(url, data) {
 					var deffered = $q.defer();
-                    $http({method: 'POST', url: url, data: data}).
+                    $http({method: 'POST', url: url, data: data, headers: {'Content-Type': 'text/json'}}).
                     success(function(data, status, headers, config) {
                     	$http({method: 'GET', url: data.href}).
 	                    success(function(data, status, headers, config) {
@@ -81,6 +82,7 @@ define([
 	            	$scope.availableThemes = data;
 	            });
 	            seoInterfaceData.getSeoConfig(getGizmoUrl('my/LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
+					
 	            	if ( data.Id == 0 ) {
 	            		$scope.Id = 0;
 	            		$scope.SeoTheme = "1";
@@ -88,6 +90,9 @@ define([
 	            		$scope.RefreshActive = 'False';
 	            		$scope.CallbackURL = '';
 	            		$scope.RefreshInterval = 60;
+	            		$scope.MaxPosts = 10;
+	            		$scope.HtmlURL = '';
+	            		$scope.LastSynk = 0;
 	            	} else {
 	            		$scope.Id = data.Id;
 		            	$scope.SeoTheme = data.BlogTheme.Id;
@@ -95,10 +100,42 @@ define([
 		            	$scope.CallbackURL = data.CallbackURL;
 		            	$scope.RefreshActive = data.RefreshActive;
 		            	$scope.RefreshInterval = data.RefreshInterval;
+		            	$scope.MaxPosts = data.MaxPosts;
+		            	$scope.HtmlURL = data.HtmlURL;
+		            	$scope.LastSynk = data.LastSynk;
 	            	}
+
 	            	for ( var i = 0; i < $scope.boxCounter; i++ ) {
 	            		$scope.updateCheckbox[i]();
 	            	}
+
+	            	//on-off switches for data that may or may not be present
+	            	$scope.HtmlURLSwitch = false;
+	            	$scope.CallbackStatusSwitch = false;
+
+	            	//vars to keep the text info
+	            	$scope.HtmlURLText = '';
+	            	$scope.CallbackStatusText = '';
+
+	            	//general info on the html created
+	            	if ( data.HtmlURL ) {
+	            		$scope.HtmlURLSwitch = true;
+	            		$scope.HtmlURL = data.HtmlURL;
+	            		$scope.HtmlURLText =  _('SEO html');
+	            		//add timeinfo to text if it exists
+	            		if ( data.LastSynk ) {
+	            			var lastSynk = new Date( data.LastSynk );
+	            			$scope.HtmlURLText += _(' generated on ');
+	            			$scope.HtmlURLText += lastSynk.format('yyyy-mm-dd HH:MM:ss');
+	            		}
+	            	}
+	            	$scope.HtmlURLText = $scope.HtmlURLText.toString();
+	            	//info on callback status if it exists
+	            	if ( data.CallbackStatus ) {
+	            		$scope.CallbackStatusSwitch = true;
+	            		$scope.CallbackStatusText = _('Callback URL responded with ');
+	            		$scope.CallbackStatusText += data.CallbackStatus;
+	            	}	            	
 	            });
             };
             $scope.save = function() {
@@ -107,12 +144,13 @@ define([
 	            	CallbackActive: $scope.CallbackActive,
 	            	CallbackURL: $scope.CallbackURL,
 	            	RefreshActive: $scope.RefreshActive,
-	            	RefreshInterval: $scope.RefreshInterval.toString()	
+	            	RefreshInterval: $scope.RefreshInterval.toString(),
+	            	MaxPosts: $scope.MaxPosts.toString()	
             	}
             	if ( $scope.Id == 0 ) {
             		//new request
             		data.Blog = $scope.BlogId.toString();
-            		seoInterfaceData.newConfig(getGizmoUrl('LiveDesk/Seo'), data).then(function(data) {
+            		seoInterfaceData.newConfig(getGizmoUrl('my/LiveDesk/Seo'), data).then(function(data) {
             			//set the seo object scope id to the newly created one
             			$scope.Id = data.Id;
             		});

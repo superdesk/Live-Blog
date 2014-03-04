@@ -11,14 +11,23 @@ define([
         /*!
          * plugin for texteditor
          */
+        singleUpload: undefined,
         texteditor: function() {
+            var self = this;
             var origImageCtrl = $.ui.texteditor.prototype.plugins.controls.image;
             var command = origImageCtrl.apply(this, arguments);
             $.tmpl('media-archive>texteditor-image-command', {}, function(e, output) {
                 $(command.dialog).prepend(output);
 
                 $('form#editoruploadform [type=button]', command.dialog).on('click', function() {
-                    var upload = new AdvancedUpload({thumbSize: 'medium'});
+                    //use just a single instance of AdvancedUpload per click
+                    if ( self.singleUpload == undefined ) {
+                        var upload = new AdvancedUpload({thumbSize: 'medium'});    
+                        self.singleUpload = upload;
+                    } else {
+                        var upload = self.singleUpload;
+                    }
+                    
                     upload.activate().then(function(data) {
                         $('body').css('cursor', 'auto');
 
