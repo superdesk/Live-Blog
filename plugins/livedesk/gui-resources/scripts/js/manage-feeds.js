@@ -39,7 +39,7 @@ define([
         var smsSourcesUrl = getGizmoUrl('my/Data/SourceType/smsblog/Source?blogId=' + blogId + '&X-Filter=*') ;
 
         var providersUrl = getGizmoUrl('my/Data/SourceType/' + PROVIDER_TYPE + '/Source') + '?X-Filter=Name,Id,URI';
-        var chainBlogUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
+        var chainBlogUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source');
   
 
         feeds.controller('chainedBlogs', function($scope, $http, chainedBlogsData, provider, smsData) {
@@ -78,8 +78,8 @@ define([
                     OriginURI: name,
                     URI: SMS_TYPE + '/' + name
                 };
-                var assignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source');
-                $http.post(assignUrl, newSource);
+                var assignUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source');
+                $http.post(assignUrl, newSource, {headers: {'Content-Type': 'text/json'}});
             };
 
             var unassign = function(sms) {
@@ -183,7 +183,7 @@ define([
 
                     if ( $scope.provider == -1 ) {
                         //new provider
-                        provider.addData(getGizmoUrl('Data/Source'), myData).then(function(data){
+                        provider.addData(getGizmoUrl('my/Data/Source'), myData).then(function(data){
                             provider.createProviderObject(data).then(function(data){
                                 $scope.chains.push(data);
                                 cleanEditForm();
