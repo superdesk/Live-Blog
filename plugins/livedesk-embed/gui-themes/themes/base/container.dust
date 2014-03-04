@@ -46,8 +46,8 @@
 				{+contentBottomContainer}
 				<div class="liveblog-content-bottom">
 					{+contentBottom}
-					{+actionUserComment}{/actionUserComment}
-					{+actionTotop}{/actionTotop}
+						{+actionUserComment}{/actionUserComment}
+						{+actionTotop}{/actionTotop}
 					{/contentBottom}
 				</div>
 				{/contentBottomContainer}
