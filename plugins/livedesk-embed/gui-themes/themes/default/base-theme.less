@@ -28,6 +28,7 @@ background: #f0f0f0;
 
 @lb-color 	: #08c;
 @lb-color2 	: #a8a8a8;
+@lb-color-link : #08c;
 
 @postlist-minheight : 0;	//default 0
 @postlist-maxheight : none;	//default none
@@ -38,6 +39,8 @@ background: #f0f0f0;
 /* POSTS STYLES */
 @text-size : 14; 			//14px
 @text-size-headings : 13; 	//13px
+
+@lb-lineheight : 130%;
 
 
 @post-padding:10px;
@@ -111,7 +114,7 @@ background: #f0f0f0;
 	}
 	a {
 		text-decoration: none;
-		color: #08c;
+		color: @lb-color-link;
 	}
 	figure, img {
 		margin: 0;
@@ -126,7 +129,7 @@ background: #f0f0f0;
 	margin: 10px 0;
 	background: @lb-background;
 	font-size: 100%;
-	line-height: 130%;
+	line-height: @lb-lineheight;
 	font-family: @lb-font;
 
 	.liveblog-container {
@@ -340,7 +343,7 @@ background: #f0f0f0;
 						}
 						.post-content-full {
 							font-size: @user-text-size;
-							line-height: 130%;							
+							line-height: @lb-lineheight;							
 						}
 
 						.post-publisher-avatar {
