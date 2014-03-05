@@ -536,15 +536,18 @@ define([
 					 * @TODO: remove this when source it will be put on the blog children.
 					 */
 					href = this.blog.get('Source').href;
-					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//,'my/Data/SourceType/chained%20blog/Source?blogId=$1');
+					//add 'my' in the href only if it does not exists already
+					var my = href.indexOf('/my/') != -1 ? '' : 'my/'
+					href = href.replace(/LiveDesk\/Blog\/(\d+)\/Source\//, my + 'Data/SourceType/chained%20blog/Source?blogId=$1');
 					self.sourceBlogs.setHref(href);
 					self.sourceBlogs
 						.on('read', this.render, this)
 						.xfilter('Name,Id,PostSourceUnpublished')
 						.sync();
 				}
-
-                autoSources.url = this.blog.get('Sync').href.replace('/resources', '/resources/my');
+			
+                autoSources.url = this.blog.get('Sync').href;
+				
                 var heads = autoSources.xfilter;
                 heads["Authorization"] = localStorage.getItem('superdesk.login.session');
                 autoSources.fetch({headers: autoSources.xfilter, reset: true});

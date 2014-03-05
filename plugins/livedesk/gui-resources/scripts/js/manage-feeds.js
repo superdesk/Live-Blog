@@ -79,7 +79,12 @@ define([
                     URI: SMS_TYPE + '/' + name
                 };
                 var assignUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source');
-                $http.post(assignUrl, newSource, {headers: {'Content-Type': 'text/json'}});
+                $http.post(assignUrl, newSource, {headers: {'Content-Type': 'text/json'}}).
+                success(function(data){
+                    $http.get(data.href).success(function(obj){
+                        sms.source = obj.Id;
+                    });
+                });
             };
 
             var unassign = function(sms) {
@@ -116,7 +121,7 @@ define([
                         'Type': 'chained blog',
                         'URI': URI
                     }
-                    $http.post(chainBlogUrl, newChainedBlog).
+                    $http.post(chainBlogUrl, newChainedBlog, {headers: {'Content-Type': 'text/json'}}).
                     success(function(data, status, headers, config) {
                         var sourceId = getLastId(data.href);
                         $scope.chains[parentIndex].blogList[index].sourceId = sourceId;
