@@ -201,6 +201,7 @@ def registerAclLivedeskUpdate():
     r.add(ref(IBlogPostService).update)
     r.add(ref(IPostVerificationService).update)
     r.add(ref(IBlogSeoService).insert, ref(IBlogSeoService).update)
+    r.add(ref(IBlogSourceService).addSource, ref(IBlogSourceService).deleteSource)
     
 
 # --------------------------------------------------------------------
