@@ -1,8 +1,8 @@
 define([
 	'jquery',
-	'jquery/i18n',
-	'jquery/utils',
-	'jquery/xdomainrequest'
+	'jquery-path/i18n',
+	'jquery-path/utils',
+	'jquery-path/xdomainrequest'
 ], function($){
 	
     var buildMap = {},

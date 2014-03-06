@@ -8,7 +8,7 @@
 /*global define, window, XMLHttpRequest, importScripts, Packages, java,
   ActiveXObject, process, require */
 
-define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery/xdomainrequest'], function($, dust, i18n_parse) {
+define(['jquery', 'dust/compiler','dust/i18n_parse', 'jquery-path/xdomainrequest'], function($, dust, i18n_parse) {
     'use strict';
     var 
         fetchText = function () {

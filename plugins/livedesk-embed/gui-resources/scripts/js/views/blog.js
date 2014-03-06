@@ -3,7 +3,7 @@ define([
 	'gizmo/view-events',
 	'views/posts',
 	'dispatcher',
-	'jquery/tmpl',
+	'jquery-path/tmpl',
 	'models/blog',
 	'tmpl!themeBase/container'
 ], function($, Gizmo, PostsViewDef) {

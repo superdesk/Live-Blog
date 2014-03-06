@@ -1,5 +1,4 @@
 define([
-	'jquery/tmpl',
 	'plugins/button-pagination',
 	'plugins/post-hash',
 	'plugins/twitter-widgets',

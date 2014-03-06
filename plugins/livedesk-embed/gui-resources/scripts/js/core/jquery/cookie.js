@@ -7,7 +7,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.opensource.org/licenses/GPL-2.0
  */
-define('jquery/cookie', ['jquery'], function($) {
+define(['jquery'], function($) {
     $.cookie = function(key, value, options) {
 
         // key and at least value given, set cookie...

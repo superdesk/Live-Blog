@@ -1,4 +1,4 @@
-define('jquery/i18n',['gettext', 'utils/str', 'jquery', 'jquery/utils'],function(Gettext, str, $){
+define(['gettext', 'utils/str', 'jquery', 'jquery-path/utils'],function(Gettext, str, $){
 
 	i18n = function(){
 		this.init();

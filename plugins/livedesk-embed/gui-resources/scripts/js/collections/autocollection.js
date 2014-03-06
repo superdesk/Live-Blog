@@ -1,4 +1,4 @@
-define(['gizmo/superdesk'], function(Gizmo) {
+define(['jquery','gizmo/superdesk'], function($, Gizmo) {
 	/*!
 	 * Extended collection which is autoupdateing itself
 	 */	

@@ -9,7 +9,7 @@ define([
 	'jquery',
 	'plugins',
 	'dust',
-	'jquery/waypoints',
+	'jquery-path/waypoints',
 	'dispatcher'
 ], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
@@ -34,24 +34,26 @@ define([
       if(!self._twitterPosts){ return; }
 
       require(['twitterWidgets'], function(twttr){
-        $.each(self._twitterPosts, function(index, post){
-          post.el.waypoint(function(){
-            twttr.widgets.createTweet(
-              post.templateData.Meta.id_str,
-              post.el.find('.post-content-full').get(0),
-              function(){
-                post.el.find('.post-core-content').remove();
-              },
-              { cards: 'all' }
-            );
-          },
-          {
-            triggerOnce: true,
-            offset: '120%',
-            context: self.el
+        twttr.ready(function(){
+          $.each(self._twitterPosts, function(index, post){
+            post.el.waypoint(function(){
+              twttr.widgets.createTweet(
+                post.templateData.Meta.id_str,
+                post.el.find('.post-content-full').get(0),
+                function(){
+                  post.el.find('.post-core-content').remove();
+                },
+                { cards: 'all' }
+              );
+            },
+            {
+              triggerOnce: true,
+              offset: '120%',
+              context: self.el
+            });
           });
+          self._twitterPosts = [];
         });
-        self._twitterPosts = [];
       }, function(err){
         // twitterWidgets dependency failed to load, probably blocked by user with adblock
         return;
