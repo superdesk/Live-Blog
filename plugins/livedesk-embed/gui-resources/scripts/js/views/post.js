@@ -49,10 +49,13 @@
 				}
 
 				if(data.Meta) {
-				data.Meta = $.parseJSON(data.Meta);
-				if ( data.AuthorName ) {
-					data.Meta.Creator = { 'Name': data.AuthorName };
-				}
+					data.Meta = data.Meta
+										.replace(new RegExp('http://', 'g'),'//');
+//										.replace(new RegExp('https://', 'g'),'//');
+					data.Meta = $.parseJSON(data.Meta);
+					if ( data.AuthorName ) {
+						data.Meta.Creator = { 'Name': data.AuthorName };
+					}
 				}
 				if(data.Meta && data.Meta.annotation) {
 					if(data.Meta.annotation[1] === null) {

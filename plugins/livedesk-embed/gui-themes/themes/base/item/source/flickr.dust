@@ -9,11 +9,11 @@
 {/contentExternal}
 
 {<externalImageLink}
-http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
+//farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
 {/externalImageLink}
 
 {<externalImageSrc}
-http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
+//farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
 {/externalImageSrc}
 
 {<externalImageAlt}
