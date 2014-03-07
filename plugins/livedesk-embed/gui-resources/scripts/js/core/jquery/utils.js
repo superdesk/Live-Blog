@@ -1,4 +1,4 @@
-define('jquery/utils',['jquery'], function ($) {
+define(['jquery'], function ($) {
 $.trimTag = function( tag, myString ) {
 	function recursiveTrim( tag, myString) {
 		function simpleTrim ( tag, myString ) {

@@ -1,4 +1,4 @@
- {+mainContainer}
+{+mainContainer}
 <li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
   {+main}
     <a name="{Order}"></a>

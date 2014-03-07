@@ -1,4 +1,4 @@
-define('dust/dust-helpers', ['dust/dust', 'jquery', 'utils/twitter', 'jquery/i18n', 'jquery/utils'], function(dust, $, twitter){
+define('dust/dust-helpers', ['dust/dust', 'jquery', 'utils/twitter', 'jquery-path/i18n', 'jquery-path/utils'], function(dust, $, twitter){
 var parseAttributeParams = function(chunk, context, bodies, params) {
   if($.isDefined(params.param1) ) {
     var aux = [], index;

@@ -1,4 +1,4 @@
-define('jquery/param',['jquery'], function($) {
+define(['jquery'], function($) {
 
 	function buildParams( prefix, obj, traditional, add ) {
 		if ( jQuery.isArray( obj ) ) {

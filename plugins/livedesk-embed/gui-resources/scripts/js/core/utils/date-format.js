@@ -1,4 +1,4 @@
-define(['jquery', 'jquery/i18n'], function($){
+define(['jquery', 'jquery-path/i18n'], function($){
 	/*
 	 * Date Format 1.2.3
 	 * (c) 2007-2009 Steven Levithan <stevenlevithan.com>

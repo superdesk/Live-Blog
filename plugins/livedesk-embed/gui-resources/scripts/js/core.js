@@ -4,7 +4,7 @@ define([
 	'views/blog',
 	'utils/find-enviroment',
 	'plugins',
-	'jquery/xdomainrequest',
+	'jquery-path/xdomainrequest',
 	'i18n',
 	'css'
 ], function($, dateFormat, BlogViewDef, findEnviroment, plugins){

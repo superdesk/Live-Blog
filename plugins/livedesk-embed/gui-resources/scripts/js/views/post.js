@@ -2,8 +2,8 @@
 	'jquery',
 	'gizmo/superdesk',
 	'dust',
-	'jquery/tmpl',
-	'jquery/utils',
+	'jquery-path/tmpl',
+	'jquery-path/utils',
 	'utils/encode_url',
 	'utils/date-format',
 	'views/post-templates'

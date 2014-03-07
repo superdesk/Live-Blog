@@ -1,3 +1,7 @@
+// @TODO: this is a hack and it should be removed
+//     when the namespace requirejs is implementd.
+delete require.amd;
+// end @TODO
 require.config({
 	paths: 	{
 		'themeBase': '../../themes/base',
@@ -8,7 +12,8 @@ require.config({
 		'css': 'core/require/css',
 		'i18n': 'core/require/i18n',
 		
-		'jquery': 'core/jquery',
+		'jquery-loader': 'core/jquery-loader',
+		'jquery-path': 'core/jquery',
 		'dust': 'core/dust',
 		'utils': 'core/utils',
 		'gettext': 'core/gettext',
@@ -20,11 +25,11 @@ require.config({
 		'iscroll':  { 'exports': 'IScroll' }
 	}
 });
-require(['core.min'], function(){
+require(['jquery-loader','core.min'], function(){
 	require([
 		'jquery',
 		'gizmo/view-events',
-		'jquery/xdomainrequest',
+		'jquery-path/xdomainrequest',
 		'models/blog'
 	], function( $, Gizmo ){
 		/*!

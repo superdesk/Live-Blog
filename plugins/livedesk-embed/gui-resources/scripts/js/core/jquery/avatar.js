@@ -1,4 +1,4 @@
-define('jquery/avatar', ['utils/str', 'jquery', 'jquery/utils', 'jquery/md5'], function(str, $) {
+define(['utils/str', 'jquery', 'jquery-path/utils', 'jquery-path/md5'], function(str, $) {
     var gravatar = {
         url: '//gravatar.com/avatar/%(md5)s?r=%(rate)s&s=%(size)s&d=%(default)s&%(forcedefault)s',
         defaults: {

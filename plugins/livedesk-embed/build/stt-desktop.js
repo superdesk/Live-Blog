@@ -16,6 +16,7 @@
 		'normalize': 'core/require/normalize',
 		'i18n': 'core/require/i18n',
 		
+		'jquery-path': 'core/jquery',
 		'jquery': 'core/jquery',
 		'dust': 'core/dust',
 		'utils': 'core/utils',
