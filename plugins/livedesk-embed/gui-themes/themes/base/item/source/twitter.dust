@@ -15,7 +15,7 @@
 	{+externalInfoUser}{/externalInfoUser}
 {/externalInfo}
 {<externalInfoTitle}{Meta.from_user_name}{/externalInfoTitle}
-{<externalInfoTitleSrc}http://twitter.com/{Meta.from_user}{/externalInfoTitleSrc}
+{<externalInfoTitleSrc}//twitter.com/{Meta.from_user}{/externalInfoTitleSrc}
 {<externalText}{Meta.text|twitter_all|s}{/externalText}
 
 {!--  for twitter only -- !}
@@ -33,9 +33,9 @@
 --!}
 {<externalTwitterActions}
 <div class="twitter-controls"> <!-- twitter buttons -->
-	<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>
-	<a href="http://twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank" class="twitter-button retweet">_('Retweet');</a>
-	<a href="http://twitter.com/intent/tweet?in_reply_to={Meta.id_str}" target="_blank" class="twitter-button reply">_('Reply');</a>
+	<a href="//twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank" class="twitter-button favorites">_('Favorites');</a>
+	<a href="//twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank" class="twitter-button retweet">_('Retweet');</a>
+	<a href="//twitter.com/intent/tweet?in_reply_to={Meta.id_str}" target="_blank" class="twitter-button reply">_('Reply');</a>
 </div>
 {/externalTwitterActions}
 

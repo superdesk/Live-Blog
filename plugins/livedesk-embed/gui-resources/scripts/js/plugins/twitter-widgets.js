@@ -10,7 +10,7 @@ define([
 	'plugins',
 	'dust',
 	'jquery/waypoints',
-	'dispatcher',
+	'dispatcher'
 ], function($, plugins, dust, waypoints){
 	return plugins["twitter-widgets"] = function(config){
 
