@@ -442,6 +442,9 @@ body
 	text-decoration: none;
 }
 
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-content-full iframe {
+	width: 99% !important;
+}
 
 /* VOR FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before
