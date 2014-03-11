@@ -15,6 +15,7 @@ define([
 			delete $httpProvider.defaults.headers.common['X-Requested-With'];
 			$httpProvider.defaults.headers.get = { 'Authorization': localStorage.getItem('superdesk.login.session') }
 			$httpProvider.defaults.headers.post = { 'Authorization': localStorage.getItem('superdesk.login.session') }
+			$httpProvider.defaults.headers.put = { 'Authorization': localStorage.getItem('superdesk.login.session'), 'Content-Type': 'text/json' }
 		});
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
@@ -155,7 +156,7 @@ define([
             			$scope.Id = data.Id;
             		});
             	} else {
-					seoInterfaceData.editConfig(getGizmoUrl('LiveDesk/Seo/' + $scope.Id), data).then(function(data) {
+					seoInterfaceData.editConfig(getGizmoUrl('my/LiveDesk/Seo/' + $scope.Id), data).then(function(data) {
             			//stuff do to after seo config edit
             		});
             	}
