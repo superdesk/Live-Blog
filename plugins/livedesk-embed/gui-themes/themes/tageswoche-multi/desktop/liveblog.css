@@ -446,6 +446,13 @@ body
 	width: 99% !important;
 }
 
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.normal .post-core-content .post-text img {
+	width:auto !important;
+	height: auto !important;
+	max-width: 100%;
+}
+
+
 /* VOR FREMD-CONTENT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before
 {
