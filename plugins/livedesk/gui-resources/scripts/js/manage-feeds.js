@@ -88,7 +88,7 @@ define([
             };
 
             var unassign = function(sms) {
-                var unassignUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + sms.source);
+                var unassignUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source/' + sms.source);
                 $http({method: 'DELETE', url: unassignUrl});
             };
 
@@ -128,7 +128,7 @@ define([
                         $scope.chains[parentIndex].blogList[index].chained = true;
                     });
                 } else {
-                    var unchainUrl = getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/' + blog.sourceId);
+                    var unchainUrl = getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source/' + blog.sourceId);
                     $http({method: 'DELETE', url: unchainUrl});
                     $scope.chains[parentIndex].blogList[index].chained = false;
 
@@ -138,7 +138,7 @@ define([
             $scope.removeProvider = function (chain) {
                 var index = $scope.chains.indexOf( chain );
                 if ( confirm(_("Removing provider will unchain its blogs.\nAre you sure to continue?")) ){
-                    var removeSourceUrl = getGizmoUrl('Data/Source/' + chain.Id);
+                    var removeSourceUrl = getGizmoUrl('my/Data/Source/' + chain.Id);
                     provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), chain.blogList);
                     $http({method: 'DELETE', url: removeSourceUrl});
                     $scope.chains.splice(index, 1);
@@ -208,13 +208,13 @@ define([
                                 Name: $scope.newTitle,
                                 URI: $scope.newUrl
                             };
-                            provider.editProvider(getGizmoUrl('Data/Source/' + $scope.provider.Id), editData ).then(function(data){
+                            provider.editProvider(getGizmoUrl('my/Data/Source/' + $scope.provider.Id), editData ).then(function(data){
                                 //was able to edit the provider
                                 //update provider object
                                 $scope.provider.Name = $scope.newTitle;
                                 if ($scope.provider.URI.href != $scope.newUrl){
                                   //unchain blogs
-                                  provider.unchainBlogs(getGizmoUrl('LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
+                                  provider.unchainBlogs(getGizmoUrl('my/LiveDesk/Blog/' + blogId + '/Source/'), $scope.provider.blogList);
                                   $scope.provider.blogList = newBlogsdata;
                                   $scope.provider.URI.href = $scope.newUrl;
                                 }
