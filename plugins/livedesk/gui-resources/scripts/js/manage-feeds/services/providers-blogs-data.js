@@ -32,6 +32,8 @@ define([
                                 }
                             });
                         }
+                    }).error(function(data, status, headers, config){
+                        
                     });
                     return deffered.promise;
                 }
