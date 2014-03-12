@@ -36,7 +36,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
     
     RoleModel = giz.Model.extend
     ({
-        url: new giz.Url('HR/User/{1}/Role/{2}'),
+        url: new giz.Url('my/HR/User/{1}/Role/{2}'),
         update: function(userId, roleId)
         {
             var self = this;

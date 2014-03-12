@@ -10,6 +10,7 @@ define([
                     var deffered = $q.defer();
                     providersBlogsData.getData(providersUrl).then(function(chains){
                         allBlogSources.getData(sourcesUrl).then(function(sources){
+                            console.log('chains ', chains);
                             for ( var i = 0; i < chains.length; i++ ) {
                                 for ( var j = 0; j < chains[i].blogList.length; j++ ) {
                                     var chained = false;
