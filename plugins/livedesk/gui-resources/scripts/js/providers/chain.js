@@ -52,7 +52,7 @@ define([
 	    StatusesFilterView = StatusesView.extend({
 			template: 'livedesk>citizen-desk/statuses-filter-list'  	
 	    }),
-		autoSources = Gizmo.Auth(new SyncCollection()),
+		autoSources = Gizmo.Auth( new SyncCollection() ),
     	ChainPostView = PostView.extend({
     		events: {
     			'': { afterRender: 'addElements', mouseleave: 'killMenu'},
@@ -459,14 +459,14 @@ define([
 					posts = self.model.get('PostSourceUnpublishedHidden');
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = new TimelineView({ 
+					self.timelineView = Gizmo.Auth(new TimelineView({ 
 							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
-					});
+					}));
 					if(callback) 
 						callback();
 				});
@@ -502,14 +502,14 @@ define([
 				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = new TimelineView({
+					self.timelineView = Gizmo.Auth(new TimelineView({
 							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
-					});
+					}));
 				});
 			}
 		}),
@@ -633,25 +633,25 @@ define([
 						$contentEl = self.el.find('.chain-header'),
 						blogParts = self.blog.href.match(/Blog\/(\d+)/);
 
-					self.userFilter = new UserFilter({ 
+					self.userFilter = Gizmo.Auth(new UserFilter({ 
 						el: $('.filter-assign',self.el),
 						template: 'livedesk>citizen-desk/chain-checker-list',
 						_parent: self
-					});
+					}));
                     self.sourceBlogs.each(function(id,sourceBlog){
 						// chainBlog = new Gizmo.Register.Blog();
 						// chainBlog.defaults.PostUnpublished = Gizmo.Register.AutoPosts;
 						// chainBlog.setHref(sourceBlog.get('URI').href);
 						// chainBlog.sync();
 						chainBlog = sourceBlog;
-						timelineCollection = new Gizmo.Register.AutoChainPosts();
+						timelineCollection = Gizmo.Auth(new Gizmo.Register.AutoChainPosts());
 						timelineCollection.model.prototype.blogId = blogParts[1];
 						timelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						timelineCollection.isCollectionDeleted = function(model) {
 							return(model.get('IsPublished') === 'True' || model.get('DeletedOn'));
 						}
 						chainBlog.data['PostSourceUnpublished'] = timelineCollection;
-						hiddenTimelineCollection = new Gizmo.Register.AutoDeletePosts();
+						hiddenTimelineCollection = Gizmo.Auth(new Gizmo.Register.AutoDeletePosts());
 						hiddenTimelineCollection.model.prototype.blogId = blogParts[1];
 						hiddenTimelineCollection.href = chainBlog.get('PostSourceUnpublished').href;
 						hiddenTimelineCollection.isCollectionDeleted = function(model) {
@@ -661,9 +661,9 @@ define([
 
 						chainBlog.sourceId = sourceBlog.get('Id');
 
-						chainBlogLinkView = new ChainBlogLinkView({ model: chainBlog, _parent: self });
-						chainBlogContentView = new ChainBlogContentView({ model: chainBlog, _parent: self });
-						hiddenBlogContentView = new HiddenChainBlogContentView({ model: chainBlog, _parent: self })
+						chainBlogLinkView = Gizmo.Auth(new ChainBlogLinkView({ model: chainBlog, _parent: self }));
+						chainBlogContentView = Gizmo.Auth(new ChainBlogContentView({ model: chainBlog, _parent: self }));
+						hiddenBlogContentView = Gizmo.Auth(new HiddenChainBlogContentView({ model: chainBlog, _parent: self }));
 						self.chainBlogLinkViews.push(chainBlogLinkView);
 						self.chainBlogContentViews.push(chainBlogContentView);
 						self.hiddenChainBlogContentViews.push(hiddenBlogContentView);
@@ -730,7 +730,13 @@ define([
                     sync = autoSources.findSource(view.model.sourceId);
                     //CId = autoSources.getLastSyncId(view.model.sourceId);
                     if (sync) {
-                        sync.save({Auto: autopublish ? 'True' : 'False'}, {patch: true}).done(function(){
+                        sync.save({Auto: autopublish ? 'True' : 'False'},
+                        {
+                        	patch: true,
+							headers:{
+								'Authorization': localStorage.getItem('superdesk.login.session')
+							}
+                        }).done(function(){
                         	view.model.chainBlogContentView.activate();
                         });
                     } else {
@@ -757,10 +763,10 @@ define([
 
 	    var blog = Gizmo.Auth(new Gizmo.Register.Blog(blogUrl));
         blog.on('read', function() {
-			chain = new ChainBlogsView({
+			chain = Gizmo.Auth(new ChainBlogsView({
 				el: this.el, 
 				blog: blog,
-			});
+			}));
 		}.apply(this));
         blog.sync();
 	}});
