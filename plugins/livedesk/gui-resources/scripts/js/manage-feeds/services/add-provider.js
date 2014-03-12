@@ -38,8 +38,18 @@ define([
                         success(function(data, status, headers, config) {
                         	data.BlogList.chained = false;
                         	data.BlogList.sourceId = -1;
-                            mySource.blogList = data.BlogList;
-                            deffered.resolve(mySource);
+                            if ( data.BlogList ) {
+                                mySource.blogList = data.BlogList;
+                                deffered.resolve(mySource);
+                            } else {
+                                var errMsg = _('Invalid chainblog url');
+                                deffered.reject(errMsg);
+                            }
+                            
+                        }).error(function(data, status, headers, config){
+                            deffered.reject(data.message);
+                            //remove the source from db
+                            $http.delete(source.href);
                         });
                 	}).
                 	error(function(data, status, headers, config){
