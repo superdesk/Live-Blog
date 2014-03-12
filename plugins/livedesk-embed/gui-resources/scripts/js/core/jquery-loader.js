@@ -1,8 +1,6 @@
 var jQuery = window.jQuery,
-    oldjQuery = jQuery && !!jQuery.fn.jquery.match(/^1\.[0-4](\.|$)/);
+    oldjQuery = jQuery && !!jQuery.fn.jquery.match(/^1\.[0-7](\.|$)/);
 // check for jQuery
-//console.log(jQuery.fn.jquery.match);
-//console.log(oldjQuery);
 if (!jQuery || oldjQuery) {
     var clientJquery = window.jQuery,
         clientDolar = window.$;
