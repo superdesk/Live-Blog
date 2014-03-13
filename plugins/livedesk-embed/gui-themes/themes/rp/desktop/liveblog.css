@@ -771,11 +771,6 @@
 	border-color:#fff;
 }
 
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.quote .post-core-content
-{
-	padding-left:45px;
-	background:url(img/quotes.png) no-repeat 0 0;
-}
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.wrapup .post-info,#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.advertisement .post-info
 {
@@ -790,6 +785,12 @@
 }
 
 */
+
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.quote .post-core-content
+{
+	padding-left:45px;
+	background:url(img/quotes.png) no-repeat 0 0;
+}
 
 /* LOAD NEXT */
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.load-next,
