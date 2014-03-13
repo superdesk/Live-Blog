@@ -15,7 +15,9 @@ define([
                                     var chained = false;
                                     var sourceId = -1;
                                     for ( var k = 0; k < sources.length; k ++ ) {
-                                        if ( sources[k].URI.href == chains[i].blogList[j].href ) {
+                                        var sourceUri = sources[k].URI.href.replace(/^https?:/,'');
+                                        var chainUri = chains[i].blogList[j].href.replace(/^https?:/,'');
+                                        if ( sourceUri == chainUri ) {
                                             chained = true;
                                             sourceId = sources[k].Id
                                             break;

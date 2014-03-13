@@ -1,6 +1,9 @@
 define([
+    'jquery',
 	'angular',
-	],function(){
+    config.guiJs('livedesk', 'authorization'),
+	],function($, angular, auth){
+        var angularHeaders = $.extend({}, auth, { 'Content-Type': 'text/json' });
 		var feeds = angular.module('manageFeeds',[]);
         feeds.config(['$interpolateProvider', function($interpolateProvider) {
             $interpolateProvider.startSymbol('{{ ');
@@ -8,10 +11,10 @@ define([
         }]);
         feeds.config(function($httpProvider){
 		    delete $httpProvider.defaults.headers.common['X-Requested-With'];
-            $httpProvider.defaults.headers.get = { 'Authorization': localStorage.getItem('superdesk.login.session') }
-            $httpProvider.defaults.headers.post = { 'Authorization': localStorage.getItem('superdesk.login.session') }
-            $httpProvider.defaults.headers.delete = { 'Authorization': localStorage.getItem('superdesk.login.session') }
-            $httpProvider.defaults.headers.put = { 'Authorization': localStorage.getItem('superdesk.login.session'), 'Content-Type': 'text/json'}
+            $httpProvider.defaults.headers.get = auth;
+            $httpProvider.defaults.headers.post = angularHeaders;
+            $httpProvider.defaults.headers.delete = auth;
+            $httpProvider.defaults.headers.put = angularHeaders;
 		});
         return feeds;
 });

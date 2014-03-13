@@ -6,7 +6,7 @@ define([
             return {
                 addData: function(addProviderUrl, params) {
                     var deffered = $q.defer();
-                    $http.post(addProviderUrl, params, {headers: {'Content-Type': 'text/json'}}).
+                    $http.post(addProviderUrl, params).
                     success(function(data, status, headers, config) {
                         deffered.resolve(data);
                     }).

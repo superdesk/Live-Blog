@@ -3,6 +3,7 @@ define([
 	'jquery',
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('livedesk', 'authorization'),
     'jquery/tmpl',
     'jqueryui/draggable',
     'providers/comments/adaptor',
@@ -16,7 +17,7 @@ define([
     'tmpl!livedesk>providers/generic-error',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/loading'
-], function( providers, $, Gizmo, BlogAction) {
+], function( providers, $, Gizmo, BlogAction, auth) {
 $.extend(providers.comments, {
     blogId: 0,
     data: [],
@@ -335,10 +336,10 @@ $.extend(providers.comments, {
         var msg = _("Are you sure you want to hide the comment?");
         var newText = _("Unhide");
         if ( confirm( msg ) ) {
-            var url = Gizmo.Auth(new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide'));
+            var url = new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
             $.ajax({ 
                 url: url.get() ,
-                headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+                headers: auth,
                 type: "POST",
                 success: function( data ) {
                     $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'true').css('display', 'none');
@@ -351,10 +352,10 @@ $.extend(providers.comments, {
         var msg = _("Are you sure you want to un-hide the comment?");
         var newText = _("Hide");
         if ( confirm( msg ) ) {
-            var url = Gizmo.Auth(new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide'));
+            var url = new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
             $.ajax({
                 url: url.get(),
-                headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+                headers: auth,
                 type: "POST",
                 success: function( data ) {
                     $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'false').css('display', 'none');

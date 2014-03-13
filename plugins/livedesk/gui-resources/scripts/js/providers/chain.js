@@ -9,6 +9,7 @@ define([
     config.guiJs('livedesk', 'views/user-filter'),
     config.guiJs('livedesk', 'models/sync'),
     config.guiJs('livedesk', 'models/sync-collection'),
+    config.guiJs('livedesk', 'authorization'),
 	'jqueryui/draggable',
 	'jqueryui/autocomplete',
     'providers/chain/adaptor',
@@ -43,7 +44,8 @@ define([
 		UserVerification,
 		UserFilter,
 		SyncModel,
-		SyncCollection
+		SyncCollection,
+		auth
 	) {
 	
     var PostStatusesView = StatusesView.extend({
@@ -459,14 +461,14 @@ define([
 					posts = self.model.get('PostSourceUnpublishedHidden');
 				$.tmpl('livedesk>providers/chain/hidden-blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = Gizmo.Auth(new TimelineView({ 
+					self.timelineView = new TimelineView({ 
 							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
-					}));
+					});
 					if(callback) 
 						callback();
 				});
@@ -502,14 +504,14 @@ define([
 				//posts.param('False', 'isDeleted');
 				$.tmpl('livedesk>providers/chain/blog-content', { Blog: self.model.feed()}, function(e, o){
 					self.setElement(o);
-					self.timelineView = Gizmo.Auth(new TimelineView({
+					self.timelineView = new TimelineView({
 							_parent: self,
 							el: self.el,
 							collection: posts,
 							sourceId: self.model.sourceId,
 							sourceURI: self.model.href,
 							blog: self._parent.blog
-					}));
+					});
 				});
 			}
 		}),
@@ -733,9 +735,7 @@ define([
                         sync.save({Auto: autopublish ? 'True' : 'False'},
                         {
                         	patch: true,
-							headers:{
-								'Authorization': localStorage.getItem('superdesk.login.session')
-							}
+							headers: auth
                         }).done(function(){
                         	view.model.chainBlogContentView.activate();
                         });
@@ -770,6 +770,5 @@ define([
 		}.apply(this));
         blog.sync();
 	}});
-
     return providers;
 });
