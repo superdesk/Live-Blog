@@ -147,7 +147,7 @@ class SeoSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('id', blogSeo.Blog))
         q.append(('theme', theme.Name))
-        q.append('host', self.host_URL)
+        q.append('host', self.host_url)
         if blogSeo.MaxPosts is not None:
             q.append(('limit', blogSeo.MaxPosts))
 
@@ -193,7 +193,7 @@ class SeoSyncProcess:
             q.append(('blogId', blogSeo.Blog))
             q.append(('blogTitle', blog.Title))
             q.append(('theme', theme.Name))
-            q.append(('htmlFile', self.host_URL + self.htmlCDM.getURI(path)))
+            q.append(('htmlFile', self.host_url + self.htmlCDM.getURI(path)))
                 
             url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
             req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
