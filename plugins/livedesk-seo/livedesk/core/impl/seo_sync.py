@@ -61,14 +61,17 @@ class SeoSyncProcess:
     timeout_inteval = 3600#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
-    html_generation_server = 'https://www.sourcefabric.org'; wire.config('html_generation_server', doc='''
+    html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
     The partial path used to construct the URL for blog html generation''')
     
     html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
     The path where will be stored the generated HTML files''')
     
-    format_file_name = '%(id)s-%(title)s-%(theme)s.html'; wire.config('format_file_name', doc='''
-    The format for the html files''')
+    host_URL = 'http://localhost:80'; wire.config('host_URL', doc='''
+    The external URL of the live blog instance''')
+    
+    format_file_name = '%(id)s.html'; wire.config('format_file_name', doc='''
+    The format for the html files, it can contain blog id, blog title and theme name: %(id)s-%(title)s-%(theme)s.html''')
 
     acceptType = 'text/json'
     # mime type accepted for response from remote blog
@@ -142,11 +145,11 @@ class SeoSyncProcess:
         (scheme, netloc, path, params, query, fragment) = urlparse(self.html_generation_server)
 
         q = parse_qsl(query, keep_blank_values=True)
-        q.append(('blogId', blogSeo.Blog))
-        q.append(('cId', blogSeo.LastCId))
+        q.append(('id', blogSeo.Blog))
         q.append(('theme', theme.Name))
+        q.append('host', self.host_URL)
         if blogSeo.MaxPosts is not None:
-            q.append(('maxPosts', blogSeo.MaxPosts))
+            q.append(('limit', blogSeo.MaxPosts))
 
         url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
@@ -166,7 +169,7 @@ class SeoSyncProcess:
             return
  
         try: 
-            path = self.format_file_name % {'id': blogSeo.Id, 'title': blog.Title, 'theme': theme.Name}
+            path = self.format_file_name % {'id': blogSeo.Blog, 'title': blog.Title, 'theme': theme.Name}
             path = ''.join((self.html_storage_path, '/', path))
         
             self.htmlCDM.publishContent(path, resp) 
@@ -181,7 +184,7 @@ class SeoSyncProcess:
         if blogSeo.CallbackActive:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
             
-            if not scheme: scheme = 'http'
+            if not scheme: scheme = self.schema
             if not netloc: 
                 netloc = path
                 path = ''
@@ -190,7 +193,7 @@ class SeoSyncProcess:
             q.append(('blogId', blogSeo.Blog))
             q.append(('blogTitle', blog.Title))
             q.append(('theme', theme.Name))
-            q.append(('htmlFile', self.htmlCDM.getURI(path)))
+            q.append(('htmlFile', self.host_URL + self.htmlCDM.getURI(path)))
                 
             url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
             req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
