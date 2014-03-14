@@ -67,7 +67,7 @@ class SeoSyncProcess:
     html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
     The path where will be stored the generated HTML files''')
     
-    host_URL = 'http://localhost:80'; wire.config('host_URL', doc='''
+    host_url = 'http://liveblog16.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
     The external URL of the live blog instance''')
     
     format_file_name = '%(id)s.html'; wire.config('format_file_name', doc='''
