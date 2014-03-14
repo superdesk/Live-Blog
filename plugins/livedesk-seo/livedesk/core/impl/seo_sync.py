@@ -58,7 +58,7 @@ class SeoSyncProcess:
     seo_sync_interval = 60; wire.config('seo_sync_interval', doc='''
     The number of seconds to perform sync for seo blogs.''')
     
-    timeout_inteval = 3600#; wire.config('timeout_interval', doc='''
+    timeout_inteval = 360#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
     html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
@@ -147,7 +147,7 @@ class SeoSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('id', blogSeo.Blog))
         q.append(('theme', theme.Name))
-        q.append('host', self.host_url)
+        q.append(('host', self.host_url))
         if blogSeo.MaxPosts is not None:
             q.append(('limit', blogSeo.MaxPosts))
 
