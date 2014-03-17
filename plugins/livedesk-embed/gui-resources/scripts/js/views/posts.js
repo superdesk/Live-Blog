@@ -43,7 +43,7 @@ define([
 					.on('addingsauto',self.addingsAuto, self)
 					.on('removeingsauto', self.removeAllAutoupdate, self)
 					.auto()
-					.autosync({ data: self._config.data });
+					.autosync({ data: self._config.data, preprocessTime: 250 });
 			},
 			removeOne: function(view) {
 				var 
