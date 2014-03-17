@@ -28,6 +28,7 @@ define([
                 options = {
                         dataType: 'json',
                         //timeout : 2500,
+                        preprocessTime: 250,
                         processTime: 400,
                         tryCount : 0,
                         retryLimit : 2,

@@ -11,6 +11,7 @@ var root = this,
 	previousTime = 0;
 if (root.XDomainRequest) {
   $.ajaxTransport("+*",function( s ) {
+	//console.log(s.url+': '+s.preprocessTime);
 	if ( s.crossDomain && s.async ) {
 	  if ( s.timeout ) {
 		s.xdrTimeout = s.timeout;
@@ -54,7 +55,14 @@ if (root.XDomainRequest) {
 			};
 			xdr.timeout = s.xdrTimeout;
 		  }
-		  xdr.send( ( s.hasContent && s.data ) || null );
+		  if(s.preprocessTime) {
+		  	//console.log('preprocessTime: ',s.preprocessTime);
+		  	setTimeout(function(){
+		  		xdr.send( ( s.hasContent && s.data ) || null );	
+		  	},s.preprocessTime);
+		  } else {
+		  	xdr.send( ( s.hasContent && s.data ) || null );
+		  }
 		},
 		abort: function() {
 		  if ( xdr ) {
