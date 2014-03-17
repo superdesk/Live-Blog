@@ -3,6 +3,7 @@ define([
 	'jquery',
     'gizmo/superdesk',
     config.guiJs('livedesk', 'action'),
+    config.guiJs('livedesk', 'authorization'),
     'jquery/tmpl',
     'jqueryui/draggable',
     'providers/comments/adaptor',
@@ -16,7 +17,7 @@ define([
     'tmpl!livedesk>providers/generic-error',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/loading'
-], function( providers, $, Gizmo, BlogAction) {
+], function( providers, $, Gizmo, BlogAction, auth) {
 $.extend(providers.comments, {
     blogId: 0,
     data: [],
@@ -335,10 +336,15 @@ $.extend(providers.comments, {
         var msg = _("Are you sure you want to hide the comment?");
         var newText = _("Unhide");
         if ( confirm( msg ) ) {
-            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
-            $.post( url.get() , function( data ) {
-                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'true').css('display', 'none');
-                $( document ).find('li.commentpost a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'unhide').text(newText);
+            var url = new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Hide');
+            $.ajax({ 
+                url: url.get() ,
+                headers: auth,
+                type: "POST",
+                success: function( data ) {
+                    $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'true').css('display', 'none');
+                    $( document ).find('li.commentpost a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'unhide').text(newText);
+                }
             });
         }
     },
@@ -346,10 +352,15 @@ $.extend(providers.comments, {
         var msg = _("Are you sure you want to un-hide the comment?");
         var newText = _("Hide");
         if ( confirm( msg ) ) {
-            var url = new Gizmo.Url('LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
-            $.post( url.get() , function( data ) {
-                $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'false').css('display', 'none');
-                $( document ).find('a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'hide').text(newText);
+            var url = new Gizmo.Url('my/LiveDesk/Blog/' + self.blogId + '/Post/' + cmntId + '/Unhide');
+            $.ajax({
+                url: url.get(),
+                headers: auth,
+                type: "POST",
+                success: function( data ) {
+                    $( document ).find('li.commentpost[data-id="' + cmntId + '"]').attr('data-hidden', 'false').css('display', 'none');
+                    $( document ).find('a[href="#toggle-post"][data-id="' + cmntId + '"]').attr('data-action', 'hide').text(newText);
+                }
             });
         }
     }

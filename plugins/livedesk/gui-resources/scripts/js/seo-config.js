@@ -1,11 +1,14 @@
 define([
+	'jquery',
 	'angular',
-	'gizmo/superdesk'
-	], function(angular, Gizmo){
+	'gizmo/superdesk',
+	config.guiJs('livedesk', 'authorization')
+	], function($, angular, Gizmo, auth){
 		function getGizmoUrl(path) {
 	        var url = new Gizmo.Url(path);
 	        return url.get();
 	    }
+	    var angularHeaders = $.extend({}, auth, { 'Content-Type': 'text/json' });
 		var seoconf = angular.module('seoConf',[]);
 		seoconf.config(['$interpolateProvider', function($interpolateProvider) {
 			$interpolateProvider.startSymbol('{{ ');
@@ -13,8 +16,9 @@ define([
 		}]);
 		seoconf.config(function($httpProvider){
 			delete $httpProvider.defaults.headers.common['X-Requested-With'];
-			$httpProvider.defaults.headers.get = { 'Authorization': localStorage.getItem('superdesk.login.session') }
-			$httpProvider.defaults.headers.post = { 'Authorization': localStorage.getItem('superdesk.login.session') }
+			$httpProvider.defaults.headers.get = auth;
+			$httpProvider.defaults.headers.post = angularHeaders;
+			$httpProvider.defaults.headers.put = angularHeaders;
 		});
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
@@ -49,7 +53,7 @@ define([
 				},
 				newConfig: function(url, data) {
 					var deffered = $q.defer();
-                    $http({method: 'POST', url: url, data: data, headers: {'Content-Type': 'text/json'}}).
+                    $http({method: 'POST', url: url, data: data}).
                     success(function(data, status, headers, config) {
                     	$http({method: 'GET', url: data.href}).
 	                    success(function(data, status, headers, config) {
@@ -155,7 +159,7 @@ define([
             			$scope.Id = data.Id;
             		});
             	} else {
-					seoInterfaceData.editConfig(getGizmoUrl('LiveDesk/Seo/' + $scope.Id), data).then(function(data) {
+					seoInterfaceData.editConfig(getGizmoUrl('my/LiveDesk/Seo/' + $scope.Id), data).then(function(data) {
             			//stuff do to after seo config edit
             		});
             	}

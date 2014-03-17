@@ -849,11 +849,12 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 			},
 			publish: function(post)
 			{
-				if(post instanceof this.collection.model) 
+				if(post instanceof this.collection.model) {
 					post.publishSync();
+				}
 				else 
 				{
-					var model = new this.collection.model({ Id: post});
+					var model = Gizmo.Auth(new this.collection.model({ Id: post}));
 					model.url.root(this._parent.theBlog);
 					model.setHref(model.url.get()+'/'+post);
 					model.publishSync();

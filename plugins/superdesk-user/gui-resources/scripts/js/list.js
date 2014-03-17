@@ -25,7 +25,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
     var 
     // TODO place in appropriate plugins
     Source = giz.Model.extend({url: new giz.Url('Data/Source')}),
-    Sources = new (giz.Collection.extend({ model: Source, href: new giz.Url('Data/Source') })),
+    Sources = giz.Auth(new (giz.Collection.extend({ model: Source, href: new giz.Url('Data/Source') }))),
     Collaborator = giz.Model.extend
     ({
         url: new giz.Url('Data/Collaborator'),
@@ -36,7 +36,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
     
     RoleModel = giz.Model.extend
     ({
-        url: new giz.Url('HR/User/{1}/Role/{2}'),
+        url: new giz.Url('my/HR/User/{1}/Role/{2}'),
         update: function(userId, roleId)
         {
             var self = this;
@@ -77,7 +77,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         {
             var self = this,            
             // set icon
-                icon = giz.Auth(new PersonIcon);
+                icon = new PersonIcon;
                 icon.href = this.model.get('MetaDataIcon').href;
             icon.sync({data: { thumbSize: 'small'}}).done(function()
             { 
@@ -111,7 +111,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
         {
             var self = this;
             // ?
-                var newCollaborator = new Collaborator;
+                var newCollaborator = giz.Auth(new Collaborator);
                 var colabSync = newCollaborator.set('User', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
                     {
@@ -122,14 +122,14 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                                 var collaboratorUrl = new giz.Url('HR/User/{1}/Source/{2}/Collaborator');
                                 var href = collaboratorUrl.get('href').replace('{1}', self.model.get('Id')).replace('{2}', this.get('Id'));
 
-                                var collaboratorList = new Collaborator;
+                                var collaboratorList = giz.Auth(new Collaborator);
                                 collaboratorList.setHref(href).sync().done(function(){
                                     if (collaboratorList.data.CollaboratorList.length === 0) {
                                         newCollaborator.set('Source', this.get('Id'));
                                         newCollaborator.sync();
                                         return false;
                                     } else {
-                                        newCollaborator = new Collaborator;
+                                        newCollaborator = giz.Auth(new Collaborator);
                                         newCollaborator.setHref(collaboratorList.data.CollaboratorList[0].href).sync();
                                         return false;
                                     }
@@ -142,7 +142,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             delete data.Collaborator;
             
             // update role
-            var newRole = new RoleModel(),
+            var newRole = giz.Auth(new RoleModel()),
                 roleRem = [],
                 roleAct = data.Role,
                 roleSync = $.Deferred;
@@ -494,7 +494,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 // ---   
                     
                // insert role
-               var newRole = new RoleModel;
+               var newRole = giz.Auth(new RoleModel);
                newRole.update(newModel.get('Id'), $('#user-add-modal form [data-input="role"] [data-selected-value]', self.el).attr('data-selected-value'));
                 
             });
@@ -539,7 +539,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
                 checkColab = function(id)
                 {
                     $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', false);
-                    var c = new PersonCollaborators({ href: new giz.Url('HR/User/'+id+'/Collaborator')});
+                    var c = giz.Auth(new PersonCollaborators({ href: new giz.Url('HR/User/'+id+'/Collaborator')}));
                     // check collaborator status
                     c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
                     {  
@@ -558,7 +558,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             // get user role and display it
             model.__roles = [];
             roleCollection.xfilter('*').sync({data: {limit: 1}}).done(function()
-            { 
+            {
                 roleCollection.each(function()
                 { 
                     model.__roles.push(this);
@@ -668,7 +668,7 @@ function($, superdesk, giz, Action, User, Person, sha, uploadCom)
             {
                 if( self._latestUpload )
                 {
-                    var pi = new PersonIcon,
+                    var pi = giz.Auth(new PersonIcon),
                         piurl = PersonIcon.prototype.url.get().replace('\{1\}', $('#user-edit-modal', self.el).prop('view').model.get('Id')).replace('\{2\}', self._latestUpload.Id);
                     pi.sync(piurl).done(function()
                     {
