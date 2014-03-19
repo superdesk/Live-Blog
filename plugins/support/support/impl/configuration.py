@@ -9,8 +9,6 @@ Created on May 22, 2013
 Contains the SQL alchemy meta for the configuration API.
 '''
 
-from ..api.configuration import Configuration, QConfiguration, IConfigurationService
-from ..meta.configuration import ConfigurationDescription
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
@@ -22,6 +20,9 @@ from ally.support.api.util_service import copy
 from ally.support.util_sys import callerGlobals
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
+from support.api.configuration import IConfigurationService, Configuration,\
+    QConfiguration
+from support.meta.configuration import ConfigurationDescription
 
 # --------------------------------------------------------------------
 
