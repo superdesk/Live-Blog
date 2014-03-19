@@ -42,8 +42,9 @@ class ChainedIconContent(Content):
         '''
         Content.__init__(self, fileName, 'image', 'binary', 0)
 
-        parsed = urlsplit(contentURL if not isinstance(contentURL, Request) else contentURL.full_url)
-        parsed = SplitResult(parsed.scheme, parsed.netloc, quote(parsed.path), quote(parsed.query), parsed.fragment)
+        (scheme, netloc, path, query, fragment) = urlsplit(contentURL if not isinstance(contentURL, Request) else contentURL.full_url)
+        if not scheme: scheme = 'http'
+        parsed = SplitResult(scheme, netloc, quote(path), quote(query), fragment)
         if isinstance(contentURL, Request): contentURL.full_url = urlunsplit(parsed)
         else: contentURL = urlunsplit(parsed)
 

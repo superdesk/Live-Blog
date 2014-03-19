@@ -76,10 +76,10 @@ class ChainedSyncProcess:
     syncThreads = {}
     # dictionary of threads that perform synchronization
 
-    sync_interval = 10; wire.config('sync_interval', doc='''
+    sync_interval = 60; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for blogs.''')
     
-    timeout_inteval = 60#; wire.config('timeout_interval', doc='''
+    timeout_inteval = 180#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
     published_posts_path = 'Post/Published'; wire.config('published_posts_path', doc='''
@@ -149,6 +149,8 @@ class ChainedSyncProcess:
         
         assert isinstance(source, Source)
         (scheme, netloc, path, params, query, fragment) = urlparse(source.URI)
+        
+        if not scheme: scheme  = 'http'
 
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('asc', 'cId'))
@@ -282,17 +284,17 @@ class ChainedSyncProcess:
         user.Type = self.user_type_key
 
         
-        needUpdate = False
+        needUpdate = True
         try: userId = self.userService.insert(user)
         except InputError:
             localUser = self.userService.getByUuid(user.Uuid)
             userId = localUser.Id
             if localUser.Type == self.user_type_key and (cid is None or localUser.Cid < cid): 
-                needUpdate = True
                 user.Id = localUser.Id
                 user.Type = localUser.Type
                 user.Cid = cid
                 self.userService.update(user)
+            else: needUpdate = False    
             
         collaborator = Collaborator()
         collaborator.User, collaborator.Source = userId, source.Id
@@ -328,6 +330,10 @@ class ChainedSyncProcess:
                 metaDataIconURL = metaDataIconJSON.get('href', '')
                 if not metaDataIconURL:
                     continue
+                
+                (scheme, netloc, path, params, query, fragment) = urlparse(metaDataIconURL)
+                if not scheme: 
+                    metaDataIconURL = urlunparse(('http', netloc, path, params, query, fragment))
 
                 req = Request(metaDataIconURL, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser'})
                 try:
@@ -413,6 +419,10 @@ class ChainedSyncProcess:
                 
     def _readAuthor(self, url):
         
+        (scheme, netloc, path, params, query, fragment) = urlparse(url)
+        if not scheme: 
+            url = urlunparse(('http', netloc, path, params, query, fragment))
+        
         request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*,User.*,Source.*'})
         
         try:
@@ -430,6 +440,10 @@ class ChainedSyncProcess:
             return None    
         
     def _readCreator(self, url):
+        
+        (scheme, netloc, path, params, query, fragment) = urlparse(url)
+        if not scheme: 
+            url = urlunparse(('http', netloc, path, params, query, fragment))
         
         request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser', 'X-Filter' : '*'})
         

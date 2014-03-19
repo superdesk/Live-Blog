@@ -9,8 +9,7 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService, QBlog, Blog, IBlogSourceService, IBlogConfigurationService
-from ..meta.blog import BlogMapped, BlogConfigurationMapped
+
 from support.impl.configuration import createConfigurationImpl
 from ally.api.extension import IterPart
 from ally.api.criteria import AsBoolean
@@ -28,7 +27,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.api.source import Source
 from superdesk.source.meta.source import SourceMapped
 from superdesk.source.meta.type import SourceTypeMapped
-from livedesk.meta.blog import BlogSourceDB
+from livedesk.meta.blog import BlogSourceDB, BlogMapped, BlogConfigurationMapped
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
 from superdesk.source.api.source import ISourceService
@@ -37,6 +36,8 @@ from livedesk.api.blog_sync import IBlogSyncService
 from livedesk.meta.blog_sync import BlogSyncMapped
 from superdesk.security.api.user_rbac import IUserRbacService
 from security.rbac.api.rbac import QRole
+from livedesk.api.blog import IBlogService, Blog, QBlog, IBlogSourceService,\
+    IBlogConfigurationService
 
 # --------------------------------------------------------------------
 
