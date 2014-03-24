@@ -72,7 +72,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = sql.filter(BlogMapped.Id == blogId)
 
         try: return sql.one()
-        except NoResultFound: raise InputError(_('Unknown id'), ref=Blog.Id)
+        except NoResultFound: raise InputError(_('Unknown id'), Blog.Id)
 
     def getAll(self, languageId=None, userId=None, q=None, **options):
         '''

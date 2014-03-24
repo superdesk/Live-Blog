@@ -67,7 +67,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         sql = sql.filter(BlogCollaboratorMapped.Id == collaboratorId)
 
         try: return sql.one()
-        except NoResultFound: raise InputError(_('No collaborator'), ref=BlogCollaboratorMapped.Id)
+        except NoResultFound: raise InputError(_('No collaborator'), BlogCollaboratorMapped.Id)
         
     def getActions(self, userId, blogId, **options):
         '''
