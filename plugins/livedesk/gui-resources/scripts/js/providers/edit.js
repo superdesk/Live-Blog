@@ -293,15 +293,40 @@ define('providers/edit', [
 			var urlinfo = Gizmo.Auth(new URLInfo);
 
 			urlinfo.getInfoSync(url).done(function(siteData){
+
+				var pictureValid = function(url, callback) {
+				  $("<img/>").attr("src", url).load(function(){
+				    if (this.width > 150 && this.height >150) 
+				    	filteredPicArr.push(url);
+				  }); 
+				}
+				var filteredPicArr = [];
 				var myThumb = '';
 				var favicon = "http://g.etfv.co/" + url;
 				//use site image if one is provided
 				if (siteData.Picture) {
 					var picArr = siteData.Picture.Picture;
 					if ( picArr.length > 0 ) {
-						myThumb = picArr[0];
+
+						//select first picture
+						myThumb = filteredPicArr[0] = picArr[0];
+
+						for( var i=1; i<picArr.length; i++) {
+							if (picArr[i].indexOf("logo") != -1) {
+								myThumb = picArr[i];
+								filteredPicArr.push(picArr[i]);
+							} else {
+								pictureValid(picArr[i]);
+							}
+							if (filteredPicArr.length > 10) break;
+						}
 					}
-				}
+				} 
+
+	
+
+				//clean the hostname for output
+				var hostname = $('<a>').prop('href', url).prop('hostname');
 
 				//use provided site icon if given one
 				if ( siteData.SiteIcon ) {
@@ -310,20 +335,113 @@ define('providers/edit', [
 
 				var data = {
 					url: url,
+					hostname: hostname,
 					title: siteData.Title,
 					description: siteData.Description,
 					thumbnail: myThumb,
+					thumbnailShow : false,
 					favicon: favicon,
 					siteData: siteData
 				}
-				self.meta = data;
+	
+				/* extend data with embedly API response
+
+				var scriptUrl = "http://api.embed.ly/1/oembed?url="+encodeURIComponent(url)+"&maxwidth=500";
+			     $.ajax({
+			        url: scriptUrl,
+			        async: false,
+			        success: function(response) {
+			        	if (response.thumbnail_url && response.thumbnail_url.length > 0) {
+			        		filteredPicArr.unshift(response.thumbnail_url);
+			            	data.thumbnail = response.thumbnail_url;
+			        	}
+			            data.title = response.title;
+			            data.description = response.description;
+			        } 
+			     });
+				*/
+				
+				function updateMeta() {
+					self.meta = data;
+				}
+				updateMeta();
+
 				$.tmpl('livedesk>providers/edit/link' , data, function(e,o) {
 					self.el.find('article.editable').html(o)
 					self.el.find('.linkpost-editable').texteditor({
 						plugins: {controls: {}},
 						floatingToolbar: 'top'
 					});
-				});					
+
+					var thumbHolder = self.el.find('.link-preview-actions');
+					thumbHolder.show();
+
+					var iterateL = thumbHolder.find('.iterate-left');
+					var iterateR = thumbHolder.find('.iterate-right')
+
+					var thumb = self.el.find('.link-thumbnail').first();
+
+					var toggleThumb = thumbHolder.find('.show-link-thumb');
+					
+					if (myThumb !== '') {
+						toggleThumb.prop('checked', true);
+					}
+					else {
+						toggleThumb.prop('checked', false);
+						thumb.hide();
+						data.thumbnailShow = true;
+						updateMeta();
+					}
+
+					var selected = 0;
+
+					iterateL.click(function(){
+						if (selected > 0) {
+							selected = selected - 1;
+							changeThumb(filteredPicArr[selected]);
+						}
+					});
+					iterateR.click(function(){
+						if (selected < (filteredPicArr.length-1)) {
+							selected = selected + 1;
+							changeThumb(filteredPicArr[selected]);
+						}
+					});
+
+					function disableIteration() {
+						if (selected == 0) 
+							iterateL.addClass('disable');
+						else 
+							iterateL.removeClass('disable');
+
+						if (selected == (filteredPicArr.length -1)) 
+							iterateR.addClass('disable');
+						else
+							iterateR.removeClass('disable');
+					}
+					disableIteration();
+
+					toggleThumb.change(function(){
+						if ($(this).is(':checked')) {
+							data.thumbnailShow = true;
+							thumb.show();
+							changeThumb(filteredPicArr[selected]);
+						} else {
+							thumb.hide();
+							data.thumbnailShow = false;
+							updateMeta();
+						}
+					});
+
+					function changeThumb(imageSource) {
+						data.thumbnail = imageSource;
+						thumb.find('img').attr('src',imageSource);
+						disableIteration();
+						updateMeta();
+					}
+
+				});	
+								
 			}).fail(function() {
 				//show error message
 				$.tmpl('livedesk>providers/generic-error' , {message: 'Could not retreive site info'}, function(e,o) {
@@ -389,7 +507,7 @@ define('providers/edit', [
             		//inject template
 					$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
 						self.el.find('.url-input-holder').html(o);
-						self.el.find('article.editable').html('').css('height', '113px');
+						self.el.find('article.editable').html('').addClass('link-adapted');
 						self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
 							var keyCode = event.keyCode;
 							if ( keyCode == 13 ) {
@@ -499,8 +617,9 @@ define('providers/edit', [
 		{
 			this.el.find('.image-edit-area').html('').css('display', 'none');
 			this.el.find('.edit-area').css('display', 'inline');
-			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
+			this.el.find('.edit-block article.editable').html('').removeClass('link-adapted');
 			this.el.find('.url-input-holder').html('');
+			this.el.find('.link-preview-actions').css('display','none');
 		},
 		showMessage: function(type, message, timeout) {
 			var self = this;

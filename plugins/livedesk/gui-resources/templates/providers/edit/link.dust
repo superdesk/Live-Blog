@@ -1,17 +1,19 @@
-	<div class="link-preview" style="border-top: 0px; margin-top:0px">
+	<div class="link-preview">
 		<figure class="link-thumbnail"> 
-			<a href="{url}" class="source-link" target="_blank"><img src="{thumbnail}"></a>
-		</figure>
-
-		<p><h3 ><a href="{url}">{title}</a></h3></p>
-		<p class="result-text">{description}</p>
-		<p class="attributes">
-			<a href="{url}" class="source-link" target="_blank">
-			<i class="source-icon">
-				<img src="{favicon}" style="max-width: 16px" border="0">
-			</i>
+			<a href="{url}" target="_blank">
+				<img src="{thumbnail}" border="0">
 			</a>
-			<a href="{url}" class="source-link" target="_blank">{title}</a>
-		</p>
-
+		</figure>
+		<div class="link-content">
+			<p class="link-title"><a href="{url}">{title}</a></p>
+			<p class="link-text">{description}</p>
+			<p class="attributes">
+				<a href="{url}" class="source-link" target="_blank">
+					<i class="source-icon">
+						<img src="{favicon}" style="max-width: 16px" border="0">
+					</i>
+					{hostname}
+				</a>
+			</p>
+		</div>
 	</div>
