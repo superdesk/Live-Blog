@@ -1,6 +1,7 @@
 // @TODO: this is a hack and it should be removed
 //     when the namespace requirejs is implementd.
 delete require.amd;
+delete define.amd;
 // end @TODO
 require.config({
 	paths: 	{
@@ -46,7 +47,7 @@ require(['jquery-loader','core.min'], function(){
 		blog.url.decorate('%s/' + liveblog.id);
 		blog
 			.xfilter('Description, Title, EmbedConfig, Language.Code')
-			.sync({force: true, preprocessTime: 330}).done(function(){
+			.sync({force: true, preprocessTime: 775}).done(function(){
 				/*!
 				 * Get configuration from blog
 				 * replace this with blog/config when new X-Filter will be implemented.
