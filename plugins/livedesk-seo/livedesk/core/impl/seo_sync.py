@@ -99,6 +99,7 @@ class SeoSyncProcess:
         '''
         Read all chained blog sync entries and sync with the corresponding blogs.
         '''
+        log.info('Start seo blog synchronization')
         
         crtTime = datetime.datetime.now().replace(microsecond=0) 
         
@@ -125,8 +126,8 @@ class SeoSyncProcess:
                                            target=self._syncSeoBlog, args=(blogSeo,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
-            log.info('Thread started for blog id %d and theme id %d', blogSeo.Blog, blogSeo.BlogTheme)   
-
+            log.info('Seo thread started for blog id %d and theme id %d', blogSeo.Blog, blogSeo.BlogTheme)   
+        log.info('End seo blog synchronization')
 
     def _syncSeoBlog(self, blogSeo):
         '''

@@ -117,6 +117,7 @@ class ChainedSyncProcess:
         '''
         Read all chained blog sync entries and sync with the corresponding blogs.
         '''
+        log.info('Start chained blog synchronization')
         for blogSync in self.blogSyncService.getBySourceType(self.blog_provider_type): 
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
@@ -131,8 +132,9 @@ class ChainedSyncProcess:
                                            target=self._syncChain, args=(blogSync,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
-            log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
-
+            log.info('Chained thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+            
+        log.info('End chained blog synchronization')
 
     def _syncChain(self, blogSync):
         '''
