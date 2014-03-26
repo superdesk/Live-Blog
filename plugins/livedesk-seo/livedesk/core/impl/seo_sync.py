@@ -185,7 +185,7 @@ class SeoSyncProcess:
         if blogSeo.CallbackActive:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
             
-            if not scheme: scheme = self.schema
+            if not scheme: scheme = 'http'
             if not netloc: 
                 netloc = path
                 path = ''
