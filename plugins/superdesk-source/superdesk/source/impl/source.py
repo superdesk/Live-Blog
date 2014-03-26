@@ -91,6 +91,15 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         @see: ISourceService.insert
         '''
         assert isinstance(source, Source), 'Invalid source %s' % source
+        
+        if source.URI:
+            list = source.URI.split('//')
+            source.URI = '//' + list[-1]
+            
+        if source.OriginURI:
+            list = source.OriginURI.split('//')
+            source.OriginURI = '//' + list[-1]    
+        
         sourceDb = SourceMapped()
         sourceDb.typeId = self._typeId(source.Type)
         copy(source, sourceDb, exclude=('Type',))
@@ -107,6 +116,15 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         @see: ISourceService.update
         '''
         assert isinstance(source, Source), 'Invalid source %s' % source
+        
+        if source.URI:
+            list = source.URI.split('//')
+            source.URI = '//' + list[-1]
+            
+        if source.OriginURI:
+            list = source.OriginURI.split('//')
+            source.OriginURI = '//' + list[-1]    
+        
         sourceDb = self.session().query(SourceMapped).get(source.Id)
         if not sourceDb: raise InputError(Ref(_('Unknown source id'), ref=Source.Id))
         if Source.Type in source: sourceDb.typeId = self._typeId(source.Type)

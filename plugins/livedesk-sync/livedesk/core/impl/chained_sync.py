@@ -76,10 +76,10 @@ class ChainedSyncProcess:
     syncThreads = {}
     # dictionary of threads that perform synchronization
 
-    sync_interval = 60; wire.config('sync_interval', doc='''
+    sync_interval = 53; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for blogs.''')
     
-    timeout_inteval = 180#; wire.config('timeout_interval', doc='''
+    timeout_inteval = 4#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
     published_posts_path = 'Post/Published'; wire.config('published_posts_path', doc='''
@@ -111,7 +111,7 @@ class ChainedSyncProcess:
         scheduleRunner = Thread(name='chained sync', target=schedule.run)
         scheduleRunner.daemon = True
         scheduleRunner.start()
-        log.info('Started the blogs automatic synchronization.')
+        log.info('Started the chained blogs automatic synchronization.')
 
     def syncChains(self):
         '''
@@ -124,9 +124,13 @@ class ChainedSyncProcess:
             thread = self.syncThreads.get(key)
             if thread:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
-                if thread.is_alive(): continue
+                if thread.is_alive(): 
+                    log.info('Chained thread for blog %d is alive', blogSync.Blog)
+                    continue
 
-                if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval): continue
+                if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval * self.sync_interval): 
+                    log.info('Chained thread for blog %d is already taken', blogSync.Blog)
+                    continue
 
             self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
                                            target=self._syncChain, args=(blogSync,))
@@ -165,14 +169,21 @@ class ChainedSyncProcess:
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
             log.error('Read error on %s: %s' % (source.URI, e))
+            blogSync.LastActivity = None 
+            self.blogSyncService.update(blogSync)
             return
+        
         if str(resp.status) != '200':
             log.error('Read problem on %s, status: %s' % (source.URI, resp.status))
+            blogSync.LastActivity = None 
+            self.blogSyncService.update(blogSync)
             return
 
         try: msg = json.load(codecs.getreader(self.encodingType)(resp))
         except ValueError as e:
             log.error('Invalid JSON data %s' % e)
+            blogSync.LastActivity = None 
+            self.blogSyncService.update(blogSync)
             return
 
         usersForIcons = {}
