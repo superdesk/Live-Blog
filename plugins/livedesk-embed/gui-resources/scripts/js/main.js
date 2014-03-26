@@ -1,7 +1,6 @@
 // @TODO: this is a hack and it should be removed
 //     when the namespace requirejs is implementd.
 delete require.amd;
-delete define.amd;
 // end @TODO
 require.config({
 	paths: 	{
