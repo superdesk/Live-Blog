@@ -94,6 +94,7 @@ class SmsSyncProcess:
         '''
         Read all sms blog sync entries.
         '''
+        log.info('Start sms blog synchronization')
         
         for blogSync in self.blogSyncService.getBySourceType(self.sms_provider_type):
             assert isinstance(blogSync, BlogSync)
@@ -109,8 +110,8 @@ class SmsSyncProcess:
                                            target=self._syncSms, args=(blogSync,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
-            log.info('Thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
-
+            log.info('Sms thread started for blog id %d and source id %d', blogSync.Blog, blogSync.Source)
+        log.info('End sms blog synchronization')    
 
     def _syncSms(self, blogSync):
         '''
