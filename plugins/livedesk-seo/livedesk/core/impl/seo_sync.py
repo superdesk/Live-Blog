@@ -55,10 +55,10 @@ class SeoSyncProcess:
     syncThreads = {}
     # dictionary of threads that perform synchronization
 
-    seo_sync_interval = 60; wire.config('seo_sync_interval', doc='''
+    sync_interval = 59; wire.config('sync_interval', doc='''
     The number of seconds to perform sync for seo blogs.''')
     
-    timeout_inteval = 360#; wire.config('timeout_interval', doc='''
+    timeout_inteval = 4#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
     html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
@@ -88,12 +88,12 @@ class SeoSyncProcess:
         schedule = scheduler(time.time, time.sleep)
         def syncSeoBlogs():
             self.syncSeoBlogs()
-            schedule.enter(self.seo_sync_interval, 1, syncSeoBlogs, ())
-        schedule.enter(self.seo_sync_interval, 1, syncSeoBlogs, ())
+            schedule.enter(self.sync_interval, 1, syncSeoBlogs, ())
+        schedule.enter(self.sync_interval, 1, syncSeoBlogs, ())
         scheduleRunner = Thread(name='blog html for seo', target=schedule.run)
         scheduleRunner.daemon = True
         scheduleRunner.start()
-        log.info('Started the blogs automatic html synchronization.')
+        log.info('Started the seo html synchronization.')
 
     def syncSeoBlogs(self):
         '''
@@ -120,7 +120,7 @@ class SeoSyncProcess:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
-                if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval): continue
+                if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
 
             self.syncThreads[key] = Thread(name='blog %d seo' % blogSeo.Blog,
                                            target=self._syncSeoBlog, args=(blogSeo,))
