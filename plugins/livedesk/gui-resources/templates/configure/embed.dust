@@ -1,6 +1,6 @@
 <div id="livedesk-root-container"></div>
 <script type="text/javascript">
-//<![CDATA[{~n}
+/* <![CDATA[ */{~n}
 	var liveblog = (function(d){
 		var self = this;
 		self.data = {
@@ -25,5 +25,5 @@
 		self.data.loadJs('loader');
 		return self.data;
 	})(document);
-{~n}//]]>
+{~n}/* ]]> */
 </script>
