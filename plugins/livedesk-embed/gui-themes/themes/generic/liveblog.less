@@ -10,9 +10,8 @@ background: #f0f0f0;
 }
 
 .container {
-	width: 600px;
-	margin-left: 20px;
-	margin-top: 20px;
+	width: 100%;
+	max-width: 1000px;
 	overflow: hidden; //quirks fix
 }
 
@@ -224,7 +223,7 @@ background: #f0f0f0;
 
 						padding: @post-padding-top @post-padding-right @post-padding-bottom @post-padding-left;
 
-						border-top :2px solid #d4d4d4;
+						border-top :1px solid #d4d4d4;
 						padding-top: @post-padding-top;
 						margin-bottom: @post-padding-top; 
 
@@ -368,6 +367,9 @@ background: #f0f0f0;
 						.post-header {
 							position: relative;
 							line-height: 16px;
+							.post-publisher-avatar {
+								display: none;
+							}
 						}
 						.post-content {
 							min-height: @content-minheight;
@@ -607,6 +609,7 @@ background: #f0f0f0;
 						&.quote {
 							.post-core-content {
 								padding-left: 45px;
+								min-height: 30px;
 								background: url(img/quotes.png) no-repeat 0 0;
 							}
 						}
@@ -921,9 +924,10 @@ background: #f0f0f0;
 		}
 	}
 
+	
 
 
-	&.mobile {
+	@media (max-width: 767px) {
 		background: none;
 		.liveblog-container {
 			.liveblog-content {
@@ -954,15 +958,20 @@ background: #f0f0f0;
 								font-weight: normal
 
 							}
+							.post-content-side {
+								display: none !important;
+							}
+
 							@publisher-avatar-width-mobile : 32px;
 							.post-publisher-avatar {
-								display: none;
 								float: left;
 								margin-right: 6px;
 
 								width: @publisher-avatar-width-mobile;
 								max-width: @publisher-avatar-width-mobile;
 								min-height: @publisher-avatar-width-mobile;
+								background-size: @publisher-avatar-width-mobile+2;
+								background-position: 0 0;
 								max-height: none;
 								padding: 1px;
 								border: 1px solid #e8e8e8;
@@ -979,20 +988,21 @@ background: #f0f0f0;
 								border-bottom: 1px solid #e8e8e8;
 								min-height: @publisher-avatar-width-mobile + 4px;
 								.border-radius(5px 5px 0 0);
+								.post-publisher-avatar { 
+									display: block;
+								}
+								.post-buttons {
+									
+								}
 				
 							}
 							.post-footer {
-								height: 30px;
-								border-top: 1px solid #e8e8e8;
-						
-								.border-radius(0 0 5px 5px);
-								position: relative;
 							}
 
 							.post-buttons {
 								display: block;
-								left:10px;
-								right: auto;
+								right:10px;
+								left: auto;
 								top:5px;
 								.sf-share {
 
@@ -1001,7 +1011,7 @@ background: #f0f0f0;
 
 							.post-content {
 								padding: 10px;
-
+								margin-top:0; 
 								.post-content-main {
 									margin: 0;
 								}
@@ -1055,6 +1065,11 @@ background: #f0f0f0;
 								background: #686868;
 								.big-toggle {
 									margin: 5px;
+								}
+							}
+							&.link {
+								.link-preview {
+									margin: 0;
 								}
 							}
 							&.usercomments {
