@@ -1,5 +1,6 @@
 define([
 	'plugins/button-pagination',
+	'plugins/ivw-counter',
 	'plugins/post-hash',
 	'plugins/twitter-widgets',
 	'tmpl!theme/container',
@@ -7,6 +8,6 @@ define([
 	'css!theme/liveblog'
 ], function(){
 	return {
-		plugins: [ 'button-pagination', 'post-hash', 'twitter-widgets' ]
+		plugins: [ 'button-pagination', 'ivw-counter', 'post-hash', 'twitter-widgets' ]
 	}
 });
