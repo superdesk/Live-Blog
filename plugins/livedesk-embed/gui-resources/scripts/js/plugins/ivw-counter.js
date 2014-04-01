@@ -11,7 +11,10 @@ define([
             var view = this.prototype;
             view.events['[data-gimme="posts.nextPage"]'] = { 'click': "ivwCounter" }
             view.ivwCounter = function(evt) {
-                RPO.reloadIVW();
+                this.buttonNextPage();
+                if( (typeof(RPO) !== 'undefined') && RPO.reloadIVW) {
+                    RPO.reloadIVW();
+                }
             };
         });
     };
