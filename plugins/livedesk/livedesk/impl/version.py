@@ -29,7 +29,9 @@ class VersionService(SessionSupport, IVersionService):
     generalSettingService = IGeneralSettingService; wire.entity('generalSettingService')
     versionCDM = ICDM; wire.entity('versionCDM')
     #configuration service used to retrieve configuration data
-    version_file = '/lib/livedesk-embed/scripts/js/version.js'; wire.config('version_file', doc='''The file version location
+    version_file = '/lib/livedesk-embed/scripts/js/version.js'; wire.config('version_file', doc='''The file version location embed js files
+    ''')
+    allypy_version_file = '/lib/core/scripts/js/version.js'; wire.config('allypy_version_file', doc='''The file version location for ally-py js files
     ''')
     major_key = 'major'
     minor_key = 'minor'
@@ -105,4 +107,13 @@ class VersionService(SessionSupport, IVersionService):
                     });''' % (str(version.Major), str(version.Minor), str(version.Revision)) 
         
         self.versionCDM.publishContent(self.version_file, BytesIO(content.encode(encoding='utf_8')))         
+        
+        
+        content = '''allyAdmin.callbackVersion({
+                        major: %s,
+                        minor: %s,
+                        revision: %s
+                    });''' % (str(version.Major), str(version.Minor), str(version.Revision)) 
+        
+        self.versionCDM.publishContent(self.allypy_version_file, BytesIO(content.encode(encoding='utf_8'))) 
 
