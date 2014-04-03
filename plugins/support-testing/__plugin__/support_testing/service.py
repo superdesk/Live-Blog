@@ -15,6 +15,7 @@ from __plugin__.superdesk.db_superdesk import bindSuperdeskSession,\
 from itertools import chain    
 from __plugin__.plugin.registry import addService
 
+
 # --------------------------------------------------------------------
 
 @ioc.entity
@@ -30,5 +31,5 @@ support.listenToEntities(SERVICES, listeners=addService(bindersService))
 support.loadAllEntities(SERVICES)
 
 
-# --------------------------------------------------------------------
+
 
