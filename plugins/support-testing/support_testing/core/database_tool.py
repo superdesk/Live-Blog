@@ -8,12 +8,18 @@ Created on April 3, 2014
 
 Database tool for test fixture.
 '''
+import logging
+
+# --------------------------------------------------------------------
+log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------
 
 class DatabaseTool:
     
     def runscript(self, session, filename):
-        f= open(filename , "r")
         try:
+            f= open(filename , "r")
             session.execute('SET foreign_key_checks = 0')
             for sql in f:
                 if sql == '\n' or sql[0] == '/' or sql[0] == '-':
@@ -23,7 +29,7 @@ class DatabaseTool:
             session.execute('SET foreign_key_checks = 1')
             session.commit()
         except Exception as e:
-            print(e)
+            log.error(e)
             session.rollback()
             return False
         finally:

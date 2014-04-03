@@ -9,18 +9,18 @@ Created on April 1, 2014
 Test fixture management implementation.
 '''
 
-from ally.container.support import setup
-from support_testing.api.test_fixture import ITestFixtureService, TestFixture
-from ally.api.extension import IterPart
-from ally.container.ioc import injected
-from ally.support.sqlalchemy.session import SessionSupport
-from support_testing.core.database_tool import DatabaseTool
 import datetime
 import logging
-from __plugin__.support_testing.publish_test_fixtures import test_fixtures_folder,\
-    cdmTestFixtures
+
+from ally.api.extension import IterPart
 from ally.cdm.spec import ICDM
 from ally.container import wire
+from ally.container.ioc import injected
+from ally.container.support import setup
+from ally.support.sqlalchemy.session import SessionSupport
+from support_testing.api.test_fixture import ITestFixtureService, TestFixture
+from support_testing.core.database_tool import DatabaseTool
+
 
 # --------------------------------------------------------------------
 log = logging.getLogger(__name__)
