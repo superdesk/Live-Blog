@@ -15,9 +15,12 @@ from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.support.sqlalchemy.session import SessionSupport
 from support_testing.core.database_tool import DatabaseTool
-import os
 import datetime
 import logging
+from __plugin__.support_testing.publish_test_fixtures import test_fixtures_folder,\
+    cdmTestFixtures
+from ally.cdm.spec import ICDM
+from ally.container import wire
 
 # --------------------------------------------------------------------
 log = logging.getLogger(__name__)
@@ -30,9 +33,9 @@ class TestFixtureService(ITestFixtureService, SessionSupport):
     '''
     Implementation for @see: ITestFixtureService
     '''
-    
-    del_script_path_format = '/../../test_fixtures/%(name)s/%(database)s_del.sql'
-    add_script_path_format = '/../../test_fixtures/%(name)s/%(database)s_add.sql'
+    cdmTestFixtures = ICDM; wire.entity('cdmTestFixtures')
+    del_script_path_format = '/%(name)s/%(database)s_del.sql'
+    add_script_path_format = '/%(name)s/%(database)s_add.sql'
 
     def getAll(self, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -55,9 +58,12 @@ class TestFixtureService(ITestFixtureService, SessionSupport):
         start = datetime.datetime.now()
         
         databaseTool = DatabaseTool()
-        path = os.path.dirname(os.path.realpath(__file__))        
+        path = 'tests'       
         del_path = path + self.del_script_path_format % {'name' : testFixture.Name, 'database' : 'mysql'}
         add_path = path + self.add_script_path_format % {'name' : testFixture.Name, 'database' : 'mysql'}
+        
+        del_path = self.cdmTestFixtures.getURI(del_path, protocol='file')
+        add_path = self.cdmTestFixtures.getURI(add_path, protocol='file')
         
         result = databaseTool.runscript(self.session(), del_path) 
         
