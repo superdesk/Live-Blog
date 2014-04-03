@@ -148,6 +148,15 @@ define([
 				}
 				self._flags.addAllPending = false;
 			},
+			
+			removeAllAutoupdate: function(evt, data)
+			{
+				for (var i in data) {
+					if ('postView' in data[i]) {
+						data[i].postView.remove();
+					}
+				}
+			},
 
 			addAllAutoupdate: function(evt) {
 				var self = this;
