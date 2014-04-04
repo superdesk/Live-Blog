@@ -81,6 +81,7 @@ class IterPost(IterPart):
     The offsetMore parameter was removed to limit the query count that the client generates otherwise.
     '''
     lastCId = int
+    sinceLastCId = int
 
 # --------------------------------------------------------------------
 
