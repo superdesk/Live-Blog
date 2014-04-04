@@ -80,11 +80,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         
         postVerification = aliased(PostVerificationMapped, name='post_verification_filter')
 
+        sinceLastCId = 0
         sql = self._filterQuery(blogId, typeId, creatorId, authorId, q)
         
         if q:
             if QWithCId.cId in q and q.cId:
                 sql = sql.filter(BlogPostMapped.CId != None)
+                sinceLastCId = q.cId.since
             sql = buildQuery(sql, q, BlogPostMapped)
             
             if QWithCId.status in q or QWithCId.checker in q:
@@ -110,6 +112,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if detailed:
             posts = IterPost(posts, sql.distinct().count(), offset, limit)
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
+            posts.sinceLastCId = sinceLastCId
         return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None,
