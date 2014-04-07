@@ -374,7 +374,6 @@ define('providers/edit', [
 					});
 
 					var thumbHolder = self.el.find('.link-preview-actions');
-					thumbHolder.show();
 
 					var iterateL = thumbHolder.find('.iterate-left');
 					var iterateR = thumbHolder.find('.iterate-right')
@@ -384,9 +383,11 @@ define('providers/edit', [
 					var toggleThumb = thumbHolder.find('.show-link-thumb');
 					
 					if (myThumb !== '') {
+						thumbHolder.show();
 						toggleThumb.prop('checked', true);
 					}
 					else {
+						thumbHolder.hide();
 						toggleThumb.prop('checked', false);
 						thumb.hide();
 						data.thumbnailShow = true;
@@ -408,6 +409,7 @@ define('providers/edit', [
 						}
 					});
 
+					
 					function disableIteration() {
 						if (selected == 0) 
 							iterateL.addClass('disable');
@@ -419,7 +421,13 @@ define('providers/edit', [
 						else
 							iterateR.removeClass('disable');
 					}
-					disableIteration();
+
+					var refreshCntr = 6;
+					var refreshThumbs = setInterval(function(){
+						disableIteration();
+						refreshCntr--;
+						if (refreshCntr == 0) clearInterval(refreshThumbs);
+					},500);
 
 					toggleThumb.change(function(){
 						if ($(this).is(':checked')) {
