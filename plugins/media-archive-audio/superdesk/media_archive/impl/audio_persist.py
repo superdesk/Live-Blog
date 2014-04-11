@@ -15,7 +15,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from os import remove
+from os import remove, path, makedirs
 from os.path import splitext, abspath, join, exists
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
@@ -44,7 +44,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the audio thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the audio thumbnails in the media archive''')
-    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
+    ffmpeg_path = join('/', 'usr', 'bin', 'ffmpeg'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
     ffmpeg_tmp_path = join('workspace', 'tools', 'ffmpeg', 'tmp');wire.config('ffmpeg_tmp_path', doc='''
     The path where ffmpeg writes temp data''')
@@ -64,6 +64,9 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
         self._defaultThumbnailFormatId = self._thumbnailFormatId = self._metaTypeId = None
+        
+        if not path.exists(self.ffmpeg_tmp_path):
+            makedirs(self.ffmpeg_tmp_path)
 
     def addMetaInfo(self, metaDataMapped, languageId):
         audioInfoMapped = AudioInfoMapped()
@@ -120,32 +123,36 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                 if property == None:
                     metadata = False
                 else:
-                    if property == 'title':
-                        audioDataEntry.Title = self.extractString(line)
-                    elif property == 'artist':
-                        audioDataEntry.Artist = self.extractString(line)
-                    elif property == 'track':
-                        audioDataEntry.Track = self.extractNumber(line)
-                    elif property == 'album':
-                        audioDataEntry.Album = self.extractString(line)
-                    elif property == 'genre':
-                        audioDataEntry.Genre = self.extractString(line)
-                    elif property == 'TCMP':
-                        audioDataEntry.Tcmp = self.extractNumber(line)
-                    elif property == 'album_artist':
-                        audioDataEntry.AlbumArtist = self.extractString(line)
-                    elif property == 'date':
-                        audioDataEntry.Year = self.extractNumber(line)
-                    elif property == 'disc':
-                        audioDataEntry.Disk = self.extractNumber(line)
-                    elif property == 'TBPM':
-                        audioDataEntry.Tbpm = self.extractNumber(line)
-                    elif property == 'composer':
-                        audioDataEntry.Composer = self.extractString(line)
-                    elif property == 'Duration':
-                        # Metadata section is finished 
-                        metadata = False
-                            
+                    try:
+                        if property == 'title':
+                            audioDataEntry.Title = self.extractString(line)
+                        elif property == 'artist':
+                            audioDataEntry.Artist = self.extractString(line)
+                        elif property == 'track':
+                            audioDataEntry.Track = self.extractNumber(line)
+                        elif property == 'album':
+                            audioDataEntry.Album = self.extractString(line)
+                        elif property == 'genre':
+                            audioDataEntry.Genre = self.extractString(line)
+                        elif property == 'TCMP':
+                            audioDataEntry.Tcmp = self.extractNumber(line)
+                        elif property == 'album_artist':
+                            audioDataEntry.AlbumArtist = self.extractString(line)
+                        elif property == 'date':
+                            audioDataEntry.Year = self.extractNumber(line)
+                        elif property == 'disc':
+                            audioDataEntry.Disk = self.extractNumber(line)
+                        elif property == 'TBPM':
+                            audioDataEntry.Tbpm = self.extractNumber(line)
+                        elif property == 'composer':
+                            audioDataEntry.Composer = self.extractString(line)
+                        elif property == 'Duration':
+                            # Metadata section is finished 
+                            metadata = False
+                    except:
+                        #skip if not able to extract data
+                        pass
+                                
                 if metadata: continue        
             elif line.find('Metadata') != -1: 
                 metadata = True 
