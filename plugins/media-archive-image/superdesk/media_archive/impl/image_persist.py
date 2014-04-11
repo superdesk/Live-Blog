@@ -44,7 +44,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the images thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
-    metadata_extractor_path = join('workspace', 'tools', 'exiv2', 'bin', 'exiv2.exe')
+    metadata_extractor_path = join('/', 'usr', 'bin', 'exiv2')
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
 
     image_supported_files = 'gif, png, bmp, jpg'
@@ -109,18 +109,20 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
             if property is None:
                 continue
-
-            if property == 'Image size':
-                size = self.extractSize(line)
-                imageDataEntry.Width = size[0]
-                imageDataEntry.Height = size[1]
-            elif property == 'Image timestamp':
-                imageDataEntry.CreationDate = self.extractDateTime(line)
-            elif property == 'Camera make':
-                imageDataEntry.CameraMake = self.extractString(line)
-            elif property == 'Camera model':
-                imageDataEntry.CameraModel = self.extractString(line)
-
+            try:
+                if property == 'Image size':
+                    size = self.extractSize(line)
+                    imageDataEntry.Width = size[0]
+                    imageDataEntry.Height = size[1]
+                elif property == 'Image timestamp':
+                    imageDataEntry.CreationDate = self.extractDateTime(line)
+                elif property == 'Camera make':
+                    imageDataEntry.CameraMake = self.extractString(line)
+                elif property == 'Camera model':
+                    imageDataEntry.CameraModel = self.extractString(line)
+            except: 
+                #skip if not able to extract data
+                pass        
 
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
