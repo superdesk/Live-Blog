@@ -1,7 +1,7 @@
 Superdesk
 =========
 
-[Superdesk][Superdesk] is open source software to manage a newsroom's content ingest, process and output. Media organisations are free to define their own type of newsroom organisation, content delivery and business strategy. It has been built by journalists, for journalists, with the aim of helping the media business towards financial sustainability.
+[Superdesk][Superdesk] is open source software(AGPLv3 license)  to manage a newsroom's content ingest, process and output. Media organisations are free to define their own type of newsroom organisation, content delivery and business strategy. It has been built by journalists, for journalists, with the aim of helping the media business towards financial sustainability.
 
 ## Features
 
