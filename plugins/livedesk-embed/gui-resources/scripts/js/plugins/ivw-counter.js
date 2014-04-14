@@ -2,7 +2,7 @@
 define([
     'jquery',
     'plugins',
-    'plugins/button-pagination',
+    'plugins/button-pagination'
 ], function($, plugins, buttonPaginationPlugin) {
     delete plugins['button-pagination'];
     plugins['ivw-counter'] = function(config) {
