@@ -1,0 +1,110 @@
+FORMAT: 1A
+
+# LB-embed
+Liveblog embed related REST API
+
+## Blog [/resources/LiveDesk/Blog/{Id}]
+
+Retrieve a single Blog resource.
+
++ Parameters
+    + Id (string) ... Blog id.
+
++ Model (application/json)
+
+        {
+            "Id":"1",
+            "IsLive":"True",
+            "Description":"Welcome to our live election night coverage! We'll be rounding up all the news, views and opinion, plus bringing you the breaking stories, pictures and video from social media.",
+            "EmbedConfig":"{\"theme\":\"default\",\"FrontendServer\":\"//liveblog16.sd-test.sourcefabric.org\",\"MediaImage\":\"//liveblog16.sd-test.sourcefabric.org/content/media_archive/image/000/1.wrP02YN.jpg\",\"MediaToggle\":true,\"MediaUrl\":\"//www.pZzHY7do7LatS4sZaAxD.com\",\"UserComments\":true}",
+            "Title":"Election Night 2013",
+            "CreatedOn":"2014-03-26T11:00:52Z",
+            "LiveOn":"2014-03-26T11:00:52Z",
+            "UpdatedOn":"2014-03-27T12:17:08Z",
+            "Creator":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/HR/User/1","Id":"1"},
+            "Language":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/Localization/Language/3","Id":"3"},
+            "Type":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/BlogType/1","Id":"1"},
+            "Sync":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Sync/"},
+            "Configuration":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Configuration/"},
+            "Post":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Post/"},
+            "PostPublished":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Post/Published"},
+            "PostUnpublished":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Post/Unpublished"},
+            "PostComment":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Post/Comment"},
+            "Collaborator":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Collaborator/"},
+            "CollaboratorPotential":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Collaborator/Potential"},
+            "CommentPost":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Comment/Post/"},
+            "Source":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Source/"},
+            "Seo":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/Seo/"},
+            "BlogMedia":{"href":"//liveblog16.sd-test.sourcefabric.org/resources/LiveDesk/Blog/1/BlogMedia/"}
+        }
+    
+### Retrieve a Blog [GET]
+
++ Response 200 (application/json)
+
+    [Blog][]
+
++ Response 404
+
+
+
+## Post Search [/resources/LiveDesk/Blog/{blogId}/Post/Published/{?offset,limit,detailed,asc,desc,status,deletedOn,search,uuid,cId,createdOn,isModified,order,content,checker,publishedOn,id,updatedOn}]
+
+### List all Posts [GET]
+
++ Parameters
+    + blogId (integer) ... Filter by blog id
+    + id (optional, integer) ... Filter by post id
+    + uuid (optional, string) ... Filter by post unique identifier
+    + cId (optional, integer) ... Filter by post change id
+    + isModified (optional, boolean) ... Filter by isModified status
+    + order (optional, integer) ... Filter by user order
+    + content (optional, string) ... Filter by user content
+    + checker (optional, string) ... Filter by validation checker
+    + status (optional, string) ... Filter by status
+    + createdOn (optional, datetime) ... Filter by creation date
+    + publishedOn (optional, datetime) ... Filter by published date
+    + updatedOn (optional, datetime) ... Filter by updated date
+    + deletedOn (optional, datetime) ... Filter by deletion date
+    + search (optional, string) ... Search by keyword
+    + offset = `0`(optional, integer) ... Offset of the first element from the list
+    + limit = `25`(optional, integer) ... Number of posts to be returned
+    + detailed = `True`(optional, boolean) ... If true return the total number of elements
+    + asc (optional, string) ... Sort ascending
+    + desc (optional, string) ... Sort descending
+    
+
++ Response 200 (application/json)
+
+        {
+            "total":"1",
+            "sinceLastCId":"0",
+            "lastCId":"10",
+            "limit":"1",
+            "offset":"0",
+            "PostList":[
+                {
+                    "href":"//localhost:8080/resources/LiveDesk/Blog/1/Post/8.json",
+                    "Id":"8","IsModified":"False",
+                    "IsPublished":"True",
+                    "WasPublished":"True",
+                    "CId":"6",
+                    "Order":"6.0",
+                    "AuthorName":"Janet Admin",
+                    "Content":"<a href=\"http://www.sourcefabric.org/en/superdesk/liveblog/\" target=\"_blank\">Live Blog is a new open source live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and be one of the first to test it!</a>",
+                    "Uuid":"ce7e8d9c5fba42be947ed9d53017cd00",
+                    "CreatedOn":"4/3/14 11:45 AM",
+                    "PublishedOn":"4/3/14 11:45 AM",
+                    "Author":{"href":"//localhost:8080/resources/Data/Collaborator/12.json","Id":"12"},
+                    "AuthorPerson":{"href":"//localhost:8080/resources/HR/Person/1.json","Id":"1"},
+                    "Blog":{"href":"//localhost:8080/resources/LiveDesk/Blog/1.json","Id":"1"},
+                    "Creator":{"href":"//localhost:8080/resources/HR/User/1.json","Id":"1"},
+                    "PostVerification":{"href":"//localhost:8080/resources/Data/PostVerification/8.json","Id":"8"},
+                    "Type":{"href":"//localhost:8080/resources/Data/PostType/advertisement.json","Key":"advertisement"}
+                }
+            ]
+        }
+
+
+
+
