@@ -46,3 +46,4 @@ DELETE FROM user;
 DELETE FROM user_rbac;
 DELETE FROM user_type;
 DELETE FROM verification_status;
+
