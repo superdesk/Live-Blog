@@ -1,7 +1,7 @@
-Superdesk
-=========
+Superdesk LiveBlog
+==================
 
-[Superdesk][Superdesk] is open source software (AGPLv3 license) to manage a newsroom's content ingest, process and output. Media organisations are free to define their own type of newsroom organisation, content delivery and business strategy. It has been built by journalists, for journalists, with the aim of helping the media business towards financial sustainability.
+[Superdesk LiveBlog][Superdesk] is open source software (AGPLv3 license) to manage a newsroom's content ingest, process and output. Media organisations are free to define their own type of newsroom organisation, content delivery and business strategy. It has been built by journalists, for journalists, with the aim of helping the media business towards financial sustainability.
 
 ## Features
 
@@ -25,11 +25,11 @@ will come...
 
 ## Read More
 
-* Superdesk for developers - [overview][9]
-* [Superdesk wiki][10]
+* Superdesk LiveBlog for developers - [overview][9]
+* [Superdesk LiveBlog wiki][10]
 
 [Ally-Py]: http://www.sourcefabric.org/en/superdesk/ally_py/
-[Superdesk]: http://superdesk.sourcefabric.org/
+[Superdesk]: https://www.sourcefabric.org/en/superdesk/liveblog/
 [1]: http://www.sourcefabric.org/en/superdesk/features/#desk
 [2]: http://www.sourcefabric.org/en/superdesk/features/#COPE
 [3]: http://www.sourcefabric.org/en/superdesk/features/#ingest
