@@ -1,7 +1,7 @@
 Live Blog
 =========
 
-Sourcefabric's Live Blog is an open source web app that enables journalists to provide immediate and ongoing coverage on evolving news events.
+Sourcefabric's Live Blog is an open source web app that enables journalists to provide immediate and ongoing coverage on evolving news events. Find out more here: https://www.sourcefabric.org/en/superdesk/liveblog/.
 
 See an example of Live Blog in action here: http://www.zeit.de/politik/deutschland/2013-09/bundestagswahl-2013-live
 
