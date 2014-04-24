@@ -146,15 +146,15 @@ class SeoSyncProcess:
         (scheme, netloc, path, params, query, fragment) = urlparse(self.html_generation_server)
 
         q = parse_qsl(query, keep_blank_values=True)
-        q.append(('id', blogSeo.Blog))
-        q.append(('theme', theme.Name))
-        q.append(('host', self.host_url))
+        q.append(('liveblog[id]', blogSeo.Blog))
+        q.append(('liveblog[theme]', theme.Name))
+        q.append(('liveblog[servers][rest]', self.host_url))
         if blogSeo.MaxPosts is not None:
-            q.append(('limit', blogSeo.MaxPosts))
+            q.append(('liveblog[limit]', blogSeo.MaxPosts))
 
         url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
-                                    'User-Agent' : 'Magic Browser'})
+                                    'User-Agent' : 'LiveBlog REST'})
         
         try: resp = urlopen(req)
         except (HTTPError, socket.error) as e:
