@@ -5,6 +5,10 @@ Sourcefabric's Live Blog is an open source web app that enables journalists to p
 
 See an example of Live Blog in action here: http://www.zeit.de/politik/deutschland/2013-09/bundestagswahl-2013-live
 
+*License*: [AGPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)
+
+*Copyright*: [Sourcefabric z.ú.](http://www.sourcefabric.org)
+
 ## Features
 
 - Access to sources: Drag and drop search results from social media and other content networks into your Live Blog timeline.
