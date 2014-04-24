@@ -1,42 +1,51 @@
-Superdesk
+Live Blog
 =========
 
-[Superdesk][Superdesk] is open source software (AGPLv3 license) to manage a newsroom's content ingest, process and output. Media organisations are free to define their own type of newsroom organisation, content delivery and business strategy. It has been built by journalists, for journalists, with the aim of helping the media business towards financial sustainability.
+Sourcefabric's Live Blog is an open source web app that enables journalists to provide immediate and ongoing coverage on evolving news events.
+
+See an example of Live Blog in action here: http://www.zeit.de/politik/deutschland/2013-09/bundestagswahl-2013-live
 
 ## Features
 
-* [Desk Structured][1] - Shape your newsroom's structure.
-* [COPE System][2] - COPE with your media.
-* [Ingest Desk][3] - The world is your newswire.
-* [Integrated Asset Repository][4] - Access and manage assets and content anywhere.
-* [Forward planning][5] - Stay ahead of the news.
-* [Content Output][6] - Anywhere, any time, any place.
-* [Print Desk][7] - Start spreading the news.
-* [Revenue Streams][8] - Profit from quality journalism.
+- Access to sources: Drag and drop search results from social media and other content networks into your Live Blog timeline.
+- Themes: Customise Live Blog to match your site’s design and make it look great on mobile and tablet.
+- User roles: Build a team workﬂow for multiple collaborators with appropriate sign-offs and permissions.
+- Easy embedding: Simply copy and paste an embed code from the Live Blog interface and start spreading the news.
+- Blog chaining: Connect several blogs to syndicate your content to other media outlets.
+- SEO solution: With our new embed plugin you can integrate an html version of the blogs into your website: https://github.com/liveblog/plugin-liveblog-embed-server/tree/master
+
+## Installation
+
+Please check the installation guide: https://github.com/superdesk/Live-Blog/blob/master/INSTALL.txt
+
+## Documentation
+
+- Live Blog RESTful API documentation: http://docs.sourcefabric.org/projects/live-blog-restful-api/en/latest/
+
+## Manuals and Tutorials
+
+- Manual for journalists: http://sourcefabric.booktype.pro/live-blog-20-for-journalists/what-is-live-blog/
+- How to create your own themes: http://www.sourcefabric.org/en/community/blog/2097/Building-themes-for-Live-Blog.htm
+
+## Superdesk
+
+Live Blog is based on [Superdesk technology](https://www.sourcefabric.org/en/superdesk/).
 
 ## How To Contribute
 
-will come...
+### Commit messages
 
-## Superdesk is on base
+Every commit has to have a meaningful commit message in the form:
 
-* [Ally-Py][Ally-Py]Ally-Py
-* more will come...
+```
+[JIRA ref] [JIRA Title] or [Title]
+<empty line>
+[Description]
+```
 
-## Read More
+Where [JIRA ref](https://confluence.atlassian.com/display/FISHEYE/Using+smart+commits) is the Issue code eg. ```LB-13```.
 
-* Superdesk for developers - [overview][9]
-* [Superdesk wiki][10]
+For trivial changes you can ommit JIRA ref or Description or both eg. ```Add travis.yml files```
 
-[Ally-Py]: http://www.sourcefabric.org/en/superdesk/ally_py/
-[Superdesk]: http://superdesk.sourcefabric.org/
-[1]: http://www.sourcefabric.org/en/superdesk/features/#desk
-[2]: http://www.sourcefabric.org/en/superdesk/features/#COPE
-[3]: http://www.sourcefabric.org/en/superdesk/features/#ingest
-[4]: http://www.sourcefabric.org/en/superdesk/features/#asset
-[5]: http://www.sourcefabric.org/en/superdesk/features/#planning
-[6]: http://www.sourcefabric.org/en/superdesk/features/#output
-[7]: http://www.sourcefabric.org/en/superdesk/features/#printdesk
-[8]: http://www.sourcefabric.org/en/superdesk/features/#revenue
-[9]: http://www.sourcefabric.org/en/superdesk/developers/
-[10]: https://wiki.sourcefabric.org/display/NR/Developer+resources
+### Pull requests
+Every pull request has to have a meaningful message and if not specified in the commits, a good description of what has been done.
