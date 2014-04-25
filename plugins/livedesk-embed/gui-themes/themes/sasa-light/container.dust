@@ -1,4 +1,32 @@
+<<<<<<< HEAD
 {>"themeBase/container"/}
+=======
+{!
+_('to top');
+_('new posts');
+_('Load top Posts');
+_('Loading posts...');
+_('Load more posts ...');
+_('comment');
+_('Send');
+_('Cancel');
+_('Nickname');
+_('Your Comment');
+_('Please fill in your Nickname.');
+_('Please fill in your Comment text.');
+_('Please fill in text from image.');
+_('Your message was sent for approval');
+!}
+	{+header}
+		<div id="liveblog-header">
+			<div id="liveblog-status" class="update-time">
+				<span id="liveblog-status-time"></span>
+				<span id="liveblog-status-count" class="new-notification" style="display: none">_('new posts');</span>
+			</div>
+
+			<a id="pintotop" href="#">_('to top');</a>
+            <a id="comment-btn" href="#">_('comment');</a>
+>>>>>>> liveblog/master
 
 {+headerContainer}
 {/headerContainer}
