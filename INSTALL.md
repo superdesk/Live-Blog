@@ -5,6 +5,7 @@ Installing Superdesk
     - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
     - [redhat/centos/sles](#redhatcentossles)
     - [arch/manjaro](#archlinux-or-manjaro)
+    - [win7/win8](#win7-or-win8)    
 + [Installing Superdesk](#installing-superdesk)
 + [Configuring Superdesk](#configuring-superdesk)
 + [Running Superdesk](#running-superdesk)
@@ -71,37 +72,62 @@ Installing Superdesk
 
         
         
+### Win
+
+1. Install necessary software
+   Download and install the tools from the following addresses:
+        ffmpeg: http://www.ffmpeg.org/download.html
+        exiv2: http://www.exiv2.org/download.html
+        gm: http://www.graphicsmagick.org/INSTALL-windows.html
+        
+2. Install python 3.2
+   Download and install the right version from the following address:
+        https://www.python.org/download/releases/3.2
+
+
+        
 ## Installing Superdesk
 
 0. (optional) Add the Superdesk user
 
         $ sudo useradd superdesk -m -s /bin/bash
 
+        
 1. Change to `/opt/` and clone Ally-Py's master branch there.
 
         $ cd /opt/
         $ sudo git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
-
+        
+   Notes: 
+        Depending by your OS you can choose a different location to install the application
+        On win the sudo command is not applicable 
+        
+        
 2. Change to `/opt/ally-py` and clone Superdesk's liveblog16 branch there.
 
         $ cd ./ally-py
-        $ sudo git clone https://github.com/sourcefabric/Superdesk.git -b liveblog16 superdesk
+        $ sudo git clone https://github.com/superdesk/Live-Blog.git -b liveblog16 live-blog
 
-3. (optional) set rights to ally-py folder to superdesk user and switch to it:
+        
+3. (optional) set rights to ally-py folder to liveblog user and switch to it:
 
-        $ sudo chown superdesk -R /opt/ally-py
-        $ sudo su superdesk
+        $ sudo chown liveblog -R /opt/ally-py
+        $ sudo su liveblog
 
-4. Change to /opt/ally-py/superdesk and build eggs by running the following command:
+        
+4. Change to /opt/ally-py/live-blog and build eggs by running the following command:
 
-        $ cd ./superdesk
-        $ ./build-eggs
+        $ cd ./live-blog
+        $ ./build-eggs 
+        (build-eggs.bat on win)
 
+        
 5. Create the configuration files by running the following command:
 
-        $ python3.2 /opt/ally-py/superdesk/distribution/application.py -dump
+        $ python3.2 /opt/ally-py/live-blog/distribution/application.py -dump
 
-6. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/superdesk/distribution/application.properties`.
+        
+6. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/live-blog/distribution/application.properties`.
    Here are the properties that should be changes and default values:
    
         thumbnailProcessor.ThumbnailProcessorGM.gm_path: /usr/bin/gm
@@ -116,11 +142,11 @@ Installing Superdesk
 #### Access from the Internet
 In order to access the application from other machines the following changes need to be done:
 
-1. Edit the file 'superdesk/distribution/application.properties', search for
+1. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for
    the property 'server_host' and change it to '0.0.0.0'
    E.g.: server_host: 0.0.0.0
 
-2. Edit the file 'superdesk/distribution/plugins.properties', search for the
+2. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for the
    properties 'server_url' and 'embed_server_url' and change them to
    '[machine_name_or_ip]:8080
    E.g.: server_url: my.machine.domain.com:8080
@@ -131,7 +157,10 @@ In order to access the application from other machines the following changes nee
 
 1. Run Ally-Py REST server:
 
-        $ python3.2 /opt/ally-py/superdesk/distribution/application.py
+        $ python3.2 /opt/ally-py/live-blog/distribution/application.py
+        
+   As a developer you can run the application from sources by using start-sources.sh(start-sources.bat on win) script.
+
 
 2. Log in to following URL in your browser using credentials `admin/a`:
 
