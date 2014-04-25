@@ -11,7 +11,3 @@ xcopy %ALLYPY%\distribution\plugins\*.egg distribution\plugins\ /D/Y>NUL
 xcopy %ALLYPY%\distribution\components\*.egg distribution\components\ /D/Y>NUL
 
 python.exe plugins\build_egg.py
-
-IF NOT EXIST distribution\application.properties python distribution\application.py -dump
-
-python.exe distribution\application.py
