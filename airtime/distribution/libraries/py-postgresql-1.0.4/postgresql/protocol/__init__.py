@@ -1,6 +1,0 @@
-##
-# .protocol
-##
-"""
-PQ protocol facilities
-"""
