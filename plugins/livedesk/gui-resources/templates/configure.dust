@@ -114,11 +114,12 @@
 						<input type="text" name="MaxPosts" ng-model="MaxPosts"/>
 					</div>
 				</div>
-				<div class="control-group" ng-show="HtmlURLSwitch">
+				<div class="control-group">
 					<label class="control-label"></label>
-					<div class="controls htmlurltext">
-					<a href="{{ HtmlURL }}" target="blank">{{ HtmlURLText }}</a>
+					<div class="controls htmlurltext" ng-show="HtmlURLSwitch">
+					{{ HtmlURLText }}<br />{{ HtmlURL }}
 					</div>
+                    <div class="controls info" ng-show="HtmlWaitSwitch">{{ HtmlWaitText }}</div>
 				</div>
 				<div class="control-group" ng-show="CallbackStatusSwitch">
 					<label class="control-label"></label>

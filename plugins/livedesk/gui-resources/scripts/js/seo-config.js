@@ -8,6 +8,9 @@ define([
 	        var url = new Gizmo.Url(path);
 	        return url.get();
 	    }
+        function relativeToAbsolute(rel) {
+            return window.location.protocol + '//' + window.location.host + rel;
+        }
 	    var angularHeaders = $.extend({}, auth, { 'Content-Type': 'text/json' });
 		var seoconf = angular.module('seoConf',[]);
 		seoconf.config(['$interpolateProvider', function($interpolateProvider) {
@@ -96,7 +99,7 @@ define([
 	            		$scope.RefreshInterval = 60;
 	            		$scope.MaxPosts = 10;
 	            		$scope.HtmlURL = '';
-	            		$scope.LastSynk = 0;
+	            		$scope.LastSync = 0;
 	            	} else {
 	            		$scope.Id = data.Id;
 		            	$scope.SeoTheme = data.BlogTheme.Id;
@@ -106,8 +109,9 @@ define([
 		            	$scope.RefreshInterval = data.RefreshInterval;
 		            	$scope.MaxPosts = data.MaxPosts;
 		            	$scope.HtmlURL = data.HtmlURL;
-		            	$scope.LastSynk = data.LastSynk;
+		            	$scope.LastSync = data.LastSync;
 	            	}
+                    $scope.HtmlWaitSwitch = false;
 
 	            	for ( var i = 0; i < $scope.boxCounter; i++ ) {
 	            		$scope.updateCheckbox[i]();
@@ -122,25 +126,81 @@ define([
 	            	$scope.CallbackStatusText = '';
 
 	            	//general info on the html created
-	            	if ( data.HtmlURL ) {
+	            	if ( data.HtmlURL && data.LastSync) {
+                        $scope.HtmlWaitSwitch = false;
 	            		$scope.HtmlURLSwitch = true;
-	            		$scope.HtmlURL = data.HtmlURL;
+	            		$scope.HtmlURL = relativeToAbsolute(data.HtmlURL);
 	            		$scope.HtmlURLText =  _('SEO html');
 	            		//add timeinfo to text if it exists
-	            		if ( data.LastSynk ) {
-	            			var lastSynk = new Date( data.LastSynk );
+	            		if ( data.LastSync ) {
+	            			var LastSync = new Date( data.LastSync );
 	            			$scope.HtmlURLText += _(' generated on ');
-	            			$scope.HtmlURLText += lastSynk.format('yyyy-mm-dd HH:MM:ss');
+	            			$scope.HtmlURLText += LastSync.format('yyyy-mm-dd HH:MM:ss');
 	            		}
 	            	}
 	            	$scope.HtmlURLText = $scope.HtmlURLText.toString();
 	            	//info on callback status if it exists
 	            	if ( data.CallbackStatus ) {
 	            		$scope.CallbackStatusSwitch = true;
-	            		$scope.CallbackStatusText = _('Callback URL responded with ');
+	            		$scope.CallbackStatusText = _('Result: ');
 	            		$scope.CallbackStatusText += data.CallbackStatus;
-	            	}	            	
+	            	}
 	            });
+            };
+            $scope.$watch('dirToggle', function() {
+                if ($scope.dirToggle && $scope.dirToggle.varName == 'RefreshActive') {
+                    $scope.save();
+                }
+                
+            });
+            $scope.handleHtmlLink = function(seoUrl) {
+                $scope.HtmlURLSwitch = false;
+                $scope.CallbackStatusSwitch = false;
+                $scope.HtmlWaitSwitch = true;
+                var waitText = _('Please wait while the HTML is generating...');
+                $scope.HtmlWaitText = waitText.toString();
+                if ($scope.RefreshActive == "False") {
+                    $scope.HtmlWaitSwitch = false;
+                    return;
+                }
+                
+                if ($scope.htmlInterval) {
+                    clearInterval($scope.htmlInterval);
+                }
+
+                var i = 0;
+                $scope.htmlInterval = setInterval(function() {
+                    $http({method: 'GET', url: seoUrl, headers: {'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}}).
+                    success(function(data, status, headers, config) {
+                        //return the data from the newly created seo config object
+                        var changedOn = Date.parse(data.ChangedOn);
+                        i++;
+                        if (i == 20) {
+                            clearInterval($scope.htmlInterval);
+                            var text = _('The HTML generation process is taking too long, please refresh the page at a later time');
+                            $scope.HtmlWaitText = text.toString();
+                        }
+                        if (data.CallbackStatus) {
+                            clearInterval($scope.htmlInterval);
+                            $scope.HtmlURLSwitch = false;
+                            $scope.HtmlWaitSwitch = false;
+                            $scope.CallbackStatusText = _('Result: ');
+                            $scope.CallbackStatusText += data.CallbackStatus;
+                            $scope.CallbackStatusSwitch = true;
+                        }
+                        if (data.LastSync) {
+                            var LastSyncOn = Date.parse(data.LastSync);
+                            if ( LastSyncOn >= changedOn) {
+                                clearInterval($scope.htmlInterval);
+                                $scope.HtmlURL = relativeToAbsolute(data.HtmlURL);
+                                var urlText = _('SEO html');
+                                $scope.HtmlURLText = urlText.toString();
+                                $scope.HtmlURLSwitch = true;
+                                $scope.HtmlWaitSwitch = false;
+                            }
+                        }
+                    });
+                }, 10000);
             };
             $scope.save = function() {
             	var data = {
@@ -157,10 +217,12 @@ define([
             		seoInterfaceData.newConfig(getGizmoUrl('my/LiveDesk/Seo'), data).then(function(data) {
             			//set the seo object scope id to the newly created one
             			$scope.Id = data.Id;
+                        $scope.handleHtmlLink(getGizmoUrl('my/LiveDesk/Seo/' + $scope.Id));
             		});
             	} else {
 					seoInterfaceData.editConfig(getGizmoUrl('my/LiveDesk/Seo/' + $scope.Id), data).then(function(data) {
             			//stuff do to after seo config edit
+                        $scope.handleHtmlLink(getGizmoUrl('my/LiveDesk/Seo/' + $scope.Id));
             		});
             	}
             };
@@ -182,9 +244,16 @@ define([
 						$(this).toggleClass('sf-checked');
 						if ( $(this).hasClass('sf-checked') ) {
 							scope[attrs['toggle']] = attrs['trueValue'];
+                            var changedTo = attrs['trueValue'];
 						} else {
 							scope[attrs['toggle']] = attrs['falseValue'];
+                            var changedTo = attrs['falseValue'];
 						}
+                        scope.dirToggle = {
+                            varName: attrs['toggle'],
+                            varValue: changedTo
+                        };
+                        scope.$apply();
 					})
 				}
 			}
