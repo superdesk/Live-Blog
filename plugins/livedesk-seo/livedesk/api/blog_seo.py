@@ -38,6 +38,7 @@ class BlogSeo(Entity):
     HtmlURL = str
     LastSync = datetime
     CallbackStatus = str
+    ChangedOn = datetime
     LastBlocked = datetime
 
 # --------------------------------------------------------------------
@@ -57,6 +58,7 @@ class QBlogSeo(QEntity):
     htmlURL = AsLikeOrdered
     lastSync = AsDateTimeOrdered
     callbackStatus = AsLikeOrdered
+    changedOn = AsDateTimeOrdered
     lastBlocked = AsDateTimeOrdered
     
 # --------------------------------------------------------------------

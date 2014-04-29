@@ -69,9 +69,6 @@ class SeoSyncProcess:
     
     host_url = 'http://liveblog16.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
     The external URL of the live blog instance''')
-    
-    format_file_name = '%(id)s.html'; wire.config('format_file_name', doc='''
-    The format for the html files, it can contain blog id, blog title and theme name: %(id)s-%(title)s-%(theme)s.html''')
 
     acceptType = 'text/json'
     # mime type accepted for response from remote blog
@@ -170,17 +167,13 @@ class SeoSyncProcess:
             return
  
         try: 
-            path = self.format_file_name % {'id': blogSeo.Blog, 'title': blog.Title, 'theme': theme.Name}
-            path = ''.join((self.html_storage_path, '/', path))
-        
+            path = ''.join((self.html_storage_path, '/', blogSeo.HtmlURL))
             self.htmlCDM.publishContent(path, resp) 
         except ValueError as e:
             log.error('Fail to publish the HTML file on CDM %s' % e)
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
             return
-        
-        blogSeo.HtmlURL = self.htmlCDM.getURI(path)
 
         if blogSeo.CallbackActive:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
