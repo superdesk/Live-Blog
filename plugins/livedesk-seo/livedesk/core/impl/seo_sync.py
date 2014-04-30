@@ -109,7 +109,7 @@ class SeoSyncProcess:
             nextSync = crtTime + datetime.timedelta(seconds=blogSeo.RefreshInterval)
             self.blogSeoService.updateNextSync(blogSeo.Id, nextSync) 
             
-            if not self.blogSeoService.existsChanges(blogSeo.Id, blogSeo.LastCId): continue
+            if not (self.blogSeoService.existsChanges(blogSeo.Id, blogSeo.LastCId) or  blogSeo.LastSync is None): continue
             
             key = (blogSeo.Blog, blogSeo.BlogTheme)
             thread = self.syncThreads.get(key)
@@ -154,10 +154,13 @@ class SeoSyncProcess:
                                     'User-Agent' : 'LiveBlog REST'})
         
         try: resp = urlopen(req)
-        except (HTTPError, socket.error) as e:
-            log.error('Read error on %s: %s' % (self.html_generation_server, e))
+        except socket.error as e:
+            log.error('Read problem on %s, status: %s' % (self.html_generation_server, resp.status))
+        except HTTPError as e:
+            blogSeo.CallbackStatus = e.read()
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
+            log.error('Read problem on %s, error code with message: %s and exception %s' % (self.html_generation_server, blogSeo.CallbackStatus, e))
             return
         
         if str(resp.status) != '200':
