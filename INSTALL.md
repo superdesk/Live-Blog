@@ -1,14 +1,14 @@
-Installing Superdesk
+Installing LiveBlog
 ============================
 
 + [prerequisites](#prerequisites)
     - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
-    - [redhat/centos/sles](#redhatcentossles)
+    - [redhat/centos/sles](#redhatcentos)
     - [arch/manjaro](#archlinux-or-manjaro)
     - [win7/win8](#win7-or-win8)    
-+ [Installing Superdesk](#installing-superdesk)
-+ [Configuring Superdesk](#configuring-superdesk)
-+ [Running Superdesk](#running-superdesk)
++ [Installing LiveBlog](#installing-liveblog)
++ [Configuring LiveBlog](#configuring-liveblog)
++ [Running LiveBlog](#running-liveblog)
 
 
 ## Prerequisites
@@ -20,7 +20,6 @@ Installing Superdesk
 
         $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 git
 
-        
         
 ### Newer versions of ubuntu/debian which are not shipped with python 3.2
 
@@ -34,12 +33,12 @@ Installing Superdesk
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
-        $ make && sudo make install
-
+        $ ./configure --prefix=/opt/python32
+        $ make
+        $ sudo make install  # or 'sudo checkinstall' to automatically generate a package
         
         
-### Redhat/Centos/sles
+### Redhat/Centos
 
 1. Add repositories for ffmpeg and GraphicsMagick:
 
@@ -59,8 +58,9 @@ Installing Superdesk
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
-        $ make && sudo make install
+        $ ./configure --prefix=/opt/python32
+        $ make
+        $ sudo make install  # or 'sudo checkinstall' to automatically generate a package
 
         
         
@@ -86,13 +86,8 @@ Installing Superdesk
 
 
         
-## Installing Superdesk
+## Installing LiveBlog
 
-0. (optional) Add the Superdesk user
-
-        $ sudo useradd superdesk -m -s /bin/bash
-
-        
 1. Change to `/opt/` and clone Ally-Py's master branch there.
 
         $ cd /opt/
@@ -103,31 +98,22 @@ Installing Superdesk
         On win the sudo command is not applicable 
         
         
-2. Change to `/opt/ally-py` and clone Superdesk's liveblog16 branch there.
+2. Change to `/opt/ally-py` and clone LiveBlog's master branch there.
 
         $ cd ./ally-py
-        $ sudo git clone https://github.com/superdesk/Live-Blog.git -b liveblog16 live-blog
+        $ sudo git clone https://github.com/superdesk/Live-Blog.git live-blog
 
-        
-3. (optional) set rights to ally-py folder to liveblog user and switch to it:
-
-        $ sudo chown liveblog -R /opt/ally-py
-        $ sudo su liveblog
-
-        
-4. Change to /opt/ally-py/live-blog and build eggs by running the following command:
+3. Change to /opt/ally-py/live-blog and build eggs by running the following command:
 
         $ cd ./live-blog
         $ ./build-eggs 
         (build-eggs.bat on win)
 
-        
-5. Create the configuration files by running the following command:
+4. Create the configuration files by running the following command:
 
         $ python3.2 /opt/ally-py/live-blog/distribution/application.py -dump
 
-        
-6. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/live-blog/distribution/application.properties`.
+5. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/live-blog/distribution/application.properties`.
    Here are the properties that should be changes and default values:
    
         thumbnailProcessor.ThumbnailProcessorGM.gm_path: /usr/bin/gm
@@ -137,7 +123,7 @@ Installing Superdesk
         
         
 
-## Configuring Superdesk
+## Configuring LiveBlog
 
 #### Access from the Internet
 In order to access the application from other machines the following changes need to be done:
@@ -153,7 +139,7 @@ In order to access the application from other machines the following changes nee
 
 
 
-## Running Superdesk
+## Running LiveBlog
 
 1. Run Ally-Py REST server:
 
