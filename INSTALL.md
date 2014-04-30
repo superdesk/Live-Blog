@@ -6,7 +6,7 @@ Installing LiveBlog
     - [redhat/centos](#redhatcentos)
     - [arch/manjaro](#archlinux-or-manjaro)
     - [win7/win8](#win7-or-win8)    
-+ [Installing LiveBlog](#installing-liveblog)
++ [Installing LiveBlog](#installing-liveblog-1)
 + [Configuring LiveBlog](#configuring-liveblog)
 + [Running LiveBlog](#running-liveblog)
 
