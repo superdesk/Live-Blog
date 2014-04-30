@@ -3,7 +3,7 @@ Installing LiveBlog
 
 + [prerequisites](#prerequisites)
     - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
-    - [redhat/centos/sles](#redhatcentos)
+    - [redhat/centos](#redhatcentos)
     - [arch/manjaro](#archlinux-or-manjaro)
     - [win7/win8](#win7-or-win8)    
 + [Installing LiveBlog](#installing-liveblog)
