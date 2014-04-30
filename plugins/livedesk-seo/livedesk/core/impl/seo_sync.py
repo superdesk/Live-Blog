@@ -109,7 +109,11 @@ class SeoSyncProcess:
             nextSync = crtTime + datetime.timedelta(seconds=blogSeo.RefreshInterval)
             self.blogSeoService.updateNextSync(blogSeo.Id, nextSync) 
             
-            if not (self.blogSeoService.existsChanges(blogSeo.Id, blogSeo.LastCId) or  blogSeo.LastSync is None): continue
+            existsChanges = self.blogSeoService.existsChanges(blogSeo.Blog, blogSeo.LastCId)
+            
+            if blogSeo.LastSync is not None and not existsChanges: 
+                log.info('Skip blog seo %d for blog %d', blogSeo.Id, blogSeo.Blog)
+                continue
             
             key = (blogSeo.Blog, blogSeo.BlogTheme)
             thread = self.syncThreads.get(key)
@@ -157,7 +161,7 @@ class SeoSyncProcess:
         except socket.error as e:
             log.error('Read problem on %s, status: %s' % (self.html_generation_server, resp.status))
         except HTTPError as e:
-            blogSeo.CallbackStatus = e.read()
+            blogSeo.CallbackStatus = e.read().decode(encoding='UTF-8')
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
             log.error('Read problem on %s, error code with message: %s and exception %s' % (self.html_generation_server, blogSeo.CallbackStatus, e))
