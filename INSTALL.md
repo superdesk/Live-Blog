@@ -88,32 +88,30 @@ Installing LiveBlog
         
 ## Installing LiveBlog
 
-1. Change to `/opt/` and clone Ally-Py's master branch there.
+1. Change to the directory you choose to install the application and clone Ally-Py's master branch there.
 
-        $ cd /opt/
-        $ sudo git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
+        $ git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
         
    Notes: 
-        Depending by your OS you can choose a different location to install the application
-        On win the sudo command is not applicable 
+        Depending by your OS you can choose a different location to install the application like /opt, c:\, etc.
         
-        
-2. Change to `/opt/ally-py` and clone LiveBlog's master branch there.
+2. Change to ally-py directory and clone LiveBlog's master branch there.
 
         $ cd ./ally-py
-        $ sudo git clone https://github.com/superdesk/Live-Blog.git live-blog
+        $ git clone https://github.com/superdesk/Live-Blog.git -b master live-blog
 
-3. Change to /opt/ally-py/live-blog and build eggs by running the following command:
+3. Change to live-blog directory and build eggs by running the following command:
 
         $ cd ./live-blog
         $ ./build-eggs 
         (build-eggs.bat on win)
 
-4. Create the configuration files by running the following command:
+4. Change to distribution directory and create the configuration files by running the following command:
 
-        $ python3.2 /opt/ally-py/live-blog/distribution/application.py -dump
+        $ cd ./distribution
+        $ python3.2 ./application.py -dump
 
-5. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/live-blog/distribution/application.properties`.
+5. Update the full paths to ffmpeg/exiv2/gm tools in plugins.properties configuration file.
    Here are the properties that should be changes and default values:
    
         thumbnailProcessor.ThumbnailProcessorGM.gm_path: /usr/bin/gm
@@ -128,11 +126,11 @@ Installing LiveBlog
 #### Access from the Internet
 In order to access the application from other machines the following changes need to be done:
 
-1. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for
+1. Edit the application.properties file, search for
    the property 'server_host' and change it to '0.0.0.0'
    E.g.: server_host: 0.0.0.0
 
-2. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for the
+2. Edit the application.properties configuration file, search for the
    properties 'server_url' and 'embed_server_url' and change them to
    '[machine_name_or_ip]:8080
    E.g.: server_url: my.machine.domain.com:8080
@@ -143,9 +141,12 @@ In order to access the application from other machines the following changes nee
 
 1. Run Ally-Py REST server:
 
-        $ python3.2 /opt/ally-py/live-blog/distribution/application.py
+        $ python3.2 ./application.py
         
-   As a developer you can run the application from sources by using start-sources.sh(start-sources.bat on win) script.
+   As a developer you can run the application from sources by running the following command:
+        $ cd ..
+        $ ./start-sources.sh
+        (start-sources.bat on win)
 
 
 2. Log in to following URL in your browser using credentials `admin/a`:
