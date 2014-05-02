@@ -83,6 +83,7 @@ Installing LiveBlog
         
 2. Install python 3.2
    Download and install the right version from the following address:
+
         https://www.python.org/download/releases/3.2
 
 
