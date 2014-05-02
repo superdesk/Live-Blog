@@ -148,6 +148,7 @@ The folowing steps in generally are applicable to all OSs and any exception is s
         (python3.2 application.py for win7/8)
         
    As a developer you can run the application from sources by running the following command:
+        
         cd ..
         ./start-sources.sh
         (start-sources.bat for win7/8)
