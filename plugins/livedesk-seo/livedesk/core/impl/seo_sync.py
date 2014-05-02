@@ -67,7 +67,7 @@ class SeoSyncProcess:
     html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
     The path where will be stored the generated HTML files''')
     
-    host_url = 'http://liveblog16.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
+    host_url = 'http://master.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
     The external URL of the live blog instance''')
 
     acceptType = 'text/json'
@@ -181,6 +181,8 @@ class SeoSyncProcess:
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
             return
+        
+        blogSeo.CallbackStatus = None  
 
         if blogSeo.CallbackActive:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
@@ -208,7 +210,7 @@ class SeoSyncProcess:
                 if str(resp.status) != '200':
                     log.error('Read problem on %s, status: %s' % (blogSeo.CallbackURL, resp.status))
                     blogSeo.CallbackStatus = resp.status
-                else: blogSeo.CallbackStatus = 'OK'    
+                else: blogSeo.CallbackStatus = None    
         
         blogSeo.LastSync = datetime.datetime.now().replace(microsecond=0) 
         blogSeo.LastBlocked = None 
