@@ -76,6 +76,7 @@ Installing LiveBlog
 
 1. Install necessary software
    Download and install the tools from the following addresses:
+
         ffmpeg: http://www.ffmpeg.org/download.html
         exiv2: http://www.exiv2.org/download.html
         gm: http://www.graphicsmagick.org/INSTALL-windows.html
