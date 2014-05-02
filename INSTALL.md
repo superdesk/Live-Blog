@@ -87,29 +87,31 @@ Installing LiveBlog
 
         
 ## Installing LiveBlog
+The folowing installation steps in generally are applicable to all OSs and any exception is specified.
 
 1. Change to the directory you choose to install the application and clone Ally-Py's master branch there.
 
-        $ git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
+        git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
         
-   Notes: 
+   Note: 
         Depending by your OS you can choose a different location to install the application like /opt, c:\, etc.
         
 2. Change to ally-py directory and clone LiveBlog's master branch there.
 
-        $ cd ./ally-py
-        $ git clone https://github.com/superdesk/Live-Blog.git -b master live-blog
+        cd ally-py
+        git clone https://github.com/superdesk/Live-Blog.git -b master live-blog
 
 3. Change to live-blog directory and build eggs by running the following command:
 
-        $ cd ./live-blog
-        $ ./build-eggs 
-        (build-eggs.bat on win)
+        cd live-blog
+        ./build-eggs 
+        (build-eggs.bat for win7/8)
 
 4. Change to distribution directory and create the configuration files by running the following command:
 
-        $ cd ./distribution
-        $ python3.2 ./application.py -dump
+        cd distribution
+        python3.2 ./application.py -dump
+        (python3.2 application.py -dump for win7/8)
 
 5. Update the full paths to ffmpeg/exiv2/gm tools in plugins.properties configuration file.
    Here are the properties that should be changes and default values:
@@ -138,15 +140,17 @@ In order to access the application from other machines the following changes nee
 
 
 ## Running LiveBlog
+The folowing steps in generally are applicable to all OSs and any exception is specified.
 
 1. Run Ally-Py REST server:
 
-        $ python3.2 ./application.py
+        python3.2 ./application.py
+        (python3.2 application.py for win7/8)
         
    As a developer you can run the application from sources by running the following command:
-        $ cd ..
-        $ ./start-sources.sh
-        (start-sources.bat on win)
+        cd ..
+        ./start-sources.sh
+        (start-sources.bat for win7/8)
 
 
 2. Log in to following URL in your browser using credentials `admin/a`:
