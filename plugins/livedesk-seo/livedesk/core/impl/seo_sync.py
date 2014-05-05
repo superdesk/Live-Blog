@@ -155,19 +155,17 @@ class SeoSyncProcess:
                                     'User-Agent' : 'LiveBlog REST'})
         
         try: resp = urlopen(req)
-        except socket.error as e:
-            log.error('Read problem on %s, status: %s' % (self.html_generation_server, resp.status))
         except HTTPError as e:
             blogSeo.CallbackStatus = e.read().decode(encoding='UTF-8')
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
-            log.error('Read problem on %s, error code with message: %s and exception %s' % (self.html_generation_server, blogSeo.CallbackStatus, e))
+            log.error('Read problem on %s, error code with message: %s ' % (self.html_generation_server, blogSeo.CallbackStatus))
             return
-        
-        if str(resp.status) != '200':
-            log.error('Read problem on %s, status: %s' % (self.html_generation_server, resp.status))
+        except Exception as e:  
+            blogSeo.CallbackStatus = 'Can\'t access the HTML generation server: ' + self.html_generation_server
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
+            log.error('Read problem on accessing %s' % (self.html_generation_server, ))
             return
  
         try: 
@@ -176,6 +174,7 @@ class SeoSyncProcess:
             self.htmlCDM.publishContent(path, resp)
         except ValueError as e:
             log.error('Fail to publish the HTML file on CDM %s' % e)
+            blogSeo.CallbackStatus = 'Fail to publish the HTML file on CDM'
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
             return
@@ -201,14 +200,14 @@ class SeoSyncProcess:
                                         'User-Agent' : 'Magic Browser'})
             
             try: resp = urlopen(req)
+            except HTTPError as e:
+                log.error('Error opening URL %s; error status: %s' % (blogSeo.CallbackURL, resp.status))
+                blogSeo.CallbackStatus = 'Error opening callback URL: ' + blogSeo.CallbackURL + '; error status: ' + resp.status
             except Exception as e:
-                log.error('Read error on %s: %s' % (blogSeo.CallbackURL, e))
-                blogSeo.CallbackStatus = 'Error opening URL:' + url  
+                log.error('Error opening URL %s: %s' % (blogSeo.CallbackURL, e))
+                blogSeo.CallbackStatus = 'Error opening callback URL:' + blogSeo.CallbackURL 
             else: 
-                if str(resp.status) != '200':
-                    log.error('Read problem on %s, status: %s' % (blogSeo.CallbackURL, resp.status))
-                    blogSeo.CallbackStatus = resp.status
-                else: blogSeo.CallbackStatus = None    
+                blogSeo.CallbackStatus = None    
         
         blogSeo.LastSync = datetime.datetime.now().replace(microsecond=0) 
         blogSeo.LastBlocked = None 
