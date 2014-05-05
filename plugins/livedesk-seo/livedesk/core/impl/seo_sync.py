@@ -64,9 +64,6 @@ class SeoSyncProcess:
     html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
     The partial path used to construct the URL for blog html generation''')
     
-    html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
-    The path where will be stored the generated HTML files''')
-    
     host_url = 'http://master.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
     The external URL of the live blog instance''')
 
@@ -174,8 +171,9 @@ class SeoSyncProcess:
             return
  
         try: 
-            path = ''.join((self.html_storage_path, '/', blogSeo.HtmlURL))
-            self.htmlCDM.publishContent(path, resp) 
+            baseContent = self.htmlCDM.getURI('')
+            path = blogSeo.HtmlURL[len(baseContent):]
+            self.htmlCDM.publishContent(path, resp)
         except ValueError as e:
             log.error('Fail to publish the HTML file on CDM %s' % e)
             blogSeo.LastBlocked = None 
