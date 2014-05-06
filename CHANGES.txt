@@ -1,0 +1,9 @@
+Live Blog
+=========
+
+Version 2.0-beta1
+-----------------
+
+Released on April 24, 2014
+
+- First public beta release
