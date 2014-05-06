@@ -85,6 +85,5 @@ class ThumbnailProcessorGM(IThumbnailProcessor):
         elif exists(destination + '.0'):
             #older version of gm generates a file from every image from animated gifs
             os.rename(destination + '.0', destination)
-            os.remove(destination + '.*')
             
 
