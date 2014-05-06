@@ -12,7 +12,6 @@ API implementation of liveblog seo.
 import datetime
 import logging
 from sched import scheduler
-import socket
 from threading import Thread
 import time
 from urllib.error import HTTPError
@@ -64,9 +63,6 @@ class SeoSyncProcess:
     html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
     The partial path used to construct the URL for blog html generation''')
     
-    host_url = 'http://master.sd-test.sourcefabric.org'; wire.config('host_url', doc='''
-    The external URL of the live blog instance''')
-
     acceptType = 'text/json'
     # mime type accepted for response from remote blog
     encodingType = 'UTF-8'
