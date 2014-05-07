@@ -1,0 +1,14 @@
+{>"themeBase/item/base"/}
+
+{<headerContainer}
+  <div class="post-header">
+    {+header}
+      {+userAvatar}{/userAvatar}
+      {+userNameContainer}{/userNameContainer}
+      {+postDateContainer}{/postDateContainer}
+      {+shareContainer}{/shareContainer}
+    {/header}
+  </div>
+{/headerContainer}
+
+{<contentSide}{/contentside}
