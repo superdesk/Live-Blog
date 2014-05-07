@@ -11,6 +11,8 @@ Installing LiveBlog
 + [Running LiveBlog](#running-liveblog)
 
 
+The officially supported platform is Ubuntu and Python3.2. However the application can be installed on other OSs and below are provided the install instructions.
+
 ## Prerequisites
 
 
