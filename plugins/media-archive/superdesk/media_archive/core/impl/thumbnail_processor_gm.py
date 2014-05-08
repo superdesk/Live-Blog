@@ -13,7 +13,7 @@ from ally.container import wire
 from ally.container.ioc import injected
 from genericpath import exists
 from os import makedirs
-from os.path import join, abspath, dirname
+from os.path import join, dirname
 from subprocess import Popen, PIPE
 from superdesk.media_archive.core.spec import IThumbnailProcessor
 import logging
