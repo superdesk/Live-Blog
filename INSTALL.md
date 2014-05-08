@@ -114,8 +114,7 @@ The folowing installation steps in generally are applicable to all OSs and any e
 4. Change to distribution directory and create the configuration files by running the following command:
 
         cd distribution
-        python3.2 ./application.py -dump
-        (python3.2 application.py -dump for win7/8)
+        python3.2 application.py -dump
 
 5. Update the full paths to ffmpeg/exiv2/gm tools in plugins.properties configuration file.
    Here are the properties that should be changes and default values:
@@ -150,15 +149,12 @@ The folowing steps in generally are applicable to all OSs and any exception is s
 
 1. Run Ally-Py REST server:
 
-        python3.2 ./application.py
-        (python3.2 application.py for win7/8)
+        python3.2 application.py
         
    As a developer you can run the application from sources by running the following command:
         
         cd ..
-        ./start-sources.sh
-        (start-sources.bat for win7/8)
-
+        python3.2 distribution/application.py -s sources.ini
 
 2. Log in to following URL in your browser using credentials `admin/a`:
 
