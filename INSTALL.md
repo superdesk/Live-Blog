@@ -156,7 +156,9 @@ The folowing steps in generally are applicable to all OSs and any exception is s
         cd ..
         python3.2 distribution/application.py -s sources.ini
         
-   From distribution/plugins delete the egg(s) for the plugins you are working on.     
+   From distribution/plugins delete the egg(s) for the plugins you are working on. 
+   
+   If you are working with the liveblog embed (livedesk-embed plugin) make sure that plugins/livedesk-embed/gui-resources/scripts/js/core.min.js is empty.
         
 
 2. Log in to following URL in your browser using credentials `admin/a`:
