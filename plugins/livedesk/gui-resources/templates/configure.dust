@@ -115,14 +115,19 @@
 					</div>
 				</div>
 				<div class="control-group" ng-show="HtmlURLSwitch">
-					<label class="control-label"></label>
-					<div class="controls htmlurltext">
-					<a href="{{ HtmlURL }}" target="blank">{{ HtmlURLText }}</a>
+					<label class="control-label">{{ HtmlURLText }}</label>
+					<div class="controls">
+						<input type="text" readonly="readonly" value="{{ HtmlURL }}"/>
 					</div>
 				</div>
+				<div class="control-group" ng-show="HtmlWaitSwitch">
+					<label class="control-label"></label>
+                    <div class="controls alert alert-info">{{ HtmlWaitText }}</div>
+				</div>
+
 				<div class="control-group" ng-show="CallbackStatusSwitch">
 					<label class="control-label"></label>
-					<div class="controls callbackstatustext">
+					<div class="controls callbackstatustext alert alert-warning">
 					{{ CallbackStatusText }}
 					</div>
 				</div>

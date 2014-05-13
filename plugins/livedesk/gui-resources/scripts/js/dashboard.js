@@ -280,7 +280,7 @@ function($, Gizmo, BlogAction, Action, superdesk, BLOGSArchive)
             
         },
         cleanDescription: function(data) {
-            var clean = data.Description;
+            var clean = data.Description ? data.Description : '';
             data.Description = clean.replace(/(<([^>]+)>)/ig,"");
             return data;
         },

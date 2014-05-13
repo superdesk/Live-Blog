@@ -498,9 +498,18 @@ def populateVersionConfig():
         generalSetting.Value = '6'
         generalSettingService.insert(1, generalSetting) 
     
-    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'major').count() == 0:
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'revision').count() == 0:
         generalSetting.Key = 'revision'
         generalSetting.Value = '0'
         generalSettingService.insert(1, generalSetting)    
 
-    
+@app.populate(priority=PRIORITY_FINAL)
+def upgradeSeoChangedOnFix(): 
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try:
+        session.execute("ALTER TABLE `livedesk_blog_seo` ADD COLUMN `changed_on` DATETIME NULL DEFAULT NULL")
+    except (Exception): pass
+        

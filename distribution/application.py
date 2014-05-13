@@ -58,11 +58,43 @@ def __deploy__():
         print('-' * 150, file=sys.stderr)
         sys.exit(1)
 
+def initSources():
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    allyCom = os.path.join(os.path.dirname(base), 'components')
+    allyPlug = os.path.join(os.path.dirname(base), 'plugins')
+    lbPlug = os.path.join(base, 'plugins')
+    
+    flag = None
+    file = None
+    for arg in sys.argv:
+        if flag: file = arg; break
+        if arg == '-s': flag = arg
+      
+    sys.argv.remove(flag)
+    if not file: return    
+    sys.argv.remove(file)    
+    
+    file = os.path.join(base, file)
+    if not os.path.exists(file): 
+        print('Source file ', str(file), ' not found')
+        return         
+    
+    base = None        
+    sources = open(file, "r")
+    for line in sources:
+        if 'ALLYCOM' in line: base = allyCom
+        elif 'ALLYPLUG' in line: base = allyPlug
+        elif 'LBPLUG' in line: base = lbPlug
+        elif base and line: sys.path.append(os.path.join(base, line.strip('\n')))  
+    sources.close()
+
+
 if __name__ == '__main__':
     # First we need to set the working directory relative to the application deployer just in case the application is
     # started from somewhere else
+    if '-s' in sys.argv: initSources()    
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
+    
     def findLibraries(folder):
         '''Finds all the libraries (that have extension .egg or are folders) if the provided folder'''
         if os.path.isdir(folder): return (os.path.abspath(os.path.join(folder, name)) for name in os.listdir(folder))
@@ -74,7 +106,7 @@ if __name__ == '__main__':
 
     # Loading the components.
     for path in findLibraries('components'):
-        if path not in sys.path: sys.path.append(path)
+        if path not in sys.path: sys.path.append(path)  
 
     warnings.filterwarnings('ignore', '.*already imported.*ally*')
     # To remove the warnings of pkg utils from setup tools
