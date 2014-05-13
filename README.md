@@ -20,7 +20,7 @@ See an example of Live Blog in action here: http://www.zeit.de/politik/deutschla
 
 ## Installation
 
-Please check the installation guide: https://github.com/superdesk/Live-Blog/blob/master/INSTALL.txt
+Please check the installation guide: https://github.com/superdesk/Live-Blog/blob/master/INSTALL.md
 
 ## Documentation
 
