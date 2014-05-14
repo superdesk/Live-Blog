@@ -1,0 +1,46 @@
+<script type="text/javascript">
+/* <![CDATA[ */{~n}
+    var liveblog = (function(d){
+        var config = {
+            id: {id},
+            el: '[data-gimme="liveblog"]',
+        {?language}
+            'language': '{language}',
+        {/language}
+        {?theme}
+            theme: '{theme}',
+        {/theme}
+            servers: {
+                frontend: '{servers.frontend}',
+                rest: '{servers.rest}'
+            },
+            paths: {
+                scripts: '{paths.scripts}'
+                {?paths.css}
+                ,css: '{paths.css}'
+                {/paths.css}
+            },
+            {?dev}
+                dev: true,
+            {/dev}
+            {?limit}
+                limit: {limit},
+            {/limit}
+            fallback: {
+                language: "{fallback.language}"
+            }
+        };
+        config.baseUrl = config.servers.frontend + config.paths.scripts;
+        config.loadJs = function(path) {
+                    var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+                    ls.type = "text/javascript"; s.async = true;
+                    ls.src = path.indexOf('//') === -1 ?
+                        config.baseUrl + path + '.js?version=' + (config.version || parseInt((new Date()).getTime()/600000)):
+                        path;
+                    s.parentNode.insertBefore( ls, s ); return ls;
+        };
+        config.loadJs('loader');
+        return config;
+    })(document);
+{~n}/* ]]> */
+</script>

@@ -1,0 +1,38 @@
+{+index}    
+{/index}
+
+
+{<index}
+{?render.index}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Liveblog</title>
+  </head>
+  <body>
+    {+layout}{/layout}
+    {+embedCode}{/embedCode}
+    {?render.livereload}
+    <script src="{servers.livereload}/livereload.js"></script>
+    {/render.livereload}
+  </body>
+</html>
+{:else}
+    {+layout}{/layout}
+    {+embedCode}{/embedCode}
+{/render.index}
+{/index}
+
+{<embedCode}
+    {?render.embed}
+    <div data-gimme="liveblog-embed-code"></div>
+    {/render.embed}
+{/embedCode}
+{<layout}
+    {?render.seo}
+        <div data-gimme="liveblog-layout"></div>
+    {:else}
+        <div data-gimme="liveblog"></div>
+    {/render.seo}
+{/layout}

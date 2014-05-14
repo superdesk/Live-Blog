@@ -1,0 +1,13 @@
+Plugin Live Blog Embed Server
+=============================
+
+Version 1.0-beta1
+-----------------
+
+Released on April 24, 2014
+
+Features:
+
+- Server side HTML generation.
+- Customizable via themes support.
+- Extendable via plug-ins system.
