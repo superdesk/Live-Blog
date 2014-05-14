@@ -1,0 +1,2 @@
+<a data-gimme="post.permalink" href="#" rel="bookmark" class="permalink">#</a>
+<input data-gimme="post.share-permalink" type="text" style="visibility:hidden; z-index: 9000" value="">
