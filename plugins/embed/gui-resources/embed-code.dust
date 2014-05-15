@@ -13,6 +13,9 @@
             servers: {
                 frontend: '{servers.frontend}',
                 rest: '{servers.rest}'
+                {?servers.css}
+                ,css: '{servers.css}'
+                {/servers.css}
             },
             paths: {
                 scripts: '{paths.scripts}'

@@ -40,16 +40,6 @@ if ((qs.indexOf('liveblog[dev]') !== -1) || liveblog.dev) {
         }
     });
 }
-// @TODO: remove this defaults paths when backbone implementation will replace old one.
-// if no path for scripts was define use the default path from ally-py implemenation server.
-if (!liveblog.paths.scripts) {
-    liveblog.paths.scripts = '/content/lib/livedesk-embed/scripts/js/';
-}
-// if no path for css was define use the default path from ally-py implemenation server.
-if (!liveblog.paths.css) {
-    liveblog.paths.css = '/content/lib/livedesk-embed/';
-}
-// @ENDTODO
 
 // regex to catch all relevant parts of an url.
 //   parameter[1] = protocol if there is one.
@@ -71,9 +61,13 @@ liveblog.browserUrl = function(urlString) {
     return urlString;
 };
 // fix servers frontend url
-liveblog.servers.frontend = liveblog.browserUrl(liveblog.servers.frontend);
+liveblog.servers.frontend = liveblog.browserUrl(liveblog.servers.frontend ?
+                                                        liveblog.servers.frontend :
+                                                        liveblog.servers.rest);
 // fix the rest
-liveblog.servers.rest = liveblog.browserUrl(liveblog.servers.rest);
+liveblog.servers.rest = liveblog.browserUrl(liveblog.servers.rest ?
+                                                        liveblog.servers.rest :
+                                                        liveblog.servers.frontend);
 
 // after aditional properties where added remake the baseUrl for loader and require.
 liveblog.baseUrl = liveblog.require.baseUrl = liveblog.servers.frontend + liveblog.paths.scripts;
