@@ -24,7 +24,8 @@
     "liveblog": {
         "id": 1,
         "servers": {
-            "frontend": "<%= servers.proxy %>"
+            "frontend": "<%= servers.proxy %>",
+            "css": "<%= liveblog.servers.frontend %>"
         },
         "paths": {
             "scripts": "/scripts/js/",

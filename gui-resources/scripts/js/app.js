@@ -98,17 +98,10 @@ var configLiveblog = function(liveconfig, config) {
     liveconfig.servers.css = urlHref.serverUrl(
         liveconfig.servers.css ?
             liveconfig.servers.css :
-            liveconfig.servers.frontend);
+            liveconfig.servers.rest);
 
     liveconfig.servers.livereload = urlHref.replacePort(liveconfig.servers.frontend, config.servers.livereload);
 
-    requirejs.config({
-        config: {
-                css: {
-                    url: urlHref.browserUrl(liveconfig.servers.css) + liveconfig.paths.css
-                }
-            }
-        });
     return liveconfig;
 };
 requirejs.onError = function(err) {

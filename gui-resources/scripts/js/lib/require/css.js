@@ -1,5 +1,6 @@
 /*jshint -W030 */
 /*jshint unused: false*/
+/*jshint maxcomplexity: false*/
 'use strict';
 
 define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Backbone) {
@@ -126,35 +127,44 @@ define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Back
     }
 
     cssAPI.load = function(name, req, onload, config) {
-        var configCss = config.config.css;
+        var configCss = config.config.css,
+            cssUrl;
         if (utils.isServer) {
-            var url,
-                path = require('path'),
-            // calculate the base folder of the file
-            fileBase = configCss.siteRoot ? path.join(config.baseUrl, configCss.siteRoot) : config.baseUrl,
+            var path = require('path'),
+                // calculate the base folder of the file
+                fileBase = configCss.siteRoot ? path.join(config.baseUrl, configCss.siteRoot) : config.baseUrl;
             // get the relative path from the file base
-            relativePath = path.relative(fileBase, req.toUrl(name + '.css'));
-            // url should be formated from the css configuration host and relativePath
+            cssUrl = path.relative(fileBase, req.toUrl(name + '.css'));
+            // cssUrl should be formated from the css configuration host and relativePath
             if (utils.isWindows) {
-                relativePath = relativePath.replace(/\\/g, '/');
+                cssUrl = cssUrl.replace(/\\/g, '/');
             }
-            url = configCss.url + relativePath;
-            pluginCss.setData('<link type="text/css" rel="stylesheet" href="' + url + '">');
+
+            if (liveblog.paths.css) {
+                cssUrl = liveblog.paths.css + cssUrl;
+            }
+
+            if (liveblog.servers.css) {
+                cssUrl = liveblog.browserUrl(liveblog.servers.css) + cssUrl;
+            }
+            pluginCss.setData('<link type="text/css" rel="stylesheet" href="' + cssUrl + '">');
             onload();
         }
         if (utils.isClient) {
-            var fixPath = configCss.url,
-                cssUrl, loaded;
-            // remove last / because req.toUrl it will add it at begining.
-            fixPath = (fixPath[fixPath.length - 1] === '/') ?
-                            fixPath.substring(0, fixPath.length - 1) :
-                            fixPath;
-            cssUrl = fixPath + req.toUrl(name + '.css');
+            cssUrl = req.toUrl(name + '.css');
+
+            if (liveblog.paths.css) {
+                cssUrl = cssUrl.replace(liveblog.paths.scripts, liveblog.paths.css + liveblog.paths.scripts.substring(1));
+            }
+
+            if (liveblog.servers.css) {
+                cssUrl = cssUrl.replace(liveblog.servers.frontend, liveblog.browserUrl(liveblog.servers.css));
+            }
             // make an absolute cssUrl from a cssUrl with ../ relative paths.
             while (/\/\.\.\//.test(cssUrl)){
                 cssUrl = cssUrl.replace(/[^\/]+\/+\.\.\//g, '');
             }
-            loaded = Backbone.$('link[href="' + cssUrl + '"]').length;
+            var loaded = Backbone.$('link[href="' + cssUrl + '"]').length;
             if (!loaded) {
                 (useImportLoad ? importLoad : linkLoad)(cssUrl, onload);
             } else {
