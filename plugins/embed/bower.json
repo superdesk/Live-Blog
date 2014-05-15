@@ -1,0 +1,23 @@
+{
+  "name": "backbone-node-liveblog",
+  "version": "1.0.0-beta",
+  "homepage": "https://github.com/liveblog/plugin-liveblog-embed-server.git",
+  "contributors": [
+    "Nistor Mihai <Mihai.Nistor@sourcefabric.org>",
+    "Patricia García <Patricia.garcia@sourcefabric.org>",
+    "Vlad Nicoara <Vlad.Nicoara@sourcefabric.org>"
+  ],
+  "license": "AGPL-3.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1.11.0",
+    "json2": "*",
+    "jquery-waypoints": "~2.0.4"
+  }
+}

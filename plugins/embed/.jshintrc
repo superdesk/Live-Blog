@@ -1,0 +1,212 @@
+{
+    // This option defines globals available when your code is running inside of the Node runtime environment.
+    // Node.js is a server-side JavaScript environment that uses an asynchronous event-driven model.
+    // This option also skips some warnings that make sense in the browser environments but don't make sense in Node such as
+    //   file-level `use strict` pragmas and `console.log` statements.
+    "node": true,
+
+    // This option tells JSHint that your code needs to adhere to ECMAScript 3 specification.
+    // Use this option if you need your program to be executable in older browsers—such as
+    //   Internet Explorer 6/7/8/9—and other legacy JavaScript environments.
+    "es3": true,
+
+    // This option defines globals exposed by modern browsers:
+    //   all the way from good old document and navigator to the HTML5 FileReader and other new developments in the browser world.
+    // Note: This option doesn't expose variables like alert or console. See option devel for more information.
+    "browser": true,
+
+    // This option prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
+    // Bitwise operators are very rare in JavaScript programs and quite often & is simply a mistyped &&.
+    "bitwise": true,
+
+    // This option requires you to always put curly braces around blocks in loops and conditionals.
+    // JavaScript allows you to omit curly braces when the block consists of only one statement, for example:
+    //     while (day)
+    //         shuffle();
+    // However, in some circumstances, it can lead to bugs (you'd think that sleep() is a part of the loop while in reality it is not):
+    //     while (day)
+    //         shuffle();
+    //         sleep();
+    "curly": true,
+
+    // This options prohibits the use of == and != in favor of === and !==.
+    // The former try to coerce values before comparing them which can lead to some unexpected results.
+    // The latter don't do any coercion so they are generally safer.
+    // If you would like to learn more about type coercion in JavaScript, we recommend Truth, Equality and JavaScript by Angus Croll.
+    "eqeqeq": true,
+
+    // This option suppresses warnings about == null comparisons.
+    // Such comparisons are often useful when you want to check if a variable is null or undefined.
+    "eqnull": true,
+
+    // This option prohibits the use of immediate function invocations without wrapping them in parentheses.
+    // Wrapping parentheses assists readers of your code in understanding that the expression is the result of a function, and not the function itself.
+    "immed": true,
+
+    // This option enforces specific tab width for your code. For example, the following code will trigger a warning on line 4:
+    //     /*jshint indent:4 */
+    //     if (cond) {
+    //         doSomething(); // We used only two spaces for indentation here
+    //     }
+    "indent": 4,
+
+    // This option prohibits the use of a variable before it was defined.
+    // JavaScript has function scope only and, in addition to that, all variables are always moved—or hoisted— to the top of the function.
+    // This behavior can lead to some very nasty bugs and that's why it is safer to always use variable only after they have been explicitly defined.
+    // Setting this option to "nofunc" will allow function declarations to be ignored.
+    // For more in-depth understanding of scoping and hoisting in JavaScript, read JavaScript Scoping and Hoisting by Ben Cherry.
+    "latedef": "nofunc",
+
+    // This option requires you to capitalize names of constructor functions.
+    // Capitalizing functions that are intended to be used with new operator is just a convention
+    //   that helps programmers to visually distinguish constructor functions from other types of functions to help spot mistakes when using this.
+    // Not doing so won't break your code in any browsers or environments
+    //   but it will be a bit harder to figure out—by reading the code—if the function was supposed to be used with or without new.
+    // And this is important because when the function that was intended to be used with new is used without it, this will point to the global object instead of a new object.
+    "newcap": true,
+
+    // This option prohibits the use of arguments.caller and arguments.callee.
+    // Both .caller and .callee make quite a few optimizations impossible so they were deprecated in future versions of JavaScript.
+    // In fact, ECMAScript 5 forbids the use of arguments.callee in strict mode.
+    "noarg": true,
+
+    // This option enforces the consistency of quotation marks used throughout your code.
+    // It accepts three values: true if you don't want to enforce one particular style but want some consistency, "single"
+    //   if you want to allow only single quotes and "double" if you want to allow only double quotes.
+    "quotmark": "single",
+
+
+    // This option prohibits the use of explicitly undeclared variables.
+    // This option is very useful for spotting leaking and mistyped variables.
+    //     /*jshint undef:true */
+    //     function test() {
+    //         var myVar = 'Hello, World';
+    //         console.log(myvar); // Oops, typoed here. JSHint with undef will complain
+    //     }
+    // If your variable is defined in another file, you can use /*global ... */ directive to tell JSHint about it.
+    "undef": true,
+
+    // This option warns when you define and never use your variables.
+    // It is very useful for general code cleanup, especially when used in addition to undef.
+    //     /*jshint unused:true */
+    //     function test(a, b) {
+    //         var c, d = 2;
+    //         return a + d;
+    //     }
+    //     test(1, 2);
+    //     // Line 3: 'b' was defined but never used.
+    //     // Line 4: 'c' was defined but never used.
+    "unused": "vars",
+
+    // This option requires all functions to run in ECMAScript 5's strict mode.
+    // Strict mode is a way to opt in to a restricted variant of JavaScript.
+    // Strict mode eliminates some JavaScript pitfalls that didn't cause errors by changing them to produce errors.
+    // It also fixes mistakes that made it difficult for the JavaScript engines to perform certain optimizations.
+    // Note: This option enables strict mode for function scope only.
+    //   It prohibits the global scoped strict mode because it might break third-party widgets on your page.
+    //   If you really want to use global strict mode, see the globalstrict option.
+    "strict": true,
+
+    // This option makes it an error to leave a trailing whitespace in your code.
+    // Trailing whitespaces can be source of nasty bugs with multi-line strings in JavaScript:
+    //     // This otherwise perfectly valid string will error if
+    //     // there is a whitespace after \
+    //     var str = "Hello \
+    //     World";
+    "trailing": true,
+
+    // This option requires all for in loops to filter object's items.
+    // The for in statement allows for looping through the names of all of the properties of
+    //   an object including those inherited throught the prototype chain.
+    // This behavior can lead to unexpected items in your object so it is generally safer to always filter inherited properties out as shown in the example:
+    //     for (key in obj) {
+    //         if (obj.hasOwnProperty(key)) {
+    //             // We are sure that obj[key] belongs to the object and was not inherited.
+    //         }
+    //     }
+    "forin": true,
+
+    // This option warns when you have an empty block in your code.
+    // JSLint was originally warning for all empty blocks and we simply made it optional.
+    // There were no studies reporting that empty blocks in JavaScript break your code in any way.
+    "noempty": true,
+
+    // This option prohibits the use of constructor functions for side-effects.
+    // Some people like to call constructor functions without assigning its result to any variable:
+    //     new MyConstructor();
+    // There is no advantage in this approach over simply calling `MyConstructor` since the object
+    //   that the operator `new` creates isn't used anywhere so you should generally avoid constructors like this one.
+    "nonew": true,
+
+    // This options prohibits overwriting prototypes of native objects such as Array, Date and so on.
+    //     /* jshint freeze:true */`
+    //     Array.prototype.count = function (value) { return 4; };
+    //     // -> Warning: Extending prototype of native object: 'Array'.
+    "freeze": true,
+
+    // This option lets you control cyclomatic complexity throughout your code.
+    // Cyclomatic complexity measures the number of linearly independent paths through a program's source code.
+    // Read more about [cyclomatic complexity on Wikipedia](http://en.wikipedia.org/wiki/Cyclomatic_complexity).
+    "maxcomplexity": true,
+
+    // This option lets you set the max number of formal parameters allowed per function:
+    //     /*jshint maxparams:3 */
+    //     function login(request, onSuccess) {
+    //     // ...
+    //     }
+    //     // JSHint: Too many parameters per function (4).
+    //     function logout(request, isManual, whereAmI, onSuccess) {
+    //     // ...
+    //     }
+    "maxparams": 7,
+
+    // This option lets you control how nested do you want your blocks to be:
+    // /*jshint maxdepth:2 */
+    // function main(meaning) {
+    // var day = true;
+    // if (meaning === 42) {
+    // while (day) {
+    // shuffle();
+    // if (tired) { // JSHint: Blocks are nested too deeply (3).
+    // sleep();
+    // }
+    // }
+    // }
+    // }
+    "maxdepth": 5,
+
+    // This option lets you set the max number of statements allowed per function:
+
+    // /*jshint maxstatements:4 */
+    // function main() {
+    // var i = 0;
+    // var j = 0;
+    // // Function declarations count as one statement. Their bodies
+    // // don't get taken into account for the outer function.
+    // function inner() {
+    // var i2 = 1;
+    // var j2 = 1;
+    // return i2 + j2;
+    // }
+    // j = i + j;
+    // return j; // JSHint: Too many statements per function. (5)
+    // }
+    "maxstatements": 25,
+
+    // This option lets you control cyclomatic complexity throughout your code.
+    // Cyclomatic complexity measures the number of linearly independent paths through a program's source code.
+    // Read more about [cyclomatic complexity on Wikipedia](http://en.wikipedia.org/wiki/Cyclomatic_complexity).
+    "maxcomplexity": 10,
+
+    "globals": {
+        // definitions by requirejs
+        "require": false,
+        "define": false,
+        // the i18n library sets this global
+        "gettext": false,
+        // our global object
+        "liveblog": false,
+        // app logger
+        "liveblogLogger": false
+    }
+}
