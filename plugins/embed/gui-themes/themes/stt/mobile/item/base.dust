@@ -6,7 +6,7 @@
   	{+userNameContainer}{/userNameContainer}
     {+postDateContainer}{/postDateContainer}
  {/header}
-{<contentSide}{/contentside}
+{<contentSide}{/contentSide}
 {<footer}
     {+shareContainer}{/shareContainer}
 {/footer}

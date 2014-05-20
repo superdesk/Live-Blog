@@ -14,7 +14,7 @@
         "scripts": "<%= paths.scriptsRoot %>scripts/js/",
         "themesRoot": "<%= paths.root %>gui-themes/",
         "themes": "<%= paths.themesRoot %>themes/",
-        "build": "<%= paths.root %>build/",
+        "build": "<%= paths.scripts %>build/",
         "logs": "<%= paths.root %>logs/",
         "test": "<%= paths.root %>test/",
         "docs": "<%= paths.root %>docs/",

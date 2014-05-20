@@ -1,12 +1,12 @@
-/* global requirejs */
 'use strict';
 
 define([
+    'lib/require-global',
     'module',
     'underscore',
     'plugins',
     'lib/utils'
-], function(module, _, plugins, utils) {
+], function(requirejs, module, _, plugins, utils) {
     var undefineTheme = function() {
         requirejs.undef('theme');
         requirejs.undef('themeFile');
@@ -22,17 +22,29 @@ define([
                 fn(config);
             });
             callback();
+        },
+        themesPathed = (liveblog.min ? module.config().buildPath : module.config().themesPath),
+        themesPath = function(path) {
+            if (_.isArray(path)) {
+                path = path.join('/');
+            }
+            return themesPathed + path;
         };
+        // Add the build to liveblog.paths
+        if (liveblog.min) {
+            liveblog.paths.build = module.config().buildPath;
+            liveblog.paths.themes = module.config().themesPath;
+        }
         // Set liveblog theme
         liveblog.theme = liveblog.theme ? liveblog.theme : config.theme;
         if (config.language) {
             liveblog.language = config.language;
         }
         // Set the path for theme template files and theme config file
-        require.config({
+        requirejs.config({
             paths: {
-                theme: module.config().themesPath + liveblog.theme,
-                themeFile: module.config().themesPath + liveblog.theme
+                theme: themesPath(liveblog.theme),
+                themeFile: themesPath(liveblog.theme)
             }
         });
         // Load (apply) theme config
@@ -54,8 +66,8 @@ define([
                 undefineTheme();
                 requirejs.config({
                     paths: {
-                        theme: module.config().themesPath + liveblog.theme + '/' + liveblog.environment,
-                        themeFile: module.config().themesPath + liveblog.theme + '/' + liveblog.environment
+                        theme: themesPath([liveblog.theme, liveblog.environment]),
+                        themeFile: themesPath([liveblog.theme, liveblog.environment])
                     }
                 });
                 requirejs(['themeFile'], function() {
