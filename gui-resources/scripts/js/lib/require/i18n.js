@@ -7,7 +7,7 @@ define(['backbone-custom', 'lib/gettext'], function(Backbone, gt) {
         // langCode = liveblog.language;
     //API
     return {
-
+        pluginBuilder: 'lib/require/i18n-builder',
         load: function(name, req, onLoad, config) {
             // Append '.json' if no filename given:
             if (!liveblog.language) {

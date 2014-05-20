@@ -1,26 +1,23 @@
 'use strict';
 require.config({
-    baseUrl: liveblog.baseUrl,
     config: {
         'load-theme': {
-            themesPath:             '../../themes/'
-        },
-        css: {
-            url: liveblog.paths.css
+            themesPath:             '../../themes/',
+            buildPath:              './build/themes/'
         }
     },
     paths: {
-        'jquery':                   'bower_components/jquery/dist/jquery.min',
+        'jquery':                   'bower_components/jquery/dist/jquery',
         'json2':                    'bower_components/json2/json2',
-        'dustjs-linkedin':          'node_modules/dustjs-linkedin/dist/dust-full.min',
-        'dustjs-helpers':           'node_modules/dustjs-helpers/dist/dust-helpers.min',
+        'dustjs-linkedin':          'node_modules/dustjs-linkedin/dist/dust-full',
+        'dustjs-helpers':           'node_modules/dustjs-helpers/dist/dust-helpers',
         'dust':                     'lib/dust',
         'jed':                      'node_modules/jed/jed',
-        'lodash.compat':            'node_modules/lodash/dist/lodash.compat.min',
-        'backbone':                 'node_modules/backbone/backbone-min',
+        'lodash.compat':            'node_modules/lodash/dist/lodash.compat',
+        'backbone':                 'node_modules/backbone/backbone',
         'backbone-custom':          'lib/backbone/backbone-custom',
         'backbone.layoutmanager':   'node_modules/backbone.layoutmanager/backbone.layoutmanager',
-        'moment':                   'node_modules/moment/min/moment.min',
+        'moment':                   'node_modules/moment/moment',
         'themeBase':                '../../themes/base',
         'tmpl':                     'lib/require/tmpl',
         'i18n':                     'lib/require/i18n',

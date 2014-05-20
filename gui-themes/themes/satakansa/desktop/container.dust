@@ -1,0 +1,12 @@
+{>"themeBase/container"/}
+
+{<headerContainer}
+    <div class="liveblog-header">
+        {+header}
+            {+blogMedia}{/blogMedia}
+        {/header}
+    </div>
+{/headerContainer}
+
+{<contentBottomContainer}
+{/contentBottomContainer}
