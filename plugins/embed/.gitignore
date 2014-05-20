@@ -1,8 +1,6 @@
 npm-debug.log
 config.json
-node_modules/**
 logs/**
-gui-resources/scripts/js/bower_components/**
 server-test-results.xml
 client-test-results.xml
 docs/docco/test/**
