@@ -4,7 +4,8 @@
 'use strict';
 
 define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Backbone) {
-    var cssAPI = {};
+    var cssAPI = {},
+        processPath;
 
     cssAPI.normalize = function(name, normalize) {
         if (name.substr(name.length - 4, 4) === '.css') {
@@ -13,7 +14,7 @@ define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Back
         return normalize(name);
     };
 
-    cssAPI.pluginBuilder = './css-builder';
+    cssAPI.pluginBuilder = 'lib/require/css-builder';
 
     if (utils.isClient) {
 
@@ -123,13 +124,35 @@ define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Back
             link.href = url;
             head.appendChild(link);
         };
+        processPath = function(name, req, onload, config) {
+            var configCss = config.config.css,
+                cssUrl = req.toUrl(name + '.css');
 
+            if (liveblog.paths.css) {
+                cssUrl = cssUrl.replace(liveblog.paths.scripts, liveblog.paths.css + liveblog.paths.scripts.substring(1));
+            }
+
+            if (liveblog.min) {
+                cssUrl = cssUrl.replace(liveblog.paths.build, liveblog.paths.themes);
+            }
+
+            if (liveblog.servers.css) {
+                cssUrl = cssUrl.replace(liveblog.servers.frontend, liveblog.browserUrl(liveblog.servers.css));
+            }
+
+            // make an absolute cssUrl from a cssUrl with ../ relative paths.
+            while (/\/\.\.\//.test(cssUrl)){
+                cssUrl = cssUrl.replace(/[^\/]+\/+\.\.\//g, '');
+            }
+            // make an absolute cssUrl from a cssUrl with ./ relative paths.
+            cssUrl = cssUrl.replace(/\.\//g, '');
+            return cssUrl;
+        };
     }
-
-    cssAPI.load = function(name, req, onload, config) {
-        var configCss = config.config.css,
-            cssUrl;
-        if (utils.isServer) {
+    if (utils.isServer) {
+        processPath = function(name, req, onload, config) {
+            var configCss = config.config.css,
+                cssUrl = req.toUrl(name + '.css');
             var path = require('path'),
                 // calculate the base folder of the file
                 fileBase = configCss.siteRoot ? path.join(config.baseUrl, configCss.siteRoot) : config.baseUrl;
@@ -147,23 +170,17 @@ define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Back
             if (liveblog.servers.css) {
                 cssUrl = liveblog.browserUrl(liveblog.servers.css) + cssUrl;
             }
+            return cssUrl;
+        };
+    }
+
+    cssAPI.load = function(name, req, onload, config) {
+        var cssUrl = processPath(name, req, onload, config);
+        if (utils.isServer) {
             pluginCss.setData('<link type="text/css" rel="stylesheet" href="' + cssUrl + '">');
             onload();
         }
         if (utils.isClient) {
-            cssUrl = req.toUrl(name + '.css');
-
-            if (liveblog.paths.css) {
-                cssUrl = cssUrl.replace(liveblog.paths.scripts, liveblog.paths.css + liveblog.paths.scripts.substring(1));
-            }
-
-            if (liveblog.servers.css) {
-                cssUrl = cssUrl.replace(liveblog.servers.frontend, liveblog.browserUrl(liveblog.servers.css));
-            }
-            // make an absolute cssUrl from a cssUrl with ../ relative paths.
-            while (/\/\.\.\//.test(cssUrl)){
-                cssUrl = cssUrl.replace(/[^\/]+\/+\.\.\//g, '');
-            }
             var loaded = Backbone.$('link[href="' + cssUrl + '"]').length;
             if (!loaded) {
                 (useImportLoad ? importLoad : linkLoad)(cssUrl, onload);
