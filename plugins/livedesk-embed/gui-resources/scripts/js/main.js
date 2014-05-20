@@ -30,7 +30,8 @@ require(['jquery-loader','core.min'], function(){
 		'jquery',
 		'gizmo/view-events',
 		'jquery-path/xdomainrequest',
-		'models/blog'
+		'models/blog',
+        'i18n!livedesk_embed'
 	], function( $, Gizmo ){
 		/*!
 		 * Ensure that a element is there for liveblog to rezide.
@@ -72,8 +73,7 @@ require(['jquery-loader','core.min'], function(){
 					'themeFile',
 					
 					'utils/find-enviroment',
-					'core',
-					'i18n!livedesk_embed'
+					'core'
 				], function(theme, findEnviroment, core, plugins){
 					if(theme && theme.enviroments) {
 						if(!liveblog.enviroment) {
