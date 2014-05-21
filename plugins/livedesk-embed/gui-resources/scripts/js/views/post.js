@@ -177,12 +177,12 @@
 							
 
 							var socialParams = {
-								'fbclick': "$.socialShareWindow('" + fburl + "',400,570); return false;",
-								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
-								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "&title=" +  blogTitle + "&summary=" + summary + "', 400, 570); return false;",
-								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
-								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
-								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
+								'fbclick': "liveblog.$.socialShareWindow('" + fburl + "',400,570); return false;",
+								'twtclick': "liveblog.$.socialShareWindow('http://twitter.com/home?status=" + _('Now reading ') + blogTitle + ": " + myPerm + "',400,570); return false;",
+								'linclick': "liveblog.$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "&title=" +  blogTitle + "&summary=" + summary + "', 400, 570); return false;",
+								'pinclick': "liveblog.$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
+								'gglclick': "liveblog.$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
+								'emailclick': "liveblog.$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
 								'emailurl': emailurl
 							}
 							$.tmpl('themeBase/item/social-share', socialParams, function(e, o){

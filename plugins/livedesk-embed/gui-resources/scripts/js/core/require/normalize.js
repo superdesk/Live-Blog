@@ -1,4 +1,4 @@
-/*
+/**
  * css.normalize.js
  *
  * CSS Normalization

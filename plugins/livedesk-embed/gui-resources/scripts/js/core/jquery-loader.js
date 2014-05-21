@@ -9,11 +9,15 @@ if (!jQuery || oldjQuery) {
             'jquery': 'core/jquery'
         }
     });
-    require(['jquery'], function(){
+    require(['jquery'], function($){
+        liveblog.$ = $;
         window.$ = clientDolar;
         window.jQuery = clientJquery;
     });
 } else {
     // register the current jQuery
-    define('jquery', [], function() { return jQuery; });
+    define('jquery', [], function() { 
+        liveblog.$ = jQuery;
+        return jQuery;
+    });
 }
