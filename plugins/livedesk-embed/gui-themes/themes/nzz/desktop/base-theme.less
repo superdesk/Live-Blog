@@ -37,7 +37,7 @@
 @content-minheight : 0px;	//Min height of post main content
 
 
-@youtube-maxwidth : 600px;	//youtube post type
+@youtube-maxwidth : none;	//youtube post type
 
 
 
@@ -276,6 +276,7 @@
 							background: url(img/default-avatar.png) no-repeat 0 0;
 							float: left;
 							.border-radius(@publisher-avatar-width/2);
+							overflow: hidden;
 							span {
 								width: @publisher-avatar-width;
 								height: @publisher-avatar-width;
@@ -340,6 +341,18 @@
 						}
 
 						/* POST SPECIFIC STYLES */
+
+						.post-text {
+							font-size: 1em;
+						}
+
+						&.normal {
+							.post-core-content {
+								p, div {
+									font-size: 1em !important;
+								}
+							}
+						}
 
 						&.twitter, &.facebook, &.google, &.youtube {
 							.post-core-content {
