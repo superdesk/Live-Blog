@@ -26,6 +26,7 @@ setup(
     package_data={
         '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
     },
+    include_package_data=True,
 
     # metadata for upload to PyPI
     author="Mihai Nistor",
