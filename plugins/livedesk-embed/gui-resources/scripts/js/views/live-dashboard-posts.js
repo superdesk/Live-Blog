@@ -216,6 +216,7 @@ define([
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
+		$.dispatcher.triggerHandler('posts-view.class',PostsView);
 		return PostsView;
 	}
 });

@@ -1,6 +1,7 @@
 define([
   'plugins/live-dashboard-sliders',
   'plugins/dashboard-twitter-widgets',
+  'plugins/pagination',
 	'css!theme/liveblog',
   'css!theme/jquery.bxslider',
   'tmpl!theme/container',
