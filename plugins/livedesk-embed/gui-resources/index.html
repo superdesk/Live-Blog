@@ -83,10 +83,15 @@
 					if(objd[0].toLowerCase() === 'po') {
 						po = objd[1];
 					}
+					if(objd[0].toLowerCase() === 'restserver') {
+						restServer = objd[1];
+               } else {
+                  restServer = config.api_url;
+               }
 				}
 			}
 		</script>
-		<div class="container"> 
+		<div class="container">
 		</div>
 		<script type="text/javascript">
 		//<![CDATA[
@@ -99,7 +104,8 @@
 						theme: theme,
 						language: language,
 						script: d.scripts[d.scripts.length - 1],
-						frontendServer: config.api_url
+                  frontendServer: config.api_url,
+                  restServer: restServer
 					};
 					if(enviroment)
 						self.data.enviroment = enviroment;
