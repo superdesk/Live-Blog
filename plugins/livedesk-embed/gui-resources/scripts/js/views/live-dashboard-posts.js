@@ -67,8 +67,10 @@ define([
               break;
           }
         } else {
+          var content = model.get('Content');
           if (type === 'normal' &&
-              model.get('Content').indexOf('<img src="') !== 0){
+              content.indexOf('<img') === -1 &&
+              content.indexOf('iframe') === -1 ){
             return true;
           }
           else if (type === 'quote' || type === 'link' || type === 'wrapup'){
@@ -216,6 +218,7 @@ define([
 				$.dispatcher.triggerHandler('posts-view.rendered',self);
 			}
 		});
+		$.dispatcher.triggerHandler('posts-view.class',PostsView);
 		return PostsView;
 	}
 });

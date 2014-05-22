@@ -104,13 +104,18 @@ dust.filters.trim50 = function(string){ return string.trunc(50, true);}
 dust.filters.trim150 = function(string){ return string.trunc(150, true);}
 dust.filters.trim200 = function(string){ return string.trunc(200, true);}
 dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
-dust.filters.get_image_caption = function(content) {return content.replace(/<a(.*?)<\/a>/,'')}
+// Sometimes a string containing 'null' is added to the post content when using iphone app (known bug)
+dust.filters.get_image_caption = function(content) {return content.replace(/<a(.*?)<\/a>/,'').replace('null', ''); }
+dust.filters.get_image_href = function(content) {return content.replace(/<img src="/, '').replace(/">/, ''); }
 dust.filters.image_only = function(content) {
   var match = content.match(/<img(.*?)>/);
   return match && match[0] ? match[0]: '';
 }
 dust.filters.without_image = function(content) {
   return content.replace(/<img(.*?)>/,'');
+}
+dust.filters.no_inline_styles = function(content) {
+  return content.replace(/style="(.*?)"/, '');
 }
 
 function getAnnotation(idx)

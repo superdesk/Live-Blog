@@ -5,7 +5,7 @@
  {@if cond="'{Content|image_only|s}' == ''"}
   {Content|without_image|s}
  {:else}
-  {Content|image_only|s}
+  {Content|image_only|no_inline_styles|s}
   <p class="post-text with-image">{Content|without_image|s}</p>
  {/if}
 {/contentCore}

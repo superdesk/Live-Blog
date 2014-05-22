@@ -4,7 +4,7 @@
   {+extenalImageContainer}{/extenalImageContainer}
 	{+externalTextContainer}{/externalTextContainer}
 {/contentCore}
-{<externalImageLink}{Meta.Content.href}{/externalImageLink}
+{<externalImageLink}{Content|image_only|get_image_href|s}{/externalImageLink}
 {<externalImageAlt}{Meta.caption}{/externalImageAlt}
-{<externalImageSrc}{Meta.Content.href}{/externalImageSrc}
-{<externalText}{Content|get_image_caption|s}{/externalText}
+{<externalImageSrc}{Content|image_only|get_image_href|s}{/externalImageSrc}
+{<externalText}{Content|get_image_caption|without_image|s}{/externalText}
