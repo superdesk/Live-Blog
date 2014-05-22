@@ -136,7 +136,7 @@ In order to access the application from other machines the following changes nee
 
    E.g.: server_host: 0.0.0.0
 
-2. Edit the application.properties configuration file, search for the
+2. Edit the plugins.properties configuration file, search for the
    properties 'server_url' and 'embed_server_url' and change them to
    '[machine_name_or_ip]:8080
 
