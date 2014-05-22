@@ -1,3 +1,14 @@
+/plugins/embed/.gitignore
+/plugins/embed/npm-debug.log
+/plugins/embed/config.json
+/plugins/embed/logs/**
+/plugins/embed/server-test-results.xml
+/plugins/embed/client-test-results.xml
+/plugins/embed/docs/docco/test/**
+/plugins/embed/docs/docco/scripts/**
+!/plugins/embed/docs/docco/scripts/index.html
+/plugins/embed/docs/docco-husky/**
+
 /distribution/app.log
 /distribution/test.py
 /distribution/plugins.properties.bck
