@@ -1,16 +1,25 @@
 import json
 
 from wooper.rest import request
+from wooper.steps import process_common_templates
 
 from auth import get_token
 
 
 def liveblog_request(context, method, uri, data=None,
-                      with_auth=True, token=None, add_server=True,
-                      **kwargs):
+                     with_auth=True, token=None, add_server=True,
+                     **kwargs):
 
     if isinstance(data, dict) or isinstance(data, list):
         data = json.dumps(data)
+
+    uri = process_common_templates(uri, context)
+    if not data:
+        if 'text' in context:
+            if context.text:
+                data = process_common_templates(context.text, context)
+        else:
+            data = ''
 
     if 'headers' in kwargs:
         headers = kwargs.pop('headers')
