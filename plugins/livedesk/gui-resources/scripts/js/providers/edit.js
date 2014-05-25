@@ -107,6 +107,8 @@ define('providers/edit', [
 			if ( typeof post.Meta === 'string') {
 				post.Meta = JSON.parse(post.Meta);
 			}
+            //format date to match timeline
+            post.CreatedOn = new Date(post.CreatedOn).format('mm/dd/yyyy HH:MM:ss');
 			$.tmpl('livedesk>items/item', { 
 				Base: 'implementors/edit',
 				Post: post
@@ -606,7 +608,7 @@ define('providers/edit', [
     				}
 				});
 				var posts = Gizmo.Auth(new OwnCollection(
-						self.theBlog+ '/User/'+localStorage.getItem('superdesk.login.id')+'/Post/Owned?asc=createdOn&isPublished=false', 
+						self.theBlog+ '/User/'+localStorage.getItem('superdesk.login.id')+'/Post/Owned?asc=createdOn&isPublished=false&X-Format-DateTime=' + "yyyy-MM-ddTHH:mm:ss'Z'", 
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));

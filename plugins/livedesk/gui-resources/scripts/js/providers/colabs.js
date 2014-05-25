@@ -31,7 +31,6 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
             colabView.el.find('[data-colab-id="'+userImages[i].UserId+'"] figure')
                 .html('<img src="'+userImages[i].Thumbnail+'" />');
     },
-    
     getDraggableHelper = function(evt)
     {
         var listItem = $(evt.currentTarget),
@@ -67,6 +66,8 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
 				post.Meta = JSON.parse(post.Meta);			
 			$.avatar.setImage(post, { needle: 'AuthorPerson.EMail', size: 36});
 
+            //format date to match timeline
+            post.CreatedOn = new Date(post.CreatedOn).format('mm/dd/yyyy HH:MM:ss');
 			$.tmpl('livedesk>items/item', { Post: post, Base: 'implementors/collaborators' }, 
                 function(e,o) 
                 {
@@ -222,7 +223,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 // get post list and sync it with the server
                 this.get('PostUnpublished')
                     .xfilter('*,Author.Source.*,Creator.*')
-                    .sync({data: {'cId.since': this._latestPost}, global: false})
+                    .sync({data: {'cId.since': this._latestPost, 'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}, global: false})
                     .done(function(data){ colab._latestPost = parseInt(data.lastCId);self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
@@ -331,7 +332,7 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                     // get posts for each collaborator
                     var post = colab.get('PostUnpublished');
                     post.xfilter('*,Author.Source.*,Creator.*')
-                        .sync()
+                        .sync({data: {'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}})
                         .done(function(data){
                             colab._latestPost = parseInt(data.lastCId)
                             self.readPostsHandle.call(post, colab, initColabHandle, self); 
@@ -360,7 +361,6 @@ function(providers, $, giz, Blog, Collaborator, Person, BlogAction)
                 }
                 self.update(); 
             }, config.updateInterval*1000);
-            
             return self;
         },
         render: function(){},
