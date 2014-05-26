@@ -59,6 +59,7 @@ define([
             };
             view.checkNextPage = function(evt) {
                 displayToggle(this.$('[data-gimme="posts.nextPage"]'), this.hasNextPage());
+                utils.dispatcher.trigger('pagination-next-updated.posts-view', this);
             };
 
             view.buttonNextPage = function(evt) {

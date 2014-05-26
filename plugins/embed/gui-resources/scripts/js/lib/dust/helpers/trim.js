@@ -11,6 +11,8 @@ define(['dust/core'], function(dust) {
     dust.filters.trim50 = function(string) { return truncateString(string, 50, true); };
     dust.filters.trim150 = function(string) { return truncateString(string, 150, true); };
     dust.filters.trim200 = function(string) { return truncateString(string, 200, true); };
-
+    dust.filters.json = function(obj) {
+        return JSON.stringify(obj);
+    };
     return dust;
 });

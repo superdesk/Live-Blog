@@ -17,10 +17,17 @@ var merge = function(obj, source) {
         }
     }
 };
-var qs = window.location.href;
-// if liveblog.dev parameter is there add additional properties.
-if ((qs.indexOf('liveblog[dev]') !== -1) || liveblog.dev) {
 
+var qs = window.location.href;
+// check if there is a query string with liveblog[dev] or liveblog.dev
+//   and if so overide the one in global liveblog object.
+var qsReg = 'liveblog[\\[\\.]dev[\\]]?(=([^&#]*))?';
+qs.replace(new RegExp(qsReg, 'g'), function (match, hasEquality, value) {
+    liveblog.dev = hasEquality ? (value.toLowerCase() === 'true' ? true : false) : true;
+});
+
+// if liveblog.dev parameter is there add additional properties.
+if (liveblog.dev) {
     // search first into localstorage for liveblog.
     try {
         merge(liveblog, JSON.parse(localStorage.getItem('liveblog')));
@@ -30,7 +37,8 @@ if ((qs.indexOf('liveblog[dev]') !== -1) || liveblog.dev) {
     //     for the query parametes that starts with liveblog.
     //     override those properies over the existing global liveblog obj.
     //     parse only first and second level of the object.
-    qs.replace(/liveblog\[([^?=&\]]+)\](\[([^?=&\]]+)\])?(=([^&]*))?/g, function (match, key, hasSub, subkey, hasEquality, value) {
+    qs.replace(new RegExp(qsReg.replace('dev[\\]]?', '([^?=&\\]]+)[\\]]?([\\[\\.]([^?=&\\]]+)[\\]\\.]?)?'), 'g'),
+        function (match, key, hasSub, subkey, hasEquality, value) {
         value = decodeURIComponent(value);
         if (hasSub) {
             liveblog[key] = liveblog[key] ? liveblog[key] : {};
