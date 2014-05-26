@@ -4,6 +4,7 @@ define([
     'css!theme/liveblog',
     'plugins/button-pagination',
     'plugins/twitter-widgets',
+    'plugins/post-hash',
     'plugins/permanent-link',
     'plugins/social-share',
     'plugins/wrappup-toggle',
@@ -15,6 +16,7 @@ define([
         plugins: [
             'button-pagination',
             'twitter-widgets',
+            'post-hash',
             'permanent-link',
             'social-share',
             'wrappup-toggle',
