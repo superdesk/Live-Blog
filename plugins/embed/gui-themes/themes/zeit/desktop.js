@@ -4,6 +4,7 @@ define([
     'css!theme/liveblog',
     'plugins/button-pagination',
     'plugins/twitter-widgets',
+    'plugins/post-hash',
     'plugins/social-share',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
@@ -12,6 +13,7 @@ define([
         plugins: [
             'button-pagination',
             'twitter-widgets',
+            'post-hash',
             'social-share'
         ]
     };
