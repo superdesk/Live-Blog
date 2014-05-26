@@ -1,10 +1,47 @@
 'use strict';
 
-define(['backbone-custom', 'lib/gettext'], function(Backbone, gt) {
+define([
+    'underscore',
+    'backbone-custom',
+    'lib/gettext',
+    'moment'
+], function(_, Backbone, gt, moment) {
 
-    var buildMap = {};
-        // apiUrl = liveblog.frontendServer,
-        // langCode = liveblog.language;
+    var buildMap = {},
+        loadDate = function() {
+            // moment doesn't have the right language codes ISO 3166 vs ISO 639-1
+            //      at least for Serbian `rs` is the internet code and `sr` is the language code
+            //      see the [Serbian Language](http://en.wikipedia.org/wiki/Serbian_language) vs
+            //              [Serbia](http://en.wikipedia.org/wiki/Serbia)
+            //   we keep a mapper with the language codes to moment lanugage codes.
+            var mapperLang = {
+                    sr: 'rs'
+                },
+                // if there isn't a mapped language use the one given.
+                momentLang = mapperLang[liveblog.language] ? mapperLang[liveblog.language] : liveblog.language,
+                // we keep here witch moment properties we need to overried from gettext into moment.
+                properties = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'],
+                customize = {};
+            // set moment global language with the one given.
+            moment.lang(momentLang);
+            // iterate the properties and if there is something set,
+            //   other then default add those properties to moment customize object.
+            //   names should be separated by underscore _ as in all moment language libs.
+            _.each(properties, function(property) {
+                if (gt.gettext('moment:' + property) !== 'moment:' + property) {
+                    customize[property] = gt.gettext('moment:' + property).split('_');
+                }
+            });
+            moment.lang(momentLang, customize);
+            // set default post-date for moment if one isn't set.
+            if (gt.gettext('moment:post-date') === 'moment:post-date') {
+                gt.loadMessages({'moment:post-date':  ['', 'llll', '']});
+            }
+            // the same for closed-date.
+            if (gt.gettext('moment:closed-date') === 'moment:closed-date') {
+                gt.loadMessages({'moment:closed-date': ['', 'llll', '']});
+            }
+        };
     //API
     return {
         pluginBuilder: 'lib/require/i18n-builder',
@@ -35,6 +72,7 @@ define(['backbone-custom', 'lib/gettext'], function(Backbone, gt) {
                             onLoad(data);
                         } else {
                             gt.loadMessages(data.livedesk_embed);
+                            loadDate();
                             onLoad(data);
                         }
                         onLoad(data);

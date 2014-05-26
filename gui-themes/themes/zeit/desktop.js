@@ -1,10 +1,18 @@
+'use strict';
+
 define([
     'css!theme/liveblog',
-    'plugins/pagination',
     'plugins/button-pagination',
     'plugins/twitter-widgets',
-    'plugins/post-hash',
     'plugins/social-share',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
-], function() {});
+], function() {
+    return {
+        plugins: [
+            'button-pagination',
+            'twitter-widgets',
+            'social-share'
+        ]
+    };
+});

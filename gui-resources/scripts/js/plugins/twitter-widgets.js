@@ -1,8 +1,7 @@
 'use strict';
 require.config({
     paths: {
-        'twitterWidgets': '//platform.twitter.com/widgets',
-        'waypoints': 'bower_components/jquery-waypoints/waypoints.min'
+        'twitterWidgets': '//platform.twitter.com/widgets'
     },
     shim: {
         'twitterWidgets': {
@@ -24,10 +23,10 @@ define([
                 if (view.itemName() !== 'themeBase/item/source/twitter') {
                     return;
                 }
-                if (!view.__manager__.parent._twitterPosts) {
-                    view.__manager__.parent._twitterPosts = [];
+                if (!view.parentView()._twitterPosts) {
+                    view.parentView()._twitterPosts = [];
                 }
-                view.__manager__.parent._twitterPosts.push(view);
+                view.parentView()._twitterPosts.push(view);
             });
 
             //still a problem with this event

@@ -1,10 +1,11 @@
 'use strict';
 define([
+    'underscore',
     'backbone-custom',
     'views/blog',
     'models/blog',
     'load-theme'
-], function(Backbone, BlogView, Blog, loadTheme) {
+], function(_, Backbone, BlogView, Blog, loadTheme) {
     return Backbone.Router.extend({
         'routes': {
             '*path': 'default'
@@ -14,7 +15,11 @@ define([
             if (liveblog.id) {
                 var blog = new Blog({Id: liveblog.id});
                 blog.fetch({success: function() {
-                    loadTheme(blog.get('EmbedConfig'), function() {
+                    var config = blog.get('EmbedConfig');
+                    if (_.has(blog.get('Language'), 'Code')) {
+                        config.language = blog.get('Language').Code;
+                    }
+                    loadTheme(config, function() {
                         var blogView,
                             blogViewSel = '[data-gimme="blog.view"]',
                             blogViewRootEl = Backbone.$(blogViewSel);

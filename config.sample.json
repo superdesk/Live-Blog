@@ -36,6 +36,7 @@
         "fallback": {
             "language": "en"
         },
-        "dev": true
+        "dev": true,
+        "hashmark": "#"
     }
 }
