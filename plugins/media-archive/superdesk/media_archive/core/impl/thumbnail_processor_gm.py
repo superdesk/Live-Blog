@@ -13,7 +13,7 @@ from ally.container import wire
 from ally.container.ioc import injected
 from genericpath import exists
 from os import makedirs
-from os.path import join, abspath, dirname
+from os.path import join, dirname
 from subprocess import Popen, PIPE
 from superdesk.media_archive.core.spec import IThumbnailProcessor
 import logging
@@ -79,7 +79,11 @@ class ThumbnailProcessorGM(IThumbnailProcessor):
             log.exception('Problems while executing command:\n%s \n%s' % (command, e))
             error = True
 
-        if error:
-            if exists(destination): os.remove(destination)
+        if exists(destination):
+            if error: os.remove(destination)
             #raise IOError('Cannot process thumbnail from \'%s\' to \'%s\'' % (source, destination))
+        elif exists(destination + '.0'):
+            #older version of gm generates a file from every image from animated gifs
+            os.rename(destination + '.0', destination)
+            
 

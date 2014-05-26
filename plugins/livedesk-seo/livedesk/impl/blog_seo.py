@@ -21,6 +21,7 @@ from livedesk.meta.blog_seo import BlogSeoMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from sqlalchemy.sql.expression import or_, func
 from ally.container import wire
+from ally.cdm.spec import ICDM
 
 
 # --------------------------------------------------------------------
@@ -34,6 +35,11 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
     
     format_file_name = '%(id)s.html'; wire.config('format_file_name', doc='''
     The format for the html files, it can contain blog id, blog title and theme name: %(id)s-%(title)s-%(theme)s.html''')
+    html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
+    The path where will be stored the generated HTML files''')
+    
+    htmlCDM = ICDM; wire.entity('htmlCDM')
+    # cdm service used to store the generated HTML files
 
     def __init__(self):
         '''
@@ -56,7 +62,8 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.LastCId = 0     
             
         blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)  
-        blogSeo.HtmlURL = self.format_file_name % {'id': blogSeo.Blog}   
+        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog} ))  
+        blogSeo.HtmlURL = self.htmlCDM.getURI(path)  
         
         return super().insert(blogSeo)
     
@@ -71,11 +78,8 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         if blogSeo.LastCId is None:
             blogSeo.LastCId = 0  
             blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
-            blogSeo.ChangedOn = blogSeo.NextSync       
-            
-        if not blogSeo.CallbackActive:
-            blogSeo.CallbackStatus = '' 
-        
+            blogSeo.ChangedOn = blogSeo.NextSync  
+                 
         return super().update(blogSeo)    
     
     

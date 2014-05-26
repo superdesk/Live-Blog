@@ -1,6 +1,6 @@
 <div data-gimme="liveblog-embed-code"></div>
 <script type="text/javascript">
-/* <![CDATA[ */{~n}
+/* <![CDATA[ */
 var liveblog = (function(d){
     var config = {
         id: {Id},
@@ -31,5 +31,5 @@ var liveblog = (function(d){
     config.loadJs('loader');
     return config;
 })(document);
-{~n}/* ]]> */
+/* ]]> */
 </script>

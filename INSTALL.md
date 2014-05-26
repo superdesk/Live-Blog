@@ -1,15 +1,17 @@
-Installing Superdesk
+Installing LiveBlog
 ============================
 
 + [prerequisites](#prerequisites)
     - [debian/ubuntu](#debian-7-or-ubuntu-1204-1210)
-    - [redhat/centos/sles](#redhatcentossles)
+    - [redhat/centos](#redhatcentos)
     - [arch/manjaro](#archlinux-or-manjaro)
     - [win7/win8](#win7-or-win8)    
-+ [Installing Superdesk](#installing-superdesk)
-+ [Configuring Superdesk](#configuring-superdesk)
-+ [Running Superdesk](#running-superdesk)
++ [Installing LiveBlog](#installing-liveblog-1)
++ [Configuring LiveBlog](#configuring-liveblog)
++ [Running LiveBlog](#running-liveblog)
 
+
+The officially supported platform is Ubuntu and Python3.2. However the application can be installed on other OSs and below are provided the install instructions.
 
 ## Prerequisites
 
@@ -20,7 +22,6 @@ Installing Superdesk
 
         $ sudo apt-get install exiv2 ffmpeg graphicsmagick python3 git
 
-        
         
 ### Newer versions of ubuntu/debian which are not shipped with python 3.2
 
@@ -34,12 +35,12 @@ Installing Superdesk
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
-        $ make && sudo make install
-
+        $ ./configure --prefix=/opt/python32
+        $ make
+        $ sudo make install  # or 'sudo checkinstall' to automatically generate a package
         
         
-### Redhat/Centos/sles
+### Redhat/Centos
 
 1. Add repositories for ffmpeg and GraphicsMagick:
 
@@ -59,8 +60,9 @@ Installing Superdesk
         $ wget http://www.python.org/ftp/python/3.2/Python-3.2.tgz
         $ tar xf ./Python-3.2.tgz
         $ cd ./Python-3.2
-        $ ./configure --prefix=/opt/superdesk/python32
-        $ make && sudo make install
+        $ ./configure --prefix=/opt/python32
+        $ make
+        $ sudo make install  # or 'sudo checkinstall' to automatically generate a package
 
         
         
@@ -76,58 +78,45 @@ Installing Superdesk
 
 1. Install necessary software
    Download and install the tools from the following addresses:
+
         ffmpeg: http://www.ffmpeg.org/download.html
         exiv2: http://www.exiv2.org/download.html
         gm: http://www.graphicsmagick.org/INSTALL-windows.html
         
 2. Install python 3.2
    Download and install the right version from the following address:
+
         https://www.python.org/download/releases/3.2
 
 
         
-## Installing Superdesk
+## Installing LiveBlog
+The folowing installation steps in generally are applicable to all OSs and any exception is specified.
 
-0. (optional) Add the Superdesk user
+1. Change to the directory you choose to install the application and clone Ally-Py's master branch there.
 
-        $ sudo useradd superdesk -m -s /bin/bash
-
+        git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
         
-1. Change to `/opt/` and clone Ally-Py's master branch there.
-
-        $ cd /opt/
-        $ sudo git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
+   Note: 
+        Depending by your OS you can choose a different location to install the application like /opt, c:\, etc.
         
-   Notes: 
-        Depending by your OS you can choose a different location to install the application
-        On win the sudo command is not applicable 
-        
-        
-2. Change to `/opt/ally-py` and clone Superdesk's liveblog16 branch there.
+2. Change to ally-py directory and clone LiveBlog's master branch there.
 
-        $ cd ./ally-py
-        $ sudo git clone https://github.com/superdesk/Live-Blog.git -b liveblog16 live-blog
+        cd ally-py
+        git clone https://github.com/superdesk/Live-Blog.git -b master live-blog
 
-        
-3. (optional) set rights to ally-py folder to liveblog user and switch to it:
+3. Change to live-blog directory and build eggs by running the following command:
 
-        $ sudo chown liveblog -R /opt/ally-py
-        $ sudo su liveblog
+        cd live-blog
+        ./build-eggs 
+        (build-eggs.bat for win7/8)
 
-        
-4. Change to /opt/ally-py/live-blog and build eggs by running the following command:
+4. Change to distribution directory and create the configuration files by running the following command:
 
-        $ cd ./live-blog
-        $ ./build-eggs 
-        (build-eggs.bat on win)
+        cd distribution
+        python3.2 application.py -dump
 
-        
-5. Create the configuration files by running the following command:
-
-        $ python3.2 /opt/ally-py/live-blog/distribution/application.py -dump
-
-        
-6. Update the full paths to ffmpeg/exiv2/gm tools in `/opt/ally-py/live-blog/distribution/application.properties`.
+5. Update the full paths to ffmpeg/exiv2/gm tools in plugins.properties configuration file.
    Here are the properties that should be changes and default values:
    
         thumbnailProcessor.ThumbnailProcessorGM.gm_path: /usr/bin/gm
@@ -137,30 +126,40 @@ Installing Superdesk
         
         
 
-## Configuring Superdesk
+## Configuring LiveBlog
 
 #### Access from the Internet
 In order to access the application from other machines the following changes need to be done:
 
-1. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for
+1. Edit the application.properties file, search for
    the property 'server_host' and change it to '0.0.0.0'
+
    E.g.: server_host: 0.0.0.0
 
-2. Edit the file '/opt/ally-py/live-blog/distribution/application.py', search for the
+2. Edit the plugins.properties configuration file, search for the
    properties 'server_url' and 'embed_server_url' and change them to
    '[machine_name_or_ip]:8080
+
    E.g.: server_url: my.machine.domain.com:8080
 
 
 
-## Running Superdesk
+## Running LiveBlog
+The folowing steps in generally are applicable to all OSs and any exception is specified.
 
 1. Run Ally-Py REST server:
 
-        $ python3.2 /opt/ally-py/live-blog/distribution/application.py
+        python3.2 application.py
         
-   As a developer you can run the application from sources by using start-sources.sh(start-sources.bat on win) script.
-
+   As a developer you can run the application from sources by running the following command:
+        
+        cd ..
+        python3.2 distribution/application.py -s sources.ini
+        
+   From distribution/plugins delete the egg(s) for the plugins you are working on. 
+   
+   If you are working with the liveblog embed (livedesk-embed plugin) make sure that plugins/livedesk-embed/gui-resources/scripts/js/core.min.js is empty.
+        
 
 2. Log in to following URL in your browser using credentials `admin/a`:
 
