@@ -1,38 +1,8 @@
 <script type="text/javascript">
 /* <![CDATA[ */{~n}
     var liveblog = (function(d){
-        var config = {
-            id: {id},
-            el: '[data-gimme="liveblog"]',
-        {?language}
-            'language': '{language}',
-        {/language}
-        {?theme}
-            theme: '{theme}',
-        {/theme}
-            servers: {
-                frontend: '{servers.frontend}',
-                rest: '{servers.rest}'
-                {?servers.css}
-                ,css: '{servers.css}'
-                {/servers.css}
-            },
-            paths: {
-                scripts: '{paths.scripts}'
-                {?paths.css}
-                ,css: '{paths.css}'
-                {/paths.css}
-            },
-            {?dev}
-                dev: true,
-            {/dev}
-            {?limit}
-                limit: {limit},
-            {/limit}
-            fallback: {
-                language: "{fallback.language}"
-            }
-        };
+        var config = {.|json|s};
+        config.el = '[data-gimme="liveblog"]';
         config.baseUrl = config.servers.frontend + config.paths.scripts;
         config.loadJs = function(path) {
                     var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];

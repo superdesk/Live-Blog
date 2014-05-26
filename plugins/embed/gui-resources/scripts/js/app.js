@@ -69,6 +69,7 @@ requirejs.config({
         i18n:                   'lib/require/i18n',
         themeBase:              config.paths.themes + '/base',
         'lodash.compat':        config.paths.nodeModules + '/lodash/dist/lodash.compat',
+        'moment':               config.paths.nodeModules + '/moment/min/moment-with-langs',
         'css':                  'lib/require/css'
     },
     map: {

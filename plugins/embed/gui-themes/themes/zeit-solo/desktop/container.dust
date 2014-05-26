@@ -32,6 +32,6 @@
 		{+footer}
 		{/footer}
 	</div>
-	{/container}
+	{/main}
 </div>
 {/mainContainer}

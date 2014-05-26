@@ -1,15 +1,24 @@
 'use strict';
 
 define([
-	'tmpl!theme/container',
-	'tmpl!theme/item/base',
-	'plugins/wrappup-toggle',
-//	'plugins/scroll-pagination',
-	'plugins/permanent-link',
-	'plugins/user-comments',
-	'css!theme/liveblog'
+    'css!theme/liveblog',
+    'plugins/scroll-pagination',
+    'plugins/twitter-widgets',
+    'plugins/permanent-link',
+    'plugins/social-share',
+    'plugins/wrappup-toggle',
+    'plugins/user-comments',
+    'tmpl!theme/container',
+    'tmpl!theme/item/base'
 ], function() {
-	return {
-		plugins: [ 'scroll', 'pagination' ]
-	};
+    return {
+        plugins: [
+            'scroll-pagination',
+            'twitter-widgets',
+            'permanent-link',
+            'social-share',
+            'wrappup-toggle',
+            'user-comments'
+        ]
+    };
 });

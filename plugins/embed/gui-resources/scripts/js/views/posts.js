@@ -28,8 +28,12 @@ define([
         },
 
         flags: {
+            //if false the items will not be displayed imediately
             autoRender: true
         },
+
+        //keeps count of how many currently pending items
+        pendingCounter: 0,
 
         initialize: function() {
             utils.dispatcher.trigger('initialize.posts-view', this);
@@ -38,7 +42,7 @@ define([
             this.setTemplate('themeBase/posts-list');
             if (utils.isClient) {
                 this.listenTo(this.collection, 'reset', this.setViewOnReset);
-                this.listenTo(this.collection, 'add', this.addPost);
+                this.listenTo(this.collection, 'add', this.checkPending);
                 this.listenTo(this.collection, 'remove', this.removePost);
                 this.listenTo(this.collection, 'change:Order', this.reorderPost);
                 this.listenTo(this.collection, 'change:DeletedOn', this.removePostFromCollection);
@@ -106,20 +110,54 @@ define([
             }
         },
 
+        //render all the pending items
+        renderPending: function() {
+            var self = this;
+            //cycle through all the collection
+            this.collection.each(function(item) {
+                if (item.get('pending')) {
+                    self.addPost(item);
+                    item.set('pending', false);
+                    self.pendingCounter --;
+                }
+            });
+            utils.dispatcher.trigger('rendered-pending.posts-view', this);
+            utils.dispatcher.trigger('update-pending.posts-view', this);
+        },
+
+        //check each post before rendering
+        checkPending: function(post) {
+            if (!this.flags.autoRender && post.get('updateItem')) {
+                //mark post as pending
+                post.set('pending', true);
+                this.pendingCounter ++;
+                utils.dispatcher.trigger('update-pending.posts-view', this);
+            } else {
+                this.addPost(post);
+            }
+        },
+
         addPost: function(post) {
             var postView = this.insertPostView(post);
             this.orderViews();
             postView.render();
+
             utils.dispatcher.trigger('add-all.posts-view', this);
         },
 
         removePost: function(post) {
             var self = this;
-            this.removeView(function(nestedView) {
-                if (nestedView.$el.is(self.postRootSel(post.id))) {
-                    return nestedView;
-                }
-            });
+            var pending = post.get('pending');
+            if (pending) {
+                this.pendingCounter --;
+                utils.dispatcher.trigger('update-pending.posts-view', this);
+            } else {
+                this.removeView(function(nestedView) {
+                    if (nestedView.$el.is(self.postRootSel(post.id))) {
+                        return nestedView;
+                    }
+                });
+            }
         },
 
         reorderPost: function(post, newOrder) {
@@ -174,6 +212,11 @@ define([
                 post.hasChanged('CId') && post.hasChanged('Order'));
         },
 
+        // Returns the view for the first post in the list
+        firstPost: function(post) {
+            return this.views[''][0];
+        },
+
         // Returns the index of the post view on the views array or -1
         // if the view is not in it
         _postViewIndex: function(postId) {
@@ -182,7 +225,7 @@ define([
                 return -1;
             }
 
-            var orderedIds = this.views[''].map(function(v) { return v.model.id; });
+            var orderedIds = _.map(this.views[''], function(v) { return v.model.id; });
             return _.indexOf(orderedIds, postId);
         },
 
