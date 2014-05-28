@@ -94,7 +94,7 @@ Scenario: Blog settings
 
 
 Scenario: Pagination for posts
-    Given 20 posts were published to embed
+    Given 20 fixtures
 
     When GET /LiveDesk/Blog/1/Post/Published?limit=15
     Then status is 200
