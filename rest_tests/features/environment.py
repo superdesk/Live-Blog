@@ -38,7 +38,7 @@ def before_scenario(context, scenario):
                 'Type': 'normal',
                 'Creator': '1'
             })
-        expect_status(context, 201)
+        expect_status(context.response, 201)
         last_id = get_id_from_href(context)
 
         # publish post
@@ -46,6 +46,6 @@ def before_scenario(context, scenario):
             context,
             '/my/LiveDesk/Blog/1/Post/{id}/Publish'
             .format(id=last_id))
-        expect_status(context, 201)
+        expect_status(context.response, 201)
 
         context.template_variables['last_id'] = last_id

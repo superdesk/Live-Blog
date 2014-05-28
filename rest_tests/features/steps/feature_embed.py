@@ -17,11 +17,11 @@ def step_impl_embed_pulish_posts(context, number):
                 'Content': 'test' + str(i),
                 'Type': 'normal',
                 'Creator': '1'})
-        expect_status(context, 201)
+        expect_status(context.response, 201)
         last_id = get_id_from_href(context)
 
         # publish post
         POST(
             context,
             '/my/LiveDesk/Blog/1/Post/{id}/Publish'.format(id=last_id))
-        expect_status(context, 201)
+        expect_status(context.response, 201)
