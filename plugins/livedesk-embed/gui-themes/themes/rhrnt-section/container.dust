@@ -1,0 +1,14 @@
+{>"themeBase/container"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<userComment}
+{/userComment}
+
+
+{<contentTopContainer}
+{/contentTopContainer}
+
+{<contentBottomContainer}
+{/contentBottomContainer}
