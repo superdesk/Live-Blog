@@ -9,7 +9,7 @@ define([
     plugins['post-hash'] = function(config) {
 
         var href,
-            hash = 'liveblog[item][id]',
+            hash = 'liveblog.item.id',
             hashMark = liveblog.hashmark ? liveblog.hashmark : '?';
 
         if (utils.isClient) {
