@@ -8,6 +8,7 @@ define([
 ], function(_, Backbone, modelCollectionCommon, poller) {
 
     return Backbone.Model.extend(_.extend({
+
         idAttribute: 'Id',
 
         // The function to be called for polling

@@ -8,7 +8,6 @@ define([
     'plugins/permanent-link',
     'plugins/social-share',
     'plugins/wrappup-toggle',
-    'plugins/user-comments',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -19,8 +18,7 @@ define([
             'post-hash',
             'permanent-link',
             'social-share',
-            'wrappup-toggle',
-            'user-comments'
+            'wrappup-toggle'
         ]
     };
 });

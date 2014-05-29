@@ -4,14 +4,13 @@
 {/headerContainer}
 
 
-{+contentContainer}
+{<contentContainer}
 <div class="liveblog-content">
 	{+content}
 		{+contentTopContainer}
 		<div class="liveblog-content-top">
 			{+contentTop}
 				{+status}{/status}
-				{+actionTotop}{/actionTotop}
 			{/contentTop}
 		</div>
 		{/contentTopContainer}

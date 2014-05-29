@@ -30,8 +30,7 @@ define([
 
             if (data.Author) {
                 if (data.Author.Source.Type.Key === 'smsblog') {
-                    // ugly hack is ugly
-                    // @TODO remove this when is resolved on rest server.
+                    /* TODO remove this when fixed on rest server. */
                     data.item = 'source/sms';
                 } else {
                     if (data.Author.Source.IsModifiable ===  'True' ||
@@ -50,14 +49,17 @@ define([
                 data.item = data.item.replace('/advertisement', '/infomercial');
             }
 
-            // liveblog can be set into two instances,
-            // frontend is the one that servers the embed and backend could be another instance for admin area.
-            // but when we server content with images, links and so on we need to give it frontend url.
+            // For running Live Blog we can have just one server or two different ones:
+            // * frontend: for the embed.
+            // * backend: for the admin.
+            //
+            // When we have content with images or similar and there are two servers,
+            // we have to use the frontend one to serve them.
             if (data.Content && liveblog && liveblog.servers.backend) {
                 data.Content = data.Content.replace(liveblog.servers.backend, liveblog.servers.frontend);
             }
-            // send servers.frontend to template so some templates can use it
-            // ex: quirks mode use avatar image witch needs to have be set fullpath.
+            // Set `servers.frontend`, needed by some templates.
+            // ex: quirks mode avatar image uses fullpath.
             if (liveblog && liveblog.servers.backend) {
                 data.servers = data.servers ? data.servers : {};
                 data.servers.frontend = liveblog.servers.frontend;
@@ -69,8 +71,8 @@ define([
 
         _manageAnnotations: function(apiAnnotation) {
             var annotation = apiAnnotation;
-            // an old implementation is using array if it has before and after annotation
-            // or a string if it only has before annotation
+            // An old implementation is using array if it has before and after annotation
+            // or a string if it only has before annotation.
             if (_.isArray(apiAnnotation)) {
                 annotation = {
                     before: apiAnnotation[0],
@@ -85,8 +87,8 @@ define([
                 };
             }
 
-            // annotation now is according to the new api,
-            // remove the the trailing br tag.
+            // Annotation according to the new api,
+            // remove the trailing `br` tag.
             if (_.isObject(annotation)) {
                 annotation = {
                     'before': trimTag(['<br/>', '<br>', '<br />'], annotation.before),

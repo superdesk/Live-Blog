@@ -4,9 +4,8 @@ define([
     'lib/require-global',
     'module',
     'underscore',
-    'plugins',
     'lib/utils'
-], function(requirejs, module, _, plugins, utils) {
+], function(requirejs, module, _, utils) {
     var undefineTheme = function() {
         requirejs.undef('theme');
         requirejs.undef('themeFile');
@@ -17,7 +16,7 @@ define([
     return function(config, callback) {
         config = config || {theme: 'default'};
         callback = callback || function() {};
-        var loadPlugins = function() {
+        var loadPlugins = function(plugins) {
             _.each(plugins, function(fn, key) {
                 fn(config);
             });
@@ -50,10 +49,11 @@ define([
         // Load (apply) theme config
         undefineTheme();
         require([
+            'plugins',
             'themeFile',
             'lib/helpers/find-environment',
             'i18n!livedesk_embed'
-        ], function(theme, findEnvironment) {
+        ], function(plugins, theme, findEnvironment) {
             // If the theme has different environments reset the
             //  path to theme template files and theme config file to use
             //  the ones for the selected environment
@@ -70,14 +70,14 @@ define([
                         themeFile: themesPath([liveblog.theme, liveblog.environment])
                     }
                 });
-                requirejs(['themeFile'], function() {
-                    loadPlugins();
+                requirejs(['plugins', 'themeFile'], function(plugins, theme) {
+                    loadPlugins(plugins);
                 }, function(err) {
                     undefineTheme();
                     utils.dispatcher.trigger('sub-theme-file.request-failed');
                 });
             } else {
-                loadPlugins();
+                loadPlugins(plugins);
             }
         }, function(err) {
             undefineTheme();

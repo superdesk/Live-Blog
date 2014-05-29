@@ -1,5 +1,6 @@
-/* jshint maxparams: 9 */
+/* jshint maxparams: 8 */
 'use strict';
+
 define([
     'underscore',
     'views/base-view',
@@ -16,7 +17,17 @@ define([
 
         initialize: function() {
             var self = this;
+
             utils.dispatcher.trigger('initialize.layout-view', this);
+
+            // Set `liveblog.render` object with what should be rendered.
+            // Options:
+            // * `seo`: generate the live blog HTML server side.
+            // * `embed`: add embed code for making use of client side only functionality,
+            // like receiving live updates.
+            // * `index`: render index.html template, if the live-blog is not embedded
+            // in a page (mostly for testing purposes).
+            // * `livereload`: development only, reloads the page when a file is edited.
             if (_.isString(liveblog.render)) {
                 var render = liveblog.render.split(',');
                 liveblog.render = {};
@@ -24,6 +35,10 @@ define([
                     liveblog.render[value] = true;
                 });
             }
+
+            this.setTemplate('layout');
+
+            // Create and fetch blog model and insert the blog view into the layout.
             this.model = new Liveblog(liveblog);
             this.blogModel = new Blog({Id: liveblog.id});
             this.blogModel.fetch({
@@ -41,16 +56,21 @@ define([
                     utils.dispatcher.trigger('blog-model.request-failed');
                 }
             });
+
             self.insertView('[data-gimme="liveblog-embed-code"]', new EmbedCode({model: this.model}));
-            this.setTemplate('layout');
         },
+
+        // Backbone.LayoutManager `afterRender`.
         afterRender: function() {
             utils.dispatcher.trigger('after-render.layout-view', this);
         },
-        beforeRender: function() {
 
+        // Backbone.LayoutManager `beforeRender`.
+        beforeRender: function() {
             utils.dispatcher.trigger('before-render.layout-view', this);
         },
+
+        // Backbone.LayoutManager `serialize`.
         serialize: function() {
             return this.model.toJSON();
         }
