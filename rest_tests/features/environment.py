@@ -1,9 +1,7 @@
 from requests import Session
 
-from wooper.rest import get_id_from_href
-from wooper.expect import expect_status
-
-from liveblog_helpers import reset_app, POST
+from liveblog_helpers import reset_app
+from liveblog_fixtures import upload_fixtures
 from settings import SERVER_URL, PRINT_PAYLOAD, PRINT_URL, PRINT_HEADERS
 
 
@@ -25,27 +23,5 @@ def before_scenario(context, scenario):
     if 'skip' in scenario.tags:
         scenario.steps = []
         scenario.mark_skipped()
-
     reset_app(context)
-
-    if scenario.feature.name == 'Embed':
-        # add post
-        POST(
-            context,
-            '/my/LiveDesk/Blog/1/Post', {
-                'Meta': '{}',
-                'Content': 'test',
-                'Type': 'normal',
-                'Creator': '1'
-            })
-        expect_status(context, 201)
-        last_id = get_id_from_href(context)
-
-        # publish post
-        POST(
-            context,
-            '/my/LiveDesk/Blog/1/Post/{id}/Publish'
-            .format(id=last_id))
-        expect_status(context, 201)
-
-        context.template_variables['last_id'] = last_id
+    upload_fixtures(context)

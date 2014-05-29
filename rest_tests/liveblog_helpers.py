@@ -9,31 +9,29 @@ from auth import get_token
 def liveblog_request(context, method, uri, data=None,
                      with_auth=True, token=None, add_server=True,
                      **kwargs):
-
-    if isinstance(data, dict) or isinstance(data, list):
-        data = json.dumps(data)
-
-    uri = process_common_templates(uri, context)
+    # payload
     if not data:
         if 'text' in context:
             if context.text:
                 data = process_common_templates(context.text, context)
         else:
             data = ''
-
+    if isinstance(data, dict) or isinstance(data, list):
+        data = json.dumps(data)
+    # uri
+    uri = process_common_templates(uri, context)
+    # auth
     if 'headers' in kwargs:
         headers = kwargs.pop('headers')
     else:
         headers = {}
-
     if with_auth:
         if not token:
             if not context.token:
                 context.token = get_token(session=context.session)
             token = context.token
         headers.update({'Authorization': token})
-        # uri = uri + '&Authorization={token}'.format(token=token)
-
+    # request itself
     request(
         context, method, uri,
         data=data, headers=headers, add_server=add_server,
