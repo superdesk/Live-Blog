@@ -1,4 +1,5 @@
 'use strict';
+
 define([
     'underscore',
     'lib/utils',
@@ -8,17 +9,19 @@ define([
 ], function(_, utils, BaseView, PostView) {
 
     return BaseView.extend({
-        // Set el to the top level element from the template
-        // instead of default behaviour of inserting a div element.
+
+        // Set `el` to the top level element from the template
+        // instead of the default behaviour of inserting a `div` element
+        // (Backbone.LayoutManager).
         el: false,
 
-        // The selector of the view root element
+        // The selector of the view root element.
         rootSel: '[data-gimme="posts.list"]',
 
-        // Data attribute that identifies post view elements
+        // Data attribute that identifies post view elements.
         postRootDataAttr: 'data-gimme-postid',
 
-        // The selector of a certain post view root element
+        // Return the selector of a certain post view root element.
         postRootSel: function(postId) {
             if (postId) {
                 return '[' + this.postRootDataAttr + '="' + postId + '"]';
@@ -28,18 +31,23 @@ define([
         },
 
         flags: {
-            //if false the items will not be displayed imediately
+            // If `autoRender` is false, new posts won't be displayed
+            // automatically. Used by the `pending-messages` plugin.
             autoRender: true
         },
 
-        //keeps count of how many currently pending items
+        // Keep track of the number of "pending" (i.e. not yet displayed,
+        // when `autoRender: false`) posts.
         pendingCounter: 0,
 
         initialize: function() {
             utils.dispatcher.trigger('initialize.posts-view', this);
+
             _.bindAll(this, 'insertPostView', 'orderViews', '_postViewIndex',
                             '_insertPostViewAt', '_insertPostViewAtFirstPos');
+
             this.setTemplate('themeBase/posts-list');
+
             if (utils.isClient) {
                 this.listenTo(this.collection, 'reset', this.setViewOnReset);
                 this.listenTo(this.collection, 'add', this.checkPending);
@@ -48,28 +56,34 @@ define([
                 this.listenTo(this.collection, 'change:DeletedOn', this.removePostFromCollection);
                 this.listenTo(this.collection, 'change:IsPublished', this.removePostFromCollection);
             }
+
             this.collection.fetchPage({reset: true});
         },
 
+        // Backbone.LayoutManager `beforeRender`.
         beforeRender: function(manage) {
             this.collection.forEach(this.insertPostView, this);
         },
 
+        // Backbone.LayoutManager `afterRender`.
         afterRender: function() {
             utils.dispatcher.trigger('after-render.posts-view', this);
         },
 
+        // Render the view when the collection is resetted.
+        // Don't re-render posts that are already there, in case of
+        // server-side HTML rendering.
         setViewOnReset: function() {
             this.fakeViewRendering();
             var postEls = this.$el.children(this.postRootSel());
 
-            // If there are no server side rendered posts, render whole view
+            // If there are no server side rendered posts, render whole view.
             if (postEls.length === 0) {
                 this.render();
                 return;
             }
 
-            // Otherwise construct nested views from DOM
+            // Otherwise construct nested views from DOM.
             var self = this;
             postEls.each(function(index, pEl) {
                 var postEl  = self.$(pEl),
@@ -79,23 +93,24 @@ define([
                     postView;
 
                 // If the post is still in the collection and hasn't changed
-                // construct the postView and add it to nested views
+                // construct the postView and add it to nested views.
                 if (post && postCId === post.get('CId')) {
                     postView = self.insertPostView(post, {el: self.postRootSel(postId)});
-                    // fire events for the plugins if it was already rendered.
+                    // Fire events for the plugins if it was already rendered.
                     postView.alreadyRendered();
                 } else {
-                    // Else remove markup
+                    // Else remove markup.
                     postEl.remove();
                 }
             });
 
-            // Add new posts or posts that were removed because they had changed
+            // Add new posts or posts that were removed because they had changed.
             this.collection.forEach(this.addPostIfMissing, this);
 
             utils.dispatcher.trigger('add-all.posts-view', this);
         },
 
+        // Render the `post` if it's not already there.
         addPostIfMissing: function(post) {
             var i = this._postViewIndex(post.id);
             if (i === -1) {
@@ -110,10 +125,9 @@ define([
             }
         },
 
-        //render all the pending items
+        // Render all pending posts (when `flags.autoRender: false`).
         renderPending: function() {
             var self = this;
-            //cycle through all the collection
             this.collection.each(function(item) {
                 if (item.get('pending')) {
                     self.addPost(item);
@@ -125,10 +139,11 @@ define([
             utils.dispatcher.trigger('update-pending.posts-view', this);
         },
 
-        //check each post before rendering
+        // Render `post` if `flag.autoRender: true` or if loading the next page,
+        // otherwise add it as a pending post.
         checkPending: function(post) {
+            // `post.get('updateItem')` returns false for next page loading.
             if (!this.flags.autoRender && post.get('updateItem')) {
-                //mark post as pending
                 post.set('pending', true);
                 this.pendingCounter ++;
                 utils.dispatcher.trigger('update-pending.posts-view', this);
@@ -137,6 +152,7 @@ define([
             }
         },
 
+        // Add (render) `post` to the posts list in the correct position.
         addPost: function(post) {
             var postView = this.insertPostView(post);
             this.orderViews();
@@ -145,6 +161,8 @@ define([
             utils.dispatcher.trigger('add-all.posts-view', this);
         },
 
+        // Remove `post` from the posts list, if it has already been rendered
+        // or from the list of pending posts otherwise.
         removePost: function(post) {
             var self = this;
             var pending = post.get('pending');
@@ -160,21 +178,22 @@ define([
             }
         },
 
+        // Update DOM for posts list if the posts order has changed.
         reorderPost: function(post, newOrder) {
-            // if some attribute other than Order (and CId) has changed
-            // remove the view and render it again in the right position
+            // If some attribute other than Order (and CId) has changed
+            // remove the view and render it again in the right position.
             if (!this.onlyOrderHasChanged(post)) {
                 this.removePost(post);
                 this.addPost(post);
             } else {
-                // Update order attribute in view
+                // Update order attribute in view.
                 this.views[''][this._postViewIndex(post.id)].order =
                                                             parseFloat(newOrder);
 
-                // Reorder views array
+                // Reorder views array.
                 this.orderViews();
 
-                // Detach view and insert it in new position
+                // Detach view and insert it in new position.
                 var newIndex = this._postViewIndex(post.id),
                     postEl = this.$(this.postRootSel(post.id)).detach();
 
@@ -182,19 +201,20 @@ define([
             }
         },
 
+        // Backbone.LayoutManager `insert`.
         insert: function($root, $el) {
-            // on 'reset' append all elements to the root element
+            // On 'reset' append all elements to the root element.
             if ($root.is(':empty')) {
                 $root.append($el);
                 utils.dispatcher.trigger('add-all.posts-view', this);
             } else {
-            // on 'add' insert the new post in the right position
+            // On 'add' insert the new post in the right position.
                 var i = this._postViewIndex($el.attr(this.postRootDataAttr));
                 this._insertPostViewAt($root, $el, i);
             }
         },
 
-        // Create a new post view and insert it at the end of the views array
+        // Create a new post view and insert it at the end of the views array.
         insertPostView: function(post, options) {
             var opts = _.extend({model: post}, options);
             var postView = new PostView(opts);
@@ -202,25 +222,26 @@ define([
             return postView;
         },
 
-        // Order the views array according to order param in views
+        // Order the views array according to order param in views.
         orderViews: function() {
             this.views[''] = _.sortBy(this.views[''], 'order').reverse();
         },
 
+        // Return if `order` has been the only attribute to change
+        // on post update.
         onlyOrderHasChanged: function(post) {
             return (_.size(post.changedAttributes()) > 2 &&
                 post.hasChanged('CId') && post.hasChanged('Order'));
         },
 
-        // Returns the view for the first post in the list
+        // Return the view for the first post in the list.
         firstPost: function(post) {
             return this.views[''][0];
         },
 
-        // Returns the index of the post view on the views array or -1
-        // if the view is not in it
+        // Return the index of the post view on the views array or -1
+        // if the view is not in it.
         _postViewIndex: function(postId) {
-            // If there are no views yet on this.views['']
             if (!this.views['']) {
                 return -1;
             }
@@ -229,32 +250,32 @@ define([
             return _.indexOf(orderedIds, postId);
         },
 
-        // Insert post element in the parent list element at a given index
+        // Insert post element in the parent list element at a given index.
         _insertPostViewAt: function($parent, $el, i) {
             if (i === 0) {
                 this._insertPostViewAtFirstPos($parent, $el);
             } else if (i > 0) {
                 // For adding it to a position different that the first, find
-                // prev post and add it after it
+                // prev post and add it after it.
                 var prevId = this.views[''][i - 1].model.id;
                 $parent.children(this.postRootSel(prevId)).after($el);
             }
         },
 
-        // Insert post element in the parent list element at first position
+        // Insert post element in the parent list element at first position.
         _insertPostViewAtFirstPos: function($parent, $el) {
-            // find the first post element and add it before it.
+            // Find the first post element and add it before it.
             var nextEl = $parent.children(this.postRootSel()).first();
             if (nextEl.length !== 0) {
                 nextEl.before($el);
             } else {
                 // If there is no first post search for pagination elements
-                // and add it between them
+                // and add it between them.
                 var pagEl = $parent.children('[data-gimme="posts.beforePage"]');
                 if (pagEl.length !== 0) {
                     pagEl.after($el);
                 } else {
-                    // If there is no pagination element either, append to $parent
+                    // If there is no pagination element either, append to `$parent`.
                     $parent.append($el);
                 }
             }

@@ -37,7 +37,7 @@ define([
             if (options.blogId) {
                 this.blogId = options.blogId;
             }
-            // Cache the min 'Order' value between the collection posts
+            // Cache the min 'Order' value between the collection posts.
             this.minPostOrder = 0;
 
             if (utils.isClient) {
@@ -59,7 +59,7 @@ define([
                 this.updateLastCId(parseInt(data.lastCId, 10));
             }
 
-            // Filter updates of posts: remove post updates from following pages
+            // Filter updates of posts: remove post updates from pages not yet shown.
             if (data.PostList.length) {
                 var self = this;
                 data.PostList = data.PostList.filter(function(p) {
@@ -68,7 +68,8 @@ define([
                     }
                     return true;
                 });
-                //mark each element from the result as an item that came from an update not a new page
+                // Mark posts as coming from an updates request,
+                // not from a new page request.
                 _.each(data.PostList, function(item, index) {
                     item.updateItem = true;
                 });

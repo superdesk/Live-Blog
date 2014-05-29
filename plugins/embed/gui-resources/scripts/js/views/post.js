@@ -9,12 +9,13 @@ define([
 ], function(_, utils, BaseView) {
 
     return BaseView.extend({
-        // Set el to the top level element from the template
-        // instead of default behaviour of inserting a div element.
+
+        // Set `el` to the top level element from the template
+        // instead of the default behaviour of inserting a `div` element
+        // (Backbone.LayoutManager).
         el: false,
 
-        // Where we cache some data.
-        //   for now is used for cacheing the itemName after the compilation of it.
+        // `propertiesObj._cacheData` is used to cache some useful data.
         propertiesObj: {
             _cacheData: {
                 itemName: false
@@ -23,14 +24,19 @@ define([
 
         initialize: function() {
             _.defaultsDeep(this, this.propertiesObj);
-            utils.dispatcher.trigger('initialize.post-view', this);
-            this.setTemplate(this.itemName());
             this.order = parseFloat(this.model.get('Order'));
+
+            utils.dispatcher.trigger('initialize.post-view', this);
+
+            this.setTemplate(this.itemName());
+
             this.listenTo(this.model, 'change:CId', this.update);
         },
 
-        // If the model has changed re-render the view, except if the post was reordered,
-        // unpublished or deleted, in which case the event will be handle by posts view
+        // If the model has changed re-render the view,
+        // except if the post was reordered,
+        // unpublished or deleted, in which case the
+        // event will be handled by posts view.
         update: function() {
             if (!this.model.hasChanged('Order') &&
                 !this.model.hasChanged('DeletedOn') &&
@@ -39,6 +45,7 @@ define([
             }
         },
 
+        // Backbone.LayoutManager `serialize`.
         serialize: function() {
             var data = this.model.toJSON();
             data.baseItem = this.themedTemplate('themeBase/item/base');
@@ -48,20 +55,29 @@ define([
             return data;
         },
 
+        // To be called client side if the post has been already
+        // rendered server side.
+        // It manually set fields and throw events as if `render`
+        // had been executed.
         alreadyRendered: function() {
             this.fakeViewRendering();
             utils.dispatcher.trigger('before-render.post-view', this);
             utils.dispatcher.trigger('after-render.post-view', this);
         },
 
+        // Backbone.LayoutManager `beforeRender`.
         beforeRender: function() {
             utils.dispatcher.trigger('before-render.post-view', this);
         },
 
+        // Backbone.LayoutManager `afterRender`.
         afterRender: function() {
             utils.dispatcher.trigger('after-render.post-view', this);
         },
 
+        // Return the item name from `propertiesObj._cacheData`,
+        // if it's already there. Otherwise find it out
+        // and save it for the next time.
         itemName: function() {
             if (this._cacheData.itemName) {
                 return this._cacheData.itemName;

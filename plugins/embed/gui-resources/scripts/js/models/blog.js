@@ -28,11 +28,13 @@ define([
                 this.startPolling();
             }
         },
-        // The function to be called for polling
+
+        // The function to be called for polling.
         poller: function(options) {
             delete options.data;
             this.fetch(options);
         },
+
         parse: function(data) {
             if (_.isString(data.EmbedConfig)) {
                 data.EmbedConfig = JSON.parse(data.EmbedConfig);
