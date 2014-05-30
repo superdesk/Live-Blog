@@ -43,10 +43,9 @@ define([
             this.blogModel = new Blog({Id: liveblog.id});
             this.blogModel.fetch({
                 success: function() {
-                    var config = self.blogModel.get('EmbedConfig'),
-                        lang = self.blogModel.get('Language');
-                    if (lang && lang.Code) {
-                        config.language = lang.Code;
+                    var config = self.blogModel.get('EmbedConfig');
+                    if (_.has(self.blogModel.get('Language'), 'Code')) {
+                        config.language = self.blogModel.get('Language').Code;
                     }
                     loadTheme(config, function() {
                         self.insertView('[data-gimme="liveblog-layout"]', new BlogView({model: self.blogModel}));
