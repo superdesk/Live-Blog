@@ -28,17 +28,17 @@ define([
             //   other then default add those properties to moment customize object.
             //   names should be separated by underscore _ as in all moment language libs.
             _.each(properties, function(property) {
-                if (gt.gettext('moment:' + property) !== 'moment:' + property) {
-                    customize[property] = gt.gettext('moment:' + property).split('_');
+                if (gt.pgettext('moment', property) !== property) {
+                    customize[property] = gt.pgettext('moment', property).split('_');
                 }
             });
             moment.lang(momentLang, customize);
             // set default post-date for moment if one isn't set.
-            if (gt.gettext('moment:post-date') === 'moment:post-date') {
+            if (gt.pgettext('moment', 'post-date') === 'post-date') {
                 gt.loadMessages({'moment:post-date':  ['', 'llll', '']});
             }
             // the same for closed-date.
-            if (gt.gettext('moment:closed-date') === 'moment:closed-date') {
+            if (gt.pgettext('moment', 'closed-date') === 'closed-date') {
                 gt.loadMessages({'moment:closed-date': ['', 'llll', '']});
             }
         };
@@ -71,7 +71,7 @@ define([
                             buildMap[name] = data;
                             onLoad(data);
                         } else {
-                            gt.loadMessages(data.livedesk_embed);
+                            gt.loadMessages(_.values(data)[0]);
                             loadDate();
                             onLoad(data);
                         }

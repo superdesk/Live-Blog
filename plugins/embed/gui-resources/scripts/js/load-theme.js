@@ -36,7 +36,7 @@ define([
         }
         // Set liveblog theme
         liveblog.theme = liveblog.theme ? liveblog.theme : config.theme;
-        if (config.language) {
+        if (config.language && !liveblog.language) {
             liveblog.language = config.language;
         }
         // Set the path for theme template files and theme config file
