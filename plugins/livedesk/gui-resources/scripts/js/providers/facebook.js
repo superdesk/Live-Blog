@@ -258,7 +258,8 @@ define('providers/facebook', [
                 if ( query == '') {
                     //new search
                     self.data.post = [];
-                    query = 'https://graph.facebook.com/search?type=post&access_token=' + self.token + '&limit=20&q=' + encodeURIComponent(text) ;
+                    //to search for posts we need to use v1.0 of the api(graph.facebook.com/v1.0/) with an api key of an app created earlier than 30.04.2014
+                    query = 'https://graph.facebook.com/v1.0/search?type=post&access_token=' + self.token + '&limit=20&q=' + encodeURIComponent(text) ;
                     $('#fbk-post-results').html('');
                 }
                 query += '&callback=?'
