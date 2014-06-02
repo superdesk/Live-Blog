@@ -108,7 +108,9 @@ define('providers/edit', [
 				post.Meta = JSON.parse(post.Meta);
 			}
             //format date to match timeline
-            post.CreatedOn = new Date(post.CreatedOn).format('mm/dd/yyyy HH:MM:ss');
+            if(post.CreatedOn) {
+                post.CreatedOn = new Date(post.CreatedOn).format('mm/dd/yyyy HH:MM:ss');
+            }
 			$.tmpl('livedesk>items/item', { 
 				Base: 'implementors/edit',
 				Post: post
