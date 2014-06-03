@@ -9,7 +9,7 @@
 @lb-color-link : #009ee0;
 
 @postlist-minheight : 0;	//default 0
-@postlist-maxheight : none;	//default none
+@postlist-maxheight : 600px;	//default none
 
 @postlist-header-height : 30px;
 
@@ -135,13 +135,52 @@
 		.liveblog-content {
 			position: relative;
 			margin: 10px 0;
+			
+			.liveblog-content-top {
+				font-family: @lb-font2;
+				font-weight: bold;
+				border-top: 1px solid #000;
+				border-bottom: 1px solid #000;
+				height: 32px;
+				line-height: 32px;
+				position: relative;
+				z-index: 5;
+				box-shadow:-10px 10px 10px -4px #fff;
+				-webkit-box-shadow:-10px 10px 10px -4px #fff;
+				-moz-box-shadow:-10px 10px 10px -4px #fff;
+
+				.update-time {
+					font-size: 13px;
+					color: #000;
+				}
+				.new-posts-label {
+					position: absolute;
+					top: 4px;
+					right: 0;
+					background: #000;
+					height: 24px;
+					color: #fff;
+					line-height: 24px;
+					font-size: 10px;
+					text-transform: uppercase;
+				}
+			}
+			.liveblog-content-bottom {
+				height: 32px;
+				box-shadow:-10px -10px 10px -4px #fff;
+				-webkit-box-shadow:-10px -10px 10px -4px #fff;
+				-moz-box-shadow:-10px -10px 10px -4px #fff;
+				position: relative;
+				z-index: 5;
+				border-top: 1px solid #000;
+			}
 
 			.liveblog-content-middle {
 				max-height: @postlist-maxheight;
 				min-height: @postlist-minheight;
 				overflow: auto;
 				overflow-x: hidden !important; 
-				border-bottom :1px dotted #ccc;
+			
 				&.liveblog-scroll {
 					height: 500px;
 				}
@@ -324,6 +363,7 @@
 								line-height: 16px;
 								height: 16px;
 								vertical-align: top;
+								font-weight: bold;
 							}
 						}
 
