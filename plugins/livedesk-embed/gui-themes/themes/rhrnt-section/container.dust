@@ -7,8 +7,10 @@
 {/userComment}
 
 
-{<contentTopContainer}
-{/contentTopContainer}
+{<contentTop}
+	{+status}{/status}
+	{+statusNewPost}{/statusNewPost}
+{/contentTop}
 
-{<contentBottomContainer}
-{/contentBottomContainer}
+{<contentBottom}
+{/contentBottom}
