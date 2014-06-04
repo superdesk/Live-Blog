@@ -155,7 +155,7 @@ class SeoSyncProcess:
             blogSeo.CallbackStatus = e.read().decode(encoding='UTF-8')
             blogSeo.LastBlocked = None 
             self.blogSeoService.update(blogSeo)
-            log.error('Read problem on %s, error code with message: %s ' % (self.html_generation_server, blogSeo.CallbackStatus))
+            log.error('Read problem on %s, error code with message: %s ' % (str(url), blogSeo.CallbackStatus))
             return
         except Exception as e:  
             blogSeo.CallbackStatus = 'Can\'t access the HTML generation server: ' + self.html_generation_server
