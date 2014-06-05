@@ -1,4 +1,8 @@
-define(['jquery', 'livedesk-embed/dispatcher' ], function($){
+define([
+    'jquery',
+    'plugins',
+    'dispatcher'
+], function($, plugins, dispatcher){
 	function prettyDate(t){
 		/*!
 		 * If no date is provided then return nothing
@@ -26,24 +30,26 @@ define(['jquery', 'livedesk-embed/dispatcher' ], function($){
 		 * 
 		 */
 		return day_diff == 0 && (
-				sec_diff < 5		&& gettext("Just now")+'' ||
+				sec_diff < 2		&& gettext("Just now")+'' ||
 				sec_diff < 60		&& gettext("%(seconds)s seconds ago").format({ seconds: parseInt(sec_diff)}) ||
 				minutes_diff < 60	&& ngettext("One minute ago", "%(minutes)s minutes ago", minutes_diff ).format({ minutes: minutes_diff})||
 			hours_diff < 24		&& ngettext("One hour ago", "%(hours)s hours ago", hours_diff ).format({ hours: hours_diff}) )||
-			day_diff < 7 		&& ngettext("Yesterday", "%(days)s days ago", day_diff ).format({ days: day_diff}) ||
-			weeks_diff < 4 		&& gettext("%(weeks)s weeks ago").format({ weeks: weeks_diff}) ||
-			weeks_diff > 4 		&& date.format('mm/dd/yyyy HH:MM');
+			day_diff < 7 		&& ngettext("Yesterday at %(time)s", "%(days)s days ago at %(time)s", day_diff ).format({ days: day_diff, time: date.format(gettext('HH:MM'))}) ||
+			weeks_diff < 4 		&& gettext("%(weeks)s weeks ago at %(time)s").format({ weeks: weeks_diff, time: date.format(gettext('HH:MM'))}) ||
+			weeks_diff > 4 		&& date.format(gettext('mm/dd/yyyy HH:MM'));
 	}
-	return function(config) {
-		if (config && config.PrettyDate) {
-			var interval;  
-			$.dispatcher.on('rendered-after.blog-view', function(){
-					var self = this,
-						render = function(){
-							self.el.find('[data-date]').each(function(){
-								$(this).text(prettyDate($(this).attr('data-date')));
-							});
-						}
+	return plugins['pretty-date'] = function(config) {
+			var interval, render = function(){};
+            $.dispatcher.on('rendered-before.blog-view', function() {
+                var self = this;
+                render = function(){
+                    //console.log('render: ',self.el.html());
+                    self.el.find('[data-date]').each(function(){
+                        $(this).text(prettyDate($(this).attr('data-date')));
+                    });
+                }                
+            });
+			$.dispatcher.on('rendered-after.blog-view add-all.posts-view update-status.blog-view', function(){
 					/*!
 					 * First run the handler and then run the timer on the handler every 5 sec.
 					 */
@@ -51,6 +57,5 @@ define(['jquery', 'livedesk-embed/dispatcher' ], function($){
 					clearInterval(interval);
 					interval = setInterval(render, 5000);
 			});
-		}
 	}
 });

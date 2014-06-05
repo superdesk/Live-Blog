@@ -2,6 +2,7 @@ define([
 	'plugins/wrappup-toggle',
 	'plugins/permanent-link',
 	'plugins/twitter-widgets',
+    'plugins/pretty-date',
 	'tmpl!theme/container',
 	'tmpl!theme/item/base',
 	'css!theme/liveblog'
