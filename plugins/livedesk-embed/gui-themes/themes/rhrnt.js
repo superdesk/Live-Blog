@@ -3,6 +3,7 @@ define([
 	'plugins/permanent-link',
 	'plugins/user-comments',
 	'plugins/twitter-widgets',
+    'plugins/pretty-date',    
 	'plugins/citizen',
 	'tmpl!theme/container',
 	'tmpl!theme/item/base',
