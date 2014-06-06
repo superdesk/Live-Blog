@@ -29,12 +29,12 @@ define([
 			var view = this,
 				data = {};
 			data.baseItem = (dust.defined('theme/item/base'))? 'theme/item/base': 'themeBase/item/base';
-			$.tmpl('themeBase/plugins/before-button-pagination', data, function(e,o){
+			$.lbtmpl('themeBase/plugins/before-button-pagination', data, function(e,o){
 				$(o)
 					.css(propName,propValue.hide)
 					.prependTo('[data-gimme="posts.list"]',view.el);
 			});
-			$.tmpl('themeBase/plugins/after-button-pagination', data, function(e,o){
+			$.lbtmpl('themeBase/plugins/after-button-pagination', data, function(e,o){
 				$(o)
 					.css(propName,propValue.hide)
 					.appendTo('[data-gimme="posts.list"]',view.el);

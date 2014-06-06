@@ -1,7 +1,7 @@
 define(['jquery', 'dust/core'], function ($, dust) {
     $.fn.extend
     ({
-        tmpl: function(selector, data, callback)
+        lbtmpl: function(selector, data, callback)
         {
 			if(selector === '') {
 				return;
@@ -13,7 +13,7 @@ define(['jquery', 'dust/core'], function ($, dust) {
         	return this.each(function()
         	{
 				$that = $(this);
-				$.tmpl(selector, data, function(err, out) {
+				$.lbtmpl(selector, data, function(err, out) {
 					if(!err)
 						$that.html(out);
 					else if( window.console ) {
@@ -26,7 +26,7 @@ define(['jquery', 'dust/core'], function ($, dust) {
     });
     $.extend
     ({
-        tmpl: function(selector, data, callback) {
+        lbtmpl: function(selector, data, callback) {
         	if(selector.indexOf('themeBase') !== -1) {
         		var theme = selector.replace('themeBase', 'theme');
         		if(dust.isRegistred(theme))
@@ -34,7 +34,7 @@ define(['jquery', 'dust/core'], function ($, dust) {
         	}
 			dust.render(selector, data, callback);
         },
-		tmplFn: function(selector) {
+		lbtmplFn: function(selector) {
 			return dust.compileFn(selector);
 		}
 	});
