@@ -153,7 +153,7 @@
 						data[key] = value;
 					}
 				});
-				$.tmpl(self.item, data, function(e, o){
+				$.lbtmpl(self.item, data, function(e, o){
 					self.setElement(o);
 					/*!
 					 * @TODO Move this into a plugin
@@ -195,7 +195,7 @@
 								'emailclick': "liveblog.$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
 								'emailurl': emailurl
 							}
-							$.tmpl('themeBase/item/social-share', socialParams, function(e, o){
+							$.lbtmpl('themeBase/item/social-share', socialParams, function(e, o){
 								share.after(o);
 								share.attr('data-added', 'yes');	
 							});

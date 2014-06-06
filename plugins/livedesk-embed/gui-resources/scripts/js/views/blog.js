@@ -91,7 +91,7 @@ define([
 				},
 				render: function(){
 					var self = this;
-					self.el.tmpl('themeBase/container', self.model.feed(), function(){
+					self.el.lbtmpl('themeBase/container', self.model.feed(), function(){
 						$.dispatcher.triggerHandler('rendered-before.blog-view', self);
 						self.update();
 						self.postsView = new PostsView({ 
