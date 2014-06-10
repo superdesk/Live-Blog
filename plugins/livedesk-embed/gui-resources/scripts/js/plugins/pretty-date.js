@@ -48,7 +48,7 @@ define([
                 time: date.format(pgettext('weeks','HH:MM')),
                 data: date.format(pgettext('weeks','mm/dd/yyyy HH:MM'))
             }) ||
-			weeks_diff > 4 		&& date.format(pgettext('months','mm/dd/yyyy HH:MM'));
+			weeks_diff >= 4 		&& date.format(pgettext('months','mm/dd/yyyy HH:MM'));
 	}
 	return plugins['pretty-date'] = function(config) {
 			var interval, render = function(){};
