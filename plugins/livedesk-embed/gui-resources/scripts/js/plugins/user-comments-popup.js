@@ -1,4 +1,4 @@
-requirejs.config({
+require.config({
     paths: {recaptcha: '//www.google.com/recaptcha/api/js/recaptcha_ajax'}
 });
 
