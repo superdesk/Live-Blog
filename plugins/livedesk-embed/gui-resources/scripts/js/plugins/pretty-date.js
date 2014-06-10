@@ -37,15 +37,15 @@ define([
 			hours_diff < 24		&& ngettext("One hour and %(minutes)s ago at %(time)s", "%(hours)s hours and %(minutes)s ago at %(time)s", hours_diff ).format({
                 hours: hours_diff,
                 minutes: ngettext("one minute", "%(minutes)s minutes", minutes_hour_diff ).format({ minutes: minutes_hour_diff}),
-                time: date.format(pgettext('minutes','HH:MM:ss'))
+                time: date.format(pgettext('minutes','HH:MM'))
             }) )||
 			day_diff < 7 		&& ngettext("Yesterday at %(time)s", "%(days)s days ago at %(time)s", day_diff ).format({
                 days: day_diff,
-                time: date.format(pgettext('days','HH:MM:ss'))
+                time: date.format(pgettext('days','HH:MM'))
             }) ||
 			weeks_diff < 4 		&& gettext("%(weeks)s weeks ago at %(time)s and %(data)s").format({
                 weeks: weeks_diff,
-                time: date.format(pgettext('weeks','HH:MM:ss')),
+                time: date.format(pgettext('weeks','HH:MM')),
                 data: date.format(pgettext('weeks','mm/dd/yyyy HH:MM'))
             }) ||
 			weeks_diff > 4 		&& date.format(pgettext('months','mm/dd/yyyy HH:MM'));
