@@ -12,7 +12,7 @@ liveblog.runner = function() {
 	this.loadJs('version')
 }
 liveblog.callbackVersion = function(ver) {
-	requirejs = {
+	require = {
 		baseUrl: this.baseUrl,
 		urlArgs: 'version=' + ver.major + '.' + ver.minor + '.' + ver.revision
 	}

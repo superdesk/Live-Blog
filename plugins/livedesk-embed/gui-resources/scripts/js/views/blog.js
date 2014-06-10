@@ -72,7 +72,7 @@ define([
 						now = new Date(),
                         postList = self.model.get('PostPublished')._list;
 					if(self.model.get('ClosedOn') === undefined) {
-						var t = '<time data-date="'+now.getTime()+'">'+now.format(_('status-date'))+"</time>";
+						var t = '<time data-update-date="'+now.getTime()+'">'+now.format(_('status-date'))+"</time>";
 						$('[data-gimme="blog.status"]',self.el)
 								.html(_('updated at %s').format([t]));
 					}
