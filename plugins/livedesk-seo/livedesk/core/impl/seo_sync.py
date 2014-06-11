@@ -60,7 +60,7 @@ class SeoSyncProcess:
     timeout_inteval = 4#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
-    html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
+    html_generation_server = 'http://nodejs-dev.sourcefabric.org/'; wire.config('html_generation_server', doc='''
     The partial path used to construct the URL for blog html generation''')
     
     acceptType = 'text/json'
