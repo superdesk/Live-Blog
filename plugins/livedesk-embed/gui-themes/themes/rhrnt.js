@@ -5,6 +5,7 @@ define([
 	'plugins/twitter-widgets',
     'plugins/pretty-date',    
 	'plugins/citizen',
+	'plugins/button-pagination',
 	'tmpl!theme/container',
 	'tmpl!theme/item/base',
 	'css!theme/liveblog'
@@ -15,6 +16,7 @@ define([
 					'permanent-link',
 					'user-comments',
 					'twitter-widgets',
-					'citizen' ]
+					'citizen',
+					'button-pagination']
 	}
 });
