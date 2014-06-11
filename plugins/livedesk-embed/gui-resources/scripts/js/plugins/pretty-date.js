@@ -59,15 +59,17 @@ define([
                         $(this).text(prettyDate($(this).attr('data-date')));
                     });
                     self.el.find('[data-gimme="blog.status"]').each(function(){
-                        var time = $(this).find('[data-update-date]').attr('data-update-date'),
-                            pdate = prettyDate(time),
-                            t = '<time data-update-date="'+time+'">';
-                        t += ngettext('updated now', 'updated %(pretty)s', (pdate === gettext("Just now")+''))
-                                .format({
-                                    pretty: pdate
-                                });
-                        t += "</time>";
-                        $(this).html(t);
+                        var time = $(this).find('[data-update-date]').attr('data-update-date');
+                        if(time) {
+                            var pdate = prettyDate(time),
+                                t = '<time data-update-date="'+time+'">';
+                            t += ngettext('updated now', 'updated %(pretty)s', (pdate === gettext("Just now")+''))
+                                    .format({
+                                        pretty: pdate
+                                    });
+                            t += "</time>";
+                            $(this).html(t);
+                        }
                     });                    
                 }                
             });
