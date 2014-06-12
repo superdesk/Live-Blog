@@ -15,6 +15,7 @@ Once this is done, run the following commands from the root directory to install
 
 ```
 npm install -g grunt-cli # install grunt
+npm install -g bower # install bower
 npm install # install node dependencies
 bower install # install bower components
 ```

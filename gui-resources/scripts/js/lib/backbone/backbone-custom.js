@@ -17,10 +17,9 @@ define([
 
         if (method === 'read') {
             // Request a date format that all browsers can parse
-            options.headers = options.headers ? options.headers : {};
+            options.headers = _.isObject(options.headers) ? options.headers : {};
 
             options.headers['X-Format-DateTime'] = 'yyyy-MM-ddTHH:mm:ss\'Z\'';
-
             // Add parameters provided in model.syncParams.headers
             // to the request header
             _.each(model.syncParams.headers, function(value, key) {
@@ -45,10 +44,24 @@ define([
     Backbone.defaultAjax = Backbone.ajax;
 
     Backbone.ajax = function(options) {
+
         if (typeof process !== 'undefined' &&
                 process.versions &&
                 !!process.versions.node) {
             return Backbone.nodeSync(options);
+        }
+
+        // send the old headers if liveblog.emulateOLDHEADERS
+        if (liveblog.emulateOLDHEADERS) {
+            options.dataType = 'json';
+            options.headers = _.isObject(options.headers) ? options.headers : {};
+            options.headers.Accept = 'text/json';
+        }
+
+        // send the headers as GET parametes if liveblog.emulateHEADERSPARAMS
+        if (liveblog.emulateHEADERSASPARAMS) {
+            options.data = _.extend(options.data, options.headers);
+            delete options.headers;
         }
         return Backbone.defaultAjax(options);
     };
@@ -64,7 +77,7 @@ define([
 
         // Set the query string with the options.data params
         if (options.data) {
-            options.url += ((options.url.indexOf('?') === -1) ? '?': '') + qs.stringify(options.data);
+            options.url += ((options.url.indexOf('?') === -1) ? '?': '&') + qs.stringify(options.data);
             delete options.data;
         }
 
@@ -78,6 +91,7 @@ define([
                     return options.success(data);
                 }
             } else if (options.error) {
+                liveblogLogger.error('Request to url: %s failed with code: %s and body: ', response.request.href, response.statusCode, response.body);
                 return options.error(response);
             }
         });

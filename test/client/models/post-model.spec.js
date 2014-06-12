@@ -37,6 +37,9 @@ define(['models/post'], function(Post) {
                                     Key: 'smsblog'
                                 }
                             }
+                        },
+                        Type: {
+                            Key: 'smsblog'
                         }
                     },
                     google: {
@@ -49,6 +52,9 @@ define(['models/post'], function(Post) {
                                     Key: 'xml'
                                 }
                             }
+                        },
+                        Type: {
+                            Key: 'normal'
                         }
                     },
                     comments: {
@@ -61,8 +67,10 @@ define(['models/post'], function(Post) {
                                     Key: 'xml'
                                 }
                             }
+                        },
+                        Type: {
+                            Key: 'normal'
                         }
-
                     },
                     content: {
                         Content: '<img src="//localhost.backend"/>'
