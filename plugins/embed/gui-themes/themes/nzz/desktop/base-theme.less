@@ -1,30 +1,9 @@
-/******************* outer page styles ****************/
-/******************************************************/
-//should be changed to fit the client requests
-body, html {
-	margin: 0;
-	padding: 0;
-}
-body {
-background: #fff;
-}
 
-.container {
-	width: 600px;
-	margin-left: 20px;
-	margin-top: 20px;
-	overflow: hidden; //quirks fix
-}
-
-
-/******************************************************/
-/******************************************************/
-
-
-@lb-font 	: Arial, Helvetica, sans-serif !important;
+@lb-font 	: Arial, sans-serif;
+@lb-font-content : Georgia, serif;
 
 @lb-width	: 100%;
-@lb-background: #fff;
+@lb-background: none;
 
 @lb-color 	: #08c;
 @lb-color2 	: #a8a8a8;
@@ -36,29 +15,30 @@ background: #fff;
 
 
 /* POSTS STYLES */
-@text-size : 16; 			//14px
-
+@text-size : 18;
+@text-size-mobile: 16;
 
 @post-padding:10px;
 	/*****************************************************************/
 	/* change this only if you want to get custom post item paddings */
-	@post-padding-top : @post-padding;		
+	@post-padding-top : 20px;		
 	@post-padding-right : 0;
-	@post-padding-bottom : @post-padding;
+	@post-padding-bottom : 20px;
 	@post-padding-left : 0;
 	/****************************************************************/
 
-@publisher-avatar-width : 48px;
+@publisher-avatar-width : 50px;
+@publisher-avatar-width-mobile : 40px;
 
 
-@show-left-column : true;	// true/false
+@show-left-column : false;	// true/false
 @left-column-width : 70px; 	// (avatar width)
 
 
 @content-minheight : 0px;	//Min height of post main content
 
 
-@youtube-maxwidth : 600px;	//youtube post type
+@youtube-maxwidth : none;	//youtube post type
 
 
 
@@ -76,6 +56,7 @@ background: #fff;
 }
 
 @user-text-size : @text-size/16em;
+@user-text-size-mobile : @text-size-mobile/16em;
 
 .border-radius(@radius:5px) {
 	border-radius: @radius;
@@ -104,6 +85,15 @@ background: #fff;
 		list-style-type: none;
 		float: none;
 	}
+	h1,h2,h3,h4,h5,h6 {
+		font-weight: normal;
+	}
+	b,strong {
+		font-weight: bold;
+	}
+	i {
+		
+	}
 	a {
 		text-decoration: none;
 		color: #08c;
@@ -121,7 +111,7 @@ background: #fff;
 	margin: 10px 0;
 	background: @lb-background;
 	font-size: 100%;
-	line-height: 130%;
+	line-height: 140%;
 	font-family: @lb-font;
 
 	.liveblog-container {
@@ -188,36 +178,48 @@ background: #fff;
 				.liveblog-postlist {
 					li {
 
-						padding: @post-padding-top @post-padding-right 2*@post-padding-bottom @post-padding-left;
-						border-top :1px solid #cccccc;
+						padding: @post-padding-top @post-padding-right @post-padding-bottom @post-padding-left;
+						border-top :1px solid #dcdcdc;
+						color : #666;
+
 						&:last-child {
-							border-bottom :1px solid #cccccc;
+							border-bottom :1px solid #dcdcdc;
 						}
 
 						/* separate block styles */
 						.post-datetime {
-							font-size: 0.75em;
-							color:#222;								
-							margin-right: 15px;
-							height: 12px;
-							display: inline-block;
-							line-height: 12px;
+							color:#333333;								
+							display: block;
+							line-height: 22px;
+							font-size: 16px;
 						}
 						.post-publisher-name {
-							font-size: 0.75em;
-							text-transform: uppercase;
-							color:#222;	
+							font-size: 18px;
+							font-weight: bold;
+							color:#333;	
+							line-height: 22px;
+							display: block;
 						}
 						.post-buttons {
 							position: absolute;
 							right: 0;
 							top:0;
+							height: 15px;
+							width: 95px;
 							display: none;
 							.sf-share {
-								line-height: 22px;
-								font-size: 12px;
+								width: 35px;
+								height: 15px;
+								line-height: 15px;
+								font-size: 11px;
 								color: #585858;
-								float: right;
+								position: absolute;
+								left: 0px;
+								top:-1px;
+								text-decoration: none;
+								background: url(img/share.png) no-repeat 0 0;
+								padding: 0 0 0 18px;
+								margin-right: 15px;
 							}
 							.share-box {
 								background: #F8F8F8;
@@ -225,9 +227,9 @@ background: #fff;
 								border: 1px solid #D0D0D0;
 								position: absolute;
 								top: 22px;
-								right: 10px;
+								right: 45px;
 								z-index: 5;
-								width: 170px;
+								width: 140px;
 								height: 24px;
 								.social {
 									width: 24px;
@@ -247,32 +249,49 @@ background: #fff;
 								}
 							}
 							.permalink {
-								display: none;
+								position: absolute;
+								right: 0px;
+								width: 25px;
+								height: 15px;
+								text-indent: -9999px;
+								background: url(img/link.png) no-repeat 0px 2px;
+								display: inline-block;
 							}
 							input {
-								display: none;
+								position: absolute;
+								background: #F8F8F8;
+								border: 1px solid #D0D0D0;
+								padding: 4px 6px;
+								width: 180px;
+								top: 14px;
+								right: 0;
+								&:focus {
+									outline:none;
+								}
 							}
 						}
 						.post-info {
-							margin-bottom: 5px;
+							margin-bottom: 10px;
 							position: relative;
 						}
 						.post-text {
-							line-height: 150%;
+							line-height: 28px;
 						}
 
 						.post-comment {
-							font-size: 0.875em;
+							font-size: @user-text-size;
+							line-height: 28px; 
+
 							&.comment-before {
-								padding-bottom: 8px;
+								padding-bottom: 10px;
 							}
 							&.comment-after {
-								padding-top: 8px;
+								padding-top: 10px;
 							}
 						}
 						.post-content-full {
 							font-size: @user-text-size;
-							line-height: 130%;							
+							line-height: 28px;					
 						}
 
 						.post-publisher-avatar {
@@ -280,26 +299,32 @@ background: #fff;
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							padding: 2px;
-							border: 1px solid #e8e8e8;
-							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
+							margin-right: 13px;
+							background: url(img/default-avatar.png) no-repeat 0 0;
 							float: left;
-							img {
+							.border-radius(@publisher-avatar-width/2);
+							overflow: hidden;
+							span {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
 								display: block;
+								background-size: cover !important;
+								background-position: center;
 							}
 						}
 
 						/* end of separate block styles */
 						.post-header {
 							position: relative;
+							height: 50px;
 						}
 						.post-content {
+							font-family: @lb-font-content;
+							line-height: 28px;
+							color: #333;
 							min-height: @content-minheight;
 							.lbclearfix();
-							margin-top: 10px;
+							margin-top: 15px;
 
 							.post-content-side {
 								float: left;
@@ -317,18 +342,19 @@ background: #fff;
 
 						.attributes {
 							margin-top: 5px;
+							height: 16px;
 							.source-icon {
 								width: 16px;
 								height: 16px;
 								display: inline-block;
-								margin-right: 4px;
+								margin-right: 6px;
 								vertical-align: top;
 							}
 							span {
-								font-size: 0.6875em;
+								font-size: 0.75em;
 								text-transform: uppercase;
-								line-height: 16px;
-								height: 16px;
+								line-height: 18px;
+								height: 18px;
 								vertical-align: top;
 							}
 						}
@@ -343,18 +369,14 @@ background: #fff;
 
 						/* POST SPECIFIC STYLES */
 
-						&.twitter, &.facebook, &.google, &.link, &.instagram, &.flickr, &.youtube, &.soundcloud {
-							background: #f6f6f6;
-							.post-publisher-avatar {
-								display: none;
-							}
-							.post-info {
-								display: none;
-							}
+						.post-text {
+							font-size: 1em;
+						}
+
+						&.normal {
 							.post-core-content {
-								.post-text {
-									font-size: 0.875em;
-									line-height: 130%;
+								p, div {
+									font-size: 1em !important;
 								}
 							}
 						}
@@ -362,12 +384,9 @@ background: #fff;
 						&.twitter, &.facebook, &.google, &.youtube {
 							.post-core-content {
 								h5 {
+									margin-top: 5px;
 									font-size: 1em;
 									padding-bottom: 2px;
-									a {
-										font-size: 0.875em;
-										color:#222;
-									}
 									span {
 										font-size: 0.75em;
 										font-weight: normal;
@@ -378,19 +397,43 @@ background: #fff;
 
 						/* temporary fix for link post (still have old html structure)*/
 						&.link {
+							
+							.link-preview {
+								display: table;
+								background: #fff;
+								border: 1px solid #e8e8e8;
+							}
 							.link-thumbnail {
-								display: none;
-							}	
-							h3 {
+								display: table-cell;
+								border-right: 1px solid #e8e8e8;
+								a {
+									display: block;
+									width: 150px;
+									height: 150px;
+									overflow: hidden;
+									img {
+										max-width: none;
+										max-height: none;
+										height: 150px;
+										width: auto;
+										min-width: 150px;
+									}
+								}
+							}
+							.link-content {
+								display: table-cell;
+								vertical-align: top;
+								padding: 5px 10px;
+							}
+							.link-title {
 								font-size: 1em;
 								padding-bottom: 2px;
 								a {
-									font-size: 0.875em;
-									color:#222;
+									
 								}
 							}
-							.result-text {
-								font-size: 0.875em;
+							.link-text {
+								
 							}
 							.attributes {
 								a {
@@ -411,6 +454,10 @@ background: #fff;
 							}
 						}
 						&.twitter {
+							iframe {
+								margin: 0 !important;
+								width: 99% !important;
+							}
 							.post-core-content {
 								.lbclearfix();
 								h5 {
@@ -462,9 +509,10 @@ background: #fff;
 								.post-external-image {
 									max-width: 100%;
 									overflow: hidden;
-									margin-bottom: 5px;
+									margin-bottom: 10px;
 									.post-external-image-img {
 										max-width: 100%;
+										display: block;
 									}
 								}
 							}
@@ -478,7 +526,7 @@ background: #fff;
 									padding-top: 30px;
 									height: 0;
 									overflow: hidden;
-									margin-bottom: 5px;
+									margin-bottom: 10px;
 									iframe {
 										position: absolute;
 										top: 0;
@@ -499,7 +547,10 @@ background: #fff;
 								display: none;
 							}
 							.post-content {
+								font-family: @lb-font !important;
 								min-height: 0;
+								margin: 0;
+								padding: 10px 0;
 								.post-content-main {
 									margin-left: 0;
 									margin-top: 0;
@@ -511,6 +562,9 @@ background: #fff;
 											height: 21px;
 											float: left;
 											background: url(img/big-toggle.png) no-repeat 0 0;
+											&:hover {
+												cursor: pointer;
+											}
 										}
 										.post-text {
 											font-weight: bold;
@@ -522,7 +576,7 @@ background: #fff;
 							}
 							&.wrapup-open {
 								.big-toggle {
-									background: url(img/big-toggle.png) no-repeat 0 -21px !important;
+									background: url(img/big-toggle.png) no-repeat 0 -25px !important;
 								}
 							}
 						}
@@ -553,12 +607,11 @@ background: #fff;
 						}
 						&.quote {
 							.post-core-content {
+								font-style: italic;
 								padding-left: 45px;
 								background: url(img/quotes.png) no-repeat 0 0;
 							}
 						}
-
-
 
 
 						&.wrapup, &.advertisement {
@@ -645,4 +698,99 @@ background: #fff;
 
 
 
+//responsive design
+@media screen and (max-width:480px) {
+	#livedesk-root {
 
+	.liveblog-container {
+		padding: 10px 0;
+
+		.liveblog-content {
+
+			.liveblog-content-middle {
+				
+				.liveblog-postlist {
+
+					li {
+						margin: 0 8px !important;
+						list-style-type: none !important;
+						border-color: #d4d4d4;
+
+						/* separate block styles */
+						.post-datetime {
+							font-family: @lb-font;
+							color:#333333;								
+							display: block;
+							line-height: 20px;
+							font-size: 16px;
+						}
+						.post-publisher-name {
+							font-family: @lb-font;
+							font-size: 15px;
+							font-weight: bold;
+							color:#333;	
+							line-height: 20px;
+							display: block;
+						}
+						.post-buttons {
+							display: block;
+						}
+
+						.post-text {
+							line-height: 26px;
+						}
+
+						.post-comment {
+							font-size: @user-text-size-mobile;
+							line-height: 26px; 
+						}
+						.post-content-full {
+							font-size: @user-text-size-mobile;
+							line-height: 26px;					
+						}
+
+						.post-publisher-avatar {
+							width: @publisher-avatar-width-mobile;
+							max-width: @publisher-avatar-width-mobile;
+							min-height: @publisher-avatar-width-mobile;
+							max-height: none;
+							margin-right: 13px;
+							background: url(img/default-avatar.png) no-repeat 0 0;
+							float: left;
+							.border-radius(@publisher-avatar-width-mobile/2);
+							overflow: hidden;
+							span {
+								width: @publisher-avatar-width-mobile;
+								height: @publisher-avatar-width-mobile;
+								display: block;
+								background-size: cover !important;
+								background-position: center;
+							}
+						}
+						/* POST SPECIFIC STYLES */
+
+						.post-text {
+							font-size: 1em;
+						}
+
+						&.normal {
+							.post-core-content {
+								img {
+									max-width: 100%;
+									height: auto !important;
+								}
+								p, div {
+									font-size: 1em !important;
+								}
+							}
+						}
+
+					}
+				}
+			}
+			
+		}
+
+	}
+}
+}

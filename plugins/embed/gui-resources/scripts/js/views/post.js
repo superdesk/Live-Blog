@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-    'lodash',
+    'underscore',
     'lib/utils',
     'views/base-view',
     'lib/lodash/defaults-deep',
@@ -15,20 +15,13 @@ define([
         // (Backbone.LayoutManager).
         el: false,
 
-        // `propertiesObj._cacheData` is used to cache some useful data.
-        propertiesObj: {
-            _cacheData: {
-                itemName: false
-            }
-        },
-
         initialize: function() {
             _.defaultsDeep(this, this.propertiesObj);
             this.order = parseFloat(this.model.get('Order'));
 
             utils.dispatcher.trigger('initialize.post-view', this);
 
-            this.setTemplate(this.itemName());
+            this.setTemplate('themeBase/item/' + this.model.get('item'));
 
             this.listenTo(this.model, 'change:CId', this.update);
         },
@@ -73,36 +66,6 @@ define([
         // Backbone.LayoutManager `afterRender`.
         afterRender: function() {
             utils.dispatcher.trigger('after-render.post-view', this);
-        },
-
-        // Return the item name from `propertiesObj._cacheData`,
-        // if it's already there. Otherwise find it out
-        // and save it for the next time.
-        itemName: function() {
-            if (this._cacheData.itemName) {
-                return this._cacheData.itemName;
-            }
-            var item,
-                post = this.model;
-            if (post.get('Author') &&
-                post.get('Author').Source.IsModifiable ===  'True' ||
-                post.get('Author').Source.Name === 'internal') {
-                if (post.get('Type').Key === 'advertisement') {
-                    item = 'item/posttype/infomercial';
-                } else {
-                    item = 'item/posttype/' + post.get('Type').Key;
-                }
-            } else if (post.get('Author').Source.Name === 'google') {
-                item = 'item/source/google/' + post.get('Meta').type;
-            } else {
-                if (post.get('Author').Source.Name === 'advertisement') {
-                    item = 'item/source/infomercial';
-                } else {
-                    item = 'item/source/' + post.get('Author').Source.Name;
-                }
-            }
-            this._cacheData.itemName = 'themeBase/' + item;
-            return this._cacheData.itemName;
         }
     });
 });

@@ -165,6 +165,7 @@ background: #f0f0f0;
 					text-transform: uppercase;
 					font-size: 11px;
 					padding-left: 5px;
+					float: left;
 				}
 				.button {
 					background: #101010;
@@ -174,15 +175,12 @@ background: #f0f0f0;
 					color: #fff;
 					height: @postlist-header-height;
 					line-height: @postlist-header-height;
-					position: absolute;
+					position: relative;
+					margin-left: 10px;
+					float: right;
 					&.pintotop {
-						top:0;
-						right: 0;
 					}
 					&.comment {
-						top:0;
-						left: auto;
-						right: 80px;
 					}
 				}
 
@@ -272,7 +270,7 @@ background: #f0f0f0;
 								top: 18px;
 								right: 45px;
 								z-index: 5;
-								width: 170px;
+								width: 140px;
 								height: 24px;
 								.social {
 									width: 24px;

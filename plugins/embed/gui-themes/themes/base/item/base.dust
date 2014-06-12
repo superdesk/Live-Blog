@@ -233,9 +233,9 @@
 {/shareContainer}
 
 {<permanentLinkShare}
-    <div data-gimme="post.permanent-link-placeholder"></div>
+    <div data-gimme="post.permanent-link-placeholder" class="permalink-holder"></div>
 {/permanentLinkShare}
 
 {<socialShare}
-    <div data-gimme="post.social-share-placeholder"></div>
+    <div data-gimme="post.social-share-placeholder" class="share-holder"></div>
 {/socialShare}
