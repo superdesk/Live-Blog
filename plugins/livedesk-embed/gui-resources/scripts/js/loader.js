@@ -1,4 +1,4 @@
-var requirejs;
+var requirejs, require;
 //liveblog.version = '2.1.8'; requirejs version
 if( window && (window.location.href.indexOf('liveblog-debug') !== -1) 
 	&& (window['localStorage'] !== null) && window['localStorage'].getItem('liveblog-debug') ) {
@@ -12,7 +12,7 @@ liveblog.runner = function() {
 	this.loadJs('version')
 }
 liveblog.callbackVersion = function(ver) {
-	requirejs = {
+	window.require = window.requirejs = {
 		baseUrl: this.baseUrl,
 		urlArgs: 'version=' + ver.major + '.' + ver.minor + '.' + ver.revision
 	}
