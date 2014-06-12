@@ -1,1 +1,1 @@
-liveblog.define("themeFile",[],function(){return{environments:{desktop:"desktop","default":"desktop"}}});
+liveblog.define("themeFile",[],function(){return liveblog.emulateOLDHEADERS=!0,{environments:{desktop:"desktop","default":"desktop"}}});

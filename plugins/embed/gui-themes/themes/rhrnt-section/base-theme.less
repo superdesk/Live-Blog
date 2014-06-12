@@ -1,45 +1,27 @@
-/******************* outer page styles ****************/
-/******************************************************/
-//should be changed to fit the client requests
-body, html {
-	margin: 0;
-	padding: 0;
-}
-body {
-background: #fff;
-}
-
-.container {
-	width: 600px;
-	margin-left: 20px;
-	margin-top: 20px;
-	overflow: hidden; //quirks fix
-}
-
-
-/******************************************************/
-/******************************************************/
-
-
-@lb-font 	: Arial, Helvetica, sans-serif !important;
+@lb-font 	: 'Droid Serif',georgia,serif;
+@lb-font2   : 'Open Sans Condensed', sans-serif;
 
 @lb-width	: 100%;
 @lb-background: #fff;
 
-@lb-color 	: #08c;
-@lb-color2 	: #a8a8a8;
+@lb-color 	: #009ee0;
+@lb-color2 	: #666;
+@lb-color-link : #009ee0;
 
 @postlist-minheight : 0;	//default 0
-@postlist-maxheight : none;	//default none
+@postlist-maxheight : 600px;	//default none
 
 @postlist-header-height : 30px;
 
 
 /* POSTS STYLES */
-@text-size : 16; 			//14px
+@text-size : 15; 			//14px
+@text-size-headings : 15; 	//13px
+
+@lb-lineheight : 130%;
 
 
-@post-padding:10px;
+@post-padding:15px;
 	/*****************************************************************/
 	/* change this only if you want to get custom post item paddings */
 	@post-padding-top : @post-padding;		
@@ -51,7 +33,7 @@ background: #fff;
 @publisher-avatar-width : 48px;
 
 
-@show-left-column : true;	// true/false
+@show-left-column : false;	// true/false
 @left-column-width : 70px; 	// (avatar width)
 
 
@@ -74,8 +56,12 @@ background: #fff;
 		clear: both;
 	}
 }
+.clearfix {
+	.lbclearfix();
+}
 
 @user-text-size : @text-size/16em;
+@user-text-size-headings : @text-size-headings/12em;
 
 .border-radius(@radius:5px) {
 	border-radius: @radius;
@@ -106,7 +92,7 @@ background: #fff;
 	}
 	a {
 		text-decoration: none;
-		color: #08c;
+		color: @lb-color-link;
 	}
 	figure, img {
 		margin: 0;
@@ -121,7 +107,7 @@ background: #fff;
 	margin: 10px 0;
 	background: @lb-background;
 	font-size: 100%;
-	line-height: 130%;
+	line-height: @lb-lineheight;
 	font-family: @lb-font;
 
 	.liveblog-container {
@@ -135,45 +121,58 @@ background: #fff;
 			p {
 				font-size: @user-text-size;
 			}
+			.header-ad {
+				margin: 10px -5px 0;//inverse of .liveblog-header padding
+				img {
+					text-decoration: none;
+					border:0;
+					width: 100% !important;
+				}
+			}
 		}
+		
 
 		.liveblog-content {
 			position: relative;
 			margin: 10px 0;
-			.liveblog-content-top, .liveblog-content-bottom {
-				background: #4f4f4f;
-				height: @postlist-header-height;
+			
+			.liveblog-content-top {
+				font-family: @lb-font2;
+				font-weight: bold;
+				border-top: 1px solid #000;
+				border-bottom: 1px solid #000;
+				height: 32px;
+				line-height: 32px;
 				position: relative;
+				z-index: 5;
+				box-shadow:-10px 10px 10px -4px #fff;
+				-webkit-box-shadow:-10px 10px 10px -4px #fff;
+				-moz-box-shadow:-10px 10px 10px -4px #fff;
+
 				.update-time {
-					height: @postlist-header-height;
-					line-height: @postlist-header-height;
-					color: #b8b8b8;
-					text-transform: uppercase;
-					font-size: 11px;
-					padding-left: 5px;
+					font-size: 13px;
+					color: #000;
 				}
-				.button {
-					background: #101010;
-					font-size: 11px;
-					font-weight: bold;
-					padding: 0 10px;
-					color: #fff;
-					height: @postlist-header-height;
-					line-height: @postlist-header-height;
+				.new-posts-label {
 					position: absolute;
-					&.pintotop {
-						top:0;
-						right: 0;
-					}
-					&.comment {
-						top:0;
-						left: 0;
-					}
+					top: 4px;
+					right: 0;
+					background: #000;
+					height: 24px;
+					color: #fff;
+					line-height: 24px;
+					font-size: 10px;
+					text-transform: uppercase;
 				}
 			}
-
-			.liveblog-content-top {
-				display: none;
+			.liveblog-content-bottom {
+				height: 32px;
+				box-shadow:-10px -10px 10px -4px #fff;
+				-webkit-box-shadow:-10px -10px 10px -4px #fff;
+				-moz-box-shadow:-10px -10px 10px -4px #fff;
+				position: relative;
+				z-index: 5;
+				border-top: 1px solid #000;
 			}
 
 			.liveblog-content-middle {
@@ -181,49 +180,67 @@ background: #fff;
 				min-height: @postlist-minheight;
 				overflow: auto;
 				overflow-x: hidden !important; 
-
+			
+				&.liveblog-scroll {
+					height: 500px;
+				}
 				.liveblog-postlist {
 					li {
 
-						padding: @post-padding-top @post-padding-right 2*@post-padding-bottom @post-padding-left;
-						border-top :1px solid #cccccc;
-						&:last-child {
-							border-bottom :1px solid #cccccc;
-						}
+						padding: @post-padding-top @post-padding-right @post-padding-bottom @post-padding-left;
+
+						border-bottom :1px dotted #ccc;
 
 						/* separate block styles */
 						.post-datetime {
-							font-size: 0.75em;
-							color:#222;								
+							font-family: @lb-font2;
+							font-size: 13px;
+							font-weight: bold;
+							color:#000;	
 							margin-right: 15px;
 							height: 12px;
 							display: inline-block;
 							line-height: 12px;
 						}
 						.post-publisher-name {
-							font-size: 0.75em;
-							text-transform: uppercase;
-							color:#222;	
+							font-size: 13px;
+							font-weight: bold;
+							font-family: @lb-font2;
+							color:@lb-color2;	
 						}
 						.post-buttons {
 							position: absolute;
 							right: 0;
 							top:0;
+							margin-top: 4px;
+							height: 15px;
+							width: 95px;
 							display: none;
 							.sf-share {
-								line-height: 22px;
-								font-size: 12px;
+								/*
+								width: 35px;
+								height: 15px;
+								line-height: 15px;
+								font-size: 11px;
 								color: #585858;
-								float: right;
+								position: absolute;
+								left: 0px;
+								top:-1px;
+								text-decoration: none;
+								background: url(img/share.png) no-repeat 0 0;
+								padding: 0 0 0 18px;
+								margin-right: 15px;
+								*/
+								display: none;
 							}
 							.share-box {
-								display: none;
+								/*
 								background: #F8F8F8;
 								padding: 10px;
 								border: 1px solid #D0D0D0;
 								position: absolute;
-								top: 22px;
-								right: 10px;
+								top: 18px;
+								right: 45px;
 								z-index: 5;
 								width: 170px;
 								height: 24px;
@@ -243,34 +260,52 @@ background: #fff;
 									}
 
 								}
+								*/
+								display: none;
 							}
 							.permalink {
+								/*
+								position: absolute;
+								right: 0px;
+								width: 25px;
+								height: 15px;
+								text-indent: -9999px;
+								background: url("img/link.png") no-repeat 0px 2px;
+								display: inline-block;
+								*/
 								display: none;
 							}
 							input {
-								display: none;
+								/*
+								position: absolute;
+								background: #F8F8F8;
+								border: 1px solid #D0D0D0;
+								padding: 4px 6px;
+								width: 180px;
+								top: 14px;
+								right: 0;
+								&:focus {
+									outline:none;
+								}
+								*/
 							}
-						}
-						.post-info {
-							margin-bottom: 5px;
-							position: relative;
-						}
-						.post-text {
-							line-height: 150%;
 						}
 
 						.post-comment {
-							font-size: 0.875em;
+							font-size: @user-text-size;
 							&.comment-before {
-								padding-bottom: 8px;
+								padding-bottom: 5px;
 							}
 							&.comment-after {
-								padding-top: 8px;
+								padding-top: 5px;
 							}
+							color: #333;	
+							line-height: 20px !important;
+								
 						}
 						.post-content-full {
 							font-size: @user-text-size;
-							line-height: 130%;							
+							line-height: @lb-lineheight;							
 						}
 
 						.post-publisher-avatar {
@@ -282,10 +317,11 @@ background: #fff;
 							border: 1px solid #e8e8e8;
 							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
 							float: left;
-							img {
+							.post-publisher-avatar-img {
 								width: @publisher-avatar-width;
-								max-width: @publisher-avatar-width;
-								height: auto;
+								height: @publisher-avatar-width;
+								background-size: cover !important;
+								background-position: center center !important;
 								display: block;
 							}
 						}
@@ -293,6 +329,7 @@ background: #fff;
 						/* end of separate block styles */
 						.post-header {
 							position: relative;
+							line-height: 16px;
 						}
 						.post-content {
 							min-height: @content-minheight;
@@ -316,18 +353,17 @@ background: #fff;
 						.attributes {
 							margin-top: 5px;
 							.source-icon {
-								width: 16px;
-								height: 16px;
-								display: inline-block;
-								margin-right: 4px;
-								vertical-align: top;
+								display: none;
 							}
 							span {
-								font-size: 0.6875em;
+								font-family: @lb-font2;
+								color: @lb-color;
+								font-size: 11px;
 								text-transform: uppercase;
 								line-height: 16px;
 								height: 16px;
 								vertical-align: top;
+								font-weight: bold;
 							}
 						}
 
@@ -340,72 +376,77 @@ background: #fff;
 						}
 
 						/* POST SPECIFIC STYLES */
-
-						&.twitter, &.facebook, &.google, &.link, &.instagram, &.flickr, &.youtube, &.soundcloud {
-							background: #f6f6f6;
-							.post-publisher-avatar {
-								display: none;
+						.post-content-full {
+							.post-core-content {
+								color: #333;
+								.post-text {
+									line-height: 20px !important;
+									word-break: break-word;
+								}
 							}
-							.post-info {
-								display: none;
-							}
+						}
+						&.normal {
 							.post-core-content {
 								.post-text {
-									font-size: 0.875em;
-									line-height: 130%;
+									img {
+										max-width: 100%;
+										height: auto;
+									}
 								}
+							}
+						}
+						&.twitter, &.facebook, &.googlenews, &.googlesearch {
+							.post-core-content {
+								//background: #f5f5f5;
+								//border: 1px solid #e5e5e5;
+								//padding: 5px;
+								//.border-radius(2px);
 							}
 						}
 
 						&.twitter, &.facebook, &.google, &.youtube {
 							.post-core-content {
 								h5 {
-									font-size: 1em;
 									padding-bottom: 2px;
+									font-family: @lb-font2;
 									a {
-										font-size: 0.875em;
-										color:#222;
+										font-size: @user-text-size-headings;
+										&:hover {
+											text-decoration: underline;
+										}
 									}
-									span {
-										font-size: 0.75em;
+								}
+								.post-text {
+									font-size: @user-text-size;
+									b {
 										font-weight: normal;
 									}
 								}
 							}
 						}
-
-						/* temporary fix for link post (still have old html structure)*/
-						&.link {
-							.link-thumbnail {
-								display: none;
-							}	
-							h3 {
-								font-size: 1em;
-								padding-bottom: 2px;
-								a {
-									font-size: 0.875em;
-									color:#222;
-								}
-							}
-							.result-text {
-								font-size: 0.875em;
-							}
-							.attributes {
-								a {
-									font-size: 0.6875em;
-									text-transform: uppercase;
-									line-height: 16px;
-									height: 16px;
-									vertical-align: top;
-								}
-							}
-						}
-
 						&.twitter, &.facebook {
 							.post-external {
+								padding-left: 50px;
 								.post-external-avatar {
-									display: none;
+									width: 42px;
+									height: 42px;
+									overflow: hidden;
+									margin-left: -50px;
+									float: left;
+									.post-external-avatar-img {
+										width: 42px;
+										height: 42px;
+									}
 								}
+							}
+							.attributes {
+								margin-left: 50px;
+							}
+						}
+						&.instagram {
+							.post-text {
+								/* instagram post text - descritpions and tags */
+								
 							}
 						}
 						&.twitter {
@@ -489,10 +530,10 @@ background: #fff;
 							}
 						}
 						&.wrapup {
-							background: #909090;
+							background: #e8e8e8;
 							border: 0;
 							margin: 0;
-							padding: 5px 20px;
+							padding:5px 20px;
 							.post-header, .post-content-side, .post-footer {
 								display: none;
 							}
@@ -512,7 +553,7 @@ background: #fff;
 										}
 										.post-text {
 											font-weight: bold;
-											color: #fff;
+											color: #262626;
 											padding-left: 40px;
 										}
 									}
@@ -534,8 +575,6 @@ background: #fff;
 									margin-left: 0;
 									.post-text {
 										color: @lb-color;
-										font-size: 0.875em;
-										line-height: 130%;
 									}
 								}
 							}
@@ -544,7 +583,7 @@ background: #fff;
 							.post-publisher-avatar {
 								background: url(img/comment-icon.png) no-repeat 0 0;
 								border-color: @lb-background; 
-								img {
+								.post-publisher-avatar-img {
 									display: none;
 								}
 							}
@@ -556,13 +595,58 @@ background: #fff;
 							}
 						}
 
-
-
-
-						&.wrapup, &.advertisement {
-							.post-info {
-								display: none !important;
+						&.link {
+							.link-preview {
+								margin: 20px 0 10px;
+								border: 1px solid #d8d8d8;
+								width: 100%;
+								display: table;
+								box-sizing: border-box;
+								-webkit-box-sizing: border-box;
+								-moz-box-sizing: border-box;
+								.link-thumbnail {
+									display: table-cell;
+									a {
+										width: 150px;
+										height: 150px;
+										overflow: hidden; 
+										display: block;
+										img {
+											display: block;
+											height: 150px;
+											width: auto;
+											min-width: 150px;
+										}
+									}
+								}
+								.link-content {
+									display: table-cell;
+									vertical-align: top;
+									padding: 5px 10px;
+									.link-title {
+										margin-bottom: 5px;
+										a {
+											font-size: 1.125em;
+											color:#222;
+											font-weight: bold;
+										}
+									}
+									.result-text {
+										font-size: 0.875em;
+									}
+									.attributes {
+										a {
+											font-size: 0.6875em;
+											text-transform: uppercase;
+											line-height: 16px;
+											height: 16px;
+											vertical-align: top;
+										}
+									}
+								}
+								
 							}
+							
 						}
 
 						&.load-next, &.load-previous {
@@ -600,29 +684,6 @@ background: #fff;
 								}
 							}
 						}
-						
-
-						&.twitter {
-							.attributes .source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0;}
-						}
-						&.facebook {
-							.attributes .source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0;}
-						}
-						&.google {
-							.attributes .source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0;}
-						}
-						&.instagram {
-							.attributes .source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0;}
-						}
-						&.flickr {
-							.attributes .source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0;}
-						}
-						&.youtube {
-							.attributes .source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0;}
-						}
-						&.soundcloud {
-							.attributes .source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0;}
-						}
 
 
 						&:hover {
@@ -638,6 +699,84 @@ background: #fff;
 			
 		}
 
+
+	}
+
+
+	/* quirks mode fixies 
+
+		maxheight won't work, instead, height param is used
+	*/
+	&.quirks {
+		width: auto;
+		.liveblog-container {
+			.liveblog-content {
+				.liveblog-content-middle {
+					height: @postlist-maxheight;  
+
+					.liveblog-postlist {
+						li {
+							.post-buttons {
+								margin-right: 20px;
+								display: block !important;
+							}
+							.post-content-side {
+								margin-top: 15px;
+							}
+
+							.post-external {
+								position: relative;
+							}
+							.post-external-avatar-img {
+								display: block;
+								width: 42px;
+								height: 42px;
+								position: absolute;
+								left:-50px;
+								top: 0px;
+							}
+
+							&.instagram, &.flickr, &.googleimage {
+								.post-external-image-link {
+									max-width: 100%;
+									.post-external-image-img {
+										max-width: 100%;
+										margin-bottom: 5px;
+										display: block;
+										width: 100%;
+									}
+								}
+							}
+							&.wrapup {
+								.post-core-content {
+									position: relative;
+									.big-toggle {
+										float: none !important;
+										position: absolute;
+										top:0;
+										left:0;
+									}
+									.post-text {
+										margin-top: -15px;
+									}
+								}
+							}
+
+							&.youtube {
+								.post-external {
+									.post-frame-container {
+										iframe {
+											padding-top: 0px;
+											padding-bottom: 60.25%;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

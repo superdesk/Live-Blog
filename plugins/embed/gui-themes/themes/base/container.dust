@@ -29,8 +29,8 @@
                                     {+contentTop}
                                         {+status}{/status}
                                         {+statusNewPost}{/statusNewPost}
-                                        {+actionUserComment}{/actionUserComment}
                                         {+actionTotop}{/actionTotop}
+                                        {+actionUserComment}{/actionUserComment}
                                 {/contentTop}
                                 </div>
                             {/contentTopContainer}

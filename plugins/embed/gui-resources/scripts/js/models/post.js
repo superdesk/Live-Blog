@@ -1,12 +1,14 @@
 /* jshint maxcomplexity: false */
+/* jshint maxstatements: false */
 'use strict';
 
 define([
     'underscore',
     'models/base-model',
     'lib/helpers/trim-tag',
-    'lib/gettext'
-], function(_, BaseModel, trimTag, gt) {
+    'lib/helpers/format-commentator',
+    'lib/helpers/adjust-server-post'
+], function(_, BaseModel, trimTag, formatCommentator, adjustServerPost) {
 
     return BaseModel.extend({
 
@@ -27,26 +29,25 @@ define([
             if (data.Meta.annotation) {
                 data.Meta.annotation = this._manageAnnotations(data.Meta.annotation);
             }
-
-            if (data.Author) {
-                if (data.Author.Source.Type.Key === 'smsblog') {
-                    /* TODO remove this when fixed on rest server. */
-                    data.item = 'source/sms';
+            data.item = 'posttype/normal';
+            if (_.has(data.Author, 'Source') && _.has(data.Type, 'Key')) {
+                data = adjustServerPost(data);
+                if (data.Author.Source.IsModifiable ===  'True' ||
+                        data.Author.Source.Name === 'internal') {
+                    data.item = 'posttype/' + data.Type.Key;
+                } else if (data.Author.Source.Name === 'google'){
+                    data.item  = 'source/google/' + data.Meta.type;
                 } else {
-                    if (data.Author.Source.IsModifiable ===  'True' ||
-                            data.Author.Source.Name === 'internal') {
-                        data.item = 'posttype/' + data.Type.Key;
-                    } else if (data.Author.Source.Name === 'google'){
-                        data.item  = 'source/google/' + data.Meta.type;
-                    } else {
-                        data.item = 'source/' + data.Author.Source.Name;
+                    data.item = 'source/' + data.Author.Source.Name;
+                }
+                if (data.item === 'source/comments') {
+                    if (_.has(data.Meta, 'AuthorName')) {
+                        data.Meta.AuthorName = formatCommentator(data.Meta.AuthorName);
+                    }
+                    if (_.has(data, 'AuthorName')) {
+                        data.AuthorName = formatCommentator(data.AuthorName);
                     }
                 }
-                if ((data.item === 'source/comments') && data.Meta && data.Meta.AuthorName) {
-                    data.Meta.AuthorName = gt.sprintf(
-                        gt.gettext('%(full_name)s commentator'), {'full_name': data.Meta.AuthorName});
-                }
-                data.item = data.item.replace('/advertisement', '/infomercial');
             }
 
             // For running Live Blog we can have just one server or two different ones:

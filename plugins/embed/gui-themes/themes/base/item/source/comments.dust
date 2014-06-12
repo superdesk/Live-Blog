@@ -8,4 +8,10 @@
 {<postDateContainer}
   {+createdDateContainer}{/createdDateContainer}
 {/postDateContainer}
-{<publisherName}{Meta.AuthorName}{/publisherName}
+{<publisherName}
+    {?Meta.AuthorName}
+        {Meta.AuthorName}
+    {:else}
+        {AuthorName}
+    {/Meta.AuthorName}
+{/publisherName}

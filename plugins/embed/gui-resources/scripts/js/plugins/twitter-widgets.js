@@ -20,7 +20,7 @@ define([
     plugins['twitter-widgets'] = function (config) {
         if (utils.isClient) {
             utils.dispatcher.on('before-render.post-view', function (view) {
-                if (view.itemName() !== 'themeBase/item/source/twitter') {
+                if (view.model.get('item') !== 'source/twitter') {
                     return;
                 }
                 if (!view.parentView()._twitterPosts) {

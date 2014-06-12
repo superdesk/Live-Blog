@@ -44,6 +44,9 @@ describe('Model post', function() {
                                 Key: 'smsblog'
                             }
                         }
+                    },
+                    Type: {
+                        Key: 'smsblog'
                     }
                 },
                 google: {
@@ -56,6 +59,9 @@ describe('Model post', function() {
                                 Key: 'xml'
                             }
                         }
+                    },
+                    Type: {
+                        Key: 'normal'
                     }
                 },
                 comments: {
@@ -68,8 +74,10 @@ describe('Model post', function() {
                                 Key: 'xml'
                             }
                         }
+                    },
+                    Type: {
+                        Key: 'normal'
                     }
-
                 },
                 content: {
                     Content: '<img src="//localhost.backend"/>'
