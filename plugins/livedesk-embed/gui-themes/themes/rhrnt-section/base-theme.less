@@ -30,7 +30,7 @@
 	@post-padding-left : 0;
 	/****************************************************************/
 
-@publisher-avatar-width : 48px;
+@publisher-avatar-width :32px;
 
 
 @show-left-column : false;	// true/false
@@ -139,8 +139,6 @@
 			.liveblog-content-top {
 				font-family: @lb-font2;
 				font-weight: bold;
-				border-top: 1px solid #000;
-				border-bottom: 1px solid #000;
 				height: 32px;
 				line-height: 32px;
 				position: relative;
@@ -172,7 +170,6 @@
 				-moz-box-shadow:-10px -10px 10px -4px #fff;
 				position: relative;
 				z-index: 5;
-				border-top: 1px solid #000;
 			}
 
 			.liveblog-content-middle {
@@ -199,14 +196,16 @@
 							color:#000;	
 							margin-right: 15px;
 							height: 12px;
-							display: inline-block;
+							display: block;
 							line-height: 12px;
+							margin-bottom: 3px;
 						}
 						.post-publisher-name {
 							font-size: 13px;
 							font-weight: bold;
 							font-family: @lb-font2;
-							color:@lb-color2;	
+							color:@lb-color2;
+							display: block;	
 						}
 						.post-buttons {
 							position: absolute;
@@ -313,10 +312,12 @@
 							max-width: @publisher-avatar-width;
 							min-height: @publisher-avatar-width;
 							max-height: none;
-							padding: 2px;
-							border: 1px solid #e8e8e8;
-							background: url(img/default-liveblog-avatar_48.png) no-repeat 2px 2px;
+							background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0;
+ 							background-size: 32px;
 							float: left;
+							margin-right: 7px;
+							.border-radius(2px);
+							overflow: hidden;
 							.post-publisher-avatar-img {
 								width: @publisher-avatar-width;
 								height: @publisher-avatar-width;
@@ -330,6 +331,8 @@
 						.post-header {
 							position: relative;
 							line-height: 16px;
+							height: 32px;
+							margin-bottom: 10px;
 						}
 						.post-content {
 							min-height: @content-minheight;
