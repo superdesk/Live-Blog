@@ -50,7 +50,8 @@ require.config({
 
 require([
     'jquery',
-    'backbone'
+    'backbone',
+    'lib/jquery/xdomainrequest'
 ], function($, Backbone) {
     $(function() {
         // Router can't be required before liveblog global variable is defined
