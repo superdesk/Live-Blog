@@ -8,7 +8,8 @@ define(['jquery'], function($) {
      * IE is having issues if the onload callback is taking to long to process
      * will fail/abort to call the rest of the request in queue
      */
-    processing = false;
+    processing = false,
+    previousTime = 30;
     if (root.XDomainRequest) {
         $.ajaxTransport('+*', function(s) {
             if (s.crossDomain && s.async) {
@@ -51,13 +52,19 @@ define(['jquery'], function($) {
                             };
                             xdr.timeout = s.xdrTimeout;
                         }
+                        if (!s.processTime) {
+                            s.processTime = 50;
+                        }
                         var timmer = setInterval(function() {
                             if (processing) {
                                 return;
                             }
                             clearInterval(timmer);
                             processing = true;
-                            xdr.send((s.hasContent && s.data) || null);
+                            setTimeout(function() {
+                                xdr.send((s.hasContent && s.data) || null);
+                                previousTime = s.processTime;
+                            }, previousTime);
                         }, 20);
                     },
                     abort: function() {
