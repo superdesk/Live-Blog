@@ -13,6 +13,7 @@ define([
             headers: {
                 'X-Filter': 'Description, Title, EmbedConfig, Language.Code'
             },
+            processTime: 120,
             updates: {}
         },
 
