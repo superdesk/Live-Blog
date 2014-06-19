@@ -9,7 +9,7 @@ define(['jquery'], function($) {
      * will fail/abort to call the rest of the request in queue
      */
     processing = false,
-    previousTime = 30;
+    previousTime = 350;
     if (root.XDomainRequest) {
         $.ajaxTransport('+*', function(s) {
             if (s.crossDomain && s.async) {
@@ -53,7 +53,7 @@ define(['jquery'], function($) {
                             xdr.timeout = s.xdrTimeout;
                         }
                         if (!s.processTime) {
-                            s.processTime = 50;
+                            s.processTime = 150;
                         }
                         var timmer = setInterval(function() {
                             if (processing) {
