@@ -1,0 +1,303 @@
+	<div class="subnav subnav-fixed">
+
+		<div class="btn-group pull-left" id="desk-select" controller="DesksController">
+            <a href="" data-toggle="dropdown" class="btn dropdown-toggle">_("All desks");</a>
+            <ul class="dropdown-menu sf-dropdown">
+                <li ng-repeat="desk in desks"><a ng-href="#/desks/{{ desk.Id }}">{{ desk.Name }}</a></li>
+            </ul>
+	    </div>
+
+      	<div class="btn-group pull-right">
+	        <button class="btn btn-medium dropdown-toggle" data-toggle="dropdown"><i class="icon-settings"></i> <span class="caret"></span></button>
+	        <ul class="dropdown-menu tabconfig-dropdown sf-dropdown sf-dropdown-right">
+	        	<h5 class="dropdown-title">Sidetab view configuration</h5>
+                <li class="tabconfig" target-tab="ingest">
+                   	<input type="checkbox" class="sf-checkbox" name="show_tab1" checked="checked"><i class="small-icon-ingest"></i>Ingest feed
+                	<input type="checkbox" class="sf-toggle" name="switch1">
+                </li>
+                <li class="tabconfig" target-tab="chat">
+                   <input type="checkbox" class="sf-checkbox" name="show_tab2" checked="checked"><i class="small-icon-chat"></i>Chat
+                	<input type="checkbox" class="sf-toggle" name="switch2" checked="checked" >
+                </li>
+                <li class="tabconfig" target-tab="editorial-comments">
+                   	<input type="checkbox" class="sf-checkbox" name="show_tab3" checked="checked"><i class="small-icon-editorial"></i>Editorial comments
+                   	<input type="checkbox" class="sf-toggle"  checked="checked" name="switch3">
+                </li>            	
+          	</ul>
+	    </div> 
+
+	</div>
+
+
+	<div class="subnav subnav-level2 subnav-fixed">
+      
+      <div class="btn-toolbar desk-toolbar">
+
+    	<a class="btn btn-info pull-right" href="#AddAssignment" data-toggle="modal" ng-show><span class="icon-plus-sign icon-white"></span> _("New Assignment");</a>
+
+	    <ul class="nav nav-pills pull-left" >
+	      <li ng-class="{active: list}"><a href="" id="list-view" ng-click="list=true"><i class="icon-th-list"></i></a></li>
+	      <li ng-class="{active: !list}"><a href="" id="grid-view" ng-click="list=false"><i class="icon-th"></i></a></li>
+	    </ul>
+
+	    <a type="button" class="btn pull-left" data-toggle="button" id="compact-view" style="margin-left:10px" ng-click="compact=!compact">_("Compact view");</a>
+
+      </div>
+
+   </div>
+
+
+	<div id="tooltip" class="sf-tooltip">
+
+	</div>
+
+		<div class="tablist left-tablist" tabcontent-area="left-tabpane">
+			<ul class="navigation-tabs">
+				
+				<li tabname="ingest"><a id="test" href="#ingest-tab" data-toggle="tooltip" draggable="true" control="tab" rel="tooltip" data-placement="right" data-original-title="Sources"><i class="big-icon-sources"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				<script type="text/javascript">
+				$(document).ready(function(){
+					$("#test").tooltip();
+				});
+				</script>
+			</ul>
+
+		</div>
+		<div class="tabpane left-tabpane">
+			<section class="tabcontent" id="ingest-tab">
+				<header class="ingest-header shadow-target" shadow-id="1">
+					<div class="sf-searchbox">
+						<input type="text" placeholder="Search" >
+						<a href="#"><i class="icon-remove"></i></a>
+					</div>
+					<div class="ingest-nav">
+						<span class="ingest-label">Feeds: </span>
+						<div class="dropdown dropdown-simple" style="display:inline-block;">
+	                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">All <b class="caret"></b></a>
+	                        <ul class="dropdown-menu sf-dropdown-simple bottom-up sf-dropdown-left">
+	                            <li><a href="#">All</a></li>
+	                            <li><a href="#">Agence France-Presse</a></li>
+	                            <li><a href="#">BBC</a></li>
+	                            <li><a href="#">Reuters</a></li>
+	                            <li><a href="#">Local</a></li>
+	                            <li><a href="#">Other sources</a></li>
+	                        </ul>
+                    	</div>
+
+                    	<span class="ingest-label" style="margin-left:20px;">Status: </span>
+						<div class="dropdown dropdown-simple" style="display:inline-block;">
+	                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">All <b class="caret"></b></a>
+	                        <ul class="dropdown-menu bottom-up sf-dropdown-simple sf-dropdown-left" style="min-width:auto;">
+	                            <li><a href="#">Confirmed</a></li>
+	                            <li><a href="#">Unconfirmed</a></li>
+	                        </ul>
+                    	</div>
+
+					</div>
+				</header>
+				<ul class="ingest-feed shadow-source" shadow-id="1">
+
+					<li class="source-bbc">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">BBC</span>
+							<time>01.03.2012 at 22:15:06</time>
+						</div>
+					</li>
+
+
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 22:13:29</time>
+						</div>
+					</li>
+
+
+					<li class="source-local unconfirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 22:02:50</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li  class="source-afp">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">AFP</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local unconfirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local confirmed">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-reuters">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Lorem ipsum dolor sit amet, consectetur adipiscing elit cras sapien odio, dictum non fermentum ac.
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Reuters</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-local unconfirmed"> 
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac, tristique nec nisi. Curabitur in placerat nibh. Maecenas pretium sem nunc. Nunc orci risus adipiscing elit dictum non fermentum 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">Local</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+					<li class="source-bbc">
+						<h5><a href="#">Title of the ingest feed</a></h5>
+						<div class="ingest-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sapien odio, dictum non fermentum ac 
+						</div>
+						<div class="ingest-info">
+							<i class="ingest-icon"></i>
+							<span class="ingest-source">BBC</span>
+							<time>01.03.2012 at 21:58:18</time>
+						</div>
+					</li>
+				</ul>
+			</section>
+		</div>
+		
+		<div class="hidden-tab-container">
+
+		</div>
+		
+
+
+
+		<div class="main-desk-container" id="main-desk" style="margin-left:auto;margin-right:auto;max-width:960px" ng-class="{'compact-desk': compact}">
+				<div class="desk-content-container" ng-class="{'desk-list': list}">
+					<div class="desk-horizontal-scroll" style="width:870px!important">
+					<div class="desk-container" ng-repeat="desk in desks" ng-controller="DeskController">
+						<div class="desk-header"><a ng-href="#/desks/{{ desk.Id }}">{{ desk.Name }}</a></div>
+						<div class="desk">
+								<section class="boardcolor-{{ card.Color }}" ng-repeat="card in cards" ng-controller="CardController">
+									<header>{{ card.Name }}</header>
+									<ul class="assignments">
+										<li class="task-draggable" ng-repeat="task in tasks | filter:isCardTask" ng-controller="TaskController">
+											<figure class="assign-avatar" sd-user-image sd-user="task.User" data-width="20" data-height="20"></figure>
+											<div class="assign-description">{{ task.Title }}</div>
+											<ul class="assign-labels clearfix">
+												<li><i class="icon-desk-time icon-white"></i> {{ task.DueDate }}</li>
+												<li><i class="icon-desk-task icon-white"></i> {{ task.subtasks.length }}</li>
+												<li><i class="icon-desk-comments icon-white"></i> {{ task.comments.length }}</li>
+											</ul>
+											<ul class="subtasks" ng-show="task.subtasks.length" ng-class="{open: open}">
+												<div class="subtask-num-info" ng-click="open=!open"><span>{{ task.subtasks.length }}</span></div>
+												<li ng-repeat="subtask in task.subtasks">{{ subtask.Title }}</li>
+											</ul>
+										</li>
+                                        <li ng-show="isEmpty(tasks)">_("This card has no tasks yet.");</li>
+									</ul>
+								</section>
+
+                                <section ng-show="!cards.length"><header>_("This desk has no cards yet.");</header></section>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="tablist right-tablist" tabcontent-area="right-tabpane">
+			<ul class="navigation-tabs">
+								
+				<li tabname="chat"><a href="#chat-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Chat"><i class="big-icon-chat"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+
+				<li tabname="editorial-comments"><a href="#editorial-tab" draggable="true" control="tab" rel="tooltip" data-placement="left" data-original-title="Editorial comments"><i class="big-icon-editorial"></i><span class="badge badge-inverse hide notifications"></span><span class="badge badge-info hide config-notif">!</span></a></li>
+				
+
+			</ul>
+		</div>
+		<div class="tabpane right-tabpane" >
+			<section class="tabcontent temptabcont" id="chat-tab">
+				<h3>Chat Tab</h3>
+				<p>Internal editorial chat interface (e.g. via a Jabber server)</p>
+			</section>
+			<section class="tabcontent temptabcont" id="editorial-tab">
+				<h3>Editorial Comments Tab</h3>
+				<p>Inline editorial comments. Comments will be pegged to particular lines of text</p>
+			</section>
+
+		</div>

@@ -25,3 +25,6 @@ modelData = partial(model, domain=DOMAIN_DATA)
 
 DOMAIN_TOOL = 'Tool/'
 modelTool = partial(model, domain=DOMAIN_TOOL)
+
+DOMAIN_DESK = 'Desk/'
+modelDesk = partial(model, domain=DOMAIN_DESK)
