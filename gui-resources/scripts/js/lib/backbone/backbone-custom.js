@@ -37,9 +37,6 @@ define([
                     options.data[key] = value;
                 }
             });
-            if (model.syncParams.processTime) {
-                options.processTime = model.syncParams.processTime;
-            }
         }
         return Backbone.defaultSync(method, model, options);
     };
