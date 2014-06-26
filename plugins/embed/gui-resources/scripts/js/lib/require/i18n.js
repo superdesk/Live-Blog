@@ -63,7 +63,6 @@ define([
                     dataType: 'json',
                     //timeout : 2500,
                     cached: true,
-                    processTime: 100,
                     tryCount: 0,
                     retryLimit: 2,
                     success: function(data) {
