@@ -220,11 +220,16 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
 			'.insert-link' : {'focusout':'populateUrlInfo'},
+			'article.editable': {'htmlOkButton': 'renderFBEmbed'},
 			"[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
 		},
+		renderFBEmbed: function() {
+			if (typeof(FB) != 'undefined') {
+	            FB.XFBML.parse();
+		    }
+		},
 		init: function()
-		{	
-
+		{
 			var self = this,
 			    PostTypes = Gizmo.Collection.extend({model: PostType});
 			self.meta = {};
