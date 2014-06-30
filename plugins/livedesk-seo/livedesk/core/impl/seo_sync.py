@@ -25,6 +25,7 @@ from livedesk.api.blog_seo import BlogSeo, IBlogSeoService, QBlogSeo
 from livedesk.api.blog_theme import IBlogThemeService
 from ally.cdm.spec import ICDM
 from livedesk.api.blog import IBlogService
+from superdesk.language.api.language import ILanguageService
 
 
 # --------------------------------------------------------------------
@@ -47,6 +48,9 @@ class SeoSyncProcess:
     
     blogThemeService = IBlogThemeService; wire.entity('blogThemeService')
     # blog theme service used to get the theme name
+    
+    languageService = ILanguageService; wire.entity('languageService')
+    # blog language service used to get the language code
     
     htmlCDM = ICDM; wire.entity('htmlCDM')
     # cdm service used to store the generated HTML files
@@ -136,6 +140,7 @@ class SeoSyncProcess:
         self.blogSeoService.getLastCId(blogSeo)
         blog = self.blogService.getBlog(blogSeo.Blog)
         theme = self.blogThemeService.getById(blogSeo.BlogTheme)
+        language = self.languageService.getById(blog.Language, ())
                    
         (scheme, netloc, path, params, query, fragment) = urlparse(self.html_generation_server)
 
@@ -143,6 +148,7 @@ class SeoSyncProcess:
         q.append(('liveblog[id]', blogSeo.Blog))
         q.append(('liveblog[theme]', theme.Name))
         q.append(('liveblog[servers][rest]', self.host_url))
+        q.append(('liveblog[fallback][language]', language.Code))
         if blogSeo.MaxPosts is not None:
             q.append(('liveblog[limit]', blogSeo.MaxPosts))
 
