@@ -90,7 +90,7 @@ define([
                 if (options.success) {
                     return options.success(data);
                 }
-            } else if (options.error) {
+            } else if (options.error && _.has(response, 'request')) {
                 liveblogLogger.error('Request to url: %s failed with code: %s and body: ', response.request.href, response.statusCode, response.body);
                 return options.error(response);
             }
