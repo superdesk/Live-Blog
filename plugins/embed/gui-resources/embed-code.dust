@@ -8,7 +8,7 @@
                     var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
                     ls.type = "text/javascript"; s.async = true;
                     ls.src = path.indexOf('//') === -1 ?
-                        config.baseUrl + path + '.js?version=' + (config.version || parseInt((new Date()).getTime()/600000)):
+                        config.baseUrl + path + '.js?' + (config.urlArgs || 'version=' + parseInt((new Date()).getTime()/600000)):
                         path;
                     s.parentNode.insertBefore( ls, s ); return ls;
         };

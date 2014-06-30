@@ -5,9 +5,7 @@ define([
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
-    'plugins/permanent-link',
     'plugins/social-share',
-    'plugins/wrappup-toggle',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -16,9 +14,7 @@ define([
             'button-pagination',
             'twitter-widgets',
             'post-hash',
-            'permanent-link',
-            'social-share',
-            'wrappup-toggle'
+            'social-share'
         ]
     };
 });
