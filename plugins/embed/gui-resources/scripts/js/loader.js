@@ -89,14 +89,14 @@ var loadMain = function() {
     } else {
         /*jshint unused:false*/
         // set the require object for development mode.
-        var require = liveblog.require;
-        liveblog.loadJs('node_modules/requirejs/require').setAttribute('data-main', liveblog.baseUrl + 'main');
+        window.require = liveblog.require;
+        liveblog.loadJs('node_modules/requirejs/require').setAttribute('data-main', liveblog.baseUrl + 'main.js');
     }
 };
 // this is the callback after the version was loaded.
 liveblog.callbackVersion = function(ver) {
     // add version to require urlArgs.
-    liveblog.require.urlArgs = 'version=' + ver.major + '.' + ver.minor + '.' + ver.revision;
+    liveblog.urlArgs = liveblog.require.urlArgs = 'version=' + ver.major + '.' + ver.minor + '.' + ver.revision;
     if (liveblog.delay) {
         setTimeout(loadMain, parseInt(liveblog.delay, 10) * 1000);
     } else {

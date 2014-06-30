@@ -5,6 +5,7 @@ define([
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
+    'plugins/social-share',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -12,7 +13,8 @@ define([
         plugins: [
             'button-pagination',
             'twitter-widgets',
-            'post-hash'
+            'post-hash',
+            'social-share'
         ]
     };
 });
