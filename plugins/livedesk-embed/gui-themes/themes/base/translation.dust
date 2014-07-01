@@ -24,6 +24,7 @@ pgettext('moment', 'monthsShort');
 pgettext('moment', 'weekdays');
 pgettext('moment', 'weekdaysShort');
 pgettext('moment', 'weekdaysMin');
+pgettext('moment', 'timezone');
 gettext("Just now");
 gettext("%(seconds)s seconds ago");
 ngettext("One minute ago", "%(minutes)s minutes ago", minutes_diff );
