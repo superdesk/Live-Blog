@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {>"themeBase/item/base"/}
 
 {<headerContainer}
@@ -9,14 +8,14 @@
 
   {<contentMainContainer}
   <div class="post-content-main">
-  	<div class="post-header">
-	  {+header}
-	    {+verificationLabel}{/verificationLabel}
-	    {+postDateContainer}{/postDateContainer}
-	    {+userNameContainer}{/userNameContainer}
-	    {+shareContainer}{/shareContainer}
-	  {/header}
-	</div>
+    <div class="post-header">
+      {+header}
+        {+verificationLabel}{/verificationLabel}
+        {+postDateContainer}{/postDateContainer}
+        {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
+      {/header}
+    </div>
     {+contentMainBody}
       {+commentBefore}{/commentBefore}
       {+contentMainFull}
@@ -37,44 +36,4 @@
       {+commentAfter}{/commentAfter}
     {/contentMainBody}
   </div>
-=======
-{>"themeBase/item/base"/}
-
-{<headerContainer}
-{/headerContainer}
-
-
-
-
-  {<contentMainContainer}
-  <div class="post-content-main">
-  	<div class="post-header">
-	  {+header}
-	    {+verificationLabel}{/verificationLabel}
-	    {+postDateContainer}{/postDateContainer}
-	    {+userNameContainer}{/userNameContainer}
-	    {+shareContainer}{/shareContainer}
-	  {/header}
-	</div>
-    {+contentMainBody}
-      {+commentBefore}{/commentBefore}
-      {+contentMainFull}
-      <div class="post-content-full">
-        {+contentFull}
-          {+contentCoreContainer}
-          <div class="post-core-content">
-            {+contentCore}
-            {/contentCore}
-          </div>
-          {/contentCoreContainer}
-          {+contentAttrContainer}
-
-          {/contentAttrContainer}
-        {/contentFull}
-      </div>
-      {/contentMainFull}
-      {+commentAfter}{/commentAfter}
-    {/contentMainBody}
-  </div>
->>>>>>> liveblog/master
 {/contentMainContainer}
