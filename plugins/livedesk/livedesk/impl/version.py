@@ -127,4 +127,4 @@ class VersionService(SessionSupport, IVersionService):
                         revision: %s
                     });''' % (str(version.Major), str(version.Minor), str(version.Revision)) 
         
-        self.versionCDM.publishContent(self.embed_file, BytesIO(content.encode(encoding='utf_8')))    
+        self.versionCDM.publishContent(self.embed_version_file, BytesIO(content.encode(encoding='utf_8')))    
