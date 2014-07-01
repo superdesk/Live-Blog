@@ -75,6 +75,7 @@ requirejs.config({
         themeBase:              config.paths.themes + '/base',
         'lodash.compat':        config.paths.nodeModules + '/lodash/dist/lodash.compat',
         'moment':               config.paths.nodeModules + '/moment/min/moment-with-langs',
+        'moment-timezone':      'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
         'css':                  'lib/require/css'
     },
     map: {
