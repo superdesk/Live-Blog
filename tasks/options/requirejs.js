@@ -44,6 +44,7 @@ var defaultOptions = {
         'backbone':                 nodePath('backbone/backbone'),
         'backbone.layoutmanager':   nodePath('backbone.layoutmanager/backbone.layoutmanager'),
         'moment':                   nodePath('moment/min/moment-with-langs'),
+        'moment-timezone':          'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
         'require-lib':              nodePath('requirejs/require'),
         'underscore':               nodePath('lodash/dist/lodash.compat'),
         'twitterWidgets':           'empty:'
