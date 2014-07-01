@@ -15,8 +15,8 @@
 
 
 /* POSTS STYLES */
-@text-size : 18; 			//14px
-
+@text-size : 18;
+@text-size-mobile: 16;
 
 @post-padding:10px;
 	/*****************************************************************/
@@ -28,6 +28,7 @@
 	/****************************************************************/
 
 @publisher-avatar-width : 50px;
+@publisher-avatar-width-mobile : 40px;
 
 
 @show-left-column : false;	// true/false
@@ -55,6 +56,7 @@
 }
 
 @user-text-size : @text-size/16em;
+@user-text-size-mobile : @text-size-mobile/16em;
 
 .border-radius(@radius:5px) {
 	border-radius: @radius;
@@ -696,4 +698,99 @@
 
 
 
+//responsive design
+@media screen and (max-width:480px) {
+	#livedesk-root {
 
+	.liveblog-container {
+		padding: 10px 0;
+
+		.liveblog-content {
+
+			.liveblog-content-middle {
+				
+				.liveblog-postlist {
+
+					li {
+						margin: 0 8px !important;
+						list-style-type: none !important;
+						border-color: #d4d4d4;
+
+						/* separate block styles */
+						.post-datetime {
+							font-family: @lb-font;
+							color:#333333;								
+							display: block;
+							line-height: 20px;
+							font-size: 16px;
+						}
+						.post-publisher-name {
+							font-family: @lb-font;
+							font-size: 15px;
+							font-weight: bold;
+							color:#333;	
+							line-height: 20px;
+							display: block;
+						}
+						.post-buttons {
+							display: block;
+						}
+
+						.post-text {
+							line-height: 26px;
+						}
+
+						.post-comment {
+							font-size: @user-text-size-mobile;
+							line-height: 26px; 
+						}
+						.post-content-full {
+							font-size: @user-text-size-mobile;
+							line-height: 26px;					
+						}
+
+						.post-publisher-avatar {
+							width: @publisher-avatar-width-mobile;
+							max-width: @publisher-avatar-width-mobile;
+							min-height: @publisher-avatar-width-mobile;
+							max-height: none;
+							margin-right: 13px;
+							background: url(img/default-avatar.png) no-repeat 0 0;
+							float: left;
+							.border-radius(@publisher-avatar-width-mobile/2);
+							overflow: hidden;
+							span {
+								width: @publisher-avatar-width-mobile;
+								height: @publisher-avatar-width-mobile;
+								display: block;
+								background-size: cover !important;
+								background-position: center;
+							}
+						}
+						/* POST SPECIFIC STYLES */
+
+						.post-text {
+							font-size: 1em;
+						}
+
+						&.normal {
+							.post-core-content {
+								img {
+									max-width: 100%;
+									height: auto !important;
+								}
+								p, div {
+									font-size: 1em !important;
+								}
+							}
+						}
+
+					}
+				}
+			}
+			
+		}
+
+	}
+}
+}

@@ -69,12 +69,14 @@ define([
 				},
 				updateStatus: function() {
 					var self = this,
-						now = new Date();
+						now = new Date(),
+                        postList = self.model.get('PostPublished')._list;
 					if(self.model.get('ClosedOn') === undefined) {
-						var t = '<time data-date="'+now.getTime()+'">'+now.format(_('status-date'))+"</time>";
+						var t = '<time data-update-date="'+now.getTime()+'">'+now.format(_('status-date'))+"</time>";
 						$('[data-gimme="blog.status"]',self.el)
 								.html(_('updated at %s').format([t]));
 					}
+                    $.dispatcher.triggerHandler('update-status.blog-view', self);
 				},
 				hideNewPosts: function(){
 					$('[data-gimme="posts.pending-message"]',self.el)
@@ -89,7 +91,7 @@ define([
 				},
 				render: function(){
 					var self = this;
-					self.el.tmpl('themeBase/container', self.model.feed(), function(){
+					self.el.lbtmpl('themeBase/container', self.model.feed(), function(){
 						$.dispatcher.triggerHandler('rendered-before.blog-view', self);
 						self.update();
 						self.postsView = new PostsView({ 

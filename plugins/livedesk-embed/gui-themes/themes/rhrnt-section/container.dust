@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {>"themeBase/container"/}
 
 {<headerContainer}
@@ -14,3 +15,21 @@
 
 {<contentBottom}
 {/contentBottom}
+=======
+{>"themeBase/container"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<userComment}
+{/userComment}
+
+
+{<contentTop}
+	{+status}{/status}
+	{+statusNewPost}{/statusNewPost}
+{/contentTop}
+
+{<contentBottom}
+{/contentBottom}
+>>>>>>> liveblog/master

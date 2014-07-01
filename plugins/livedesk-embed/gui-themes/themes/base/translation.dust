@@ -24,4 +24,17 @@ pgettext('moment', 'monthsShort');
 pgettext('moment', 'weekdays');
 pgettext('moment', 'weekdaysShort');
 pgettext('moment', 'weekdaysMin');
+gettext("Just now");
+gettext("%(seconds)s seconds ago");
+ngettext("One minute ago", "%(minutes)s minutes ago", minutes_diff );
+ngettext("One hour and %(minutes)s ago at %(time)s", "%(hours)s hours and %(minutes)s ago at %(time)s", hours_diff );
+ngettext("one minute", "%(minutes)s minutes", minutes_hour_diff );
+pgettext('minutes','HH:MM');
+ngettext("Yesterday at %(time)s", "%(days)s days ago at %(time)s", day_diff );
+pgettext('days','HH:MM');
+gettext("%(weeks)s weeks ago at %(time)s and %(data)s");
+pgettext('weeks','HH:MM');
+pgettext('weeks','mm/dd/yyyy HH:MM');
+pgettext('months','mm/dd/yyyy HH:MM');
+ngettext('updated now', 'updated %(pretty)s', count);
 !}
