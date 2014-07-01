@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {>"themeBase/container"/}
 
 {<headerContainer}
@@ -5,3 +6,12 @@
 
 {<contentBottomContainer}
 {/contentBottomContainer}
+=======
+{>"themeBase/container"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<contentBottomContainer}
+{/contentBottomContainer}
+>>>>>>> liveblog/master

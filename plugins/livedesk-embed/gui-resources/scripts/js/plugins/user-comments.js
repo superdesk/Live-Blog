@@ -28,18 +28,18 @@ define([
     //});
     $.dispatcher.on('rendered-after.blog-view', function(){
       var view = this;
-      $.tmpl('themeBase/plugins/user-comment', {}, function(e,o){
+      $.lbtmpl('themeBase/plugins/user-comment', {}, function(e,o){
         $('[data-gimme="blog.comment-box"]',view.el).replaceWith(o);
       });
-      $.tmpl('themeBase/plugins/user-comment-message', {}, function(e,o){
+      $.lbtmpl('themeBase/plugins/user-comment-message', {}, function(e,o){
         $('[data-gimme="blog.comment-box-message"]',view.el).replaceWith(o);
       });
-      $.tmpl('themeBase/plugins/user-comment-backdrop', {}, function(e,o){
+      $.lbtmpl('themeBase/plugins/user-comment-backdrop', {}, function(e,o){
         $('[data-gimme="blog.comment-box-backdrop"]',view.el).replaceWith(o);
       });
-      // $('[data-gimme="blog.comment-box"]',view.el).tmpl('themeBase/plugins/user-comment');
-      // $('[data-gimme="blog.comment-box-message"]',view.el).tmpl('themeBase/plugins/user-comment-message');
-      // $('[data-gimme="blog.comment-box-backdrop"]',view.el).tmpl('themeBase/plugins/user-comment-backdrop');
+      // $('[data-gimme="blog.comment-box"]',view.el).lbtmpl('themeBase/plugins/user-comment');
+      // $('[data-gimme="blog.comment-box-message"]',view.el).lbtmpl('themeBase/plugins/user-comment-message');
+      // $('[data-gimme="blog.comment-box-backdrop"]',view.el).lbtmpl('themeBase/plugins/user-comment-backdrop');
       new UserCommentsPopupView({
         el: view.el,
         blogview: view,
