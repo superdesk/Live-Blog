@@ -16,6 +16,9 @@ define([
         // (Backbone.LayoutManager).
         el: false,
 
+        // The selector of the view root element.
+        rootSel: '[data-gimme="blog.view"]',
+
         initialize: function() {
             utils.dispatcher.trigger('initialize.blog-view', this);
 
@@ -38,9 +41,10 @@ define([
             }
         },
 
+        // Render only if there isn't a generated content.
         conditionalRender: function() {
             // If there is no previous generated HTML markup, render the view.
-            if (this.$el.is(':empty')) {
+            if (this.$(this.rootSel).length === 0) {
                 this.render();
             // If the markup is already there, use it.
             } else {
