@@ -92,6 +92,12 @@ var configLiveblog = function(liveconfig, config) {
     liveconfig.browserUrl = urlHref.browserUrl;
     if (liveconfig.servers.rest) {
         liveconfig.servers.rest = urlHref.serverUrl(liveconfig.servers.rest);
+
+        liveconfig.servers.frontend = liveconfig.servers.frontend ?
+            liveconfig.servers.frontend : liveconfig.servers.rest;
+
+        liveconfig.servers.css = liveconfig.servers.css ?
+                liveconfig.servers.css : liveconfig.servers.rest;
     }
 
     liveconfig.servers.frontend = urlHref.serverUrl(
@@ -101,11 +107,6 @@ var configLiveblog = function(liveconfig, config) {
                     config.servers.proxy :
                     config.servers.nodejs)
             );
-
-    liveconfig.servers.css = urlHref.serverUrl(
-        liveconfig.servers.css ?
-            liveconfig.servers.css :
-            liveconfig.servers.rest);
 
     liveconfig.servers.livereload = urlHref.replacePort(liveconfig.servers.frontend, config.servers.livereload);
 

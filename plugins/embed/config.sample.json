@@ -23,20 +23,18 @@
     },
     "liveblog": {
         "id": 1,
-        "servers": {
-            "frontend": "<%= servers.proxy %>",
-            "css": "<%= liveblog.servers.frontend %>"
-        },
+        "servers": {},
         "paths": {
-            "scripts": "/scripts/js/",
-            "css": "/"
+            "scripts": "/content/lib/embed/scripts/js/",
+            "css": "../../../content/lib/embed/",
+            "themes": "../../themes/",
+            "buildThemes": "./build/themes"
         },
-        "render": "index,seo,embed,livereload",
+        "render": "seo,embed",
         "theme": "default",
         "fallback": {
-            "language": "en"
+            "language": "de"
         },
-        "dev": true,
         "hashmark": "#"
     }
 }

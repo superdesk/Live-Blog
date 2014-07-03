@@ -28,6 +28,7 @@ requirejs.config({
         i18n:                   'lib/require/i18n',
         themeBase:              '../../../gui-themes/themes/base',
         'lodash.compat':        '../../../node_modules/lodash/dist/lodash.compat',
+        'moment-timezone':      'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
         'css':                  'lib/require/css'
     },
     map: {

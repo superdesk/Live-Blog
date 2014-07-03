@@ -44,7 +44,7 @@ define([
         // Render only if there isn't a generated content.
         conditionalRender: function() {
             // If there is no previous generated HTML markup, render the view.
-            if (this.$(this.rootSel).length === 0) {
+            if (this.$el.parent().find(this.rootSel).length === 0) {
                 this.render();
             // If the markup is already there, use it.
             } else {
