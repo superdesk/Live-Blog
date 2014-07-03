@@ -1,12 +1,23 @@
 {>"themeBase/item/base"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<contentSide}
+    {+postDateContainer}{/postDateContainer}
+    {+userAvatar}{/userAvatar}
+    {+userNameContainer}{/userNameContainer}
+    <a class="logo-badge" href="#" title="by STT"></a>
+    {+shareContainer}{/shareContainer}
+{/contentSide}
+
+
 {<userAvatar}
 {?AuthorImage}
 <div class="post-publisher-avatar">
   <img class="post-publisher-avatar-img" src="{AuthorImage.href}"/>
 </div>
 {:else}
-<div class="post-publisher-avatar">
-	<img src="{servers.frontend}/content/lib/livedesk-embed/themes/stt/quirks/img/default-liveblog-avatar_48.png" class="post-publisher-avatar-img">
-</div>
+<div class="post-publisher-avatar blank"></div>
 {/AuthorImage}
 {/userAvatar}

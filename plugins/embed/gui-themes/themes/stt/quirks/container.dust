@@ -1,2 +1,5 @@
 {>"themeBase/container"/}
 {<additionalAttributes}class="quirks"{/additionalAttributes}
+
+{<contentBottomContainer}
+{/contentBottomContainer}

@@ -45,6 +45,7 @@ require.config({
         'backbone-custom':          'lib/backbone/backbone-custom',
         'backbone.layoutmanager':   '../../../node_modules/backbone.layoutmanager/backbone.layoutmanager',
         'moment':                   '../../../node_modules/moment/min/moment.min',
+        'moment-timezone':          'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
         'themeBase':                '../../../gui-themes/themes/base',
         'tmpl':                     'lib/require/tmpl'
         //'i18n':                     'lib/require/i18n',
