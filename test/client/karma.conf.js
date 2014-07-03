@@ -23,6 +23,7 @@ module.exports = function(config) {
             {pattern: 'node_modules/dustjs-helpers/dist/dust-helpers.min.js', included: false},
             {pattern: 'node_modules/jed/jed.js', included: false},
             {pattern: 'node_modules/moment/min/moment.min.js', included: false},
+            {pattern: 'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020.js', included: false},
             {pattern: 'test/client/**/*.spec.js', included: false}
         ],
 

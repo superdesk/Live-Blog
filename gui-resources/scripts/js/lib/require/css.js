@@ -128,10 +128,6 @@ define(['lib/utils', 'plugins/css', 'backbone'], function(utils, pluginCss, Back
             var configCss = config.config.css,
                 cssUrl = req.toUrl(name + '.css');
 
-            if (liveblog.paths.css) {
-                cssUrl = cssUrl.replace(liveblog.paths.scripts, liveblog.paths.css + liveblog.paths.scripts.substring(1));
-            }
-
             if (liveblog.min) {
                 cssUrl = cssUrl.replace(liveblog.paths.build, liveblog.paths.themes);
             }
