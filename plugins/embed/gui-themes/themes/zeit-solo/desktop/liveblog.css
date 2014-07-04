@@ -1,29 +1,8 @@
 /* GENERELL */
 
-body,html
-{
-	margin: 0;
-	padding: 0;
-}
-
-body
-{
-	background: #fff;
-}
-
-/* ? */
-.container
-{
-	width: 560px;
-	margin-left: 20px;
-	margin-top: 20px;
-	overflow: hidden;
-}
-
 #livedesk-root
 {
 	width: 100%;
-	background: #fff;
 /*	font-size: 100%;
 	line-height: 130%;
 	font-family: Arial,Helvetica,sans-serif;*/
