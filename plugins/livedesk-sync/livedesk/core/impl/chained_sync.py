@@ -82,8 +82,8 @@ class ChainedSyncProcess:
     timeout_inteval = 4#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
-    published_posts_path = 'Post/Published'; wire.config('published_posts_path', doc='''
-    The partial path used to construct the URL for published posts retrieval''')
+    published_posts_field = 'PostPublished'; wire.config('published_posts_field', doc='''
+    The field that contains URI for published posts retrieval''')
     
     user_type_key = 'chained blog'; wire.config('user_type_key', doc='''
     The user type that is used for the anonymous users of chained blog posts''')
@@ -158,11 +158,20 @@ class ChainedSyncProcess:
         
         if not scheme: scheme  = 'http'
 
+        blogUrl = urlunparse((scheme, netloc, path, params, query, fragment))
+        blogPublishedPostsURI = self._readPublishedPostsUrl(blogUrl, self.published_posts_field)
+        if not blogPublishedPostsURI:
+            log.error('Unable to sync blog: %s' % (source.URI,))
+            return
+
+        (scheme, netloc, path, params, query, fragment) = urlparse(blogPublishedPostsURI)
+        if not scheme: scheme  = 'http'
+
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('asc', 'cId'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
 
-        url = urlunparse((scheme, netloc, path + '/' + self.published_posts_path, params, urlencode(q), fragment))
+        url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
         req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'X-Filter' : '*,Creator.*,Author.User.*,Author.Source.*', 'User-Agent' : 'Magic Browser'})
         
@@ -473,3 +482,43 @@ class ChainedSyncProcess:
         except ValueError as e:
             log.error('Invalid JSON data %s' % e)
             return None               
+
+    def _readPublishedPostsUrl(self, url, field):
+        request = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType, 'User-Agent' : 'Magic Browser'})
+
+        try:
+            response = urlopen(request)
+        except (HTTPError, socket.error) as e:
+            return None
+
+        if str(response.status) != '200':
+            return None
+
+        try:
+            blogInfo = json.load(codecs.getreader(self.encodingType)(response))
+        except ValueError as e:
+            log.error('Invalid JSON data %s' % e)
+            return None
+
+        if type(blogInfo) is not dict:
+            log.error('Invalid blog info: not a struct')
+            return None
+
+        if field not in blogInfo:
+            log.error('Invalid blog info: without ' + str(field))
+            return None
+
+        if type(blogInfo[field]) is not dict:
+            log.error('Invalid blog info: ' + str(field) + ' is not a struct')
+            return None
+
+        if ('href' not in blogInfo[field]) or (not blogInfo[field]['href']):
+            log.error('Invalid blog info: ' + str(field) + ' not with href part')
+            return None
+
+        if type(blogInfo[field]['href']) is not str:
+            log.error('Invalid blog info: ' + str(field) + ' href part is not a string')
+            return None
+
+        return blogInfo[field]['href']
+
