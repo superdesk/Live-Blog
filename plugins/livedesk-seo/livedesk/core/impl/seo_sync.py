@@ -26,6 +26,7 @@ from livedesk.api.blog_theme import IBlogThemeService
 from ally.cdm.spec import ICDM
 from livedesk.api.blog import IBlogService
 from superdesk.language.api.language import ILanguageService
+from random import randint
 
 
 # --------------------------------------------------------------------
@@ -94,6 +95,9 @@ class SeoSyncProcess:
         Read all chained blog sync entries and sync with the corresponding blogs.
         '''
         log.info('Start seo blog synchronization')
+        
+        sleep_time = randint(0, 1000) * 0.001
+        time.sleep(sleep_time)
         
         crtTime = datetime.datetime.now().replace(microsecond=0) 
         
