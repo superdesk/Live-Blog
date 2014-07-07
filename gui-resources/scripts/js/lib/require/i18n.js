@@ -14,7 +14,18 @@ define([
             //      see the [Serbian Language](http://en.wikipedia.org/wiki/Serbian_language) vs
             //              [Serbia](http://en.wikipedia.org/wiki/Serbia)
             //   we keep a mapper with the language codes to moment lanugage codes.
-            var mapperLang = {
+            var defaultsMapper = {
+                    'post-date': 'llll',
+                    'closed-date': 'llll',
+                    'status-time': 'HH:mm',
+                    'pretty-day-time': 'HH:mm',
+                    'pretty-hour-time': 'HH:mm',
+                    'pretty-week-time': 'HH:mm',
+                    'pretty-week-date': 'llll',
+                    'pretty-month-date': 'llll'
+                },
+                defaultsObj = {},
+                mapperLang = {
                     sr: 'rs'
                 },
                 // if there isn't a mapped language use the one given.
@@ -33,14 +44,12 @@ define([
                 }
             });
             moment.lang(momentLang, customize);
-            // set default post-date for moment if one isn't set.
-            if (gt.pgettext('moment', 'post-date') === 'post-date') {
-                gt.loadMessages({'moment:post-date':  ['', 'llll', '']});
-            }
-            // the same for closed-date.
-            if (gt.pgettext('moment', 'closed-date') === 'closed-date') {
-                gt.loadMessages({'moment:closed-date': ['', 'llll', '']});
-            }
+            _.each(defaultsMapper, function(value, key) {
+                if (gt.pgettext('moment', key) === key) {
+                    defaultsObj['moment:' + key] = ['', value, ''];
+                }
+            });
+            gt.loadMessages(defaultsObj);
         };
     //API
     return {

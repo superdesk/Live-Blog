@@ -32,7 +32,11 @@ define([
         // The function to be called for polling.
         poller: function(options) {
             delete options.data;
-            this.fetch(options);
+            var self = this;
+            utils.dispatcher.trigger('before-poller.blog-model', self);
+            this.fetch(options).done(function() {
+                utils.dispatcher.trigger('after-poller.blog-model', self);
+            });
         },
 
         parse: function(data) {
