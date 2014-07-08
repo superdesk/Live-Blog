@@ -26,9 +26,9 @@ $.extend(providers.flickr, {
 		initialized: false,
 		per_page : 8,
 		apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
-		url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=%(per_page)s&page=%(start)s&license=%(license)s',
-		licenseUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
-		infoUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
+		url : 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=%(per_page)s&page=%(start)s&license=%(license)s',
+		licenseUrl : 'https://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
+		infoUrl : 'https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
 		imageUrl: '//farm%(farm)s.staticflickr.com/%(server)s/%(id)s_%(secret)s%(size)s.jpg',
 		imageUrls: {
 			full: '',
