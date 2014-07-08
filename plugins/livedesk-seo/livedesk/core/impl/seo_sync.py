@@ -122,7 +122,7 @@ class SeoSyncProcess:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
-                if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
+            if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
 
             self.syncThreads[key] = Thread(name='blog %d seo' % blogSeo.Blog,
                                            target=self._syncSeoBlog, args=(blogSeo,))

@@ -133,10 +133,11 @@ class ChainedSyncProcess:
                     log.info('Chained thread for blog %d is alive', blogSync.Blog)
                     continue
 
-                if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval * self.sync_interval): 
-                    log.info('Chained thread for blog %d is already taken', blogSync.Blog)
-                    continue
 
+            if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval * self.sync_interval): 
+                log.info('Chained thread for blog %d is already taken', blogSync.Blog)
+                continue
+            
             self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
                                            target=self._syncChain, args=(blogSync,))
             self.syncThreads[key].daemon = True
