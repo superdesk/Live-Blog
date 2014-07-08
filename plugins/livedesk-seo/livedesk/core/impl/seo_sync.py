@@ -26,6 +26,7 @@ from livedesk.api.blog_theme import IBlogThemeService
 from ally.cdm.spec import ICDM
 from livedesk.api.blog import IBlogService
 from superdesk.language.api.language import ILanguageService
+from random import randint
 
 
 # --------------------------------------------------------------------
@@ -95,6 +96,9 @@ class SeoSyncProcess:
         '''
         log.info('Start seo blog synchronization')
         
+        sleep_time = randint(0, 1000) * 0.001
+        time.sleep(sleep_time)
+        
         crtTime = datetime.datetime.now().replace(microsecond=0) 
         
         q = QBlogSeo(refreshActive=True)
@@ -118,7 +122,7 @@ class SeoSyncProcess:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
-                if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
+            if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
 
             self.syncThreads[key] = Thread(name='blog %d seo' % blogSeo.Blog,
                                            target=self._syncSeoBlog, args=(blogSeo,))
