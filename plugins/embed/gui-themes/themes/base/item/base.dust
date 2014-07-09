@@ -189,12 +189,12 @@
 
 {!-- for google and youtube only  > its the title of link, image, video...    --!}
 {<externalInfoTitleContainer}
-    <a href="{+externalInfoTitleSrc}{/externalInfoTitleSrc}">{+externalInfoTitle}{/externalInfoTitle}</a>
+    <a href="{+externalInfoTitleSrc}{/externalInfoTitleSrc}" target="_blank">{+externalInfoTitle}{/externalInfoTitle}</a>
 {/externalInfoTitleContainer}
 
 {!-- for twitter and facebook only > its the name of original creator of post --!}
 {<externalInfoNameContainer}
-    <a href="post-creator-name">{+externalInfoName}{/externalInfoName}</a>
+    <a href="post-creator-name" target="_blank">{+externalInfoName}{/externalInfoName}</a>
 {/externalInfoNameContainer}
 
 {!-- displayed for:
