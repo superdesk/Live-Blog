@@ -161,6 +161,9 @@
 				height: @postlist-header-height;
 				position: relative;
 				z-index: 2;
+				p {
+					float: left;
+				}
 				.update-time {
 					height: @postlist-header-height;
 					line-height: @postlist-header-height;
@@ -188,6 +191,21 @@
 					&.comment {
 						top:0;
 						left: 0;
+					}
+				}
+				.new-posts-label {
+					margin-left: 50px;
+					font-size: 11px;
+					color: #fff;
+					font-weight: bold;
+					padding: 0;
+					height: 30px;
+					line-height: 30px;
+					display: inline-block;
+					float: left;
+					&:hover {
+						cursor: pointer;
+						background: #464646;
 					}
 				}
 			}
@@ -270,7 +288,7 @@
 								left: -3px;
 								bottom: 20px;
 								z-index: 5;
-								width: 170px;
+								width: 140px;
 								height: 24px;
 								.social {
 									width: 24px;
@@ -615,6 +633,14 @@
 									height: 16px;
 									vertical-align: top;
 									color:#000;
+								}
+							}
+						}
+
+						&.usercomments {
+							.post-publisher-avatar {
+								.post-publisher-avatar-img {
+									display: none;
 								}
 							}
 						}
