@@ -103,7 +103,6 @@ define([
                     postEl.remove();
                 }
             });
-
             // Add new posts or posts that were removed because they had changed.
             this.collection.forEach(this.addPostIfMissing, this);
 
@@ -119,10 +118,12 @@ define([
         },
 
         removePostFromCollection: function(post) {
-            if (!_.isUndefined(post.get('DeletedOn') ||
-                post.get('isPublished') === 'false')) {
+            if (!_.isUndefined(post.get('DeletedOn')) ||
+                post.get('isPublished') === 'False') {
                 this.collection.remove(post);
+                return true;
             }
+            return false;
         },
 
         // Render all pending posts (when `flags.autoRender: false`).
@@ -153,7 +154,11 @@ define([
         },
 
         // Add (render) `post` to the posts list in the correct position.
+        // If the post is removed don't add it.
         addPost: function(post) {
+            if (this.removePostFromCollection(post)) {
+                return;
+            }
             var postView = this.insertPostView(post);
             this.orderViews();
             postView.render();
