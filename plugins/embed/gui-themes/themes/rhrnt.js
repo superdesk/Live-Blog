@@ -2,6 +2,7 @@
 
 define([
     'plugins/wrappup-toggle',
+    'plugins/post-hash',
     'plugins/permanent-link',
     'plugins/user-comments',
     'plugins/twitter-widgets',
@@ -14,6 +15,7 @@ define([
     return {
         plugins: [
             'wrappup-toggle',
+            'post-hash',
             'permanent-link',
             'user-comments',
             'twitter-widgets',
