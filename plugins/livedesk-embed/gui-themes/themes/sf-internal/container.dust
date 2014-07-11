@@ -18,10 +18,11 @@
 		{/headerContainer}
 		
 		{+contentContainer}
+		
 		<div class="liveblog-content">
 			{+content}
 				{+contentMiddleContainer}
-				<div class="liveblog-content-middle" id="wrapper"> 
+				<div class="liveblog-content-middle"> 
 					{+contentMiddle}
 						{+postsList}{/postsList}
 					{/contentMiddle}

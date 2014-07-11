@@ -142,12 +142,13 @@ background: #f3f3f3;
 		.streched();
 
 		.liveblog-header {
-			position: absolute;
+			position: fixed;
 			top:0; right: 0; left: 0;
 			height: 50px;
 			background: #263143;
 			padding: 0 20px;
 			line-height: 50px;
+			z-index: 10;
 			.header-wrap {
 				width: 600px;
 				margin: 0 auto;
@@ -227,8 +228,7 @@ background: #f3f3f3;
 
 		.liveblog-content {
 			position: absolute;
-			top:50px; right: 0; left: 0; bottom:0;
-			overflow: auto;
+			top:50px; right: 0; left: 0;
 			
 
 			.liveblog-content-middle {

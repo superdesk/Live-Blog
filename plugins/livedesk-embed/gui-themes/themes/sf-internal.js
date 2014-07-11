@@ -1,5 +1,5 @@
 define([
-    'plugins/scroll-pagination',
+    'plugins/button-pagination',
 	'plugins/wrappup-toggle',
 	'plugins/permanent-link',
 	'plugins/twitter-widgets',
@@ -10,7 +10,7 @@ define([
 ], function(){
 	return {
 		plugins: [
-            'scroll-pagination',
+            'button-pagination',
             'wrappup-toggle', 
 			'permanent-link',
 			'twitter-widgets'
