@@ -74,6 +74,20 @@ def insertTheme():
 
 # --------------------------------------------------------------------
 
+@app.populate(priority=PRIORITY_LAST)
+def upgradeBlogPostCid():
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try: session.execute("ALTER TABLE livedesk_post CHANGE COLUMN `id_change` `id_change` BIGINT UNSIGNED")
+    except (ProgrammingError, OperationalError): pass
+
+    session.commit()
+    session.close()
+
+# --------------------------------------------------------------------
+
 @app.populate
 def upgradeUser():
     creator = alchemySessionCreator()

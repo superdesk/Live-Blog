@@ -11,7 +11,7 @@ Contains the SQL alchemy meta for blog post API.
 
 from ..api.blog_post import BlogPost
 from livedesk.meta.blog import BlogMapped
-from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.dialects.mysql.base import BIGINT
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.schema import Column, ForeignKey
@@ -30,7 +30,7 @@ class BlogPostDefinition:
     __tablename__ = 'livedesk_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    CId = declared_attr(lambda cls: Column('id_change', INTEGER(unsigned=True)))
+    CId = declared_attr(lambda cls: Column('id_change', BIGINT(unsigned=True)))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
     Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------

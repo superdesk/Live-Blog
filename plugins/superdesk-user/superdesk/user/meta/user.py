@@ -18,7 +18,7 @@ from sqlalchemy.types import String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from superdesk.person.meta.person import PersonMapped
-from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.dialects.mysql.base import BIGINT
 
 # --------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ class UserMapped(PersonMapped, User):
 
     Name = Column('name', String(150), nullable=False, unique=True)
     Uuid = Column('uuid', String(32), unique=True, nullable=True)
-    Cid = Column('cid', INTEGER(unsigned=True), nullable=True, default=0)
+    Cid = Column('cid', BIGINT(unsigned=True), nullable=True, default=0)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     Active = Column('active', Boolean, nullable=False, default=True)
     Type = association_proxy('type', 'Key')
