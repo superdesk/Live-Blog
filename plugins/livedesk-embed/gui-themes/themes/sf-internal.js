@@ -1,4 +1,5 @@
 define([
+    'plugins/scroll-pagination',
 	'plugins/wrappup-toggle',
 	'plugins/permanent-link',
 	'plugins/twitter-widgets',
@@ -8,9 +9,11 @@ define([
 	'tmpl!theme/item/source/youtube'
 ], function(){
 	return {
-		plugins: [ 'wrappup-toggle', 
-					'permanent-link',
-					'twitter-widgets'
-					]
+		plugins: [
+            'scroll-pagination',
+            'wrappup-toggle', 
+			'permanent-link',
+			'twitter-widgets'
+		]
 	}
 });
