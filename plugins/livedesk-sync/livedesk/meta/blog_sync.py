@@ -10,7 +10,7 @@ API implementation for liveblog sync.
 '''
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from livedesk.meta.blog import BlogMapped
-from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.dialects.mysql.base import INTEGER, BIGINT
 from sqlalchemy.types import DateTime, Boolean
 from livedesk.api.blog_sync import BlogSync
 from superdesk.meta.metadata_superdesk import Base
@@ -29,6 +29,6 @@ class BlogSyncMapped(Base, BlogSync):
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id), nullable=False)
-    CId = Column('id_change', INTEGER(unsigned=True))
+    CId = Column('id_change', BIGINT(unsigned=True))
     LastActivity = Column('last_activity', DateTime)
     Auto = Column('auto', Boolean, nullable=False)
