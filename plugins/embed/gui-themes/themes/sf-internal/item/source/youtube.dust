@@ -1,0 +1,31 @@
+{>"themeBase/item/source/base"/}
+
+{<itemClass}youtube{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalIframeContainer}{/externalIframeContainer}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+contentText}{/contentText}
+{/contentExternal}
+
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+{/externalInfo}
+
+{<externalInfoTitle}{Meta.title|s}{/externalInfoTitle}
+{<externalInfoTitleSrc}//youtube.com/watch?v={Meta.id}{/externalInfoTitleSrc}
+
+{<externalIframe}
+<iframe src="//youtube.com/embed/{Meta.id}?wmode=opaque" class='youtube-content' width="560" height="315" frameborder="0" allowfullscreen="" ></iframe>
+{/externalIframe}
+
+{<contentText}
+<p class="post-text">{Meta.description}</p>
+{/contentText}
+
+{<contentAttrName}
+youtube.com
+{/contentAttrName}
