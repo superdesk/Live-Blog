@@ -36,6 +36,7 @@ from superdesk.person_icon.api.person_icon import IPersonIconService
 from .icon_content import ChainedIconContent
 from superdesk.post.api.post import Post, IPostService
 from uuid import uuid4
+from random import randint
 
 # --------------------------------------------------------------------
 
@@ -116,8 +117,12 @@ class ChainedSyncProcess:
     def syncChains(self):
         '''
         Read all chained blog sync entries and sync with the corresponding blogs.
-        '''
+        '''        
         log.info('Start chained blog synchronization')
+        
+        sleep_time = randint(0, 1000) * 0.001
+        time.sleep(sleep_time)
+        
         for blogSync in self.blogSyncService.getBySourceType(self.blog_provider_type): 
             assert isinstance(blogSync, BlogSync)
             key = (blogSync.Blog, blogSync.Source)
@@ -128,10 +133,11 @@ class ChainedSyncProcess:
                     log.info('Chained thread for blog %d is alive', blogSync.Blog)
                     continue
 
-                if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval * self.sync_interval): 
-                    log.info('Chained thread for blog %d is already taken', blogSync.Blog)
-                    continue
 
+            if not self.blogSyncService.checkTimeout(blogSync.Id, self.timeout_inteval * self.sync_interval): 
+                log.info('Chained thread for blog %d is already taken', blogSync.Blog)
+                continue
+            
             self.syncThreads[key] = Thread(name='blog %d sync' % blogSync.Blog,
                                            target=self._syncChain, args=(blogSync,))
             self.syncThreads[key].daemon = True

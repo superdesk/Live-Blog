@@ -1,0 +1,5 @@
+<div class="comment-box-message" data-gimme="blog.comment-box-message">
+	<div class="content ">
+	_('Your message was sent for approval');
+	</div>
+</div>

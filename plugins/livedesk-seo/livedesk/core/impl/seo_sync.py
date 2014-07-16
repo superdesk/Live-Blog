@@ -25,6 +25,8 @@ from livedesk.api.blog_seo import BlogSeo, IBlogSeoService, QBlogSeo
 from livedesk.api.blog_theme import IBlogThemeService
 from ally.cdm.spec import ICDM
 from livedesk.api.blog import IBlogService
+from superdesk.language.api.language import ILanguageService
+from random import randint
 
 
 # --------------------------------------------------------------------
@@ -48,6 +50,9 @@ class SeoSyncProcess:
     blogThemeService = IBlogThemeService; wire.entity('blogThemeService')
     # blog theme service used to get the theme name
     
+    languageService = ILanguageService; wire.entity('languageService')
+    # blog language service used to get the language code
+    
     htmlCDM = ICDM; wire.entity('htmlCDM')
     # cdm service used to store the generated HTML files
     
@@ -60,7 +65,7 @@ class SeoSyncProcess:
     timeout_inteval = 4#; wire.config('timeout_interval', doc='''
     #The number of seconds after the sync ownership can be taken.''')
     
-    html_generation_server = 'http://nodejs-dev.sourcefabric.org'; wire.config('html_generation_server', doc='''
+    html_generation_server = 'http://nodejs-dev.sourcefabric.org/'; wire.config('html_generation_server', doc='''
     The partial path used to construct the URL for blog html generation''')
     
     acceptType = 'text/json'
@@ -91,6 +96,9 @@ class SeoSyncProcess:
         '''
         log.info('Start seo blog synchronization')
         
+        sleep_time = randint(0, 1000) * 0.001
+        time.sleep(sleep_time)
+        
         crtTime = datetime.datetime.now().replace(microsecond=0) 
         
         q = QBlogSeo(refreshActive=True)
@@ -114,7 +122,7 @@ class SeoSyncProcess:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
                 if thread.is_alive(): continue
 
-                if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
+            if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
 
             self.syncThreads[key] = Thread(name='blog %d seo' % blogSeo.Blog,
                                            target=self._syncSeoBlog, args=(blogSeo,))
@@ -136,6 +144,7 @@ class SeoSyncProcess:
         self.blogSeoService.getLastCId(blogSeo)
         blog = self.blogService.getBlog(blogSeo.Blog)
         theme = self.blogThemeService.getById(blogSeo.BlogTheme)
+        language = self.languageService.getById(blog.Language, ())
                    
         (scheme, netloc, path, params, query, fragment) = urlparse(self.html_generation_server)
 
@@ -143,6 +152,7 @@ class SeoSyncProcess:
         q.append(('liveblog[id]', blogSeo.Blog))
         q.append(('liveblog[theme]', theme.Name))
         q.append(('liveblog[servers][rest]', self.host_url))
+        q.append(('liveblog[fallback][language]', language.Code))
         if blogSeo.MaxPosts is not None:
             q.append(('liveblog[limit]', blogSeo.MaxPosts))
 

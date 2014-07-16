@@ -17,6 +17,14 @@ _('Share this post on Pinterest');
 _('Share this post on Google+');
 _('Share this post via Email');
 _('%(full_name)s commentator');
+pgettext('moment', 'post-date');
+pgettext('moment', 'closed-date');
+pgettext('moment', 'months');
+pgettext('moment', 'monthsShort');
+pgettext('moment', 'weekdays');
+pgettext('moment', 'weekdaysShort');
+pgettext('moment', 'weekdaysMin');
+pgettext('moment', 'timezone');
 gettext("Just now");
 gettext("%(seconds)s seconds ago");
 ngettext("One minute ago", "%(minutes)s minutes ago", minutes_diff );
@@ -30,5 +38,4 @@ pgettext('weeks','HH:MM');
 pgettext('weeks','mm/dd/yyyy HH:MM');
 pgettext('months','mm/dd/yyyy HH:MM');
 ngettext('updated now', 'updated %(pretty)s', count);
-
 !}

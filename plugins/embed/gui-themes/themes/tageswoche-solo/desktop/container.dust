@@ -1,0 +1,33 @@
+{>"themeBase/container"/}
+
+{<headerContainer}
+{/headerContainer}
+
+
+{<contentContainer}
+<div class="liveblog-content">
+	{+content}
+		{+contentTopContainer}
+		<div class="liveblog-content-top">
+			{+contentTop}
+				{+status}{/status}
+			{/contentTop}
+		</div>
+		{/contentTopContainer}
+
+		{+contentMiddleContainer}
+		<div class="liveblog-content-middle"> 
+			{+contentMiddle}
+				{+postsList}{/postsList}
+			{/contentMiddle}
+		</div>
+		{/contentMiddleContainer}
+
+		{+contentBottomContainer}
+		{/contentBottomContainer}
+	{/content}
+</div>
+{/contentContainer}
+
+{<footerContainer}
+{/footerContainer}

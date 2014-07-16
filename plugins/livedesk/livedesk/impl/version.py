@@ -33,6 +33,8 @@ class VersionService(SessionSupport, IVersionService):
     ''')
     allypy_version_file = '/lib/core/scripts/js/version.js'; wire.config('allypy_version_file', doc='''The file version location for ally-py js files
     ''')
+    embed_version_file = '/lib/embed/scripts/js/version.js'; wire.config('embed_version_file', doc='''The file version location for SEO embed js files
+    ''')
     major_key = 'major'
     minor_key = 'minor'
     revision_key = 'revision'
@@ -100,6 +102,7 @@ class VersionService(SessionSupport, IVersionService):
         
         self.generalSettingService.update(generalSetting)
         
+        
         content = '''liveblog.callbackVersion({
                         major: %s,
                         minor: %s,
@@ -117,3 +120,11 @@ class VersionService(SessionSupport, IVersionService):
         
         self.versionCDM.publishContent(self.allypy_version_file, BytesIO(content.encode(encoding='utf_8'))) 
 
+
+        content = '''liveblog.callbackVersion({
+                        major: %s,
+                        minor: %s,
+                        revision: %s
+                    });''' % (str(version.Major), str(version.Minor), str(version.Revision)) 
+        
+        self.versionCDM.publishContent(self.embed_version_file, BytesIO(content.encode(encoding='utf_8')))    

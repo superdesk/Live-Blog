@@ -1,0 +1,27 @@
+{!
+_('to top');
+_('updated at ');
+_('new posts');
+_('Load top Posts');
+_('Loading posts...');
+_('Load more posts ...');
+_('by');
+_('Share');
+_('Favorites');
+_('Retweet');
+_('Reply');
+_('Share this post on Facebook');
+_('Share this post on Twitter');
+_('Share this post on Linkedin');
+_('Share this post on Pinterest');
+_('Share this post on Google+');
+_('Share this post via Email');
+_('%(full_name)s commentator');
+pgettext('moment', 'post-date');
+pgettext('moment', 'closed-date');
+pgettext('moment', 'months');
+pgettext('moment', 'monthsShort');
+pgettext('moment', 'weekdays');
+pgettext('moment', 'weekdaysShort');
+pgettext('moment', 'weekdaysMin');
+!}

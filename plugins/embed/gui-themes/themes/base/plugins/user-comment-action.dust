@@ -1,0 +1,1 @@
+<a data-gimme="blog.comment" href="#" class="comment button" {#UserComments} style="display:block" {:else} style="display:none" {/UserComments}>_('comment');</a>

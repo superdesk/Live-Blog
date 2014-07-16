@@ -8,14 +8,14 @@
 
   {<contentMainContainer}
   <div class="post-content-main">
-  	<div class="post-header">
-	  {+header}
-	    {+verificationLabel}{/verificationLabel}
-	    {+postDateContainer}{/postDateContainer}
-	    {+userNameContainer}{/userNameContainer}
-	    {+shareContainer}{/shareContainer}
-	  {/header}
-	</div>
+    <div class="post-header">
+      {+header}
+        {+verificationLabel}{/verificationLabel}
+        {+postDateContainer}{/postDateContainer}
+        {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
+      {/header}
+    </div>
     {+contentMainBody}
       {+commentBefore}{/commentBefore}
       {+contentMainFull}
