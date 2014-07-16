@@ -1,0 +1,48 @@
+{>"themeBase/container"/}
+
+{<mainContainer}
+<div id="livedesk-root" {+additionalAttributes}{/additionalAttributes} data-gimme="blog.view">
+	{+main}
+	<div class="liveblog-container">
+		{+headerContainer}
+		<div class="liveblog-header">
+			<div class="header-wrap">
+				{+blogTitle}{/blogTitle}
+				{+statusNewPost}{/statusNewPost}
+			</div>
+				
+			{+status}{/status}
+			{+actionTotop}{/actionTotop}
+			
+		</div>
+		{/headerContainer}
+		
+		{+contentContainer}
+		
+		<div class="liveblog-content">
+			{+content}
+				{+contentMiddleContainer}
+				<div class="liveblog-content-middle"> 
+					{+contentMiddle}
+						{+postsList}{/postsList}
+					{/contentMiddle}
+				</div>
+				{/contentMiddleContainer}
+			{/content}
+		</div>
+		{/contentContainer}
+		
+	</div>
+	{/main}
+</div>
+{/mainContainer}
+
+{<blogTitle}
+<h3 data-gimme="blog.title" class="title"></h3>
+{/blogTitle}
+
+{<actionTotop}
+<a data-gimme="posts.to-top" class="pintotop button" title="_('to top');">
+	<i class="icon-to-top"></i>
+</a>
+{/actionTotop}

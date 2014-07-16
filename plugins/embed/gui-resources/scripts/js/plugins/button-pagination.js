@@ -18,8 +18,7 @@ define([
 
             view.clientEvents({'click [data-gimme="posts.to-top"]': 'toTop'});
             view.toTop = function(evt) {
-                var self = this,
-                new_position = self.el.offset();
+                var new_position = this.$el.offset();
                 window.scrollTo(new_position.left, new_position.top);
             };
         });
