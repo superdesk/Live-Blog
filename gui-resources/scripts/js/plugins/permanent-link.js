@@ -29,7 +29,7 @@ define([
                 //toggle the visibility of the permalink input box
                 view.permalinkAction = function (evt) {
                     evt.preventDefault();
-                    var box = this.$(evt.target).siblings('[data-gimme="post.share-permalink"]');
+                    var box = this.$('[data-gimme="post.share-permalink"]');
                     if (visibilityToggle(box)) {
                         var postShare = this.$('[data-gimme^="post.share"][data-gimme!="post.share-permalink"]');
                         visibilityToggle(postShare, false);

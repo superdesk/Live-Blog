@@ -1,0 +1,73 @@
+{>"themeBase/item/base"/}
+
+{<mainContainer}
+<li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
+  {+main}
+    <a name="{Order}"></a>
+
+    {+contentContainer}
+      <div class="post-content">
+      {+content}
+        
+        {+contentSideContainer}
+          <div class="post-content-side">
+            {+contentSide}
+              {+userAvatar}{/userAvatar}
+            {/contentSide}
+          </div>
+        {/contentSideContainer}
+        
+        {+contentMainContainer}
+          <div class="post-content-main">
+          	<div class="post-header">
+          		{+userNameContainer}{/userNameContainer}
+          		{+postDateContainer}{/postDateContainer}
+          	</div>
+          	
+          	<div class="post-content-full-wrapper">
+            {+contentMainBody}
+              {+commentBefore}{/commentBefore}
+              {+contentMainFull}
+              <div class="post-content-full">
+                {+contentFull}
+                  {+contentCoreContainer}
+                  <div class="post-core-content">
+                    {+contentCore}
+                    {/contentCore}
+                  </div>
+                  {/contentCoreContainer}
+                  {+contentAttrContainer}
+
+                  {/contentAttrContainer}
+                {/contentFull}
+              </div>
+              {/contentMainFull}
+              {+commentAfter}{/commentAfter}
+            {/contentMainBody}
+        	</div>
+
+        	<div class="actions">
+	        	{+shareContainer}{/shareContainer}
+	        </div>
+
+          </div>
+        {/contentMainContainer}
+
+        
+
+      {/content}
+      </div>
+    {/contentContainer}
+  {/main}
+</li>
+{/mainContainer}
+
+
+{<shareContainer}
+<div class="post-buttons">
+  {+share}
+    {+socialShare}{/socialShare}
+    {+permanentLinkShare}{/permanentLinkShare}
+  {/share}
+</div>
+{/shareContainer}
