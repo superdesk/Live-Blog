@@ -71,7 +71,7 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         sql = sql.filter(PostMapped.Uuid == uuid)
         
         try:
-            post = sql.distinct().one()
+            post = sql.distinct().first()
         except Exception:
             post = None
             
