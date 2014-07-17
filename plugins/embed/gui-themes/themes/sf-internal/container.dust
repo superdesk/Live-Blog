@@ -38,7 +38,7 @@
 {/mainContainer}
 
 {<blogTitle}
-<h3 data-gimme="blog.title" class="title"></h3>
+<h3 data-gimme="blog.title" class="title">{Title|s}</h3>
 {/blogTitle}
 
 {<actionTotop}
