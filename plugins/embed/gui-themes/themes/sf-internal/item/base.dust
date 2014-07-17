@@ -1,7 +1,10 @@
 {>"themeBase/item/base"/}
 
 {<mainContainer}
-<li class="{+itemClass}{/itemClass}" {+additionalAttributes}{/additionalAttributes}>
+    <li class="{+itemClass}{/itemClass}"
+        {#Id}data-gimme-postid="{Id}"{/Id}
+        {#CId}data-gimme-cid="{CId}"{/CId}
+        {+additionalAttributes}{/additionalAttributes}>
   {+main}
     <a name="{Order}"></a>
 
