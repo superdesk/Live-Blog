@@ -75,63 +75,62 @@
 				</div>
         	</fieldset>
         	<fieldset ng-controller="seoInterface" ng-init="init({BlogId})" name="seoAngular">
+        	<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="showSave()">Save</button>
 				<input type="hidden" ng-model="Id" name="Id">
 				<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
         		<legend>SEO</legend>
-        		<div class="control-group">
-					<label class="control-label">_('SEO Active');</label>
-					<div class="controls seoactive">
-						<seo-toggler toggle="RefreshActive" true-value="True" false-value="False"></seo-toggler>
+        		<div ng-repeat="config in configs">
+        			<div class="control-group">
+						<label class="control-label">_('Embed Theme');</label>
+						<div class="controls themez">
+							<select name="SeoTheme" ng-model="config.SeoTheme" ng-options="t.Id as t.Name for t in availableThemes" class="config-small-input"></select>
+						</div>
 					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Refresh Interval');</label>
-					<div class="controls seorebuild">
-						<input type="text" name="RefreshInterval" value="" size="4" ng-model="RefreshInterval"/>
+					<div class="control-group">
+						<label class="control-label">_('Refresh Interval');</label>
+						<div class="" style="margin-left:200px">
+							<input type="text" name="RefreshInterval" value="" size="4" ng-model="config.RefreshInterval" style="width: 50px!important"/>
+							<label style="display:inline; margin-left:5px; margin-right:5px;">_('Number of items');</label>
+							<input type="text" name="MaxPosts" ng-model="config.MaxPosts" style="width: 50px!important"/>
+						</div>
 					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Embed Theme');</label>
-					<div class="controls themez">
-						<select name="SeoTheme" ng-model="SeoTheme" ng-options="t.Id as t.Name for t in availableThemes" class="config-small-input"></select>
+					<div class="control-group">
+						<label class="control-label">_('Callback Active');</label>
+						<div class="controls seocallbackactive">
+							<seo-toggler toggle="config.CallbackActive" true-value="True" false-value="False"></seo-toggler>
+							<label style="display:inline; margin-left:5px; margin-right:5px;">_('Callback URL');</label>
+							<input type="text" name="CallbackURL" ng-model="config.CallbackURL"/>
+						</div>
 					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Callback Active');</label>
-					<div class="controls seocallbackactive">
-						<seo-toggler toggle="CallbackActive" true-value="True" false-value="False"></seo-toggler>
+	        		<div class="control-group">
+						<label class="control-label">_('SEO Active');</label>
+						<div class="controls seoactive">
+							<seo-toggler toggle="config.RefreshActive" true-value="True" false-value="False"></seo-toggler>
+						</div>
 					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Callback URL');</label>
-					<div class="controls seocallbackurl">
-						<input type="text" name="CallbackURL" ng-model="CallbackURL"/>
+					
+					<div class="control-group" ng-show="config.HtmlURLSwitch">
+						<label class="control-label">{{ config.HtmlURLText }}</label>
+						<div class="controls">
+							<input type="text" readonly="readonly" value="{{ config.HtmlURL }}"/>
+						</div>
 					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Number of items');</label>
-					<div class="controls maxposts">
-						<input type="text" name="MaxPosts" ng-model="MaxPosts"/>
+					<div class="control-group" ng-show="config.HtmlWaitSwitch">
+						<label class="control-label"></label>
+	                    <div class="controls alert alert-info">{{ config.HtmlWaitText }}</div>
 					</div>
-				</div>
-				<div class="control-group" ng-show="HtmlURLSwitch">
-					<label class="control-label">{{ HtmlURLText }}</label>
-					<div class="controls">
-						<input type="text" readonly="readonly" value="{{ HtmlURL }}"/>
-					</div>
-				</div>
-				<div class="control-group" ng-show="HtmlWaitSwitch">
-					<label class="control-label"></label>
-                    <div class="controls alert alert-info">{{ HtmlWaitText }}</div>
-				</div>
 
-				<div class="control-group" ng-show="CallbackStatusSwitch">
-					<label class="control-label"></label>
-					<div class="controls callbackstatustext alert alert-warning">
-					{{ CallbackStatusText }}
+					<div class="control-group" ng-show="config.CallbackStatusSwitch">
+						<label class="control-label"></label>
+						<div class="controls callbackstatustext alert alert-warning">
+						{{ config.CallbackStatusText }}
+						</div>
 					</div>
-				</div>
+        			<button ng-click="removeConfig($index);" value="Remove" class="btn btn-primary">Remove</button>
 
+				<!-- end of the ng-repeat configs -->
+				</div>
+				<button ng-click="addSeoConfig();" value="add seo config" class="btn btn-primary">Add</button>
 			</fieldset>
         	<fieldset>
         		<legend>Api keys</legend>
