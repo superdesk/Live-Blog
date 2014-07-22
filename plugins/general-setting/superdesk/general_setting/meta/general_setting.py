@@ -13,7 +13,7 @@ from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
-from general_setting.api.general_setting import GeneralSetting
+from superdesk.general_setting.api.general_setting import GeneralSetting
 
 # --------------------------------------------------------------------
 

@@ -49,7 +49,7 @@ from livedesk.api.version import IVersionService
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.user.api.user import IUserService
 from superdesk.security.api.user_rbac import IUserRbacService
-from general_setting.api.general_setting import IGeneralSettingService
+from superdesk.general_setting.api.general_setting import IGeneralSettingService
 from url_info.api.url_info import IURLInfoService
 from livedesk.api.blog_seo import IBlogSeoService
 

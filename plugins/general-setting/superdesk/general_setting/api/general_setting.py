@@ -11,7 +11,7 @@ Provides general setting API.
 
 from ally.api.config import service, model, query
 from ally.api.criteria import AsLikeOrdered
-from ally.support.api.keyed import Entity, QEntity
+from ally.support.api.keyed import Entity, QEntity, IEntityService
 
 # --------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ class QGeneralSetting(QEntity):
 # --------------------------------------------------------------------
 
 @service((Entity, GeneralSetting), (QEntity, QGeneralSetting))
-class IGeneralSettingService:
+class IGeneralSettingService(IEntityService):
     '''
     Provides the general setting service.
     '''
