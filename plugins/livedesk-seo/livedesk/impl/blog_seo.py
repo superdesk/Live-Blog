@@ -81,7 +81,8 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.ChangedOn = blogSeo.NextSync  
         
         if blogSeo.BlogTheme:
-            path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog, 'theme_id': blogSeo.BlogTheme} ))  
+            blogId = self.getBlogId(blogSeo.Id)
+            path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogId, 'theme_id': blogSeo.BlogTheme} ))  
             blogSeo.HtmlURL = self.htmlCDM.getURI(path)
                  
         return super().update(blogSeo)    
@@ -95,6 +96,15 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         sql = sql.filter(BlogSeoMapped.Id == blogSeo.Id)
         blogSeo.LastCId = sql.one()[0]
         return blogSeo
+    
+    def getBlogId(self, blogSeoId):
+        '''
+        @see IBlogSeoService.getLastCId
+        '''   
+        sql = self.session().query(BlogSeoMapped.Blog)
+        sql = sql.filter(BlogSeoMapped.Id == blogSeoId)
+        blogId = sql.one()[0]
+        return blogId
         
     def getAll(self, blogId=None, themeId=None, offset=None, limit=None, detailed=False, q=None):
         '''
