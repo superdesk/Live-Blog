@@ -24,8 +24,11 @@ import hashlib
 from __plugin__.media_archive.actions import rightMediaArchiveUpload
 from __plugin__.livedesk.actions import rightLivedeskUpdate
 from __plugin__.superdesk_user.actions import rightUserView
-from general_setting.api.general_setting import IGeneralSettingService,\
+from superdesk.general_setting.api.general_setting import IGeneralSettingService,\
     GeneralSetting
+from superdesk.general_setting.meta.general_setting import GeneralSettingMapped
+from sqlalchemy.orm.session import Session
+from ..superdesk.db_superdesk import alchemySessionCreator
 
 # --------------------------------------------------------------------
 
@@ -144,20 +147,28 @@ def populateDefaultUsers():
             
 @app.populate
 def populateVersionConfig():    
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+    
     generalSettingService = support.entityFor(IGeneralSettingService)
     assert isinstance(generalSettingService, IGeneralSettingService)    
     
     generalSetting = GeneralSetting()
     generalSetting.Group = 'version'
     
-    generalSetting.Key = 'major'
-    generalSetting.Value = '1'
-    generalSettingService.insert(generalSetting)  
     
-    generalSetting.Key = 'minor'
-    generalSetting.Value = '6'
-    generalSettingService.insert(generalSetting) 
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'major').count() == 0:
+        generalSetting.Key = 'major'
+        generalSetting.Value = '1'
+        generalSettingService.insert(generalSetting)  
     
-    generalSetting.Key = 'revision'
-    generalSetting.Value = '0'
-    generalSettingService.insert(generalSetting) 
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'minor').count() == 0:
+        generalSetting.Key = 'minor'
+        generalSetting.Value = '6'
+        generalSettingService.insert(1, generalSetting) 
+    
+    if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'revision').count() == 0:
+        generalSetting.Key = 'revision'
+        generalSetting.Value = '0'
+        generalSettingService.insert(1, generalSetting) 

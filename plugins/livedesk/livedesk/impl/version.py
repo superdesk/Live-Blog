@@ -14,7 +14,7 @@ from ally.container.support import setup
 from livedesk.api.version import IVersionService, Version
 from ally.container import wire
 from ally.support.sqlalchemy.session import SessionSupport
-from general_setting.api.general_setting import IGeneralSettingService,\
+from superdesk.general_setting.api.general_setting import IGeneralSettingService,\
     GeneralSetting, QGeneralSetting
 from ally.cdm.spec import ICDM
 from io import BytesIO
