@@ -212,19 +212,19 @@ define([
                 }
 
                 var counter = 0;
-                $scope.htmlInterval = setInterval(function() {
+                $scope.configs[i].htmlInterval = setInterval(function() {
                     $http({method: 'GET', url: seoUrl, headers: {'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}}).
                     success(function(data, status, headers, config) {
                         //return the data from the newly created seo config object
                         var changedOn = Date.parse(data.ChangedOn);
                         counter ++;
                         if (counter == 20) {
-                            clearInterval($scope.htmlInterval);
+                            clearInterval($scope.configs[i].htmlInterval);
                             var text = _('The HTML generation process is taking too long, please refresh the page at a later time');
                             $scope.configs[i].HtmlWaitText = text.toString();
                         }
                         if (data.CallbackStatus) {
-                            clearInterval($scope.htmlInterval);
+                            clearInterval($scope.configs[i].htmlInterval);
                             $scope.configs[i].HtmlURLSwitch = false;
                             $scope.configs[i].HtmlWaitSwitch = false;
                             $scope.configs[i].CallbackStatusText = _('Result: ');
@@ -235,7 +235,7 @@ define([
                             var LastSyncOn = Date.parse(data.LastSync);
                             if ( LastSyncOn >= changedOn) {
                                 clearInterval($scope.configs[i].htmlInterval);
-                                $scope.HtmlURL = relativeToAbsolute(data.HtmlURL);
+                                $scope.configs[i].HtmlURL = relativeToAbsolute(data.HtmlURL);
                                 var urlText = _('SEO html');
                                 $scope.configs[i].HtmlURLText = urlText.toString();
                                 $scope.configs[i].HtmlURLSwitch = true;
@@ -247,7 +247,6 @@ define([
             };
             //loop through all configs and save them one by one
             $scope.removeConfig = function(index) {
-            	console.log('removing index of ', index);
             	if ($scope.configs[index].Id) {
 					seoInterfaceData.removeConfig($scope.configs[index].Id).then(function(){
 	            		$scope.configs.splice(index, 1);
@@ -260,13 +259,11 @@ define([
             	return $scope.configs.length - 1 == i;
             }
             $scope.saveAllConfigs = function() {
-            	console.log('save all configs');
             	for (var i = 0; i < $scope.configs.length; i ++) {
             		$scope.save($scope.configs[i], i);
             	}
             };
             $scope.save = function(config, index) {
-            	console.log('saving config ', config);
             	var data = {
             		BlogTheme: config.SeoTheme.toString(),
 	            	CallbackActive: config.CallbackActive,
