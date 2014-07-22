@@ -96,7 +96,7 @@ define([
         		RefreshInterval: 60,
         		MaxPosts: 10,
         		HtmlURL: '',
-        		LastSync: 0
+      	  		LastSync: 0
         	};
 			$scope.boxCounter = 0;
 			$scope.updateCheckbox = [];
@@ -147,7 +147,25 @@ define([
 	            	}
 	            });
             };
+            $scope.showRemove = function(i) {
+            	return i ? true : false;
+            };
+            $scope.showPartition = function(i) {
+            	return i ? false : true;
+            };
+            $scope.toggleExtraInfo = function(i) {
+            	$scope.configs[i].showExtra = $scope.configs[i].showExtra === false ? true : false;
+            	if ( $scope.configs[i].showExtra ) {
+					var extraInfoText = _('Show less');
+            	} else {
+            		var extraInfoText = _('Show more');
+            	}
+            	$scope.configs[i].extraInfoText = extraInfoText.toString();
+            };
             $scope.completeConfigData = function(config) {
+            	config.showExtra = false;
+            	var extraInfoText = _('Show more');
+            	config.extraInfoText = extraInfoText.toString();
             	config.HtmlWaitSwitch = false;
             	//on-off switches for data that may or may not be present
             	config.HtmlURLSwitch = false;
@@ -238,8 +256,8 @@ define([
             		$scope.configs.splice(index, 1);
             	}
             };
-            $scope.showSave = function() {
-            	return $scope.configs.length;
+            $scope.isLast = function(i) {
+            	return $scope.configs.length - 1 == i;
             }
             $scope.saveAllConfigs = function() {
             	console.log('save all configs');

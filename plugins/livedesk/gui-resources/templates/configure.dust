@@ -75,11 +75,15 @@
 				</div>
         	</fieldset>
         	<fieldset ng-controller="seoInterface" ng-init="init({BlogId})" name="seoAngular">
-        	<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="showSave()">Save</button>
 				<input type="hidden" ng-model="Id" name="Id">
 				<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
         		<legend>SEO</legend>
         		<div ng-repeat="config in configs">
+        			<div class="control-group"  ng-show="showRemove($index)">
+						<label class="control-label"></label>
+						<div class="controls themez" style="border-top: 1px solid #EEE">
+						</div>
+					</div>
         			<div class="control-group">
 						<label class="control-label">_('Embed Theme');</label>
 						<div class="controls themez">
@@ -87,28 +91,11 @@
 						</div>
 					</div>
 					<div class="control-group">
-						<label class="control-label">_('Refresh Interval');</label>
-						<div class="" style="margin-left:200px">
-							<input type="text" name="RefreshInterval" value="" size="4" ng-model="config.RefreshInterval" style="width: 50px!important"/>
-							<label style="display:inline; margin-left:5px; margin-right:5px;">_('Number of items');</label>
-							<input type="text" name="MaxPosts" ng-model="config.MaxPosts" style="width: 50px!important"/>
-						</div>
-					</div>
-					<div class="control-group">
-						<label class="control-label">_('Callback Active');</label>
-						<div class="controls seocallbackactive">
-							<seo-toggler toggle="config.CallbackActive" true-value="True" false-value="False"></seo-toggler>
-							<label style="display:inline; margin-left:5px; margin-right:5px;">_('Callback URL');</label>
-							<input type="text" name="CallbackURL" ng-model="config.CallbackURL"/>
-						</div>
-					</div>
-	        		<div class="control-group">
 						<label class="control-label">_('SEO Active');</label>
 						<div class="controls seoactive">
 							<seo-toggler toggle="config.RefreshActive" true-value="True" false-value="False"></seo-toggler>
 						</div>
 					</div>
-					
 					<div class="control-group" ng-show="config.HtmlURLSwitch">
 						<label class="control-label">{{ config.HtmlURLText }}</label>
 						<div class="controls">
@@ -126,11 +113,48 @@
 						{{ config.CallbackStatusText }}
 						</div>
 					</div>
-        			<button ng-click="removeConfig($index);" value="Remove" class="btn btn-primary">Remove</button>
-
+					<div class="control-group">
+						<label class="control-label"></label>
+						<div class="controls seorebuild">
+							<span style="text-decoration: underline;cursor: pointer;" ng-click="toggleExtraInfo($index)">{{ config.extraInfoText }}</span>
+						</div>
+					</div>
+					<div ng-show="config.showExtra">
+						<div class="control-group">
+							<label class="control-label">_('Refresh Interval');</label>
+							<div class="controls seorebuild">
+								<input type="text" name="RefreshInterval" value="" size="4" ng-model="config.RefreshInterval"/>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label">_('Number of items');</label>
+							<div class="controls maxposts">
+								<input type="text" name="MaxPosts" ng-model="config.MaxPosts"/>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label">_('Callback Active');</label>
+							<div class="controls seocallbackactive">
+								<seo-toggler toggle="config.CallbackActive" true-value="True" false-value="False"></seo-toggler>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label">_('Callback URL');</label>
+							<div class="controls seocallbackurl">
+								<input type="text" name="CallbackURL" ng-model="config.CallbackURL"/>
+							</div>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label"></label>
+						<div class="controls seocallbackurl">
+        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">Save</button>
+        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="float: right; margin-left:5px">Remove</button>
+							<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="float: right" ng-show="isLast($index)">Add</button>
+						</div>
+					</div>
 				<!-- end of the ng-repeat configs -->
 				</div>
-				<button ng-click="addSeoConfig();" value="add seo config" class="btn btn-primary">Add</button>
 			</fieldset>
         	<fieldset>
         		<legend>Api keys</legend>
