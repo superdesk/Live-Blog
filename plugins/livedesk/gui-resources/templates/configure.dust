@@ -149,8 +149,8 @@
 						<label class="control-label"></label>
 						<div class="controls seocallbackurl">
         					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">Save</button>
-        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="float: right; margin-left:5px">Remove</button>
-							<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="float: right" ng-show="isLast($index)">Add</button>
+        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index)">Add</button>
+        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="margin-left:5px">Remove</button>
 						</div>
 					</div>
 				<!-- end of the ng-repeat configs -->
