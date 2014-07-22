@@ -235,7 +235,7 @@ define([
                             var LastSyncOn = Date.parse(data.LastSync);
                             if ( LastSyncOn >= changedOn) {
                                 clearInterval($scope.configs[i].htmlInterval);
-                                $scope.HtmlURL = relativeToAbsolute(data.HtmlURL);
+                                $scope.configs[i].HtmlURL = relativeToAbsolute(data.HtmlURL);
                                 var urlText = _('SEO html');
                                 $scope.configs[i].HtmlURLText = urlText.toString();
                                 $scope.configs[i].HtmlURLSwitch = true;
