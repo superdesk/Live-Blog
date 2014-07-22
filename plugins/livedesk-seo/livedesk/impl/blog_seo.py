@@ -80,8 +80,9 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
             blogSeo.ChangedOn = blogSeo.NextSync  
         
-        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog, 'theme_id': blogSeo.BlogTheme} ))  
-        blogSeo.HtmlURL = self.htmlCDM.getURI(path)
+        if blogSeo.BlogTheme:
+            path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog, 'theme_id': blogSeo.BlogTheme} ))  
+            blogSeo.HtmlURL = self.htmlCDM.getURI(path)
                  
         return super().update(blogSeo)    
     
