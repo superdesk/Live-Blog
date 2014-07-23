@@ -27,6 +27,16 @@ define([
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
 			return {
+				getSeoConfigDefaults: function() {
+					var deffered = $q.defer();
+                    var myData = {};
+                    var configUrl = getGizmoUrl('GeneralSetting?group=seo&X-Filter=Value,Key')
+                    $http({method: 'GET', url: configUrl}).
+                    success(function(data, status, headers, config) {
+                        deffered.resolve(data.GeneralSettingList);
+                    });
+                    return deffered.promise;
+				},
 				getThemes: function(themeUrl) {
 					var deffered = $q.defer();
                     var myData = {};
@@ -87,7 +97,7 @@ define([
 		}]);
 
 		seoconf.controller('seoInterface', function($scope, $http, seoInterfaceData) {
-			var cleanConfig = {
+			$scope.cleanConfig = {
         		Id: 0,
         		SeoTheme: '1',
         		CallbackActive: 'False',
@@ -98,27 +108,27 @@ define([
         		HtmlURL: '',
       	  		LastSync: 0
         	};
+        	$scope.defaultConfig = {};
 			$scope.boxCounter = 0;
 			$scope.updateCheckbox = [];
 			$scope.configs = [];
             //initializing some vars
             $scope.addSeoConfig = function() {
-            	var config = $scope.completeConfigData($.extend(true,{},cleanConfig));
+            	var config = $scope.completeConfigData($.extend(true,{},$scope.cleanConfig));
             	$scope.configs.push(config);
             };
-            $scope.init = function(BlogId) {
-            	$scope.BlogId = BlogId;
-            	//getting the available themes
-            	//for new seo configs
-	            seoInterfaceData.getThemes(getGizmoUrl('my/LiveDesk/BlogTheme?X-Filter=Name,Id')).then(function(data) {
+            $scope.getThemes = function() {
+            	seoInterfaceData.getThemes(getGizmoUrl('my/LiveDesk/BlogTheme?X-Filter=Name,Id')).then(function(data) {
 	            	$scope.availableThemes = data;
 	            });
-	            seoInterfaceData.getSeoConfigs(getGizmoUrl('my/LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
+            };
+            $scope.getSeoConfigs = function() {
+            	seoInterfaceData.getSeoConfigs(getGizmoUrl('my/LiveDesk/Blog/' + $scope.BlogId + '/Seo')).then(function(data) {
 	            	//init the configs var
 	            	
 	            	if (data.length == 0) {
 	            		//no seo config for this blog yet
-	            		var config = $.extend(true,{},cleanConfig);
+	            		var config = $.extend(true,{},$scope.cleanConfig);
 	            		//add this empty new config to the scope
 	            		config = $scope.completeConfigData(config);
 	            		//add the rest of the data
@@ -146,6 +156,20 @@ define([
 	            		}
 	            	}
 	            });
+            };
+            $scope.init = function(BlogId) {
+            	$scope.BlogId = BlogId;
+            	//getting the available themes
+            	//for new seo configs
+            	$scope.getThemes();
+            	seoInterfaceData.getSeoConfigDefaults().then(function(data){
+            		//create the default config object from db settings
+            		for ( var i = 0; i < data.length; i++ ) {
+            			$scope.defaultConfig[data[i].Key] = data[i].Value;
+            		}
+            		$scope.cleanConfig = $.extend(true, $scope.cleanConfig, $scope.defaultConfig);
+            		$scope.getSeoConfigs();
+            	});
             };
             $scope.showRemove = function(i) {
             	return i ? true : false;
