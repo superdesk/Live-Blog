@@ -61,12 +61,15 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         if blogSeo.LastCId is None:
             blogSeo.LastCId = 0     
             
-        blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)  
-        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
-        blogSeo.HtmlURL = self.htmlCDM.getURI(path)  
+        blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)
+          
+        super().insert(blogSeo)
         
-        return super().insert(blogSeo)
-    
+        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
+        blogSeo.HtmlURL = self.htmlCDM.getURI(path) 
+        self.update(blogSeo)
+        
+        return blogSeo.Id
         
     def update(self, blogSeo):
         '''
@@ -79,9 +82,6 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.LastCId = 0  
             blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
             blogSeo.ChangedOn = blogSeo.NextSync  
-        
-        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
-        blogSeo.HtmlURL = self.htmlCDM.getURI(path)
                  
         return super().update(blogSeo)    
     
