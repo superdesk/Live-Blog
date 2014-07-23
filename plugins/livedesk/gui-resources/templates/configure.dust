@@ -93,7 +93,7 @@
 					<div class="control-group">
 						<label class="control-label">_('SEO Active');</label>
 						<div class="controls seoactive">
-							<seo-toggler toggle="config.RefreshActive" true-value="True" false-value="False"></seo-toggler>
+							<seo-toggler toggle="config.RefreshActive" true-value="True" false-value="False" action="toggleSave($index)"></seo-toggler>
 						</div>
 					</div>
 					<div class="control-group" ng-show="config.HtmlURLSwitch">
@@ -148,9 +148,9 @@
 					<div class="control-group">
 						<label class="control-label"></label>
 						<div class="controls seocallbackurl">
-        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">Save</button>
-        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index)">Add</button>
-        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="margin-left:5px">Remove</button>
+        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">_('Save');</button>
+        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index)">_('Add SEO HTML');</button>
+        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="margin-left:5px">_('Remove');</button>
 						</div>
 					</div>
 				<!-- end of the ng-repeat configs -->

@@ -287,13 +287,17 @@ define([
             		});
             	}
             };
+            $scope.toggleSave = function(index) {
+            	$scope.save($scope.configs[index], index);
+            }
         });
 	
 		seoconf.directive('seoToggler', function() {
 			return {
 				restrict: 'E',
 				scope: {
-					toggle: "=" 
+					toggle: "=",
+					action: "&"
 				},
 				template: '<div style="float:none" class="sf-toggle-custom on-off-toggle"><div class="sf-toggle-custom-inner"></div></div>',
 				link: function(scope, element, attrs) {
@@ -308,6 +312,7 @@ define([
 							scope.toggle = attrs['falseValue'];
 						}
                         scope.$apply();
+                        scope.action(attrs['index']);
 					})
 				}
 			}
