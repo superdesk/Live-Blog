@@ -33,7 +33,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
     Implementation for @see IBlogSeoService
     '''
     
-    format_file_name = '%(id)s-%(theme_id)s.html'; wire.config('format_file_name', doc='''
+    format_file_name = '%(blog_id)s-%(seo_id)s.html'; wire.config('format_file_name', doc='''
     The format for the html files, it can contain blog id, blog title and theme name: %(id)s-%(title)s-%(theme)s.html''')
     html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
     The path where will be stored the generated HTML files''')
@@ -62,7 +62,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.LastCId = 0     
             
         blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)  
-        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog, 'theme_id': blogSeo.BlogTheme} ))  
+        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
         blogSeo.HtmlURL = self.htmlCDM.getURI(path)  
         
         return super().insert(blogSeo)
@@ -80,10 +80,8 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
             blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
             blogSeo.ChangedOn = blogSeo.NextSync  
         
-        if blogSeo.BlogTheme:
-            blogId = self.getBlogId(blogSeo.Id)
-            path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogId, 'theme_id': blogSeo.BlogTheme} ))  
-            blogSeo.HtmlURL = self.htmlCDM.getURI(path)
+        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
+        blogSeo.HtmlURL = self.htmlCDM.getURI(path)
                  
         return super().update(blogSeo)    
     
