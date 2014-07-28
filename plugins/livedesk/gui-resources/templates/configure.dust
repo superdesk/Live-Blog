@@ -78,7 +78,13 @@
 				<input type="hidden" ng-model="Id" name="Id">
 				<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
         		<legend>SEO</legend>
-        		<div ng-repeat="config in configs">
+        		<div class="control-group">
+					<label class="control-label">_('HTML Active');</label>
+					<div class="controls seoactive">
+						<seo-toggler toggle="htmlActive" true-value="True" false-value="False" action="toggleHtmlActive()"></seo-toggler>
+					</div>
+				</div>
+        		<div ng-repeat="config in configs" ng-show="htmlActive">
         			<div class="control-group"  ng-show="showRemove($index)">
 						<label class="control-label"></label>
 						<div class="controls themez" style="border-top: 1px solid #EEE">
@@ -88,12 +94,6 @@
 						<label class="control-label">_('Embed Theme');</label>
 						<div class="controls themez">
 							<select name="SeoTheme" ng-model="config.SeoTheme" ng-options="t.Id as t.Name for t in availableThemes" class="config-small-input"></select>
-						</div>
-					</div>
-					<div class="control-group">
-						<label class="control-label">_('SEO Active');</label>
-						<div class="controls seoactive">
-							<seo-toggler toggle="config.RefreshActive" true-value="True" false-value="False" action="toggleSave($index)"></seo-toggler>
 						</div>
 					</div>
 					<div class="control-group" ng-show="config.HtmlURLSwitch">
@@ -117,6 +117,7 @@
 						<label class="control-label"></label>
 						<div class="controls seorebuild">
 							<span style="text-decoration: underline;cursor: pointer;" ng-click="toggleExtraInfo($index)">{{ config.extraInfoText }}</span>
+							<span style="text-decoration: underline;cursor: pointer; margin-left:380px;" ng-click="removeConfig($index);" ng-show="showRemove($index);">_('Remove');</span>
 						</div>
 					</div>
 					<div ng-show="config.showExtra">
@@ -148,9 +149,9 @@
 					<div class="control-group">
 						<label class="control-label"></label>
 						<div class="controls seocallbackurl">
-        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">_('Save');</button>
-        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index)">_('Add SEO HTML');</button>
-        					<button ng-click="removeConfig($index);" value="Remove" class="btn" ng-show="showRemove($index);" style="margin-left:5px">_('Remove');</button>
+        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">_('Generate HTML');</button>
+        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index);" >_('New HTML');</button>
+        					
 						</div>
 					</div>
 				<!-- end of the ng-repeat configs -->
