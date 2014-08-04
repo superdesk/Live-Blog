@@ -1,7 +1,5 @@
 <div class="colaborator-title">_("Internal collaborators");</div>
-<a href="#addCollaborator2" data-toggle="modal" class="btn pull-right plain-table-button"> <i class="icon-plus-sign"></i> 
-  _("Add new");
-</a>
+<a href="#addCollaborator2" data-toggle="modal" class="btn pull-right plain-table-button btn-primary"><i class="icon-plus icon-white"></i> _("Add new");</a>
 
 <ul class="plain-table">
   <li class="search-waiting" style="display: none;">

@@ -1,16 +1,15 @@
 {>"livedesk>layouts/livedesk"/} 
 {<body} 
-<section class="scroller main-section configure-blog" {ui.content}>
+<section class="scroller main-section configure-blog collabs-config" {ui.content}>
 <header>
 <h3>_('Collaborators management:'); {Title|t}</h3>
 </header>
-<div class="row-fluid">
+<div class="config-container padding">
   <div class="internal-collabs">
     <form class="form-horizontal form-large">
       <fieldset>
-        <legend>_("Define Collaborators");</legend>
         <div class="control-group">
-          <div class="controls" style="margin-left:0 !important;">
+          <div class="controls">
           </div>
         </div>
       </fieldset>
