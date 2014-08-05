@@ -192,10 +192,9 @@
 			</div>
 			
 			<div class="form-actions">
-				<button type="button" class="btn btn-medium" data-action="cancel">Cancel</button>
-				<button type="button" class="btn btn-medium btn-primary" data-action="save">Save</button>{~s}
-				<button type="button" class="btn btn-medium btn-primary" data-action="save-close">Save & Close</button>{~s}
-				
+				<button type="button" class="btn btn-medium btn-primary pull-right" data-action="save-close">Save & Close</button>{~s}
+				<button type="button" class="btn btn-medium btn-primary pull-right" data-action="save">Save</button>{~s}
+				<button type="button" class="btn btn-medium pull-right" data-action="cancel">Cancel</button>
 			</div>
         
       	</form>
