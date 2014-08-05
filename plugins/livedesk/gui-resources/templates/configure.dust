@@ -1,175 +1,203 @@
 {>"livedesk>layouts/livedesk"/}
 {<body}
-<section class="scroller main-section configure-blog" {ui.content}>
+<section class="scroller main-section configure-blog basic-config" {ui.content}>
 	<header>
 		<h3>_('Configure:'); {Title|t}</h3>
 	</header>
-	<div class="row-fluid">
-		<div class="span8">
-			<form class="form-horizontal form-large" style="margin-bottom: 50px;">
-        	<fieldset>
-        		<legend>General</legend>
-        		<div class="control-group">
-					<label class="control-label">_('Language');</label>
-					<div class="controls languages"></div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Provider link');</label>
-					<div class="controls output-link">
-						<input type="text" readonly="readonly" name="ProviderLink"  value="{ProviderLink}"/>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Configure type of blog');</label>
-					<div class="controls blogtypes"></div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('User comments');</label>
-					<div class="controls user-comments">
-						<input type="checkbox" name="UserComments" value="on"{?EmbedConfig.UserComments} checked{/EmbedConfig.UserComments} class="sf-toggle on-off">
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_('Verification status');</label>
-					<div class="controls verification">
-						<input type="checkbox" name="VerificationToggle" value="on"{?EmbedConfig.VerificationToggle} checked{/EmbedConfig.VerificationToggle} class="sf-toggle on-off">
-					</div>
-				</div>
-			</fieldset>
-        	<fieldset>
-        		<legend>Front-end</legend>
-        		<div class="control-group">
-					<label class="control-label">_("Frontend server");</label>
-					<div class="controls">
-						<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
-					</div>
-				</div>
-        		<div class="control-group">
-					<label class="control-label">_('Embed Theme');</label>
-					<div class="controls themes"></div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Embed script");</label>
-					<div class="controls">
-						<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
-					</div>
-					<label class="control-label">_('Advertisement');</label>
-					<div class="controls advertisement">
-						<input type="checkbox" name="MediaToggle" value="on"{?EmbedConfig.MediaToggle} checked{/EmbedConfig.MediaToggle} class="sf-toggle on-off">
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Advertisement image");</label>
-					<div class="controls">
-						<span class="btn btn-primary" data-toggle="modal-image">_('Image Upload');</span>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
-						<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">_("Advertisement target");</label>
-					<div class="controls">
-						<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
-					</div>
-				</div>
-				<div class="control-group">
-				</div>
-        	</fieldset>
-        	<fieldset ng-controller="seoInterface" ng-init="init({BlogId})" name="seoAngular">
-				<input type="hidden" ng-model="Id" name="Id">
-				<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
-        		<legend>SEO</legend>
-        		<div class="control-group">
-					<label class="control-label">_('HTML Active');</label>
-					<div class="controls seoactive">
-						<seo-toggler toggle="htmlActive" true-value="True" false-value="False" action="toggleHtmlActive()"></seo-toggler>
-					</div>
-				</div>
-        		<div ng-repeat="config in configs" ng-show="htmlActive">
-        			<div class="control-group"  ng-show="showRemove($index)">
-						<label class="control-label"></label>
-						<div class="controls themez" style="border-top: 1px solid #EEE">
-						</div>
-					</div>
-        			<div class="control-group">
-						<label class="control-label">_('Embed Theme');</label>
-						<div class="controls themez">
-							<select name="SeoTheme" ng-model="config.SeoTheme" ng-options="t.Id as t.Name for t in availableThemes" class="config-small-input"></select>
-						</div>
-					</div>
-					<div class="control-group" ng-show="config.HtmlURLSwitch">
-						<label class="control-label">{{ config.HtmlURLText }}</label>
-						<div class="controls">
-							<input type="text" readonly="readonly" value="{{ config.HtmlURL }}"/>
-						</div>
-					</div>
-					<div class="control-group" ng-show="config.HtmlWaitSwitch">
-						<label class="control-label"></label>
-	                    <div class="controls alert alert-info">{{ config.HtmlWaitText }}</div>
-					</div>
+	<div class="config-container">
+		<form class="form-horizontal form-large" style="margin-bottom: 50px;">
+			<div class="tabbable tabs-left">
+				<ul class="nav nav-tabs">
+				  <li class="active"><a href="#general" data-toggle="tab">_('General');</a></li>
+				  <li><a href="#frontend" data-toggle="tab">_('Front-end');</a></li>
+				  <li><a href="#adverts" data-toggle="tab">_('Advertisement');</a></li>
+				  <li><a href="#seo" data-toggle="tab">_('SEO');</a></li>
+				  <li><a href="#api" data-toggle="tab">_('Api keys');</a></li>
+				</ul>
+				<div class="tab-content">
+				  	<div class="tab-pane active" id="general">
+						<fieldset>
+							<h4  class="first-title">_('General');</h4>
+							<div class="control-group">
+								<label class="control-label">_('Language');</label>
+								<div class="controls languages"></div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_('Provider link');</label>
+								<div class="controls output-link">
+									<input type="text" readonly="readonly" name="ProviderLink"  value="{ProviderLink}"/>
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_('Configure type of blog');</label>
+								<div class="controls blogtypes"></div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_('User comments');</label>
+								<div class="controls user-comments">
+									<input type="checkbox" name="UserComments" value="on"{?EmbedConfig.UserComments} checked{/EmbedConfig.UserComments} class="sf-toggle on-off">
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_('Verification status');</label>
+								<div class="controls verification">
+									<input type="checkbox" name="VerificationToggle" value="on"{?EmbedConfig.VerificationToggle} checked{/EmbedConfig.VerificationToggle} class="sf-toggle on-off">
+								</div>
+							</div>
+						</fieldset>
+				  	</div>
+				  	<div class="tab-pane" id="frontend">
+				  		<fieldset>
+			        		<h4 class="first-title">_('Front-end');</h4>
+			        		<div class="control-group">
+								<label class="control-label">_("Frontend server");</label>
+								<div class="controls">
+									<input type="text" name="FrontendServer" value="{EmbedConfig.FrontendServer}"/>
+								</div>
+							</div>
+			        		<div class="control-group">
+								<label class="control-label">_('Embed Theme');</label>
+								<div class="controls themes"></div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_("Embed script");</label>
+								<div class="controls">
+									<textarea id="emebed-script" rows="3" class="embed-script-input"></textarea>
+								</div>
+							</div>
+			        	</fieldset>
+				  	</div>
+				  	<div class="tab-pane" id="adverts">
+				  		<fieldset>
+							<h4 class="first-title">_('Advertisements');</h4>
+							<div class="control-group">
+								<label class="control-label">_('Advertisement');</label>
+								<div class="controls advertisement">
+									<input type="checkbox" name="MediaToggle" value="on"{?EmbedConfig.MediaToggle} checked{/EmbedConfig.MediaToggle} class="sf-toggle on-off">
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_("Advertisement image");</label>
+								<div class="controls upload-button">
+									<span class="btn btn-primary" data-toggle="modal-image"><i class="icon-circle-arrow-up icon-white"></i> _('Image Upload');</span>&nbsp;<input type="text" name="MediaImage" value="{EmbedConfig.MediaImage}"/>
+									<div id="MediaImageThumb" style="display: block; margin: 5px 0px 5px 0px"><img src="{EmbedConfig.MediaImage}" width="300"></div>
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_("Advertisement target");</label>
+								<div class="controls">
+									<input type="text" name="MediaUrl" value="{EmbedConfig.MediaUrl}"/>
+								</div>
+							</div>
+							<div class="control-group">
+							</div>
+			        	</fieldset>
+				  	</div>
+				  	<div class="tab-pane seo-config" id="seo">
+				  		<fieldset ng-controller="seoInterface" ng-init="init({BlogId})" name="seoAngular">
+							<input type="hidden" ng-model="Id" name="Id">
+							<input type="hidden" ng-model="SeoBlogId" name="SeoBlogId" value="{BlogId}">
+			        		<h4 class="first-title">_('SEO');</h4>
+			        		<div class="seo-active control-group">
+								<label class="control-label">_('HTML Active');</label>
+								<div class="controls">
+									<seo-toggler toggle="htmlActive" true-value="True" false-value="False" action="toggleHtmlActive()"></seo-toggler>
+									<div class="seo-actions" ng-show="htmlActive">
+				     					<button ng-click="addSeoConfig();" class="btn btn-primary pull-right" ><i class="icon-plus icon-white"></i> _('Add new');</button>
+				     					<button ng-click="saveAllConfigs();" class="btn pull-right" ><i class="icon-tasks"></i> _('Generate All');</button>
+									</div>
+								</div>
+							</div>
+							
+							<div class="seo-configurations">
+								<div ng-repeat="config in configs" class="seo-item" ng-show="htmlActive">
+									<div class="control-group">
+										<label class="control-label">_('Embed Theme');</label>
+										<div class="controls themez">
+											<select name="SeoTheme" ng-model="config.SeoTheme" ng-options="t.Id as t.Name for t in availableThemes" class="config-small-input"></select>
+										</div>
+									</div>
+									<div class="control-group" ng-show="config.HtmlURLSwitch">
+										<label class="control-label">{{ config.HtmlURLText }}</label>
+										<div class="controls">
+											<input type="text" readonly="readonly" value="{{ config.HtmlURL }}"/>
+										</div>
+									</div>
 
-					<div class="control-group" ng-show="config.CallbackStatusSwitch">
-						<label class="control-label"></label>
-						<div class="controls callbackstatustext alert alert-warning">
-						{{ config.CallbackStatusText }}
-						</div>
-					</div>
-					<div class="control-group">
-						<label class="control-label"></label>
-						<div class="controls seorebuild">
-							<span style="text-decoration: underline;cursor: pointer;" ng-click="toggleExtraInfo($index)">{{ config.extraInfoText }}</span>
-							<span style="text-decoration: underline;cursor: pointer; margin-left:380px;" ng-click="removeConfig($index);" ng-show="showRemove($index);">_('Remove');</span>
-						</div>
-					</div>
-					<div ng-show="config.showExtra">
-						<div class="control-group">
-							<label class="control-label">_('Refresh Interval');</label>
-							<div class="controls seorebuild">
-								<input type="text" name="RefreshInterval" value="" size="4" ng-model="config.RefreshInterval"/>
+									<div class="control-group" ng-show="config.HtmlWaitSwitch">
+										<label class="control-label"></label>
+					                    <div class="controls alert alert-info">{{ config.HtmlWaitText }}</div>
+									</div>
+
+									<div class="control-group" ng-show="config.CallbackStatusSwitch">
+										<label class="control-label"></label>
+										<div class="controls callbackstatustext alert alert-warning">
+										{{ config.CallbackStatusText }}
+										</div>
+									</div>
+									
+									<div ng-show="config.showExtra">
+										<div class="split-group">
+											<div class="control-group pull-left">
+												<label class="control-label">_('Refresh Interval');</label>
+												<div class="controls seorebuild">
+													<input type="text" name="RefreshInterval" value="" size="4" ng-model="config.RefreshInterval"/>
+												</div>
+											</div>
+											<div class="control-group pull-right">
+												<label class="control-label">_('Number of items');</label>
+												<div class="controls maxposts">
+													<input type="text" name="MaxPosts" ng-model="config.MaxPosts"/>
+												</div>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label">_('Callback Active');</label>
+											<div class="controls seocallbackactive">
+												<seo-toggler toggle="config.CallbackActive" true-value="True" false-value="False"></seo-toggler>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label">_('Callback URL');</label>
+											<div class="controls seocallbackurl">
+												<input type="text" name="CallbackURL" ng-model="config.CallbackURL"/>
+											</div>
+										</div>
+									</div>
+									<div class="control-group">
+										<label class="control-label"></label>
+										<div class="controls save">
+											<button class="btn" ng-click="save(config,$index);"><i class="icon-expand"></i> _('Generate HTML');</button>
+											<button class="btn" ng-click="removeConfig($index);" ng-show="showRemove($index)"><i class="icon-close-small1"></i> _('Remove');</button>
+										</div>
+									</div>
+									
+									<div class="show-all" ng-click="toggleExtraInfo($index)">{{ config.extraInfoText }}</span>
+									
+
+
+									<!-- end of the ng-repeat configs -->
+								</div>
 							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label">_('Number of items');</label>
-							<div class="controls maxposts">
-								<input type="text" name="MaxPosts" ng-model="config.MaxPosts"/>
-							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label">_('Callback Active');</label>
-							<div class="controls seocallbackactive">
-								<seo-toggler toggle="config.CallbackActive" true-value="True" false-value="False"></seo-toggler>
-							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label">_('Callback URL');</label>
-							<div class="controls seocallbackurl">
-								<input type="text" name="CallbackURL" ng-model="config.CallbackURL"/>
-							</div>
-						</div>
-					</div>
-					<div class="control-group">
-						<label class="control-label"></label>
-						<div class="controls seocallbackurl">
-        					<button ng-click="saveAllConfigs();" value="Save" class="btn btn-primary" ng-show="isLast($index)" style="float:left">_('Generate HTML');</button>
-        					<button ng-click="addSeoConfig();" value="add seo config" class="btn" style="margin-left:5px;" ng-show="isLast($index);" >_('New HTML');</button>
-        					
-						</div>
-					</div>
-				<!-- end of the ng-repeat configs -->
+			        		
+						</fieldset>
+				  	</div>
+				  	<div class="tab-pane" id="api">
+				  		<fieldset>
+			        		<h4 class="first-title">_('Api keys');</h4>
+			        		<div class="api-keys"></div>
+			        	</fieldset>
+				  	</div>
 				</div>
-			</fieldset>
-        	<fieldset>
-        		<legend>Api keys</legend>
-        		<div class="api-keys"></div>
-        		
-        	</fieldset>
-          <div class="form-actions">
-            <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
-            <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}
-            <button type="button" class="btn" data-action="cancel">Cancel</button>
-          </div>
+			</div>
+			
+			<div class="form-actions">
+				<button type="button" class="btn btn-medium btn-primary pull-right" data-action="save-close">Save & Close</button>{~s}
+				<button type="button" class="btn btn-medium btn-primary pull-right" data-action="save">Save</button>{~s}
+				<button type="button" class="btn btn-medium pull-right" data-action="cancel">Cancel</button>
+			</div>
         
-      </form>
-      </div>
+      	</form>
     </div>
 
 </section>

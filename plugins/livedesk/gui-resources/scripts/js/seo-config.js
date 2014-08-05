@@ -213,15 +213,15 @@ define([
             $scope.toggleExtraInfo = function(i) {
             	$scope.configs[i].showExtra = $scope.configs[i].showExtra === false ? true : false;
             	if ( $scope.configs[i].showExtra ) {
-					var extraInfoText = _('Show less');
+					var extraInfoText = _('Hide advanced settings');
             	} else {
-            		var extraInfoText = _('Show more');
+            		var extraInfoText = _('Show advanced settings');
             	}
             	$scope.configs[i].extraInfoText = extraInfoText.toString();
             };
             $scope.completeConfigData = function(config) {
             	config.showExtra = false;
-            	var extraInfoText = _('Show more');
+            	var extraInfoText = _('Show advanced settings');
             	config.extraInfoText = extraInfoText.toString();
             	config.HtmlWaitSwitch = false;
             	//on-off switches for data that may or may not be present
