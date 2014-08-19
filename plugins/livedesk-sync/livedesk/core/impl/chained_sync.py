@@ -222,6 +222,8 @@ class ChainedSyncProcess:
                     insert = True
                 
                 if 'DeletedOn' not in post:       
+                    localPost.DeletedOn = None
+
                     #TODO: workaround, read again the Author because sometimes we get access denied
                     post['Author'] = self._readAuthor(post['Author']['href'])   
                     post['Creator'] = self._readCreator(post['Creator']['href'])
