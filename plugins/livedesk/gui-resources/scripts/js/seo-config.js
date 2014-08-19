@@ -248,8 +248,7 @@ define([
             	//info on callback status if it exists
             	if (config.Id > 0 && config.CallbackStatus ) {
             		config.CallbackStatusSwitch = true;
-            		config.CallbackStatusText = _('Result: ');
-            		config.CallbackStatusText += config.CallbackStatus;
+            		config.CallbackStatusText = config.CallbackStatus;
             	}
             	return config;
             };
@@ -306,6 +305,10 @@ define([
             //loop through all configs and save them one by one
             $scope.removeConfig = function(index) {
             	if ($scope.configs[index].Id) {
+                    //clearInterval if it exists
+                    if ($scope.configs[index].htmlInterval) {
+                        clearInterval($scope.configs[index].htmlInterval);
+                    }
 					seoInterfaceData.removeConfig($scope.configs[index].Id).then(function(){
 	            		$scope.configs.splice(index, 1);
 	            	});
