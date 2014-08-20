@@ -187,7 +187,7 @@ class SeoSyncProcess:
         
         blogSeo.CallbackStatus = None  
 
-        if blogSeo.CallbackActive:
+        if blogSeo.CallbackActive and blogSeo.CallbackURL:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
             
             if not scheme: scheme = 'http'
