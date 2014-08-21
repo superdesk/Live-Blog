@@ -24,7 +24,7 @@ define([
                                 self.key = { 'ConsumerKey': '', 'ConsumerSecret': '' };
                             }
                             var cb = new Codebird;
-                            cb.setProxy('https://www.sourcefabric.org/twitter/');
+                            cb.setProxy('https://proxy.superdesk.pro/twitter/');
                             cb.setConsumerKey(self.key.ConsumerKey, self.key.ConsumerSecret);
                             cb.__call(
                                 'oauth2_token',
