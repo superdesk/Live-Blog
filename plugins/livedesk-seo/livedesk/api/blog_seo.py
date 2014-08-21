@@ -84,6 +84,11 @@ class IBlogSeoService(IEntityService):
         '''
         Returns true if the blog has been updated since last sync
         '''   
+    @call(webName="isFirstSeo", method=GET)        
+    def isFirstSEO(self, blogSeoId:BlogSeo.Id, blogSeoBlog:BlogSeo.Blog) -> bool:
+        '''
+        Returns true if the seo setting is the first active seo setting for the blog.
+        '''             
     @call(webName="checkTimeout", method=UPDATE)
     def checkTimeout(self, blogSeoId:BlogSeo.Id, timeout:int) -> bool:
         '''
@@ -93,4 +98,5 @@ class IBlogSeoService(IEntityService):
     def updateNextSync(self, blogSeoId:BlogSeo.Id, crtTime:datetime):
         '''
         Calculate the next sync datetime for already expired sync 
-        '''                            
+        '''     
+                      

@@ -132,7 +132,20 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         sql = sql.filter(BlogPostMapped.CId > lastCId)
         
         return sql.first() != None       
+    
+    def isFirstSEO(self, blogSeoId, blogSeoBlog):
+        '''
+        @see IBlogSeoService.isFirstSEO
+        '''  
         
+        sql = self.session().query(BlogSeoMapped)
+        sql = sql.filter(BlogSeoMapped.Blog == blogSeoBlog)
+        sql = sql.filter(BlogSeoMapped.Id < blogSeoId)
+        sql = sql.filter(BlogSeoMapped.RefreshActive == True)
+        
+        return sql.first() == None 
+            
+            
     def checkTimeout(self, blogSeoId, timeout):
         '''
         @see IBlogSeoService.checkTimeout
