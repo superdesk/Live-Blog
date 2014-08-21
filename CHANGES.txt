@@ -1,7 +1,7 @@
 Live Blog
 =========
 
-Version 2.0-stable
+Version 2.0.1-stable
 -----------------
 
 Release on August 26, 2014
