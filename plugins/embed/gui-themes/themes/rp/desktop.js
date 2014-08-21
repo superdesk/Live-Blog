@@ -10,6 +10,7 @@ define([
     'plugins/status',
     'plugins/pending-messages',
     'plugins/stop-auto-render',
+    'plugins/ivw-refresh',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -22,7 +23,8 @@ define([
             'ivw-counter',
             'status',
             'pending-messages',
-            'stop-auto-render'
+            'stop-auto-render',
+            'ivw-refresh'
         ]
     };
 });
