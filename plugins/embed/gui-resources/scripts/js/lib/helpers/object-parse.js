@@ -143,7 +143,7 @@ define(function() {
                         next();
                     }
                 }
-                number = + string;
+                number = +string;
                 if (!isFinite(number)) {
                     error('Bad number');
                 } else {
