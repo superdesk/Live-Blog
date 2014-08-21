@@ -1,16 +1,6 @@
 Plugin Live Blog Embed Server
 =============================
 
-Version 1.1.0
---------------
-
-Released on August 24, 2014
-
-- Users can now generate multiple HTML versions of a blog
-- The nodeJS server generating the HTML can now handle concurrent requests
-
-
-
 Version 1.0-beta1
 -----------------
 

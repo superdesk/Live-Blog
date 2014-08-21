@@ -10,7 +10,8 @@
                         {+contentTopContainer}
                             <div class="liveblog-content-top">
                                 {+contentTop}
-                                    {+refreshBlock}{/refreshBlock}
+                                    {+status}{/status}
+                                    {+actionTotop}{/actionTotop}
                                 {/contentTop}
                             </div>
                         {/contentTopContainer}
@@ -35,12 +36,3 @@
     {/main}
 </div>
 {/mainContainer}
-
-{<refreshBlock}
-<div class="refresh-block-container" data-gimme="posts.pending-message-holder">
-    <div class="refresh-block">
-        <span class="refresh-text" data-gimme="posts.pending-message"></span>
-        <span class="refresh-icon"></span>
-    </div>
-</div>
-{/refreshBlock}

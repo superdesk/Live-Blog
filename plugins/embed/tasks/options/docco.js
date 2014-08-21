@@ -8,8 +8,7 @@ module.exports = {
     scripts: {
         src: [
             '<%= paths.scripts %>/**/*.js',
-            '!<%= paths.scripts %>/bower_components/**',
-            '!<%= paths.scripts %>/build/**'
+            '!<%= paths.scripts %>/bower_components/**'
         ],
         options: {
             output: 'docs/docco/scripts'

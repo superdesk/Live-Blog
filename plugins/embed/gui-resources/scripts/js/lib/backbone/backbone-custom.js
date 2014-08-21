@@ -73,7 +73,7 @@ define([
 
         // Parse response to json
         options.json = true;
-        options.timeout = 2000;
+        options.timeout = 1000;
 
         // Set the query string with the options.data params
         if (options.data) {
@@ -86,18 +86,12 @@ define([
         }
         // Use options.success and options.errors callbacks
         request.get(options, function(error, response, data) {
-            if (error) {
-                liveblogLogger.error('Request to url: %s failed with code: %s and body: ',
-                        _.has(response, 'request') ? response.request.href : options.url,
-                        _.has(response, 'statusCode') ? response.statusCode : error,
-                        _.has(response, 'body') ? response.body : response
-                );
-            }
             if (!error && response.statusCode === 200) {
                 if (options.success) {
                     return options.success(data);
                 }
-            } else if (options.error) {
+            } else if (options.error && _.has(response, 'request')) {
+                liveblogLogger.error('Request to url: %s failed with code: %s and body: ', response.request.href, response.statusCode, response.body);
                 return options.error(response);
             }
         });

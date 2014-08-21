@@ -2,17 +2,19 @@
 define([
     'plugins',
     'plugins/button-pagination',
-    'plugins/ivw',
     'lib/utils'
-], function(plugins, buttonPaginationPlugin, ivw, utils) {
+], function(plugins, buttonPaginationPlugin, utils) {
     delete plugins['button-pagination'];
     plugins['ivw-counter'] = function(config) {
         buttonPaginationPlugin(config);
         utils.dispatcher.once('initialize.posts-view', function(view) {
             view.clientEvents({'click [data-gimme="posts.nextPage"]': 'ivwCounter'});
             view.ivwCounter = function() {
+                /* global RPO */
                 view.buttonNextPage();
-                ivw();
+                if ((typeof(RPO) !== 'undefined') && RPO.reloadIVW) {
+                    RPO.reloadIVW();
+                }
             };
         });
     };

@@ -1,6 +1,6 @@
 {
   "name": "backbone-node-liveblog",
-  "version": "1.1.0",
+  "version": "1.0.0-beta",
   "homepage": "https://github.com/liveblog/plugin-liveblog-embed-server.git",
   "contributors": [
     "Nistor Mihai <Mihai.Nistor@sourcefabric.org>",

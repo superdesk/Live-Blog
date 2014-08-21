@@ -119,6 +119,7 @@
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.soundcloud .post-info,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.link .link-thumbnail,
 */
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-top,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .permalink,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons input,
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.twitter .post-external .post-external-avatar,
@@ -149,37 +150,6 @@
 {
 	position: relative;
 	margin: 10px 0;
-}
-
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-top {
-
-}
-
-.refresh-block-container {
-	max-width: 540px;
-	margin-bottom:20px;
-	display: none;
-}
-.refresh-block {
-	background: #fff5e2;
-	border: 1px solid #ffb200;
-	padding: 10px;
-	text-align: center;
-}
-
-.refresh-text {
-	font-size: 13px;
-}
-.refresh-icon {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(img/sync-16.png) no-repeat 0 0;
-	vertical-align: middle;
-	margin-left: 10px;
-}
-.refresh-icon:hover {
-	cursor: pointer;
 }
 
 /* DISPLAY: NONE 
