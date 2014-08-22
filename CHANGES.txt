@@ -1,6 +1,20 @@
 Live Blog
 =========
 
+Version 2.0.1-stable
+-----------------
+
+Release on August 26, 2014
+
+For this stable release of Live Blog 2.0, we fixed all major bugs found after the release of 2.0 beta and added further improvements to the SEO plugin (https://github.com/liveblog/plugin-liveblog-embed-server/tree/master).
+
+- Users can now generate multiple HTML versions of a blog
+- The nodeJS server generating the HTML can now handle concurrent requests
+- The blog settings interface was imrpvoed
+
+Enjoy this new release of Live Blog and please share your feedback with us!
+
+
 Version 2.0-beta1
 -----------------
 
