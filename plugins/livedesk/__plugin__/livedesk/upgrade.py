@@ -171,7 +171,7 @@ def upgradeLiveBlog14First():
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeLiveBlog14Last():
-    insertTheme()
+    #insertTheme()
     insertSource('comments')
     createSourceType('comment')
 
