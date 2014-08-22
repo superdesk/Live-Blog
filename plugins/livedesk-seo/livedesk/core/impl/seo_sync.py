@@ -144,6 +144,12 @@ class SeoSyncProcess:
         '''
         assert isinstance(blogSeo, BlogSeo), 'Invalid blog seo %s' % blogSeo
         
+        (scheme, netloc, path, params, query, fragment) = urlparse(self.host_url)
+        if not scheme: scheme = 'http'
+        if not netloc: 
+            netloc = path
+        host_url = urlunparse((scheme, netloc, '', '', '', ''))
+        
         self.blogSeoService.getLastCId(blogSeo)
         blog = self.blogService.getBlog(blogSeo.Blog)
         theme = self.blogThemeService.getById(blogSeo.BlogTheme)
@@ -154,7 +160,7 @@ class SeoSyncProcess:
         q = parse_qsl(query, keep_blank_values=True)
         q.append(('liveblog[id]', blogSeo.Blog))
         q.append(('liveblog[theme]', theme.Name))
-        q.append(('liveblog[servers][rest]', self.host_url))
+        q.append(('liveblog[servers][rest]', host_url))
         q.append(('liveblog[fallback][language]', language.Code))
         if blogSeo.MaxPosts is not None:
             q.append(('liveblog[limit]', blogSeo.MaxPosts))
@@ -183,15 +189,11 @@ class SeoSyncProcess:
             self.htmlCDM.publishContent(path, resp)
             
             default_name = self.format_file_name % {'blog_id': blogSeo.Blog}
-            if not path.endswith('/' + default_name) and self.blogSeoService.isFirstSEO(blogSeo.Id, blogSeo.Blog):   
-                (scheme, netloc, path_old, params, query, fragment) = urlparse(self.host_url)
-                if not scheme: scheme = 'http'
-                url = urlunparse((scheme, netloc, blogSeo.HtmlURL, params, query, fragment))
-                             
+            if not path.endswith('/' + default_name) and self.blogSeoService.isFirstSEO(blogSeo.Id, blogSeo.Blog):                   
+                url = host_url + blogSeo.HtmlURL          
                 req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'User-Agent' : 'LiveBlog REST'})
                 resp = urlopen(req)
-                
                 path = dirname(path) + '/' + default_name
                 self.htmlCDM.publishContent(path, resp) 
         except ValueError as e:
@@ -215,7 +217,7 @@ class SeoSyncProcess:
             q.append(('blogId', blogSeo.Blog))
             q.append(('blogTitle', blog.Title))
             q.append(('theme', theme.Name))
-            q.append(('htmlFile', self.host_url + self.htmlCDM.getURI(path)))
+            q.append(('htmlFile', host_url + blogSeo.HtmlURL))
                 
             url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
             req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
