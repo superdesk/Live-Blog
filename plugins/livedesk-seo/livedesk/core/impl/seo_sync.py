@@ -183,11 +183,15 @@ class SeoSyncProcess:
             self.htmlCDM.publishContent(path, resp)
             
             default_name = self.format_file_name % {'blog_id': blogSeo.Blog}
-            if not path.endswith('/' + default_name) and self.blogSeoService.isFirstSEO(blogSeo.Id, blogSeo.Blog):
-                url = self.host_url + blogSeo.HtmlURL
+            if not path.endswith('/' + default_name) and self.blogSeoService.isFirstSEO(blogSeo.Id, blogSeo.Blog):   
+                (scheme, netloc, path_old, params, query, fragment) = urlparse(self.host_url)
+                if not scheme: scheme = 'http'
+                url = urlunparse((scheme, netloc, blogSeo.HtmlURL, params, query, fragment))
+                             
                 req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
                                     'User-Agent' : 'LiveBlog REST'})
                 resp = urlopen(req)
+                
                 path = dirname(path) + '/' + default_name
                 self.htmlCDM.publishContent(path, resp) 
         except ValueError as e:
