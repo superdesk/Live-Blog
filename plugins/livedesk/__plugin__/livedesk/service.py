@@ -34,9 +34,6 @@ def bindersService(): return list(chain((bindSuperdeskValidations,), binders()))
 bind.bindToEntities('livedesk.impl.**.*Alchemy', IBlogCollaboratorGroupCleanupService, binders=binders)
 support.createEntitySetup('livedesk.impl.**.*')
 
-bind.bindToEntities('general_setting.impl.**.*Alchemy', binders=binders)
-support.createEntitySetup('general_setting.impl.**.*')
-
 support.listenToEntities(SERVICES, listeners=addService(bindersService))
 support.loadAllEntities(SERVICES)
 

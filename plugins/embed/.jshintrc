@@ -207,6 +207,9 @@
         // our global object
         "liveblog": false,
         // app logger
-        "liveblogLogger": false
+        "liveblogLogger": false,
+        // protractor ones:
+        "protractor": false,
+        "browser": false
     }
 }

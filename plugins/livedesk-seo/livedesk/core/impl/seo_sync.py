@@ -27,6 +27,7 @@ from ally.cdm.spec import ICDM
 from livedesk.api.blog import IBlogService
 from superdesk.language.api.language import ILanguageService
 from random import randint
+from os.path import dirname
 
 
 # --------------------------------------------------------------------
@@ -70,10 +71,12 @@ class SeoSyncProcess:
     
     acceptType = 'text/json'
     # mime type accepted for response from remote blog
+    
     encodingType = 'UTF-8'
     # character encoding type accepted for response from remove blog
     
-
+    format_file_name = '%(blog_id)s.html'
+    #default file format
 
     @app.deploy
     def startSeoSyncThread(self):
@@ -178,6 +181,15 @@ class SeoSyncProcess:
             baseContent = self.htmlCDM.getURI('')
             path = blogSeo.HtmlURL[len(baseContent):]
             self.htmlCDM.publishContent(path, resp)
+            
+            default_name = self.format_file_name % {'blog_id': blogSeo.Blog}
+            if not path.endswith('/' + default_name) and self.blogSeoService.isFirstSEO(blogSeo.Id, blogSeo.Blog):
+                url = self.host_url + blogSeo.HtmlURL
+                req = Request(url, headers={'Accept' : self.acceptType, 'Accept-Charset' : self.encodingType,
+                                    'User-Agent' : 'LiveBlog REST'})
+                resp = urlopen(req)
+                path = dirname(path) + '/' + default_name
+                self.htmlCDM.publishContent(path, resp) 
         except ValueError as e:
             log.error('Fail to publish the HTML file on CDM %s' % e)
             blogSeo.CallbackStatus = 'Fail to publish the HTML file on CDM'
@@ -187,7 +199,7 @@ class SeoSyncProcess:
         
         blogSeo.CallbackStatus = None  
 
-        if blogSeo.CallbackActive:
+        if blogSeo.CallbackActive and blogSeo.CallbackURL:
             (scheme, netloc, path, params, query, fragment) = urlparse(blogSeo.CallbackURL)
             
             if not scheme: scheme = 'http'

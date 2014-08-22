@@ -34,9 +34,10 @@ define([
                     this.flags.autoRender = true;
                 };
                 // Add the click event handler for the new items message
-                blogView.$el.on('click', '[data-gimme="posts.pending-message"]', function() {
+                blogView.$el.on('click', '[data-gimme="posts.pending-message"],[data-gimme="posts.pending-message-holder"]', function() {
                     view.renderPending();
                 });
+
             });
 
             // When the pending posts number is updated, update the pending posts link and
@@ -48,6 +49,7 @@ define([
                     message = gt.sprintf(gt.ngettext('one new post', '%(count)s new posts', pending), {count: pending});
                 }
                 blogView.$('[data-gimme="posts.pending-message"]').html(message).toggle(pending > 0);
+                blogView.$('[data-gimme="posts.pending-message-holder"]').toggle(pending > 0);
             });
         }
     };

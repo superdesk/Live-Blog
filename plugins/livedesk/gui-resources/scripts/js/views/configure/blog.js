@@ -80,7 +80,7 @@
 
             //trigger save for seoconfig
             var angScope = angular.element($('[name="seoAngular"]')).scope();
-            angScope.save();
+            angScope.saveAllConfigs();
 
             var EmbedConfig = {
                     'theme': self.el.find('[name="Theme"]').val(),

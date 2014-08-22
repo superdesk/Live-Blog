@@ -33,8 +33,8 @@ from uuid import uuid4
 from superdesk.post.meta.post import PostMapped
 from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.verification.meta.status import VerificationStatusMapped
-from general_setting.meta.general_setting import GeneralSettingMapped
-from general_setting.api.general_setting import GeneralSetting,\
+from superdesk.general_setting.meta.general_setting import GeneralSettingMapped
+from superdesk.general_setting.api.general_setting import GeneralSetting,\
     IGeneralSettingService
 
 # --------------------------------------------------------------------

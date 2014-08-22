@@ -33,7 +33,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
     Implementation for @see IBlogSeoService
     '''
     
-    format_file_name = '%(id)s.html'; wire.config('format_file_name', doc='''
+    format_file_name = '%(blog_id)s-%(seo_id)s.html'; wire.config('format_file_name', doc='''
     The format for the html files, it can contain blog id, blog title and theme name: %(id)s-%(title)s-%(theme)s.html''')
     html_storage_path = '/seo'; wire.config('html_storage_path', doc='''
     The path where will be stored the generated HTML files''')
@@ -61,12 +61,15 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         if blogSeo.LastCId is None:
             blogSeo.LastCId = 0     
             
-        blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)  
-        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'id': blogSeo.Blog} ))  
-        blogSeo.HtmlURL = self.htmlCDM.getURI(path)  
+        blogSeo.ChangedOn = datetime.datetime.now().replace(microsecond=0)
+          
+        super().insert(blogSeo)
         
-        return super().insert(blogSeo)
-    
+        path = ''.join((self.html_storage_path, '/', self.format_file_name % {'blog_id': blogSeo.Blog, 'seo_id': blogSeo.Id} ))  
+        blogSeo.HtmlURL = self.htmlCDM.getURI(path) 
+        self.update(blogSeo)
+        
+        return blogSeo.Id
         
     def update(self, blogSeo):
         '''
@@ -91,6 +94,15 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         sql = sql.filter(BlogSeoMapped.Id == blogSeo.Id)
         blogSeo.LastCId = sql.one()[0]
         return blogSeo
+    
+    def getBlogId(self, blogSeoId):
+        '''
+        @see IBlogSeoService.getLastCId
+        '''   
+        sql = self.session().query(BlogSeoMapped.Blog)
+        sql = sql.filter(BlogSeoMapped.Id == blogSeoId)
+        blogId = sql.one()[0]
+        return blogId
         
     def getAll(self, blogId=None, themeId=None, offset=None, limit=None, detailed=False, q=None):
         '''
@@ -120,7 +132,20 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
         sql = sql.filter(BlogPostMapped.CId > lastCId)
         
         return sql.first() != None       
+    
+    def isFirstSEO(self, blogSeoId, blogSeoBlog):
+        '''
+        @see IBlogSeoService.isFirstSEO
+        '''  
         
+        sql = self.session().query(BlogSeoMapped)
+        sql = sql.filter(BlogSeoMapped.Blog == blogSeoBlog)
+        sql = sql.filter(BlogSeoMapped.Id < blogSeoId)
+        sql = sql.filter(BlogSeoMapped.RefreshActive == True)
+        
+        return sql.first() == None 
+            
+            
     def checkTimeout(self, blogSeoId, timeout):
         '''
         @see IBlogSeoService.checkTimeout

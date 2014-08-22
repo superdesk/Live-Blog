@@ -1,89 +1,93 @@
 {>"livedesk>layouts/livedesk"/}
 {<body}
 <section id="controller-heaven">
-<section class="scroller main-section configure-blog" {ui.content}>
+<section class="scroller main-section configure-blog feeds-config" {ui.content}>
 	<header>
 		<h3>_('Manage feeds');</h3>
 	</header>
 
-	<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
-		<li class="active"><a href="#smsfeeds">SMS Feeds</a></li>
-		<li><a href="#chainblog">Chained Blogs</a></li>
-	</ul>
- 
-	<div class="tab-content">
-		<div class="tab-pane active" id="smsfeeds">
-		
-			<!-- Chain blog tab content -->
-		
-			<div class="row-fluid">
-				<div class="span8-width">
-					<div class="manage-feeds-top">
-						<div class="sf-searchbox">
-							<input type="text" placeholder="Search" ng-model="search">
-		                    <a href="#"><i class="icon-remove"></i></a>
-						</div>
-					</div>
-					<ul class="feeds-list" id="feed-list">
-						<li ng-repeat="sms in smss | filter: search">
-							<input type="checkbox" set-bg="1" ng-model="sms.assigned" ng-click="handleChange(sms);" class="sf-checkbox" style="display: none"><span smscustombox></span> <label>&nbsp;{{ sms.Name }}<label>
-						</li>
-						<li ng-show="msg.noSmsFeeds">_("So far there are no SMS Feeds");</li>
-					</ul>
-		      </div>
-		    </div>
+	<div class="config-container padding">
 
-		    <!-- end of chain blog tab content -->
-
-
-		</div>
-		<div class="tab-pane" id="chainblog">
-
-			<!-- Chain blog tab content -->
-
-			<div class="row-fluid">
-				<div class="span8-width">
-					<div class="manage-feeds-top">
-						<div class="sf-searchbox">
-							<input type="text" placeholder="Search" value="" ng-model="searchx">
-		                    <a href="#"><i class="icon-remove"></i></a>
-						</div>
-						<a class="btn btn-info pull-right" data-toggle="modal" href="#AddProvider" ng-click="preEditProvider()"><span class="medium-icon-add"></span>_(" Add new Provider");</a>
-					</div>
-					<ul class="manage-feeds" id="provider-list">
-						<li ng-repeat="chain in chains | filter:searchx" class="chain-source">
-							<div class="chain-source-header">
-								<h5>{{ chain.Name }} <span class="chain-source-count">{{ chain.blogList.length }}</span></h5>
-								<div class="dropdown">
-								    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
-									<ul class="dropdown-menu sf-dropdown-simple pull-right">
-										<li><a class="edit" ng-click="preEditProvider(chain)" data-toggle="modal" href="#AddProvider"><i class="icon-pencil"></i>_("Edit provider");</a></li>
-										<li><span class="remove" ng-click="removeProvider(chain)"><i class="icon-trash"></i>_("Remove provider");</span></li>
-									</ul>
-								</div>
+		<ul class="nav nav-tabs feeds-tabs" id="feedTabs">
+			<li class="active"><a href="#smsfeeds">SMS Feeds</a></li>
+			<li><a href="#chainblog">Chained Blogs</a></li>
+		</ul>
+	 
+		<div class="tab-content">
+			<div class="tab-pane active" id="smsfeeds">
+			
+				<!-- Chain blog tab content -->
+			
+				<div class="row-fluid">
+					<div class="span8-width">
+						<div class="manage-feeds-top">
+							<div class="sf-searchbox">
+								<input type="text" placeholder="Search" ng-model="search">
+			                    <a href="#"><i class="icon-remove"></i></a>
 							</div>
-							<ul class="chain-source-content">
-								<li ng-repeat="blog in chain.blogList | filter:searchx" class="chain-blog" >
-									<input type="checkbox" ng-model="blog.chained" ng-change="chainChange(blog, chain.URI.href, $parent.$index, $index);" class="sf-checkbox" style="display: none">
-									<span custombox></span>
-									<div class="chain-blog-content">
-									    <h6 ><label>{{ blog.Title }}</label></h6>
-										<div class="chain-blog-description">{{ blog.Description }}</div>
+						</div>
+						<ul class="feeds-list" id="feed-list">
+							<li ng-repeat="sms in smss | filter: search">
+								<input type="checkbox" set-bg="1" ng-model="sms.assigned" ng-click="handleChange(sms);" class="sf-checkbox" style="display: none"><span smscustombox></span> <label>&nbsp;{{ sms.Name }}<label>
+							</li>
+							<li ng-show="msg.noSmsFeeds">_("So far there are no SMS Feeds");</li>
+						</ul>
+			      </div>
+			    </div>
+
+			    <!-- end of chain blog tab content -->
+
+
+			</div>
+			<div class="tab-pane" id="chainblog">
+
+				<!-- Chain blog tab content -->
+
+				<div class="row-fluid">
+					<div class="span8-width">
+						<div class="manage-feeds-top">
+							<div class="sf-searchbox">
+								<input type="text" placeholder="Search" value="" ng-model="searchx">
+			                    <a href="#"><i class="icon-remove"></i></a>
+							</div>
+							<a class="btn btn-info btn-medium pull-right" data-toggle="modal" href="#AddProvider" ng-click="preEditProvider()"><span class="icon-plus icon-white"></span>_(" Add new Provider");</a>
+						</div>
+						<ul class="manage-feeds" id="provider-list">
+							<li ng-repeat="chain in chains | filter:searchx" class="chain-source">
+								<div class="chain-source-header">
+									<h5>{{ chain.Name }} <span class="chain-source-count">{{ chain.blogList.length }}</span></h5>
+									<div class="dropdown">
+									    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog"></i> <b class="caret"></b></a>
+										<ul class="dropdown-menu sf-dropdown-simple pull-right">
+											<li><a class="edit" ng-click="preEditProvider(chain)" data-toggle="modal" href="#AddProvider"><i class="icon-pencil"></i>_("Edit provider");</a></li>
+											<li><span class="remove" ng-click="removeProvider(chain)"><i class="icon-trash"></i>_("Remove provider");</span></li>
+										</ul>
 									</div>
-								</li>
-							</ul>
+								</div>
+								<ul class="chain-source-content">
+									<li ng-repeat="blog in chain.blogList | filter:searchx" class="chain-blog" >
+										<input type="checkbox" ng-model="blog.chained" ng-change="chainChange(blog, chain.URI.href, $parent.$index, $index);" class="sf-checkbox" style="display: none">
+										<span custombox></span>
+										<div class="chain-blog-content">
+										    <h6 ><label>{{ blog.Title }}</label></h6>
+											<div class="chain-blog-description">{{ blog.Description }}</div>
+										</div>
+									</li>
+								</ul>
 
-						</li>
-						<li ng-show="msg.noChains">_("So far there are no providers. Start with Add New Provider button.");</li>
-					</ul>
-		      </div>
-		    </div>
+							</li>
+							<li ng-show="msg.noChains">_("So far there are no providers. Start with Add New Provider button.");</li>
+						</ul>
+			      </div>
+			    </div>
 
-		    <!-- end of chain blog tab content -->
+			    <!-- end of chain blog tab content -->
 
 
 
+			</div>
 		</div>
+
 	</div>
  	
 	<script>

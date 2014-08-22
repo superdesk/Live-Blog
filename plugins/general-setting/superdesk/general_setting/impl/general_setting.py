@@ -12,9 +12,9 @@ Contains the SQL alchemy meta for the configuration API.
 
 from ally.container.ioc import injected
 from ally.container.support import setup
-from general_setting.api.general_setting import IGeneralSettingService,\
+from superdesk.general_setting.api.general_setting import IGeneralSettingService,\
     QGeneralSetting
-from general_setting.meta.general_setting import GeneralSettingMapped
+from superdesk.general_setting.meta.general_setting import GeneralSettingMapped
 from sql_alchemy.impl.keyed import EntityServiceAlchemy
 
 # --------------------------------------------------------------------

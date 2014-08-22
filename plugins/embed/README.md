@@ -35,7 +35,7 @@ a) With [Docco](http://jashkenas.github.io/docco/), the most used documentation 
 Docco doesn't provide an index.html file for docs folder nor a structure for the content.
 
 ```
-grunt docco:all # for source files
+grunt docco:scripts # for source files
 grunt docco:test # for test files
 ```
 
@@ -46,7 +46,7 @@ Docco Husky is not being maintained. Last commit was done two years ago.
 plugin-liveblog-embed-server is running a fork from `nistormihai` repo, kept up to date by the owner of the repo.
 
 ```
-grunt docco-husky:all # for source files
+grunt docco-husky:scripts # for source files
 grunt docco-husky:test # for test files
 ```
 
