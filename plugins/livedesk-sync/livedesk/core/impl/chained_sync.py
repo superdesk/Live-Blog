@@ -204,7 +204,8 @@ class ChainedSyncProcess:
         usersForIcons = {}
         for post in msg['PostList']:
             try:
-                if post['IsPublished'] != 'True': continue
+                toUnpublish = False
+                if post['IsPublished'] != 'True': toUnpublish = True
                 
                 insert = False 
                 if 'Uuid' in post: 
@@ -217,11 +218,12 @@ class ChainedSyncProcess:
                     
                 if localPost == None:  
                     if 'DeletedOn' in post: continue    
+                    if toUnpublish: continue
                     localPost = Post()
                     localPost.Uuid = uuid
                     insert = True
                 
-                if 'DeletedOn' not in post:       
+                if ('DeletedOn' not in post) and (not toUnpublish):
                     localPost.DeletedOn = None
 
                     #TODO: workaround, read again the Author because sometimes we get access denied
@@ -249,9 +251,9 @@ class ChainedSyncProcess:
                         except KeyError:
                             pass
                     
-                else:
+                elif 'DeletedOn' in post:
                     localPost.DeletedOn = datetime.strptime(post['DeletedOn'], '%m/%d/%y %I:%M %p')
-                            
+
                 # prepare the blog sync model to update the change identifier
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
 
@@ -260,6 +262,9 @@ class ChainedSyncProcess:
                     self.blogPostService.update(blogSync.Blog, localPost)
                     if ('PutUp' in post) and (post['PutUp'] in (True, 'True')):
                         self.blogPostService.moveUp(blogSync.Blog, localPost.Id)
+
+                if toUnpublish and localPost.PublishedOn:
+                    self.blogPostService.unpublish(blogSync.Blog, localPost.Id)
 
                 # update blog sync entry
                 blogSync.LastActivity = datetime.now().replace(microsecond=0)
