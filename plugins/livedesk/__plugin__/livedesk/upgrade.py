@@ -510,12 +510,12 @@ def populateVersionConfig():
     if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'minor').count() == 0:
         generalSetting.Key = 'minor'
         generalSetting.Value = '6'
-        generalSettingService.insert(1, generalSetting) 
+        generalSettingService.insert(generalSetting) 
     
     if session.query(GeneralSettingMapped).filter(GeneralSettingMapped.Key == 'revision').count() == 0:
         generalSetting.Key = 'revision'
         generalSetting.Value = '0'
-        generalSettingService.insert(1, generalSetting)    
+        generalSettingService.insert(generalSetting)    
 
 @app.populate(priority=PRIORITY_FINAL)
 def upgradeSeoChangedOnFix(): 
