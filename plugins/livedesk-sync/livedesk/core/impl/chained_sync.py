@@ -235,7 +235,6 @@ class ChainedSyncProcess:
                     localPost.Meta = post['Meta'] if 'Meta' in post else None
                     localPost.ContentPlain = post['ContentPlain'] if 'ContentPlain' in post else None
                     localPost.Content = post['Content'] if 'Content' in post else None
-                    localPost.Order = post['Order'] if 'Order' in post else None
                     localPost.CreatedOn = current_timestamp()              
                     if blogSync.Auto: 
                         localPost.PublishedOn = current_timestamp()
@@ -257,8 +256,11 @@ class ChainedSyncProcess:
                 blogSync.CId = int(post['CId']) if blogSync.CId is None or int(post['CId']) > blogSync.CId else blogSync.CId
 
                 if insert: self.blogPostService.insert(blogSync.Blog, localPost)
-                else: self.blogPostService.update(blogSync.Blog, localPost)
-                
+                else:
+                    self.blogPostService.update(blogSync.Blog, localPost)
+                    if ('PutUp' in post) and (post['PutUp'] in (True, 'True')):
+                        self.blogPostService.moveUp(blogSync.Blog, localPost.Id)
+
                 # update blog sync entry
                 blogSync.LastActivity = datetime.now().replace(microsecond=0)
                 self.blogSyncService.update(blogSync)

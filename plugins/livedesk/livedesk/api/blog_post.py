@@ -194,6 +194,12 @@ class IBlogPostService:
         Reorder the post.
         '''
 
+    @call(method=UPDATE, webName='MoveUp')
+    def moveUp(self, blogId:Blog.Id, postId:Post.Id):
+        '''
+        Move the post up.
+        '''
+
     @call(replaceFor=IPostService)
     def delete(self, id:Post.Id) -> bool:
         '''
