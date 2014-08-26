@@ -434,14 +434,21 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         elif before: order += 1
         else: order -= 1
 
-        sql = self.session().query(BlogPostMapped)
-        sql = sql.filter(BlogPostMapped.Blog == blogId)
-        sql = sql.filter(BlogPostMapped.Id == postId)
-
         post = self.getById(blogId, postId)
         assert isinstance(post, BlogPostMapped)
 
         post.Order = order
+        post.CId = self._nextCId()
+        self.session().merge(post)
+
+    def moveUp(self, blogId, postId):
+        '''
+        @see: IBlogPostService.moveUp
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, BlogPostMapped)
+
+        post.Order = self._nextOrdering(blogId)
         post.CId = self._nextCId()
         self.session().merge(post)
 
