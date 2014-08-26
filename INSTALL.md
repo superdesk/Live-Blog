@@ -45,14 +45,14 @@ But while it's not officially supported you can try to figure it out on your own
 ## Installation
 The folowing installation steps in generally are applicable to all OSs and any exception is specified.
 
-1. Change to the directory you choose to install the application and clone Ally-Py's master branch there. (instead of `master` it should be smth like `2.0.0-beta3`)
+1. Change to the directory you choose to install the application and clone Ally-Py's master branch there. (instead of `master` branch it will be better to use stabilized tag, like `2.0.1-stable`, go [here] (https://github.com/sourcefabric/Ally-Py/releases) for the list of versions)
 
         $ git clone https://github.com/sourcefabric/Ally-Py.git -b master ally-py
         
    >Note: 
    >Depending by your OS you can choose a different location to install the application like /opt, c:\, etc.
         
-2. Change to `ally-py` directory and clone LiveBlog's master branch there to directory `live-blog`.  (instead of `master` it should be smth like `2.0.0-beta13`)
+2. Change to `ally-py` directory and clone LiveBlog's master branch there to directory `live-blog`.  (instead of `master` use latest stable tag, like `2.0.1-stable`, list is [here] (https://github.com/superdesk/Live-Blog/releases))
 
         $ cd ally-py
         $ git clone https://github.com/superdesk/Live-Blog.git -b master live-blog
