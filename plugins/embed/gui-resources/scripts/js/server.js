@@ -100,8 +100,14 @@ server.get('/', function(req, res) {
             res.redirect(config.paths.docco);
         }
     } else {
-        cp.exec('nodejs ' + path.join(__dirname, 'app.js'), {env: {NODE_ENV: 'production', liveblog: JSON.stringify(liveblog)}}, function(error, stdout, stderr) {
-            var out = JSON.parse(stdout);
+        cp.exec('"' + process.execPath + '" ' + path.join(__dirname, 'app.js'), {env: {NODE_ENV: 'production', liveblog: JSON.stringify(liveblog)}}, function(error, stdout, stderr) {
+            var out = {};
+            try {
+                out = JSON.parse(stdout);
+            } catch (jsonerror) {
+                out.code = 400;
+                out.body = jsonerror.message;
+            }
             res.send(out.code, out.body);
         });
     }
