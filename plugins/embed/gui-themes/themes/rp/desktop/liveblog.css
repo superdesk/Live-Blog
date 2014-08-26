@@ -160,6 +160,11 @@
 	margin-bottom:20px;
 	display: none;
 }
+
+.refresh-block-container:hover {
+	cursor: pointer;
+}
+
 .refresh-block {
 	background: #fff5e2;
 	border: 1px solid #ffb200;

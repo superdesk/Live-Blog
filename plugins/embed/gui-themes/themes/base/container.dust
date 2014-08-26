@@ -87,7 +87,7 @@
 {/status}
 
 {<statusNewPost}
-<p data-gimme="posts.pending-message-placeholder"></p>
+<p data-gimme="posts.pending-message-placeholder" class="new-posts-label"></p>
 {/statusNewPost}
 
 {<actionTotop}

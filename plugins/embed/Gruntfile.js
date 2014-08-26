@@ -73,6 +73,8 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-karma-coveralls');
+
     grunt.registerTask('hint', ['jshint:all', 'jscs:all']);
     grunt.registerTask('test', ['karma:once', 'mochaTest:all']);
     grunt.registerTask('build', ['hint', 'less:all', 'requirejs']);

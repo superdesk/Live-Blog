@@ -50,10 +50,8 @@ def publishJS():
 def updateDemoEmbedFile():
     if not publish_gui_resources(): return  # No publishing is allowed
     moduleName, modulePath = __name__, __file__
-    print('-------------------------------------1:', moduleName, modulePath)
     for _k in range(0, moduleName.count('.') + 1):
         modulePath = os.path.dirname(modulePath)
-    print('-------------------------------------2:', modulePath)
     path = os.path.join(modulePath, 'node_modules')
 
     cdmGUI().publishFromDir('lib/embed/scripts/js/node_modules', path)
