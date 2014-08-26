@@ -190,14 +190,16 @@ background: #f0f0f0;
 					left: 50%;
 					margin-left: -30px;
 					background: #3676be;
-					color: #fff;
-					padding: 0 5px;
-					height: @postlist-header-height - 8;
-					line-height: @postlist-header-height - 8 ;
 					text-decoration: none;
 					font-size: 10px;
 					font-weight: bold;
-					display: none;
+					a {
+						color: #fff;
+						padding: 0 5px;
+						height: @postlist-header-height - 8;
+						line-height: @postlist-header-height - 8;
+						display: none;
+					}
 					&:hover {
 						cursor: default;
 						background: #225c9c;

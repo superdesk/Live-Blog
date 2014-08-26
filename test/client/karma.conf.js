@@ -33,14 +33,20 @@ module.exports = function(config) {
             'gui-resources/scripts/js/main.js'
         ],
 
-        // preprocess matching files before serving them to the browser
-        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
-
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        reporters: ['progress', 'coverage'],
+
+        // preprocess matching files before serving them to the browser
+        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+        preprocessors: {
+            'gui-resources/scripts/js/!(build|bower_components)/*.js': 'coverage'
+        },
+        coverageReporter: {
+            type: 'lcov',
+            dir: 'coverage/'
+        },
 
         // options for junit reporter, used by Bamboo
         junitReporter: {
@@ -67,5 +73,6 @@ module.exports = function(config) {
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
         singleRun: false
+
     });
 };

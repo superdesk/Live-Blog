@@ -194,18 +194,24 @@
 					}
 				}
 				.new-posts-label {
-					margin-left: 50px;
-					font-size: 11px;
-					color: #fff;
+					position: absolute;
+					top: 4px;
+					left: 50%;
+					margin-left: -30px;
+					background: @lb-color;
+					text-decoration: none;
+					font-size: 10px;
 					font-weight: bold;
-					padding: 0;
-					height: 30px;
-					line-height: 30px;
-					display: inline-block;
-					float: left;
+					a {
+						color: #fff;
+						padding: 0 5px;
+						height: @postlist-header-height - 8;
+						line-height: @postlist-header-height - 8;
+						display: none;
+					}
 					&:hover {
-						cursor: pointer;
-						background: #464646;
+						cursor: default;
+						background: darken(@lb-color,10%);
 					}
 				}
 			}

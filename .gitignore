@@ -15,3 +15,4 @@ docs/docco/scripts/**
 !docs/docco/scripts/index.html
 docs/docco-husky/**
 screenshots/
+coverage/
