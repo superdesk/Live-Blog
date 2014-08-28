@@ -119,7 +119,7 @@ define([
 
         removePostFromCollection: function(post) {
             if (!_.isUndefined(post.get('DeletedOn')) ||
-                post.get('isPublished') === 'False') {
+                post.get('IsPublished') === 'False') {
                 this.collection.remove(post);
                 return true;
             }

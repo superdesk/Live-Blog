@@ -1,6 +1,6 @@
 # Plugin for Superdesk Live Blog embed
 [![Build Status](https://travis-ci.org/liveblog/plugin-liveblog-embed-server.png?branch=master)](https://travis-ci.org/liveblog/plugin-liveblog-embed-server)
-[![Coverage Status](https://coveralls.io/repos/liveblog/plugin-liveblog-embed-server/badge.png?branch=master)](https://coveralls.io/r/liveblog/plugin-liveblog-embed-server?branch=master)
+[![Coverage Status](https://coveralls.io/repos/liveblog/plugin-liveblog-embed-server/badge.png?branch=devel)](https://coveralls.io/r/liveblog/plugin-liveblog-embed-server?branch=devel)
 
 This plugin for Sourcefabric’s Superdesk, first released as part of Live Blog 2.0 beta,  provides a solution for ensuring that blog content is indexable by search engines. A static HTML version of each blog is now generated on the server. As a publisher, you can set your CMS to request this HTML and insert it into an article page before that page is delivered to the browser. When search engine crawlers visit the page, they will see the latest posts from the embedded blog and index them. New posts are automatically added to the page via Javascript.
 
