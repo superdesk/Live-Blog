@@ -149,6 +149,7 @@ define([
 				            	config.SeoTheme = data.BlogTheme.Id;
 				            	config.CallbackActive = data.CallbackActive;
 				            	config.CallbackURL = data.CallbackURL;
+                                config.CallbackStatus = data.CallbackStatus;
 				            	config.RefreshActive = data.RefreshActive;
 				            	config.RefreshInterval = data.RefreshInterval;
 				            	config.MaxPosts = data.MaxPosts;
