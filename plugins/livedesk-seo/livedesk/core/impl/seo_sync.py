@@ -119,7 +119,7 @@ class SeoSyncProcess:
                 log.info('Skip blog seo %d for blog %d', blogSeo.Id, blogSeo.Blog)
                 continue
             
-            key = (blogSeo.Blog, blogSeo.BlogTheme)
+            key = blogSeo.Id
             thread = self.syncThreads.get(key)
             if thread:
                 assert isinstance(thread, Thread), 'Invalid thread %s' % thread
@@ -127,11 +127,11 @@ class SeoSyncProcess:
 
             if not self.blogSeoService.checkTimeout(blogSeo.Id, self.timeout_inteval * self.sync_interval): continue
 
-            self.syncThreads[key] = Thread(name='blog %d seo' % blogSeo.Blog,
+            self.syncThreads[key] = Thread(name='blog seo %d for blog %d' % (blogSeo.Id, blogSeo.Blog),
                                            target=self._syncSeoBlog, args=(blogSeo,))
             self.syncThreads[key].daemon = True
             self.syncThreads[key].start()
-            log.info('Seo thread started for blog id %d and theme id %d', blogSeo.Blog, blogSeo.BlogTheme)   
+            log.info('Seo thread started for blog seo %d, blog %d and theme %d', blogSeo.Id, blogSeo.Blog, blogSeo.BlogTheme)   
         log.info('End seo blog synchronization')
 
     def _syncSeoBlog(self, blogSeo):
@@ -150,6 +150,7 @@ class SeoSyncProcess:
             netloc = path
         host_url = urlunparse((scheme, netloc, '', '', '', ''))
         
+        lastCId = blogSeo.LastCId
         self.blogSeoService.getLastCId(blogSeo)
         blog = self.blogService.getBlog(blogSeo.Blog)
         theme = self.blogThemeService.getById(blogSeo.BlogTheme)
@@ -173,12 +174,14 @@ class SeoSyncProcess:
         except HTTPError as e:
             blogSeo.CallbackStatus = e.read().decode(encoding='UTF-8')
             blogSeo.LastBlocked = None 
+            blogSeo.LastCId = lastCId
             self.blogSeoService.update(blogSeo)
             log.error('Read problem on %s, error code with message: %s ' % (str(url), blogSeo.CallbackStatus))
             return
         except Exception as e:  
             blogSeo.CallbackStatus = 'Can\'t access the HTML generation server: ' + self.html_generation_server
             blogSeo.LastBlocked = None 
+            blogSeo.LastCId = lastCId
             self.blogSeoService.update(blogSeo)
             log.error('Read problem on accessing %s' % (self.html_generation_server, ))
             return
@@ -200,6 +203,7 @@ class SeoSyncProcess:
             log.error('Fail to publish the HTML file on CDM %s' % e)
             blogSeo.CallbackStatus = 'Fail to publish the HTML file on CDM'
             blogSeo.LastBlocked = None 
+            blogSeo.LastCId = lastCId
             self.blogSeoService.update(blogSeo)
             return
         
