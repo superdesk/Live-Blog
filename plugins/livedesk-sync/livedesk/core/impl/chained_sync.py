@@ -174,7 +174,7 @@ class ChainedSyncProcess:
         if not scheme: scheme  = 'http'
 
         q = parse_qsl(query, keep_blank_values=True)
-        q.append(('asc', 'cId'))
+        q.append(('asc', 'order'))
         q.append(('cId.since', blogSync.CId if blogSync.CId is not None else 0))
 
         url = urlunparse((scheme, netloc, path, params, urlencode(q), fragment))
