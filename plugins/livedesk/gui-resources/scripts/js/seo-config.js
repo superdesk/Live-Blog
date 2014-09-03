@@ -104,7 +104,7 @@ define([
         		RefreshActive: 'True',
         		CallbackURL: '',
         		RefreshInterval: 60,
-        		MaxPosts: 10,
+        		MaxPosts: 20,
         		HtmlURL: '',
       	  		LastSync: 0
         	};
@@ -149,6 +149,7 @@ define([
 				            	config.SeoTheme = data.BlogTheme.Id;
 				            	config.CallbackActive = data.CallbackActive;
 				            	config.CallbackURL = data.CallbackURL;
+                                config.CallbackStatus = data.CallbackStatus;
 				            	config.RefreshActive = data.RefreshActive;
 				            	config.RefreshInterval = data.RefreshInterval;
 				            	config.MaxPosts = data.MaxPosts;
