@@ -80,6 +80,7 @@ class BlogSeoServiceAlchemy(EntityServiceAlchemy, IBlogSeoService):
     
         if blogSeo.LastCId is None:
             blogSeo.LastCId = 0  
+            blogSeo.CallbackStatus = ''
             blogSeo.NextSync = datetime.datetime.now().replace(microsecond=0)
             blogSeo.ChangedOn = blogSeo.NextSync  
                  
