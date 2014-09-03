@@ -104,7 +104,7 @@ define([
         		RefreshActive: 'True',
         		CallbackURL: '',
         		RefreshInterval: 60,
-        		MaxPosts: 10,
+        		MaxPosts: 20,
         		HtmlURL: '',
       	  		LastSync: 0
         	};
