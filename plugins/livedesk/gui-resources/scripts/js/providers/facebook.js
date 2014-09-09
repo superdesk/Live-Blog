@@ -24,11 +24,11 @@ define('providers/facebook', [
             tokenInterval: 0,
             tokenRefreshTime: 3000,         
             data: [],
-            init : function() {
+            init : function(author, appId) {
                 if(!this.initialized || !this.el.children(":first").length) {
                     //this.render();
                     this.adaptor._parent = this;
-                    this.adaptor.init();
+                    this.adaptor.init(author, appId);
                 }
                 this.initialized = true;
             },
