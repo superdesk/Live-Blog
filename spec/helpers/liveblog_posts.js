@@ -7,6 +7,7 @@ var utils = require('./utils');
 var getIdFromHref = utils.getIdFromHref;
 
 exports.postCreate = postCreate;
+exports.postEdit = postEdit;
 exports.postPublish = postPublish;
 exports.postCreateAndPublish = postCreateAndPublish;
 
@@ -26,6 +27,26 @@ function postCreate(args, callback) {
         }
     }, function(e, r, j) {
         callback(e, r, j, getIdFromHref(j.href));
+    });
+}
+
+function postEdit(args, callback) {
+    callback = callback || function() {};
+    args = args || {};
+    var newContent = args.newContent || 'Test post',
+        blogId = args.blogId || protractor.getInstance().params.blogId,
+        postId = args.postId;
+    if (!postId) {
+        throw Error('No postId provided');
+    }
+    backendRequestAuth({
+        method: 'PUT',
+        uri: '/my/LiveDesk/Blog/' + blogId + '/Post/' + postId,
+        json: {
+            'Content': newContent
+        }
+    }, function(e, r, j) {
+        callback(e, r, j);
     });
 }
 

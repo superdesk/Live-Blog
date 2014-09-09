@@ -1,8 +1,11 @@
-/*global describe, beforeEach, expect, it, element, by, jasmine */
+/*global describe, beforeEach, expect, it, element, by */
 
+var randomText = require('./helpers/utils.js').UUIDv4;
 var gotoUri = require('./helpers/liveblog_frontend').gotoUri;
 var uploadFixtures = require('./helpers/liveblog_fixtures').uploadFixtures;
-var postCreateAndPublish = require('./helpers/liveblog_posts.js').postCreateAndPublish;
+var liveblogBackend = require('./helpers/liveblog_posts.js');
+var postCreateAndPublish = liveblogBackend.postCreateAndPublish;
+var postEdit = liveblogBackend.postEdit;
 
 // Protractor Params:
 var pp = protractor.getInstance().params;
@@ -37,29 +40,55 @@ describe('Embed', function() {
             });
         });
 
-        it(' is updates to show just added post', function() {
+        it(' is updating to show just added post', function() {
+            var postContent = randomText();
             postCreateAndPublish({
-                postContent: 'test123'
+                postContent: postContent
             });
-            console.log(
-                '[POST] published:' + jasmine.pp(Date())
-            );
             browser.wait(function() {
                 return browser.isElementPresent(
                     by.cssContainingText(
                         'div.liveblog-content p.post-text',
-                        'test123'
+                        postContent
+                    )
+                );
+            }, pp.maxTimeout);
+            expect(true).toBe(true);
+        }, pp.maxTimeout);
+
+        it(' is updating to show just edited post', function() {
+            var postContent = randomText(),
+                newContent = randomText(),
+                postId;
+            postCreateAndPublish({
+                postContent: postContent
+            }, function(e, r, j, id) {
+                postId = id;
+            });
+            browser.wait(function() {
+                return browser.isElementPresent(
+                    by.cssContainingText(
+                        'div.liveblog-content p.post-text',
+                        postContent
                     )
                 );
             }, pp.maxTimeout)
             .then(function() {
-                console.log(
-                    '[POST] displayed:' + jasmine.pp(Date())
-                );
+                postEdit({
+                        postId: postId,
+                        newContent: newContent
+                });
+                browser.wait(function() {
+                    return browser.isElementPresent(
+                        by.cssContainingText(
+                            'div.liveblog-content p.post-text',
+                            newContent
+                        )
+                    );
+                }, pp.maxTimeout);
+                expect(true).toBe(true);
             });
-            expect(true).toBe(true);
-        }, pp.maxTimeout);
-
+        }, pp.maxTimeout * 2);
     });
 
 });

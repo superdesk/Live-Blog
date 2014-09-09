@@ -73,12 +73,10 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-karma-coveralls');
-
     grunt.registerTask('hint', ['jshint:all', 'jscs:all']);
     grunt.registerTask('test', ['karma:once', 'mochaTest:all']);
     grunt.registerTask('build', ['hint', 'less:all', 'requirejs']);
-    grunt.registerTask('ci:travis', ['hint', 'karma:travis', 'mochaTest:all']);
+    grunt.registerTask('ci:travis', ['hint', 'karma:travis', 'mochaTest:all', 'coveralls']);
     grunt.registerTask('ci:bamboo', ['karma:bamboo', 'mochaTest:bamboo']);
     grunt.registerTask('default', ['githooks', 'server']);
 };

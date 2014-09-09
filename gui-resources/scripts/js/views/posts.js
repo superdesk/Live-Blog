@@ -143,6 +143,9 @@ define([
         // Render `post` if `flag.autoRender: true` or if loading the next page,
         // otherwise add it as a pending post.
         checkPending: function(post) {
+            if (this.removePostFromCollection(post)) {
+                return;
+            }
             // `post.get('updateItem')` returns false for next page loading.
             if (!this.flags.autoRender && post.get('updateItem')) {
                 post.set('pending', true);
