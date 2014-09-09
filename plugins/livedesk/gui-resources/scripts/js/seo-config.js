@@ -2,8 +2,9 @@ define([
 	'jquery',
 	'angular',
 	'gizmo/superdesk',
-	config.guiJs('livedesk', 'authorization')
-	], function($, angular, Gizmo, auth){
+	config.guiJs('livedesk', 'authorization'),
+    'interceptor'
+	], function($, angular, Gizmo, auth, interceptor){
 		function getGizmoUrl(path) {
 	        var url = new Gizmo.Url(path);
 	        return url.get();
@@ -11,19 +12,25 @@ define([
         function relativeToAbsolute(rel) {
             return window.location.protocol + '//' + window.location.host + rel;
         }
-	    var angularHeaders = $.extend({}, auth, { 'Content-Type': 'text/json' });
 		var seoconf = angular.module('seoConf',[]);
 		seoconf.config(['$interpolateProvider', function($interpolateProvider) {
 			$interpolateProvider.startSymbol('{{ ');
 			$interpolateProvider.endSymbol(' }}');
 		}]);
-		seoconf.config(function($httpProvider){
+        seoconf.run(function($http){
+            var authObject = {
+                'Authorization': localStorage.getItem('superdesk.login.session')
+            }
+            var angularHeaders = $.extend({}, authObject, { 'Content-Type': 'text/json' });
+            $http.defaults.headers.get = authObject;
+            $http.defaults.headers.post = angularHeaders;
+            $http.defaults.headers.put = angularHeaders;
+            $http.defaults.headers.delete = authObject;
+        });
+		seoconf.config(['$httpProvider', function($httpProvider){
 			delete $httpProvider.defaults.headers.common['X-Requested-With'];
-			$httpProvider.defaults.headers.get = auth;
-			$httpProvider.defaults.headers.post = angularHeaders;
-			$httpProvider.defaults.headers.put = angularHeaders;
-			$httpProvider.defaults.headers.delete = auth;
-		});
+            $httpProvider.interceptors.push(interceptor);
+		}]);
 
 		seoconf.factory('seoInterfaceData', ['$http', '$q', function($http, $q){
 			return {
