@@ -7,22 +7,10 @@ define([
     
     $.extend(providers.facebook, {
         adaptor: {
-            init: function() {
+            init: function(author, appId) {
                 var self = this;
-                new $.restAuth('Data/Collaborator/')
-                    .xfilter('Id, Source.Key')
-                    .request({data: { 'qs.name': 'facebook'}})
-                    .done(function(collabs) {
-                        self.appId = '';
-                        if($.isDefined(collabs[0])) {
-                            self.author = collabs[0].Id;
-                            //self.appId = '540742825976268';
-                            if ( collabs[0].Source.Key ) {
-                                self.appId = collabs[0].Source.Key;
-                            }
-                            self._parent.loadFbConnect(self.appId);
-                        } 
-                    });
+                self.author = author;
+                self._parent.loadFbConnect(appId);                
             },
             universal: function(obj) {
                 var meta =  jQuery.extend(true, {}, obj);
