@@ -11,6 +11,3 @@ before_script:
 cache:
     - node_modules
     - gui-resources/scripts/js/bower_components
-
-after_success:
-    - grunt coveralls
