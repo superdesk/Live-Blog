@@ -47,7 +47,7 @@
     "path": "^0.4.9",
     "qs": "^0.6.6",
     "request": "~2.33.0",
-    "requirejs": "^2.1.13"
+    "requirejs": "2.1.13"
   },
   "devDependencies": {
     "chai": "^1.9.1",
