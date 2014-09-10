@@ -77,6 +77,7 @@
     "karma-requirejs": "^0.2.1",
     "karma-sinon-chai": "^0.1.5",
     "mocha": "^1.18.2",
+    "mocha-lcov-reporter": "0.0.1",
     "phantomjs": "^1.9.7-15",
     "protractor": "^0.23.1",
     "protractor-screenshot-reporter": "~0.0.4",

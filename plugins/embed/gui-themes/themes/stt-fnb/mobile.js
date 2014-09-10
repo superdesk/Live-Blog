@@ -9,6 +9,7 @@ define([
     'plugins/social-share',
     'plugins/wrappup-toggle',
     'plugins/user-comments',
+    'plugins/status',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -20,7 +21,8 @@ define([
             'permanent-link',
             'social-share',
             'wrappup-toggle',
-            'user-comments'
+            'user-comments',
+            'status'
         ]
     };
 });
