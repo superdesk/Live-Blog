@@ -3,6 +3,7 @@
     'gizmo/superdesk',
     'angular',
     config.guiJs('livedesk', 'seo-config'),
+    config.guiJs('livedesk', 'localization-config'),
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
     config.guiJs('livedesk', 'views/configure/themes'),
@@ -19,7 +20,7 @@
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
-], function( $, Gizmo, angular, SeoConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, GeneralSettings, uploadCom, UploadView ) {
+], function( $, Gizmo, angular, SeoConfig, LocalizationConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, GeneralSettings, uploadCom, UploadView ) {
    var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
@@ -205,7 +206,8 @@
                 // TODO: move this in emebed view or in theme view
                 self.el.find('#emebed-script').focus(function() { $(this).select(); } );
 
-                angular.bootstrap(document, ['seoConf']);
+                angular.bootstrap(document.getElementById('seo'), ['seoConf']);
+                angular.bootstrap(document.getElementById('localization'), ['localizationConf']);
                 var angScope = angular.element($('[name="seoAngular"]')).scope();
                 self.dfdGeneralSettings.done(function(){
                     self.generalSettings.each(function(idx, model){

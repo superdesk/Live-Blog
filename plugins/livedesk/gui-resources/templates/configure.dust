@@ -13,6 +13,7 @@
 				  <li><a href="#adverts" data-toggle="tab">_('Advertisement');</a></li>
 				  <li><a href="#seo" data-toggle="tab">_('SEO');</a></li>
 				  <li><a href="#api" data-toggle="tab">_('Api keys');</a></li>
+				  <li><a href="#localization" data-toggle="tab">_('Localization');</a></li>
 				</ul>
 				<div class="tab-content">
 				  	<div class="tab-pane active" id="general">
@@ -192,6 +193,38 @@
 				  		<fieldset>
 			        		<h4 class="first-title">_('Api keys');</h4>
 			        		<div class="api-keys"></div>
+			        	</fieldset>
+				  	</div>
+				  	<div class="tab-pane" id="localization">
+				  		<fieldset ng-controller="localizationCtrl">
+			        		<h4 class="first-title">_('Localization');</h4>
+			        		<div class="control-group">
+								<label class="control-label">_("Upload PO file");</label>
+								<div class="controls">
+								<input type="file" fileread="poFile" style="display:inline!important"/>&nbsp;
+								<button class="btn btn-success" ng-click="uploadPo()">_("Upload PO file");</button>&nbsp;
+								<span ng-show="switchUploadText">{{ uploadText }}</span>
+								</div>
+							</div>
+			        		<div class="control-group">
+								<label class="control-label">_('Select language');</label>
+								<div class="controls">
+									<select ng-model="myLang" ng-options="language.Code as language.Name for language in languages"></select>
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label"></label>
+								<div class="controls">
+									<a href="{{ downloadLink }}" target="_blank">_('Download PO file');</a>
+								</div>
+							</div>
+							<div class="control-group">
+								<label class="control-label">_("Actions");</label>
+								<div class="controls">
+									<button class="btn btn-success" ng-click="runActions()">_("Manualy run actions");</button>&nbsp;<br />
+									<span ng-show="switchActionText">{{ actionText }}</span>
+								</div>
+							</div>
 			        	</fieldset>
 				  	</div>
 				</div>
