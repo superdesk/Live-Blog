@@ -125,7 +125,7 @@ def upgradeLiveBlog14():
     session.execute("ALTER TABLE collaborator CHARACTER SET utf8")
 
     # add unique constraint to source
-    session.execute("ALTER TABLE source ADD UNIQUE uix_source_type_name (`name`, `fk_type_id`)")
+    #session.execute("ALTER TABLE source ADD UNIQUE uix_source_type_name (`name`, `fk_type_id`)")
 
     # add origin name column to source
     session.execute("ALTER TABLE source ADD COLUMN origin_name VARCHAR(255)")
@@ -283,8 +283,8 @@ def upgradeSourceUnicityFix():
     try:
         session.execute('ALTER TABLE `source` DROP KEY `uix_source_type_name`')
     except (ProgrammingError, OperationalError): return
-    session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
-                'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')    
+    #session.execute('ALTER TABLE `source` ADD CONSTRAINT `uix_source_type_name` '
+    #            'UNIQUE KEY (`name`, `fk_type_id`, `uri`)')    
     session.commit()
     session.close()
     
