@@ -103,7 +103,7 @@ define([
 			}
 		}]);
 
-		seoconf.controller('seoInterface', function($scope, $http, seoInterfaceData, $q) {
+		seoconf.controller('seoInterface', function($scope, $http, seoInterfaceData, $q, $interval) {
 			$scope.cleanConfig = {
         		Id: 0,
         		SeoTheme: '1',
@@ -273,23 +273,23 @@ define([
                 }
                 
                 if ($scope.configs[i].htmlInterval) {
-                    clearInterval($scope.configs[i].htmlInterval);
+                    $interval.cancel($scope.configs[i].htmlInterval);
                 }
 
                 var counter = 0;
-                $scope.configs[i].htmlInterval = setInterval(function() {
+                $scope.configs[i].htmlInterval = $interval(function() {
                     $http({method: 'GET', url: seoUrl, headers: {'X-Format-DateTime': "yyyy-MM-ddTHH:mm:ss'Z'"}}).
                     success(function(data, status, headers, config) {
                         //return the data from the newly created seo config object
                         var changedOn = Date.parse(data.ChangedOn);
                         counter ++;
                         if (counter == 20) {
-                            clearInterval($scope.configs[i].htmlInterval);
+                            $interval.cancel($scope.configs[i].htmlInterval);
                             var text = _('The HTML generation process is taking too long, please refresh the page at a later time');
                             $scope.configs[i].HtmlWaitText = text.toString();
                         }
                         if (data.CallbackStatus) {
-                            clearInterval($scope.configs[i].htmlInterval);
+                            $interval.cancel($scope.configs[i].htmlInterval);
                             $scope.configs[i].HtmlURLSwitch = false;
                             $scope.configs[i].HtmlWaitSwitch = false;
                             $scope.configs[i].CallbackStatusText = _('Result: ');
@@ -299,7 +299,7 @@ define([
                         if (data.LastSync) {
                             var LastSyncOn = Date.parse(data.LastSync);
                             if ( LastSyncOn >= changedOn) {
-                                clearInterval($scope.configs[i].htmlInterval);
+                                $interval.cancel($scope.configs[i].htmlInterval);
                                 $scope.configs[i].HtmlURL = relativeToAbsolute(data.HtmlURL);
                                 var urlText = _('SEO html');
                                 $scope.configs[i].HtmlURLText = urlText.toString();
@@ -313,9 +313,9 @@ define([
             //loop through all configs and save them one by one
             $scope.removeConfig = function(index) {
             	if ($scope.configs[index].Id) {
-                    //clearInterval if it exists
+                    //$interval.cancel if it exists
                     if ($scope.configs[index].htmlInterval) {
-                        clearInterval($scope.configs[index].htmlInterval);
+                        $interval.cancel($scope.configs[index].htmlInterval);
                     }
 					seoInterfaceData.removeConfig($scope.configs[index].Id).then(function(){
 	            		$scope.configs.splice(index, 1);
