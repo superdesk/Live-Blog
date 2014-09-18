@@ -9,8 +9,9 @@
     config.guiJs('livedesk', 'views/configure/api-keys'),
     'gizmo/superdesk/action',
     config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('livedesk', 'models/general-settings'),    
     config.guiJs('media-archive', 'upload'),
-    config.guiJs('media-archive', 'adv-upload'),
+    config.guiJs('media-archive', 'adv-upload'), 
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!core>layouts/footer',
     'tmpl!core>layouts/footer-static',
@@ -18,7 +19,7 @@
     'tmpl!livedesk>configure',
     'tmpl!livedesk>configure/languages',
     'tmpl!livedesk>providers/edit/imagelink',
-], function( $, Gizmo, angular, SeoConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, uploadCom, UploadView ) {
+], function( $, Gizmo, angular, SeoConfig, LanguagesView, BlogTypesView, ThemesView, ApiKeysView, Action, BlogModel, GeneralSettings, uploadCom, UploadView ) {
    var uploadView = new UploadView({thumbSize: 'large'});
    return Gizmo.View.extend({
         events: {
@@ -27,11 +28,17 @@
             '[data-action="cancel"]': { 'click': 'close' },
             '[name="Language"]': { change: 'changeLanguage' },
             '[name="FrontendServer"]': { focusout: 'changeFrontendServer', keydown: 'keydownFrontendServer' },
+            '[name="EmbedSwitch"]': { change: 'switchEmbed' },
             '[name="ProviderLink"]': { click: 'selectInput', focusIn: 'selectInput' },
             "[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
         },
         init: function() {
             var self = this;
+            self.generalSettings = Gizmo.Auth(new Gizmo.Register.GeneralSettings());
+            self.dfdGeneralSettings =
+            self.generalSettings.param('frontend','group')
+                .xfilter('Value,Key')
+                .sync();
             $(uploadView).on('complete', function(){
                 self.handleImageUpload();
             });
@@ -89,7 +96,8 @@
                     'VerificationToggle': self.el.find('[name="VerificationToggle"]:checked').val(),
                     'MediaToggle': self.el.find('[name="MediaToggle"]').is(':checked'),
                     'MediaUrl': mediaUrl,
-                    'UserComments': self.el.find('[name="UserComments"]').is(':checked')
+                    'UserComments': self.el.find('[name="UserComments"]').is(':checked'),
+                    'EmbedSwitch': self.el.find('[name="EmbedSwitch"]').is(':checked')
                 },
                 data = {
                     Language: self.el.find('[name="Language"]').val(),
@@ -118,6 +126,10 @@
         },
         changeFrontendServer: function(evt){
             this.themesView.change(evt);
+        },
+        switchEmbed: function(evt) {
+            var checked = $(evt.target).closest('[name="EmbedSwitch"]').is(':checked');
+            this.themesView.changeTmpl(checked);
         },
         keydownFrontendServer: function(e){
             var code = (e.keyCode ? e.keyCode : e.which);
@@ -195,7 +207,17 @@
 
                 angular.bootstrap(document, ['seoConf']);
                 var angScope = angular.element($('[name="seoAngular"]')).scope();
-
+                self.dfdGeneralSettings.done(function(){
+                    self.generalSettings.each(function(idx, model){
+                        if(model.get('Key') === 'embed-type') {
+                            self.el.find('[name="EmbedSwitch"]').prop('checked', 
+                                model.get('Value')==='simple');
+                        }
+                    });
+                    var checked = self.el.find('[name="EmbedSwitch"]').is(':checked');
+                    self.themesView.changeTmpl(checked);
+                    self.themesView.change();                    
+                });
                 /* sf-toggle*/
                 self.el.find('.sf-toggle').each(function(i,val){
                     var additional_class="";
@@ -219,7 +241,6 @@
                         }
                     });
                 });
-
             });
             $.superdesk.hideLoader();
         }

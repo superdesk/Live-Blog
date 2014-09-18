@@ -1,0 +1,33 @@
+<div data-gimme="liveblog-embed-code"></div>
+<script type="text/javascript">
+var liveblog = (function(d){
+    var config = {
+        id: {Id},
+        theme: '{Theme}',
+        el: '[data-gimme="liveblog-embed-code"]',
+        servers: {
+            frontend: '{FrontendServer}'
+        },
+        paths: {
+            scripts: '/content/lib/embed/scripts/js/',
+            css: '/'
+        },
+        fallback: {
+            {?Language}
+            'language': '{Language}'
+            {/Language}
+        }
+    };
+    config.baseUrl = config.servers.frontend + config.paths.scripts;
+    config.loadJs = function(path) {
+                var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+                ls.type = "text/javascript"; s.async = true;
+                ls.src = path.indexOf('//') === -1 ?
+                    config.baseUrl + path + '.js?' + (config.urlArgs || 'version=' + parseInt((new Date()).getTime()/600000)):
+                    path;
+                s.parentNode.insertBefore( ls, s ); return ls;
+    };
+    config.loadJs('loader');
+    return config;
+})(document);
+</script>
