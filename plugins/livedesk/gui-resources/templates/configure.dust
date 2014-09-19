@@ -110,8 +110,8 @@
 								<div class="controls">
 									<seo-toggler toggle="htmlActive" true-value="True" false-value="False" action="toggleHtmlActive()"></seo-toggler>
 									<div class="seo-actions" ng-show="htmlActive">
-				     					<button ng-click="addSeoConfig();" class="btn btn-primary pull-right" ><i class="icon-plus icon-white"></i> _('Add new');</button>
-				     					<button ng-click="saveAllConfigs();" class="btn pull-right" ><i class="icon-tasks"></i> _('Generate All');</button>
+				     					<button type='button' ng-click="addSeoConfig();" class="btn btn-primary pull-right" ><i class="icon-plus icon-white"></i> _('Add new');</button>
+				     					<button type='button' ng-click="saveAllConfigs();" class="btn pull-right" ><i class="icon-tasks"></i> _('Generate All');</button>
 									</div>
 								</div>
 							</div>
@@ -174,8 +174,8 @@
 									<div class="control-group">
 										<label class="control-label"></label>
 										<div class="controls save">
-											<button class="btn" ng-click="save(config,$index);"><i class="icon-expand"></i> _('Generate HTML');</button>
-											<button class="btn" ng-click="removeConfig($index);" ng-show="showRemove($index)"><i class="icon-close-small1"></i> _('Remove');</button>
+											<button type='button' class="btn" ng-click="save(config,$index);"><i class="icon-expand"></i> _('Generate HTML');</button>
+											<button type='button' class="btn" ng-click="removeConfig($index);" ng-show="showRemove($index)"><i class="icon-close-small1"></i> _('Remove');</button>
 										</div>
 									</div>
 									
@@ -202,7 +202,7 @@
 								<label class="control-label">_("Upload PO file");</label>
 								<div class="controls">
 								<input type="file" fileread="poFile" style="display:inline!important"/>&nbsp;
-								<button class="btn btn-success" ng-click="uploadPo()">_("Upload PO file");</button>&nbsp;
+								<button type='button' class="btn btn-success" ng-click="uploadPo()">_("Upload PO file");</button>&nbsp;
 								<span ng-show="switchUploadText">{{ uploadText }}</span>
 								</div>
 							</div>
@@ -221,7 +221,7 @@
 							<div class="control-group">
 								<label class="control-label">_("Actions");</label>
 								<div class="controls">
-									<button class="btn btn-success" ng-click="runActions()">_("Manualy run actions");</button>&nbsp;<br />
+									<button type='button' class="btn btn-success" ng-click="runActions()">_("Manualy run actions");</button>&nbsp;<br />
 									<span ng-show="switchActionText">{{ actionText }}</span>
 								</div>
 							</div>
