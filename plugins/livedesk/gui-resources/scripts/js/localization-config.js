@@ -5,6 +5,7 @@ define([
 	config.guiJs('livedesk', 'authorization'),
     'interceptor'
 	], function($, angular, Gizmo, auth, interceptor){
+
 		function getGizmoUrl(path) {
 	        var url = new Gizmo.Url(path);
 	        return url.get();
@@ -46,17 +47,14 @@ define([
 	    		return getGizmoUrl('Admin/Plugin/livedesk_embed/PO/'+po);
 	    	}
 	    	lc.getVersion = function() {
-	    		var deffered = $q.defer();
 	    		var versionLocation = getGizmoUrl('content/lib/embed/scripts/js/version.js');
 	    		versionLocation = versionLocation.replace('resources/','');
 	    		var rand = Math.floor((Math.random() * 10000) + 1);
-	    		$http.get(versionLocation + '?version=' + rand).success(function(data){
-	    			var clean = data.replace('liveblog.callbackVersion(', '');
-	    			clean = clean.replace(');', '');
-	    			clean = JSON.stringify(eval("(" + clean + ")"));
-	    			deffered.resolve(clean);
-	    		});
-	    		return deffered.promise;
+	    		window.liveblog = {};
+				liveblog.callbackVersion = function(data) {
+					this.versionObject = data;
+				};
+	    		return $http.jsonp(versionLocation + '?version=' + rand);
 	    	}
 	    	return lc;
 	    });
@@ -114,8 +112,8 @@ define([
 	    		$scope.switchActionText = true;
 	    		actionText = _('Checking version');
 	    		$scope.actionText = actionText.toString();
-	    		locService.getVersion().then(function(data){
-	    			var versionObject = JSON.parse( data );
+	    		locService.getVersion().finally(function(data){
+	    			var versionObject = liveblog.versionObject;
 	    			var intlParam = $scope.myLang + '?version=' + versionObject.major + '.' + versionObject.minor + '.' + versionObject.revision
 	    			actionText = _('Creating internationalization cache');
 	    			$scope.actionText = actionText.toString();
