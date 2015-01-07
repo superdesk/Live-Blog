@@ -44,5 +44,9 @@ exports.config = {
                 },
             takeScreenShotsOnlyForFailedSpecs: true
         }));
+        require('jasmine-reporters');
+        jasmine.getEnv().addReporter(
+            new jasmine.JUnitXmlReporter('e2e-test-results', true, true)
+        );
     }
 };
