@@ -8,7 +8,10 @@ var getIdFromHref = utils.getIdFromHref;
 
 exports.postCreate = postCreate;
 exports.postEdit = postEdit;
+exports.postsReorder = postsReorder;
 exports.postPublish = postPublish;
+exports.postUnpublish = postUnpublish;
+exports.postDelete = postDelete;
 exports.postCreateAndPublish = postCreateAndPublish;
 
 function postCreate(args, callback) {
@@ -36,9 +39,6 @@ function postEdit(args, callback) {
     var newContent = args.newContent || 'Test post',
         blogId = args.blogId || protractor.getInstance().params.blogId,
         postId = args.postId;
-    if (!postId) {
-        throw Error('No postId provided');
-    }
     backendRequestAuth({
         method: 'PUT',
         uri: '/my/LiveDesk/Blog/' + blogId + '/Post/' + postId,
@@ -50,17 +50,57 @@ function postEdit(args, callback) {
     });
 }
 
+function postsReorder(args, callback) {
+    callback = callback || function() {};
+    args = args || {};
+    var blogId = args.blogId || protractor.getInstance().params.blogId,
+        postId = args.postId,
+        otherPostId = args.otherPostId,
+        before = args.before;
+    backendRequestAuth({
+        method: 'PUT',
+        uri: '/my/LiveDesk/Blog/' + blogId + '/Post/' + postId + '/Post/' +
+            otherPostId + '/Reorder?before=' + before.toString()
+    }, function(e, r, j) {
+        callback(e, r, j);
+    });
+}
+
 function postPublish(args, callback) {
     args = args || {};
     callback = callback || function() {};
     var blogId = args.blogId || protractor.getInstance().params.blogId,
         postId = args.postId;
-    if (!postId) {
-        throw Error('No postId provided');
-    }
     backendRequestAuth({
         method: 'POST',
         uri: '/my/LiveDesk/Blog/' + blogId + '/Post/' + postId + '/Publish',
+        json: {}
+    }, function(e, r, j) {
+        callback(e, r, j);
+    });
+}
+
+function postUnpublish(args, callback) {
+    args = args || {};
+    callback = callback || function() {};
+    var blogId = args.blogId || protractor.getInstance().params.blogId,
+        postId = args.postId;
+    backendRequestAuth({
+        method: 'POST',
+        uri: '/my/LiveDesk/Blog/' + blogId + '/Post/' + postId + '/Unpublish',
+        json: {}
+    }, function(e, r, j) {
+        callback(e, r, j);
+    });
+}
+
+function postDelete(args, callback) {
+    args = args || {};
+    callback = callback || function() {};
+    var postId = args.postId;
+    backendRequestAuth({
+        method: 'DELETE',
+        uri: '/my/Data/Post/' + postId,
         json: {}
     }, function(e, r, j) {
         callback(e, r, j);
