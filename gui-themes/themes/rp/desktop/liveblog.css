@@ -40,6 +40,11 @@
 	padding: 0;
 }
 
+#livedesk-root .liveblog-local
+{
+    width: 100%;
+}
+
 #livedesk-root blockquote {
 	border: none;
 	padding-bottom: 0px;
