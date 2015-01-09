@@ -11,6 +11,7 @@ define([
     'plugins/pending-messages',
     'plugins/stop-auto-render',
     'plugins/ivw-refresh',
+    'plugins/image-fix',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
@@ -24,7 +25,8 @@ define([
             'status',
             'pending-messages',
             'stop-auto-render',
-            'ivw-refresh'
+            'ivw-refresh',
+            'image-fix'
         ]
     };
 });

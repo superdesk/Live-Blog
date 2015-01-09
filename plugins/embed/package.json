@@ -66,6 +66,7 @@
     "grunt-karma-coveralls": "^2.5.1",
     "grunt-mocha-test": "^0.10.2",
     "grunt-open": "^0.2.3",
+    "jasmine-reporters": "^1.0.0",
     "jssha": "^1.5.0",
     "karma": "^0.12.9",
     "karma-chrome-launcher": "^0.1.3",

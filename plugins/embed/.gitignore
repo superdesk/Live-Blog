@@ -3,6 +3,7 @@ config.json
 logs/**
 server-test-results.xml
 client-test-results.xml
+e2e-test-results/
 docs/docco/test/**
 docs/docco/scripts/**
 !docs/docco/scripts/index.html
