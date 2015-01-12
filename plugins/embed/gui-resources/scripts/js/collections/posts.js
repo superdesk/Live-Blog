@@ -18,7 +18,8 @@ define([
                             'AuthorName, Author.Source.Name, ' +
                             'Author.Source.IsModifiable, ' +
                             'AuthorImage, Meta, ' +
-                            'IsPublished, Creator.FullName, Author.Source.Type.Key'
+                            'IsPublished, Creator.FullName, Author.Source.Type.Key, ' +
+                            'Creator.Address'
 //                            ['*', 'Author.Source.*', 'Creator.*'].join(',')
             },
             data: {
