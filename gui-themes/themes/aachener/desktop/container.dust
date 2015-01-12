@@ -1,0 +1,9 @@
+{>"themeBase/container"/}
+
+{<contentTop}
+    {+status}{/status}
+    {+statusNewPost}{/statusNewPost}
+    {+actionUserComment}{/actionUserComment}
+{/contentTop}
+{<contentBottomContainer}
+{/contentBottomContainer}

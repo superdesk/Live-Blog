@@ -1,0 +1,29 @@
+{>"themeBase/item/base"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<contentMainBody}
+    {+userNameContainer}{/userNameContainer}
+    <span class="post-publisher-address">{Creator.Address}</span>    
+    {+postDateContainer}{/postDateContainer}
+    {+shareContainer}{/shareContainer}
+
+    {+commentBefore}{/commentBefore}
+    <div class="post-content-full">
+        {+contentFull}
+            {+contentCoreContainer}
+                <div class="post-core-content">
+                    {+contentCore}
+                    {/contentCore}
+                </div>
+            {/contentCoreContainer}
+            {+contentAttrContainer}
+            {/contentAttrContainer}
+        {/contentFull}
+    </div>
+{/contentMainBody}
+
+{<contentSide}
+    {+userAvatar}{/userAvatar}
+{/contentSide}

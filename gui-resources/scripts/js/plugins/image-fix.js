@@ -12,7 +12,7 @@ define([
             }
             var Content = view.model.get('Content');
             // remove 'null' with or without &nbsp; trailing.
-            Content = Content.replace(/null(\n&nbsp;)?/, '');
+            Content = Content.replace(/^(null[\n\w])+(&nbsp;)?/, '');
             // replace all links that have images with the actuall image.
             Content = Content.replace(new RegExp('<a([^>]*)>(.*?)</a>', 'gi'), function(all, attr) {
                 attr.replace(/"(.*?)content\/media_archive\/image([^"]*)"/, function(link) {
