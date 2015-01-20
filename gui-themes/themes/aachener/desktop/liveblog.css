@@ -348,6 +348,7 @@
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-before {
     /*padding-bottom: 16px;*/
+    line-height: 140%;
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-after {
