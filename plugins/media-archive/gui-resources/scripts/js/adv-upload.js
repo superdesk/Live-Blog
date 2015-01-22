@@ -79,7 +79,8 @@ function($, gizmo, MA, MetaDataInfo, MetaData)
         tmpl: 'media-archive>adv-upload/archive-list-item',
         events:
         {
-            '.add-button': { 'click': 'selectSelf' }
+            '.add-button': { 'click': 'selectSelf' },
+            '': { 'click': 'selectSelf'}
         },
         tagName: 'li',
         selectSelf: function(evt)
