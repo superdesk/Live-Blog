@@ -44,6 +44,7 @@
     margin: 0;
     list-style-type: none;
     float: none;
+    background: none !important;
 }
 
 #livedesk-root a {
@@ -270,11 +271,11 @@
     position: absolute;
     /*left: -3px;*/
     /*bottom: 20px;*/
-    right: 20px;
-    bottom: -60px;
+    right: 0px;
+    bottom: -45px;
     z-index: 5;
-    width: 140px;
-    height: 24px;
+    width: 165px;
+    height: 45px;
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .share-box .social {
@@ -316,7 +317,7 @@
     position: absolute;
     top: -4px;
     right: 0px;
-    width: 65px;
+    width: 85px;
     height: 15px;
     color: #288bcf;
     font-size: 0.813em;
@@ -353,6 +354,16 @@
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-comment.comment-after {
     padding-top: 16px;
+}
+
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.youtube .post-content-full,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.instagram .post-content-full,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.link .post-content-full,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.soundcloud .post-content-full,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.flickr .post-content-full,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li.google .post-content-full {
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-content-full {
