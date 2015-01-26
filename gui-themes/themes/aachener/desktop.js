@@ -15,6 +15,7 @@ define([
     'plugins/user-comments',
     'plugins/status',
     'plugins/typekit',
+    'plugins/image-fix',
     'tmpl!theme/plugins/permanent-link',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
