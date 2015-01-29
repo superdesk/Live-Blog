@@ -1,9 +1,10 @@
 define(function() {
     'use strict';
-	return {
-		environments: {
-			'desktop': 'desktop',
-			'default': 'desktop'
-		}
-	};
+    return {
+        environments: {
+            'desktop': 'desktop',
+            'mobile': 'mobile',
+            'default': 'desktop'
+        }
+    };
 });
