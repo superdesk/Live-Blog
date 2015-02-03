@@ -1,4 +1,5 @@
 {!
+_('Permalink');
 _('to top');
 _('updated at ');
 _('new posts');
