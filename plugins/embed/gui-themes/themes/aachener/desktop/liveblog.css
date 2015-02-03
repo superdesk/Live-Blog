@@ -315,13 +315,13 @@
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .permalink {
     position: absolute;
-    top: -4px;
+    top: -2px;
     right: 0px;
     width: 85px;
     height: 15px;
     color: #288bcf;
     font-size: 0.813em;
-    background: url("img/link.png") no-repeat 0 7px;
+    background: url("img/link.png") no-repeat 0 4px;
     display: inline-block;
     padding: 0 0 0 25px;
 }
