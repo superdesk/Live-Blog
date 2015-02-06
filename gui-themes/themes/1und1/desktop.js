@@ -1,7 +1,7 @@
 'use strict';
 require.config({
     paths: {
-        'loadClientScriptUrl': '//1und1.superdesk.pro/content/lib/embed/themes/1und1/desktop/vendor/iframeresizer.min.js'
+        'loadClientScriptUrl': '//1und1.superdesk.pro/content/lib/embed/themes/1und1/desktop/vendor/iframeresizer.min'
     }
 });
 define([
