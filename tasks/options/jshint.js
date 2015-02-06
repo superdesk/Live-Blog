@@ -3,7 +3,7 @@ module.exports = {
         // When using a jshintrc file the
         // options can't be overwritten at task level
         jshintrc: true,
-        ignores: ['<%= paths.nodeModules %>**', '<%= paths.scripts %>bower_components/**', '<%= paths.build %>**']
+        ignores: ['<%= paths.nodeModules %>**', '<%= paths.scripts %>bower_components/**', '<%= paths.build %>**', '<%= paths.themes %>**/vendor/*.*']
     },
     source: {
         src: [
