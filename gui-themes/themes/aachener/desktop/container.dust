@@ -1,5 +1,4 @@
 {>"themeBase/container"/}
-
 {<contentTop}
     {+status}{/status}
     {+statusNewPost}{/statusNewPost}
