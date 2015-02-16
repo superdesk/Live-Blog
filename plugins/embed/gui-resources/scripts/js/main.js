@@ -20,6 +20,7 @@ require.config({
         'moment':                   'node_modules/moment/min/moment-with-langs',
         'moment-timezone':          'bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
         'waypoints':                'bower_components/jquery-waypoints/waypoints',
+        'font-awesome':             'bower_components/font-awesome/css/font-awesome.min',
         'themeBase':                '../../themes/base',
         'tmpl':                     'lib/require/tmpl',
         'i18n':                     'lib/require/i18n',

@@ -19,6 +19,7 @@
     "jquery": "1.11.0",
     "json2": "*",
     "jquery-waypoints": "~2.0.4",
-    "moment-timezone": "~0.1.0"
+    "moment-timezone": "~0.1.0",
+    "font-awesome": "~4.3.0"
   }
 }
