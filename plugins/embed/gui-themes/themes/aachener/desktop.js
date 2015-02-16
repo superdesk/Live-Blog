@@ -6,6 +6,7 @@ require.config({
 });
 define([
     'css!theme/liveblog',
+    'css!themeBase/vendor/font-awesome/4.3.0/css/font-awesome.min',
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
@@ -17,6 +18,7 @@ define([
     'plugins/typekit',
     'plugins/image-fix',
     'tmpl!theme/plugins/permanent-link',
+    'tmpl!theme/plugins/social-share-anchor',
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function($) {
