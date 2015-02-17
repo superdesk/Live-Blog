@@ -278,8 +278,8 @@
     right: 0px;
     bottom: -45px;
     z-index: 5;
-    width: 140px;
-    height: 22px;
+    width: 165px;
+    height: 45px;
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons .share-box .social {
@@ -340,11 +340,11 @@
     background: #F8F8F8;
     border: 1px solid #D0D0D0;
     padding: 4px 6px;
-    width: 180px;
+    width: 165px;
     /*bottom: 18px;*/
     /*left: 66px;*/
-    bottom: -37px;
-    right: 20px;
+    bottom: -21px;
+    right: 0px;
 }
 
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-buttons input:focus {
