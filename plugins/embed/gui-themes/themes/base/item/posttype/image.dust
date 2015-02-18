@@ -1,2 +1,22 @@
-{>"themeBase/item/posttype/base"/}
-{<item_class}normal{/item_class}
+{>"{baseItem}"/}
+{<itemClass}image{/itemClass}
+
+{<contentCore}
+    {+contentExternalContainer}{/contentExternalContainer}
+{/contentCore}
+
+{<contentExternal}
+    {+extenalImageContainer}{/extenalImageContainer}
+{/contentExternal}
+
+{<externalImageLink}
+{Meta.Content.href}
+{/externalImageLink}
+
+{<externalImageSrc}
+{Meta.Content.href}
+{/externalImageSrc}
+
+{<externalImageAlt}
+{Meta.caption}
+{/externalImageAlt}
