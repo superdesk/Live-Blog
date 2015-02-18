@@ -592,7 +592,8 @@
 /*	margin-bottom: 5px; #D# */
 }
 
-#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external-image-link .post-external-image .post-external-image-img
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external-image-link .post-external-image .post-external-image-img,
+#livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external-image-link .post-external-image .post-external-image img
 {
 	max-width: 100%;
 }
