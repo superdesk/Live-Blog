@@ -1,5 +1,5 @@
 FULLPATH=$(echo $PWD)
-ALLYPATH=`dirname "$FULLPATH"`
+ALLYPATH=`dirname "${FULLPATH}"`
 
 ALLYCOM=${ALLYPATH}/components/
 PYTHONPATH=${PYTHONPATH}:${ALLYCOM}ally
