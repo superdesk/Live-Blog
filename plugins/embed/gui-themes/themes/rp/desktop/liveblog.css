@@ -596,6 +596,8 @@
 #livedesk-root .liveblog-container .liveblog-content .liveblog-content-middle .liveblog-postlist li .post-external-image-link .post-external-image .post-external-image img
 {
 	max-width: 100%;
+    height: auto !important;
+    width: auto !important;
 }
 
 
