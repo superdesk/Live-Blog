@@ -2,7 +2,12 @@
 {<itemClass}image{/itemClass}
 
 {<contentCore}
-    {+contentExternalContainer}{/contentExternalContainer}
+    {?Meta.Content.href}
+        {+contentExternalContainer}{/contentExternalContainer}
+    {:else}
+        {+contenteBaseBefore}{/contenteBaseBefore}
+        {+contentText}{/contentText}    
+    {/Meta.Content.href}
 {/contentCore}
 
 {<contentExternal}
