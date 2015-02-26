@@ -4,8 +4,22 @@
 {<AdditionalAttributes}data-post-type="{Type.Key}"{/AdditionalAttributes}
 {<AuthorName}{AuthorName}{/AuthorName}
 
-{<ProviderSubClass}image{/ProviderSubClass}
-{<Container}{/Container}
+
+{<Container}
+    {?Meta.Content.href}
+        {:else}
+        {Content|s}
+    {/Meta.Content.href}
+{/Container}
+{<ContentContainer}
+    {?Meta.Content.href}
+        {+ContentImage}{/ContentImage}
+        {:else}
+        {+ContentImage}{/ContentImage}
+        {+ContentResult}{/ContentResult}
+    {/Meta.Content.href}
+{/ContentContainer}
+
 {<SourceAuthor}{/SourceAuthor}	
 {<WrapupAdditionalActions}{/WrapupAdditionalActions}
 {<ContainerAdditional}{/ContainerAdditional}

@@ -51,57 +51,10 @@
 		</div>
 		{/TopAnnotation}
 		<div class="result-content">
-			{+ContentImage}
-			<figure>
-				<a href="{+ContentImageLink}{/ContentImageLink}" {+ContentImageLinkAttributes}{/ContentImageLinkAttributes} title="{+ContentImageTitle}{/ContentImageTitle}" target="_blank">
-					<!-- a tag displays only for clickable images :
-						> google images
-						> flickr
-						> instagram
-					-->
-					<img src="{+ContentImageUrl}{/ContentImageUrl}" alt="{+ContentImageAlt}{/ContentImageAlt}" {+ContentImageAttributes}{/ContentImageAttributes}/>
-				</a>
-			</figure>
-			<!-- figure tag displays for:
-				> internal link
-				> twitter
-				> google link
-				> google news
-				> flickr
-				> instagram
-				> youtube
-			-->
-			{/ContentImage}
-			<div class="result-text{+EditableClass} editable {/EditableClass}" {+EditableAttribute} contenteditable="true"{/EditableAttribute}>
-				{+ContainerIframe}
-                <div class="video-container">
-				<iframe src="{+ContainerIframeUrl}{/ContainerIframeUrl}" class='{+ContainerIframeClass}{/ContainerIframeClass}' {+ContainerIframeAttributes}{/ContainerIframeAttributes}></iframe>
-                </div>
-				{/ContainerIframe}
-				{+ContainerAdditional}
-					{+ContainerTitle}
-					<h3>
-						<a href="{+ContainerTitleLink}{/ContainerTitleLink}" target="_blank">{+ContainerTitleName}{/ContainerTitleName}</a>
-					</h3>
-					{/ContainerTitle}
-					{+ContainerDescription}
-							<div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
-							<!-- p.result-description tag displays for:
-								> internal link
-								> twitter
-								> google link
-								> google news
-								> google images
-								> flickr
-								> youtube
-								> soundcloud
-							-->
-					{/ContainerDescription}
-				{/ContainerAdditional}
-				{+Container}
-					{Content|s}
-				{/Container}
-			</div>
+		{+ContentContainer}
+            {+ContentImage}{/ContentImage}
+            {+ContentResult}{/ContentResult}
+            {/ContentContainer}
 		</div>
 		{+Attributes}
 			<div class="attributes">
@@ -218,3 +171,57 @@
 	{/Meta.DeletedOn}
 	</div>
 {/PostHiddenAction}
+
+{<ContentImage}
+<figure>
+    <a href="{+ContentImageLink}{/ContentImageLink}" {+ContentImageLinkAttributes}{/ContentImageLinkAttributes} title="{+ContentImageTitle}{/ContentImageTitle}" target="_blank">
+        <!-- a tag displays only for clickable images :
+            > google images
+            > flickr
+            > instagram
+        -->
+        <img src="{+ContentImageUrl}{/ContentImageUrl}" alt="{+ContentImageAlt}{/ContentImageAlt}" {+ContentImageAttributes}{/ContentImageAttributes}/>
+    </a>
+</figure>
+<!-- figure tag displays for:
+    > internal link
+    > twitter
+    > google link
+    > google news
+    > flickr
+    > instagram
+    > youtube
+-->
+{/ContentImage}
+{<ContentResult}
+<div class="result-text{+EditableClass} editable {/EditableClass}" {+EditableAttribute} contenteditable="true"{/EditableAttribute}>
+    {+ContainerIframe}
+    <div class="video-container">
+    <iframe src="{+ContainerIframeUrl}{/ContainerIframeUrl}" class='{+ContainerIframeClass}{/ContainerIframeClass}' {+ContainerIframeAttributes}{/ContainerIframeAttributes}></iframe>
+    </div>
+    {/ContainerIframe}
+    {+ContainerAdditional}
+        {+ContainerTitle}
+        <h3>
+            <a href="{+ContainerTitleLink}{/ContainerTitleLink}" target="_blank">{+ContainerTitleName}{/ContainerTitleName}</a>
+        </h3>
+        {/ContainerTitle}
+        {+ContainerDescription}
+                <div class="result-description">{+ContainerDescriptionText}{/ContainerDescriptionText}</div>
+                <!-- p.result-description tag displays for:
+                    > internal link
+                    > twitter
+                    > google link
+                    > google news
+                    > google images
+                    > flickr
+                    > youtube
+                    > soundcloud
+                -->
+        {/ContainerDescription}
+    {/ContainerAdditional}
+    {+Container}
+        {Content|s}
+    {/Container}
+</div>
+{/ContentResult}
