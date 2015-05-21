@@ -1,6 +1,11 @@
 {>"themeBase/container"/}
 
 {<headerContainer}
+<div class="liveblog-header">
+    {+header}
+        {+blogDescription}{/blogDescription}
+    {/header}
+</div>
 {/headerContainer}
 
 {<userComment}
