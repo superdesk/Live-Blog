@@ -667,6 +667,12 @@ define('providers/edit', [
 					'caption': caption
 				});
 			}
+            var opt = this.el.find('option:selected');
+            self.meta['post-type'] = opt.attr('value');
+            self.meta['post-predefined-type'] = {
+                value: opt.attr('content'),
+                text: opt.text()
+            };            
 		},
 		savepost: function(evt){
 			var self = this;
