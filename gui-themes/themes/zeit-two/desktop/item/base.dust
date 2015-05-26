@@ -1,0 +1,31 @@
+{>"themeBase/item/base"/}
+
+{<headerContainer}
+{/headerContainer}
+
+{<contentMainBody}
+  <div class="post-info">
+    {+contentMainTop}
+      	{+postDateContainer}{/postDateContainer}
+        {+userNameContainer}{/userNameContainer}
+        {+shareContainer}{/shareContainer}
+    {/contentMainTop}
+  </div>
+  {+commentBefore}{/commentBefore}
+  {+contentMainFull}
+  <div class="post-content-full">
+    {+contentFull}
+      {+contentCoreContainer}
+      <div class="post-core-content">
+        {+contentCore}
+        {/contentCore}
+      </div>
+      {/contentCoreContainer}
+      {+contentAttrContainer}
+
+      {/contentAttrContainer}
+    {/contentFull}
+  </div>
+  {/contentMainFull}
+  {+commentAfter}{/commentAfter}
+{/contentMainBody}
