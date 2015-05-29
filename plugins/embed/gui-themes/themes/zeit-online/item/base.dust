@@ -1,0 +1,47 @@
+{>"themeBase/item/base"/}
+
+{! Attention! Opening tag in headerContainer … !}
+{<headerContainer}
+	<div class="liveblog-post">
+		<div class="post-header">
+			{+header}{/header}
+		</div>
+{/headerContainer}
+
+{! … closing tag in footerContainer !}
+{<footerContainer}
+		<div class="post-footer">
+			{+footer}{/footer}
+		</div>
+	</div>
+	{+shareContainer}{/shareContainer}
+{/footerContainer}
+
+{<contentSideContainer}{/contentSideContainer}
+
+{<header}
+	<div class="post-header-meta">
+		{+verificationLabel}{/verificationLabel}
+		{+postTimeContainer}{/postTimeContainer}
+		{+postDateContainer}{/postDateContainer}
+	</div>
+	<div class="post-header-user">
+		{+userNameContainer}{/userNameContainer}
+		{+userAvatar}{/userAvatar}
+	</div>
+{/header}
+
+{<footer}
+{/footer}
+
+{<share}
+	{+socialShare}{/socialShare}
+{/share}
+
+{<publishedTimeContainer}
+	<span class="post-time">{PublishedOn|post-date}</span>
+{/publishedTimeContainer}
+
+{<postTimeContainer}
+	{+publishedTimeContainer}{/publishedTimeContainer}
+{/postTimeContainer}
