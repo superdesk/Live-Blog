@@ -3,7 +3,6 @@ define([
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
-    'plugins/permanent-link',
     'plugins/social-share',
     'plugins/status',
     'plugins/wrappup-toggle',
@@ -19,7 +18,6 @@ define([
             // 'scroll-pagination',
             'button-pagination',
             'twitter-widgets',
-            'permanent-link',
             'social-share',
             'status',
             'wrappup-toggle'
