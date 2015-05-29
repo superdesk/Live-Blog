@@ -1,4 +1,5 @@
 /plugins/embed/.gitignore
+/plugins/embed/gui-themes/themes/zeit-online*/liveblog.css
 /plugins/embed/npm-debug.log
 /plugins/embed/config.json
 /plugins/embed/logs/**
