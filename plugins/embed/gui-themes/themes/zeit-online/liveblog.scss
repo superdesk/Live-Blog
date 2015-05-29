@@ -86,7 +86,6 @@ $user-text-size-headings: em($text-size-headings);
 }
 
 .liveblog-content {
-	// position: relative;
 }
 
 .liveblog-content-top-bar {
@@ -230,83 +229,62 @@ $user-text-size-headings: em($text-size-headings);
 				bottom: em(20px);
 			}
 
-			.sf-share {
-				font-size: em(12px);
-				line-height: 1.5;
-				color: inherit;
-				background: rgba(0,0,0,0.1) url("img/share.png") no-repeat 0 0;
-				padding: 10px 0 10px 48px;
-				float: right;
-				overflow: hidden;
-				width: 48px;
+		}
+		.sf-share {
+			font-size: em(12px);
+			line-height: 1.5;
+			color: inherit;
+			background: rgba(0,0,0,0.1) url("img/share.png") no-repeat 0 0;
+			padding: 10px 0 10px 48px;
+			float: right;
+			overflow: hidden;
+			width: 48px;
 
-				@include respond-min($break-phablet-min) {
-					padding-left: 40px;
-					padding-right: 12px;
-					width: auto;
+			@include respond-min($break-phablet-min) {
+				padding-left: 40px;
+				padding-right: 12px;
+				width: auto;
+			}
+		}
+		.share-box {
+			padding: 8px 20px 8px 10px;
+			float: right;
+
+			// fix funky plugin behaviour
+			display: none;
+			&:last-child {
+				display: block;
+			}
+
+			span {
+				float: left;
+				font-size: em(14px);
+
+				&:before {
+					content: "/";
+					color: $zon_grey;
+					margin: 0 .75em;
+				}
+				&:first-child:before {
+					content: none;
+					display: none;
 				}
 			}
-			.share-box {
-				padding: 8px 20px 8px 10px;
-				float: right;
 
-				// fix funky plugin behaviour
-				display: none;
-				&:last-child {
-					display: block;
+			.social {
+				font-weight: bold;
+
+				@include hover() {
+					border-bottom: 1px solid currentColor;
 				}
 
-				span {
-					float: left;
-					font-size: em(14px);
-
-					&:before {
-						content: "/";
-						color: $zon_grey;
-						margin: 0 .75em;
-					}
-					&:first-child:before {
-						content: none;
-						display: none;
-					}
-				}
-
-				.social {
-					font-weight: bold;
-
-					@include hover() {
-						border-bottom: 1px solid currentColor;
-					}
-
-					&.facebook { color: $color-facebook; }
-					&.twitter { color: $color-twitter; }
-					&.linkedin { color: $color-linkedin; }
-					&.pinterest { background: url(img/social_pinterest_color.png) no-repeat; }
-					&.google { color: $color-google; }
-					&.email { color: $color-email; }
-					&:last-child { margin-right: 0; }
-				}
-			}
-			.permalink {
-				position: absolute;
-				right: 0px;
-				width: 25px;
-				height: 15px;
-				text-indent: -9999px;
-				background: url("img/link.png") no-repeat 0px 2px;
-				display: inline-block;
-			}
-			input {
-				position: absolute;
-				background: #F8F8F8;
-				border: 1px solid #D0D0D0;
-				padding: 4px 6px;
-				width: 180px;
-				top: 14px;
-				right: 0;
-				&:focus {
-					outline:none;
-				}
+				&.facebook { color: $color-facebook; }
+				&.twitter { color: $color-twitter; }
+				&.linkedin { color: $color-linkedin; }
+				&.pinterest { background: url(img/social_pinterest_color.png) no-repeat; }
+				&.google { color: $color-google; }
+				&.email { color: $color-email; }
+				&:last-child { margin-right: 0; }
 			}
 		}
 
@@ -463,15 +441,6 @@ $user-text-size-headings: em($text-size-headings);
 					font-size: 1em;
 					letter-spacing: $zon-letter-spacing-s;
 					margin-bottom: .5em;
-
-					// a {
-					// 	color: inherit;
-					// 	border: none;
-
-					// 	&:hover {
-					// 		color: $black;
-					// 	}
-					// }
 				}
 			}
 		}
@@ -508,37 +477,33 @@ $user-text-size-headings: em($text-size-headings);
 					color: $color-twitter;
 					border: none;
 				}
-				.post-external {
-					.twitter-controls {
-						float: right;
-						margin-top: 8px;
-						display: none;
-						.twitter-button {
-							font-size: 0.75em;
-							line-height: 100%;
-							text-decoration: none;
-							padding-left: 18px;
-							margin-right: 14px;
-							float: right;
-							color: $zon_dark_grey;
-							&.reply {
-								background: url(img/reply.png) no-repeat 0 0;
-							}
-							&.retweet {
-								background: url(img/retweet.png) no-repeat 0 1px;
-							}
-							&.favorites {
-								background: url(img/favorites.png) no-repeat 0 0;
-							}
-						}
+				.twitter-controls {
+					float: right;
+					margin-top: 8px;
+					display: none;
+				}
+				.twitter-button {
+					font-size: 0.75em;
+					line-height: 100%;
+					text-decoration: none;
+					padding-left: 18px;
+					margin-right: 14px;
+					float: right;
+					color: $zon_dark_grey;
+					&.reply {
+						background: url(img/reply.png) no-repeat 0 0;
+					}
+					&.retweet {
+						background: url(img/retweet.png) no-repeat 0 1px;
+					}
+					&.favorites {
+						background: url(img/favorites.png) no-repeat 0 0;
 					}
 				}
-
 				.attributes {
 					height: 18px;
 					float: left;
 				}
-
 			}
 			&:hover {
 				.twitter-controls {
@@ -547,15 +512,13 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		&.instagram, &.flickr, &.googleimage {
-			.post-external-image-link {
-				.post-external-image {
-					max-width: 100%;
-					overflow: hidden;
-					margin-bottom: 5px;
-					.post-external-image-img {
-						max-width: 100%;
-					}
-				}
+			.post-external-image {
+				max-width: 100%;
+				overflow: hidden;
+				margin-bottom: 5px;
+			}
+			.post-external-image-img {
+				max-width: 100%;
 			}
 		}
 		&.youtube {
@@ -566,22 +529,22 @@ $user-text-size-headings: em($text-size-headings);
 			}
 			.post-external {
 				max-width: $youtube-maxwidth;
-				.post-frame-container {
-					position: relative;
-					padding-bottom: 56.25%;
-					padding-top: 30px;
-					height: 0;
-					overflow: hidden;
-					margin: -10px -10px .5em;
-					iframe {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						border: 0;
-					}
-				}
+			}
+			.post-frame-container {
+				position: relative;
+				padding-bottom: 56.25%;
+				padding-top: 30px;
+				height: 0;
+				overflow: hidden;
+				margin: -10px -10px .5em;
+			}
+			iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border: 0;
 			}
 		}
 		&.wrapup {
@@ -619,7 +582,6 @@ $user-text-size-headings: em($text-size-headings);
 			.post-header {
 				color: $white;
 			}
-
 			.post-time {
 				color: $zon_dark_grey;
 				background-color: $white;
@@ -628,7 +590,6 @@ $user-text-size-headings: em($text-size-headings);
 					color: $live-blog-highlight;
 				}
 			}
-
 			.post-content {
 				a {
 					color: $white;
@@ -639,11 +600,9 @@ $user-text-size-headings: em($text-size-headings);
 					}
 				}
 			}
-
 			.sf-share {
 				background-position: 0% 100%;
 			}
-
 			.share-box {
 				span {
 					&:before {
@@ -651,7 +610,6 @@ $user-text-size-headings: em($text-size-headings);
 					}
 				}
 			}
-
 			.liveblog-post {
 				&:before {
 					content: '';
@@ -668,9 +626,9 @@ $user-text-size-headings: em($text-size-headings);
 			.post-publisher-avatar {
 				background: url(img/comment-icon.png) no-repeat 0 0;
 				border-color: $lb-background;
-				.post-publisher-avatar-img {
-					display: none;
-				}
+			}
+			.post-publisher-avatar-img {
+				display: none;
 			}
 		}
 		&.quote {
@@ -721,27 +679,26 @@ $user-text-size-headings: em($text-size-headings);
 		}
 
 		&.twitter {
-			.attributes .source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0;}
 		}
 		&.facebook {
-			.attributes .source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0;}
 		}
 		&.google {
-			.attributes .source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0;}
 		}
 		&.instagram {
-			.attributes .source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0;}
 		}
 		&.flickr {
-			.attributes .source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0;}
 		}
 		&.youtube {
-			.attributes .source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0;}
 		}
 		&.soundcloud {
-			.attributes .source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0;}
+			.source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0;}
 		}
-
 
 		&:hover {
 			.post-buttons {
