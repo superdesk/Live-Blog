@@ -559,6 +559,11 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		&.youtube {
+			.post-core-content {
+				h5 {
+					margin-top: .5em;
+				}
+			}
 			.post-external {
 				max-width: $youtube-maxwidth;
 				.post-frame-container {
