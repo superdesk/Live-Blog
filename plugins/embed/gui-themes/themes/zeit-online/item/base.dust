@@ -31,8 +31,7 @@
 	</div>
 {/header}
 
-{<footer}
-{/footer}
+{<footer}{/footer}
 
 {<share}
 	{+socialShare}{/socialShare}

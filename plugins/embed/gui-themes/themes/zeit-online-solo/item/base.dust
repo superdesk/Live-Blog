@@ -21,18 +21,8 @@
 
 {<header}{/header}
 
-{<footer}
-	{+shareContainer}{/shareContainer}
-{/footer}
+{<footer}{/footer}
 
 {<share}
 	{+socialShare}{/socialShare}
 {/share}
-
-{<publishedTimeContainer}
-	<span class="post-time">{PublishedOn|post-date}</span>
-{/publishedTimeContainer}
-
-{<postTimeContainer}
-	{+publishedTimeContainer}{/publishedTimeContainer}
-{/postTimeContainer}
