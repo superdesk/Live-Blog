@@ -1,9 +1,4 @@
 {>"themeBase/item/posttype/base"/}
 {<itemClass}scorecard{/itemClass}
-{<contentSideContainer}{/contentSideContainer}
-{<contentMainTop}
-	{+postDateContainer}{/postDateContainer}
-	{+shareContainer}{/shareContainer}
-{/contentMainTop}
 {<userNameContainer}{/userNameContainer}
 {<userAvatar}{/userAvatar}
