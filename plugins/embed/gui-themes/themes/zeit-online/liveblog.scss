@@ -220,7 +220,6 @@ $user-text-size-headings: em($text-size-headings);
 			margin-top: 1em;
 		}
 		.post-buttons {
-			display: none;
 			position: absolute;
 			right: 0;
 			bottom: em(10px);
@@ -228,14 +227,21 @@ $user-text-size-headings: em($text-size-headings);
 			@include respond-min($break-phablet-min) {
 				bottom: em(20px);
 			}
-
+			@include respond-min($break-tablet-min) {
+				display: none;
+			}
+		}
+		&:hover {
+			.post-buttons {
+				display: block;
+			}
 		}
 		.sf-share {
-			font-size: em(12px);
-			line-height: 1.5;
+			font-size: em(14px);
+			line-height: 2;
 			color: inherit;
 			background: rgba(0,0,0,0.1) url("img/share.png") no-repeat 0 0;
-			padding: 10px 0 10px 48px;
+			padding: 5px 0 5px 48px;
 			float: right;
 			overflow: hidden;
 			width: 48px;
@@ -247,7 +253,7 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		.share-box {
-			padding: 8px 20px 8px 10px;
+			padding: 8px 20px 0 10px;
 			float: right;
 
 			// fix funky plugin behaviour
@@ -273,6 +279,8 @@ $user-text-size-headings: em($text-size-headings);
 
 			.social {
 				font-weight: bold;
+				display: inline-block;
+				border-bottom: 1px solid transparent;
 
 				@include hover() {
 					border-bottom: 1px solid currentColor;
@@ -548,9 +556,6 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		&.wrapup {
-			.post-header, .post-footer {
-				display: none;
-			}
 			.big-toggle {
 				display: block;
 				width: 21px;
@@ -560,7 +565,6 @@ $user-text-size-headings: em($text-size-headings);
 			}
 			.post-text {
 				font-weight: bold;
-				color: #262626;
 				padding-left: 40px;
 			}
 		}
@@ -569,13 +573,23 @@ $user-text-size-headings: em($text-size-headings);
 				background-position: 0 -21px;
 			}
 		}
+		&.wrapup,
 		&.advertisement {
 			.post-header, .post-footer {
-				// display: none;
+				display: none;
+			}
+			.liveblog-post:before {
+				content: '';
+				position: absolute;
+				width: 2px;
+				height: 100%;
+				background-color: #ccc;
+				top: 0;
+				left: -1px;
+				z-index: 1;
 			}
 		}
-		// misuse for demo purpose
-		&.advertisement {
+		&.scorecard {
 			color: $white;
 			background-color: $live-blog-highlight;
 
@@ -590,7 +604,13 @@ $user-text-size-headings: em($text-size-headings);
 					color: $live-blog-highlight;
 				}
 			}
+			.post-publisher-name {
+				@include font-smoothing();
+			}
 			.post-content {
+				h1 {
+					@include font-smoothing();
+				}
 				a {
 					color: $white;
 					border-bottom-color: rgba($white, 0.5);
@@ -658,23 +678,30 @@ $user-text-size-headings: em($text-size-headings);
 			padding-bottom: 20px;
 			padding-top: 20px;
 			text-align: center;
+		}
+		.load-more {
+			@include zon-button-light();
+			&:after {
+				content: '';
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: #eee;
+			}
+		}
+		.loading-image {
+			min-width: 50px;
+			height: 35px;
+			vertical-align: top;
+			display: none;
+			background: url(img/loading-large.gif) no-repeat 0 0;
+		}
+		&.loading {
 			.load-more {
-				@include zon-button-light();
+				display: none;
 			}
 			.loading-image {
-				min-width: 50px;
-				height: 35px;
-				vertical-align: top;
-				display: none;
-				background: url(img/loading-large.gif) no-repeat 0 0;
-			}
-			&.loading {
-				.load-more {
-					display: none;
-				}
-				.loading-image {
-					display: inline-block;
-				}
+				display: inline-block;
 			}
 		}
 
@@ -700,12 +727,6 @@ $user-text-size-headings: em($text-size-headings);
 			.source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0;}
 		}
 
-		&:hover {
-			.post-buttons {
-				display: block;
-			}
-		}
-
 		.attributes,
 		.link-preview,
 		.post-external {
@@ -715,11 +736,12 @@ $user-text-size-headings: em($text-size-headings);
 		// only valid for button pagination
 		&:nth-last-child(0n+2) {
 			.liveblog-post:after {
-				height: calc(100% - 56px);
+				content: none;
+				// height: calc(100% - 56px);
 
-				@include respond-min($break-phablet-min) {
-					height: calc(100% - 100px);
-				}
+				// @include respond-min($break-phablet-min) {
+				// 	height: calc(100% - 96px);
+				// }
 			}
 		}
 	}
@@ -728,12 +750,12 @@ $user-text-size-headings: em($text-size-headings);
 .liveblog-post {
 	margin: 0 auto;
 	max-width: em((660 + 20 * 2) * 1px);
-	padding: em(20px);
+	padding: em(20px) em(20px) em(54px);
 	position: relative;
 
 	@include respond-min($break-phablet-min) {
-		padding-top: em(56px);
-		padding-bottom: em(56px);
+		padding-top: em(52px);
+		padding-bottom: em(64px);
 	}
 
 	@include respond-min($break-tablet-min) {
@@ -754,10 +776,10 @@ $user-text-size-headings: em($text-size-headings);
 		z-index: 1;
 
 		@include respond-min($break-phablet-min) {
-			top: em(100px);
+			top: em(96px);
 		}
 		@include respond-min($break-tablet-min) {
-			height: calc(100% - 24px);
+			height: calc(100% - 26px);
 		}
 	}
 }
