@@ -4,11 +4,12 @@
 @import "sass/functions";
 @import "sass/constants";
 @import "sass/mixins";
-@import "sass/fonts";
 
 /******************* outer page styles ****************/
 /******************************************************/
-//should be changed to fit the client requests
+
+@import "sass/fonts";
+
 body, html {
 	margin: 0;
 	padding: 0;
@@ -32,21 +33,17 @@ $lb-font 	: $sans-fallbacks;
 $lb-width	: 100%;
 $lb-background: #fff;
 
-$postlist-minheight: 0;	//default 0
-$postlist-maxheight: none;	//default none
+$postlist-minheight: 0;    // default 0
+$postlist-maxheight: none; // default none
 
-
-/* POSTS STYLES */
+// posts styles
 $text-size: 16px;
 $text-size-headings: 16px;
 $publisher-avatar-width: em(42px);
-$youtube-maxwidth: 100%;	//youtube post type
-
+$youtube-maxwidth: 100%;
 
 /******************* do not change this ***************/
 /******************************************************/
-$user-text-size: em($text-size);
-$user-text-size-headings: em($text-size-headings);
 
 /******************************************************/
 /******************************************************/
@@ -62,7 +59,7 @@ $user-text-size-headings: em($text-size-headings);
 .liveblog-container {
 	background-color: $color-body-bg;
 
-	/* reset global styles */
+	// reset global styles
 	h1, h2, h3, h4, h5, h6, p, ul, li {
 		margin: 0;
 		padding: 0;
@@ -164,7 +161,7 @@ $user-text-size-headings: em($text-size-headings);
 			padding-left: 0;
 		}
 
-		/* separate block styles */
+		// separate block styles
 		.post-time,
 		.post-datetime,
 		.post-publisher-name,
@@ -182,16 +179,13 @@ $user-text-size-headings: em($text-size-headings);
 			font-size: em(13px);
 			margin-left: (10 + 2 + 20) * -1px;;
 			margin-right: 10px;
-			padding: 4px 12px 2px;
+			max-width: 89px;
+			padding: 4px 0 2px;
+			text-align: center;
 			text-transform: uppercase;
 			// cheap trick
-			border-left: 12px solid $trout;
-			direction: rtl;
-			max-width: 89px;
-			overflow: hidden;
-			padding-left: 0;
-			text-align: right;
 			white-space: nowrap;
+			overflow: hidden;
 
 			@include respond-min($break-tablet-min) {
 				margin-left: (10 + 2 + 32) * -1px;
@@ -207,12 +201,6 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		.post-datetime {
-			// more cheap tricks
-			direction: rtl;
-			display: inline-block;
-			overflow: hidden;
-			text-indent: em(-72px);
-			white-space: nowrap;
 		}
 		.post-publisher-name {
 			display: block;
@@ -253,7 +241,7 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 		.share-box {
-			padding: 8px 20px 0 10px;
+			padding: 9px 20px 0 10px;
 			float: right;
 
 			// fix funky plugin behaviour
@@ -337,7 +325,7 @@ $user-text-size-headings: em($text-size-headings);
 			display: block;
 		}
 
-		/* end of separate block styles */
+		// end of separate block styles
 		.post-header {
 			@include clearfix();
 			color: $zon_grey;
@@ -409,7 +397,7 @@ $user-text-size-headings: em($text-size-headings);
 			}
 		}
 
-		/* POST SPECIFIC STYLES */
+		// post specific styles
 		&.normal {
 			.post-core-content {
 				.post-text {
@@ -599,7 +587,6 @@ $user-text-size-headings: em($text-size-headings);
 			.post-time {
 				color: $zon_dark_grey;
 				background-color: $white;
-				border-color: $white; // fake rule
 				@include hover() {
 					color: $live-blog-highlight;
 				}

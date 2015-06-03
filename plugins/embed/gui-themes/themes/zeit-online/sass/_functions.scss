@@ -1,10 +1,8 @@
-/**
- * Get font-size in point size (em)
- * @function  em
- * @param     $font-size {Number} font size in pixel
- * @param     $contex    {Number} base font size in pixel
- * @return    {Number} font-size in em
- */
+// Get font-size in point size (em)
+// @function  em
+// @param     $font-size {Number} font size in pixel
+// @param     $contex    {Number} base font size in pixel
+// @return    {Number} font-size in em
 
 @function em($font-size, $context: $base-font-size) {
 	@return $font-size / $context + 0em;
@@ -41,10 +39,6 @@
 	@return $direction, $opposite-direction;
 }
 
-/**
- * BLOCK: convert rem to pixels for older browsers
- */
-
 @function parseInt($n) {
 	@return $n / ($n * 0 + 1);
 }
@@ -52,26 +46,25 @@
 $rem-to-px-conversion: false !default;
 $rem-to-px-base: 16 !default;
 
-/**
- * converts pixel values to rem and provides a px fallback on a stylesheet base
- *
- * the sass variable $rem-to-px-conversion defaults to false.
- * for older browsers you can override this in a separate stylesheet and
- * all values will outputted as is without a conversion.
- *
- * the conversion base for px to rem conversions can be configuried
- * via $rem-to-px-base and defaults to 16 (as in most browsers)
- *
- * based on work by David Walsh: http://davidwalsh.name/rem-px-browser-function-sass
- *
- * @param  {String} $values One or more px values
- * @return {String} values in rem or px, depending on the configuration
- *
- * @example
- * margin: remify(32px 0 24px 0)
- * returns: margin: 2rem 0 1.5rem 0
- * and for IE: margin: 32px 0 24px 0
- */
+// converts pixel values to rem and provides a px fallback on a stylesheet base
+//
+// the sass variable $rem-to-px-conversion defaults to false.
+// for older browsers you can override this in a separate stylesheet and
+// all values will outputted as is without a conversion.
+//
+// the conversion base for px to rem conversions can be configuried
+// via $rem-to-px-base and defaults to 16 (as in most browsers)
+//
+// based on work by David Walsh: http://davidwalsh.name/rem-px-browser-function-sass
+//
+// @param  {String} $values One or more px values
+// @return {String} values in rem or px, depending on the configuration
+//
+// @example
+// margin: remify(32px 0 24px 0)
+// returns: margin: 2rem 0 1.5rem 0
+// and for IE: margin: 32px 0 24px 0
+
 @function remify($values) {
 	// sanity-checks
 	@if not global-variable-exists(rem-to-px-conversion) {
@@ -103,7 +96,3 @@ $rem-to-px-base: 16 !default;
 	}
 	@return $list;
 }
-
-/**
- * ENDBLOCK: convert rem to pixels for older browsers
- */

@@ -139,11 +139,11 @@
 	@include zon-button(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), $zon_light_grey, $zon_mid_grey, $zon-charcoal, $black, $zon-charcoal, $margin: 0);
 }
 
-/// mac font smoothing switching
-/// please use extremely carefully http://usabilitypost.com/2012/11/05/stop-fixing-font-smoothing/
-/// rather use case may be **light text on dark background**
-/// switching off fontsmoothing is prohibited except on high density mobile safari screens (see media query)
-/// @param {bool} $antialiased [true] - switch on antialiasing
+// mac font smoothing switching
+// please use extremely carefully http://usabilitypost.com/2012/11/05/stop-fixing-font-smoothing/
+// rather use case may be **light text on dark background**
+// switching off fontsmoothing is prohibited except on high density mobile safari screens (see media query)
+// @param {bool} $antialiased [true] - switch on antialiasing
 @mixin font-smoothing($antialiased: true) {
 	@if $antialiased {
 		-webkit-font-smoothing: antialiased;
