@@ -43,10 +43,10 @@ define([
 
                     var self = this,
                         item = self.$(e.target),
-                        init = item.attr('data-init'),
+                        initialized = item.data('initialized'),
                         urlParams;
 
-                    if (init !== 'done') {
+                    if (!initialized) {
                         urlParams = socialUrlParams(self);
 
                         // Store the share urls for the different social networks
@@ -62,7 +62,7 @@ define([
                         // Bind events for social network buttons
                         bindShareButtonsEvents(self);
 
-                        item.attr('data-init', 'done');
+                        item.data('initialized', 1);
                     }
 
                     // Toggle visibility of social share box,
