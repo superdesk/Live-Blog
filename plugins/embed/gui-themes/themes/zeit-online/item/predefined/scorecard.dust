@@ -1,4 +1,3 @@
 {>"themeBase/item/posttype/base"/}
 {<itemClass}scorecard{/itemClass}
-{<userNameContainer}{/userNameContainer}
-{<userAvatar}{/userAvatar}
+{<userInfo}{/userInfo}

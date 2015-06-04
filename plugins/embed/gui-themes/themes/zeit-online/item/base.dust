@@ -26,8 +26,10 @@
 		{+postDateContainer}{/postDateContainer}
 	</div>
 	<div class="post-header-user">
-		{+userNameContainer}{/userNameContainer}
-		{+userAvatar}{/userAvatar}
+		{+userInfo}
+			{+userNameContainer}{/userNameContainer}
+			{+userAvatar}{/userAvatar}
+		{/userInfo}
 	</div>
 {/header}
 
