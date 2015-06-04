@@ -22,8 +22,8 @@
 {<header}
 	<div class="post-header-meta">
 		{+verificationLabel}{/verificationLabel}
-		{+postTimeContainer}{/postTimeContainer}
-		{+postDateContainer}{/postDateContainer}
+		{+splitedTimeContainer}{/splitedTimeContainer}
+		{+splitedDateContainer}{/splitedDateContainer}
 	</div>
 	<div class="post-header-user">
 		{+userNameContainer}{/userNameContainer}
@@ -37,10 +37,10 @@
 	{+socialShare}{/socialShare}
 {/share}
 
-{<publishedTimeContainer}
-	<span class="post-time">{PublishedOn|post-date}</span>
-{/publishedTimeContainer}
+{<splitedDateContainer}
+    <span class="post-datetime">{PublishedOn|splitted-post-date}</span>
+{/splitedDateContainer}
 
-{<postTimeContainer}
-	{+publishedTimeContainer}{/publishedTimeContainer}
-{/postTimeContainer}
+{<splitedTimeContainer}
+	<span class="post-time">{PublishedOn|splitted-post-time}</span>
+{/splitedTimeContainer}

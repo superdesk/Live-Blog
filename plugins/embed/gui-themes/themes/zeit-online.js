@@ -6,10 +6,12 @@ define([
     'plugins/social-share',
     'plugins/status',
     'plugins/wrappup-toggle',
+    'plugins/predefined-types',
     'css!theme/liveblog',
     'tmpl!theme/container',
     'tmpl!theme/item/base',
-    'tmpl!theme/plugins/social-share'
+    'tmpl!theme/plugins/social-share',
+    'tmpl!theme/item/predefined/scorecard'
 ], function(dust, gt, moment) {
     'use strict';
 
