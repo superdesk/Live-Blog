@@ -19,6 +19,8 @@ _('Share this post on Google+');
 _('Share this post via Email');
 _('%(full_name)s commentator');
 pgettext('moment', 'post-date');
+pgettext('moment', 'splitted-post-time');
+pgettext('moment', 'splitted-post-date');
 pgettext('moment', 'closed-date');
 pgettext('moment', 'months');
 pgettext('moment', 'monthsShort');
