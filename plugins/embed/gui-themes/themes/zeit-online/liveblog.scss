@@ -29,28 +29,16 @@ body {
 /******************************************************/
 /******************************************************/
 
-$lb-font 	: $sans-fallbacks;
-$lb-width	: 100%;
-$lb-background: #fff;
-
 $postlist-minheight: 0;    // default 0
 $postlist-maxheight: none; // default none
 
 // posts styles
-$text-size: 16px;
-$text-size-headings: 16px;
 $publisher-avatar-width: em(42px);
-$youtube-maxwidth: 100%;
-
-/******************* do not change this ***************/
-/******************************************************/
 
 /******************************************************/
 /******************************************************/
 
 #livedesk-root {
-	width: $lb-width;
-
 	* {
 		@include box-sizing(border-box);
 	}
@@ -522,9 +510,6 @@ $youtube-maxwidth: 100%;
 					margin-top: .5em;
 				}
 			}
-			.post-external {
-				max-width: $youtube-maxwidth;
-			}
 			.post-frame-container {
 				position: relative;
 				padding-bottom: 56.25%;
@@ -638,7 +623,7 @@ $youtube-maxwidth: 100%;
 		&.usercomments {
 			.post-publisher-avatar {
 				background: url(img/comment-icon.png) no-repeat 0 0;
-				border-color: $lb-background;
+				border-color: #fff;
 			}
 			.post-publisher-avatar-img {
 				display: none;
