@@ -39,6 +39,7 @@ define([
                 // the post in different social networks
                 view.share = function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
 
                     var self = this,
                         item = self.$(e.target),
