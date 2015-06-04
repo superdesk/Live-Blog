@@ -5,29 +5,29 @@
 @import "sass/constants";
 @import "sass/mixins";
 
-/******************* outer page styles ****************/
-/******************************************************/
+// ******************* outer page styles ****************/
+// ******************************************************/
 
-@import "sass/fonts";
+// @import "sass/fonts";
 
-body, html {
-	margin: 0;
-	padding: 0;
-}
+// body, html {
+// 	margin: 0;
+// 	padding: 0;
+// }
 
-body {
-	background-color: #41464d;
-	color: $color-text;
-	font-family: $font-tabletgothic;
-	font-size: $font-m;
-	line-height: $base-line-height;
-	margin: 0 auto;
-	max-width: $break-desktop-min;
-	min-width: em(300px);
-}
+// body {
+// 	background-color: #41464d;
+// 	color: $color-text;
+// 	font-family: $font-tabletgothic;
+// 	font-size: $font-m;
+// 	line-height: $base-line-height;
+// 	margin: 0 auto;
+// 	max-width: $break-desktop-min;
+// 	min-width: em(300px);
+// }
 
-/******************************************************/
-/******************************************************/
+// ******************************************************/
+// ******************************************************/
 
 $postlist-minheight: 0;    // default 0
 $postlist-maxheight: none; // default none
@@ -35,10 +35,16 @@ $postlist-maxheight: none; // default none
 // posts styles
 $publisher-avatar-width: em(42px);
 
-/******************************************************/
-/******************************************************/
+// ******************************************************/
+// ******************************************************/
 
 #livedesk-root {
+	font-family: $font-tabletgothic;
+	font-size: 1rem;
+	line-height: $base-line-height;
+	margin: 0 auto;
+	max-width: $break-desktop-min;
+
 	* {
 		@include box-sizing(border-box);
 	}
@@ -724,17 +730,6 @@ $publisher-avatar-width: em(42px);
 	padding: em(20px) em(20px) em(54px);
 	position: relative;
 
-	@include respond-min($break-phablet-min) {
-		padding-top: em(52px);
-		padding-bottom: em(64px);
-	}
-
-	@include respond-min($break-tablet-min) {
-		max-width: em((660 + 32 * 2) * 1px);
-		padding-left: em(32px);
-		padding-right: em(32px);
-	}
-
 	&:after {
 		content: '';
 		position: absolute;
@@ -745,11 +740,23 @@ $publisher-avatar-width: em(42px);
 		top: em(56px);
 		left: -1px;
 		z-index: 1;
+	}
 
-		@include respond-min($break-phablet-min) {
+	@include respond-min($break-phablet-min) {
+		padding-top: em(52px);
+		padding-bottom: em(64px);
+
+		&:after {
 			top: em(96px);
 		}
-		@include respond-min($break-tablet-min) {
+	}
+
+	@include respond-min($break-tablet-min) {
+		max-width: em((660 + 32 * 2) * 1px);
+		padding-left: em(32px);
+		padding-right: em(32px);
+
+		&:after {
 			height: calc(100% - 26px);
 		}
 	}
