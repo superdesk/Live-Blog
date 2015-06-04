@@ -1,0 +1,159 @@
+@mixin link() {
+	&:link,
+	&:visited {
+		@content;
+	}
+}
+
+@mixin hover() {
+	&:hover,
+	&:active,
+	&:focus {
+		@content;
+	}
+}
+
+@mixin clearfix() {
+	zoom: 1;
+	&:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+}
+
+@mixin transform($value) {
+	-webkit-transform: $value;
+	// -moz-transform: $value;
+	//   -o-transform: $value;
+	        transform: $value;
+}
+
+@mixin transform-origin($value) {
+	-webkit-transform-origin: $value;
+	// -moz-transform-origin: $value;
+	//   -o-transform-origin: $value;
+	        transform-origin: $value;
+}
+
+@mixin transition($value) {
+	-webkit-transition: $value;
+	// -moz-transition: $value;
+	//   -o-transition: $value;
+	        transition: $value;
+}
+
+@mixin transition-property($value...) {
+	-webkit-transition-property: $value;
+	// -moz-transition-property: $value;
+	//   -o-transition-property: $value;
+	        transition-property: $value;
+}
+
+@mixin transition-duration($value...) {
+	-webkit-transition-duration: $value;
+	// -moz-transition-duration: $value;
+	//   -o-transition-duration: $value;
+	        transition-duration: $value;
+}
+
+@mixin animation($value) {
+	-webkit-animation: $value;
+	// -moz-animation: $value;
+	//   -o-animation: $value;
+	        animation: $value;
+}
+
+@mixin box-sizing($sizing: border-box) {
+	-webkit-box-sizing: $sizing;
+	   -moz-box-sizing: $sizing;
+	        box-sizing: $sizing;
+}
+
+@mixin default-article-textlink {
+	a {
+		color: $color-link--default;
+		border-bottom: 1px solid rgba($color-link--default, 0.5);
+		@include transition-property(border-bottom-color, color);
+		@include transition-duration(0.2s);
+		&:focus {
+			color: $color-link--focus;
+			border-bottom-color: rgba($color-link--focus, 0.5);
+		}
+		&:hover {
+			color: $color-link--hover;
+			border-bottom-color: rgba($color-link--hover, 0.5);
+		}
+		&:active {
+			color: $color-link--active;
+			border-bottom-color: rgba($color-link--active, 0.5);
+		}
+	}
+}
+
+@mixin zon-button($background-color, $hover-background-color, $border-color, $hover-border-color, $color, $hover-color, $visited-color, $font-size: remify(13px), $margin: remify(14px 6px), $padding: remify(10px 18px)) {
+	background-color: $background-color;
+	border-radius: 5px;
+	border: 2px solid $border-color;
+	color: $color;
+	display: inline-block;
+	font-size: $font-size;
+	font-weight: bold;
+	letter-spacing: $zon-letter-spacing-m;
+	margin: $margin;
+	padding: $padding;
+	text-align: center;
+	text-transform: uppercase;
+	@include transition(all 0.15s ease-in-out);
+	&:visited {
+		color: $visited-color;
+	}
+	&:hover,
+	&:focus {
+		background-color: $hover-background-color;
+		border-color: $hover-border-color;
+		color: $hover-color;
+		cursor: pointer;
+	}
+	&[disabled] {
+		opacity: 0.5;
+	}
+	&[disabled]:hover,
+	&[disabled]:focus {
+		background-color: $background-color;
+		border-color: $border-color;
+		color: $color;
+		cursor: default;
+	}
+}
+
+@mixin zon-button-inky {
+	@include zon-button($zon_dark_grey, $zon_charcoal, $zon_dark_grey, $zon_charcoal, $white, $white, $white, $margin: 0, $padding: remify(5px) 1em remify(4px));
+}
+
+@mixin zon-button-dark {
+	@include zon-button(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5), $zon_mid_grey, $zon-alto, $zon_lighter_grey, $white, $zon-alto);
+}
+
+@mixin zon-button-light {
+	@include zon-button(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), $zon_light_grey, $zon_mid_grey, $zon-charcoal, $black, $zon-charcoal, $margin: 0);
+}
+
+/// mac font smoothing switching
+/// please use extremely carefully http://usabilitypost.com/2012/11/05/stop-fixing-font-smoothing/
+/// rather use case may be **light text on dark background**
+/// switching off fontsmoothing is prohibited except on high density mobile safari screens (see media query)
+/// @param {bool} $antialiased [true] - switch on antialiasing
+@mixin font-smoothing($antialiased: true) {
+	@if $antialiased {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+	}
+	@else {
+		@media only screen and (-webkit-min-device-pixel-ratio: 1.25), only screen and (min-device-pixel-ratio: 1.25), only screen and (min-resolution: 200dpi), only screen and (min-resolution: 1.25dppx) {
+			-webkit-font-smoothing: subpixel-antialiased;
+			-moz-osx-font-smoothing: auto;
+		}
+	}
+}

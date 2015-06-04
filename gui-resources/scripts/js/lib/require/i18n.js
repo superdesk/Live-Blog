@@ -16,6 +16,8 @@ define([
             //   we keep a mapper with the language codes to moment lanugage codes.
             var defaultsMapper = {
                     'post-date': 'llll',
+                    'splitted-post-time': 'HH:mm',
+                    'splitted-post-date': 'll',
                     'closed-date': 'llll',
                     'status-time': 'HH:mm',
                     'pretty-day-time': 'HH:mm',
