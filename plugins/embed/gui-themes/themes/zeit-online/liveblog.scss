@@ -241,8 +241,9 @@ $youtube-maxwidth: 100%;
 			}
 		}
 		.share-box {
-			padding: 9px 20px 0 10px;
+			color: $zon_grey;
 			float: right;
+			padding: 9px 20px 0 10px;
 
 			// fix funky plugin behaviour
 			display: none;
@@ -256,7 +257,6 @@ $youtube-maxwidth: 100%;
 
 				&:before {
 					content: "/";
-					color: $zon_grey;
 					margin: 0 .75em;
 				}
 				&:first-child:before {
@@ -273,15 +273,14 @@ $youtube-maxwidth: 100%;
 				@include hover() {
 					border-bottom: 1px solid currentColor;
 				}
-
-				&.facebook { color: $color-facebook; }
-				&.twitter { color: $color-twitter; }
-				&.linkedin { color: $color-linkedin; }
-				&.pinterest { background: url(img/social_pinterest_color.png) no-repeat; }
-				&.google { color: $color-google; }
-				&.email { color: $color-email; }
-				&:last-child { margin-right: 0; }
 			}
+
+			.facebook { color: $color-facebook; }
+			.twitter { color: $color-twitter; }
+			.linkedin { color: $color-linkedin; }
+			.pinterest { color: $color-pinterest; }
+			.google { color: $color-google; }
+			.email { color: $color-email; }
 		}
 
 		.verification-label {
@@ -591,19 +590,26 @@ $youtube-maxwidth: 100%;
 					color: $live-blog-highlight;
 				}
 			}
-			.post-publisher-name {
-				@include font-smoothing();
-			}
 			.post-content {
+				text-align: center;
 				h1 {
 					@include font-smoothing();
+					font-family: $font-tabletgothic;
+					font-size: rem(86px);
+					line-height: 1;
+					margin-top: 34px;
+
+					@include respond-min($break-tablet-min) {
+						font-size: rem(160px);
+						margin-top: 25px;
+					}
 				}
 				a {
 					color: $white;
 					border-bottom-color: rgba($white, 0.5);
 					@include hover() {
-						color: $zon_lighter_grey;
-						border-bottom-color: rgba($zon_lighter_grey, 0.5);
+						color: $zon_light_grey;
+						border-bottom-color: rgba($zon_light_grey, 0.5);
 					}
 				}
 			}
@@ -611,11 +617,11 @@ $youtube-maxwidth: 100%;
 				background-position: 0% 100%;
 			}
 			.share-box {
-				span {
-					&:before {
-						color: inherit;
-					}
-				}
+				color: inherit;
+			}
+			.social {
+				color: inherit;
+				@include font-smoothing();
 			}
 			.liveblog-post {
 				&:before {
