@@ -39,10 +39,10 @@ body { background-color: #41464d; color: #313131; font-family: "TabletGothic", "
 .liveblog-postlist li { position: relative; background-color: #eeeeee; margin: 0 0 0.625em; padding: 0 0 0 1.25em; }
 @media screen and (min-width: 48em) { .liveblog-postlist li { margin-bottom: 1.25em; padding-left: 0; } }
 .liveblog-postlist li .post-time, .liveblog-postlist li .post-datetime, .liveblog-postlist li .post-publisher-name, .liveblog-postlist li .post-publisher-avatar { vertical-align: middle; }
-.liveblog-postlist li .post-time { color: white; background-color: #535560; border-radius: 4px; display: inline-block; font-size: 0.8125em; margin-left: -32px; margin-right: 10px; max-width: 89px; padding: 4px 0 2px; text-align: center; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.liveblog-postlist li .post-time { color: white; background-color: #535560; border-radius: 4px; display: inline-block; font-size: 0.8125em; margin-left: -31px; margin-right: 10px; width: 90px; padding: 4px 0 2px; text-align: center; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
 .liveblog-postlist li .post-time:hover, .liveblog-postlist li .post-time:active, .liveblog-postlist li .post-time:focus { color: #535560; }
-@media screen and (min-width: 48em) { .liveblog-postlist li .post-time { margin-left: -44px; } }
-@media screen and (min-width: 61.25em) { .liveblog-postlist li .post-time { margin-left: -76px; } }
+@media screen and (min-width: 48em) { .liveblog-postlist li .post-time { margin-left: -43px; } }
+@media screen and (min-width: 61.25em) { .liveblog-postlist li .post-time { margin-left: -77px; } }
 .liveblog-postlist li .post-time:hover { background-color: white; border-left-color: white; }
 .liveblog-postlist li .post-publisher-name { display: block; font-weight: bold; margin-top: 1em; }
 .liveblog-postlist li .post-buttons { position: absolute; right: 0; bottom: 0.625em; }
@@ -144,7 +144,6 @@ body { background-color: #41464d; color: #313131; font-family: "TabletGothic", "
 .liveblog-postlist li .load-more:hover, .liveblog-postlist li .load-more:focus { background-color: rgba(255, 255, 255, 0.8); border-color: #999999; color: black; cursor: pointer; }
 .liveblog-postlist li .load-more[disabled] { opacity: 0.5; }
 .liveblog-postlist li .load-more[disabled]:hover, .liveblog-postlist li .load-more[disabled]:focus { background-color: rgba(255, 255, 255, 0.5); border-color: #cccccc; color: #313131; cursor: default; }
-.liveblog-postlist li .load-more:after { content: ''; position: absolute; width: 100%; height: 100%; background-color: #eee; }
 .liveblog-postlist li .loading-image { min-width: 50px; height: 35px; vertical-align: top; display: none; background: url(img/loading-large.gif) no-repeat 0 0; }
 .liveblog-postlist li.loading .load-more { display: none; }
 .liveblog-postlist li.loading .loading-image { display: inline-block; }

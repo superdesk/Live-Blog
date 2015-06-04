@@ -165,9 +165,9 @@ $publisher-avatar-width: em(42px);
 			border-radius: 4px;
 			display: inline-block;
 			font-size: em(13px);
-			margin-left: (10 + 2 + 20) * -1px;;
+			margin-left: (10 + 1 + 20) * -1px;;
 			margin-right: 10px;
-			max-width: 89px;
+			width: 90px;
 			padding: 4px 0 2px;
 			text-align: center;
 			text-transform: uppercase;
@@ -176,11 +176,11 @@ $publisher-avatar-width: em(42px);
 			overflow: hidden;
 
 			@include respond-min($break-tablet-min) {
-				margin-left: (10 + 2 + 32) * -1px;
+				margin-left: (10 + 1 + 32) * -1px;
 			}
 
 			@include respond-min($break-desktop-min) {
-				margin-left: (42 + 2 + 32) * -1px;
+				margin-left: (45 + 32) * -1px;
 			}
 
 			&:hover {
@@ -659,13 +659,6 @@ $publisher-avatar-width: em(42px);
 		}
 		.load-more {
 			@include zon-button-light();
-			&:after {
-				content: '';
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: #eee;
-			}
 		}
 		.loading-image {
 			min-width: 50px;
