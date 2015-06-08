@@ -62,7 +62,7 @@ var urlRegex = /^(http[s]?:)?\/{2}([0-9.\-A-Za-z]+)(?::(\d+))?/,
 liveblog.browserUrl = function(urlString) {
     urlString = protocolRegex.test(urlString) ? urlString : '//' + urlString;
     urlString = urlString.replace(urlRegex, function(all, protocol, hostname, port) {
-        return '//' +
+        return (liveblog.protocol? liveblog.protocol : '') + '//' +
                 hostname +
                 (port && (port !== '80' && port !== '443') ? ':' + port : '');
     });
