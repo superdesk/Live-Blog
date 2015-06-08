@@ -10,7 +10,7 @@
         <div data-gimme="liveblog-embed-code"></div>        
         <script type="text/javascript">
         /* <![CDATA[ */
-            var liveblog = (function(d){
+            var liveblog = (function(d) {
                 var config = {
                     id: 1,
                     theme: 'default',
@@ -25,21 +25,25 @@
                     dev: true,
                     fallback: {
                         language: "en"
-                    }                        
+                    },
+                    protocol: 'http:'
                 };
                 config.baseUrl = config.servers.frontend + config.paths.scripts;
+                if ((config.servers.frontend.toLowerCase().substr(0, 4) === 'http')) {
+                    config.baseUrl = config.protocol + config.baseUrl;
+                }
                 config.loadJs = function(path) {
                             var ls = d.createElement('script'), s = d.getElementsByTagName('script')[0];
                             ls.type = "text/javascript"; s.async = true;
                             ls.src = path.indexOf('//') === -1 ?
-                                config.baseUrl + path + '.js?version=' + (config.version || parseInt((new Date()).getTime()/600000)):
+                                config.baseUrl + path + '.js?version=' + (config.version || parseInt((new Date()).getTime() / 600000)):
                                 path;
-                            s.parentNode.insertBefore( ls, s ); return ls;
+                            s.parentNode.insertBefore(ls, s); return ls;
                 };
                 config.loadJs('loader');
                 return config;
             })(document);
         /* ]]> */
-        </script>
+</script>
     </body>
 </html>

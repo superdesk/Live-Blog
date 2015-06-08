@@ -4,11 +4,12 @@
     config.guiJs('livedesk', 'models/themes'),
     'tmpl!livedesk>configure/themes',
     'tmpl!livedesk>configure/embed',
-    'tmpl!livedesk>configure/embed-simple'    
+    'tmpl!livedesk>configure/embed-simple',
+    'tmpl!livedesk>configure/embed-http'    
 ], function( $, Gizmo) {
    return Gizmo.View.extend({
         tmplData: {},
-        tmplId: 'livedesk>configure/embed',
+        tmplId: 'livedesk>configure/embed-http',
         events: {
         	'[name="Theme"]': { change: 'change'}
         },
@@ -68,6 +69,8 @@
                     themeNoProtocol;
                     frontendServerArray.shift();
                     frontendServer = "//" + frontendServerArray.join("//");
+                // @TODO: force http protocol.
+                protocol = 'http:';
                 themeNoProtocol = theme.get('URL').href.replace('\\','/').split("//")
                 themeNoProtocol.shift();
                 themeNoProtocol = "//" + themeNoProtocol.join('//');

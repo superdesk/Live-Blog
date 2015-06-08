@@ -216,8 +216,9 @@
                                 model.get('Value')==='simple');
                         }
                     });
-                    var checked = self.el.find('[name="EmbedSwitch"]').is(':checked');
-                    self.themesView.changeTmpl(checked);
+                    // @TODO LB-1985: use a selector if needed in the future
+                    // var checked = self.el.find('[name="EmbedSwitch"]').is(':checked');
+                    // self.themesView.changeTmpl(checked);
                     self.themesView.change();                    
                 });
                 /* sf-toggle*/

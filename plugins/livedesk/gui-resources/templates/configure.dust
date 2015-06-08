@@ -60,12 +60,14 @@
 								<label class="control-label">_('Embed Theme');</label>
 								<div class="controls themes"></div>
 							</div>
+<!--@TODO LB-1985: use a selector if needed in the future
                             <div class="control-group">
                                 <label class="control-label">_("Embed switch");</label>
                                 <div class="controls">
                                     <input type="checkbox" name="EmbedSwitch" value="on"{?EmbedConfig.EmbedSwitch} checked{/EmbedConfig.EmbedSwitch} class="sf-toggle on-off">
                                 </div>
-                            </div>                            
+                            </div>
+-->                            
 							<div class="control-group">
 								<label class="control-label">_("Embed script");</label>
 								<div class="controls">
