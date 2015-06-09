@@ -21,7 +21,7 @@ var liveblog = (function(d){
         protocol: 'http:'
     };
     config.baseUrl = config.servers.frontend + config.paths.scripts;
-    if (config.servers.frontend.toLowerCase().substr(0, 4) === 'http') {
+    if (config.servers.frontend.toLowerCase().substr(0, 4) !== 'http') {
         config.baseUrl = config.protocol + config.baseUrl;
     }
     config.loadJs = function(path) {
