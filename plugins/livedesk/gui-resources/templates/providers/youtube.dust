@@ -7,9 +7,10 @@
 	<input type="text" placeholder="_('Search');" id="youtube-search-text">
         <select id="ytb-order-by">
             <option value='relevance'>_('Relevance');</option>
-            <option value='published'>_('Published');</option>
+            <option value='date'>_('Date');</option>
             <option value='viewCount'>_('Views');</option>
             <option value='rating'>_('Rating');</option>
+            <option value='title'>_('Title');</option>
         </select>
 </div>
 

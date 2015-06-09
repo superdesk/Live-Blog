@@ -144,35 +144,55 @@ define('providers/youtube', [
                     return 1;
                 }
                 var relevance = $('#ytb-order-by').val();
-                start = typeof start !== 'undefined' ? start : 1;
+                start = typeof start !== 'undefined' ? start: 1;
+                //console.log('ptBefore ', pageToken);
+                if (typeof pageToken === 'undefined') {
+                    pageToken = '';
+                }
                 
                 this.showLoading('#ytb-src-more');
                 if (start == 1) {
                     self.data = [];
                     $('#ytb-src-results').html('');
                 }
-                var fullUrl = 'http://gdata.youtube.com/feeds/api/videos?v=2&max-results=20&alt=jsonc&orderby='+ relevance +'&q='+key+'&start-index='+start;
+                var fullUrl = 'https://www.googleapis.com/youtube/v3/search?q='+key+'&order='+ relevance +'&key=AIzaSyBoxAZyxD0ZWltHe3C40Rgk3rHqWopphQQ&part=snippet&maxResults=20&type=video';
+                fullUrl += ('&pageToken=' + pageToken);
                 $.ajax({
                     url: fullUrl,
                     dataType: 'json',
                     global: false,
-                    success : function(myData){
+                    success : function(myData) {
+                        console.log('myData ',myData);
                         self.stopLoading('#ytb-src-more');
-                        var myJson = myData,
+                        //map
+                        var myJson = {
+                                data: myData
+                            },
                             results = myJson.data.items,
-                            total = myJson.data.totalItems,
-                            ipp = myJson.data.itemsPerPage,
-                            start = myJson.data.startIndex;
-                        if( start == 1 && total == 0) {
+                            total = myJson.data.pageInfo.totalResults,
+                            pageToken = myJson.data.nextPageToken? myJson.data.nextPageToken: '';
+                        if (total == 0) {
                             self.noResults('#ytb-src-results');
                         } else {
                             for( var item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
-                                item = myJson.data.items[i];
+                                item = myJson.data.items[i];                                //create a 'mapper' to use the old templates data structure
+                                item.title = item.snippet.title;
+                                item.description = item.snippet.description;
+                                item.thumbnail = {
+                                    sqDefault: item.snippet.thumbnails.default.url
+                                }
+                                item.id = item.id.videoId;
+                                item.updated = item.snippet.publishedAt;
+                                item.uploader = item.snippet.channelTitle;
+                                item.newapi = true;
+                                //end mapper
+
                                 item.type = 'search';
                                 item.description_trimed = self.trimDesc(item.description);
                                 item.time_formated = item.updated;
                                 posts.push({ Meta: item });
                                 self.data[item.id] = item;
+                                //console.log('new item ', item);
                             }
                             $.tmpl('livedesk>items/item', { 
                                     Post: posts,
@@ -212,15 +232,15 @@ define('providers/youtube', [
                         }
                         
                         
-                        if (parseInt(start + ipp) < total) {
+                        if (pageToken.length > 0) {
                             $('#ytb-src-more').tmpl('livedesk>providers/load-more', {
                                 name : 'ytb-src-load-more'
                             }, function(){
                                 $(this).find('[name="ytb-src-load-more"]').on('click', function(){
-                                    self.doSearch(parseInt(start + ipp));
+                                    self.doSearch(2);
                                 });
                             });       
-                        }
+                        } 
                     },
                     error : function(data){
                         self.noResults('#ytb-usr-results');

@@ -5,7 +5,7 @@
 {<ContainerTitleName}{Meta.title|s}{/ContainerTitleName}
 {<ContainerDescriptionText}{Meta.description_trimed|s}{/ContainerDescriptionText}
 {<SourceLink}http://youtube.com{/SourceLink}
-{<AuthorLink}//youtube.com/{Meta.uploader}{/AuthorLink}
+{<AuthorLink}//youtube.com/{?Meta.newapi}user/{/Meta.newapi}{Meta.uploader}{?Meta.newapi}/videos{/Meta.newapi}{/AuthorLink}
 {<AuthorShowed}{Meta.uploader}{/AuthorShowed}
 {<TimeShowed}{Meta.time_formated}{/TimeShowed}
 {<ContainerIframeUrl}//youtube.com/embed/{Meta.id}?wmode=opaque{/ContainerIframeUrl}
