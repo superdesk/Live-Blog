@@ -40,7 +40,7 @@
 {/share}
 
 {<splitedDateContainer}
-    <span class="post-datetime">{PublishedOn|splitted-post-date}</span>
+	<span class="post-datetime">{PublishedOn|splitted-post-date}</span>
 {/splitedDateContainer}
 
 {<splitedTimeContainer}
