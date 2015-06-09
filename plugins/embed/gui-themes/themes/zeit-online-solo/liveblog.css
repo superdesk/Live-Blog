@@ -150,6 +150,6 @@
 
 .liveblog-postlist li { padding-left: 0; }
 .liveblog-postlist li .post-header { display: none; }
-.liveblog-postlist li.advertisement .liveblog-post:before { content: none; }
+.liveblog-postlist li.scorecard .liveblog-post:before { content: none; }
 
 .liveblog-post:after { content: none; }
