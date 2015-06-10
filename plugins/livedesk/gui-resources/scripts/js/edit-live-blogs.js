@@ -384,7 +384,13 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 						if(self.model.updater === self) {
 							delete self.model.updater; return;
 						}
-						/*!
+                        /*!
+                         * Update also the view order.
+                         */
+						if(data.Order) {
+                            self.order = parseFloat(data.Order);
+                        }
+                        /*!
 						 * If the Change Id is received, then sync the hole model;
 						 */
 						//console.log('data: ',data);
@@ -727,17 +733,19 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 						this.el.find('ul.post-list').append(current.el);
 						self._views = [current];
 					} else {
-						var next, prev;
-						for(i=0; i<count; i++) {
-							if(current.order>self._views[i].order) {
+						var next, prev, str = [];
+						self._views.sort(function(a,b){return (a.order - b.order)});
+                        for(i=0; i<count; i++) {
+							str.push(self._views[i].order);
+                            if(current.order>self._views[i].order) {
 								prev = self._views[i];
 								prevIndex = i;
-							} else if(current.order<self._views[i].order) {
+							} else if(current.order<=self._views[i].order) {
 								next = self._views[i];
 								nextIndex = i;
 								break;
 							}						
-						}
+						}                     
 						if(next) {
 							current.el.insertAfter(next.el);
 							next.prev = current;
