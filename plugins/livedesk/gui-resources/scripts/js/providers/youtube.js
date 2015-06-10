@@ -21,6 +21,7 @@ define('providers/youtube', [
     'tmpl!livedesk>providers/google-more',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/error',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading'
     ], function( providers, str, $, BlogAction ) {
@@ -30,8 +31,8 @@ define('providers/youtube', [
             data: [],
             init: function(){
                 if(!this.initialized || !this.el.children(":first").length) {
+                    this.adaptor._parent = this;
                     this.adaptor.init();
-                    this.render();
                 }
                 this.initialized = true;
             },
@@ -78,26 +79,9 @@ define('providers/youtube', [
                 var self = this;
                 fresh = typeof fresh !== 'undefined' ? fresh : false;
                 var searchVal = $('#youtube-search-text').val();
-                if ( $('#ytb-src-tab').hasClass('active') ) {
-                    //do youtube search
-                    if ( (fresh || $('#ytb-src-results').html() == '') && searchVal != '') {
-                        self.doSearch(1);
-                    }
-                }
-           
-                if ( $('#ytb-fav-tab').hasClass('active') ) {
-                    //do youtube search
-                    if (fresh || $('#ytb-fav-results').html() == '') {
-                        self.doFavorites();
-                    }
-                }
-           
-                if ( $('#ytb-usr-tab').hasClass('active') ) {
-                    //do youtube search
-                    if (fresh || $('#ytb-usr-results').html() == '') {
-                        self.doUsers();
-                    }
-               
+                //do youtube video search
+                if ( (fresh || $('#ytb-src-results').html() == '') && searchVal != '') {
+                    self.doSearch(1);
                 }
             },
         
@@ -110,6 +94,11 @@ define('providers/youtube', [
             },
             noResults : function(where) {
                 $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
+                    $(where).html(o);
+                });
+            },
+            showError : function(where) {
+                $.tmpl('livedesk>providers/error', {}, function(e,o) {
                     $(where).html(o);
                 });
             },
@@ -155,14 +144,13 @@ define('providers/youtube', [
                     self.data = [];
                     $('#ytb-src-results').html('');
                 }
-                var fullUrl = 'https://www.googleapis.com/youtube/v3/search?q='+key+'&order='+ relevance +'&key=AIzaSyBoxAZyxD0ZWltHe3C40Rgk3rHqWopphQQ&part=snippet&maxResults=20&type=video';
+                var fullUrl = 'https://www.googleapis.com/youtube/v3/search?q='+key+'&order='+ relevance +'&key='+ this.api_key +'&part=snippet&maxResults=20&type=video';
                 fullUrl += ('&pageToken=' + pageToken);
                 $.ajax({
                     url: fullUrl,
                     dataType: 'json',
                     global: false,
                     success : function(myData) {
-                        console.log('myData ',myData);
                         self.stopLoading('#ytb-src-more');
                         //map
                         var myJson = {
@@ -243,178 +231,12 @@ define('providers/youtube', [
                         } 
                     },
                     error : function(data){
-                        self.noResults('#ytb-usr-results');
+                        self.showError('#ytb-src-results');
                     }
                 }).fail(function() {
                     self.stopLoading('#ytb-src-more');
-                    self.noResults('#ytb-usr-results');
+                    self.showError('#ytb-src-results');
                 })
-            },
-            doFavorites: function (start) {
-                var self = this;
-                var key = $('#youtube-search-text').val();
-                if(key == '') {
-                    return 1;
-                }
-                start = typeof start !== 'undefined' ? start : 1;
-                this.showLoading('#ytb-fav-more');
-                if (start == 1) {
-                    $('#ytb-fav-results').html('');
-                    self.data = [];
-                }
-                
-                var fullUrl = 'http://gdata.youtube.com/feeds/api/users/'+key+'/favorites?v=2&max-results=20&alt=jsonc&start-index='+start;
-                $.ajax({
-                    url: fullUrl,
-                    global: false,
-                    dataType: 'json',
-                    success : function(myData){
-                        self.stopLoading('#ytb-fav-more');
-                        var myJson = myData,
-                            results = myJson.data.items,
-                            total = myJson.data.totalItems,
-                            ipp = myJson.data.itemsPerPage,
-                            start = myJson.data.startIndex;                       
-                        if( start == 1 && total == 0) {
-                            self.noResults('#ytb-fav-results');
-                        } else {
-                            for( var item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
-                                item = myJson.data.items[i].video;
-                                item.type = 'favorites';
-                                item.time_formated = item.uploaded;
-                                item.description_trimed = self.trimDesc(item.description);
-                                posts.push({ Meta: item });
-                                self.data[item.id] = item;
-                            }
-                            $.tmpl('livedesk>items/item', { 
-                                    Post: posts,
-                                    Base: 'implementors/sources/youtube',
-                                    Item: 'sources/youtube'
-                                }, function(e,o) {
-                                    el = $('#ytb-fav-results').append(o).find('.youtube'); 
-                                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                        el.draggable({
-                                            addClasses: false,
-                                            revert: 'invalid',
-                                            //containment:'document',
-                                            helper: 'clone',
-                                            appendTo: 'body',
-                                            zIndex: 2700,
-                                            clone: true,
-                                            start: function(evt, ui) {
-                                                item = $(evt.currentTarget);
-                                                $(ui.helper).css('width', item.width());
-                                                var itemNo = $(this).attr('data-id');
-                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                            }
-                                        });
-                                    }).fail(function(){
-                                        el.removeClass('draggable');
-                                    });
-                                });
-                        }
-                        if (parseInt(start + ipp) < total) {
-                            $('#ytb-fav-more').tmpl('livedesk>providers/load-more', {
-                                name : 'ytb-fav-load-more'
-                            }, function(){
-                                $(this).find('[name="ytb-fav-load-more"]').on('click', function(){
-                                    self.doFavorites(parseInt(start + ipp));
-                                });
-                            });       
-                        }
-                    },
-                    error : function(data){
-                        self.noResults('#ytb-usr-results');
-                    }
-                }).fail(function() {
-                    self.stopLoading('#ytb-fav-more');
-                    self.noResults('#ytb-fav-results');
-                });
-                
-            },
-            doUsers: function (start) {
-                var self = this;
-                var key = $('#youtube-search-text').val();
-                if(key == '') {
-                    return 1;
-                }
-                start = typeof start !== 'undefined' ? start : 1;
-                
-                this.showLoading('#ytb-usr-more');
-                if (start == 1) {
-                    $('#ytb-usr-results').html('');
-                }
-                var fullUrl = 'http://gdata.youtube.com/feeds/api/users/'+key+'/uploads?v=2&max-results=20&alt=jsonc&start-index='+start;
-                $.ajax({
-                    url: fullUrl,
-                    global: false,
-                    dataType: 'json',
-                    success : function(myData){
-                        self.stopLoading('#ytb-usr-more');
-                        var myJson = myData,
-                            results = myJson.data.items,
-                            total = myJson.data.totalItems,
-                            ipp = myJson.data.itemsPerPage,
-                            start = myJson.data.startIndex;
-
-                        if( start == 1 && total == 0) {
-                            self.noResults('#ytb-usr-results');
-                        } else {
-                            for( var updated, item, posts = [], i = 0, count = myJson.data.items.length; i < count; i++ ){
-                                item = myJson.data.items[i];
-                                item.type = 'user';
-                                
-                                item.time_formated = new Date(item.updated).format(_('ddd mmm dd yyyy HH:MM:ss'));
-                                item.description_trimed = self.trimDesc(item.description);
-                                posts.push({ Meta: item });
-                                self.data[item.id] = item;
-                            }
-                            $.tmpl('livedesk>items/item', { 
-                                    Post: posts,
-                                    Base: 'implementors/sources/youtube',
-                                    Item: 'sources/youtube'
-                                }, function(e,o) {
-                                    el = $('#ytb-usr-results').append(o).find('.youtube'); 
-                                    BlogAction.get('modules.livedesk.blog-post-publish').done(function(action) {
-                                        el.draggable({
-                                            addClasses: false,
-                                            revert: 'invalid',
-                                            //containment:'document',
-                                            helper: 'clone',
-                                            appendTo: 'body',
-                                            zIndex: 2700,
-                                            clone: true,
-                                            start: function(evt, ui) {
-                                                item = $(evt.currentTarget);
-                                                $(ui.helper).css('width', item.width());
-                                                var itemNo = $(this).attr('data-id');
-                                                $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
-                                            }
-                                        });
-                                    }).fail(function(){
-                                        el.removeClass('draggable');
-                                    });
-                                });
-                        }
-                        
-                        if (parseInt(start + ipp) < total) {
-                            $('#ytb-usr-more').tmpl('livedesk>providers/load-more', {
-                                name : 'ytb-usr-load-more'
-                            }, function(){
-                                $(this).find('[name="ytb-usr-load-more"]').on('click', function(){
-                                    self.doUsers(parseInt(start + ipp));
-                                });
-                            });       
-                        }
-                    },
-                    error : function(data){
-                        self.noResults('#ytb-usr-results');
-                    }
-                }).fail(function() {
-                    self.stopLoading('#ytb-usr-more');
-                    self.noResults('#ytb-usr-results');
-                });
-                
             }		
         });
         return providers;
