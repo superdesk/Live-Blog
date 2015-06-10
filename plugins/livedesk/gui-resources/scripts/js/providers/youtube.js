@@ -6,6 +6,7 @@
 define('providers/youtube', [
     'providers','utils/str', 
     'jquery',
+    'moment',
     config.guiJs('livedesk', 'action'),
     'jquery/tmpl',
     'jquery/jsonp',
@@ -24,7 +25,7 @@ define('providers/youtube', [
     'tmpl!livedesk>providers/error',
     'tmpl!livedesk>providers/jsonp-error',
     'tmpl!livedesk>providers/loading'
-    ], function( providers, str, $, BlogAction ) {
+    ], function( providers, str, $, moment, BlogAction ) {
         $.extend(providers.youtube, {
             initialized: false,
             
@@ -170,7 +171,7 @@ define('providers/youtube', [
                                     sqDefault: item.snippet.thumbnails.default.url
                                 }
                                 item.id = item.id.videoId;
-                                item.updated = item.snippet.publishedAt;
+                                item.updated = moment(item.snippet.publishedAt).format('MM/DD/YYYY, h:mm:ss A');
                                 item.uploader = item.snippet.channelTitle;
                                 item.newapi = true;
                                 //end mapper
