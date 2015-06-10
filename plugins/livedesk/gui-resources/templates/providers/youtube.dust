@@ -1,15 +1,11 @@
 <div class="search-header">
-	<ul class="search-controls" id="ytb-search-controls">
-	  <li class="active" id="ytb-src-tab"><a href="#">_("Search");</a></li>
-	  <li id="ytb-fav-tab"><a href="#">_("User's favorites");</a></li>
-	  <li id="ytb-usr-tab"><a href="#">_("User's videos");</a></li>
-	</ul>
 	<input type="text" placeholder="_('Search');" id="youtube-search-text">
         <select id="ytb-order-by">
             <option value='relevance'>_('Relevance');</option>
-            <option value='published'>_('Published');</option>
+            <option value='date'>_('Date');</option>
             <option value='viewCount'>_('Views');</option>
             <option value='rating'>_('Rating');</option>
+            <option value='title'>_('Title');</option>
         </select>
 </div>
 
@@ -17,16 +13,4 @@
 <ul class="search-result-list scroller" id="ytb-src-holder" style="margin-top:37px">
 	<ul id="ytb-src-results" class="search-result-list clearfix" style=""></ul>
 	<ul id="ytb-src-more" class="sources-show-more"></ul>
-</ul>
-
-<!--search results for user's favorites search -->
-<ul class="search-result-list scroller" id="ytb-fav-holder" style="visibility: hidden">
-	<ul id="ytb-fav-results" class="search-result-list clearfix"></ul>
-	<ul id="ytb-fav-more" class="sources-show-more"></ul>
-</ul>
-
-<!--search results for news search -->
-<ul class="search-result-list scroller" id="ytb-usr-holder" style="visibility: hidden;">
-	<ul id="ytb-usr-results" class="search-result-list clearfix"></ul>
-	<ul id="ytb-usr-more" class="sources-show-more"></ul>
 </ul>
