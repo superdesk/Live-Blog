@@ -1,0 +1,23 @@
+{>"themeBase/container"/}
+
+{! Empty default blocks !}
+
+{<headerContainer}
+{/headerContainer}
+
+{<footerContainer}
+{/footerContainer}
+
+{<contentTopContainer}
+	<div class="liveblog-content-top">
+		<div class="liveblog-content-top-bar">
+			{+contentTop}
+				{+status}{/status}
+				{+statusNewPost}{/statusNewPost}
+			{/contentTop}
+		</div>
+	</div>
+{/contentTopContainer}
+
+{<contentBottomContainer}
+{/contentBottomContainer}
