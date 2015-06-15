@@ -1,0 +1,98 @@
+// Get font-size in point size (em)
+// @function  em
+// @param     $font-size {Number} font size in pixel
+// @param     $contex    {Number} base font size in pixel
+// @return    {Number} font-size in em
+
+@function em($font-size, $context: $base-font-size) {
+	@return $font-size / $context + 0em;
+}
+
+@function rem($px) {
+	@return $px / 16px * 1rem;
+}
+
+@function em_to_rem($em) {
+	@return $em / 1em * 1rem;
+}
+
+@function fix-gradient-direction($direction-or-angle) {
+	$direction: compact();
+	$opposite-direction: compact();
+	@if nth($direction-or-angle, 1) == "to" {
+		$direction: $direction-or-angle;
+		@for $i from 2 through length($direction-or-angle) {
+			$opposite-direction: append($opposite-direction, opposite-position(nth($direction-or-angle, $i)), space);
+		}
+	}
+	@else if type-of($direction-or-angle) == number {
+		$direction: $direction-or-angle;
+		$opposite-direction: abs($direction-or-angle - 450) % 360;
+	}
+	@else {
+		$direction: append($direction, to, space);
+		@each $pos in $direction-or-angle {
+			$direction: append($direction, opposite-position($pos), space);
+		}
+		$opposite-direction: $direction-or-angle;
+	}
+	@return $direction, $opposite-direction;
+}
+
+@function parseInt($n) {
+	@return $n / ($n * 0 + 1);
+}
+
+$rem-to-px-conversion: false !default;
+$rem-to-px-base: 16 !default;
+
+// converts pixel values to rem and provides a px fallback on a stylesheet base
+//
+// the sass variable $rem-to-px-conversion defaults to false.
+// for older browsers you can override this in a separate stylesheet and
+// all values will outputted as is without a conversion.
+//
+// the conversion base for px to rem conversions can be configuried
+// via $rem-to-px-base and defaults to 16 (as in most browsers)
+//
+// based on work by David Walsh: http://davidwalsh.name/rem-px-browser-function-sass
+//
+// @param  {String} $values One or more px values
+// @return {String} values in rem or px, depending on the configuration
+//
+// @example
+// margin: remify(32px 0 24px 0)
+// returns: margin: 2rem 0 1.5rem 0
+// and for IE: margin: 32px 0 24px 0
+
+@function remify($values) {
+	// sanity-checks
+	@if not global-variable-exists(rem-to-px-conversion) {
+		@error "Please provide variable named $rem-to-px-conversion";
+	}
+	@if not global-variable-exists(rem-to-px-base) {
+		@error "Please provide variable named $$rem-to-px-base";
+	}
+	$list: ();
+	// there can be CSS attributes with more than one value
+	@each $value in $values {
+		$unit: unit($value);
+		$val: parseInt($value);
+		@if $rem-to-px-conversion and $unit == "px" {
+			$list: append($list, $value);
+		}
+		@else if $unit == "px" {
+			$list: append($list, $val / $rem-to-px-base * 1rem);
+		}
+		@else if $unit == "em" {
+			$list: append($list, $val * 1rem);
+		}
+		@else if $unit == "" {
+			$list: append($list, $value);
+		}
+		@else {
+			@warn "There is currently no unit conversion for #{$unit}";
+		}
+	}
+	@return $list;
+}

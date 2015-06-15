@@ -39,22 +39,31 @@ define([
                 // the post in different social networks
                 view.share = function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
 
                     var self = this,
+                        item = self.$(e.target),
+                        initialized = item.data('initialized'),
+                        urlParams;
+
+                    if (!initialized) {
                         urlParams = socialUrlParams(self);
 
-                    // Store the share urls for the different social networks
-                    self.socialShareUrls = socialUrls(urlParams);
+                        // Store the share urls for the different social networks
+                        self.socialShareUrls = socialUrls(urlParams);
 
-                    // Add the box after the social share link
-                    dust.renderThemed('themeBase/plugins/social-share',
-                        socialParams(urlParams),
-                        function(err, out) {
-                            self.$('[data-gimme="post.social-share-placeholder"]').append(out);
-                        });
+                        // Add the box after the social share link
+                        dust.renderThemed('themeBase/plugins/social-share',
+                            socialParams(urlParams),
+                            function(err, out) {
+                                self.$('[data-gimme="post.social-share-placeholder"]').append(out);
+                            });
 
-                    // Bind events for social network buttons
-                    bindShareButtonsEvents(self);
+                        // Bind events for social network buttons
+                        bindShareButtonsEvents(self);
+
+                        item.data('initialized', 1);
+                    }
 
                     // Toggle visibility of social share box,
                     // if the box is hidden, hide other share plugins markup too
