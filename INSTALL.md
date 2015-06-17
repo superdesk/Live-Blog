@@ -85,6 +85,11 @@ In order to access the application from other machines the following changes nee
     ```
     E.g.: server_url: my.machine.domain.com:8080
     ```
+3. If settings were not applied try:
+
+    ```
+    $ python3.2 application.py -dump
+    ```
 
 
 ### For distribustions other than debian/ubuntu
@@ -140,31 +145,44 @@ workspace_path: /opt
 And in mongrel configuration file add definition like:
 
 ```
-<......>
+settings = {
+    'zeromq.threads': 1,
+    'upload.temp_store': 'mongrel2/tmp/upload.XXXXXX',
+    'upload.temp_store_mode': '0666'
+}
+
+servers = [main]
+
 main = Server(
+    uuid="mongrel2-01",
     chroot="/opt",
-<......>
-    Host(
-        name="liveblog",
-        matching="liveblog.mydomain.com",
-        routes={
-    	'/resources/': Handler(
-    	    send_spec='ipc://run/send-liveblog',
-    	    send_ident='liveblog',
-    	    recv_spec='ipc://run/recv-liveblog',
-    	    recv_ident=''
-    	)
-        '/content/': Dir(
-    	    base='ally-py/live-blog/distribution/workspace/shared/cdm/',
-    	    index_file='/lib/core/start.html',
-    	    default_ctype='text/plain'
-    	)
-        }
-    )
-<......>
+    access_log="/mongrel2/log/access.log",
+    error_log="/mongrel2/log/error.log",
+    pid_file="/mongrel2/tmp/mongrel2.pid",
+    default_host="liveblog",
+    name="main",
+    port=8080,
+    hosts=[
+        Host(
+            name="liveblog",
+            matching="example.com",
+            routes={
+                '/resources/': Handler(
+                    send_spec='ipc://run/send-liveblog',
+                    send_ident='liveblog',
+                    recv_spec='ipc://run/recv-liveblog',
+                    recv_ident=''
+                )
+            '/content/': Dir(
+                    base='ally-py/liveblog/distribution/workspace/shared/cdm/',
+                    index_file='/lib/core/start.html',
+                    default_ctype='text/plain'
+                )
+            }
+)])
 ```
 
->Instead of `/opt/` you can use any other path suitable for your system configuration.
+And create `/opt/mongrel2/{tmp,log}` folders. Instead of `/opt/` you can use any other path suitable for your system configuration.
 
 You can go to [sourcefabric forums] (https://forum.sourcefabric.org/categories/superdesk-dev) for more info.
 
@@ -178,5 +196,15 @@ http://localhost:8080/content/lib/core/start.html
 And here is an embed example:
 
 ```
-http://localhost:8080/content/lib/livedesk-embed/index.html?theme=default&id=1
+http://localhost:8080/content/lib/embed/index.html
+```
+
+For generating SEO-compatible you need to configure and start embed server:
+```
+https://github.com/liveblog/plugin-liveblog-embed-server
+#@TODO: or https://github.com/superdesk/Live-Blog/tree/master/plugins/embed ?
+```
+and set it in `plugin.properties`:
+```
+seoSynchronizer.html_generation_server: http://localhost:9000/
 ```
