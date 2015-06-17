@@ -88,7 +88,7 @@ In order to access the application from other machines the following changes nee
 3. If settings were not applied try:
 
     ```
-    $ python3.2 application.py -dump
+    $ python3.2 application.py -repair
     ```
 
 
