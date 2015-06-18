@@ -54,7 +54,7 @@
 .liveblog-postlist li .post-comment.comment-before { padding-bottom: .6em; }
 .liveblog-postlist li .post-comment.comment-after { padding-top: .6em; }
 .liveblog-postlist li .post-publisher-avatar { background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0; border-radius: 50%; margin-left: 1em; width: 2.625em; height: 2.625em; display: none; }
-.liveblog-postlist li .post-publisher-avatar-img { width: 2.625em; height: 2.625em; background-size: cover; display: block; }
+.liveblog-postlist li .post-publisher-avatar-img { width: 2.625em; height: 2.625em; background-size: cover; border-radius: 50%; display: block; }
 .liveblog-postlist li .post-header { zoom: 1; color: #707070; letter-spacing: 0.03em; margin-bottom: 1.25em; position: relative; z-index: 2; }
 .liveblog-postlist li .post-header:after { content: ""; display: table; clear: both; }
 @media screen and (min-width: 32.5em) { .liveblog-postlist li .post-header-meta { float: left; }
