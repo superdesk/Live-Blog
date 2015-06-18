@@ -315,6 +315,7 @@ $publisher-avatar-width: em(42px);
 			width: $publisher-avatar-width;
 			height: $publisher-avatar-width;
 			background-size: cover;
+			border-radius: 50%;
 			display: block;
 		}
 
