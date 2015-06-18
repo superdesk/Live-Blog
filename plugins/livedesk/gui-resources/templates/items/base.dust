@@ -60,7 +60,7 @@
 			<div class="attributes">
 				<i class="source-icon">
 					{+SourceIcon}
-					<img src="http://g.etfv.co/{+SourceLink}{/SourceLink}" style="max-width: 16px" border="0">
+					<img src="http://www.google.com/s2/favicons?domain_url={+SourceLink}{/SourceLink}" style="max-width: 16px" border="0">
 					{/SourceIcon}
 				</i>
 				<!-- i.source-icon and a.author-name tag displays for:

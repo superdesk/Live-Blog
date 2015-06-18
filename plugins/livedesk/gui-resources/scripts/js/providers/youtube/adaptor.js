@@ -10,11 +10,15 @@ define([
             init: function() {
                 var self = this;
                 new $.restAuth('Data/Collaborator/')
-                    .xfilter('Id')
+                    .xfilter('Id, Source.Key')
                     .request({data: { 'qs.name': 'youtube'}})
                     .done(function(collabs) {
-                        if($.isDefined(collabs[0])) 
+                        if($.isDefined(collabs[0])) {
                             self.author = collabs[0].Id;
+                            self.key = collabs[0].Source.Key;    
+                        }
+                        self._parent.api_key = self.key;
+                        self._parent.render();
                     });
             },
             universal: function(obj) {

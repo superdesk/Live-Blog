@@ -11,7 +11,8 @@
             'flickr',
             'soundcloud',
             'twitter',
-            'facebook'
+            'facebook',
+            'youtube'
         ],
         init: function() {
             var self = this;

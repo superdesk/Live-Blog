@@ -2,12 +2,15 @@
 
 python_cli=python3.2
 
-ally_py_dir=..
+current_dir=$(readlink -e $(dirname "$0"))
+distribution_dir=$current_dir/distribution
+ally_py_dir=$(readlink -e $current_dir/..)
 
-dirs="$ally_py_dir/components $ally_py_dir/plugins plugins"
+cleanup="$distribution_dir/plugins $distribution_dir/components $distribution_dir/distribution.properties"
+for path in $cleanup; do rm -r "$path"; done
 
+dirs="$ally_py_dir/components $ally_py_dir/plugins $current_dir/plugins"
 export PYTHONPATH=distribution/tools/distribute-0.6.27-py3.2.egg
-
 for dir in $dirs; do $python_cli "$dir/build_egg.py"; done
 
-$python_cli "plugins/copy_eggs.py"
+$python_cli "$current_dir/plugins/copy_eggs.py"

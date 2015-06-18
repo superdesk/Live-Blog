@@ -126,6 +126,7 @@ SOURCES = {
            'youtube': (False, 'www.youtube.com', 'xml', ''),
            'instagram': (False, 'www.instagram.com', 'xml', 'daa5f588be7c4ce4b5771ec8653bcf44'),
            'soundcloud': (False, 'www.soundcloud.com', 'xml', 'd98e8886a3f474440649a28ecf79b889'),
+           'youtube': (False, 'www.youtube.com', 'xml', 'AIzaSyBoxAZyxD0ZWltHe3C40Rgk3rHqWopphQQ')
            }
 
 

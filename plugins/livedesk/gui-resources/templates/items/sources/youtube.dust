@@ -1,17 +1,17 @@
 {>"livedesk>items/sources/base"/}
 {<Container}{/Container}
 {<ProviderClass}youtube{/ProviderClass}
-{<ContainerTitleLink}//youtube.com/watch?v={Meta.id}"{/ContainerTitleLink}
+{<ContainerTitleLink}//youtube.com/watch?v={Meta.id}{/ContainerTitleLink}
 {<ContainerTitleName}{Meta.title|s}{/ContainerTitleName}
 {<ContainerDescriptionText}{Meta.description_trimed|s}{/ContainerDescriptionText}
 {<SourceLink}http://youtube.com{/SourceLink}
-{<AuthorLink}//youtube.com/{Meta.uploader}{/AuthorLink}
+{<AuthorLink}//youtube.com/{?Meta.newapi}user/{/Meta.newapi}{Meta.uploader}{?Meta.newapi}/videos{/Meta.newapi}{/AuthorLink}
 {<AuthorShowed}{Meta.uploader}{/AuthorShowed}
 {<TimeShowed}{Meta.time_formated}{/TimeShowed}
 {<ContainerIframeUrl}//youtube.com/embed/{Meta.id}?wmode=opaque{/ContainerIframeUrl}
 {<ContainerIframeClass}youtube-content{/ContainerIframeClass}
 {<ContainerIframeAttributes}style='display: block' width='450px' height='300px' frameborder="0"{/ContainerIframeAttributes}
-{<ContentImageLink}{Meta.player.default}{/ContentImageLink}
+{<ContentImageLink}//youtube.com/watch?v={Meta.id}{/ContentImageLink}
 {<ContentImageTitle}{Meta.title|s}{/ContentImageTitle}
 {<ContentImageUrl}{Meta.thumbnail.sqDefault}{/ContentImageUrl}
 {<ContentImageAlt}{Meta.title|s}{/ContentImageAlt}
