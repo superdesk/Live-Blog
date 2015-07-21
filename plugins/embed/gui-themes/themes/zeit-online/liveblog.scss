@@ -204,10 +204,10 @@ $publisher-avatar-width: em(42px);
 		.post-buttons {
 			position: absolute;
 			right: 0;
-			bottom: em(10px);
+			bottom: em(5px);
 
 			@include respond-min($break-phablet-min) {
-				bottom: em(20px);
+				bottom: em(15px);
 			}
 			@include respond-min($break-tablet-min) {
 				display: none;
@@ -222,7 +222,7 @@ $publisher-avatar-width: em(42px);
 			font-size: em(14px);
 			line-height: 2;
 			color: inherit;
-			background: rgba(0,0,0,0.1) url("img/share.png") no-repeat 0 0;
+			background: transparent url("img/share.png") no-repeat 0 0;
 			padding: 5px 0 5px 48px;
 			float: right;
 			overflow: hidden;
@@ -230,7 +230,7 @@ $publisher-avatar-width: em(42px);
 
 			@include respond-min($break-phablet-min) {
 				padding-left: 40px;
-				padding-right: 12px;
+				padding-right: 20px;
 				width: auto;
 			}
 		}
@@ -560,11 +560,11 @@ $publisher-avatar-width: em(42px);
 			.liveblog-post:before {
 				content: '';
 				position: absolute;
-				width: 2px;
+				width: 1px;
 				height: 100%;
 				background-color: #ccc;
 				top: 0;
-				left: -1px;
+				left: 0;
 				z-index: 1;
 			}
 		}
