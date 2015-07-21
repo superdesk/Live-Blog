@@ -29,12 +29,12 @@
 @media screen and (min-width: 61.25em) { .liveblog-postlist li .post-time { margin-left: -77px; } }
 .liveblog-postlist li .post-time:hover { background-color: white; border-left-color: white; }
 .liveblog-postlist li .post-publisher-name { display: block; font-weight: bold; margin-top: 1em; }
-.liveblog-postlist li .post-buttons { position: absolute; right: 0; bottom: 0.625em; }
-@media screen and (min-width: 32.5em) { .liveblog-postlist li .post-buttons { bottom: 1.25em; } }
+.liveblog-postlist li .post-buttons { position: absolute; right: 0; bottom: 0.3125em; }
+@media screen and (min-width: 32.5em) { .liveblog-postlist li .post-buttons { bottom: 0.9375em; } }
 @media screen and (min-width: 48em) { .liveblog-postlist li .post-buttons { display: none; } }
 .liveblog-postlist li:hover .post-buttons { display: block; }
-.liveblog-postlist li .sf-share { font-size: 0.875em; line-height: 2; color: inherit; background: rgba(0, 0, 0, 0.1) url("img/share.png") no-repeat 0 0; padding: 5px 0 5px 48px; float: right; overflow: hidden; width: 48px; }
-@media screen and (min-width: 32.5em) { .liveblog-postlist li .sf-share { padding-left: 40px; padding-right: 12px; width: auto; } }
+.liveblog-postlist li .sf-share { font-size: 0.875em; line-height: 2; color: inherit; background: transparent url("img/share.png") no-repeat 0 0; padding: 5px 0 5px 48px; float: right; overflow: hidden; width: 48px; }
+@media screen and (min-width: 32.5em) { .liveblog-postlist li .sf-share { padding-left: 40px; padding-right: 20px; width: auto; } }
 .liveblog-postlist li .share-box { color: #707070; float: right; padding: 9px 20px 0 10px; display: none; }
 .liveblog-postlist li .share-box:last-child { display: block; }
 .liveblog-postlist li .share-box span { float: left; font-size: 0.875em; }
@@ -102,7 +102,7 @@
 .liveblog-postlist li.wrapup .post-text { font-weight: bold; padding-left: 40px; }
 .liveblog-postlist li.wrapup-open .big-toggle { background-position: 0 -21px; }
 .liveblog-postlist li.wrapup .post-header, .liveblog-postlist li.wrapup .post-footer, .liveblog-postlist li.advertisement .post-header, .liveblog-postlist li.advertisement .post-footer { display: none; }
-.liveblog-postlist li.wrapup .liveblog-post:before, .liveblog-postlist li.advertisement .liveblog-post:before { content: ''; position: absolute; width: 2px; height: 100%; background-color: #ccc; top: 0; left: -1px; z-index: 1; }
+.liveblog-postlist li.wrapup .liveblog-post:before, .liveblog-postlist li.advertisement .liveblog-post:before { content: ''; position: absolute; width: 1px; height: 100%; background-color: #ccc; top: 0; left: 0; z-index: 1; }
 .liveblog-postlist li.scorecard { color: white; background-color: #e16752; }
 .liveblog-postlist li.scorecard .post-header { color: white; }
 .liveblog-postlist li.scorecard .post-time { color: #444444; background-color: white; }
