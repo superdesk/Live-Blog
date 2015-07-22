@@ -102,6 +102,10 @@ requirejs([
     layout.blogModel.get('publishedPosts').on('sync', function() {
         if (!sent) {
             sent = true;
+            // by default cheerio is decoding html value attributes.
+            // assume that this is right.
+            // ex: syle="background:'url(image)'" became syle="background:&apos;url(image)&apos;"
+            layout.$el.options.decodeEntities = false;
             console.log(JSON.stringify({code: 200, body: layout.render().$el.html()}));
         }
     });
