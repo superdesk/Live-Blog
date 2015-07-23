@@ -734,12 +734,12 @@ $publisher-avatar-width: em(42px);
 	&:after {
 		content: '';
 		position: absolute;
-		width: 2px;
+		width: 1px;
 		height: 100%;
 		height: calc(100% - 36px);
 		background-color: #ccc;
 		top: em(56px);
-		left: -1px;
+		left: 0;
 		z-index: 1;
 	}
 
