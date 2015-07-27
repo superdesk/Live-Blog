@@ -23,7 +23,11 @@ define([
 
             utils.dispatcher.on('after-render.post-view', function(view) {
                 // Add social share link to the view
-                dust.renderThemed('themeBase/plugins/social-share-anchor', {},
+                var data = {};
+                if (view.permalink && typeof view.permalink === 'function') {
+                    data = {permalink: view.permalink()};
+                }
+                dust.renderThemed('themeBase/plugins/social-share-anchor', data,
                     function(err, out) {
                         view.$('[data-gimme="post.social-share-placeholder"]').html(out);
                     });
@@ -51,7 +55,6 @@ define([
 
                         // Store the share urls for the different social networks
                         self.socialShareUrls = socialUrls(urlParams);
-
                         // Add the box after the social share link
                         dust.renderThemed('themeBase/plugins/social-share',
                             socialParams(urlParams),
@@ -98,9 +101,10 @@ define([
                     summary   = fixedEncodeURIComp(
                                 view.$('.result-content .result-text:last').text());
 
-                var permLink  = '';
+                var permLink  = '', permLinkDecode = '';
                 if (view.permalink && typeof view.permalink === 'function') {
-                    permLink  = fixedEncodeURIComp(view.permalink());
+                    permLinkDecode = view.permalink();
+                    permLink  = fixedEncodeURIComp(permLinkDecode);
                 }
 
                 var imgsrc    = view.$('.result-content img:first').attr('src');
@@ -120,7 +124,8 @@ define([
                     lin:   [permLink, blogTitle, summary],
                     ggl:   [permLink],
                     email: [gt.gettext('Check out this Live Blog'), permLink],
-                    fb:    [blogTitle, summary, permLink, fbURLImageComp]
+                    fb:    [blogTitle, summary, permLink, fbURLImageComp],
+                    permalink: permLinkDecode
                 };
 
                 return urlParams;
@@ -129,8 +134,6 @@ define([
             // Return the sharing urls for the different social networks
             var socialUrls = function(urlParams) {
                 var urls = {};
-
-                delete urlParams.email;
 
                 _.each(urlParams, function(value, key) {
                     urls[key] = gt.sprintf(shareConf.urls[key],
@@ -145,6 +148,7 @@ define([
                 var params = {};
 
                 params.emailurl =  gt.sprintf(shareConf.urls.email, urlParams.email);
+                params.permalink = urlParams.permalink;
 
                 return params;
             };
