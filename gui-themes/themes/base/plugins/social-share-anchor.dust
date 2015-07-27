@@ -1,1 +1,1 @@
-<a data-gimme="post.social" href="#" class="sf-share">_('Share');</a>
+<a data-gimme="post.social" href="{permalink}" class="sf-share">_('Share');</a>

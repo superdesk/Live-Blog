@@ -1,8 +1,8 @@
 <div data-gimme="post.share-social" class="share-box" style="visibility:hidden">
-	<a href="#" class='social facebook' target='_blank' title="_('Share this post on Facebook');" data-gimme="fb"></a>
-	<a href="#" class='social twitter' target='_blank' title="_('Share this post on Twitter');" data-gimme="twt"></a>
-	<a href="#" class='social linkedin' title="_('Share this post on Linkedin');" data-gimme="lin"></a>
-	{#showPin}<a href="#" class='social pinterest' title="_('Share this post on Pinterest');" data-gimme="pin"></a>{/showPin}
-	<a href="#" class='social google' title="_('Share this post on Google+');" data-gimme="ggl"></a>
+	<a href="{permalink}" class='social facebook' target='_blank' title="_('Share this post on Facebook');" data-gimme="fb"></a>
+	<a href="{permalink}" class='social twitter' target='_blank' title="_('Share this post on Twitter');" data-gimme="twt"></a>
+	<a href="{permalink}" class='social linkedin' title="_('Share this post on Linkedin');" data-gimme="lin"></a>
+	{#showPin}<a href="{permalink}" class='social pinterest' title="_('Share this post on Pinterest');" data-gimme="pin"></a>{/showPin}
+	<a href="{permalink}" class='social google' title="_('Share this post on Google+');" data-gimme="ggl"></a>
 	<a href="{emailurl}" class='social email' title="_('Share this post via Email');" target="_blank"></a>
 </div>
