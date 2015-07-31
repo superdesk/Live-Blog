@@ -9,9 +9,8 @@ define([
     plugins['post-hash'] = function(config) {
 
         var href,
-            hash = 'liveblog.item.id',
+            hash = liveblog.hashname ? liveblog.hashname : 'liveblog.item.id',
             hashMark = liveblog.hashmark ? liveblog.hashmark : '?';
-
         if (utils.isClient) {
             href = window.location.href;
         } else {
@@ -25,15 +24,16 @@ define([
             view.permalink = function(options) {
                 var _hashMark = (options && options.hashMark) ? options.hashMark : hashMark,
                     permalink = false,
-                    newHash = hash + '=' + parseFloat(view.model.get('Order'));
+                    newHash = hash + '=' + parseFloat(view.model.get('Order')),
+                    addition = liveblog.hashaddition ? liveblog.hashaddition : '';
 
                 if (href.indexOf(_hashMark) === -1) {
-                    permalink = href + _hashMark + newHash;
+                    permalink = href + _hashMark + newHash + addition;
                 } else if (href.indexOf(hash + '=') !== -1) {
                     var regexHash = new RegExp(escapeRegExp(hash) + '=[^&#]*');
                     permalink = href.replace(regexHash, newHash);
                 } else {
-                    permalink = href + '&' + newHash;
+                    permalink = href + '&' + newHash + addition;
                 }
                 return permalink;
             };
