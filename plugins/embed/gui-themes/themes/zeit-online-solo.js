@@ -14,7 +14,8 @@ define([
     'tmpl!theme/item/predefined/scorecard'
 ], function(dust, gt, moment) {
     'use strict';
-
+    liveblog.hashmark = '?';
+    liveblog.hashaddition = '#livedesk-root';
     return {
         plugins: [
             // 'scroll-pagination',

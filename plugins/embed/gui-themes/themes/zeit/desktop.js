@@ -9,6 +9,8 @@ define([
     'tmpl!theme/container',
     'tmpl!theme/item/base'
 ], function() {
+    liveblog.hashmark = '?';
+    liveblog.hashaddition = '#livedesk-root';
     return {
         plugins: [
             'button-pagination',
