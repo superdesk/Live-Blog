@@ -226,6 +226,7 @@ define('providers/edit', [
 		renderFBEmbed: function() {
 			if (typeof(FB) != 'undefined') {
 	            FB.XFBML.parse();
+	            FB.Canvas.setSize({ width: 640, height: 480 });
 		    }
 		},
 		init: function()
