@@ -23,7 +23,8 @@ define([
 //                            ['*', 'Author.Source.*', 'Creator.*'].join(',')
             },
             data: {
-                thumbSize: 'medium'
+                thumbSize: 'medium',
+                version: liveblog.urlArgs.substring(8)
             },
             pagination: {},
             updates: {}
