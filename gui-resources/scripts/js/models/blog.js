@@ -13,6 +13,9 @@ define([
             headers: {
                 'X-Filter': 'Description, Title, EmbedConfig, Language.Code'
             },
+            data: {
+                version: liveblog.urlArgs.substring(8)
+            },
             updates: {}
         },
 
