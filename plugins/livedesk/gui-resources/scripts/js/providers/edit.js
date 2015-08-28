@@ -32,11 +32,17 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/imagelink',
     'tmpl!livedesk>providers/loading',
     'tmpl!livedesk>providers/generic-error',
+    '//connect.facebook.net/en_US/sdk.js'
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
+  window.fbAsyncInit = function() {
+    FB.init({
+      xfbml: true,
+      version: 'v2.3'
+    });
+  };
   var uploadView = new UploadView({thumbSize: 'medium'});
-	var 
-	OwnCollection = Gizmo.Collection.extend({
+  var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
 			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
@@ -220,15 +226,30 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
 			'.insert-link' : {'focusout':'populateUrlInfo'},
-			'article.editable': {'htmlOkButton': 'renderFBEmbed'},
+			'article.editable': {'htmlOkButtonBefore': 'parseFBEmbed'},
+            'article.editable': {'htmlOkButton': 'renderFBEmbed'},            
 			"[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
 		},
-		renderFBEmbed: function() {
-			if (typeof(FB) != 'undefined') {
-	            FB.XFBML.parse();
-	            FB.Canvas.setSize({ width: 640, height: 480 });
-		    }
+		parseFBEmbed: function(evt, parent) {
+            var el = $(parent).find('textarea.editor-code'),
+                code = el.val();
+            var strScript = '<script'+'>(function(d, s, id) {  var js, fjs = d.getElementsByTagName(s)[0];  if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = "//connect.facebook.net',
+                strDiv = '<div class="fb-post" data-href="',
+                regxScript = new RegExp(escapeRegExp(strScript).replace(' ','\\s+') + '(.*?)<\/script>', 'g'),
+                regxDiv = new RegExp(escapeRegExp(strDiv).replace(' ','\\s+') + '[^>]*>(.*?)<\/div>', 'g');
+            code = code.replace(/<div id="fb-root"><\/div>/g,'');
+            code = code.replace(regxScript,'').replace(regxDiv,function(code){
+                var fbPost = code.match(/([^"]*)facebook.com([^"]*)/);
+                if(fbPost) {
+                    return '<div class="fb-post" data-href="'+fbPost[0]+'">';
+                }
+                return '<div>';
+            });                
+            el.val(code);
 		},
+        renderFBEmbed: function(evt, parent) {
+            FB.XFBML.parse();
+        },
 		init: function()
 		{
 			var self = this,
