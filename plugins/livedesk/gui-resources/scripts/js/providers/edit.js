@@ -35,12 +35,9 @@ define('providers/edit', [
     '//connect.facebook.net/en_US/sdk.js'
     
 ], function( providers, $, Gizmo, BlogAction, PostType, Post, uploadCom, URLInfo, Blog, UploadView) {
-  window.fbAsyncInit = function() {
-    FB.init({
-      xfbml: true,
-      version: 'v2.3'
-    });
-  };
+  var escapeRegExp = function(string) {
+    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+  };  
   var uploadView = new UploadView({thumbSize: 'medium'});
   var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
@@ -226,8 +223,7 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
 			'.insert-link' : {'focusout':'populateUrlInfo'},
-			'article.editable': {'htmlOkButtonBefore': 'parseFBEmbed'},
-            'article.editable': {'htmlOkButton': 'renderFBEmbed'},            
+			'article.editable': {'htmlOkButtonBefore': 'parseFBEmbed', 'htmlOkButton': 'renderFBEmbed'},
 			"[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
 		},
 		parseFBEmbed: function(evt, parent) {
@@ -244,11 +240,11 @@ define('providers/edit', [
                     return '<div class="fb-post" data-href="'+fbPost[0]+'">';
                 }
                 return '<div>';
-            });                
+            });
             el.val(code);
 		},
         renderFBEmbed: function(evt, parent) {
-            FB.XFBML.parse();
+            window.FB.XFBML.parse();
         },
 		init: function()
 		{
