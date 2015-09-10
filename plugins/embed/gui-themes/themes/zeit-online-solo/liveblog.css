@@ -112,7 +112,7 @@
 @media screen and (min-width: 48em) { .liveblog-postlist li.scorecard .post-content h1 { font-size: 10rem; margin-top: 25px; } }
 .liveblog-postlist li.scorecard .post-content a { color: white; border-bottom-color: rgba(255, 255, 255, 0.5); }
 .liveblog-postlist li.scorecard .post-content a:hover, .liveblog-postlist li.scorecard .post-content a:active, .liveblog-postlist li.scorecard .post-content a:focus { color: #cccccc; border-bottom-color: rgba(204, 204, 204, 0.5); }
-.liveblog-postlist li.scorecard .sf-share { background-position: 0% 100%; }
+.liveblog-postlist li.scorecard .sf-share { background-image: url("img/sharing_w.png"); }
 .liveblog-postlist li.scorecard .share-box { color: inherit; }
 .liveblog-postlist li.scorecard .social { color: inherit; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
 .liveblog-postlist li.scorecard .liveblog-post:before { content: ''; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.1); top: 0; right: 100%; }
