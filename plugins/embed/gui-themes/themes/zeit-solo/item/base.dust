@@ -1,0 +1,28 @@
+{>"themeBase/item/base"/}
+
+{! Attention! Opening tag in headerContainer … !}
+{<headerContainer}
+	<div class="liveblog-post">
+		<div class="post-header">
+			{+header}{/header}
+		</div>
+{/headerContainer}
+
+{! … closing tag in footerContainer !}
+{<footerContainer}
+		<div class="post-footer">
+			{+footer}{/footer}
+		</div>
+	</div>
+	{+shareContainer}{/shareContainer}
+{/footerContainer}
+
+{<contentSideContainer}{/contentSideContainer}
+
+{<header}{/header}
+
+{<footer}{/footer}
+
+{<share}
+	{+socialShare}{/socialShare}
+{/share}
