@@ -1,0 +1,24 @@
+@import "../zeit-online/liveblog";
+
+.liveblog-postlist {
+	li {
+		padding-left: 0;
+
+		.post-header {
+			display: none;
+		}
+		&.scorecard {
+			.liveblog-post {
+				&:before {
+					content: none;
+				}
+			}
+		}
+	}
+}
+
+.liveblog-post {
+	&:after {
+		content: none;
+	}
+}
