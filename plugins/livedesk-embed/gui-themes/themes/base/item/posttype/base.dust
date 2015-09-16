@@ -1,5 +1,0 @@
-{>"{baseItem}"/}
-{<contentCore}
-	{+contenteBaseBefore}{/contenteBaseBefore}
-	{+contentText}{/contentText}
-{/contentCore}

@@ -1,5 +1,0 @@
-{>"{baseTwitter}"/}
-{<contentCoreContainer}
-<div class="twitter-widgets">
-</div>
-{/contentCoreContainer}
