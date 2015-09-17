@@ -14,6 +14,7 @@
 {<ContentContainer}
     {?Meta.Content.href}
         {+ContentImage}{/ContentImage}
+        {+ContentResult}{/ContentResult}        
         {:else}
         {+ContentImage}{/ContentImage}
         {+ContentResult}{/ContentResult}
@@ -22,10 +23,9 @@
 
 {<SourceAuthor}{/SourceAuthor}	
 {<WrapupAdditionalActions}{/WrapupAdditionalActions}
-{<ContainerAdditional}{/ContainerAdditional}
 {<Attributes}{/Attributes}
 {<ContentImageLink}{Meta.Content.href}{/ContentImageLink}
 {<ContentImageUrl}{Meta.Content.href}{/ContentImageUrl}
 {<ContainerIframe}{/ContainerIframe}
-{<ContainerDescriptionText}{/ContainerDescriptionText}
+{<ContainerDescriptionText}{Meta.caption}{/ContainerDescriptionText}
 {<EditableClass}{/EditableClass}
