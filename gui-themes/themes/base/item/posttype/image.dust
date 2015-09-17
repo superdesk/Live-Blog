@@ -12,6 +12,7 @@
 
 {<contentExternal}
     {+extenalImageContainer}{/extenalImageContainer}
+    {+externalTextContainer}{/externalTextContainer}
 {/contentExternal}
 
 {<externalImageLink}
@@ -25,3 +26,7 @@
 {<externalImageAlt}
 {Meta.caption}
 {/externalImageAlt}
+
+{<externalText}
+{Meta.caption}
+{/externalText}
