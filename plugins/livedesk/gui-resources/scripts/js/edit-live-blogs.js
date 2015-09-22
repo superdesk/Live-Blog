@@ -290,17 +290,17 @@ function(providers, Gizmo, $, BlogAction, upload, router,  UserVerification, Use
 						data.Meta = {};
 					}
 				}
-					
+
+                // @FIX LB-814: Image post does allow comments to be added in a wrong place
+                // @part 2
+                if ('image' in self) {
+                    data.Meta.caption = data.Content;
+                    delete data.Content;
+                }
+
 				data.Meta.annotation = { before: $('.annotation.top', self.el).html(), after: $('.annotation.bottom', self.el).html()};
 				data.Meta = JSON.stringify(data.Meta);
 				this.model.updater = this;
-
-				// @FIX LB-814: Image post does allow comments to be added in a wrong place
-				// @part 2
-				if ('image' in self) {
-					var separator = data.Content.length && data.Content[0] == "\n" ? '' : "\n";
-					data.Content = self.image.wrap('<div>').parent().html() + separator + data.Content;
-				}
 
 				this.model.set(data).sync().done(function(){
 					//handle done
