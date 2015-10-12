@@ -11,7 +11,6 @@
             'flickr',
             'soundcloud',
             'twitter',
-            'facebook',
             'youtube'
         ],
         init: function() {
