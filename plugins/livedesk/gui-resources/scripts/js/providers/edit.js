@@ -223,9 +223,28 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'},
 			'[name="type"]' : {'change': 'changetype'},
 			'.insert-link' : {'focusout':'populateUrlInfo'},
-			'article.editable': {'htmlOkButtonBefore': 'parseFBEmbed', 'htmlOkButton': 'renderFBEmbed'},
+			'article.editable': {'htmlOkButtonBefore': 'parseContent', 'htmlOkButton': 'renderFBEmbed'},
 			"[data-toggle='modal-image']": { 'click': 'openUploadScreen' }
 		},
+        parseContent: function(evt, parent) {
+            this.parseTwitter(evt, parent);
+            this.parseFBEmbed(evt, parent);
+        },
+        parseTwitter: function(evt, parent) {
+            var self = this,
+                el = $(parent).find('textarea.editor-code'),
+                code = el.val(),
+                embeds = code.match(/<blockquote[^<]*class="twitter-tweet"[^>]*>(.|\n)*?<\/blockquote>/g);
+            if(!self.meta.tweets) {
+                self.meta.tweets = [];
+            }
+            for(var i=0, id; i<embeds.length; i++) {
+                id = embeds[i].match(/status\/([\d]+)/i);
+                if(id && id[1]) {
+                    self.meta.tweets[id[1]] = embeds[i]+'\n<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></' + 'script>';
+                }
+            }
+        },
 		parseFBEmbed: function(evt, parent) {
             var el = $(parent).find('textarea.editor-code'),
                 code = el.val();
@@ -692,6 +711,16 @@ define('providers/edit', [
                 text: opt.text()
             };            
 		},
+        formatContent: function(content) {
+            var self = this;
+            content = content.replace(/<iframe[^<]*data-tweet-id="([\d]+)[^>]*>(.|\n)*?<\/iframe>/gi, function(all, id){
+                if(self.meta.tweets[id]) {
+                   return self.meta.tweets[id];
+                };
+                return all;
+            });
+            return content.replace(/<br\s*\/?>\s*$/, '');
+        },
 		savepost: function(evt){
 			var self = this;
 			self.preSave();
@@ -699,7 +728,7 @@ define('providers/edit', [
 			evt.preventDefault();
 			var data = {
 				Meta: JSON.stringify(self.meta),
-				Content: originalContent.replace(/<br\s*\/?>\s*$/, ''),
+				Content: self.formatContent(originalContent),
 				Type: this.el.find('[name="type"]').val()
 			};
 			
@@ -725,7 +754,7 @@ define('providers/edit', [
 			evt.preventDefault();
 			var data = {
 				Meta: JSON.stringify(self.meta),
-				Content:  originalContent.replace(/<br\s*\/?>\s*$/, ''),
+				Content: self.formatContent(originalContent),
 				Type: this.el.find('[name="type"]').val()
 			};
 			
