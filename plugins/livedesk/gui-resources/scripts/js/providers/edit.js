@@ -238,10 +238,12 @@ define('providers/edit', [
             if(!self.meta.tweets) {
                 self.meta.tweets = [];
             }
-            for(var i=0, id; i<embeds.length; i++) {
-                id = embeds[i].match(/status\/([\d]+)/i);
-                if(id && id[1]) {
-                    self.meta.tweets[id[1]] = embeds[i]+'\n<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></' + 'script>';
+            if(embeds) {
+                for(var i=0, id; i<embeds.length; i++) {
+                    id = embeds[i].match(/status\/([\d]+)/i);
+                    if(id && id[1]) {
+                        self.meta.tweets[id[1]] = embeds[i]+'\n<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></' + 'script>';
+                    }
                 }
             }
         },
