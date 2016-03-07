@@ -44,6 +44,7 @@
 .liveblog-postlist li .share-box .social:hover, .liveblog-postlist li .share-box .social:active, .liveblog-postlist li .share-box .social:focus { border-bottom: 1px solid currentColor; }
 .liveblog-postlist li .share-box .facebook { color: #3b5998; }
 .liveblog-postlist li .share-box .twitter { color: #55acee; }
+.liveblog-postlist li .share-box .whatsapp a { color: #4dc247; }
 .liveblog-postlist li .share-box .linkedin { color: #0077b5; }
 .liveblog-postlist li .share-box .pinterest { color: #bd081c; }
 .liveblog-postlist li .share-box .google { color: #dd4b39; }
@@ -140,6 +141,12 @@
 .liveblog-postlist li.soundcloud .source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0; }
 .liveblog-postlist li .attributes, .liveblog-postlist li .link-preview, .liveblog-postlist li .post-external { font-family: "TabletGothic", "Helvetica Neue", Helvetica, Arial, FreeSans, sans-serif; }
 .liveblog-postlist li:nth-last-child(0n+2) .liveblog-post:after { content: none; }
+
+@media all and (min-width: 767px) {
+    .liveblog-postlist li .share-box .whatsapp {
+        display: none;
+    }
+}
 
 .liveblog-post { margin: 0 auto; max-width: 43.75em; padding: 1.25em 1.25em 3.375em; position: relative; }
 .liveblog-post:after { content: ''; position: absolute; width: 2px; height: 100%; height: calc(100% - 36px); background-color: #ccc; top: 3.5em; left: -1px; z-index: 1; }
