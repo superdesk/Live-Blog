@@ -3,7 +3,7 @@ define([
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
-    'plugins/social-share',
+    'theme/scripts/js/plugins/social-share',
     'plugins/status',
     'plugins/wrappup-toggle',
     'plugins/predefined-types',

@@ -762,3 +762,9 @@ $publisher-avatar-width: em(42px);
 		}
 	}
 }
+
+@media all and (min-width: 767px) {
+    .liveblog-postlist li .share-box .whatsapp {
+        display: none;
+    }
+}
