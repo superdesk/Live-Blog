@@ -9,7 +9,7 @@ define({
                             '&description=%s',
 
         // Twitter URL, params: message, blog title, permanent link
-        twt:     '//twitter.com/home?status=' + '%s %s: %s',
+        twt:     '//twitter.com/home?status=' + '%s',
 
         // LinkedIn URL, params: permanent link, blog title, summary
         lin:    '//www.linkedin.com/shareArticle?mini=true&url=%s&title=%s&summary=%s',

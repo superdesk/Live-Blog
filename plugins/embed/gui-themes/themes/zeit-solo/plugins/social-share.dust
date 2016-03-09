@@ -1,9 +1,9 @@
 <div data-gimme="post.share-social" class="share-box" style="visibility:hidden">
     <span><a href="#" class="social facebook" title="_('Share this post on Facebook');" data-gimme="fb">Facebook</a></span>
     <span><a href="#" class="social twitter" title="_('Share this post on Twitter');" data-gimme="twt">Twitter</a></span>
+    <span class="whatsapp"><a href="{whatsappurl}" class="social" title="_('Share this post on WhatsApp');" target="_blank">WhatsApp</a></span>
     {#showLin}<span><a href="#" class="social linkedin" title="_('Share this post on Linkedin');" data-gimme="lin">LinkedIn</a></span>{/showLin}
     {#showPin}<span><a href="#" class="social pinterest" title="_('Share this post on Pinterest');" data-gimme="pin">Pinterest</a></span>{/showPin}
     {#showGoogle}<span><a href="#" class="social google" title="_('Share this post on Google+');" data-gimme="ggl">Google +</a></span>{/showGoogle}
     <span><a href="{emailurl}" class="social email" title="_('Share this post via Email');" target="_blank">Mail</a></span>
-    <span class="whatsapp"><a href="{whatsappurl}" class="social" title="_('Share this post on WhatsApp');" target="_blank">WhatsApp</a></span>
 </div>

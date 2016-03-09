@@ -122,7 +122,7 @@ define([
 
                 var urlParams = {
                     pin:   [permLink, imgsrc, blogTitle],
-                    twt:   [gt.gettext('Now reading'), blogTitle, permLink],
+                    twt:   [permLink],
                     lin:   [permLink, blogTitle, summary],
                     ggl:   [permLink],
                     email: [gt.gettext('Check out this Live Blog'), permLink],

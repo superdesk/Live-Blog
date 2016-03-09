@@ -44,6 +44,7 @@
 .liveblog-postlist li .share-box .social:hover, .liveblog-postlist li .share-box .social:active, .liveblog-postlist li .share-box .social:focus { border-bottom: 1px solid currentColor; }
 .liveblog-postlist li .share-box .facebook { color: #3b5998; }
 .liveblog-postlist li .share-box .twitter { color: #55acee; }
+.liveblog-postlist li .share-box .whatsapp a { color: #4dc247; }
 .liveblog-postlist li .share-box .linkedin { color: #0077b5; }
 .liveblog-postlist li .share-box .pinterest { color: #bd081c; }
 .liveblog-postlist li .share-box .google { color: #dd4b39; }
