@@ -9,7 +9,7 @@ define({
                             '&description=%s',
 
         // Twitter URL, params: message, blog title, permanent link
-        twt:     '//twitter.com/home?status=' + '%s',
+        twt:     '//twitter.com/intent/tweet?via=zeitonline&url=%s&text=%s',
 
         // LinkedIn URL, params: permanent link, blog title, summary
         lin:    '//www.linkedin.com/shareArticle?mini=true&url=%s&title=%s&summary=%s',
