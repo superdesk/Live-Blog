@@ -33,9 +33,9 @@
 @media screen and (min-width: 32.5em) { .liveblog-postlist li .post-buttons { bottom: 0.9375em; } }
 @media screen and (min-width: 48em) { .liveblog-postlist li .post-buttons { display: none; } }
 .liveblog-postlist li:hover .post-buttons { display: block; }
-.liveblog-postlist li .sf-share { font-size: 0.875em; line-height: 2; color: inherit; background: transparent url("img/sharing_b.png") no-repeat scroll 12px 12px / 20px auto; padding: 5px 0 5px 48px; float: right; overflow: hidden; width: 48px; }
+.liveblog-postlist li .sf-share { font-size: 0.875em; line-height: 2; color: inherit; background: transparent url("img/sharing_b.png") no-repeat scroll 12px 12px / 20px auto; padding: 5px 0 5px 35px; float: right; overflow: hidden; width: 30px; }
 @media screen and (min-width: 32.5em) { .liveblog-postlist li .sf-share { padding-left: 40px; padding-right: 20px; width: auto; } }
-.liveblog-postlist li .share-box { color: #707070; float: right; padding: 9px 20px 0 10px; display: none; }
+.liveblog-postlist li .share-box { color: #707070; float: right; padding: 9px 5px 0 10px; display: none; }
 .liveblog-postlist li .share-box:last-child { display: block; }
 .liveblog-postlist li .share-box span { float: left; font-size: 0.875em; }
 .liveblog-postlist li .share-box span:before { content: "/"; margin: 0 .75em; }

@@ -118,17 +118,17 @@ define([
                                         [index, Backbone.$(this).attr('src')]);
                 });
                 var content = view.model.get('Content');
-
-                // on zeit request:
-                // <b>, <strong>, <em>, <i> and <a> tags should be removed while leaving the text they're wrapped around.
-                content = content.replace(/<(b|strong|em|i|a)\b[^>]*>(.*?)<\/\1>/ig, '$2');
-                //  all other tags should be removed including the text they're wrapped around.
-                content = content.replace(/<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/ig, '');
-                // clear also single tags
-                content = content.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/ig, '');
-                // encode it properly.
-                content = fixedEncodeURIComp(content);
-
+                if (content) {
+                    // on zeit request:
+                    // <b>, <strong>, <em>, <i> and <a> tags should be removed while leaving the text they're wrapped around.
+                    content = content.replace(/<(b|strong|em|i|a)\b[^>]*>(.*?)<\/\1>/ig, '$2');
+                    //  all other tags should be removed including the text they're wrapped around.
+                    content = content.replace(/<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/ig, '');
+                    // clear also single tags
+                    content = content.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/ig, '');
+                    // encode it properly.
+                    content = fixedEncodeURIComp(content);
+                }
                 var urlParams = {
                     pin:   [permLink, imgsrc, blogTitle],
                     twt:   [permLink, ''],
