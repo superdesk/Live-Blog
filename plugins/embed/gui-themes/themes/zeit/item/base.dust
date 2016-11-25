@@ -10,9 +10,6 @@
 
 {! … closing tag in footerContainer !}
 {<footerContainer}
-		<div class="post-footer">
-			{+footer}{/footer}
-		</div>
 	</div>
 	{+shareContainer}{/shareContainer}
 {/footerContainer}
@@ -21,7 +18,6 @@
 
 {<header}
 	<div class="post-header-meta">
-		{+verificationLabel}{/verificationLabel}
 		{+splitedTimeContainer}{/splitedTimeContainer}
 		{+splitedDateContainer}{/splitedDateContainer}
 	</div>
@@ -32,8 +28,6 @@
 		{/userInfo}
 	</div>
 {/header}
-
-{<footer}{/footer}
 
 {<share}
 	{+socialShare}{/socialShare}
