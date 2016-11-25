@@ -4,122 +4,20 @@ $base-line-height: 1.5 !default;
 $headline-line-height: 1.4 !default;
 $meta-line-height: 1.7 !default;
 
-// margins/paddings in px
-$hair--px: 1px !default;
-$dblhair--px: 2px !default;
-$bristle--px: 3px !default;
-$micro--px: 4px !default;
-$tiny--px: 6px !default;
-$thin--px: 8px !default;
-$fine--px: 10px !default;
-$little--px: 14px !default;
-$small--px: 18px !default;
-$petite--px: 20px !default;
-$junior--px: 24px !default;
-$compact--px: 28px !default;
-$twice--px: 32px !default;
-$medium--px: 36px !default;
-$hefty--px: 40px !default;
-$big--px: 48px !default;
-$large--px: 56px !default;
-$wide--px: 72px !default;
-$huge--px: 90px !default;
-$mediumhuge--px: 154px !default;
-$extremhuge--px: 200px !default;
-
-// margins/paddings
-$hair: em($hair--px);
-$dblhair: em($dblhair--px);
-$bristle: em($bristle--px);
-$micro: em($micro--px);
-$tiny: em($tiny--px);
-$thin: em($thin--px);
-$fine: em($fine--px);
-$little: em($little--px);
-$small: em($small--px);
-$petite: em($petite--px);
-$junior: em($junior--px);
-$compact: em($compact--px);
-$twice: em($twice--px);
-$medium: em($medium--px);
-$hefty: em($hefty--px);
-$big: em($big--px);
-$large: em($large--px);
-$wide: em($wide--px);
-$huge: em($huge--px);
-$mediumhuge: em($mediumhuge--px);
-$extremhuge: em($extremhuge--px);
-
-// font sizes in px
-$font-xxs--px: 10px !default;
-$font-xs--px: 12px !default;
-$font-ss--px: 13px !default;
-$font-s--px: 14px !default;
-$font-mm--px: 15px !default;
-$font-m--px: 16px !default;
-$font-ml--px: 18px !default;
-$font-l--px: 20px !default;
-$font-mxl--px: 22px !default;
-$font-xl--px: 24px !default;
-$font-mxxl--px: 28px !default;
-$font-xxl--px: 30px !default;
-$font-xxxl--px: 40px !default;
-$font-xxxxl--px: 50px !default;
-$font-xxxxxl--px: 64px !default;
-
-// font sizes in em
-$font-xxs: em($font-xxs--px);
-$font-xs: em($font-xs--px);
-$font-ss: em($font-ss--px);
-$font-s: em($font-s--px);
-$font-mm: em($font-mm--px);
-$font-m: em($font-m--px);
-$font-ml: em($font-ml--px);
-$font-l: em($font-l--px);
-$font-mxl: em($font-mxl--px);
-$font-xl: em($font-xl--px);
-$font-mxxl: em($font-mxxl--px);
-$font-xxl: em($font-xxl--px);
-$font-xxxl: em($font-xxxl--px);
-$font-xxxxl: em($font-xxxxl--px);
-
-// font sizes in rem
-$font-xxs--rem: remify($font-xxs--px);
-$font-xs--rem: remify($font-xs--px);
-$font-ss--rem: remify($font-ss--px);
-$font-s--rem: remify($font-s--px);
-$font-mm--rem: remify($font-mm--px);
-$font-m--rem: remify($font-m--px);
-$font-ml--rem: remify($font-ml--px);
-$font-l--rem: remify($font-l--px);
-$font-mxl--rem: remify($font-mxl--px);
-$font-xl--rem: remify($font-xl--px);
-$font-mxxl--rem: remify($font-xxl--px);
-$font-xxl--rem: remify($font-xxl--px);
-$font-xxxl--rem: remify($font-xxxl--px);
-$font-xxxxl--rem: remify($font-xxxxl--px);
-$font-xxxxxl--rem: remify($font-xxxxxl--px);
-
 $sans-fallbacks: "Helvetica Neue", Helvetica, Arial, FreeSans, sans-serif;
 $serif-fallbacks: Georgia, Palatino, "Palatino Linotype", FreeSerif, serif;
 
 // utility colors
-$yellow: #ffe117 !default;
-$red: #990000 !default;
-$dark-red: #7c0e14 !default;
-$blue: #355bde !default;
-$midnight: #1f2091 !default;
-
-$white: white !default;
+$white: #fff !default;
 $grey--bright: #f9f9f9 !default;
-$grey--light: #eeeeee !default;
+$grey--light: #eee !default;
 $gainsboro: #e0e0e0 !default;
-$charcoal: #aaaaaa !default;
-$grey: #777777 !default;
-$grey--mid: #444444 !default;
-$grey--dark: #333333 !default;
+$charcoal: #aaa !default;
+$grey: #777 !default;
+$grey--mid: #444 !default;
+$grey--dark: #333 !default;
 $grey--mid-dark: #252525 !default;
-$black: black !default;
+$black: #000 !default;
 $greyish-white: #e9e9e9 !default;
 
 // styleguide blues
@@ -145,45 +43,13 @@ $color-button-bg: $grey--mid-dark !default;
 $color-button-bg--hover: $grey--mid !default;
 $color-button-bg--disabled: $grey--light !default;
 
-// content lengths
-$medium-content-width: em(660px) !default;
-$max-page-width: em(980px) !default;
-$max-longform-width: em(1364px) !default;
-
-// layout
-$gutter: remify(20px) !default;
-$page-padding: $gutter !default;
-$page-padding--small: $gutter * 0.75 !default;
-
-// Standard breakpoints
-$break-0: em(480px) !default;
-$break-1: em(576px) !default;
-$break-2: em(720px) !default;
-$break-3: em(1024px) !default;
-$break-4: em(1120px) !default;
-
-// for comments
-$comments__break-overlap: em(768px);
-$comments__break-outside: em(1360px);
-
-// element sizes
-$stamp-width: em(240px);
-$mtb-teaser-width: em(270px);
-
 // font families
 $font-franziska: "FranziskaWebPro", $serif-fallbacks;
 $font-tabletgothic: "TabletGothic", $sans-fallbacks;
-$font-tabletgothicnarrow: "TabletGothicNarrow", $sans-fallbacks;
 
 ///////////////////////////////////////////////////////////////////////
 //                         ZON custom styles                         //
 ///////////////////////////////////////////////////////////////////////
-
-// zeit.web.site config
-$base-font-size: 16px;
-$base-line-height: 1.5;
-$headline-line-height: 1.4;
-$meta-line-height: 1.7;
 
 // breakpoints (in 'em' for purpose)
 $break-phablet-min: em(520px);
@@ -199,18 +65,15 @@ $zon-letter-spacing-s: 0.03em;
 // for naming inspiration see http://chir.ag/projects/name-that-color/
 $zon-red: #b91109;
 $zon-charcoal: #313131;
-$zon-alto: #dddddd;
+$zon-alto: #ddd;
 $zon-seashell: #f1f1f1;
-$zon_dark_grey: #444444;
+$zon_dark_grey: #444;
 $zon_grey: #707070;
-$zon_mid_grey: #999999;
-$zon_light_grey: #cccccc;
-$zon_lighter_grey: #eeeeee;
+$zon_mid_grey: #999;
+$zon_light_grey: #ccc;
+$zon_lighter_grey: #eee;
 $zon-warm-dark-grey: #e5e5e3;
 $zon-warm-grey: #f0f0ed;
-
-// spektrum.de
-$spektrum_de_blue: #4d86a4;
 
 // semantic colors
 $color-body-bg: $white;
@@ -254,14 +117,5 @@ $color-linkedin:  #0077b5;
 $color-pinterest: #bd081c;
 $color-email:     $zon_grey;
 
-//mobile navigation bar globals
-$zon-bar-height-phablet-px: 54px;
-$zon-bar-height-phablet: em($zon-bar-height-phablet-px);
-
-// margins and paddings
-$page-padding: remify(20px);
-$cp-padding: remify(10px);
-$vertical-space: remify(20px);
-$video-title-padding--px: 15px;
-$video-title-padding: remify($video-title-padding--px);
-$article-gutter-desktop: remify(($max-page-width - $medium-content-width) / 2);
+// default
+$is-amp: false !default;
