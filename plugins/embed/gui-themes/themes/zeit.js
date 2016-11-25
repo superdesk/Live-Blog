@@ -12,7 +12,7 @@ define([
     'tmpl!theme/item/base',
     'tmpl!theme/plugins/social-share',
     'tmpl!theme/item/predefined/scorecard'
-], function(dust, gt, moment) {
+], function() {
     'use strict';
     liveblog.hashmark = '?';
     liveblog.hashaddition = '#livedesk-root';
