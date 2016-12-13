@@ -1,0 +1,38 @@
+{>"themeBase/item/source/google"/}
+{<itemClassAdditional}googleimage{/itemClassAdditional}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+extenalAmpImageContainer}{/extenalAmpImageContainer}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+externalTextContainer}{/externalTextContainer}
+{/contentExternal}
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+{/externalInfo}
+
+{<externalImageLink}
+{Meta.originalContextUrl}
+{/externalImageLink}
+
+{<externalImageSrc}
+{Meta.url}
+{/externalImageSrc}
+
+{<externalImageSize}
+width="{Meta.width}" height="{Meta.height}"
+{/externalImageSize}
+
+{<externalImageAlt}
+{Meta.visibleUrl}
+{/externalImageAlt}
+
+{<externalInfoTitle}{Meta.title|s}{/externalInfoTitle}
+{<externalInfoTitleSrc}{Meta.originalContextUrl}{/externalInfoTitleSrc}
+{<externalText}{Content|s}{/externalText}
+
+{<contentAttrIconClass}
+google
+{/contentAttrIconClass}

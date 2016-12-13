@@ -1,0 +1,13 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}soundcloud{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	<amp-soundcloud height="166" layout="fixed-height" data-trackid="{Meta.id}"></amp-soundcloud>
+{/contentExternal}
+
+{<contentAttrName}
+soundcloud.com
+{/contentAttrName}
