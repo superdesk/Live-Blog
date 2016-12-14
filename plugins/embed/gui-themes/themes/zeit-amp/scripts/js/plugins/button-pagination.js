@@ -16,16 +16,14 @@ define([
             var current = view.collection.length,
                 data = {};
 
-            // console.log( view );
-
             dust.renderThemed('themeBase/plugins/before-button-pagination', data, function(err, out) {
                 view.$el.before(out);
             });
 
             if ( view.hasNextPage() ) {
-                view.nextPage().done(function() {
-                    console.log( current, view.collection.models[current] );
-                });
+                // view.nextPage().done(function() {
+                //     console.log( current, view.collection.models[current] );
+                // });
 
                 dust.renderThemed('themeBase/plugins/after-button-pagination', data, function(err, out) {
                     view.$el.after(out);
