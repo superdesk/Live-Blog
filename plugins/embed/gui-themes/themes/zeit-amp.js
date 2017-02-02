@@ -5,7 +5,7 @@ define([
     'theme/scripts/js/plugins/ampify',
     'theme/scripts/js/plugins/button-pagination',
     'theme/scripts/js/plugins/social-share',
-    'css!theme/liveblog',
+    // 'css!theme/liveblog',
     'tmpl!theme/container',
     'tmpl!theme/posts-list',
     'tmpl!theme/item/base',
