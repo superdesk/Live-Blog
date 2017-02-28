@@ -1,0 +1,3 @@
+<div pagination class="load-next">
+    <a href="#get" class="load-more">_('Load more posts ...');</a>
+</div>

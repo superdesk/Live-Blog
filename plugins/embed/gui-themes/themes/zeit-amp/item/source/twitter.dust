@@ -1,0 +1,60 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}twitter{/itemClass}
+{<contentCoreContainer}
+	<amp-twitter width="500" height="500" layout="responsive" data-tweetid="{Meta.id_str}">
+		<div placeholder class="post-core-content">
+			{+contentExternalContainer}{/contentExternalContainer}
+			{+contentAttr}{/contentAttr}
+		</div>
+	</amp-twitter>
+{/contentCoreContainer}
+{<contentExternal}
+	{+externalAmpAvatar}{/externalAmpAvatar}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+externalTextContainer}{/externalTextContainer}
+	{+externalTwitterActions}{/externalTwitterActions}
+{/contentExternal}
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+	{+externalInfoUser}{/externalInfoUser}
+{/externalInfo}
+{<externalInfoTitle}{Meta.from_user_name}{/externalInfoTitle}
+{<externalInfoTitleSrc}http://twitter.com/{Meta.from_user}{/externalInfoTitleSrc}
+{<externalText}{Meta.text|twitter_all|s}{/externalText}
+
+{!--  for twitter only -- !}
+{<externalInfoUser}
+  <span>@{Meta.from_user}</span>
+{/externalInfoUser}
+
+{<externalAvatarSrc}
+{Meta.user.profile_image_url}
+{/externalAvatarSrc}
+
+
+{!-- displayed for:
+	> twitter
+--!}
+{<externalTwitterActions}
+<div class="twitter-controls">
+	<a href="http://twitter.com/intent/retweet?tweet_id={Meta.id_str}" target="_blank">
+		<svg class="twitter-button retweet">
+			<use xlink:href="#svg-icon-twitter-retweet" />
+		</svg>
+	</a>
+	<a href="http://twitter.com/intent/favorite?tweet_id={Meta.id_str}" target="_blank">
+		<svg class="twitter-button favorites">
+			<use xlink:href="#svg-icon-twitter-favorite" />
+		</svg>
+	</a>
+	<a href="http://twitter.com/intent/tweet?in_reply_to={Meta.id_str}" target="_blank">
+		<svg class="twitter-button reply">
+			<use xlink:href="#svg-icon-twitter-reply" />
+		</svg>
+	</a>
+</div>
+{/externalTwitterActions}
+
+{<contentAttrName}
+twitter.com
+{/contentAttrName}

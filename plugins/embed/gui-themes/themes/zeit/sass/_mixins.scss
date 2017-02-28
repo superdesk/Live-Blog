@@ -17,7 +17,7 @@
 	zoom: 1;
 	&:after {
 		content: "";
-		display: table;
+		display: block;
 		clear: both;
 	}
 }
@@ -62,12 +62,6 @@
 	// -moz-animation: $value;
 	//   -o-animation: $value;
 	        animation: $value;
-}
-
-@mixin box-sizing($sizing: border-box) {
-	-webkit-box-sizing: $sizing;
-	   -moz-box-sizing: $sizing;
-	        box-sizing: $sizing;
 }
 
 @mixin default-article-textlink {

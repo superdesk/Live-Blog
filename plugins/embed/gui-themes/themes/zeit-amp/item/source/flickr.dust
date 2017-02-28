@@ -1,0 +1,25 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}flickr{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+extenalAmpImageContainer}{/extenalAmpImageContainer}
+{/contentExternal}
+
+{<externalImageLink}
+http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
+{/externalImageLink}
+
+{<externalImageSrc}
+http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg
+{/externalImageSrc}
+
+{<externalImageAlt}
+{Meta.title}
+{/externalImageAlt}
+
+{<contentAttrName}
+flickr.com
+{/contentAttrName}

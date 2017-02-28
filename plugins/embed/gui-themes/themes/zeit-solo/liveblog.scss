@@ -1,12 +1,12 @@
+// in plugins/embed/gui-themes/themes
+// $ sass --watch --sourcemap=none --style=compact zeit*/*.scss
+
 @import "../zeit/liveblog";
 
 .liveblog-postlist {
 	li {
 		padding-left: 0;
 
-		.post-header {
-			display: none;
-		}
 		&.scorecard {
 			.liveblog-post {
 				&:before {

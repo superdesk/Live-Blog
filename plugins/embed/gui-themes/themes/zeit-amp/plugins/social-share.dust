@@ -1,0 +1,25 @@
+<amp-accordion>
+    <section class="share-holder-section">
+        <h3 class="sf-share">
+            <a itemprop="url" href="{permalink}">
+                <svg class="sf-share__icon">
+                    <use xlink:href="#svg-icon-share"/>
+                </svg>
+                <span class="sf-share__text">_('Share');</span>
+            </a>
+        </h3>
+        <div class="share-box">
+            <span><amp-social-share class="social facebook" type="facebook" layout="container"
+            	data-share-endpoint="https://www.facebook.com/sharer/sharer.php"
+            	data-param-u="{permalink}">Facebook</amp-social-share></span>
+            <span><amp-social-share class="social twitter" type="twitter" layout="container"
+            	data-param-url="{permalink}"
+            	data-param-via="zeitonline">Twitter</amp-social-share></span>
+            <span class="whatsapp-wrap"><amp-social-share class="social whatsapp" type="whatsapp" layout="container"
+                data-share-endpoint="whatsapp://send"
+                data-param-text="{title} - Live-Blog auf ZEIT ONLINE: {permalink}">WhatsApp</amp-social-share></span>
+            <span><amp-social-share class="social email" type="email" layout="container"
+            	data-param-body="Live-Blog auf ZEIT ONLINE lesen: {permalink}">Mail</amp-social-share></span>
+        </div>
+    </section>
+</amp-accordion>

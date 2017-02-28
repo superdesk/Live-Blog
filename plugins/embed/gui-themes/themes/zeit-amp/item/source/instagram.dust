@@ -1,0 +1,33 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}instagram{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+extenalAmpImageContainer}{/extenalAmpImageContainer}
+	{+externalTextContainer}{/externalTextContainer}
+{/contentExternal}
+
+{<externalImageLink}
+{Meta.images.standard_resolution.url}
+{/externalImageLink}
+
+{<externalImageSrc}
+{Meta.images.standard_resolution.url}
+{/externalImageSrc}
+
+{<externalImageSize}
+width="{Meta.images.standard_resolution.width}" height="{Meta.images.standard_resolution.height}"
+{/externalImageSize}
+
+{<externalImageAlt}
+{Meta.caption.text|trim50}
+{/externalImageAlt}
+
+{<externalText}
+{Meta.caption.text}
+{/externalText}
+{<contentAttrName}
+instagram.com
+{/contentAttrName}
