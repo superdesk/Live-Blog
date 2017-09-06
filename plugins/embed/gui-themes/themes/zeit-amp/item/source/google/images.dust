@@ -1,16 +1,16 @@
 {>"themeBase/item/source/google"/}
 {<itemClassAdditional}googleimage{/itemClassAdditional}
 {<contentCore}
-	{+contentExternalContainer}{/contentExternalContainer}
-	{+contentAttr}{/contentAttr}
+    {+contentExternalContainer}{/contentExternalContainer}
+    {+contentAttr}{/contentAttr}
 {/contentCore}
 {<contentExternal}
-	{+extenalAmpImageContainer}{/extenalAmpImageContainer}
-	{+externalInfoContainer}{/externalInfoContainer}
-	{+externalTextContainer}{/externalTextContainer}
+    {+extenalAmpImageContainer}{/extenalAmpImageContainer}
+    {+externalInfoContainer}{/externalInfoContainer}
+    {+externalTextContainer}{/externalTextContainer}
 {/contentExternal}
 {<externalInfo}
-	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+    {+externalInfoTitleContainer}{/externalInfoTitleContainer}
 {/externalInfo}
 
 {<externalImageLink}

@@ -28,7 +28,11 @@ define(['dust/core', 'lib/gettext', 'moment', 'moment-timezone'], function(dust,
         if (gt.pgettext('moment', 'timezone') !== 'timezone') {
             date.tz(gt.pgettext('moment', 'timezone'));
         }
-        return date.tz('Europe/Berlin').format(gt.pgettext('moment', 'closed-date'));
+        return date.tz(gt.pgettext('moment', 'timezone')).format(gt.pgettext('moment', 'closed-date'));
+    };
+    dust.filters.unix = function(string) {
+        var date = moment(string);
+        return date.format('X');
     };
     return dust;
 });

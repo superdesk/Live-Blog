@@ -10,26 +10,22 @@ define([
     'tmpl!themeBase/plugins/social-share'
 ], function(Backbone, _, plugins, utils, dust) {
 
-    // Social share plugin only works on client
-    if (utils.isClient){
+    plugins['social-share'] = function(config) {
 
-        plugins['social-share'] = function(config) {
+        utils.dispatcher.on('after-render.post-view', function(view) {
+            // Add social share links to the view
+            var blog = view.parentView().parentView().model,
+                data = {
+                    title: blog.get('Title')
+                };
 
-            utils.dispatcher.on('after-render.post-view', function(view) {
-                // Add social share links to the view
-                var blog = view.parentView().parentView().model,
-                    data = {
-                        title: blog.get('Title')
-                    };
+            if (view.permalink && typeof view.permalink === 'function') {
+                data.permalink = view.permalink();
+            }
 
-                if (view.permalink && typeof view.permalink === 'function') {
-                    data.permalink = view.permalink();
-                }
-
-                dust.renderThemed('themeBase/plugins/social-share', data, function(err, out) {
-                    view.$('[data-gimme="post.social-share-placeholder"]').html(out);
-                });
+            dust.renderThemed('themeBase/plugins/social-share', data, function(err, out) {
+                view.$('[data-gimme="post.social-share-placeholder"]').html(out);
             });
-        };
-    }
+        });
+    };
 });

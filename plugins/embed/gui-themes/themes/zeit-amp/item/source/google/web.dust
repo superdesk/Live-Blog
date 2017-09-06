@@ -1,15 +1,15 @@
 {>"themeBase/item/source/google"/}
 {<itemClassAdditional}googlesearch{/itemClassAdditional}
 {<contentCore}
-	{+contentExternalContainer}{/contentExternalContainer}
-	{+contentAttr}{/contentAttr}
+    {+contentExternalContainer}{/contentExternalContainer}
+    {+contentAttr}{/contentAttr}
 {/contentCore}
 {<contentExternal}
-	{+externalInfoContainer}{/externalInfoContainer}
-	{+externalTextContainer}{/externalTextContainer}
+    {+externalInfoContainer}{/externalInfoContainer}
+    {+externalTextContainer}{/externalTextContainer}
 {/contentExternal}
 {<externalInfo}
-	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+    {+externalInfoTitleContainer}{/externalInfoTitleContainer}
 {/externalInfo}
 {<externalInfoTitle}{Meta.title|s}{/externalInfoTitle}
 {<externalInfoTitleSrc}{Meta.unescapedUrl}{/externalInfoTitleSrc}
