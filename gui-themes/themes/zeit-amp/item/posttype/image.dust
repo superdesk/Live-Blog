@@ -1,0 +1,32 @@
+{>"{baseItem}"/}
+{<itemClass}image{/itemClass}
+
+{<contentCore}
+    {?Meta.Content.href}
+        {+contentExternalContainer}{/contentExternalContainer}
+    {:else}
+        {+contenteBaseBefore}{/contenteBaseBefore}
+        {+contentText}{/contentText}
+    {/Meta.Content.href}
+{/contentCore}
+
+{<contentExternal}
+    {+extenalAmpImageContainer}{/extenalAmpImageContainer}
+    {+externalTextContainer}{/externalTextContainer}
+{/contentExternal}
+
+{<externalImageLink}
+{Meta.Content.href}
+{/externalImageLink}
+
+{<externalImageSrc}
+{Meta.Content.href}
+{/externalImageSrc}
+
+{<externalImageAlt}
+{Meta.caption}
+{/externalImageAlt}
+
+{<externalText}
+{Meta.caption}
+{/externalText}

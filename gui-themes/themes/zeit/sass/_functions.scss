@@ -4,8 +4,35 @@
 // @param     $contex    {Number} base font size in pixel
 // @return    {Number} font-size in em
 
-@function em($font-size, $context: $base-font-size) {
-	@return $font-size / $context + 0em;
+@function em($values, $context: $base-font-size) {
+	$list: ();
+
+	// there can be CSS attributes with more than one value
+	@each $value in $values {
+		$unit: unit($value);
+
+		@if $unit == "em" or $unit == "" {
+			$list: append($list, $value);
+		}
+		@else if $unit == unit($context) {
+			$list: append($list, $value / $context + 0em);
+		}
+		@else if $unit == "rem" {
+			$list: append($list, $value / 1rem + 0em);
+		}
+		@else {
+			$base: unit($context);
+
+			@warn "Incompatible units: '#{$unit}' and '#{$base}'";
+		}
+	}
+
+	// mimic legacy behaviour
+	@if length($list) == 1 {
+		@return nth($list, 1);
+	}
+
+	@return $list;
 }
 
 @function rem($px) {
@@ -44,7 +71,7 @@
 }
 
 $rem-to-px-conversion: false !default;
-$rem-to-px-base: 16 !default;
+$rem-to-px-base: 16px !default;
 
 // converts pixel values to rem and provides a px fallback on a stylesheet base
 //
@@ -53,7 +80,7 @@ $rem-to-px-base: 16 !default;
 // all values will outputted as is without a conversion.
 //
 // the conversion base for px to rem conversions can be configuried
-// via $rem-to-px-base and defaults to 16 (as in most browsers)
+// via $rem-to-px-base and defaults to 16px (as in most browsers)
 //
 // based on work by David Walsh: http://davidwalsh.name/rem-px-browser-function-sass
 //
@@ -70,29 +97,48 @@ $rem-to-px-base: 16 !default;
 	@if not global-variable-exists(rem-to-px-conversion) {
 		@error "Please provide variable named $rem-to-px-conversion";
 	}
+
 	@if not global-variable-exists(rem-to-px-base) {
-		@error "Please provide variable named $$rem-to-px-base";
+		@error "Please provide variable named $rem-to-px-base";
 	}
+
 	$list: ();
+
 	// there can be CSS attributes with more than one value
 	@each $value in $values {
-		$unit: unit($value);
-		$val: parseInt($value);
-		@if $rem-to-px-conversion and $unit == "px" {
-			$list: append($list, $value);
-		}
-		@else if $unit == "px" {
-			$list: append($list, $val / $rem-to-px-base * 1rem);
-		}
-		@else if $unit == "em" {
-			$list: append($list, $val * 1rem);
-		}
-		@else if $unit == "" {
+		@if $value == "auto" {
 			$list: append($list, $value);
 		}
 		@else {
-			@warn "There is currently no unit conversion for #{$unit}";
+			$unit: unit($value);
+
+			@if $rem-to-px-conversion {
+				@if $unit == "rem" {
+					$list: append($list, $value / 1rem * $rem-to-px-base);
+				}
+				@else {
+					$list: append($list, $value);
+				}
+			}
+			@else if $unit == "rem" or $unit == "" {
+				$list: append($list, $value);
+			}
+			@else if $unit == unit($rem-to-px-base) {
+				$list: append($list, $value / $rem-to-px-base + 0rem);
+			}
+			@else if $unit == "em" {
+				$list: append($list, $value / 1em + 0rem);
+			}
+			@else {
+				@warn "There is currently no unit conversion for #{$unit}";
+			}
 		}
 	}
+
+	// do not return single value list - e.g. this makes math operations simpler
+	@if length($list) == 1 {
+		@return nth($list, 1);
+	}
+
 	@return $list;
 }

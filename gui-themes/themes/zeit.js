@@ -3,7 +3,7 @@ define([
     'plugins/button-pagination',
     'plugins/twitter-widgets',
     'plugins/post-hash',
-    'plugins/social-share',
+    'theme/scripts/js/plugins/social-share',
     'plugins/status',
     'plugins/wrappup-toggle',
     'plugins/predefined-types',
@@ -12,7 +12,7 @@ define([
     'tmpl!theme/item/base',
     'tmpl!theme/plugins/social-share',
     'tmpl!theme/item/predefined/scorecard'
-], function(dust, gt, moment) {
+], function() {
     'use strict';
     liveblog.hashmark = '?';
     liveblog.hashaddition = '#livedesk-root';

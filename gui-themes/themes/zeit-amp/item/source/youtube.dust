@@ -1,0 +1,28 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}youtube{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalYoutubeVideo}{/externalYoutubeVideo}
+	{+externalTextContainer}{/externalTextContainer}
+	{+externalInfoContainer}{/externalInfoContainer}
+{/contentExternal}
+
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+{/externalInfo}
+
+{<externalInfoTitle}{Meta.title|s}{/externalInfoTitle}
+{<externalInfoTitleSrc}//youtube.com/watch?v={Meta.id}{/externalInfoTitleSrc}
+
+{<externalYoutubeVideo}
+<amp-youtube data-videoid="{Meta.id}" width="480" height="270" layout="responsive"></amp-youtube>
+{/externalYoutubeVideo}
+
+{<externalTextContainer}{Meta.description}{/externalTextContainer}
+
+{<contentAttrName}
+youtube.com
+{/contentAttrName}

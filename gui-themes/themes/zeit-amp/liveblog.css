@@ -26,10 +26,6 @@
 .liveblog-content-top .new-posts-label a, .liveblog-content-bottom .new-posts-label a { color: #fff; padding: 0 5px; display: none; }
 .liveblog-content-top .new-posts-label:hover, .liveblog-content-bottom .new-posts-label:hover { cursor: default; background: #225c9c; }
 
-.liveblog-content-middle { max-height: none; min-height: 0; overflow: auto; overflow-x: hidden; }
-.liveblog-content-middle.liveblog-scroll { height: 500px; }
-
-.liveblog-postlist { min-height: 800px; }
 .liveblog-postlist .post-time, .liveblog-postlist .post-datetime, .liveblog-postlist .post-publisher-name, .liveblog-postlist .post-publisher-avatar { vertical-align: middle; }
 .liveblog-postlist .post-time { color: #fff; background-color: #535560; border-radius: 4px; display: inline-block; font-size: 0.8125em; margin-left: -31px; margin-right: 10px; width: 90px; padding: 4px 0 2px; text-align: center; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
 @media screen and (min-width: 48em) { .liveblog-postlist .post-time { margin-left: -43px; } }
@@ -38,7 +34,7 @@
 .liveblog-postlist .post-buttons { position: absolute; right: 0; bottom: 0.3125em; }
 @media screen and (min-width: 32.5em) { .liveblog-postlist .post-buttons { bottom: 0.9375em; } }
 @media screen and (min-width: 48em) { .liveblog-postlist .post-buttons { display: none; } }
-.liveblog-postlist .sf-share { background: transparent url("img/sharing_b.png") no-repeat scroll 12px 12px/20px auto; color: inherit; float: right; font-size: 0.875em; line-height: 2; overflow: hidden; padding: 5px 0 5px 47px; width: 47px; }
+.liveblog-postlist .sf-share { color: inherit; float: right; font-size: 0.875em; line-height: 2; overflow: hidden; padding: 5px 0 5px 47px; width: 47px; }
 .liveblog-postlist .share-box { color: #707070; float: right; padding: 9px 0 0 10px; }
 .liveblog-postlist .share-box span { float: left; font-size: 0.875em; }
 .liveblog-postlist .share-box span:before { content: "/"; margin: 0 .45em; }
@@ -80,11 +76,8 @@
 .liveblog-postlist .attributes .source-icon { width: 16px; height: 16px; display: inline-block; margin-right: 8px; }
 .liveblog-postlist .attributes span, .liveblog-postlist .attributes .source-link { border: none; font-size: 0.6875em; letter-spacing: 0.03em; height: 16px; line-height: 16px; text-transform: uppercase; }
 .liveblog-postlist .attributes span, .liveblog-postlist .attributes .source-link, .liveblog-postlist .attributes .source-icon { vertical-align: text-bottom; }
-.liveblog-postlist .twitter-controls { float: right; margin-top: 8px; display: none; }
-.liveblog-postlist .twitter-button { color: #444; float: right; font-size: 0.75em; line-height: 100%; margin-right: 14px; padding-left: 18px; text-decoration: none; }
-.liveblog-postlist .twitter-button.reply { background: url("img/reply.png") no-repeat 0 0; }
-.liveblog-postlist .twitter-button.retweet { background: url("img/retweet.png") no-repeat 0 1px; }
-.liveblog-postlist .twitter-button.favorites { background: url("img/favorites.png") no-repeat 0 0; }
+.liveblog-postlist .twitter-controls { float: right; margin-top: 8px; }
+.liveblog-postlist .twitter-button { color: #444; margin-right: 10px; height: 10px; width: 15px; }
 .liveblog-postlist li { position: relative; background-color: #eee; margin: 0 0 0.625em; padding: 0 0 0 1.25em; width: 100%; max-width: none; }
 @media screen and (min-width: 48em) { .liveblog-postlist li { margin-bottom: 1.25em; padding-left: 0; } }
 .liveblog-postlist li:hover .post-buttons { display: block; }
@@ -97,7 +90,6 @@
 .liveblog-postlist li.twitter .post-core-content h5 span { margin-left: 5px; color: #707070; font-weight: normal; }
 .liveblog-postlist li.twitter .post-core-content a { color: #4099ff; border: none; }
 .liveblog-postlist li.twitter .attributes { height: 18px; float: left; }
-.liveblog-postlist li.twitter:hover .twitter-controls { display: block; }
 .liveblog-postlist li.youtube .post-core-content h5 { margin-top: .5em; }
 .liveblog-postlist li.youtube .post-frame-container { position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden; margin: -10px -10px .5em; }
 .liveblog-postlist li.youtube iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
@@ -114,22 +106,19 @@
 @media screen and (min-width: 48em) { .liveblog-postlist li.scorecard .post-content h1 { font-size: 10rem; margin-top: 25px; } }
 .liveblog-postlist li.scorecard .post-content a { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.5); }
 .liveblog-postlist li.scorecard .post-content a:hover, .liveblog-postlist li.scorecard .post-content a:active, .liveblog-postlist li.scorecard .post-content a:focus { color: #ccc; border-bottom-color: rgba(204, 204, 204, 0.5); }
-.liveblog-postlist li.scorecard .sf-share { background-image: url("img/sharing_w.png"); }
 .liveblog-postlist li.scorecard .share-box { color: inherit; }
 .liveblog-postlist li.scorecard .social { color: inherit; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
 .liveblog-postlist li.scorecard .liveblog-post:before { content: ''; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.1); top: 0; right: 100%; }
 .liveblog-postlist li.quote .post-core-content { padding-left: 45px; background: url(img/quotes.png) no-repeat 0 0; }
 .liveblog-postlist li.link .link-thumbnail a { border: none; }
 .liveblog-postlist li.link .link-title { padding: .5em 0; }
-.liveblog-postlist li.twitter .source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.facebook .source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.google .source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.instagram .source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.flickr .source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.youtube .source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0; }
-.liveblog-postlist li.soundcloud .source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0; }
+.liveblog-postlist li.twitter .source-icon { color: #1da1f2; }
+.liveblog-postlist li.facebook .source-icon { background: #3c5a99; border-radius: 2px; color: #fff; }
+.liveblog-postlist li.google .source-icon { color: #4285f4; }
+.liveblog-postlist li.youtube .source-icon { background: #cd201f; border-radius: 2px; color: #fff; }
+.liveblog-postlist li.soundcloud .source-icon { background: #ff5500; border-radius: 2px; color: #fff; }
 .liveblog-postlist li .attributes, .liveblog-postlist li .link-preview, .liveblog-postlist li .post-external { font-family: "TabletGothic", "Helvetica Neue", Helvetica, Arial, FreeSans, sans-serif; }
-.liveblog-postlist li:nth-last-child(0n+2) .liveblog-post:after { content: none; }
+.liveblog-postlist li:last-child .liveblog-post:after { content: none; }
 
 .liveblog-post { margin: 0 auto; max-width: 43.75em; padding: 1.25em 1.25em 3.375em; position: relative; }
 .liveblog-post:after { content: ''; position: absolute; width: 2px; height: 100%; height: calc(100% - 36px); background-color: #ccc; top: 3.5em; left: -1px; z-index: 1; }
@@ -139,7 +128,11 @@
   .liveblog-post:after { height: calc(100% - 26px); } }
 
 @media screen and (min-width: 48em) { .liveblog-postlist .whatsapp-wrap { display: none; } }
-.liveblog-postlist li { padding-left: 0; }
-.liveblog-postlist li.scorecard .liveblog-post:before { content: none; }
+section:not([expanded]) .share-box { display: none; }
 
-.liveblog-post:after { content: none; }
+.liveblog-postlist .share-holder-section { display: flex; flex-direction: row-reverse; }
+.liveblog-postlist .sf-share { background-image: none; border: none; padding-left: 12px; white-space: nowrap; }
+.liveblog-postlist li.scorecard .sf-share { background-image: none; }
+@media screen and (max-width: 32.499em) { .liveblog-postlist .sf-share__text { display: none; } }
+.liveblog-postlist .sf-share__icon { margin-right: 15px; height: 15px; width: 20px; vertical-align: -2px; }
+.liveblog-postlist .share-box .social { background: transparent none; }

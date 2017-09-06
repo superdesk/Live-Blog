@@ -1,0 +1,3 @@
+<div update on="tap:zon-live-list.update" class="load-next" role="button" tabindex="0">
+	<span class="load-more">_('Load top posts');</span>
+</div>

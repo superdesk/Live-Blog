@@ -1,0 +1,31 @@
+{>"themeBase/container"/}
+
+{! Empty default blocks !}
+
+{<headerContainer}
+{/headerContainer}
+
+{<footerContainer}
+{/footerContainer}
+
+{<userComment}
+{/userComment}
+
+{<contentTopContainer}
+	<div class="liveblog-content-top">
+		<div class="liveblog-content-top-bar">
+			{+contentTop}
+				{+status}{/status}
+				{+statusNewPost}{/statusNewPost}
+			{/contentTop}
+		</div>
+	</div>
+{/contentTopContainer}
+
+{<contentBottomContainer}
+{/contentBottomContainer}
+
+{<contentMiddle}
+	<amp-live-list id="zon-live-list" data-poll-interval="15000" data-max-items-per-page="20" data-gimme="posts.view">
+	</amp-live-list>
+{/contentMiddle}

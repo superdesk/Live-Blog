@@ -1,0 +1,26 @@
+{>"themeBase/item/source/base"/}
+{<itemClass}facebook{/itemClass}
+{<contentCore}
+	{+contentExternalContainer}{/contentExternalContainer}
+	{+contentAttr}{/contentAttr}
+{/contentCore}
+{<contentExternal}
+	{+externalAmpAvatar}{/externalAmpAvatar}
+	{+externalInfoContainer}{/externalInfoContainer}
+	{+externalTextContainer}{/externalTextContainer}
+{/contentExternal}
+{<externalInfo}
+	{+externalInfoTitleContainer}{/externalInfoTitleContainer}
+{/externalInfo}
+
+{<externalInfoTitle}{Meta.from.name}{/externalInfoTitle}
+{<externalInfoTitleSrc}{Meta.permalink}{/externalInfoTitleSrc}
+{<externalText}{Meta.message|s}{/externalText}
+
+{<contentAttrName}
+facebook.com
+{/contentAttrName}
+
+{<externalAvatarSrc}
+//graph.facebook.com/{Meta.from.id}/picture
+{/externalAvatarSrc}

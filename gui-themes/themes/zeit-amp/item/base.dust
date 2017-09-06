@@ -1,0 +1,142 @@
+{>"themeBase/item/base"/}
+
+{! Attention! Opening tag in headerContainer … !}
+{<headerContainer}
+    <div class="liveblog-post">
+        <div class="post-header">
+            {+header}{/header}
+        </div>
+{/headerContainer}
+
+{<contentContainer}
+    <div class="post-content" itemprop="articleBody">
+        {+content}
+
+            {+contentSideContainer}{/contentSideContainer}
+
+            {+contentMainContainer}
+                <div class="post-content-main">
+                    {+contentMainBody}
+                        {+commentBefore}{/commentBefore}
+                        {+contentMainFull}
+                            <div class="post-content-full">
+                                {+contentFull}
+                                    {+contentCoreContainer}
+                                        <div class="post-core-content">
+                                            {+contentCore}
+                                            {/contentCore}
+                                        </div>
+                                    {/contentCoreContainer}
+                                {/contentFull}
+                            </div>
+                        {/contentMainFull}
+                        {+commentAfter}{/commentAfter}
+                    {/contentMainBody}
+                </div>
+            {/contentMainContainer}
+
+        {/content}
+    </div>
+{/contentContainer}
+
+{! … closing tag in footerContainer !}
+{<footerContainer}
+        <div class="post-footer">
+            {+footer}{/footer}
+        </div>
+    </div>
+    {+shareContainer}{/shareContainer}
+{/footerContainer}
+
+{<contentSideContainer}{/contentSideContainer}
+
+{<header}
+    <div class="post-header-meta">
+        {+verificationLabel}{/verificationLabel}
+        {+splitedTimeContainer}{/splitedTimeContainer}
+        {+splitedDateContainer}{/splitedDateContainer}
+    </div>
+    <div class="post-header-user">
+        {+userInfo}
+            {+userNameContainer}{/userNameContainer}
+            {+userAvatar}{/userAvatar}
+        {/userInfo}
+    </div>
+{/header}
+
+{<footer}{/footer}
+
+{<share}
+    {+socialShare}{/socialShare}
+{/share}
+
+{<userNameContainer}
+    {+publisherNameContainer}{/publisherNameContainer}
+{/userNameContainer}
+
+{<publisherNameContainer}
+    <span class="post-publisher-name" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">{+publisherName}{Creator.FullName}{/publisherName}</span>
+    </span>
+{/publisherNameContainer}
+
+{<splitedDateContainer}
+    <time itemprop="datePublished" datetime="{PublishedOn|unix}" class="post-datetime">{PublishedOn|splitted-post-date}</time>
+{/splitedDateContainer}
+
+{<splitedTimeContainer}
+    <span class="post-time">{PublishedOn|splitted-post-time}</span>
+{/splitedTimeContainer}
+
+{<verificationLabel}{/verificationLabel}
+
+{<additionalAttributes}{#Id}id="post-{Id}" {/Id}data-sort-time="{PublishedOn|unix}" itemprop="liveBlogUpdate" itemscope itemtype="http://schema.org/BlogPosting" itemref="publisher"{/additionalAttributes}
+
+{<userAvatar}
+    <div class="post-publisher-avatar">
+        {! {#AuthorImage}{@contextDump key="current" to="console"/}{/AuthorImage} !}
+        {! {#AuthorImage}{@contextDump key="full" to="console"/}{/AuthorImage} !}
+        {?AuthorImage}
+        <amp-img class="post-publisher-avatar-img" src="{AuthorImage.href}" width="42" height="42" layout="fixed"></amp-img>
+        {/AuthorImage}
+    </div>
+{/userAvatar}
+
+{<contentAttr}
+    <div class="attributes">
+        <svg class="source-icon">
+            <use xlink:href="#svg-icon-{+contentAttrIconClass}{+itemClass}{/itemClass}{/contentAttrIconClass}" />
+        </svg>
+        {+contentAttrCode}
+            <span>{+contentAttrName}{Author.Source.Name}{/contentAttrName}</span>
+        {/contentAttrCode}
+    </div>
+{/contentAttr}
+
+{!-- displayed for:
+  > twitter
+  > facebook
+--!}
+{<externalAmpAvatar}
+    <div class="post-external-avatar">
+        <amp-img class="post-external-avatar-img" src="{+externalAvatarSrc}{/externalAvatarSrc}" width="42" height="42" layout="fixed"></amp-img>
+    </div>
+{/externalAmpAvatar}
+
+{!-- displayed for:
+  > image
+  > instagram
+  > google image
+  > flickr
+--!}
+{<extenalAmpImageContainer}
+    <a class="post-external-image-link" href="{+externalImageLink}{/externalImageLink}" target="_blank">
+        <div class="post-external-image">
+            <amp-img alt="{+externalImageAlt}{/externalImageAlt}" class="post-external-image-img" src="{+externalImageSrc}{/externalImageSrc}" {+externalImageSize}{/externalImageSize} layout="responsive"></amp-img>
+        </div>
+    </a>
+{/extenalAmpImageContainer}
+
+{<contentText}
+    <p class="post-text">{Content|s|amp}</p>
+{/contentText}

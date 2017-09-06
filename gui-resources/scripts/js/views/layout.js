@@ -35,6 +35,9 @@ define([
                     liveblog.render[value] = true;
                 });
             }
+            if (_.isString(liveblog.theme) && /amp/g.test(liveblog.theme)) {
+                liveblog.render.embed = false;
+            }
 
             this.setTemplate('layout');
 

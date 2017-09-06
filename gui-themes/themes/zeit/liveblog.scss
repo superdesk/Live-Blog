@@ -1,3 +1,6 @@
+// in plugins/embed/gui-themes/themes
+// $ sass --watch --sourcemap=none --style=compact zeit*/*.scss
+
 @charset "UTF-8";
 
 @import "sass/utils";
@@ -46,7 +49,7 @@ $publisher-avatar-width: em(42px);
 	max-width: $break-desktop-min;
 
 	* {
-		@include box-sizing(border-box);
+		box-sizing: border-box;
 	}
 }
 
@@ -77,6 +80,32 @@ $publisher-avatar-width: em(42px);
 }
 
 .liveblog-content {
+
+	.load-next, .load-previous {
+		background-color: transparent;
+		min-height: 0;
+		padding-bottom: 20px;
+		padding-top: 20px;
+		text-align: center;
+	}
+	.load-more {
+		@include zon-button-light();
+	}
+	.loading-image {
+		min-width: 50px;
+		height: 35px;
+		vertical-align: top;
+		display: none;
+		background: url(img/loading-large.gif) no-repeat 0 0;
+	}
+	.loading {
+		.load-more {
+			display: none;
+		}
+		.loading-image {
+			display: inline-block;
+		}
+	}
 }
 
 .liveblog-content-top-bar {
@@ -131,284 +160,310 @@ $publisher-avatar-width: em(42px);
 
 }
 
-.liveblog-content-middle {
-	max-height: $postlist-maxheight;
-	min-height: $postlist-minheight;
-	overflow: auto;
-	overflow-x: hidden;
-	&.liveblog-scroll {
-		height: 500px;
+@if not $is-amp {
+	.liveblog-content-middle {
+		max-height: $postlist-maxheight;
+		min-height: $postlist-minheight;
+		overflow: auto;
+		overflow-x: hidden;
+		&.liveblog-scroll {
+			height: 500px;
+		}
 	}
 }
 
 .liveblog-postlist {
-	min-height: 800px;
+	@if not $is-amp {
+		min-height: 800px;
+	}
+
+	// separate block styles
+	.post-time,
+	.post-datetime,
+	.post-publisher-name,
+	.post-publisher-avatar {
+		vertical-align: middle;
+	}
+	.post-time {
+		color: $white;
+		background-color: $trout;
+		border-radius: 4px;
+		display: inline-block;
+		font-size: em(13px);
+		margin-left: (10 + 1 + 20) * -1px;;
+		margin-right: 10px;
+		width: 90px;
+		padding: 4px 0 2px;
+		text-align: center;
+		text-transform: uppercase;
+		// cheap trick
+		white-space: nowrap;
+		overflow: hidden;
+
+		@include respond-min($break-tablet-min) {
+			margin-left: (10 + 1 + 32) * -1px;
+		}
+
+		@include respond-min($break-desktop-min) {
+			margin-left: (45 + 32) * -1px;
+		}
+	}
+	.post-datetime {
+	}
+	.post-publisher-name {
+		display: block;
+		font-weight: bold;
+		margin-top: 1em;
+	}
+	.post-buttons {
+		position: absolute;
+		right: 0;
+		bottom: em(5px);
+
+		@include respond-min($break-phablet-min) {
+			bottom: em(15px);
+		}
+		@include respond-min($break-tablet-min) {
+			display: none;
+		}
+	}
+	.sf-share {
+		@if not $is-amp {
+			background: transparent url("img/sharing_b.png") no-repeat scroll 12px 12px / 20px auto;
+		}
+		color: inherit;
+		float: right;
+		font-size: em(14px);
+		line-height: 2;
+		overflow: hidden;
+		padding: 5px 0 5px 47px;
+		width: 47px;
+
+		// @include respond-min($break-phablet-min) {
+		// 	padding-left: 40px;
+		// 	padding-right: 20px;
+		// 	width: auto;
+		// }
+	}
+	.share-box {
+		color: $zon_grey;
+		float: right;
+		padding: 9px 0 0 10px;
+
+		span {
+			float: left;
+			font-size: em(14px);
+
+			&:before {
+				content: "/";
+				margin: 0 .45em;
+			}
+			&:first-child:before {
+				content: none;
+				display: none;
+			}
+		}
+
+		.social {
+			font-weight: bold;
+			display: inline-block;
+			border-bottom: 1px solid transparent;
+
+			@include hover() {
+				border-bottom: 1px solid currentColor;
+			}
+		}
+
+		.facebook { color: $color-facebook; }
+		.twitter { color: $color-twitter; }
+		.whatsapp { color: $color-whatsapp; }
+		.linkedin { color: $color-linkedin; }
+		.pinterest { color: $color-pinterest; }
+		.google { color: $color-google; }
+		.email { color: $color-email; }
+	}
+
+	.post-comment {
+		&.comment-before {
+			padding-bottom: .6em;
+		}
+		&.comment-after {
+			padding-top: .6em;
+		}
+	}
+	.post-content-full {
+	}
+
+	.post-publisher-avatar {
+		background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0;
+		border-radius: 50%;
+		margin-left: 1em;
+		width: $publisher-avatar-width;
+		height: $publisher-avatar-width;
+		overflow: hidden;
+		display: none;
+	}
+	.post-publisher-avatar-img {
+		width: $publisher-avatar-width;
+		height: $publisher-avatar-width;
+		background-size: cover;
+		border-radius: 50%;
+		display: block;
+	}
+
+	// end of separate block styles
+	.post-header {
+		@include clearfix();
+		color: $zon_grey;
+		letter-spacing: $zon-letter-spacing-s;
+		margin-bottom: em(20px);
+		position: relative;
+		z-index: 2;
+	}
+	@include respond-min($break-phablet-min) {
+		.post-header-meta {
+			float: left;
+		}
+		.post-header-user {
+			float: right;
+		}
+		.post-datetime {
+			line-height: $publisher-avatar-width;
+		}
+		.post-publisher-name {
+			display: inline;
+		}
+		.post-publisher-avatar {
+			display: inline-block;
+		}
+	}
+	.post-content {
+		@include clearfix();
+		@include default-article-textlink();
+
+		// basic content font style
+		font-family: $font-franziska;
+		font-size: em(18px);
+		line-height: 1.4;
+
+		@include respond-min($break-tablet-min) {
+			line-height: 1.5;
+		}
+
+		@include respond-min($break-desktop-min) {
+			font-size: em(20px);
+		}
+	}
+	.post-core-content {
+		img {
+			max-width: 100%;
+		}
+		h5 {
+			color: $zon-charcoal;
+			font-size: 1em;
+			letter-spacing: $zon-letter-spacing-s;
+			margin-bottom: .5em;
+		}
+	}
+	.post-external-image {
+		max-width: 100%;
+		overflow: hidden;
+		margin-bottom: 5px;
+	}
+	.post-external-avatar {
+		width: 42px;
+		height: 42px;
+		overflow: hidden;
+		margin-left: -50px;
+		float: left;
+	}
+	.post-external-avatar-img {
+		width: 42px;
+		height: 42px;
+	}
+
+	.attributes {
+		margin-top: .5em;
+		.source-icon {
+			width: 16px;
+			height: 16px;
+			display: inline-block;
+			margin-right: 8px;
+		}
+		span,
+		.source-link {
+			border: none;
+			font-size: em(11px);
+			letter-spacing: $zon-letter-spacing-s;
+			height: 16px;
+			line-height: 16px;
+			text-transform: uppercase;
+		}
+		span,
+		.source-link,
+		.source-icon {
+			vertical-align: text-bottom;
+		}
+	}
+	.twitter-controls {
+		float: right;
+		margin-top: 8px;
+		@if not $is-amp {
+			display: none;
+		}
+	}
+	.twitter-button {
+		color: $zon_dark_grey;
+
+		@if not $is-amp {
+			float: right;
+			font-size: 0.75em;
+			line-height: 100%;
+			margin-right: 14px;
+			padding-left: 18px;
+			text-decoration: none;
+
+			&.reply {
+				background: url("img/reply.png") no-repeat 0 0;
+			}
+			&.retweet {
+				background: url("img/retweet.png") no-repeat 0 1px;
+			}
+			&.favorites {
+				background: url("img/favorites.png") no-repeat 0 0;
+			}
+		} @else {
+			margin-right: 10px;
+			height: 10px;
+			width: 15px;
+		}
+	}
 
 	li {
 		position: relative;
 		background-color: $zon_lighter_grey;
 		margin: 0 0 em(10px);
 		padding: 0 0 0 em(20px);
+		width: 100%;
+		max-width: none; // fix collision with ZON styles
 
 		@include respond-min($break-tablet-min) {
 			margin-bottom: em(20px);
 			padding-left: 0;
 		}
 
-		// separate block styles
-		.post-time,
-		.post-datetime,
-		.post-publisher-name,
-		.post-publisher-avatar {
-			vertical-align: middle;
-		}
-		.post-time {
-			color: $white;
-			@include hover() {
-				color: $trout;
-			}
-			background-color: $trout;
-			border-radius: 4px;
-			display: inline-block;
-			font-size: em(13px);
-			margin-left: (10 + 1 + 20) * -1px;;
-			margin-right: 10px;
-			width: 90px;
-			padding: 4px 0 2px;
-			text-align: center;
-			text-transform: uppercase;
-			// cheap trick
-			white-space: nowrap;
-			overflow: hidden;
-
-			@include respond-min($break-tablet-min) {
-				margin-left: (10 + 1 + 32) * -1px;
-			}
-
-			@include respond-min($break-desktop-min) {
-				margin-left: (45 + 32) * -1px;
-			}
-
-			&:hover {
-				background-color: $white;
-				border-left-color: $white;
-			}
-		}
-		.post-datetime {
-		}
-		.post-publisher-name {
-			display: block;
-			font-weight: bold;
-			margin-top: 1em;
-		}
-		.post-buttons {
-			position: absolute;
-			right: 0;
-			bottom: em(5px);
-
-			@include respond-min($break-phablet-min) {
-				bottom: em(15px);
-			}
-			@include respond-min($break-tablet-min) {
-				display: none;
-			}
-		}
 		&:hover {
 			.post-buttons {
 				display: block;
 			}
 		}
-		.sf-share {
-			font-size: em(14px);
-			line-height: 2;
-			color: inherit;
-			background: transparent url("img/sharing_b.png") no-repeat scroll 12px 12px / 20px auto;
-			padding: 5px 0 5px 48px;
-			float: right;
-			overflow: hidden;
-			width: 48px;
-
-			@include respond-min($break-phablet-min) {
-				padding-left: 40px;
-				padding-right: 20px;
-				width: auto;
-			}
-		}
-		.share-box {
-			color: $zon_grey;
-			float: right;
-			padding: 9px 20px 0 10px;
-
-			// fix funky plugin behaviour
-			display: none;
-			&:last-child {
-				display: block;
-			}
-
-			span {
-				float: left;
-				font-size: em(14px);
-
-				&:before {
-					content: "/";
-					margin: 0 .75em;
-				}
-				&:first-child:before {
-					content: none;
-					display: none;
-				}
-			}
-
-			.social {
-				font-weight: bold;
-				display: inline-block;
-				border-bottom: 1px solid transparent;
-
-				@include hover() {
-					border-bottom: 1px solid currentColor;
-				}
-			}
-
-			.facebook { color: $color-facebook; }
-			.twitter { color: $color-twitter; }
-			.linkedin { color: $color-linkedin; }
-			.pinterest { color: $color-pinterest; }
-			.google { color: $color-google; }
-			.email { color: $color-email; }
-		}
-
-		.verification-label {
-			width: 16px;
-			height: 16px;
-			display: none;
-			float: left;
-			margin-right: 10px;
-		}
-		&.post-verified .verification-label {
-			display: block;
-			background: url(img/icon_verified.png) no-repeat 0 0;
-		}
-		&.post-unverified .verification-label {
-			display: block;
-			background: url(img/icon_unverified.png) no-repeat 0 0;
-		}
-		.post-comment {
-			&.comment-before {
-				padding-bottom: .6em;
-			}
-			&.comment-after {
-				padding-top: .6em;
-			}
-		}
-		.post-content-full {
-		}
-
-		.post-publisher-avatar {
-			background: url(img/default-liveblog-avatar_48.png) no-repeat 0 0;
-			border-radius: 50%;
-			margin-left: 1em;
-			width: $publisher-avatar-width;
-			height: $publisher-avatar-width;
-			display: none;
-		}
-		.post-publisher-avatar-img {
-			width: $publisher-avatar-width;
-			height: $publisher-avatar-width;
-			background-size: cover;
-			border-radius: 50%;
-			display: block;
-		}
-
-		// end of separate block styles
-		.post-header {
-			@include clearfix();
-			color: $zon_grey;
-			letter-spacing: $zon-letter-spacing-s;
-			margin-bottom: em(20px);
-			position: relative;
-			z-index: 2;
-		}
-		@include respond-min($break-phablet-min) {
-			.post-header-meta {
-				float: left;
-			}
-			.post-header-user {
-				float: right;
-			}
-			.post-datetime {
-				line-height: $publisher-avatar-width;
-			}
-			.post-publisher-name {
-				display: inline;
-			}
-			.post-publisher-avatar {
-				display: inline-block;
-			}
-		}
-		.post-content {
-			@include clearfix();
-			@include default-article-textlink();
-
-			// basic content font style
-			font-family: $font-franziska;
-			font-size: em(18px);
-			line-height: 1.4;
-
-			@include respond-min($break-tablet-min) {
-				line-height: 1.5;
-			}
-
-			@include respond-min($break-desktop-min) {
-				font-size: em(20px);
-			}
-		}
-		.post-content-main {
-		}
-		.post-footer {
-		}
-
-		.attributes {
-			margin-top: .5em;
-			.source-icon {
-				width: 16px;
-				height: 16px;
-				display: inline-block;
-				margin-right: 8px;
-			}
-			span,
-			.source-link {
-				border: none;
-				font-size: em(11px);
-				letter-spacing: $zon-letter-spacing-s;
-				height: 16px;
-				line-height: 16px;
-				text-transform: uppercase;
-			}
-			span,
-			.source-link,
-			.source-icon {
-				vertical-align: text-bottom;
-			}
-		}
 
 		// post specific styles
 		&.normal {
-			.post-core-content {
-				.post-text {
-					img {
-						max-width: 100%;
-						height: auto;
-						width: auto;
-					}
-				}
-			}
-		}
-		&.image {
-			.post-core-content {
-				.post-external {
-					img {
-						max-width: 100%;
-					}
+			.post-text {
+				img {
+					height: auto;
+					width: auto;
 				}
 			}
 		}
@@ -423,31 +478,9 @@ $publisher-avatar-width: em(42px);
 				font-size: rem(16px);
 			}
 		}
-
-		&.twitter, &.facebook, &.google, &.youtube {
-			.post-core-content {
-				h5 {
-					color: $zon-charcoal;
-					font-size: 1em;
-					letter-spacing: $zon-letter-spacing-s;
-					margin-bottom: .5em;
-				}
-			}
-		}
 		&.twitter, &.facebook {
 			.post-external {
 				padding-left: 50px;
-				.post-external-avatar {
-					width: 42px;
-					height: 42px;
-					overflow: hidden;
-					margin-left: -50px;
-					float: left;
-					.post-external-avatar-img {
-						width: 42px;
-						height: 42px;
-					}
-				}
 			}
 			.attributes {
 				margin-left: 50px;
@@ -467,48 +500,17 @@ $publisher-avatar-width: em(42px);
 					color: $color-twitter;
 					border: none;
 				}
-				.twitter-controls {
-					float: right;
-					margin-top: 8px;
-					display: none;
-				}
-				.twitter-button {
-					font-size: 0.75em;
-					line-height: 100%;
-					text-decoration: none;
-					padding-left: 18px;
-					margin-right: 14px;
-					float: right;
-					color: $zon_dark_grey;
-					&.reply {
-						background: url(img/reply.png) no-repeat 0 0;
-					}
-					&.retweet {
-						background: url(img/retweet.png) no-repeat 0 1px;
-					}
-					&.favorites {
-						background: url(img/favorites.png) no-repeat 0 0;
-					}
-				}
-				.attributes {
-					height: 18px;
-					float: left;
-				}
+			}
+			.attributes {
+				height: 18px;
+				float: left;
 			}
 			&:hover {
 				.twitter-controls {
-					display: block;
+					@if not $is-amp {
+						display: block;
+					}
 				}
-			}
-		}
-		&.instagram, &.flickr, &.googleimage {
-			.post-external-image {
-				max-width: 100%;
-				overflow: hidden;
-				margin-bottom: 5px;
-			}
-			.post-external-image-img {
-				max-width: 100%;
 			}
 		}
 		&.youtube {
@@ -554,7 +556,7 @@ $publisher-avatar-width: em(42px);
 		}
 		&.wrapup,
 		&.advertisement {
-			.post-header, .post-footer {
+			.post-header {
 				display: none;
 			}
 			.liveblog-post:before {
@@ -578,9 +580,6 @@ $publisher-avatar-width: em(42px);
 			.post-time {
 				color: $zon_dark_grey;
 				background-color: $white;
-				@include hover() {
-					color: $live-blog-highlight;
-				}
 			}
 			.post-content {
 				text-align: center;
@@ -606,7 +605,9 @@ $publisher-avatar-width: em(42px);
 				}
 			}
 			.sf-share {
-				background-image: url("img/sharing_w.png");
+				@if not $is-amp {
+					background-image: url("img/sharing_w.png");
+				}
 			}
 			.share-box {
 				color: inherit;
@@ -627,15 +628,6 @@ $publisher-avatar-width: em(42px);
 				}
 			}
 		}
-		&.usercomments {
-			.post-publisher-avatar {
-				background: url(img/comment-icon.png) no-repeat 0 0;
-				border-color: #fff;
-			}
-			.post-publisher-avatar-img {
-				display: none;
-			}
-		}
 		&.quote {
 			.post-core-content {
 				padding-left: 45px;
@@ -648,61 +640,50 @@ $publisher-avatar-width: em(42px);
 				a {
 					border: none;
 				}
-				img {
-					max-width: 100%
-				}
 			}
 			.link-title {
 				padding: .5em 0;
 			}
 		}
 
-		&.load-next, &.load-previous {
-			background-color: transparent;
-			min-height: 0;
-			padding-bottom: 20px;
-			padding-top: 20px;
-			text-align: center;
-		}
-		.load-more {
-			@include zon-button-light();
-		}
-		.loading-image {
-			min-width: 50px;
-			height: 35px;
-			vertical-align: top;
-			display: none;
-			background: url(img/loading-large.gif) no-repeat 0 0;
-		}
-		&.loading {
-			.load-more {
-				display: none;
+		@if not $is-amp {
+			&.twitter {
+				.source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0; }
 			}
-			.loading-image {
-				display: inline-block;
+			&.facebook {
+				.source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0; }
 			}
-		}
-
-		&.twitter {
-			.source-icon { background: #fff url(img/tw-16px.png) no-repeat 0 0;}
-		}
-		&.facebook {
-			.source-icon { background: #fff url(img/facebook-16px.png) no-repeat 0 0;}
-		}
-		&.google {
-			.source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0;}
-		}
-		&.instagram {
-			.source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0;}
-		}
-		&.flickr {
-			.source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0;}
-		}
-		&.youtube {
-			.source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0;}
-		}
-		&.soundcloud {
-			.source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0;}
+			&.google {
+				.source-icon { background: #fff url(img/google-16px.png) no-repeat 0 0; }
+			}
+			&.instagram {
+				.source-icon { background: #fff url(img/instagram-16px.png) no-repeat 0 0; }
+			}
+			&.flickr {
+				.source-icon { background: #fff url(img/flickr-16px.png) no-repeat 0 0; }
+			}
+			&.youtube {
+				.source-icon { background: #fff url(img/youtube-16px.png) no-repeat 0 0; }
+			}
+			&.soundcloud {
+				.source-icon { background: #fff url(img/soundcloud-16px.png) no-repeat 0 0; }
+			}
+		} @else {
+			&.twitter {
+				.source-icon { color: #1da1f2; }
+			}
+			&.facebook {
+				.source-icon { background: #3c5a99; border-radius: 2px; color: #fff; }
+			}
+			&.google {
+				.source-icon { color: #4285f4; }
+			}
+			&.youtube {
+				.source-icon { background: #cd201f; border-radius: 2px; color: #fff; }
+			}
+			&.soundcloud {
+				.source-icon { background: #ff5500; border-radius: 2px; color: #fff; }
+			}
 		}
 
 		.attributes,
@@ -711,15 +692,23 @@ $publisher-avatar-width: em(42px);
 			font-family: $font-tabletgothic;
 		}
 
-		// only valid for button pagination
-		&:nth-last-child(0n+2) {
-			.liveblog-post:after {
-				content: none;
-				// height: calc(100% - 56px);
+		@if not $is-amp {
+			// only valid for button pagination
+			&:nth-last-child(0n+2) {
+				.liveblog-post:after {
+					content: none;
+					// height: calc(100% - 56px);
 
-				// @include respond-min($break-phablet-min) {
-				// 	height: calc(100% - 96px);
-				// }
+					// @include respond-min($break-phablet-min) {
+					// 	height: calc(100% - 96px);
+					// }
+				}
+			}
+		} @else {
+			&:last-child {
+				.liveblog-post:after {
+					content: none;
+				}
 			}
 		}
 	}
@@ -761,4 +750,10 @@ $publisher-avatar-width: em(42px);
 			height: calc(100% - 26px);
 		}
 	}
+}
+
+@include respond-min($break-tablet-min) {
+    .liveblog-postlist .whatsapp-wrap {
+        display: none;
+    }
 }
